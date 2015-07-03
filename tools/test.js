@@ -8,12 +8,13 @@
 var path = require('path');
 var fs = require('fs');
 var RapydScript = require('./compiler');
+var colored = require('./utils').safe_colored;
 
 module.exports = function(argv, base_path, src_path, lib_path) {
     // run all tests and exit
     var assert = require("assert");
     var os = require('os');
-    var all_ok = true;
+    var failures = [];
     var vm = require('vm');
     var test_dir = path.join(base_path, 'test');
 	var baselib = RapydScript.parse_baselib(src_path, true);
@@ -39,9 +40,9 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             });
         } catch(e) {
             if (e.stack) 
-                console.log(file + ":\n" + e.stack + "\n\n");
+                console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
              else 
-                console.log(file + ": " + e + "\n\n");
+                console.log(colored(file, 'red') + ": " + e + "\n\n");
             return;
         }
         // generate output
@@ -69,13 +70,16 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         } catch (e) {
             ok = false;
             if (e.stack) 
-                console.log(file + ":\n" + e.stack + "\n\n");
+                console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
              else 
-                console.log(file + ": " + e + "\n\n");
+                console.log(colored(file, 'red') + ": " + e + "\n\n");
         }
-		if (ok) console.log(file + ": test completed successfully\n");
-        else { all_ok = false; console.log(file + ":\ttest failed\n"); }
+		if (ok) console.log(colored(file, 'green') + ": test completed successfully\n");
+        else { failures.push(file); console.log(colored(file, 'red') + ":\ttest failed\n"); }
     });
-    if (!all_ok) console.log('There were some test failures!!');
-    process.exit((all_ok) ? 0 : 1);
+    if (failures.length) {
+        console.log(colored('There were ' + failures.length + ' test failure(s):', 'red'));
+        console.log.apply(console, failures);
+    } else console.log(colored('All tests passed!', 'green'));
+    process.exit((failures.length) ? 1 : 0);
 };
