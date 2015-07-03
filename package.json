@@ -10,8 +10,8 @@
   ],
   "main": "tools/compiler.js",
   "scripts": {
-	  "test": "bin/rapydscript --test",
-	  "build-self": "bin/rapydscript --self"
+	  "test": "bin/rapydscript test",
+	  "build-self": "bin/rapydscript self"
   },
   "version": "0.3.4",
   "license": "BSD-2-Clause",
