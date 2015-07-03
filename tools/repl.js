@@ -12,7 +12,7 @@ var path = require('path');
 var vm = require('vm');
 var readline = require('readline');
 var util = require('util');
-var colored = require('./utils').colored;
+var colored = require('./utils').safe_colored;
 var RapydScript = require('./compiler');
 
 function create_ctx(baselib, show_js, console) {
