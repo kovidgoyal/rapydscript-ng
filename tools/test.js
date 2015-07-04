@@ -41,9 +41,9 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         } catch(e) {
             failures.push(file);
             if (e.stack) 
-                console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
+                console.log(colored(file, 'red') + ": Parsing failed\n" + e.stack + "\n\n");
              else 
-                console.log(colored(file, 'red') + ": " + e + "\n\n");
+                console.log(colored(file, 'red') + ": Parsing failed: " + e + "\n\n");
             return;
         }
         // generate output
