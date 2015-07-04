@@ -190,7 +190,7 @@ def set_intersection(a, b):
         return b.indexOf(el) >= 0
     )
 
-def makePredicate(words):
+def make_predicate(words):
     if not Array.isArray(words):
         words = words.split(" ")
     if type(Set) == 'function':

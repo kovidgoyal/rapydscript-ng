@@ -123,7 +123,7 @@ def OutputStream(options):
             print_("\n")
 
 
-    requireSemicolonChars = makePredicate("( [ + * / - , .")
+    requireSemicolonChars = make_predicate("( [ + * / - , .")
     def print_(str_):
         nonlocal might_need_space, might_need_semicolon, last, current_line, current_pos, current_col, OUTPUT
         str_ = JS("String(str_)")

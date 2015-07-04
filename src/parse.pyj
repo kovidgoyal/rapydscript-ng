@@ -22,10 +22,10 @@ KEYWORDS_BEFORE_EXPRESSION = "return new del raise elif else if"
 
 ALL_KEYWORDS = RESERVED_WORDS + " " + KEYWORDS_BEFORE_EXPRESSION
 
-KEYWORDS = makePredicate(KEYWORDS)
-RESERVED_WORDS = makePredicate(RESERVED_WORDS)
-KEYWORDS_BEFORE_EXPRESSION = makePredicate(KEYWORDS_BEFORE_EXPRESSION)
-KEYWORDS_ATOM = makePredicate(KEYWORDS_ATOM)
+KEYWORDS = make_predicate(KEYWORDS)
+RESERVED_WORDS = make_predicate(RESERVED_WORDS)
+KEYWORDS_BEFORE_EXPRESSION = make_predicate(KEYWORDS_BEFORE_EXPRESSION)
+KEYWORDS_ATOM = make_predicate(KEYWORDS_ATOM)
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -67,13 +67,13 @@ NATIVE_CLASSES = {
 }
 COMMON_STATIC = [ "call", "apply", "bind", "toString" ]
 
-OPERATOR_CHARS = makePredicate(characters("+-*&%=<>!?|~^@"))
+OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"))
 
 RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
 RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i
 
-OPERATORS = makePredicate([
+OPERATORS = make_predicate([
     "in",
     "instanceof",
     "typeof",
@@ -136,13 +136,13 @@ OP_MAP = {
     '!=': "!=="
 }
 
-WHITESPACE_CHARS = makePredicate(characters(" \u00a0\n\r\t\f\u000b\u200b\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000"));
+WHITESPACE_CHARS = make_predicate(characters(" \u00a0\n\r\t\f\u000b\u200b\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000"));
 
-PUNC_BEFORE_EXPRESSION = makePredicate(characters("[{(,.;:"))
+PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"))
 
-PUNC_CHARS = makePredicate(characters("[]{}(),;:"))
+PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
 
-REGEXP_MODIFIERS = makePredicate(characters("gmsiy"))
+REGEXP_MODIFIERS = make_predicate(characters("gmsiy"))
 
 # -----[ Tokenizer ]-----
 # regexps adapted from http://xregexp.com/plugins/#unicode
@@ -713,7 +713,7 @@ def tokenizer($TEXT, filename):  # {{{
 # }}}
 
 # -----[ Parser (constants) ]-----
-UNARY_PREFIX = makePredicate([
+UNARY_PREFIX = make_predicate([
     "typeof",
     "void",
     "delete",
@@ -726,9 +726,9 @@ UNARY_PREFIX = makePredicate([
     "@"
 ])
 
-UNARY_POSTFIX = makePredicate([ "--", "++" ])
+UNARY_POSTFIX = make_predicate([ "--", "++" ])
 
-ASSIGNMENT = makePredicate([ "=", "+=", "-=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
+ASSIGNMENT = make_predicate([ "=", "+=", "-=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
 
 PRECEDENCE = def(a, ret):
     for i in range(a.length):
