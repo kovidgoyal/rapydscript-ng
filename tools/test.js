@@ -18,7 +18,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var vm = require('vm');
     var test_dir = path.join(base_path, 'test');
 	var baselib = RapydScript.parse_baselib(src_path, true);
-    var files, ok;
+    var files;
 
     if (argv.files.length) {
         files = [];
@@ -39,6 +39,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 libdir: path.join(src_path, 'lib'),
             });
         } catch(e) {
+            failures.push(file);
             if (e.stack) 
                 console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
              else 
@@ -55,7 +56,6 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         // test that output performs correct JS operations
         var jsfile = path.join(os.tmpdir(), file + '.js');
         var code = output.toString();
-        fs.writeFileSync(jsfile, code);
         try {
             vm.runInNewContext(code, {
                 'assert':require('assert'), 
@@ -65,16 +65,14 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 'console':console,
                 'base_path': base_path
             }, {'filename':jsfile});
-            fs.unlinkSync(jsfile);
-            ok = true;
         } catch (e) {
-            ok = false;
+            fs.writeFileSync(jsfile, code);
             if (e.stack) 
                 console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
              else 
                 console.log(colored(file, 'red') + ": " + e + "\n\n");
         }
-		if (ok) console.log(colored(file, 'green') + ": test completed successfully\n");
+		if (!failures.length) console.log(colored(file, 'green') + ": test completed successfully\n");
         else { failures.push(file); console.log(colored(file, 'red') + ":\ttest failed\n"); }
     });
     if (failures.length) {
