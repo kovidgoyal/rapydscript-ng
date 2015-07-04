@@ -382,7 +382,7 @@ def tokenizer($TEXT, filename):  # {{{
         has_x = False
         has_dot = prefix == "."
         num = read_while(def(ch, i):
-            nonlocal after_e
+            nonlocal after_e, has_dot, has_e, has_x
             code = ch.charCodeAt(0)
             tmp_ = code
             if tmp_ == 120 or tmp_ == 88:
@@ -450,6 +450,16 @@ def tokenizer($TEXT, filename):  # {{{
                 parse_error("Invalid hex-character pattern in string")
             num = num << 4 | digit
         return num
+
+    def with_eof_error(eof_error, cont):
+        return def(x):
+            try:
+                return cont(x)
+            except as ex:
+                if ex is EX_EOF:
+                    parse_error(eof_error, true)
+                else:
+                    raise
 
     read_string = with_eof_error("Unterminated string constant", def():
         quote = next()
@@ -536,24 +546,6 @@ def tokenizer($TEXT, filename):  # {{{
 
         return token(shebang ? "shebang" : "comment1", ret, True)
 
-    read_multiline_comment = with_eof_error("Unterminated multiline comment", def():
-        next()
-        i = find("*/", True)
-        text = S.text.substring(S.pos, i)
-        a = text.split("\n")
-        n = a.length
-        # update stream position
-        S.pos = i + 2
-        S.line += n - 1
-        if n > 1:
-            S.col = a[n - 1].length
-        else:
-            S.col += a[n - 1].length
-        S.col += 2
-        S.newline_before = S.newline_before or text.indexOf("\n") >= 0
-        return token("comment2", text, True)
-    )
-
     def read_name():
         backslash = False
         name = ""
@@ -638,23 +630,13 @@ def tokenizer($TEXT, filename):  # {{{
         word = read_name()
         return (KEYWORDS_ATOM(word) ? token("atom", word) : (not KEYWORDS(word) ? token("name", word) : (OPERATORS(word) and prevChar() != "." ? token("operator", word) : token("keyword", word))))
 
-    def with_eof_error(eof_error, cont):
-        return def(x):
-            try:
-                return cont(x)
-            except as ex:
-                if ex is EX_EOF:
-                    parse_error(eof_error, true)
-                else:
-                    raise
-
     def next_token(force_regexp):
         if force_regexp not in (None, undefined):
             return read_regexp(force_regexp)
 
         indent = parse_whitespace()
         #        if (indent == 1)
-        #            return token("punc", "{");
+        #            return token("punc", "{")
         if indent == -1:
             return token("punc", "}", False, True)
 
@@ -792,13 +774,6 @@ def parse($TEXT, options):
             obj = options.classes[cname]
             S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound }
 
-    S.token = next()
-    def is_(type, value):
-        return is_token(S.token, type, value)
-
-    def peek():
-        return S.peeked or (S.peeked = S.input())
-
     def next():
         S.prev = S.token
         if S.peeked:
@@ -809,6 +784,14 @@ def parse($TEXT, options):
 
         S.in_directives = S.in_directives and (S.token.type == "string" or is_("punc", ";"))
         return S.token
+
+    S.token = next()
+
+    def is_(type, value):
+        return is_token(S.token, type, value)
+
+    def peek():
+        return S.peeked or (S.peeked = S.input())
 
     def prev():
         return S.prev
@@ -1234,7 +1217,7 @@ def parse($TEXT, options):
         })
 
     def for_(list_comp):
-        #        expect("(");
+        #        expect("(")
         init = None
         if not is_("punc", ";"):
             init = expression(True, True)
@@ -1265,7 +1248,7 @@ def parse($TEXT, options):
         lhs = (isinstance(init, AST_Var) ? init.definitions[0].name : None)
         obj = expression(True)
         baselib_items["iterable"] = True
-        #        expect(")");
+        #        expect(")")
         if list_comp:
             return {
                 init: init,
@@ -1403,7 +1386,7 @@ def parse($TEXT, options):
             if not from_import and is_('keyword', 'as'):
                 next()
                 alias = as_symbol(AST_SymbolAlias)
-            imp = new AST_Import({
+            aimp = new AST_Import({
                 'module': name,
                 'key': key,
                 'alias': alias,
@@ -1411,8 +1394,8 @@ def parse($TEXT, options):
                 'body':def():
                     return IMPORTED[key]
             })
-            imp.start, imp.end = tok.start, last_tok.end
-            ans.imports.push(imp)
+            aimp.start, aimp.end = tok.start, last_tok.end
+            ans.imports.push(aimp)
             if from_import:
                 break
             if is_('punc', ','):
@@ -2455,9 +2438,18 @@ def parse($TEXT, options):
         # around it to allow for tuple packing/unpacking
         start = S.token
         expr = maybe_assign(no_in)
+        def build_seq(a):
+            if a.length == 1:
+                return a[0]
+
+            return new AST_Seq({
+                start: start,
+                car: a.shift(),
+                cdr: build_seq(a),
+                end: peek()
+            })
         if commas:
             left = [ expr ]
-            right = []
             while is_("punc", ",") and not peek().nlb:
                 next()
                 if isinstance(expr, AST_Assign):
@@ -2491,17 +2483,7 @@ def parse($TEXT, options):
                     end: peek()
                 })
 
-            return def build_seq(a):
-                if a.length == 1:
-                    return a[0]
-
-                return new AST_Seq({
-                    start: start,
-                    car: a.shift(),
-                    cdr: build_seq(a),
-                    end: peek()
-                })
-            .call(this, left)
+            return build_seq.call(this, left)
         return expr
 
     def in_loop(cont):
