@@ -439,15 +439,6 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         )
 }, AST_Scope)
 
-AST_Module = DEFNODE("Module", "name external decorators", {
-    $documentation: "A module definition, meant to abstract a group of related classes and/or functions",
-    $propdoc: {
-        name: "[AST_SymbolDeclaration?] the name of this class",
-        external: "[boolean] true if module is declared elsewhere, but will be within current scope at runtime",
-        decorators: "[AST_Decorator*] module decorators, if any"
-    }
-}, AST_Scope)
-
 AST_Method = DEFNODE("Defun", "static", {
     $documentation: "A class method definition",
     $propdoc: {
