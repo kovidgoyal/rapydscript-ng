@@ -668,7 +668,7 @@ AST_ClassCall = DEFNODE("ClassCall", "class method static", {
     _walk: def(visitor):
         node = this
         return visitor._visit(node, def():
-            node.expression._walk(visitor)
+            if (node.expression) node.expression._walk(visitor)
             node.args.forEach(def(arg):
                 arg._walk(visitor)
             )

@@ -136,7 +136,7 @@ OP_MAP = {
     '!=': "!=="
 }
 
-WHITESPACE_CHARS = make_predicate(characters(" \u00a0\n\r\t\f\u000b\u200b\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000"));
+WHITESPACE_CHARS = make_predicate(characters(" \u00a0\n\r\t\f\u000b\u200b\u180e\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u202f\u205f\u3000"))
 
 PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"))
 
