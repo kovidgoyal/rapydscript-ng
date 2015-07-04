@@ -22,3 +22,7 @@ else:
     false_var = 'false'
 
 GLOBAL_SYMBOL = 'i am global'
+
+from two.other import other
+
+test_other = other

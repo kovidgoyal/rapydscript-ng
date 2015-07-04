@@ -751,6 +751,7 @@ def parse($TEXT, options):
     })
     module_id = options.module_id
     baselib_items = {}
+    imported_module_ids = []
     IMPORTED = options.IMPORTED or {}
     IMPORTING = options.IMPORTING or {}
     IMPORTING[module_id] = True
@@ -1352,6 +1353,8 @@ def parse($TEXT, options):
 
         srchash = sha1sum(src_code)
         if cached and cached['version'] == COMPILER_VERSION and cached['signature'] == srchash:
+            for ikey in cached.imported_module_ids:
+                do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             IMPORTED[key] = {is_cached:True, classes:cached['classes'], outputs:cached['outputs'], module_id:key,
                              submodules:[], nonlocalvars:cached['nonlocalvars'], baselib:cached['baselib']}
         else:
@@ -1371,6 +1374,7 @@ def parse($TEXT, options):
 
         for bitem in Object.keys(IMPORTED[key].baselib):
             baselib_items[bitem] = True
+        imported_module_ids.push(key)
 
 
     import_ = def(from_import):
@@ -2537,6 +2541,7 @@ def parse($TEXT, options):
         toplevel.exports = toplevel.localvars.concat(callables).filter(uniq)
         toplevel.filename = options.filename
         toplevel.submodules = []
+        toplevel.imported_module_ids = imported_module_ids
         toplevel.classes = scan_for_classes(toplevel.body)
         toplevel.import_order = Object.keys(IMPORTED).length
         toplevel.module_id = module_id

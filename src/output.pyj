@@ -921,7 +921,7 @@ def reset_index_counter():
                     output_module(output)
                     declare_submodules(self.module_id, self.submodules, output)
                     if self.srchash and self.filename:
-                        cached = {version:COMPILER_VERSION, 'signature':self.srchash, classes: {}, baselib:self.baselib, nonlocalvars:self.nonlocalvars, outputs:{}}
+                        cached = {version:COMPILER_VERSION, 'signature':self.srchash, classes: {}, baselib:self.baselib, nonlocalvars:self.nonlocalvars, outputs:{}, imported_module_ids:self.imported_module_ids}
                         for cname in Object.keys(self.classes):
                             cobj = self.classes[cname]
                             cached.classes[cname] = {name:{name:cobj.name.name}, 'static':cobj.static, 'bound':cobj.bound}

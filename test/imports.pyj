@@ -1,4 +1,4 @@
-from one import toplevel_var, toplevel_func as tf, TopLevel, true_var, false_var
+from one import toplevel_var, toplevel_func as tf, TopLevel, true_var, false_var, test_other
 from two import (toplevel_var2,
                  toplevel_func2, TopLevel2 as TL2)
 
@@ -12,6 +12,7 @@ eq(tf('x'), 'xtoplevel')
 eq(toplevel_var2, 'foo2')
 eq(toplevel_func2('x'), 'xtoplevel2')
 eq(false_var, undefined)
+eq(test_other, 'other')
 
 # Test import of top-level vars in a conditional
 eq('true', true_var)
