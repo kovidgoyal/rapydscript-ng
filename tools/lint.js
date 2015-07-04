@@ -432,7 +432,8 @@ function cli_report(r) {
     function push(x, color) {
         parts.push((x === undefined) ? '' : colored(x.toString(), color));
     }
-    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red'); push(r.ident); push(r.start_line, 'green'); push(r.start_col);
+    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red'); push(r.ident); 
+    push(r.start_line, 'green'); push((r.start_col === undefined) ? '' : r.start_col + 1);
     console.log(parts.join(':') + ':' + r.message + '\n');
 }
 
@@ -452,8 +453,8 @@ function cli_json_report(r, i, messages) {
 
 function cli_vim_report(r) {
     var parts = [];
-    parts.push(r.filename); parts.push(r.start_line || 0); parts.push(r.start_col || 0);
-    parts.push((r.level === WARN) ? 'W' : 'E'); parts.push(r.name || ''); parts.push(r.ident + ': ' + r.message);
+    parts.push(r.filename); parts.push(r.start_line || 0); parts.push((r.start_col === undefined) ? 0 : r.start_col + 1);
+    parts.push((r.level === WARN) ? 'W' : 'E'); parts.push(r.name || ''); parts.push(r.message + ' [' + r.ident + ']');
     console.log(parts.join(':'));
 }
 
