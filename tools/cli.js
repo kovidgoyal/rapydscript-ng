@@ -322,9 +322,10 @@ can also list all check names with --noqa-list.
 opt("errorformat", 'f,s,style', 'string', 'human', function(){/*
 Output the results in the specified format. Valid formats are:
 human - output is suited for reading by humans (the default)
-json - output is in JSON format
-vim  - output can be consumed by vim's errorformat directive
-       (format string: %f:%l:%c:%t:%s:%m)
+json  - output is in JSON format
+vim   - output can be consumed easily by vim's errorformat 
+        directive. Format is:
+        filename:line:col:errortype:token:message [identifier]
 */}, ['human', 'json', 'vim']);
 
 opt("noqa_list", '', 'bool', false, function(){/*

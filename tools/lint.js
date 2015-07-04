@@ -432,9 +432,9 @@ function cli_report(r) {
     function push(x, color) {
         parts.push((x === undefined) ? '' : colored(x.toString(), color));
     }
-    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red'); push(r.ident); 
+    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red');
     push(r.start_line, 'green'); push((r.start_col === undefined) ? '' : r.start_col + 1);
-    console.log(parts.join(':') + ':' + r.message + '\n');
+    console.log(parts.join(':') + ':' + r.message + colored(' [' + r.ident + ']', 'green') + '\n');
 }
 
 function cli_json_report(r, i, messages) {
