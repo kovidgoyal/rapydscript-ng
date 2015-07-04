@@ -396,6 +396,9 @@ AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators", {
     _walk: def(visitor):
         node = this
         return visitor._visit(node, def():
+            if node.decorators:
+                for d in node.decorators:
+                    d.walk(visitor)
             if node.name:
                 node.name._walk(visitor)
 
@@ -433,6 +436,9 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
     _walk: def(visitor):
         node = this
         return visitor._visit(node, def():
+            if node.decorators:
+                for d in node.decorators:
+                    d.walk(visitor)
             node.name._walk(visitor)
             walk_body(this, visitor)
             if (node.parent) node.parent._walk(visitor)

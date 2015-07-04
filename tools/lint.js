@@ -361,7 +361,6 @@ function Linter(toplevel, filename, code, options) {
         } else if (node instanceof RapydScript.AST_SymbolRef) {
             this.handle_symbol_ref();
         } else if (node instanceof RapydScript.AST_Decorator) {
-            console.log(111111111, node.name);
             this.handle_decorator();
         } else if (node instanceof RapydScript.AST_SymbolFunarg) {
             this.handle_symbol_funarg();

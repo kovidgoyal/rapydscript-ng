@@ -106,3 +106,6 @@ ok_test('def a():\n x = 1\n def ():\n  nonlocal x\n  x = 1\n  x')
 
 # Define after use
 err_test('def g():\n f()\n f()\n def f():\n  pass', 'def-after-use', 3, 'f')
+
+# Decorators
+ok_test('from x import y\n@y\ndef f():\n pass')
