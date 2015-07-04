@@ -326,7 +326,9 @@ json  - output is in JSON format
 vim   - output can be consumed easily by vim's errorformat 
         directive. Format is:
         filename:line:col:errortype:token:message [identifier]
-*/}, ['human', 'json', 'vim']);
+undef - output only the names of undefined symbols in a form that
+        can be easily copy/pasted
+*/}, ['human', 'json', 'vim', 'undef']);
 
 opt("noqa_list", '', 'bool', false, function(){/*
 List all available linter checks, with a brief

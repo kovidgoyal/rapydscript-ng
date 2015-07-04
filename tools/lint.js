@@ -445,7 +445,7 @@ function Linter(toplevel, filename, code, options) {
 
 function lint_code(code, options) {
     options = options || {};
-    var reportcb = options.report || ((options.errorformat === 'json') ? cli_json_report : ((options.errorformat === 'vim') ? cli_vim_report : cli_report));
+    var reportcb = {'json':cli_json_report, 'vim': cli_vim_report, 'undef': cli_undef_report}[options.errorformat] || (options.report || cli_report);
     var filename = options.filename || '<eval>';
     var toplevel, messages;
     var lines = code.split('\n');  // Can be used (in the future) to display extract from code corresponding to error location
@@ -485,14 +485,22 @@ function read_whole_file(filename, cb) {
     }
 }
 
-function cli_report(r) {
+function cli_report(r, i, messages) {
     var parts = [];
     function push(x, color) {
         parts.push((x === undefined) ? '' : colored(x.toString(), color));
     }
     push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red');
     push(r.start_line, 'green'); push((r.start_col === undefined) ? '' : r.start_col + 1);
-    console.log(parts.join(':') + ':' + r.message + colored(' [' + r.ident + ']', 'green') + '\n');
+    console.log(parts.join(':') + ':' + r.message + colored(' [' + r.ident + ']', 'green'));
+    if (i < messages.length - 1) console.log();
+}
+
+var undef_buf = {};
+
+function cli_undef_report(r, i, messages) {
+    if (r.ident == 'undef' && r.name) undef_buf[r.name] = true;
+    if (i == messages.length - 1) console.log(Object.keys(undef_buf).join(', '));
 }
 
 function cli_json_report(r, i, messages) {
