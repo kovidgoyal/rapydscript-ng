@@ -148,7 +148,7 @@ function Scope(is_toplevel, parent_scope, filename) {
             var b = this.unused_bindings[name];
             if (b.is_import) {
                 ans.push(msg_from_node(filename, 'unused-import', name, b.node));
-            } else if (!b.is_toplevel && !b.is_func_arg) {
+            } else if (!b.is_toplevel && !b.is_func_arg && !this.nonlocals.hasOwnProperty(name)) {
                 ans.push(msg_from_node(filename, 'unused-local', name, b.node));
             }
         }, this);
