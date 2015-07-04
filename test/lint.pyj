@@ -112,3 +112,17 @@ ok_test('from x import y\n@y\ndef f():\n pass')
 
 # try/except
 ok_test('try:\n 1\nexcept Error as e:\n e')
+
+# Classes
+ok_test('''
+class A:
+
+    def __init__(self, a):
+        self.a = a
+
+class B(A):
+
+    def __init__(self):
+        A.__init__(self, 'b')
+''')
+

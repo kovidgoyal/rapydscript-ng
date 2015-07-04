@@ -353,6 +353,14 @@ function Linter(toplevel, filename, code, options) {
         }
     };
 
+    this.handle_class = function() {
+        var node = this.current_node;
+        if (node.name) {
+            node.name.lint_visited = true;
+            this.add_binding(node.name.name, node.name);
+        }
+    };
+
     this._visit = function (node, cont) {
         if (node.lint_visited) return;
         this.current_node = node;
@@ -368,6 +376,8 @@ function Linter(toplevel, filename, code, options) {
             this.handle_import();
         } else if (node instanceof RapydScript.AST_ImportedVar) {
             this.handle_imported_var();
+        } else if (node instanceof RapydScript.AST_Class) {
+            this.handle_class();
         } else if (node instanceof RapydScript.AST_Assign) {
             this.handle_assign();
         } else if (node instanceof RapydScript.AST_VarDef) {
@@ -393,6 +403,7 @@ function Linter(toplevel, filename, code, options) {
         } 
 
         // console.log(node.TYPE);
+         
         if (cont !== undefined) cont();
 
         if (this.scopes.length > scope_count) {
