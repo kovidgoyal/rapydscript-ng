@@ -91,3 +91,6 @@ err_test('f() # noqa:xxx', 'undef')
 err_test('if 1:\n def f():\n  pass', 'func-in-branch', 2, 'f')
 err_test('if 1:\n pass\nelse:\n def f():\n  pass', 'func-in-branch', 4, 'f')
 err_test('try:\n def f():\n  pass\nexcept:\n pass', 'func-in-branch', 2, 'f')
+
+# Syntax errors
+err_test('def f(:\n pass', 'syntax-err', 1)
