@@ -123,7 +123,7 @@ function Scope(is_toplevel, parent_scope, filename) {
                     found = true;
                     // Remove from childs' undefined references 
                     delete scope.undefined_references[name];
-                } 
+                } else if (scope.nonlocals.hasOwnProperty(name) && scope.bindings.hasOwnProperty(name)) found = true;
             });
             if (!found && !b.used) this.unused_bindings[name] = b;
         }, this);
