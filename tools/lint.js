@@ -31,6 +31,7 @@ BUILTINS = {
     'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
     'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
     'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
+    'parseInt':true, 'parseFloat':true, 'isNaN':true, 'JSON':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
@@ -338,6 +339,13 @@ function Linter(toplevel, filename, code, options) {
         }
     };
 
+    this.handle_except = function() {
+        var node = this.current_node;
+        if (node.argname) {
+            this.add_binding(node.argname.name, node.argname);
+        }
+    };
+
     this.handle_empty_statement = function() {
         var node = this.current_node;
         if (node.stype == ';') {
@@ -374,6 +382,8 @@ function Linter(toplevel, filename, code, options) {
             this.handle_comprehension();
         } else if (node instanceof RapydScript.AST_ForIn) {
             this.handle_for_in();
+        } else if (node instanceof RapydScript.AST_Except) {
+            this.handle_except();
         } else if (node instanceof RapydScript.AST_EmptyStatement) {
             this.handle_empty_statement();
         }

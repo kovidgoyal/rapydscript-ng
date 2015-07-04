@@ -109,3 +109,6 @@ err_test('def g():\n f()\n f()\n def f():\n  pass', 'def-after-use', 3, 'f')
 
 # Decorators
 ok_test('from x import y\n@y\ndef f():\n pass')
+
+# try/except
+ok_test('try:\n 1\nexcept Error as e:\n e')
