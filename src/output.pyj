@@ -10,6 +10,25 @@
 
 "use strict"
 
+from utils import make_predicate, defaults, repeat_string, is_identifier_char, noop, is_identifier
+from parse import COMPILER_VERSION, PRECEDENCE
+from ast import (
+AST_Node, AST_Exit, AST_Function, AST_Unary, AST_PropAccess, AST_VarDef,
+AST_ObjectProperty, AST_Conditional, AST_Dot, AST_BaseCall, AST_Binary,
+AST_New, TreeWalker, AST_Assign, AST_EmptyStatement, AST_Definitions,
+AST_Method, AST_Scope, AST_Except, AST_Statement, AST_Imports,
+AST_SimpleStatement, AST_Do, AST_While, AST_SymbolRef, AST_Array, AST_Number,
+AST_ForIn, AST_ForJS, AST_ListComprehension, AST_With, AST_Class, console,
+AST_Return, AST_Throw, AST_LoopControl, AST_Break, AST_Continue, AST_If,
+AST_StatementWithBody, AST_Default, AST_Case, AST_Var, AST_Const,
+AST_ClassCall, AST_Seq, AST_Sub, AST_Splice, AST_UnaryPrefix, AST_UnaryPostfix,
+AST_Symbol, AST_Object, AST_ObjectKeyVal, AST_ObjectSetter, AST_ObjectGetter,
+AST_Undefined, AST_Hole, AST_Infinity, AST_NaN, AST_This, AST_String,
+AST_Verbatim, AST_RegExp, AST_BlockStatement, AST_Directive, AST_Debugger,
+AST_Jump, AST_LabeledStatement, AST_Lambda, AST_Switch, AST_SwitchBranch,
+AST_Toplevel, AST_Try, AST_Catch, AST_Finally, AST_Constant
+)
+
 def OutputStream(options):
     options = defaults(options, {
         indent_start: 0,
@@ -271,7 +290,7 @@ def OutputStream(options):
         try:
             if token:
                 options.source_map.add(token.file or "?", current_line, current_col, token.line, token.col, (not name and token.type == "name" ? token.value : name))
-        except as ex:
+        except:
             AST_Node.warn("Couldn't figure out mapping for {file}:{line},{col} → {cline},{ccol} [{name}]", {
                 file: token.file,
                 line: token.line,
@@ -940,9 +959,9 @@ def reset_index_counter():
                                 raw = co.toString()
                                 cached.outputs[output_key(beautify, auto_bind)] = raw
                         try:
-                            writefile(self.filename + '-cached', JSON.stringify(cached, null, '\t'))
+                            writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))  # noqa:undef
                         except Error as e:
-                            console.error('Failed to write output cache file:', self.filename + '-cached', 'with error:', e)
+                            console.error('Failed to write output cache file:', self.filename + '-cached', 'with error:', e)  # noqa:undef
             )
         )
         output.print("()")

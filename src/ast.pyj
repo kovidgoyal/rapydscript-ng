@@ -10,6 +10,8 @@
 
 "use strict"
 
+from utils import noop, string_template
+
 def DEFNODE(type, props, methods, base):
     if arguments.length < 4:
         base = AST_Node

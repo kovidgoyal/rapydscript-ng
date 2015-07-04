@@ -514,7 +514,7 @@ var undef_buf = {};
 
 function cli_undef_report(r, i, messages) {
     if (r.ident == 'undef' && r.name) undef_buf[r.name] = true;
-    if (i == messages.length - 1) console.log(Object.keys(undef_buf).join(', '));
+    if (i == messages.length - 1) console.log(Object.keys(undef_buf).sort().join(', '));
 }
 
 function cli_json_report(r, i, messages) {

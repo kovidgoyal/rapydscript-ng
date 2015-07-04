@@ -10,6 +10,35 @@
 
 "use strict"
 
+from utils import characters, make_predicate, array_to_hash, defaults, find_if
+from ast import (
+AST_Node, AST_Token, AST_Binary, AST_Function, AST_Class, AST_Scope,
+AST_Assign, AST_Class, AST_Scope, AST_Scope, AST_Assign, AST_ForIn, AST_DWLoop,
+AST_If, AST_Exit, AST_Assign, AST_Array, AST_PropAccess, AST_Conditional,
+AST_Scope, AST_Definitions, AST_String, AST_Directive, AST_BlockStatement,
+AST_Break, AST_Continue, AST_Debugger, AST_Do, AST_While, AST_SimpleStatement,
+AST_EmptyStatement, AST_Return, AST_Switch, AST_SymbolCatch, AST_Throw,
+AST_With, AST_Label, AST_LabeledStatement, AST_SimpleStatement, AST_LabelRef,
+AST_Seq, AST_Array, AST_Var, AST_Var, AST_ForIn, AST_ForJS, AST_Dot,
+AST_SymbolRef, AST_Imports, AST_Dot, AST_Import, AST_ImportedVar,
+AST_SymbolAlias, AST_SymbolDefun, AST_Class, AST_Decorator, AST_Method,
+AST_Accessor, AST_SymbolDefun, AST_SymbolAccessor, AST_SymbolLambda,
+AST_Function, AST_SymbolFunarg, AST_Decorator, AST_Method, AST_SymbolVar,
+AST_If, AST_Case, AST_Default, AST_SymbolVar, AST_SymbolCatch, AST_Except,
+AST_Finally, AST_Try, AST_Catch, AST_VarDef, AST_SymbolNonlocal,
+AST_SymbolConst, AST_SymbolVar, AST_Var, AST_Const, AST_New, AST_SymbolRef,
+AST_Number, AST_String, AST_RegExp, AST_False, AST_True, AST_Null,
+AST_SymbolRef, AST_Hole, AST_Assign, AST_SymbolVar, AST_Assign,
+AST_ListComprehension, AST_Binary, AST_Number, AST_Call, AST_SymbolRef,
+AST_Array, AST_ObjectGetter, AST_ObjectSetter, AST_Accessor, AST_ObjectKeyVal,
+AST_Object, AST_This, AST_This, AST_Splice, AST_Undefined, AST_Number, AST_Sub,
+AST_Number, AST_String, AST_Verbatim, AST_New, AST_Dot, AST_ClassCall,
+AST_SymbolRef, AST_UnaryPrefix, AST_Binary, AST_Call, AST_EmptyStatement,
+AST_UnaryPrefix, AST_UnaryPostfix, AST_Binary, AST_UnaryPrefix,
+AST_Conditional, AST_Assign, AST_Seq, AST_Seq, AST_Assign, AST_Array,
+AST_Directive, AST_Toplevel, AST_Directive, AST_SymbolVar
+)
+
 COMPILER_VERSION = '__COMPILER_VERSION__'
 
 KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return switch til to try typeof var void while with or and not"
@@ -1321,7 +1350,7 @@ def parse($TEXT, options):
             do_import(package_module_id)
 
         if options.for_linting:
-            IMPORTED[key] = {is_cached:True, classes:{}, outputs:{}, module_id:key, exports:[],
+            IMPORTED[key] = {is_cached:True, classes:{}, module_id:key, exports:[],
                              submodules:[], nonlocalvars:[], baselib:{}, outputs:{}}
             if len(package_module_id) > 0:
                 IMPORTED[package_module_id].submodules.push(key)
@@ -1330,7 +1359,7 @@ def parse($TEXT, options):
         def safe_read(base_path):
             for i, path in enumerate([base_path + '.pyj', base_path + '/__init__.pyj']):
                 try:
-                    return [readfile(path, "utf-8"), path]
+                    return [readfile(path, "utf-8"), path]  # noqa:undef
                 except as e:
                     if e.code == 'ENOENT' or e.code == 'EPERM' or e.code == 'EACCESS':
                         if i == 1:
@@ -1351,11 +1380,11 @@ def parse($TEXT, options):
             import_error("Failed Import: '" + key + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'")
 
         try:
-            cached = JSON.parse(readfile(filename + '-cached', 'utf-8'))
+            cached = JSON.parse(readfile(filename + '-cached', 'utf-8'))  # noqa:undef
         except:
             cached = None
 
-        srchash = sha1sum(src_code)
+        srchash = sha1sum(src_code)  # noqa:undef
         if cached and cached['version'] == COMPILER_VERSION and cached['signature'] == srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
