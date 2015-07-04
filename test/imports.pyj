@@ -11,6 +11,7 @@ eq(toplevel_var, 'foo')
 eq(tf('x'), 'xtoplevel')
 eq(toplevel_var2, 'foo2')
 eq(toplevel_func2('x'), 'xtoplevel2')
+eq(false_var, undefined)
 
 # Test import of top-level vars in a conditional
 eq('true', true_var)

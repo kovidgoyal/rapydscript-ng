@@ -32,11 +32,11 @@ assert(JS('def.item') == 3)
 n = 5
 assert(JS("""
 (function() {
-    var s = 0;
+    var s = 0
     for (var i=0; i<=n; i++) {
-        s += i;
+        s += i
     }
-    return s;
+    return s
 })()
 """) == (def():
     s = 0
