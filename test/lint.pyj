@@ -78,7 +78,7 @@ err_test('a=1;;a', 'extra-semicolon', 1, ';')
 err_test('a=1;', 'eol-semicolon', 1, ';')
 
 # Builtins
-for k in 'String Symbol this self window Map'.split(' '):
+for k in 'String Symbol this self window Map arguments print len range dir undefined'.split(' '):
     ok_test(k)
 
 # noqa

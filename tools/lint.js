@@ -25,7 +25,13 @@ var MESSAGES = {
     'def-after-use': 'The symbol "{name}" is defined (at line {line}) after it is used',
 };
 
-BUILTINS = {'this':true, 'self':true, 'window':true, 'document':true};
+BUILTINS = {
+    'this':true, 'self':true, 'window':true, 'document':true, 
+    'print':true, 'len':true, 'range':true, 'dir':true, 
+    'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
+    'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
+    'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
+};
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
 function cmp(a, b) {
