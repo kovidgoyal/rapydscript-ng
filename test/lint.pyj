@@ -103,6 +103,7 @@ err_test('def a():\n x = 1\n def b():\n  nonlocal x\n b()', 'unused-local', 2, '
 ok_test('def a():\n x = 1\n def b():\n  nonlocal x\n  x\n b()')
 ok_test('def a():\n x = 1\n def b():\n  nonlocal x\n  x\n  x = 2\n b()')
 ok_test('def a():\n x = 1\n def ():\n  nonlocal x\n  x = 1\n  x')
+ok_test('nonlocal a\na()')
 
 # Define after use
 err_test('def g():\n f()\n f()\n def f():\n  pass', 'def-after-use', 3, 'f')

@@ -166,8 +166,10 @@ function Scope(is_toplevel, parent_scope, filename) {
         var ans = [];
 
         Object.keys(this.undefined_references).forEach(function (name) {
-            var node = this.undefined_references[name];
-            ans.push(msg_from_node(filename, 'undef', name, node));
+            if (!(this.is_toplevel && this.nonlocals.hasOwnProperty(name))) {
+                var node = this.undefined_references[name];
+                ans.push(msg_from_node(filename, 'undef', name, node));
+            }
         }, this);
 
         Object.keys(this.unused_bindings).forEach(function (name) {
