@@ -11,15 +11,17 @@ var crypto = require('crypto');
 var fs = require('fs');
 var RapydScript = require('./compiler');
 
-module.exports = function compile_self(base_path, src_path, lib_path, start_time) {
+function compile_once(base_path, src_path, lib_path, start_time) {
     var output_options = {'beautify': true, 'private_scope': false, 'omit_baselib': true, 'write_name': false};
 	var baselib = RapydScript.parse_baselib(src_path, true);
+    var count = 0;
 
     function timed(name, cont) {
         var t1 = new Date().getTime();
         console.log('Compiling', name, '...');
         var ret = cont();
         console.log('Compiled in', (new Date().getTime() - t1)/1000, 'seconds\n');
+        count++;
         return ret;
     }
 
@@ -31,7 +33,6 @@ module.exports = function compile_self(base_path, src_path, lib_path, start_time
 			libdir: path.join(src_path, 'lib'),
 		});
 	}
-
 
     var saved_hashes = {}, hashes = {}, compiled = {};
     var compiler_changed = false, sha1sum;
@@ -87,9 +88,21 @@ module.exports = function compile_self(base_path, src_path, lib_path, start_time
             });
         }
     });
-    console.log('Compiling RapydScript succeeded (', (new Date().getTime() - start_time)/1000, 'seconds ), writing output...');
-    Object.keys(compiled).forEach(function (fname) {
-        fs.writeFileSync(path.join(lib_path, fname + '.js'), compiled[fname], "utf8");
-    });
-    fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
+    if (count) {
+        console.log('Compiling RapydScript succeeded (', (new Date().getTime() - start_time)/1000, 'seconds ), writing output...');
+        Object.keys(compiled).forEach(function (fname) {
+            fs.writeFileSync(path.join(lib_path, fname + '.js'), compiled[fname], "utf8");
+        });
+        fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
+    } else {
+        console.log('Compilation not needed, nothing is changed');
+    }
+    return count;
+}
+
+module.exports = function compile_self(base_path, src_path, lib_path, start_time, complete) {
+    var count;
+    do {
+        count = compile_once(base_path, src_path, lib_path, start_time);
+    } while (count > 0 && complete);
 };

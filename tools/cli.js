@@ -347,6 +347,16 @@ it was called. To force a recompilation, simply
 delete lib/signatures.json
 */});
 
+opt("complete", 'c,f,full', 'bool', false, function(){/*
+Run the compilation repeatedly, as many times as neccessary,
+so that the compiler is built with the most upto date version
+of itself.
+*/});
+
+opt("test", 't', 'bool', false, function(){/*
+Run the test suite after building completes.
+*/});
+
 var argv = module.exports.argv = parse_args();
 
 if (argv.help) {
