@@ -527,7 +527,16 @@ AST_Except = DEFNODE("Except", "argname errors", {
     $propdoc: {
         argname: "[AST_SymbolCatch] symbol for the exception",
         errors: "[AST_SymbolVar*] error classes to catch in this block"
-    }
+    },
+    _walk: def(visitor):
+        node = this
+        return visitor._visit(this, def():
+            if (node.argname):
+                node.argname.walk(visitor)
+            if (node.errors):
+                for e in node.errors: e.walk(visitor)
+            walk_body(node, visitor)
+        )
 }, AST_Block)
 
 AST_Finally = DEFNODE("Finally", None, {

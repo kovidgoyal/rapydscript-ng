@@ -457,7 +457,7 @@ def tokenizer($TEXT, filename):  # {{{
                 return cont(x)
             except as ex:
                 if ex is EX_EOF:
-                    parse_error(eof_error, true)
+                    parse_error(eof_error, True)
                 else:
                     raise
 
@@ -803,7 +803,7 @@ def parse($TEXT, options):
                  (col != undefined ? col : ctx.tokcol), (pos != undefined ? pos : ctx.tokpos), is_eof)
 
     def token_error(token, msg):
-        is_eof = (token.type == 'eof') ? true : false
+        is_eof = (token.type == 'eof') ? True : False
         croak(msg, token.line, token.col, undefined, is_eof)
 
     def unexpected(token):
