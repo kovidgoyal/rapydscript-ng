@@ -64,8 +64,7 @@ err_test('def f():\n a=1; return a\na', 'undef', 3, 'a')
 # Comprehensions
 ok_test('[x for x in [1,2]]')
 ok_test('[1 for x in [1,2] if x]')
-err_test('[1 for x in [1,2]]', 'unused-local', 1, 'x')
-err_test('[y for x, y in [1,2]]', 'unused-local', 1, 'x')
+ok_test('[1 for x in [1,2]]')
 err_test('def f():\n [x for x in [1,2]]; return x', 'undef', 2, 'x')
 
 # Loops

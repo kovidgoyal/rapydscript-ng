@@ -125,7 +125,11 @@ function Scope(is_toplevel, parent_scope, filename) {
                     delete scope.undefined_references[name];
                 } else if (scope.nonlocals.hasOwnProperty(name) && scope.bindings.hasOwnProperty(name)) found = true;
             });
-            if (!found && !b.used) this.unused_bindings[name] = b;
+            if (!found && !b.used && !b.is_loop)
+                // We deliberately ignore unused loop variables so as not to complain for the
+                // common idiom of using a for loop to repeat an action, without referring to the
+                // loop variable
+                this.unused_bindings[name] = b;
         }, this);
     };
 
