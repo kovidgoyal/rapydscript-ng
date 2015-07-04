@@ -7,7 +7,7 @@
 "use strict;";
 
 var fs = require('fs');
-var RapydScript = require("./compiler");
+var RapydScript = require("./compiler").create_compiler();
 var path = require('path');
 var utils = require('./utils');
 var colored = utils.safe_colored;
@@ -33,6 +33,7 @@ BUILTINS = {
     'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
     'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
     'parseInt':true, 'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
+    '_$rapyd$_modules':true, 'require':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
@@ -76,6 +77,7 @@ function Binding(name, node, options) {
     this.is_class = !!options.is_class;
     this.is_function = !!(options.is_function && !options.is_class);
     this.is_func_arg = !!options.is_func_arg;
+    this.is_method = !!options.is_method;
 
     this.is_loop = false;
     this.used = false;
@@ -176,7 +178,7 @@ function Scope(is_toplevel, parent_scope, filename) {
             var b = this.unused_bindings[name];
             if (b.is_import) {
                 ans.push(msg_from_node(filename, 'unused-import', name, b.node));
-            } else if (!b.is_toplevel && !b.is_func_arg && !this.nonlocals.hasOwnProperty(name)) {
+            } else if (!b.is_toplevel && !b.is_func_arg && !b.is_method && !this.nonlocals.hasOwnProperty(name)) {
                 ans.push(msg_from_node(filename, 'unused-local', name, b.node));
             }
         }, this);
@@ -217,6 +219,7 @@ function Linter(toplevel, filename, code, options) {
             is_import: (node instanceof RapydScript.AST_Import || node instanceof RapydScript.AST_ImportedVar),
             is_function: (node instanceof RapydScript.AST_Lambda),
             is_class: (node instanceof RapydScript.AST_Class),
+            is_method: (node instanceof RapydScript.AST_Method),
             is_func_arg: (node instanceof RapydScript.AST_SymbolFunarg),
         };
         return scope.add_binding(name, (binding_node || node), options);
