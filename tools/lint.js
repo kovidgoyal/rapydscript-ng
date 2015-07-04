@@ -22,6 +22,7 @@ var MESSAGES = {
     'eol-semicolon': 'Semi-colons at the end of the line are unnecessary',
     'func-in-branch': 'JavaScript in strict mode does not allow the definition of named functions/classes inside a branch such as an if/try/switch',
     'syntax-err': 'A syntax error caused compilation to abort',
+    'def-after-use': 'The symbol "{name}" is defined (at line {line}) after it is used',
 };
 
 BUILTINS = {'this':true, 'self':true, 'window':true, 'document':true};
@@ -88,6 +89,7 @@ function Scope(is_toplevel, parent_scope, filename) {
     this.undefined_references = {};
     this.unused_bindings = {};
     this.nonlocals = {};
+    this.defined_after_use = {};
 
     this.add_binding = function(name, node, options) {
         var already_bound = this.bindings.hasOwnProperty(name);
@@ -113,6 +115,18 @@ function Scope(is_toplevel, parent_scope, filename) {
     };
 
     this.finalize = function() {
+        // Find defined after use
+        Object.keys(this.undefined_references).forEach(function (name) {
+            if (this.bindings.hasOwnProperty(name) && !this.nonlocals.hasOwnProperty(name)) {
+                var b = this.bindings[name];
+                b.used = true;
+                if (!this.defined_after_use.hasOwnProperty(name)) {
+                    this.defined_after_use[name] = [this.undefined_references[name], b];
+                }
+                delete this.undefined_references[name];
+            }
+        }, this);
+
         // Find unused bindings
         Object.keys(this.bindings).forEach(function(name) {
             var b = this.bindings[name];
@@ -164,6 +178,11 @@ function Scope(is_toplevel, parent_scope, filename) {
                 ans.push(msg_from_node(filename, 'loop-shadowed', name, second.node, ERROR, line));
             }
         });
+
+        Object.keys(this.defined_after_use).forEach(function (name) {
+            var use = this.defined_after_use[name][0], binding = this.defined_after_use[name][1];
+            ans.push(msg_from_node(filename, 'def-after-use', name, use, ERROR, binding.node.start.line));
+        }, this);
 
         return ans;
     };
@@ -510,7 +529,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
     function lint_single_file(err, code) {
         var output;
         if (err) {
-            console.error("ERROR: can't read file: " + file);
+            console.error("ERROR: can't read file: " + files[0]);
             process.exit(1);
         }
         if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
