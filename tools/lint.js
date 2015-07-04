@@ -10,6 +10,7 @@ var fs = require('fs');
 var RapydScript = require("./compiler");
 var path = require('path');
 var utils = require('./utils');
+var colored = utils.safe_colored;
 
 var WARN = 1, ERROR = 2;
 var MESSAGES = {
@@ -390,7 +391,7 @@ function Linter(toplevel, filename, code, options) {
 
 function lint_code(code, options) {
     options = options || {};
-    var reportcb = options.report || cli_report;
+    var reportcb = options.report || ((options.json) ? cli_json_report : cli_report);
     var filename = options.filename || '<eval>';
     var toplevel;
 
@@ -404,7 +405,8 @@ function lint_code(code, options) {
     var linter = new Linter(toplevel, filename, code, options);
     toplevel.walk(linter);
     var messages = linter.resolve();
-    messages.forEach(reportcb);
+    var lines = code.split('\n');  // Can be used (in the future) to display extract from code corresponding to error location
+    messages.forEach(function(msg, i) { msg.code_lines = lines; reportcb(msg, i, messages); });
     return messages;
 }
 
@@ -427,11 +429,25 @@ function read_whole_file(filename, cb) {
 
 function cli_report(r) {
     var parts = [];
-    function push(x) {
-        parts.push((x === undefined) ? '' : x.toString());
+    function push(x, color) {
+        parts.push((x === undefined) ? '' : colored(x.toString(), color));
     }
-    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR'); push(r.ident); push(r.start_line); push(r.start_col);
-    console.log(parts.join(':') + ':' + r.message);
+    push(r.filename); push((r.level === WARN) ? 'WARN' : 'ERR', (r.level === WARN) ? 'yellow' : 'red'); push(r.ident); push(r.start_line, 'green'); push(r.start_col);
+    console.log(parts.join(':') + ':' + r.message + '\n');
+}
+
+function cli_json_report(r, i, messages) {
+    var j = {};
+    Object.keys(r).forEach(function(key) {
+        var val = r[key];
+        if (val !== undefined && key != 'code_lines') {
+            if (key === 'level') val = (val === WARN) ? 'WARN' : 'ERR';
+            j[key] = val;
+        }
+    });
+    if (i === 0) console.log('[');
+    console.log(JSON.stringify(j, null, 2));
+    console.log((i < messages.length - 1) ? ',' : ']');
 }
 
 module.exports.cli = function(argv, base_path, src_path, lib_path) {
@@ -466,7 +482,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
             console.error("ERROR: can't read file: " + file);
             process.exit(1);
         }
-        if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa}).length) all_ok = false;
+        if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa, json:argv.json || false}).length) all_ok = false;
 
         files = files.slice(1);
         if (files.length) {

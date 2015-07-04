@@ -307,6 +307,11 @@ The check names are output in the linter's normal output, you
 can also list all check names with --noqa-list.
 */});
 
+opt("json", 'j', 'bool', false, function(){/*
+Output the results in JSON format for easy machine
+consumption.
+*/});
+
 opt("noqa_list", '', 'bool', false, function(){/*
 List all available linter checks, with a brief
 description, and exit.
