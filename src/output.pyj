@@ -390,6 +390,10 @@ def OutputStream(options):
 
     }
 
+INDEX_COUNTER = 0
+def reset_index_counter():
+    nonlocal INDEX_COUNTER
+    INDEX_COUNTER = 0
 
 # -----[ code generators ]-----
 (def():
@@ -404,7 +408,6 @@ def OutputStream(options):
         print: "_$rapyd$_print",
         eslice: "_$rapyd$_eslice",
     }
-    INDEX_COUNTER = 0
     def DEFPRINT(nodetype, generator):
         nodetype.DEFMETHOD("_codegen", generator)
 

@@ -104,5 +104,6 @@ module.exports = function compile_self(base_path, src_path, lib_path, start_time
     var count;
     do {
         count = compile_once(base_path, src_path, lib_path, start_time);
+        if (RapydScript.reset_index_counter) RapydScript.reset_index_counter();
     } while (count > 0 && complete);
 };
