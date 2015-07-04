@@ -1775,12 +1775,12 @@ def parse($TEXT, options):
             bfinally: bfinally
         })
 
-    def vardefs(no_in, in_const):
+    def vardefs(no_in, in_const, in_nonlocal):
         a = []
         while True:
             a.push(new AST_VarDef({
                 start: S.token,
-                name: as_symbol((in_const ? AST_SymbolConst : AST_SymbolVar)),
+                name: as_symbol((in_const ? AST_SymbolConst : ((in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar))),
                 value: (is_("operator", "=") ? (next(), expression(False, no_in)) : None),
                 end: prev()
             }))
@@ -1793,7 +1793,7 @@ def parse($TEXT, options):
     nonlocal_ = def(no_in):
         return new AST_Var({
             start: prev(),
-            definitions: vardefs(no_in, False),
+            definitions: vardefs(no_in, False, True),
             end: prev()
         })
 

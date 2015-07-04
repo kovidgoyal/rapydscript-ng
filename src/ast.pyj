@@ -289,7 +289,7 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang impor
         )
         wrapped_tl = "(function(" + parameters.join(",") + "){ '$ORIG'; })(" + args.join(",") + ")"
         wrapped_tl = parse(wrapped_tl)
-        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def before(node):
+        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def (node):
             if isinstance(node, AST_Directive) and node.value == "$ORIG":
                 return MAP.splice(self.body)
         ))
@@ -309,7 +309,7 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang impor
             ))
         wrapped_tl = "(function(exports, global){ global['" + name + "'] = exports; '$ORIG'; '$EXPORTS'; }({}, (function(){return this}())))"
         wrapped_tl = parse(wrapped_tl)
-        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def before(node):
+        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def (node):
             if isinstance(node, AST_SimpleStatement):
                 node = node.body
                 if isinstance(node, AST_String):
@@ -622,7 +622,7 @@ AST_Const = DEFNODE("Const", None, {
 AST_VarDef = DEFNODE("VarDef", "name value", {
     $documentation: "A variable declaration; only appears in a AST_Definitions node",
     $propdoc: {
-        name: "[AST_SymbolVar|AST_SymbolConst] name of the variable",
+        name: "[AST_SymbolVar|AST_SymbolConst|AST_SymbolNonlocal] name of the variable",
         value: "[AST_Node?] initializer, or null if there's no initializer"
     },
     _walk: def(visitor):
@@ -929,6 +929,10 @@ AST_ImportedVar = DEFNODE("ImportedVar", 'alias', {
 
 AST_SymbolConst = DEFNODE("SymbolConst", None, {
     $documentation: "A constant declaration"
+}, AST_SymbolDeclaration)
+
+AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", None, {
+    $documentation: "A nonlocal declaration"
 }, AST_SymbolDeclaration)
 
 AST_SymbolFunarg = DEFNODE("SymbolFunarg", None, {

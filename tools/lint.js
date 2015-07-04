@@ -87,6 +87,7 @@ function Scope(is_toplevel, parent_scope, filename) {
     this.shadowed = [];
     this.undefined_references = {};
     this.unused_bindings = {};
+    this.nonlocals = {};
 
     this.add_binding = function(name, node, options) {
         var already_bound = this.bindings.hasOwnProperty(name);
@@ -97,6 +98,10 @@ function Scope(is_toplevel, parent_scope, filename) {
         }
         this.bindings[name] = b;
         return b;
+    };
+
+    this.add_nonlocal = function(name) {
+        this.nonlocals[name] = true;
     };
 
     this.register_use = function(name, node) {
@@ -118,7 +123,7 @@ function Scope(is_toplevel, parent_scope, filename) {
                     found = true;
                     // Remove from childs' undefined references 
                     delete scope.undefined_references[name];
-                }
+                } 
             });
             if (!found && !b.used) this.unused_bindings[name] = b;
         }, this);
@@ -184,6 +189,11 @@ function Linter(toplevel, filename, code, options) {
         return scope.add_binding(name, (binding_node || node), options);
     };
 
+    this.add_nonlocal = function(name) {
+        var scope = this.scopes[this.scopes.length - 1];
+        return scope.add_nonlocal(name);
+    };
+
     this.register_use = function(name) {
         var scope = this.scopes[this.scopes.length - 1];
         var node = this.current_node;
@@ -206,7 +216,7 @@ function Linter(toplevel, filename, code, options) {
 
     this.handle_lambda = function() {
         var node = this.current_node;
-        var name = node.name;
+        var name = (node.name) ? node.name.name : undefined;
         if (this.branches.length && name) {
             this.messages.push(msg_from_node(filename, 'func-in-branch', node.name, node));
         }
@@ -243,7 +253,11 @@ function Linter(toplevel, filename, code, options) {
     this.handle_vardef = function() {
         var node = this.current_node;
         if (node.value) this.current_node = node.value;
-        this.add_binding(node.name.name, node.name);
+        if (node.name instanceof RapydScript.AST_SymbolNonlocal) {
+            this.add_nonlocal(node.name.name);
+        } else {
+            this.add_binding(node.name.name, node.name);
+        }
         this.current_node = node;
     };
 
