@@ -278,65 +278,6 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang impor
         filename: "[string] The absolute path to the file from which this module was read",
         srchash: "[string] SHA1 hash of source code, used for caching",
     },
-    wrap_enclose: def(arg_parameter_pairs):
-        self = this
-        args = []
-        parameters = []
-        arg_parameter_pairs.forEach(def(pair):
-            split = pair.split(":")
-            args.push(split[0])
-            parameters.push(split[1])
-        )
-        wrapped_tl = "(function(" + parameters.join(",") + "){ '$ORIG'; })(" + args.join(",") + ")"
-        wrapped_tl = parse(wrapped_tl)
-        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def (node):
-            if isinstance(node, AST_Directive) and node.value == "$ORIG":
-                return MAP.splice(self.body)
-        ))
-        return wrapped_tl
-    ,
-    wrap_commonjs: def(name, export_all):
-        self = this
-        to_export = []
-        if export_all:
-            self.figure_out_scope()
-            self.walk(new TreeWalker(def(node):
-                if isinstance(node, AST_SymbolDeclaration) and node.definition().global:
-                    if not find_if(def(n):
-                        return n.name == node.name
-                    , to_export):
-                        to_export.push(node)
-            ))
-        wrapped_tl = "(function(exports, global){ global['" + name + "'] = exports; '$ORIG'; '$EXPORTS'; }({}, (function(){return this}())))"
-        wrapped_tl = parse(wrapped_tl)
-        wrapped_tl = wrapped_tl.transform(new TreeTransformer(def (node):
-            if isinstance(node, AST_SimpleStatement):
-                node = node.body
-                if isinstance(node, AST_String):
-                    tmp_ = node.getValue()
-                    if tmp_ == "$ORIG":
-                        return MAP.splice(self.body)
-                    elif tmp_ == "$EXPORTS":
-                        body = []
-                        to_export.forEach(def(sym):
-                            body.push(new AST_SimpleStatement({
-                                body: new AST_Assign({
-                                    left: new AST_Sub({
-                                        expression: new AST_SymbolRef({
-                                            name: "exports"
-                                        }),
-                                        property: new AST_String({
-                                            value: sym.name
-                                        })
-                                    }),
-                                    operator: "=",
-                                    right: new AST_SymbolRef(sym)
-                                })
-                            }))
-                        )
-                        return MAP.splice(body)
-        ))
-        return wrapped_tl
 }, AST_Scope)
 
 AST_Import = DEFNODE("Import", "module key alias argnames body", {
