@@ -54,4 +54,14 @@ b = AClass(1)
 eq(b, this)
 
 # Test global symbol declared in other module
-eq(GLOBAL_SYMBOL, 'i am global')
+eq(GLOBAL_SYMBOL, 'i am global')  # noqa:undef
+
+# Import errors happen during parsing, so we cannot test them directly as they would
+# prevent this file from being parsed.
+
+assert.throws(def():
+    RapydScript.parse('from one import not_exported', {basedir:test_path}).body[0]
+, /not exported/)
+assert.throws(def():
+    RapydScript.parse('import xxxx', {basedir:test_path}).body[0]
+, /doesn't exist/)

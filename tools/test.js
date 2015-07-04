@@ -63,7 +63,8 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 'fs':fs,
                 'RapydScript':RapydScript, 
                 'console':console,
-                'base_path': base_path
+                'base_path': base_path,
+                'test_path':test_dir,
             }, {'filename':jsfile});
         } catch (e) {
             fs.writeFileSync(jsfile, code);

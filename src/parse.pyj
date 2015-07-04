@@ -155,11 +155,6 @@ UNICODE = {  # {{{
 
 IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i
 
-class ImportError(Error):
-
-    def __init__(self, message):
-        self.message = message
-
 def is_letter(code):
     return code >= 97 and code <= 122 or code >= 65 and code <= 90 or code >= 170 and UNICODE.letter.test(String.fromCharCode(code))
 
@@ -193,16 +188,21 @@ def parse_js_number(num):
     elif RE_DEC_NUMBER.test(num):
         return parseFloat(num)
 
-def JS_Parse_Error(message, line, col, pos, is_eof):
-    this.message = message
-    this.line = line
-    this.col = col
-    this.pos = pos
-    this.stack = Error().stack
-    this.is_eof = is_eof
+class JS_Parse_Error(Error):
 
-JS_Parse_Error.prototype.toString = def():
-    return this.message + " (line: " + this.line + ", col: " + this.col + ", pos: " + this.pos + ")" + "\n\n" + this.stack
+    def __init__(self, message, line, col, pos, is_eof):
+        Error.__init__(self)
+        self.message = message
+        self.line = line
+        self.col = col
+        self.pos = pos
+        self.is_eof = is_eof
+
+    def toString(self):
+        return this.message + " (line: " + this.line + ", col: " + this.col + ", pos: " + this.pos + ")" + "\n\n" + this.stack
+
+class ImportError(JS_Parse_Error):
+    pass
 
 def js_error(message, filename, line, col, pos, is_eof):
     AST_Node.warn("ERROR: {message} [{file}:{line},{col}]", {
@@ -1305,11 +1305,15 @@ def parse($TEXT, options):
                             return S.classes[s][class_name]
         return False
 
+    def import_error(message):
+        ctx = S.input.context()
+        raise new ImportError(message, ctx.tokline, ctx.tokcol, ctx.tokpos)
+
     def do_import(key):
         if IMPORTED.hasOwnProperty(key):
             return
         if IMPORTING.hasOwnProperty(key) and IMPORTING[key]:
-            raise ImportError('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
+            import_error('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
 
         # Ensure that the package containing this module is also imported
         package_module_id = key.split('.')[:-1].join('.')
@@ -1317,7 +1321,7 @@ def parse($TEXT, options):
             do_import(package_module_id)
 
         if options.for_linting:
-            IMPORTED[key] = {is_cached:True, classes:{}, outputs:{}, module_id:key,
+            IMPORTED[key] = {is_cached:True, classes:{}, outputs:{}, module_id:key, exports:[],
                              submodules:[], nonlocalvars:[], baselib:{}, outputs:{}}
             if len(package_module_id) > 0:
                 IMPORTED[package_module_id].submodules.push(key)
@@ -1344,7 +1348,7 @@ def parse($TEXT, options):
                     src_code = data
                     break
         if src_code is None:
-            raise "Failed Import: '" + key + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'"
+            import_error("Failed Import: '" + key + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'")
 
         try:
             cached = JSON.parse(readfile(filename + '-cached', 'utf-8'))
@@ -1355,8 +1359,10 @@ def parse($TEXT, options):
         if cached and cached['version'] == COMPILER_VERSION and cached['signature'] == srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
-            IMPORTED[key] = {is_cached:True, classes:cached['classes'], outputs:cached['outputs'], module_id:key,
-                             submodules:[], nonlocalvars:cached['nonlocalvars'], baselib:cached['baselib']}
+            IMPORTED[key] = {
+                is_cached:True, classes:cached['classes'], outputs:cached['outputs'], module_id:key,
+                submodules:[], nonlocalvars:cached['nonlocalvars'], baselib:cached['baselib'], exports:cached.exports
+            }
         else:
             parse(src_code, {
                 filename: filename,
@@ -1416,8 +1422,13 @@ def parse($TEXT, options):
                 bracketed = is_('punc', '(')
                 if bracketed:
                     next()
+                exports = {}
+                for symdef in IMPORTED[key].exports:
+                    exports[symdef.name] = True
                 while True:
                     aname = as_symbol(AST_ImportedVar)
+                    if not options.for_linting and not exports.hasOwnProperty(aname.name):
+                        import_error('The symbol "' + aname.name + '" is not exported from the module: ' + key)
                     if is_('keyword', 'as'):
                         next()
                         aname.alias = as_symbol(AST_SymbolAlias)

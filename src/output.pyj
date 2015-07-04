@@ -921,10 +921,16 @@ def reset_index_counter():
                     output_module(output)
                     declare_submodules(self.module_id, self.submodules, output)
                     if self.srchash and self.filename:
-                        cached = {version:COMPILER_VERSION, 'signature':self.srchash, classes: {}, baselib:self.baselib, nonlocalvars:self.nonlocalvars, outputs:{}, imported_module_ids:self.imported_module_ids}
+                        cached = {
+                            version:COMPILER_VERSION, 'signature':self.srchash, classes: {}, baselib:self.baselib,
+                            nonlocalvars:self.nonlocalvars, imported_module_ids:self.imported_module_ids, exports:[],
+                            outputs:{},
+                        }
                         for cname in Object.keys(self.classes):
                             cobj = self.classes[cname]
                             cached.classes[cname] = {name:{name:cobj.name.name}, 'static':cobj.static, 'bound':cobj.bound}
+                        for symdef in self.exports:
+                            cached.exports.push({name:symdef.name})
                         for beautify in [True, False]:
                             for auto_bind in [True, False]:
                                 co = OutputStream({beautify:beautify, auto_bind:auto_bind, private_scope:False, write_name:False})
