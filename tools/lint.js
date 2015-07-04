@@ -391,7 +391,7 @@ function Linter(toplevel, filename, code, options) {
 
 function lint_code(code, options) {
     options = options || {};
-    var reportcb = options.report || ((options.json) ? cli_json_report : cli_report);
+    var reportcb = options.report || ((options.errorformat === 'json') ? cli_json_report : ((options.errorformat === 'vim') ? cli_vim_report : cli_report));
     var filename = options.filename || '<eval>';
     var toplevel;
 
@@ -450,6 +450,13 @@ function cli_json_report(r, i, messages) {
     console.log((i < messages.length - 1) ? ',' : ']');
 }
 
+function cli_vim_report(r) {
+    var parts = [];
+    parts.push(r.filename); parts.push(r.start_line || 0); parts.push(r.start_col || 0);
+    parts.push((r.level === WARN) ? 'W' : 'E'); parts.push(r.name || ''); parts.push(r.ident + ': ' + r.message);
+    console.log(parts.join(':'));
+}
+
 module.exports.cli = function(argv, base_path, src_path, lib_path) {
     var files = argv.files.slice();
     var num_of_files = files.length || 1;
@@ -482,7 +489,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
             console.error("ERROR: can't read file: " + file);
             process.exit(1);
         }
-        if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa, json:argv.json || false}).length) all_ok = false;
+        if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
 
         files = files.slice(1);
         if (files.length) {

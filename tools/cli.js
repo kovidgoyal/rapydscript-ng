@@ -18,6 +18,7 @@ function OptionGroup(name) {
         'boolean': {},
         'alias': {},
         'default': {},
+        'choices': {},
     };
 
     this.help = {};
@@ -104,7 +105,7 @@ function print_usage(group) {  // {{{
 
 // Process options {{{
 
-function opt(name, aliases, type, default_val, help_text) {
+function opt(name, aliases, type, default_val, help_text, choices) {
 	var match = utils.comment_contents.exec(help_text.toString());
     var options = group.options;
     var seen = group.seen;
@@ -116,7 +117,10 @@ function opt(name, aliases, type, default_val, help_text) {
 	help_text = match[1];
 
 	if (!type || type == 'bool') options.boolean[name] = true;
-	else if (type == 'string') options.string[name] = true;
+	else if (type == 'string') {
+        options.string[name] = true;
+        if (choices) options.choices[name] = choices;
+    }
 	
 	if (default_val !== undefined) options.default[name] = default_val;
 
@@ -173,7 +177,7 @@ function parse_args() {  // {{{
 			if (!val) val = 'true';
 			if (val === 'true' || val === '1') val = true;
 			else if (val === 'false' || val === '0') val = false;
-			else { console.error('The value:', val, 'is invalid for the boolean option:', name); process.exit(1); }
+			else { console.error('The value:', colored(val, 'red'), 'is invalid for the boolean option:', colored(name, 'red')); process.exit(1); }
 			ans[name] = val;
 		} else {
 			if (val !== undefined) ans[name] = val;
@@ -213,6 +217,14 @@ function parse_args() {  // {{{
 		else plain_arg(arg);
 	});
 	if (state !== undefined) plain_arg('');
+    Object.keys(options.choices).forEach(function(name) {
+        var allowed = options.choices[name];
+        if (allowed.indexOf(ans[name]) < 0) {
+            print_usage(groups[ans.mode]);
+            console.error('The value "' + colored(ans[name], 'red') + '" is not allowed for ' + colored(name, 'red') + '. Allowed values: ' + options.choices[name].join(', '));
+            process.exit(1);
+        }
+    });
 	return ans;
 } // }}}
 
@@ -307,10 +319,13 @@ The check names are output in the linter's normal output, you
 can also list all check names with --noqa-list.
 */});
 
-opt("json", 'j', 'bool', false, function(){/*
-Output the results in JSON format for easy machine
-consumption.
-*/});
+opt("errorformat", 'f,s,style', 'string', 'human', function(){/*
+Output the results in the specified format. Valid formats are:
+human - output is suited for reading by humans (the default)
+json - output is in JSON format
+vim  - output can be consumed by vim's errorformat directive
+       (format string: %f:%l:%c:%t:%s:%m)
+*/}, ['human', 'json', 'vim']);
 
 opt("noqa_list", '', 'bool', false, function(){/*
 List all available linter checks, with a brief
