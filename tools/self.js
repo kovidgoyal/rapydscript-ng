@@ -9,101 +9,92 @@
 var path = require('path');
 var crypto = require('crypto');
 var fs = require('fs');
-var RapydScript = require('./compiler');
 
-function compile_once(base_path, src_path, lib_path, start_time) {
-    var output_options = {'beautify': true, 'private_scope': false, 'omit_baselib': true, 'write_name': false};
-	var baselib = RapydScript.parse_baselib(src_path, true);
-    var count = 0;
-
-    function timed(name, cont) {
-        var t1 = new Date().getTime();
-        console.log('Compiling', name, '...');
-        var ret = cont();
-        console.log('Compiled in', (new Date().getTime() - t1)/1000, 'seconds\n');
-        count++;
-        return ret;
-    }
-
-	function parse_file(code, file) {
-		return RapydScript.parse(code, {
-			filename: file,
-			basedir: path.dirname(file),
-			auto_bind: false,
-			libdir: path.join(src_path, 'lib'),
-		});
-	}
-
-    var saved_hashes = {}, hashes = {}, compiled = {};
-    var compiler_changed = false, sha1sum;
-    var signatures = path.join(lib_path, 'signatures.json');
+function check_for_changes(base_path, src_path, signatures) {
+    // Check if any of the files involved in the build process have changed,
+    // as compared to the saved sha1 hashes from the last build
+    var saved_hashes = {}, hashes = {}, sources = {};
+    var compiler_changed = false, compiler_hash, source_hash;
     try {
         saved_hashes = JSON.parse(fs.readFileSync(signatures, 'utf-8'));
     } catch (e) {
         if (e.code != 'ENOENT') throw (e);
     }
 
-    sha1sum = crypto.createHash('sha1');
-    RapydScript.FILES.concat([module.filename, path.join(base_path, 'tools', 'compiler.js')]).forEach(function (fpath) {
-        sha1sum.update(fs.readFileSync(fpath));
+    var src_file_names = fs.readdirSync(src_path).filter(function(fname) {
+        return fname.substr(-4) === '.pyj';
     });
-    hashes['#compiler#'] = sha1sum.digest('hex');
+    compiler_hash = crypto.createHash('sha1');
     source_hash = crypto.createHash('sha1');
-    sources = {};
-    RapydScript.FILENAMES.forEach(function (fname) {
-        var src = path.join(src_path, fname + '.pyj');
+    src_file_names.forEach(function(fname) {
+        var src = path.join(src_path, fname);
+        sources[src] = fs.readFileSync(src, 'utf-8');
+        compiler_hash.update(sources[src]);
+        source_hash.update(sources[src]);
         var h = crypto.createHash('sha1');
-        var raw = fs.readFileSync(src, 'utf-8');
-        sources[src] = raw;
-        source_hash.update(raw);
-        h.update(raw);
-        hashes[fname] = h.digest('hex');
+        h.update(sources[src]);
+        hashes[fname.split('.')[0]] = h.digest('hex');
     });
+    var compiler_files = [module.filename, path.join(base_path, 'tools', 'compiler.js')];
+    compiler_files.forEach(function(fpath) { 
+        compiler_hash.update(fs.readFileSync(fpath, 'utf-8'));
+    });
+    hashes['#compiler#'] = compiler_hash.digest('hex');
+    hashes['#compiled_with#'] = saved_hashes['#compiler#'] || 'unknown';
     source_hash = source_hash.digest('hex');
-    compiler_changed = (hashes['#compiler#'] != saved_hashes['#compiler#']) ? true : false;
-    function changed(name) {
-        return compiler_changed || hashes[name] != saved_hashes[name];
+    if (hashes['#compiler#'] != saved_hashes['#compiler#']) {
+        console.log('There are changes to the source files of the compiler, rebuiliding');
+        compiler_changed = true;
+    } else if (hashes['#compiled_with#'] != saved_hashes['#compiled_with#']) {
+        console.log('Re-building compiler with updated version of itself');
+        compiler_changed = true;
     }
 
-    function generate_baselib() {
-        var output = '';
-        Object.keys(baselib).forEach(function(key) {
-            output += String(baselib[key]) + '\n\n';
-        });
-        return output;
-    }
-
-    if (changed('baselib')) compiled.baselib = timed('baselib', generate_baselib);
-    RapydScript.FILENAMES.slice(1).forEach(function (fname) {
-        if (changed(fname)) {
-            var src = path.join(src_path, fname + '.pyj');
-            timed(fname, function() {
-                var raw = sources[src];
-                if (fname === 'parse')
-                    raw = raw.replace('__COMPILER_VERSION__', source_hash);
-                var toplevel = parse_file(raw, src);
-                var output = RapydScript.OutputStream(output_options);
-                toplevel.print(output);
-                compiled[fname] = output.get();
-            });
-        }
-    });
-    if (count) {
-        console.log('Compiling RapydScript succeeded (', (new Date().getTime() - start_time)/1000, 'seconds ), writing output...');
-        Object.keys(compiled).forEach(function (fname) {
-            fs.writeFileSync(path.join(lib_path, fname + '.js'), compiled[fname], "utf8");
-        });
-        fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
-    } else {
-        console.log('Compilation not needed, nothing is changed');
-    }
-    return count;
+    return [source_hash, compiler_changed, sources, hashes];
 }
 
-module.exports = function compile_self(base_path, src_path, lib_path, start_time, complete) {
-    var count;
+function compile(src_path, lib_path, sources, source_hash) {
+    var file = path.join(src_path, 'compiler.pyj');
+    var t1 = new Date().getTime();
+    var RapydScript = require('./compiler').create_compiler();
+    var output_options = {
+        'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
+    };
+    var raw = sources[file];
+
+	function parse_file(code, file) {
+		return RapydScript.parse(code, {
+			filename: file,
+			basedir: path.dirname(file),
+			libdir: path.join(src_path, 'lib'),
+		});
+	}
+
+    var toplevel = parse_file(raw, file);
+    var output = RapydScript.OutputStream(output_options);
+    toplevel.print(output);
+    output = output.get().replace('__COMPILER_VERSION__', source_hash);
+    fs.writeFileSync(path.join(lib_path, 'compiler.js'), output, "utf8");
+    console.log('Compiler built in', (new Date().getTime() - t1)/1000, 'seconds\n');
+    RapydScript.reset_index_counter();
+    return output;
+}
+
+function run_single_compile(base_path, src_path, lib_path) {
+    var signatures = path.join(lib_path, 'signatures.json');
+    var temp = check_for_changes(base_path, src_path, signatures);
+    var source_hash = temp[0], compiler_changed = temp[1], sources = temp[2], hashes = temp[3];
+    
+    if (compiler_changed) {
+        compile(src_path, lib_path, sources, source_hash);
+        fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
+    } else console.log('Compiler is built with the up-to-date version of itself');
+    return compiler_changed;
+}
+
+module.exports = function compile_self(base_path, src_path, lib_path, complete) {
+    var changed;
     do {
-        count = compile_once(base_path, src_path, lib_path, start_time);
-        if (RapydScript.reset_index_counter) RapydScript.reset_index_counter();
-    } while (count > 0 && complete);
+        changed = run_single_compile(base_path, src_path, lib_path);
+    } while (changed && complete);
 };

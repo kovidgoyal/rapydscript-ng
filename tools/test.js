@@ -7,7 +7,7 @@
 "use strict;";
 var path = require('path');
 var fs = require('fs');
-var RapydScript = require('./compiler');
+var RapydScript = require('./compiler').create_compiler();
 var colored = require('./utils').safe_colored;
 
 module.exports = function(argv, base_path, src_path, lib_path) {

@@ -384,7 +384,7 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
                 for d in node.decorators:
                     d.walk(visitor)
             node.name._walk(visitor)
-            walk_body(this, visitor)
+            walk_body(node, visitor)
             if (node.parent) node.parent._walk(visitor)
         )
 }, AST_Scope)

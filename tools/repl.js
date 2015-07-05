@@ -13,7 +13,7 @@ var vm = require('vm');
 var readline = require('readline');
 var util = require('util');
 var colored = require('./utils').safe_colored;
-var RapydScript = require('./compiler');
+var RapydScript = require('./compiler').create_compiler();
 
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});

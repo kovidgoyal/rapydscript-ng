@@ -1,0 +1,47 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from utils import DefaultsError, string_template
+from parse import (
+    parse, ALL_KEYWORDS, IDENTIFIER_PAT, NATIVE_CLASSES, ImportError,
+    JS_Parse_Error, tokenizer
+)
+from output import OutputStream, reset_index_counter
+
+path = require('path')
+fs = require('fs')  # noqa:undef
+
+def parse_baselib(src_path, beautify):
+    baselib_path = path.join(src_path, 'baselib.pyj')
+    baselib_ast = parse(fs.readFileSync(baselib_path, "utf-8"))
+    output = OutputStream({
+        private_scope: False,
+        beautify: beautify,
+        write_name: False,
+        omit_baselib: True,  # We are generating baselib here, cannot depend on it
+    })
+    baselib_ast.print(output)
+    return eval(output.get())
+
+# The following allows this module to be used from a pure javascript, require()
+# based environment like Node.js
+if type(exports) == 'object':
+    exports.DefaultsError = DefaultsError
+    exports.parse = parse
+    exports.OutputStream = OutputStream
+    exports.parse_baselib = parse_baselib
+    exports.reset_index_counter = reset_index_counter
+    exports.string_template = string_template  # noqa:undef
+    # Needed for REPL and linter
+    exports.ALL_KEYWORDS = ALL_KEYWORDS
+    exports.IDENTIFIER_PAT = IDENTIFIER_PAT
+    exports.NATIVE_CLASSES = NATIVE_CLASSES
+    exports.ImportError = ImportError
+    exports.JS_Parse_Error = JS_Parse_Error
+    exports.tokenizer = tokenizer
+    # Magic! Export all the AST_* nodes
+    ast = _$rapyd$_modules['ast']
+    for ast_node in ast:
+        if ast_node.substr(0, 4) == 'AST_':
+            exports[ast_node] = ast[ast_node]  # noqa:undef

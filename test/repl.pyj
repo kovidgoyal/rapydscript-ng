@@ -98,7 +98,7 @@ def completions(line):
 def check_completions():
     items = completions(arguments[0])
     for x in Array.prototype.slice.call(arguments, 1):
-        assert.ok(x in items, x + ' not in completions for: ' + arguments[0])
+        assert.ok(items and x in items, x + ' not in completions for: ' + arguments[0])
 
 check_completions('', 'return', 'A')
 check_completions('Array.', 'isArray', 'apply')
