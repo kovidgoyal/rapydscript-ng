@@ -74,9 +74,7 @@ function Binding(name, node, options) {
     this.node = node;
     this.name = name;
     this.is_import = !!options.is_import;
-    this.is_toplevel = !!options.is_toplevel;
-    this.is_class = !!options.is_class;
-    this.is_function = !!(options.is_function && !options.is_class);
+    this.is_function = !!options.is_function;
     this.is_func_arg = !!options.is_func_arg;
     this.is_method = !!options.is_method;
 
@@ -86,9 +84,10 @@ function Binding(name, node, options) {
 
 var merge = utils.merge;
 
-function Scope(is_toplevel, parent_scope, filename) {
+function Scope(is_toplevel, parent_scope, filename, is_class) {
     this.parent_scope = parent_scope;
     this.is_toplevel = !!is_toplevel;
+    this.is_class = !!is_class;
     this.bindings = {};
     this.children = [];
     this.shadowed = [];
@@ -174,7 +173,7 @@ function Scope(is_toplevel, parent_scope, filename) {
             var b = this.unused_bindings[name];
             if (b.is_import) {
                 ans.push(msg_from_node(filename, 'unused-import', name, b.node));
-            } else if (!b.is_toplevel && !b.is_func_arg && !b.is_method && !this.nonlocals.hasOwnProperty(name)) {
+            } else if (!this.is_toplevel && !this.is_class && !b.is_func_arg && !b.is_method && !this.nonlocals.hasOwnProperty(name)) {
                 ans.push(msg_from_node(filename, 'unused-local', name, b.node));
             }
         }, this);
@@ -211,10 +210,8 @@ function Linter(toplevel, filename, code, options) {
         var scope = this.scopes[this.scopes.length - 1];
         var node = this.current_node;
         var options = {
-            is_toplevel: scope.is_toplevel, 
             is_import: (node instanceof RapydScript.AST_Import || node instanceof RapydScript.AST_ImportedVar),
             is_function: (node instanceof RapydScript.AST_Lambda),
-            is_class: (node instanceof RapydScript.AST_Class),
             is_method: (node instanceof RapydScript.AST_Method),
             is_func_arg: (node instanceof RapydScript.AST_SymbolFunarg),
         };
@@ -305,7 +302,7 @@ function Linter(toplevel, filename, code, options) {
 
     this.handle_scope = function() {
         var node = this.current_node;
-        var nscope = new Scope(node instanceof RapydScript.AST_Toplevel, this.scopes[this.scopes.length - 1], filename);
+        var nscope = new Scope(node instanceof RapydScript.AST_Toplevel, this.scopes[this.scopes.length - 1], filename, node instanceof RapydScript.AST_Class);
         if (this.scopes.length) this.scopes[this.scopes.length - 1].children.push(nscope);
         this.scopes.push(nscope);
     };

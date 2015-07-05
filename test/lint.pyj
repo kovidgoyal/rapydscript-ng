@@ -118,6 +118,13 @@ ok_test('try:\n 1\nexcept Error as e:\n e')
 ok_test('''
 class A:
 
+    h = j = 1
+    x = h + j
+    if True:
+        k = 1
+    else:
+        k = 2
+
     def __init__(self, a):
         self.a = a
 
