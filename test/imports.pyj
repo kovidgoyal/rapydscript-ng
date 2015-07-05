@@ -1,3 +1,4 @@
+# globals:test_path
 from one import toplevel_var, toplevel_func as tf, TopLevel, true_var, false_var, test_other
 from two import (toplevel_var2,
                  toplevel_func2, TopLevel2 as TL2)

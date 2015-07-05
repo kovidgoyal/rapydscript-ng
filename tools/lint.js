@@ -580,6 +580,8 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
             console.error("ERROR: can't read file: " + files[0]);
             process.exit(1);
         }
+
+        // Read setup.cfg
         rl = get_ini(path.dirname(files[0]));
         var g = {};
         (rl.globals || rl.builtins || '').split(',').forEach(function (x) { g[x.trim()] = true; });
@@ -587,6 +589,14 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         g = {};
         (rl.noqa || '').split(',').forEach(function (x) { g[x.trim()] = true; });
         final_noqa = merge(final_noqa, g);
+
+        // Look for # globals: in the first few lines of the file
+        code.split('\n', 20).forEach(function (line) {
+            if (line.replace(' ', '').substr(0, 9) === '#globals:') 
+                (line.split(':', 2)[1] || '').split(',').forEach(function (item) { final_builtins[item.trim()] = true; });
+        });
+
+        // Lint!
         if (lint_code(code, {filename:files[0], builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
 
         files = files.slice(1);
