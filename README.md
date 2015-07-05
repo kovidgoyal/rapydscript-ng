@@ -77,6 +77,11 @@ For more help, use ```rapydscript -h```.
 
 Getting Started
 ---------------
+
+RapydScript comes with its own Read-Eval-Print-Loop (REPL). Just run
+``rapydscript`` without any arguments to get started trying out the code
+snippets below.
+
 Like JavaScript, RapydScript can be used to create anything from a quick function to a complex web-app. RapydScript can access anything regular JavaScript can, in the same manner. Let's say we want to write a function that greets us with a "Hello World" pop-up. The following code will do it:
 
 	def greet():
@@ -903,6 +908,36 @@ It is for that reason that I try to keep RapydScript bells and whistles to a min
 
 For the most part, the logic implemented in these libraries functions identically to the Python versions. One notable exception is that unittest library requires that classes be bound to the `global` (nodejs) or `window` (browser) object to be picked up by `unittest.main()`. An example in `unitetest.pyj` shows this usage. I'd be happy to include more libraries, if other members of the community want to implement them (it's fun to do, `re.pyj` is a good example), but I want to reemphasize that unlike most other Python-to-JavaScript compilers, RapydScript doesn't need them to be complete since there are already tons of available JavaScript libraries that it can use natively.
 
+Linter
+---------
+
+The RapydScript compiler includes its own, built in linter. The linter is
+modeled on pyflakes, it catches instances of unused/undefined variables,
+fucntions, symbols, etc. While this sounds simple, it is surprisingly effective
+in practice. To run the linter:
+
+	rapydscript lint file.pyj
+
+It will catch many errors, for example,
+
+	def f():
+	   somevar = 1
+	   return someva
+
+The linter will catch the typo above, saving you from having to discover it at
+runtime. Another example:
+
+	def f(somevar1):
+		somevar2 = somevar1 * 2
+		return somevar1
+
+Here, you probablt meant to return ``somevar2`` not ``somevar1``. The linter
+will detect that somevar2 is defined but not used and warn you about it.
+
+The linter is highly configurable, you can add ot the list of builtin names
+that the linter will not raise undefined errors for. You can turn off
+individual checks that you dont find useful. See ``rapydscript lint -h`` for
+details.
 
 Advanced Usage Topics
 ---------------------
@@ -1036,7 +1071,11 @@ Changes in this fork compared to atsepkov/RapydScript
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
 
-4. The command line interface has been cleaned up with many new options and
+4. There is now a linter that checks for various problems in your code. Most of
+   the checks are for unused/undefined names, like pyflakes. But, there are
+   also many other checks for invalid or problematic code.
+
+5. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid
    of the dependencies on ```async``` and ```optimist```.

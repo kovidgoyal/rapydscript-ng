@@ -13,6 +13,7 @@ var colored = utils.safe_colored;
 function OptionGroup(name) {
     this.name = name;
     this.description = undefined;
+    this.extra = undefined;
     this.options = {
         'string': {},
         'boolean': {},
@@ -27,7 +28,7 @@ function OptionGroup(name) {
 
 var groups = {}, group;
 
-function create_group(name, usage, description) {
+function create_group(name, usage, description, extra) {
     group = new OptionGroup(name);
     var match = utils.comment_contents.exec(description.toString());
     if (!match) {
@@ -36,6 +37,11 @@ function create_group(name, usage, description) {
     group.description = match[1];
     group.usage = name + ' [options] ' + usage;
     groups[name] = group;
+
+    if (extra) {
+        match = utils.comment_contents.exec(extra.toString());
+        if (match) group.extra = match[1];
+    }
 
 opt('help', 'h', 'bool', false, function(){/*
 show this help message and exit
@@ -79,6 +85,7 @@ function print_usage(group) {  // {{{
     // Group specific usage
 
     console.log(group.description);
+    if (group.extra) console.log('\n' + group.extra);
 	console.log(colored('\nOptions:', COL1));
     var options = group.options;
     var help = group.help;
@@ -304,7 +311,38 @@ possible problems in the .pyj files you specify and
 write messages about them to stdout.
 The main check it performs is for unused/undefined 
 symbols, like pyflakes does for python.
-*/});
+*/}, function() {/*
+In addition to the command line options listed below,
+you can also control the linter in a couple of other ways.
+
+In the actual source files, you can turn off specific checks
+on a line by line basis by adding: # noqa:check1,check2...
+to the end of the line. For example:
+
+  f()  # noqa:undef
+
+will prevent the linter from showing undefined symbol
+errors for this line. Similarly, you can tell the linter
+about global (builtin) symbols with a comment near the top
+of the file, for example:
+
+# globals:assert,myglobalvar
+
+This will prevent the linter form treating these names as 
+undefined symbols.
+
+Finally, the linter looks for a setup.cfg file in the
+directory containing the file being linted or any of its 
+parent directories. You can both turn off individual checks
+and define project specific global symbols in the setup.cfg
+file, like this:
+
+[rapydscript]
+globals=myglobalvar,otherglobalvar
+noqa=undef,eol-semicolon
+
+*/
+});
 
 opt("globals", 'g,b,builtins', 'string', '', function(){/*
 Comma separated list of additional names that the linter will
