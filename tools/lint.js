@@ -83,12 +83,7 @@ function Binding(name, node, options) {
     this.used = false;
 }
 
-function merge(one, two) {
-    var ans = {};
-    Object.keys(one).forEach(function (n) { ans[n] = one[n]; });
-    Object.keys(two).forEach(function (n) { ans[n] = two[n]; });
-    return ans;
-}
+var merge = utils.merge;
 
 function Scope(is_toplevel, parent_scope, filename) {
     this.parent_scope = parent_scope;
@@ -543,9 +538,19 @@ function cli_vim_report(r) {
     console.log(parts.join(':'));
 }
 
+var ini_cache = {};
+
+function get_ini(toplevel_dir) {
+    if (ini_cache.hasOwnProperty(toplevel_dir)) return ini_cache[toplevel_dir];
+    var rl = require('./ini').read_config(toplevel_dir).rapydscript || {};
+    ini_cache[toplevel_dir] = rl;
+    return rl;
+}
+
 module.exports.cli = function(argv, base_path, src_path, lib_path) {
     var files = argv.files.slice();
     var num_of_files = files.length || 1;
+    var read_config = require('./ini');
 
     if (argv.noqa_list) {
         Object.keys(MESSAGES).forEach(function(ident) {
@@ -558,7 +563,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         process.exit(0);
     }
 
-    if (files.filter(function(el){ return el == "-"; }).length > 1) {
+    if (files.filter(function(el){ return el === "-"; }).length > 1) {
         console.error("ERROR: Can read a single file from STDIN (two or more dashes specified)");
         process.exit(1);
     }
@@ -570,12 +575,19 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
     if (argv.noqa) argv.noqa.split(',').forEach(function(sym) { noqa[sym] = true; });
 
     function lint_single_file(err, code) {
-        var output;
+        var output, final_builtins = merge(builtins), final_noqa = merge(noqa), rl;
         if (err) {
             console.error("ERROR: can't read file: " + files[0]);
             process.exit(1);
         }
-        if (lint_code(code, {filename:files[0], builtins:builtins, noqa:noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
+        rl = get_ini(path.dirname(files[0]));
+        var g = {};
+        (rl.globals || rl.builtins || '').split(',').forEach(function (x) { g[x.trim()] = true; });
+        final_builtins = merge(final_builtins, g);
+        g = {};
+        (rl.noqa || '').split(',').forEach(function (x) { g[x.trim()] = true; });
+        final_noqa = merge(final_noqa, g);
+        if (lint_code(code, {filename:files[0], builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
 
         files = files.slice(1);
         if (files.length) {
