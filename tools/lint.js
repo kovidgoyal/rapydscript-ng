@@ -34,7 +34,7 @@ BUILTINS = {
     'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
     'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
     'parseInt':true, 'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
-    '_$rapyd$_modules':true, 'require':true,
+    '_$rapyd$_modules':true, 'require':true, 'bool':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
