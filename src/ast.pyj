@@ -376,7 +376,7 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         )
 }, AST_Scope)
 
-AST_Method = DEFNODE("Defun", "static", {
+AST_Method = DEFNODE("Method", "static", {
     $documentation: "A class method definition",
     $propdoc: {
         "static": "[boolean] true if method is static"
