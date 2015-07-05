@@ -508,8 +508,9 @@ def tokenizer($TEXT, filename):
             name = "\\u" + "0000".substr(hex.length) + hex + name.slice(1)
         return name
 
-    read_regexp = with_eof_error("Unterminated regular expression", def(regexp):
+    read_regexp = with_eof_error("Unterminated regular expression", def():
         prev_backslash = False
+        regexp = ''
 
         in_class = False
         while ch = next(True):
@@ -561,9 +562,7 @@ def tokenizer($TEXT, filename):
         word = read_name()
         return (KEYWORDS_ATOM(word) ? token("atom", word) : (not KEYWORDS(word) ? token("name", word) : (OPERATORS(word) and prevChar() != "." ? token("operator", word) : token("keyword", word))))
 
-    def next_token(force_regexp):
-        if force_regexp not in (None, undefined):
-            return read_regexp(force_regexp)
+    def next_token():
 
         indent = parse_whitespace()
         #        if (indent == 1)

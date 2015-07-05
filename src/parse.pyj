@@ -139,7 +139,7 @@ def parse($TEXT, options):
         input: (typeof $TEXT == "string" ? tokenizer($TEXT, options.filename) : $TEXT),
         token: None,
         prev: None,
-        peeked: None,
+        peeked: [],
         in_function: 0,
         in_directives: True,
         in_loop: 0,
@@ -156,9 +156,8 @@ def parse($TEXT, options):
 
     def next():
         S.prev = S.token
-        if S.peeked:
-            S.token = S.peeked
-            S.peeked = None
+        if S.peeked.length:
+            S.token = S.peeked.shift()
         else:
             S.token = S.input()
 
@@ -171,7 +170,9 @@ def parse($TEXT, options):
         return is_token(S.token, type, value)
 
     def peek():
-        return S.peeked or (S.peeked = S.input())
+        if not S.peeked.length:
+            S.peeked.push(S.input())
+        return S.peeked[0]
 
     def prev():
         return S.prev
@@ -397,9 +398,14 @@ def parse($TEXT, options):
         return vars
 
     statement = embed_tokens(def():
-        if is_("operator", "/") or is_("operator", "/="):
-            S.peeked = None
-            S.token = S.input(S.token.value.substr(1))
+        # From Kovid: The next three lines were a hack to try to support statements
+        # starting with a regexp literal. However, it did not work, for example:
+        # echo 'f=1\n/asd/.test()' | rs -> parse error
+        # So we just accept that this cannot be supported in RS, and avoid hacks that mess
+        # with the internal state of S. In any case,
+        # statements starting with a literal are very rare.
+        if S.token.type == 'operator' and S.token.value.substr(0, 1) == '/':
+            token_error(S.token, 'RapydScript does not support statements starting with regexp literals')
 
         tmp_ = S.token.type
         if tmp_ == "string":
