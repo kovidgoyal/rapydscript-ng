@@ -6,3 +6,5 @@ items -= {'.git', 'lib'}
 vim.command('nnoremap <leader>k :silent !git difftool -d ' + ' '.join(items) + ' -d &<CR>')
 EOF
 endif
+
+set wildignore+=*.pyj-cached
