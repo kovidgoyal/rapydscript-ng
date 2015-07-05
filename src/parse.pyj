@@ -210,15 +210,18 @@ def parse_js_number(num):
 class JS_Parse_Error(Error):
 
     def __init__(self, message, line, col, pos, is_eof):
-        Error.__init__(self)
         self.message = message
         self.line = line
         self.col = col
         self.pos = pos
         self.is_eof = is_eof
+        self.stack = Error().stack
 
     def toString(self):
-        return this.message + " (line: " + this.line + ", col: " + this.col + ", pos: " + this.pos + ")" + "\n\n" + this.stack
+        ans = self.message + " (line: " + self.line + ", col: " + self.col + ", pos: " + self.pos + ")"
+        if self.stack:
+            ans += "\n\n" + self.stack
+        return ans
 
 class ImportError(JS_Parse_Error):
     pass

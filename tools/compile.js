@@ -78,7 +78,13 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             process.exit(1);
         }
         time_it("parse", function(){
-            TOPLEVEL = parse_file(code, files[0], TOPLEVEL);
+            try {
+                TOPLEVEL = parse_file(code, files[0], TOPLEVEL);
+            } catch (e) {
+                if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+                console.error((files[0] || '<stdin>') + ':' + e.toString());
+                process.exit(1);
+            }
         });
 
         try {
@@ -138,7 +144,13 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     }
 
     if (!argv.omit_baselib) {
-        OUTPUT_OPTIONS.baselib = RapydScript.parse_baselib(src_path, OUTPUT_OPTIONS.beautify);
+        try {
+            OUTPUT_OPTIONS.baselib = RapydScript.parse_baselib(src_path, OUTPUT_OPTIONS.beautify);
+        } catch(e) {
+            if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+            console.error(('src/baselib.pyj') + ':' + e.toString());
+            process.exit(1);
+        }
     }
 
     if (files.filter(function(el){ return el == "-"; }).length > 1) {
