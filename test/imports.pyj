@@ -1,4 +1,4 @@
-# globals:test_path
+# globals:test_path, GLOBAL_SYMBOL
 from one import toplevel_var, toplevel_func as tf, TopLevel, true_var, false_var, test_other
 from two import (toplevel_var2,
                  toplevel_func2, TopLevel2 as TL2)
@@ -55,7 +55,7 @@ b = AClass(1)
 eq(b, this)
 
 # Test global symbol declared in other module
-eq(GLOBAL_SYMBOL, 'i am global')  # noqa:undef
+eq(GLOBAL_SYMBOL, 'i am global')
 
 # Import errors happen during parsing, so we cannot test them directly as they would
 # prevent this file from being parsed.
