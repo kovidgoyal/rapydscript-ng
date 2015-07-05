@@ -1039,6 +1039,9 @@ below:
   Python, which RapydScript corrects :) Note that loop variables in ordinary
   for loops do leak into the surrounding scope, just as in Python.
 
+- Nested comprehensions are not supported. So you cannot do this:
+	[a for a in b for b in c]
+
 - RapydScript automatically appends 'new' keyword when using classes generated
   by it, native JavaScript objects like `Image` and `RegExp` and classes from
   other libraries marked as external. However, automatic new insertion depends
