@@ -1091,6 +1091,10 @@ This list below records all the work I have done on RapydScript so far.
 1. RapydScript now supports the Python conditional operator syntax:
    ``a = 1 if b else 2``
 
+1. RapydScript now supports class level variables. The original compiler used
+   to simply throw away all non-method code in the class context. It doesn;t do
+   that any more :)
+
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid
