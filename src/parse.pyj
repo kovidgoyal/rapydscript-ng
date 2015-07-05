@@ -1225,6 +1225,9 @@ def parse($TEXT, options):
             tmp_ = start.value
             if tmp_ == "(":
                 next()
+                if is_('punc', ')'):
+                    next()
+                    return new AST_Array({elements:[]})
                 ex = expression(True)
                 ex.start = start
                 ex.end = S.token

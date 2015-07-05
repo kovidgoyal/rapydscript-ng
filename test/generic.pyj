@@ -11,6 +11,8 @@ assert.equal(a, 33)
 # comparisons
 assert.ok(3<5<7)
 
+# Empty tuple
+assert.deepEqual((), [])
 
 # strict equality
 assert(1 == 1)                  # number vs number: ok
