@@ -899,7 +899,7 @@ def parse($TEXT, options):
 
         for i in dir(definition.body):
             stmt = definition.body[i]
-            if not isinstance(stmt, AST_Method):
+            if not isinstance(stmt, AST_Method) and not isinstance(stmt, AST_Class):
                 stmt.walk(visitor)
                 definition.statements.push(stmt)
         return definition
