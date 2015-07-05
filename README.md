@@ -4,7 +4,7 @@ RapydScript
 [![Build Status](https://secure.travis-ci.org/kovidgoyal/RapydScript.png)](http://travis-ci.org/kovidgoyal/RapydScript)
 
 This is a fork of the original RapydScript that adds many new (not always
-backwards compatible) changes. For a list of changes, see the bottom of this file.
+backwards compatible) changes. For a list of changes, [see the bottom of this file](#user-content-changes-in-this-fork-compared-to-atsepkovrapydscript)
 
 What is RapydScript?
 --------------------
@@ -1065,6 +1065,9 @@ below:
 Changes in this fork compared to atsepkov/RapydScript
 ----------------------------------------------------------
 
+Some of these changes might have been merged back into the official repository.
+This list below records all the work I have done on RapydScript so far.
+
 1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
    It even has its own tests to make sure nothing breaks :)
 
@@ -1077,15 +1080,16 @@ Changes in this fork compared to atsepkov/RapydScript
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
 
-1. There is now a linter that checks for various problems in your code. Most of
-   the checks are for unused/undefined names, like pyflakes. But, there are
-   also many other checks for invalid or problematic code.
+1. There is now a ``linter`` that checks for various problems in your code. Most of
+   the checks are for unused/undefined names, like ``pyflakes``. But, there are
+   also many other checks for invalid or problematic code. To use it: ``rs lint
+   file.pyj``
 
 1. RapydScript now supports the Python integer (floor) division operator. 
-   100 // 3 = 33
+   ``100 // 3 = 33``
 
 1. RapydScript now supports the Python conditional operator syntax:
-		a = 1 if b else 2
+   ``a = 1 if b else 2``
 
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
