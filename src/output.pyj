@@ -1454,6 +1454,12 @@ def codegen():
             output.semicolon()
             output.newline()
 
+        self.statements.forEach(def(stmt):
+            output.indent()
+            stmt.print(output)
+            output.newline()
+        )
+
         # actual methods
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):

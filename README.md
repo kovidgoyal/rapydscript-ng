@@ -1042,6 +1042,9 @@ below:
 - Nested comprehensions are not supported. So you cannot do this:
 	[a for a in b for b in c]
 
+- Defining class variables works. The original RapydScript simply threw away
+  all code in the class context other than the class methods themselves.
+
 - RapydScript automatically appends 'new' keyword when using classes generated
   by it, native JavaScript objects like `Image` and `RegExp` and classes from
   other libraries marked as external. However, automatic new insertion depends

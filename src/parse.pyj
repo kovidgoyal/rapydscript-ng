@@ -24,10 +24,10 @@ AST_Number, AST_Object, AST_ObjectGetter, AST_ObjectKeyVal, AST_ObjectSetter,
 AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Seq,
 AST_SimpleStatement, AST_Splice, AST_String, AST_Sub, AST_Switch,
 AST_SymbolAccessor, AST_SymbolAlias, AST_SymbolCatch, AST_SymbolConst,
-AST_SymbolDefun, AST_SymbolFunarg, AST_SymbolLambda, AST_SymbolNonlocal,
-AST_SymbolRef, AST_SymbolVar, AST_This, AST_Throw, AST_Toplevel, AST_True,
-AST_Try, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
-AST_Verbatim, AST_While, AST_With)
+AST_SymbolDefun, AST_SymbolFunarg, AST_SymbolLambda,
+AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This, AST_Throw,
+AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
+AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With)
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
 
@@ -845,6 +845,7 @@ def parse($TEXT, options):
             "static": class_details.static,
             external: externaldecorator != -1,
             bound: class_details.bound,
+            statements: [],
             decorators: def():
                 d = []
                 S.decorators.forEach(def(decorator):
@@ -879,6 +880,28 @@ def parse($TEXT, options):
             if isinstance(stmt, AST_Method) and stmt.name.name == "__init__":
                 definition.init = stmt
                 break
+        # find the class variables
+        class_var_names = {}
+        # Ensure that if a class variable refers to another class variable in
+        # its initialization, the referenced variables' names is correctly
+        # mangled.
+        def walker():
+            this._visit = def(node, descend):
+                if isinstance(node, AST_Method):
+                    return
+                elif isinstance(node, AST_Assign) and isinstance(node.left, AST_SymbolRef):
+                    class_var_names[node.left.name] = True
+                elif isinstance(node, AST_SymbolRef) and Object.prototype.hasOwnProperty.call(class_var_names, node.name):
+                    node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
+                if descend:
+                    descend.call(node)
+        visitor = new walker()
+
+        for i in dir(definition.body):
+            stmt = definition.body[i]
+            if not isinstance(stmt, AST_Method):
+                stmt.walk(visitor)
+                definition.statements.push(stmt)
         return definition
 
     function_ = def(in_class, ctor):
