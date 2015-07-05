@@ -1062,20 +1062,23 @@ Changes in this fork compared to atsepkov/RapydScript
 1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
    It even has its own tests to make sure nothing breaks :)
 
-2. The import/module system has been completely changed. It now works just like
+1. The import/module system has been completely changed. It now works just like
    python, with modules being per file and packages being a directory with
    ```__init__.pyj```. The ```module:``` keyword has been removed.
 
-3. RapydScript now supports the full python syntax for defining functions with
+1. RapydScript now supports the full python syntax for defining functions with
    optional arguments, variable numbers of arguments, variable optional
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
 
-4. There is now a linter that checks for various problems in your code. Most of
+1. RapydScript now supports the Python integer (floor) division operator. 
+   100 // 3 = 33
+
+1. There is now a linter that checks for various problems in your code. Most of
    the checks are for unused/undefined names, like pyflakes. But, there are
    also many other checks for invalid or problematic code.
 
-5. The command line interface has been cleaned up with many new options and
+1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid
    of the dependencies on ```async``` and ```optimist```.

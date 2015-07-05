@@ -1978,6 +1978,15 @@ def codegen():
             output.print(self.operator)
             output.space()
             self.right.print(output)
+        elif self.operator == '//':
+            output.print('Math.floor')
+            output.with_parens(def():
+                self.left.print(output)
+                output.space()
+                output.print('/')
+                output.space()
+                self.right.print(output)
+            )
         else:
             self.left.print(output)
             output.space()
@@ -1986,6 +1995,17 @@ def codegen():
             self.right.print(output)
     )
     DEFPRINT(AST_Assign, def(self, output):
+        if self.operator == '//=':
+            output.assign(self.left)
+            output.print('Math.floor')
+            output.with_parens(def():
+                self.left.print(output)
+                output.space()
+                output.print('/')
+                output.space()
+                self.right.print(output)
+            )
+            return
         if isinstance(self.left, AST_Array):
             output.print("_$rapyd$_Unpack")
         else:

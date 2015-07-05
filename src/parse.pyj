@@ -89,7 +89,7 @@ UNARY_PREFIX = make_predicate([
 ])
 
 
-ASSIGNMENT = make_predicate([ "=", "+=", "-=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
+ASSIGNMENT = make_predicate([ "=", "+=", "-=", "/=", "//=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
 
 PRECEDENCE = def(a, ret):
     for i in range(a.length):
@@ -108,7 +108,7 @@ PRECEDENCE = def(a, ret):
     [ "<", ">", "<=", ">=", "in", "instanceof" ],
     [ ">>", "<<", ">>>" ],
     [ "+", "-" ],
-    [ "*", "/", "%" ],
+    [ "*", "/", "//", "%" ],
     [ "**" ]
     # highest precedence
 ], {})
