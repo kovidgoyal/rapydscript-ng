@@ -141,6 +141,9 @@ def parse($TEXT, options):
         peeked: [],
         in_function: 0,
         in_directives: True,
+        statement_starting_token: None,
+        in_comprehension: False,
+        in_parenthesized_expr: False,
         in_loop: 0,
         in_class: [ False ],
         classes: [ {} ],
@@ -406,6 +409,7 @@ def parse($TEXT, options):
         if S.token.type == 'operator' and S.token.value.substr(0, 1) == '/':
             token_error(S.token, 'RapydScript does not support statements starting with regexp literals')
 
+        S.statement_starting_token = S.token
         tmp_ = S.token.type
         if tmp_ == "string":
             dir = S.in_directives
@@ -828,9 +832,11 @@ def parse($TEXT, options):
             module_id:module_id,
             parent: def():
                 if is_("punc", "("):
+                    S.in_parenthesized_expr = True
                     next()
                     a = expr_atom(False)
                     expect(")")
+                    S.in_parenthesized_expr = False
                     return a
                 else:
                     return None
@@ -893,6 +899,7 @@ def parse($TEXT, options):
                 S.classes[S.classes.length - 2][in_class].bound[name.name] = True
 
         expect("(")
+        S.in_parenthesized_expr = True
         if not ctor:
             ctor = in_class ? AST_Method : AST_Function
 
@@ -946,6 +953,7 @@ def parse($TEXT, options):
                                 token_error(prev(), "Can't define required formal parameters after optional formal parameters")
 
                 next()
+                S.in_parenthesized_expr = False
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
                 if not a.is_simple_func:
@@ -1160,8 +1168,10 @@ def parse($TEXT, options):
         newexp = expr_atom(False)
 
         if is_("punc", "("):
+            S.in_parenthesized_expr = True
             next()
             args = expr_list(")")
+            S.in_parenthesized_expr = False
         else:
             args = []
 
@@ -1224,6 +1234,7 @@ def parse($TEXT, options):
         if is_("punc"):
             tmp_ = start.value
             if tmp_ == "(":
+                S.in_parenthesized_expr = True
                 next()
                 if is_('punc', ')'):
                     next()
@@ -1234,6 +1245,7 @@ def parse($TEXT, options):
                 if isinstance(ex, AST_SymbolRef):
                     ex.parens = True
                 expect(")")
+                S.in_parenthesized_expr = False
                 return subscripts(ex, allow_calls)
             elif tmp_ == "[":
                 return subscripts(array_(), allow_calls)
@@ -1343,6 +1355,8 @@ def parse($TEXT, options):
             expr.push(expression(False))
             if is_("keyword", "for"):
                 # list comprehension
+                S.in_comprehension = True
+                S.in_parenthesized_expr = False  # in case we are already in a parenthesized expression
                 next()
                 forloop = for_(True)
                 baselib_items["iterable"] = True
@@ -1354,6 +1368,7 @@ def parse($TEXT, options):
                     condition: (is_("punc", "]") ? None : (expect_token("keyword", "if"), expression(True)))
                 })
                 expect("]")
+                S.in_comprehension = False
                 return ret
 
             if is_("operator", "til"):
@@ -1602,6 +1617,7 @@ def parse($TEXT, options):
                 }), allow_calls)
 
         if allow_calls and is_("punc", "(") and not S.token.nlb:
+            S.in_parenthesized_expr = True
             next()
             if isinstance(expr, AST_SymbolRef) and expr.name == "JS":
                 # raw JavaScript chunk of code
@@ -1615,15 +1631,18 @@ def parse($TEXT, options):
                     end: prev()
                 })
                 expect(")")
+                S.in_parenthesized_expr = False
                 return subscripts(ret, True)
             elif not expr.parens and get_class_in_scope(expr):
                 # this is an object being created using a class
-                return subscripts(new AST_New({
+                ret = subscripts(new AST_New({
                     start: start,
                     expression: expr,
                     args: func_call_list(),
                     end: prev()
                 }), True)
+                S.in_parenthesized_expr = False
+                return ret
             else:
                 if isinstance(expr, AST_Dot):
                     c = get_class_in_scope(expr.expression)
@@ -1634,7 +1653,7 @@ def parse($TEXT, options):
                     if funcname.property == "__init__":
                         funcname.property = "constructor"
 
-                    return subscripts(new AST_ClassCall({
+                    ret = subscripts(new AST_ClassCall({
                         start: start,
                         "class": expr.expression,
                         method: funcname.property,
@@ -1642,6 +1661,8 @@ def parse($TEXT, options):
                         args: func_call_list(),
                         end: prev()
                     }), True)
+                    S.in_parenthesized_expr = False
+                    return ret
                 elif isinstance(expr, AST_SymbolRef):
                     tmp_ = expr.name
                     # special functions that trigger addition of extra logic to generated JavaScript
@@ -1663,31 +1684,37 @@ def parse($TEXT, options):
                         # NOTE: there is intentionally no return here, we want these functions to go through regular logic
                         # after they trigger the appropriate baselib flag
                     elif tmp_ == "type":
-                        return new AST_UnaryPrefix({
+                        ret = new AST_UnaryPrefix({
                             start: start,
                             operator: "typeof",
                             expression: func_call_list()[0],
                             end: prev()
                         })
+                        S.in_parenthesized_expr = False
+                        return ret
                     elif tmp_ == "isinstance":
                         args = func_call_list()
-                        return new AST_Binary({
+                        ret = new AST_Binary({
                             start: start,
                             operator: "instanceof",
                             left: args[0],
                             right: args[1],
                             end: prev()
                         })
+                        S.in_parenthesized_expr = False
+                        return ret
                     elif tmp_ == 'symbolfor':
                         baselib_items[tmp_ + '()'] = True
 
                 # fall-through to basic function call
-                return subscripts(new AST_Call({
+                ret = subscripts(new AST_Call({
                     start: start,
                     expression: expr,
                     args: func_call_list(),
                     end: prev()
                 }), True)
+                S.in_parenthesized_expr = False
+                return ret
 
         return expr
 
@@ -1763,17 +1790,30 @@ def parse($TEXT, options):
     maybe_conditional = def(no_in):
         start = S.token
         expr = expr_ops(no_in)
-        if is_("operator", "?"):
+        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token != S.token and !S.in_comprehension and !S.token.nlb))):
+            pystyle = is_('keyword', 'if')
             next()
-            yes = expression(False)
-            expect(":")
-            return new AST_Conditional({
-                start: start,
-                condition: expr,
-                consequent: yes,
-                alternative: expression(False, no_in),
-                end: peek()
-            })
+            ne = expression(False)
+            if pystyle:
+                expect_token('keyword', 'else')
+                conditional = new AST_Conditional({
+                    start: start,
+                    condition: ne,
+                    consequent: expr,
+                    alternative: expression(False, no_in),
+                    end: peek()
+                })
+            else:
+                yes = ne
+                expect(":")
+                conditional = new AST_Conditional({
+                    start: start,
+                    condition: expr,
+                    consequent: yes,
+                    alternative: expression(False, no_in),
+                    end: peek()
+                })
+            return conditional
         return expr
 
     def is_assignable(expr):

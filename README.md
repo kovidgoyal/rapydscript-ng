@@ -1071,12 +1071,15 @@ Changes in this fork compared to atsepkov/RapydScript
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
 
-1. RapydScript now supports the Python integer (floor) division operator. 
-   100 // 3 = 33
-
 1. There is now a linter that checks for various problems in your code. Most of
    the checks are for unused/undefined names, like pyflakes. But, there are
    also many other checks for invalid or problematic code.
+
+1. RapydScript now supports the Python integer (floor) division operator. 
+   100 // 3 = 33
+
+1. RapydScript now supports the Python conditional operator syntax:
+		a = 1 if b else 2
 
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically

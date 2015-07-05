@@ -14,6 +14,14 @@ assert.ok(3<5<7)
 # Empty tuple
 assert.deepEqual((), [])
 
+# Conditional operators
+assert.equal((True) ? 1: 2, 1)
+assert.equal(1 if True else 2, 1)
+assert.equal(1
+             if True else 2, 1)
+assert.deepEqual([x for x in ("asd" if True else "xyz") if x], 'asd'.split(''))
+assert.deepEqual((1, [x for x in [2] if x]), [1, [2]])
+
 # strict equality
 assert(1 == 1)                  # number vs number: ok
 assert(True == True)            # boolean vs boolean: ok
