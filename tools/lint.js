@@ -24,6 +24,7 @@ var MESSAGES = {
     'syntax-err': 'A syntax error caused compilation to abort',
     'import-err': 'An import error caused compilation to abort',
     'def-after-use': 'The symbol "{name}" is defined (at line {line}) after it is used',
+    'dup-key': 'JavaScript in strict mode does not allow for duplicate keys ("{name}" is duplicated) in object mode',
 };
 
 BUILTINS = {
@@ -362,6 +363,16 @@ function Linter(toplevel, filename, code, options) {
         }
     };
 
+    this.handle_object_literal = function() {
+        var node = this.current_node;
+        var seen = {};
+        (node.properties || []).forEach(function (prop) {
+            if (Object.prototype.hasOwnProperty.call(seen, prop.key)) 
+                this.messages.push(msg_from_node(filename, 'dup-key', prop.key, prop));
+            seen[prop.key] = true;
+        }, this);
+    };
+
     this._visit = function (node, cont) {
         if (node.lint_visited) return;
         this.current_node = node;
@@ -397,6 +408,8 @@ function Linter(toplevel, filename, code, options) {
             this.handle_except();
         } else if (node instanceof RapydScript.AST_EmptyStatement) {
             this.handle_empty_statement();
+        } else if (node instanceof RapydScript.AST_Object) {
+            this.handle_object_literal();
         }
 
         if (node instanceof RapydScript.AST_Scope) {
