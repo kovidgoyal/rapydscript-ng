@@ -4,7 +4,7 @@
 
 from utils import make_predicate, characters
 from ast import AST_Token
-from errors import JS_Parse_Error
+from errors import SyntaxError
 
 RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
@@ -307,7 +307,7 @@ def tokenizer($TEXT, filename):
         return ret
 
     def parse_error(err, is_eof):
-        raise new JS_Parse_Error(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof)
+        raise new SyntaxError(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof)
 
     def read_num(prefix):
         has_e = False

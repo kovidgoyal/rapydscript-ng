@@ -481,7 +481,7 @@ function lint_code(code, options) {
     } catch(e) {
         if (e instanceof RapydScript.ImportError) {
             messages = [{filename:filename, start_line:e.line, start_col:e.col, level:ERROR, ident:'import-err', message:e.message}];
-        } else if (e instanceof RapydScript.JS_Parse_Error) {
+        } else if (e instanceof RapydScript.SyntaxError) {
             messages = [{filename:filename, start_line:e.line, start_col:e.col, level:ERROR, ident:'syntax-err', message:e.message}];
         } else throw e;
     }

@@ -63,7 +63,7 @@ function compile(src_path, lib_path, sources, source_hash) {
             'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
         };
     } catch(e) {
-        if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+        if (!(e instanceof RapydScript.SyntaxError)) throw e;
         console.error(e.toString());
         process.exit(1);
     }
@@ -80,7 +80,7 @@ function compile(src_path, lib_path, sources, source_hash) {
     try {
         toplevel = parse_file(raw, file);
     } catch (e) {
-        if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+        if (!(e instanceof RapydScript.SyntaxError)) throw e;
         console.error(e.toString());
         process.exit(1);
     }

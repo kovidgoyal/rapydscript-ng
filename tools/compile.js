@@ -81,7 +81,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             try {
                 TOPLEVEL = parse_file(code, files[0], TOPLEVEL);
             } catch (e) {
-                if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+                if (!(e instanceof RapydScript.SyntaxError)) throw e;
                 console.error((files[0] || '<stdin>') + ':' + e.toString());
                 process.exit(1);
             }
@@ -147,7 +147,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         try {
             OUTPUT_OPTIONS.baselib = RapydScript.parse_baselib(src_path, OUTPUT_OPTIONS.beautify);
         } catch(e) {
-            if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+            if (!(e instanceof RapydScript.SyntaxError)) throw e;
             console.error(e.toString());
             process.exit(1);
         }

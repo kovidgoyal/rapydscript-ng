@@ -11,7 +11,7 @@
 "use strict"
 
 from utils import make_predicate, array_to_hash, defaults
-from errors import JS_Parse_Error, ImportError
+from errors import SyntaxError, ImportError
 from ast import (
 AST_Accessor, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_Case, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional,
@@ -179,7 +179,7 @@ def parse($TEXT, options):
     def croak(msg, line, col, pos, is_eof):
         # note: undefined means nothing was passed in, None/null means a null value was passed in
         ctx = S.input.context()
-        raise new JS_Parse_Error(msg, ctx.filename, (line != undefined ? line : ctx.tokline),
+        raise new SyntaxError(msg, ctx.filename, (line != undefined ? line : ctx.tokline),
                  (col != undefined ? col : ctx.tokcol), (pos != undefined ? pos : ctx.tokpos), is_eof)
 
     def token_error(token, msg):

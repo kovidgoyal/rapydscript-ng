@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-class JS_Parse_Error(Error):
+class SyntaxError(Error):
 
     def __init__(self, message, filename, line, col, pos, is_eof):
         self.stack = Error().stack
@@ -25,6 +25,6 @@ class JS_Parse_Error(Error):
         return ans
 
 
-class ImportError(JS_Parse_Error):
+class ImportError(SyntaxError):
     pass
 

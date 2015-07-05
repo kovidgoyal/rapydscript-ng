@@ -25,7 +25,7 @@ def throw_test(code):
     orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
     assert.throws(def():
         RapydScript.parse('def function(' + code + '): pass\n', {'filename':code}).body[0]
-    , RapydScript.JS_Parse_Error)
+    , RapydScript.SyntaxError)
     RapydScript.AST_Node.warn_function = orig
 
 basic_test('a, b, c', 3)
