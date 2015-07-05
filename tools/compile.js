@@ -148,7 +148,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             OUTPUT_OPTIONS.baselib = RapydScript.parse_baselib(src_path, OUTPUT_OPTIONS.beautify);
         } catch(e) {
             if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
-            console.error(('src/baselib.pyj') + ':' + e.toString());
+            console.error(e.toString());
             process.exit(1);
         }
     }

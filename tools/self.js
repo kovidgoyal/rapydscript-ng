@@ -60,7 +60,7 @@ function compile(src_path, lib_path, sources, source_hash) {
     var output_options = {
         'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
     };
-    var raw = sources[file];
+    var raw = sources[file], toplevel;
 
 	function parse_file(code, file) {
 		return RapydScript.parse(code, {
@@ -70,7 +70,13 @@ function compile(src_path, lib_path, sources, source_hash) {
 		});
 	}
 
-    var toplevel = parse_file(raw, file);
+    try {
+        toplevel = parse_file(raw, file);
+    } catch (e) {
+        if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+        console.error(e.toString());
+        process.exit(1);
+    }
     var output = RapydScript.OutputStream(output_options);
     toplevel.print(output);
     output = output.get().replace('__COMPILER_VERSION__', source_hash);

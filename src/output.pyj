@@ -11,7 +11,8 @@
 "use strict"
 
 from utils import make_predicate, defaults, repeat_string, noop
-from parse import COMPILER_VERSION, PRECEDENCE, is_identifier_char, is_identifier
+from tokenizer import is_identifier_char, is_identifier
+from parse import COMPILER_VERSION, PRECEDENCE
 from ast import (
 AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Case, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
