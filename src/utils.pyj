@@ -28,11 +28,6 @@ def member(name, array):
             return True
     return False
 
-def find_if(func, array):
-    for i in range(len(array)):
-        if func(array[i]):
-            return array[i]
-
 def repeat_string(str_, i):
     if i <= 0:
         return ""

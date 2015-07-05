@@ -10,7 +10,7 @@
 
 "use strict"
 
-from utils import make_predicate, array_to_hash, defaults, find_if
+from utils import make_predicate, array_to_hash, defaults
 from errors import JS_Parse_Error, ImportError
 from ast import (
 AST_Accessor, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
@@ -19,16 +19,15 @@ AST_Const, AST_Continue, AST_DWLoop, AST_Debugger, AST_Decorator, AST_Default,
 AST_Definitions, AST_Directive, AST_Do, AST_Dot, AST_EmptyStatement,
 AST_Except, AST_Exit, AST_False, AST_Finally, AST_ForIn, AST_ForJS,
 AST_Function, AST_Hole, AST_If, AST_Import, AST_ImportedVar, AST_Imports,
-AST_Label, AST_LabelRef, AST_LabeledStatement, AST_ListComprehension,
-AST_Method, AST_New, AST_Null, AST_Number, AST_Object,
-AST_ObjectGetter, AST_ObjectKeyVal, AST_ObjectSetter, AST_PropAccess,
-AST_RegExp, AST_Return, AST_Scope, AST_Seq, AST_SimpleStatement, AST_Splice,
-AST_String, AST_Sub, AST_Switch, AST_SymbolAccessor, AST_SymbolAlias,
-AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
-AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
-AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix,
-AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While,
-AST_With)
+AST_ListComprehension, AST_Method, AST_New, AST_Null,
+AST_Number, AST_Object, AST_ObjectGetter, AST_ObjectKeyVal, AST_ObjectSetter,
+AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Seq,
+AST_SimpleStatement, AST_Splice, AST_String, AST_Sub, AST_Switch,
+AST_SymbolAccessor, AST_SymbolAlias, AST_SymbolCatch, AST_SymbolConst,
+AST_SymbolDefun, AST_SymbolFunarg, AST_SymbolLambda, AST_SymbolNonlocal,
+AST_SymbolRef, AST_SymbolVar, AST_This, AST_Throw, AST_Toplevel, AST_True,
+AST_Try, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
+AST_Verbatim, AST_While, AST_With)
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
 
@@ -442,7 +441,8 @@ def parse($TEXT, options):
             else:
                 unexpected()
         elif tmp_ == "name":
-            return (is_token(peek(), "punc", ":") ? labeled_statement() : simple_statement())
+            if (is_token(peek(), 'punc', ':')) token_error(peek(), 'invalid syntax, colon not allowed here')
+            return simple_statement()
         elif tmp_ == "keyword":
             tmp_ = S.token.value
             next()
@@ -556,26 +556,6 @@ def parse($TEXT, options):
                 unexpected()
     )
 
-    def labeled_statement():
-        label = as_symbol(AST_Label)
-        if find_if(def(l):
-            return l.name == label.name
-        , S.labels):
-            # ECMA-262, 12.12: An ECMAScript program is considered
-            # syntactically incorrect if it contains a
-            # LabelledStatement that is enclosed by a
-            # LabelledStatement with the same Identifier as label.
-            croak("Label " + label.name + " defined twice")
-
-        expect(":")
-        S.labels.push(label)
-        stat = statement()
-        S.labels.pop()
-        return new AST_LabeledStatement({
-            body: stat,
-            label: label
-        })
-
     def simple_statement(tmp):
         tmp = expression(True)
         semicolon()
@@ -584,23 +564,10 @@ def parse($TEXT, options):
         })
 
     def break_cont(type):
-        label = None
-        if not can_insert_semicolon():
-            label = as_symbol(AST_LabelRef, True)
-
-        if label != None:
-            if not find_if(def(l):
-                return l.name == label.name
-            , S.labels):
-                croak("Undefined label " + label.name)
-
-        elif S.in_loop == 0:
+        if S.in_loop == 0:
             croak(type.TYPE + " not inside a loop or switch")
-
         semicolon()
-        return new type({
-            label: label
-        })
+        return new type()
 
     def for_(list_comp):
         #        expect("(")

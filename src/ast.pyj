@@ -159,19 +159,6 @@ AST_StatementWithBody = DEFNODE("StatementWithBody", "body", {
         )
 }, AST_Statement)
 
-AST_LabeledStatement = DEFNODE("LabeledStatement", "label", {
-    $documentation: "Statement with a label",
-    $propdoc: {
-        label: "[AST_Label] a label definition"
-    },
-    _walk: def(visitor):
-        node = this
-        return visitor._visit(node, def():
-            node.label._walk(visitor)
-            node.body._walk(visitor)
-        )
-}, AST_StatementWithBody)
-
 AST_DWLoop = DEFNODE("DWLoop", "condition", {
     $documentation: "Base class for do/while statements",
     $propdoc: {
@@ -422,17 +409,8 @@ AST_Throw = DEFNODE("Throw", None, {
     $documentation: "A `throw` statement"
 }, AST_Exit)
 
-AST_LoopControl = DEFNODE("LoopControl", "label", {
+AST_LoopControl = DEFNODE("LoopControl", None, {
     $documentation: "Base class for loop control statements (`break` and `continue`)",
-    $propdoc: {
-        label: "[AST_LabelRef?] the label, or null if none"
-    },
-    _walk: def(visitor):
-        node = this
-        return visitor._visit(node, def():
-            if node.label:
-                node.label._walk(visitor)
-        )
 }, AST_Jump)
 
 AST_Break = DEFNODE("Break", None, {
@@ -901,22 +879,11 @@ AST_SymbolCatch = DEFNODE("SymbolCatch", None, {
     $documentation: "Symbol naming the exception in catch"
 }, AST_SymbolDeclaration)
 
-AST_Label = DEFNODE("Label", "references", {
-    $documentation: "Symbol naming a label (declaration)",
-    $propdoc: {
-        references: "[AST_LabelRef*] a list of nodes referring to this label"
-    }
-}, AST_Symbol)
-
 AST_SymbolRef = DEFNODE("SymbolRef", "parens", {
     $documentation: "Reference to some symbol (not definition/declaration)",
     $propdoc: {
         parens: "[boolean/S] if true, this variable is wrapped in parentheses"
     }
-}, AST_Symbol)
-
-AST_LabelRef = DEFNODE("LabelRef", None, {
-    $documentation: "Reference to a label symbol"
 }, AST_Symbol)
 
 AST_This = DEFNODE("This", None, {
@@ -1050,17 +1017,4 @@ TreeWalker.prototype = {
             if not (isinstance(p, AST_Binary) and (p.operator == "&&" or p.operator == "||")):
                 return False
             self = p
-    ,
-    loopcontrol_target: def(label):
-        stack = this.stack
-        if label:
-            for i in range(stack.length-1, -1, -1):
-                x = stack[i]
-                if isinstance(x, AST_LabeledStatement) and x.label.name == label.name:
-                    return x.body
-        else:
-            for i in range(stack.length-1, -1, -1):
-                x = stack[i]
-                if isinstance(x, AST_Switch) or isinstance(x, AST_ForIn) or isinstance(x, AST_DWLoop):
-                    return x
 }
