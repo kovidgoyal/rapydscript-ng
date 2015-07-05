@@ -1031,8 +1031,6 @@ below:
   it, but at significant performance cost. See the section above on method
   binding for details.
 
-- Classes in RapydScript do not support class level variables, unlike Python.
-
 - The loop variables in list comprehensions do not leak into the surrounding
   scope, unlike Python. So if you do ```[x for x in [1]]``` x will not be
   defined outside the comprehension itself. This is arguably a mis-feature in
@@ -1041,9 +1039,6 @@ below:
 
 - Nested comprehensions are not supported. So you cannot do this:
 	[a for a in b for b in c]
-
-- Defining class variables works. The original RapydScript simply threw away
-  all code in the class context other than the class methods themselves.
 
 - RapydScript automatically appends 'new' keyword when using classes generated
   by it, native JavaScript objects like `Image` and `RegExp` and classes from
@@ -1092,10 +1087,15 @@ This list below records all the work I have done on RapydScript so far.
    ``a = 1 if b else 2``
 
 1. RapydScript now supports class level variables. The original compiler used
-   to simply throw away all non-method code in the class context. It doesn;t do
+   to simply throw away all non-method code in the class context. It doesn't do
    that any more :)
+
+1. RapydScript now supports the Python conditional operator: ``1 if a else 2``.
 
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid
    of the dependencies on ```async``` and ```optimist```.
+
+1. Countless other small fixes and improvement, too numerous too list here,
+   read the commit log.
