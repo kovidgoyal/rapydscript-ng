@@ -129,3 +129,6 @@ class B(A):
     def __init__(self):
         A.__init__(self, 'b')
 ''')
+
+# Object literals
+err_test('{a:1, a:2}', 'dup-key', 1, 'a')
