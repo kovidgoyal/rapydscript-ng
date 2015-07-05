@@ -57,9 +57,16 @@ function compile(src_path, lib_path, sources, source_hash) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
     var RapydScript = require('./compiler').create_compiler();
-    var output_options = {
-        'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
-    };
+    var output_options; 
+    try {
+        output_options = {
+            'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
+        };
+    } catch(e) {
+        if (!(e instanceof RapydScript.JS_Parse_Error)) throw e;
+        console.error(e.toString());
+        process.exit(1);
+    }
     var raw = sources[file], toplevel;
 
 	function parse_file(code, file) {
