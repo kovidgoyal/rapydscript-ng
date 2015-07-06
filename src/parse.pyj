@@ -1330,7 +1330,7 @@ def parse($TEXT, options):
         if func_call:
             tmp = []
             tmp.kwargs = []
-            for i, arg in enumerate(a):
+            for arg in a:
                 if isinstance(arg, AST_Assign):
                     tmp.kwargs.push([arg.left, arg.right])
                 else:

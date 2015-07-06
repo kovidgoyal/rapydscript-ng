@@ -10,4 +10,24 @@ if type(Map) == 'function':
     assert.equal(len(m), 1)
     s = Set()
     s.add(1)
-    assert.equal(len(s), 1)
+    s.add(2)
+    assert.equal(len(s), 2)
+
+    t = []
+    for i in s:
+        t.push(i)
+    assert.deepEqual(t, [1, 2])
+
+    t = []
+    for i in m:
+        t.push(i)
+    assert.deepEqual(t, ['a'])
+    t = []
+    for c, i in enumerate(m):
+        t.push([c, i])
+    assert.deepEqual(t, [[0, 'a']])
+    m.set('b', 2)
+    t = []
+    for i in reversed(m):
+        t.push(i)
+    assert.deepEqual(t, ['b', 'a'])

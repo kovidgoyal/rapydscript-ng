@@ -241,10 +241,10 @@ def OutputStream(options):
         return indentation + options.indent_level
 
     def spaced():
-        for i, x in enumerate(arguments):
+        for JS('var i=0; i < arguments.length; i++'):
             if i > 0:
                 space()
-            print_(x)
+            print_(arguments[i])  # noqa:undef
 
     def end_statement():
         semicolon()

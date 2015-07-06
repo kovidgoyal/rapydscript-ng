@@ -36,11 +36,6 @@ def dir(item):
     for JS('var i in item'): arr.push(i)  # noqa:undef
     return arr
 
-def enumerate(item):
-    arr = []
-    for JS('var i=0;i<item.length;i++'): arr[arr.length] = [i, item[i]]  # noqa:undef
-    return arr
-
 def _$rapyd$_eslice(arr, step, start, end):
     arr = arr[:]
     if type(arr) == 'string' or isinstance(arr, String):
@@ -69,8 +64,70 @@ def _$rapyd$_in(val, arr):
         return False
 
 def _$rapyd$_Iterable(iterable):
+    # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
+    # rid of this function entirely
     if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
-    return Object.keys(iterable)    # so we can use 'for ... in' syntax with hashes
+    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
+        iterator = iterable[Symbol.iterator]()
+        ans = []
+        result = iterator.next()
+        if iterable[Symbol.iterator] == iterable.entries:
+            while not result.done:
+                ans.push(result.value[0])
+                result = iterator.next()
+        else:
+            while not result.done:
+                ans.push(result.value)
+                result = iterator.next()
+        return ans
+    # so we can use 'for ... in' syntax with hashes and NodeLists
+    return Object.keys(iterable)
+
+def enumerate(iterable):
+    if Array.isArray(iterable) or type(iterable) == 'string':
+        arr = []
+        for JS('var i=0;i<iterable.length;i++'): arr.push([i, iterable[i]])  # noqa:undef
+        return arr
+    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
+        iterator = iterable[Symbol.iterator]()
+        c = 0
+        ans = []
+        result = iterator.next()
+        if iterable[Symbol.iterator] == iterable.entries:
+            while not result.done:
+                ans.push([c, result.value[0]])
+                result = iterator.next()
+                c += 1
+        else:
+            while not result.done:
+                ans.push([c, result.value])
+                result = iterator.next()
+                c +=1
+        return ans
+    obj = Object.keys(iterable)
+    arr = []
+    for JS('var i=0;i<obj.length;i++'): arr.push([i, obj[i]])  # noqa:undef
+    return arr
+
+def reversed(iterable):
+    if Array.isArray(iterable):
+        return iterable.reverse()
+    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
+        iterator = iterable[Symbol.iterator]()
+        ans = []
+        result = iterator.next()
+        if iterable[Symbol.iterator] == iterable.entries:
+            while not result.done:
+                ans.push(result.value[0])
+                result = iterator.next()
+        else:
+            while not result.done:
+                ans.push(result.value)
+                result = iterator.next()
+        return ans.reverse()
+    if type(iterable) == 'string':
+        return iterable.split('').reverse().join('')
+    return Object.keys(iterable).reverse()
 
 def _$rapyd$_len():
     if JS('typeof Set') == 'function' and JS('typeof Map') == 'function':
@@ -108,10 +165,6 @@ def range(start, stop, step):
         r[JS('idx++')] = start
         start += step
     return r
-
-def reversed(arr):
-    tmp = arr[:]
-    return tmp.reverse()
 
 def sum(arr, start=0):
     return arr.reduce(
