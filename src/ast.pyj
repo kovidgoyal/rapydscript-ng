@@ -215,11 +215,31 @@ AST_ListComprehension = DEFNODE("ListComprehension", "condition statement", {
         node = this
         return visitor._visit(node, def():
             node.init._walk(visitor)
-            if (node.condition) node.condition._walk(visitor)
             node.statement._walk(visitor)
+            if (node.condition) node.condition._walk(visitor)
         )
     ,
 }, AST_ForIn)
+
+AST_SetComprehension = DEFNODE('SetComprehension', None, {
+    $documentation: 'A set comprehension',
+}, AST_ListComprehension)
+
+AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement', {
+    $documentation: 'A set comprehension',
+    $propdoc: {
+        value_statement: "[AST_Node] statement to perform on each value before returning it"
+    },
+    _walk: def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.init._walk(visitor)
+            node.statement._walk(visitor)
+            node.value_statement._walk(visitor)
+            if (node.condition) node.condition._walk(visitor)
+        )
+    ,
+}, AST_ListComprehension)
 
 AST_With = DEFNODE("With", "expression", {
     $documentation: "A `with` statement",

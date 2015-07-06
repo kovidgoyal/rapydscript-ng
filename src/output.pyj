@@ -1206,7 +1206,31 @@ def codegen():
         output.space()
         self._do_print_body(output)
     )
+
     DEFPRINT(AST_ListComprehension, def(self, output):
+        result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'new Set()'}[self.TYPE]
+        push_func = "_$rapyd$_Result." + ((self.TYPE == 'ListComprehension') ? 'push' : 'add')
+        if self.TYPE == 'DictComprehension':
+            add_to_result = def():
+                output.indent()
+                output.print('_$rapyd$_Result')
+                output.with_square(def():
+                    self.statement.print(output)
+                )
+                output.space(), output.print('='), output.space()
+                output.with_parens(def():
+                    self.value_statement.print(output)
+                )
+                output.end_statement()
+        else:
+            add_to_result = def():
+                output.indent()
+                output.print(push_func)
+                output.with_parens(def():
+                    self.statement.print(output)
+                )
+                output.end_statement()
+
         output.with_parens(def():
             output.print("function")
             output.print("()")
@@ -1220,7 +1244,7 @@ def codegen():
                 )
                 output.comma()
                 output.assign("_$rapyd$_Result")
-                output.print("[]")
+                output.print(result_obj)
                 # make sure to locally scope loop variables
                 if isinstance(self.init, AST_Array):
                     self.init.elements.forEach(def(i):
@@ -1265,15 +1289,6 @@ def codegen():
                         output.print("_$rapyd$_Iter[_$rapyd$_Index];")
                         output.newline()
 
-                    add_to_list = def():
-                        output.indent()
-                        output.print("_$rapyd$_Result.push")
-                        output.with_parens(def():
-                            self.statement.print(output)
-                        )
-                        output.semicolon()
-                        output.newline()
-
                     if self.condition:
                         output.indent()
                         output.print("if")
@@ -1283,11 +1298,11 @@ def codegen():
                         )
                         output.space()
                         output.with_block(def():
-                            add_to_list()
+                            add_to_result()
                         )
                         output.newline()
                     else:
-                        add_to_list()
+                        add_to_result()
                 )
                 output.newline()
                 output.indent()

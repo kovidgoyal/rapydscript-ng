@@ -528,9 +528,10 @@ Like in Python, if you just want the index, you can use range:
 When possible, RapydScript will automatically optimize the loop for you into JavaScript's basic syntax, so you're not missing much by not being able to call it directly.
 
 
-List Comprehensions
--------------------
-RapydScript also supports list comprehensions, using Python syntax. Instead of the following, for example:
+List/Set/Dict Comprehensions
+-------------------------------
+
+RapydScript also supports comprehensions, using Python syntax. Instead of the following, for example:
 
 	myArray = []
 	for index in range(1,20):
@@ -541,6 +542,15 @@ You could write this:
 
 	myArray = [i*i for i in range(1,20) if i*i%3 == 0]
 
+Similarly for set and dict comprehensions:
+
+	myDict = {x:x+1 for x in range(20) if x > 2}
+	mySet = {i*i for i in range(1,20) if i*i%3 == 0}
+
+Note that set comprehensions currently create an ES6 Set object, so they wil
+lonly work if the javascript runtime you use supports ES 6 Sets. At some point
+in the future, I might add a builtin set type to RapydScript that behaves like
+the python set type.
 
 Inclusive/Exclusive Sequences
 -----------------------------
@@ -1079,6 +1089,8 @@ This list below records all the work I have done on RapydScript so far.
    the checks are for unused/undefined names, like ``pyflakes``. But, there are
    also many other checks for invalid or problematic code. To use it: ``rs lint
    file.pyj``
+
+1. Added support for dict and set comprehensions, not just list comprehensions
 
 1. RapydScript now supports the Python integer (floor) division operator. 
    ``100 // 3 = 33``
