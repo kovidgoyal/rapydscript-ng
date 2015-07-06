@@ -1716,7 +1716,6 @@ def parse($TEXT, options):
                     or tmp_ == "rebind_all"
                     or tmp_ == "dir"
                     or tmp_ == "enumerate"
-                    or tmp_ == "len"
                     or tmp_ == "mixin"
                     or tmp_ == "print"
                     or tmp_ == "range"
@@ -1748,7 +1747,8 @@ def parse($TEXT, options):
                         })
                         S.in_parenthesized_expr = False
                         return ret
-                    elif tmp_ == 'symbolfor':
+                    elif tmp_ == 'symbolfor'
+                    or tmp_ == 'len':
                         baselib_items[tmp_ + '()'] = True
 
                 # fall-through to basic function call

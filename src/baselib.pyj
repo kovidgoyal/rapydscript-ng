@@ -69,12 +69,21 @@ def _$rapyd$_in(val, arr):
         return False
 
 def _$rapyd$_Iterable(iterable):
-    if Array.isArray(iterable) or isinstance(iterable, String) or JS('typeof iterable') == 'string': return iterable
+    if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
     return Object.keys(iterable)    # so we can use 'for ... in' syntax with hashes
 
-def len(obj):
-    if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
-    return Object.keys(obj).length
+def _$rapyd$_len():
+    if JS('typeof Set') == 'function' and JS('typeof Map') == 'function':
+        # ES 6 collections are probably present
+        return (def(obj):
+            if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
+            if JS('obj instanceof Set') or JS('obj instanceof Map'): return obj.size
+            return Object.keys(obj).length
+        )
+    return (def(obj):
+        if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
+        return Object.keys(obj).length
+    )
 
 def _$rapyd$_mixin(target, source, overwrite):
     for JS('var i in source'):
@@ -151,7 +160,7 @@ if type(exports) == 'object':
     exports.extends = _$rapyd$_extends
     exports['in'] = _$rapyd$_in
     exports.iterable = _$rapyd$_Iterable
-    exports.len = len
+    exports['len()'] = _$rapyd$_len
     exports.mixin = _$rapyd$_mixin
     exports.print = _$rapyd$_print
     exports.range = range

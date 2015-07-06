@@ -3,3 +3,11 @@
 assert.equal(typeof symbolfor, 'function')
 if (typeof Symbol == 'function') assert.equal(typeof symbolfor('a'), 'symbol')
 assert.equal(symbolfor('a'), symbolfor('a'))
+
+if type(Map) == 'function':
+    m = Map()
+    m.set('a', 1)
+    assert.equal(len(m), 1)
+    s = Set()
+    s.add(1)
+    assert.equal(len(s), 1)
