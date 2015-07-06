@@ -17,7 +17,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var failures = [];
     var vm = require('vm');
     var test_dir = path.join(base_path, 'test');
-	var baselib = RapydScript.parse_baselib(src_path, true);
+	var baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
     var files;
 
     if (argv.files.length) {

@@ -420,7 +420,7 @@ def codegen():
     # -----[ utils ]-----
     SPECIAL_METHODS = {
         bind: "_$rapyd$_bind",
-        rebind_all: "_$rapyd$_rebindAll",
+        rebind_all: "_$rapyd$_rebind_all",
         bool: "!!",
         "float": "parseFloat",
         "int": "parseInt",
@@ -777,7 +777,7 @@ def codegen():
             # named __init__ will only occur inside a class
             if output.option("auto_bind") and node.name and node.name.name == "__init__":
                 output.indent()
-                output.print("_$rapyd$_rebindAll")
+                output.print("_$rapyd$_rebind_all")
                 output.with_parens(def():
                     output.print("this")
                     output.comma()

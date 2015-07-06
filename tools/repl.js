@@ -42,6 +42,19 @@ function expanduser(x) {
   return path.join(homedir, x.slice(2));
 }
 
+function read_baselib(lib_path) {
+    var b = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
+    var ans = [];
+    Object.keys(b).forEach(function(k) { 
+        var is_func = k.slice(0, -2) == '()';
+        if ( is_func ) ans.push('var' + k.slice(0, -2) + ' = (');
+        ans.push(b[k]);
+        if ( is_func ) ans.push(')();');
+        ans.push('\n');
+    });
+    return ans.join('\n');
+}
+
 function repl_defaults(options) {
     options = options || {};
     if (!options.input) options.input = process.stdin;
@@ -53,7 +66,7 @@ function repl_defaults(options) {
     if (!options.readline) options.readline = readline;
     if (options.terminal === undefined) options.terminal = options.output.isTTY;
     if (options.histfile === undefined) options.histfile = path.join(cachedir, 'rapydscript-repl.history');
-    if (options.baselib === undefined) options.baselib = fs.readFileSync(path.join(options.lib_path, 'baselib.js'), 'utf-8');
+    if (options.baselib === undefined) options.baselib = read_baselib(options.lib_path);
     if (!options.enum_global) options.enum_global = enum_global;
         
     options.colored = (options.terminal) ? colored : (function (string) { return string; });

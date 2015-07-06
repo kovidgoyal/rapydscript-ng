@@ -9,6 +9,28 @@
 var path = require('path');
 var crypto = require('crypto');
 var fs = require('fs');
+var vm = require('vm');
+
+function generate_baselib(ast, beautify, RapydScript) {
+    output = RapydScript.OutputStream({
+        beautify: beautify, write_name: false,
+        omit_baselib: true,  // We are generating baselib here, cannot depend on it
+    });
+    ast.print(output);
+    code = output.get();
+    exports = {};
+    ctx = vm.createContext({'console':console, 'exports':exports, '_$rapyd$_modules':{}});
+    vm.runInContext(code, ctx, {filename:'baselib.pyj'});
+    ans = {};
+    Object.keys(exports).forEach(function(key) { ans[key] = exports[key].toString(); });
+    return ans;
+}
+
+function parse_baselib(RapydScript, src_path) {
+    baselib_path = path.join(src_path, 'baselib.pyj');
+    ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
+    return [generate_baselib(ast, true, RapydScript), generate_baselib(ast, false, RapydScript)];
+}
 
 function check_for_changes(base_path, src_path, signatures) {
     // Check if any of the files involved in the build process have changed,
@@ -53,20 +75,16 @@ function check_for_changes(base_path, src_path, signatures) {
     return [source_hash, compiler_changed, sources, hashes];
 }
 
+
 function compile(src_path, lib_path, sources, source_hash) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
     var RapydScript = require('./compiler').create_compiler();
     var output_options; 
-    try {
-        output_options = {
-            'beautify': true, 'baselib':  RapydScript.parse_baselib(src_path, true),
-        };
-    } catch(e) {
-        if (!(e instanceof RapydScript.SyntaxError)) throw e;
-        console.error(e.toString());
-        process.exit(1);
-    }
+    var pretty_baselib, ugly_baselib;
+    var temp = parse_baselib(RapydScript, src_path);
+    pretty_baselib = temp[0]; ugly_baselib = temp[1];
+    output_options = {'beautify': true, 'baselib': pretty_baselib};
     var raw = sources[file], toplevel;
 
 	function parse_file(code, file) {
@@ -76,6 +94,12 @@ function compile(src_path, lib_path, sources, source_hash) {
 			libdir: path.join(src_path, 'lib'),
 		});
 	}
+
+    function write_baselib(which) {
+        var baselib = (which === 'pretty') ? pretty_baselib : ugly_baselib;
+        var text = JSON.stringify(baselib, null, 2);
+        fs.writeFileSync(path.join(lib_path, 'baselib-' + which + '.js'), text, 'utf-8');
+    }
 
     try {
         toplevel = parse_file(raw, file);
@@ -88,6 +112,7 @@ function compile(src_path, lib_path, sources, source_hash) {
     toplevel.print(output);
     output = output.get().replace('__COMPILER_VERSION__', source_hash);
     fs.writeFileSync(path.join(lib_path, 'compiler.js'), output, "utf8");
+    write_baselib('pretty'); write_baselib('ugly');
     console.log('Compiler built in', (new Date().getTime() - t1)/1000, 'seconds\n');
     RapydScript.reset_index_counter();
     return output;

@@ -144,13 +144,8 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     }
 
     if (!argv.omit_baselib) {
-        try {
-            OUTPUT_OPTIONS.baselib = RapydScript.parse_baselib(src_path, OUTPUT_OPTIONS.beautify);
-        } catch(e) {
-            if (!(e instanceof RapydScript.SyntaxError)) throw e;
-            console.error(e.toString());
-            process.exit(1);
-        }
+        var which = (OUTPUT_OPTIONS.beautify) ? 'pretty' : 'ugly';
+        OUTPUT_OPTIONS.baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-' + which + '.js'), 'utf-8'));
     }
 
     if (files.filter(function(el){ return el == "-"; }).length > 1) {

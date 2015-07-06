@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: console
 
 from utils import DefaultsError, string_template
 from errors import ImportError, SyntaxError
@@ -8,28 +9,12 @@ from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
 from parse import parse, NATIVE_CLASSES
 from output import OutputStream, reset_index_counter
 
-path = require('path')
-fs = require('fs')  # noqa:undef
-
-def parse_baselib(src_path, beautify):
-    baselib_path = path.join(src_path, 'baselib.pyj')
-    baselib_ast = parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib'})
-    output = OutputStream({
-        private_scope: False,
-        beautify: beautify,
-        write_name: False,
-        omit_baselib: True,  # We are generating baselib here, cannot depend on it
-    })
-    baselib_ast.print(output)
-    return eval(output.get())
-
 # The following allows this module to be used from a pure javascript, require()
 # based environment like Node.js
 if type(exports) == 'object':
     exports.DefaultsError = DefaultsError
     exports.parse = parse
     exports.OutputStream = OutputStream
-    exports.parse_baselib = parse_baselib
     exports.reset_index_counter = reset_index_counter
     exports.string_template = string_template  # noqa:undef
     # Needed for REPL and linter
