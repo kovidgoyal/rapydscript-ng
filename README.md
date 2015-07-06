@@ -1087,8 +1087,8 @@ This list below records all the work I have done on RapydScript so far.
 
 1. There is now a ``linter`` that checks for various problems in your code. Most of
    the checks are for unused/undefined names, like ``pyflakes``. But, there are
-   also many other checks for invalid or problematic code. To use it: ``rs lint
-   file.pyj``
+   also many other checks for invalid or problematic code. To use it:
+   ``rapydscript lint file.pyj``
 
 1. Added support for dict and set comprehensions, not just list comprehensions
 
