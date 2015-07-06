@@ -1219,7 +1219,10 @@ def codegen():
                 )
                 output.space(), output.print('='), output.space()
                 output.with_parens(def():
-                    self.value_statement.print(output)
+                    if self.value_statement.TYPE == 'Seq':
+                        output.with_square(def():self.value_statement.print(output);)
+                    else:
+                        self.value_statement.print(output)
                 )
                 output.end_statement()
         else:
@@ -1227,7 +1230,10 @@ def codegen():
                 output.indent()
                 output.print(push_func)
                 output.with_parens(def():
-                    self.statement.print(output)
+                    if self.statement.TYPE == 'Seq':
+                        output.with_square(def():self.statement.print(output);)
+                    else:
+                        self.statement.print(output)
                 )
                 output.end_statement()
 
