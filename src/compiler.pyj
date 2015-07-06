@@ -7,7 +7,7 @@ from utils import DefaultsError, string_template
 from errors import ImportError, SyntaxError
 from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
 from parse import parse, NATIVE_CLASSES
-from output import OutputStream, reset_index_counter
+from output import OutputStream
 
 # The following allows this module to be used from a pure javascript, require()
 # based environment like Node.js
@@ -15,7 +15,6 @@ if type(exports) == 'object':
     exports.DefaultsError = DefaultsError
     exports.parse = parse
     exports.OutputStream = OutputStream
-    exports.reset_index_counter = reset_index_counter
     exports.string_template = string_template  # noqa:undef
     # Needed for REPL and linter
     exports.ALL_KEYWORDS = ALL_KEYWORDS

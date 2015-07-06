@@ -114,7 +114,6 @@ function compile(src_path, lib_path, sources, source_hash) {
     fs.writeFileSync(path.join(lib_path, 'compiler.js'), output, "utf8");
     write_baselib('pretty'); write_baselib('ugly');
     console.log('Compiler built in', (new Date().getTime() - t1)/1000, 'seconds\n');
-    RapydScript.reset_index_counter();
     return output;
 }
 

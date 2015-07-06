@@ -338,6 +338,7 @@ def OutputStream(options):
 
     stack = []
     return {
+        index_counter: 0,
         get: get,
         toString: get,
         indent: indent,
@@ -409,11 +410,6 @@ def OutputStream(options):
             return stack[stack.length - 2 - (n or 0)]
 
     }
-
-INDEX_COUNTER = 0
-def reset_index_counter():
-    nonlocal INDEX_COUNTER
-    INDEX_COUNTER = 0
 
 # -----[ code generators ]-----
 def codegen():
@@ -1073,21 +1069,20 @@ def codegen():
     AST_ForIn.DEFMETHOD("_do_print_body", def(output):
         self = this
         output.with_block(def():
-            nonlocal INDEX_COUNTER
             if not (is_simple_for(self) or is_simple_for_in(self)):
                 # if we're using multiple iterators, unpack them
                 output.indent()
                 if isinstance(self.init, AST_Array):
                     output.assign("_$rapyd$_Unpack")
-                    output.print("_$rapyd$_Iter" + INDEX_COUNTER + "[_$rapyd$_Index" + INDEX_COUNTER + "];")
+                    output.print("_$rapyd$_Iter" + output.index_counter + "[_$rapyd$_Index" + output.index_counter + "];")
                     output.newline()
                     unpack_tuple(self.init, output)
                 else:
                     output.assign(self.init)
-                    output.print("_$rapyd$_Iter" + INDEX_COUNTER + "[_$rapyd$_Index" + INDEX_COUNTER + "];")
+                    output.print("_$rapyd$_Iter" + output.index_counter + "[_$rapyd$_Index" + output.index_counter + "];")
                     output.newline()
 
-                INDEX_COUNTER += 1
+                output.index_counter += 1
 
             self.body.body.forEach(def(stmt, i):
                 output.indent()
@@ -1155,7 +1150,7 @@ def codegen():
             )
         else:
             # regular loop
-            output.assign("var _$rapyd$_Iter" + INDEX_COUNTER)
+            output.assign("var _$rapyd$_Iter" + output.index_counter)
             output.print("_$rapyd$_Iterable")
             output.with_parens(def():
                 self.object.print(output)
@@ -1168,18 +1163,18 @@ def codegen():
             output.with_parens(def():
                 output.print("var")
                 output.space()
-                output.assign("_$rapyd$_Index" + INDEX_COUNTER)
+                output.assign("_$rapyd$_Index" + output.index_counter)
                 output.print("0")
                 output.semicolon()
                 output.space()
-                output.print("_$rapyd$_Index" + INDEX_COUNTER)
+                output.print("_$rapyd$_Index" + output.index_counter)
                 output.space()
                 output.print("<")
                 output.space()
-                output.print("_$rapyd$_Iter" + INDEX_COUNTER + ".length")
+                output.print("_$rapyd$_Iter" + output.index_counter + ".length")
                 output.semicolon()
                 output.space()
-                output.print("_$rapyd$_Index" + INDEX_COUNTER + "++")
+                output.print("_$rapyd$_Index" + output.index_counter + "++")
             )
 
         output.space()
