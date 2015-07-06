@@ -181,5 +181,10 @@ class CV:
     else:
         d = 2
 
+    def one(self):
+        return 1
+    two = one
+
 c = CV()
 assert.deepEqual([c.a, c.b, c.c, c.d], [1, 1, 2, 1])
+assert.equal(c.one(), c.two())

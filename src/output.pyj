@@ -1469,12 +1469,6 @@ def codegen():
             output.semicolon()
             output.newline()
 
-        self.statements.forEach(def(stmt):
-            output.indent()
-            stmt.print(output)
-            output.newline()
-        )
-
         # actual methods
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):
@@ -1483,6 +1477,14 @@ def codegen():
             elif isinstance(stmt, AST_Class):
                 console.error('Nested classes aren\'t supported yet')  # noqa:undef
         )
+
+        # Other statements in the class context
+        self.statements.forEach(def(stmt):
+            output.indent()
+            stmt.print(output)
+            output.newline()
+        )
+
     )
     DEFPRINT(AST_Class, def(self, output):
         self._do_print(output)
