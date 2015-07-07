@@ -46,8 +46,8 @@ function read_baselib(lib_path) {
     var b = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
     var ans = [];
     Object.keys(b).forEach(function(k) { 
-        var is_func = k.slice(0, -2) == '()';
-        if ( is_func ) ans.push('var' + k.slice(0, -2) + ' = (');
+        var is_func = k.slice(-2) == '()';
+        if ( is_func ) ans.push('var ' + k.slice(0, -2) + ' = (');
         ans.push(b[k]);
         if ( is_func ) ans.push(')();');
         ans.push('\n');

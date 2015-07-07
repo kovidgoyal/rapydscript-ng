@@ -1,3 +1,4 @@
+# globals: base_path
 stdout = []
 def clear():
     stdout.length = 0
@@ -70,7 +71,7 @@ readline = {
         rl.completer = options.completer
         return rl
 }
-repl({'lib_path':base_path + '/lib', 'console':FakeConsole(), 'readline':readline, 'terminal':false, 'show_js':false, 'histfile':false})
+repl({'lib_path':base_path + '/lib', 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
 eq = assert.equal
 eq('>>> ', stdout[-1])
 clear()
@@ -78,6 +79,7 @@ check('1', '1')
 check_in('if 1:\n  2\n  \n  ', '2')
 check_not_in('if 1:\n  2\n ', '2')
 check_in('1 +\n1\n\n', '2')
+check('max(1, 2)', '2')
 send_text(
 '''
 class A:
