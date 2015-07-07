@@ -529,29 +529,7 @@ def parse($TEXT, options):
                     )
                 })
             elif tmp_ == "yield":
-                if S.in_function == 0:
-                    croak("'yield' outside of function")
-                if S.functions[-1].is_generator == False:
-                    croak("'yield' not allowed in a function with return")
-                S.functions[-1].is_generator = True
-                is_yield_from = is_('keyword', 'from')
-                if is_yield_from:
-                    next()
-                return new AST_Yield({
-                    is_yield_from:is_yield_from,
-                    value: (is_("punc", ";") ?
-                        def():
-                            semicolon()
-                            return None
-                        .call(this) : (can_insert_semicolon() ? None
-                            : def():
-                                tmp = expression(True)
-                                semicolon()
-                                return tmp
-                            .call(this)
-                        )
-                    )
-                })
+                return yield_()
             elif tmp_ == "switch":
                 return new AST_Switch({
                     expression: parenthesised(),
@@ -601,6 +579,31 @@ def parse($TEXT, options):
             croak(type.TYPE + " not inside a loop or switch")
         semicolon()
         return new type()
+
+    def yield_():
+        if S.in_function == 0:
+            croak("'yield' outside of function")
+        if S.functions[-1].is_generator == False:
+            croak("'yield' not allowed in a function with return")
+        S.functions[-1].is_generator = True
+        is_yield_from = is_('keyword', 'from')
+        if is_yield_from:
+            next()
+        return new AST_Yield({
+            is_yield_from:is_yield_from,
+            value: (is_("punc", ";") ?
+                def():
+                    semicolon()
+                    return None
+                .call(this) : (can_insert_semicolon() ? None
+                    : def():
+                        tmp = expression(True)
+                        semicolon()
+                        return tmp
+                    .call(this)
+                )
+            )
+        })
 
     def for_(list_comp):
         #        expect("(")
@@ -1328,6 +1331,10 @@ def parse($TEXT, options):
             func.start = start
             func.end = prev()
             return subscripts(func, allow_calls)
+
+        if is_('keyword', 'yield'):
+            next()
+            return yield_()
 
         if ATOMIC_START_TOKEN[S.token.type]:
             return subscripts(as_atom_node(), allow_calls)

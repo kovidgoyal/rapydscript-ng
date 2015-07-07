@@ -10,6 +10,10 @@ def g2():
     for i in range(2):
         yield from g1()
 
+def g3():
+    data = yield 1
+    yield data
+
 class A:
 
     def __init__(self):
@@ -22,3 +26,7 @@ class A:
 assert.deepEqual([x for x in g1()], [1, 2])
 assert.deepEqual([x for x in g2()], [1, 2, 1, 2])
 assert.deepEqual([x for x in A()], [1, 2, 3])
+
+g = g3()
+assert.equal(g.next().value, 1)
+assert.equal(g.next('a').value, 'a')

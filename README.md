@@ -952,7 +952,10 @@ browsers, you can pass the output through a transpiler like
 It is on my TODO list to make this automatic, so there is no need for the extra
 transpiling step.
 
-One small difference from python is that the generator object has no send
+Generators create JavaScript iterator objects. For differences between python
+and JavaScript iterators, see the section on iterators above. 
+
+One small additional difference from python is that the generator object has no send
 method, instead you just call next with the data you want to send, so:
 
 ```py
