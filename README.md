@@ -940,6 +940,31 @@ the next value, but instead an object with two properties: ``done and value``.
 exhausted. No ``StopIteration`` exception is raised. These choices were
 made so that the iterator works with other JavaScript code.
 
+Generators
+------------
+
+RapydScript supports generators (the python yield keyword). Currently,
+if you use the yield keyword the output javascript will only work in browsers
+that support javascript generators. If you need to run it on ES 5 only
+browsers, you can pass the output through a transpiler like
+[regenerator](https://github.com/facebook/regenerator)
+
+It is on my TODO list to make this automatic, so there is no need for the extra
+transpiling step.
+
+One small difference from python is that the generator object has no send
+method, instead you just call next with the data you want to send, so:
+
+```py
+g = mygenerator()
+g.next()
+g.send(data)  # does not work
+g.next(data)  # works
+```
+
+This can be fixed fairly easily by the compiler, maybe I will get around to it
+someday.
+
 Modules
 -------
 
@@ -1314,6 +1339,10 @@ This list below records all the work I have done on RapydScript so far.
    that any more :)
 
 1. RapydScript now supports the Python conditional operator: ``1 if a else 2``.
+
+1. RapydScript now supports generators (yield keyword). Currently it outputs
+   ES 6 only code, but it is on my TODO list to convert that into an ES 5
+   polyfill either using regenerator or hand-writing the code.
 
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically

@@ -1,0 +1,24 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def g1():
+    yield 1
+    yield 2
+
+def g2():
+    for i in range(2):
+        yield from g1()
+
+class A:
+
+    def __init__(self):
+        self.items = [1, 2, 3]
+
+    def __iter__(self):
+        for x in self.items:
+            yield x
+
+assert.deepEqual([x for x in g1()], [1, 2])
+assert.deepEqual([x for x in g2()], [1, 2, 1, 2])
+assert.deepEqual([x for x in A()], [1, 2, 3])

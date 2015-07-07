@@ -88,13 +88,13 @@ PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
 REGEXP_MODIFIERS = make_predicate(characters("gmsiy"))
 
 
-KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return switch til to try typeof var void while with or and not"
+KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return yield switch til to try typeof var void while with or and not"
 
 KEYWORDS_ATOM = "False None True"
 
 RESERVED_WORDS = "abstract boolean byte char double enum export extends final float goto implements int interface long native package private protected public short static super synchronized this throws transient volatile" + " " + KEYWORDS_ATOM + " " + KEYWORDS
 
-KEYWORDS_BEFORE_EXPRESSION = "return new del raise elif else if"
+KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if"
 
 ALL_KEYWORDS = RESERVED_WORDS + " " + KEYWORDS_BEFORE_EXPRESSION
 

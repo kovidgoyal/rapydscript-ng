@@ -27,7 +27,7 @@ AST_SymbolAccessor, AST_SymbolAlias, AST_SymbolCatch, AST_SymbolConst,
 AST_SymbolDefun, AST_SymbolFunarg, AST_SymbolLambda, AST_SymbolNonlocal,
 AST_SymbolRef, AST_SymbolVar, AST_This, AST_Throw, AST_Toplevel, AST_True,
 AST_Try, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
-AST_Verbatim, AST_While, AST_With
+AST_Verbatim, AST_While, AST_With, AST_Yield
 )
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
@@ -148,6 +148,7 @@ def parse($TEXT, options):
         in_loop: 0,
         in_class: [ False ],
         classes: [ {} ],
+        functions: [ {} ],
         labels: [],
         decorators: [],
     }
@@ -509,8 +510,35 @@ def parse($TEXT, options):
             elif tmp_ == "return":
                 if S.in_function == 0:
                     croak("'return' outside of function")
+                if S.functions[-1].is_generator:
+                    croak("'return' not allowed in a a function with yield")
+                S.functions[-1].is_generator = False
 
                 return new AST_Return({
+                    value: (is_("punc", ";") ?
+                        def():
+                            semicolon()
+                            return None
+                        .call(this) : (can_insert_semicolon() ? None
+                            : def():
+                                tmp = expression(True)
+                                semicolon()
+                                return tmp
+                            .call(this)
+                        )
+                    )
+                })
+            elif tmp_ == "yield":
+                if S.in_function == 0:
+                    croak("'yield' outside of function")
+                if S.functions[-1].is_generator == False:
+                    croak("'yield' not allowed in a function with return")
+                S.functions[-1].is_generator = True
+                is_yield_from = is_('keyword', 'from')
+                if is_yield_from:
+                    next()
+                return new AST_Yield({
+                    is_yield_from:is_yield_from,
                     value: (is_("punc", ";") ?
                         def():
                             semicolon()
@@ -928,6 +956,7 @@ def parse($TEXT, options):
         if not ctor:
             ctor = in_class ? AST_Method : AST_Function
 
+        is_generator = []
         definition = new ctor({
             name: name,
             argnames: def(a):
@@ -1000,11 +1029,13 @@ def parse($TEXT, options):
                 S.in_class.push(False)
                 S.classes.push({})
                 S.in_function += 1
+                S.functions.push({})
                 S.in_directives = True
                 S.in_loop = 0
                 S.labels = []
                 a = block_()
                 S.in_function -= 1
+                is_generator.push(bool(S.functions.pop().is_generator))
                 S.classes.pop()
                 S.in_class.pop()
                 S.in_loop = loop
@@ -1012,8 +1043,11 @@ def parse($TEXT, options):
                 return a
             .call(this, S.in_loop, S.labels)
         })
+        definition.is_generator = is_generator[0]
         if isinstance(definition, AST_Method):
             definition.static = staticmethod
+            if definition.is_generator and definition.name and definition.name.name == '__init__':
+                croak('The __init__ method of a class cannot be a generator (yield not allowed)')
 
         # detect local variables, strip function arguments
         assignments = scan_for_local_vars(definition.body, False).filter(def(element, index, arr):

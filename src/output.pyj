@@ -27,7 +27,7 @@ AST_SimpleStatement, AST_Splice, AST_Statement, AST_StatementWithBody,
 AST_String, AST_Sub, AST_Switch, AST_SwitchBranch, AST_Symbol, AST_SymbolRef,
 AST_This, AST_Throw, AST_Toplevel, AST_Try, AST_Unary, AST_UnaryPostfix,
 AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While,
-AST_With, TreeWalker
+AST_With, AST_Yield, TreeWalker
 )
 
 def OutputStream(options):
@@ -1345,6 +1345,8 @@ def codegen():
         def internalsub():
             if not nokeyword:
                 output.print("function")
+                if self.is_generator:
+                    output.print('*')
 
             if self.name:
                 output.space()
@@ -1396,6 +1398,8 @@ def codegen():
             class_def(name)
             def internalsub():
                 output.print("function")
+                if stmt.is_generator:
+                    output.print('*')
                 output.space()
                 output.print(name)
 
@@ -1492,9 +1496,10 @@ def codegen():
 
         # Other statements in the class context
         self.statements.forEach(def(stmt):
-            output.indent()
-            stmt.print(output)
-            output.newline()
+            if not isinstance(stmt, AST_Method):
+                output.indent()
+                stmt.print(output)
+                output.newline()
         )
 
     )
@@ -1511,6 +1516,9 @@ def codegen():
             self.value.print(output)
 
         output.semicolon()
+    )
+    DEFPRINT(AST_Yield, def(self, output):
+        self._do_print(output, "yield" + (self.is_yield_from ? '*' : ''))
     )
     DEFPRINT(AST_Return, def(self, output):
         self._do_print(output, "return")

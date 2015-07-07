@@ -336,13 +336,14 @@ AST_Decorator = DEFNODE("Decorator", "name", {
     }
 })
 
-AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators", {
+AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_generator", {
     $documentation: "Base class for functions",
     $propdoc: {
         name: "[AST_SymbolDeclaration?] the name of this function",
         argnames: "[AST_SymbolFunarg*] array of function arguments",
         uses_arguments: "[boolean/S] tells whether this function accesses the arguments array",
-        decorators: "[AST_Decorator*] function decorators, if any"
+        decorators: "[AST_Decorator*] function decorators, if any",
+        is_generator: "[bool*] True iff this function is a generator",
     },
     _walk: def(visitor):
         node = this
@@ -425,6 +426,13 @@ AST_Exit = DEFNODE("Exit", "value", {
 AST_Return = DEFNODE("Return", None, {
     $documentation: "A `return` statement"
 }, AST_Exit)
+
+AST_Yield = DEFNODE("Yield", "is_yield_from", {
+    $documentation: "A `yield` statement",
+    $propdoc: {
+        is_yield_from: "[bool] True iff this is a yield from, False otherwise"
+    },
+}, AST_Return)
 
 AST_Throw = DEFNODE("Throw", None, {
     $documentation: "A `throw` statement"
