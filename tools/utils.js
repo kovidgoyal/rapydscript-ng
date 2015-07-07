@@ -55,6 +55,15 @@ function repeat(str, num) {
     return new Array( num + 1 ).join( str );
 }
 
+function generators_available() {
+    try {
+        eval('var gen = function *(){}'); // jshint ignore:line
+        return typeof gen === 'function' && gen.constructor.name == 'GeneratorFunction';
+    } catch(e) {
+        return false;
+    }
+}
+
 function wrap(lines, width) {
 	var ans = [];
 	var prev = '';
@@ -89,3 +98,4 @@ exports.wrap = wrap;
 exports.merge = merge;
 exports.colored = colored;
 exports.safe_colored = (supports_color()) ? colored : safe_colored;
+exports.generators_available = generators_available;
