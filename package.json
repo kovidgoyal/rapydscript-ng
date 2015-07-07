@@ -11,6 +11,7 @@
   "main": "tools/compiler.js",
   "scripts": {
 	  "test": "bin/rapydscript test",
+	  "start": "bin/rapydscript",
 	  "build-self": "bin/rapydscript self --complete"
   },
   "version": "0.3.4",
