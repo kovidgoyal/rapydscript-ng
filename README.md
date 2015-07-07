@@ -84,42 +84,54 @@ snippets below.
 
 Like JavaScript, RapydScript can be used to create anything from a quick function to a complex web-app. RapydScript can access anything regular JavaScript can, in the same manner. Let's say we want to write a function that greets us with a "Hello World" pop-up. The following code will do it:
 
-	def greet():
-		alert("Hello World!")
+```python
+def greet():
+	alert("Hello World!")
+```
 
 Once compiled, the above code will turn into the following JavaScript:
 
-	function greet() {
-		alert("Hello World!");
-	}
+```javascript
+function greet() {
+	alert("Hello World!");
+}
+```
 
 Now you can reference this function from other JavaScript or the page itself (using "onclick", for example). For our next example, let's say you want a function that computes factorial of a number:
 
-	def factorial(n):
-		if n == 0:
-			return 1
-		return n * factorial(n-1)
+```python
+def factorial(n):
+	if n == 0:
+		return 1
+	return n * factorial(n-1)
+```
 
 Now all we need is to tie it into our page so that it's interactive. Let's add an input field to the page body and a cell for displaying the factorial of the number in the input once the input loses focus.
 
+```html
 	<input id="user-input" onblur="computeFactorial()"></input>
 	<div id="result"></div>
+```
 
 **NOTE:** To complement RapydScript, I have also written RapydML (<http://bitbucket.org/pyjeon/rapydml>), which is a pre-compiler for HTML (just like RapydScript is a pre-compiler for JavaScript). 
 
 Now let's implement computeFactorial() function in RapydScript:
 
-	def computeFactorial():
-		n = document.getElementById("user-input").value
-		document.getElementById("result").innerHTML = factorial(n)
+```python
+def computeFactorial():
+	n = document.getElementById("user-input").value
+	document.getElementById("result").innerHTML = factorial(n)
+```
 
 Again, notice that we have access to everything JavaScript has access to, including direct DOM manipulation. Once compiled, this function will look like this:
 
-	function computeFactorial() {
-		var n;
-		n = document.getElementById("user-input").value;
-		document.getElementById("result").innerHTML = factorial(n);
-	}
+```javascript
+function computeFactorial() {
+	var n;
+	n = document.getElementById("user-input").value;
+	document.getElementById("result").innerHTML = factorial(n);
+}
+```
 
 Notice that RapydScript automatically declares variables in local scope when you try to assign to them. This not only makes your code shorter, but saves you from making common JavaScript mistake of overwriting a global. For more information on controlling variable scope, see `Scope Control` section.
 
@@ -128,49 +140,61 @@ Leveraging other APIs
 ---------------------
 Aside from Python-like stdlib, RapydScript does not have any of its own APIs. Nor does it need to, there are already good options available that we can leverage instead. If we wanted, for example, to rewrite the above factorial logic using jQuery, we could easily do so:
 
-	def computeFactorial():
-		n = $("#user-input").val()
-		$("#result").text(factorial(n))
+```python
+def computeFactorial():
+	n = $("#user-input").val()
+	$("#result").text(factorial(n))
+```
 
 Many of these external APIs, however, take object literals as input. Like with JavaScript, you can easily create those with RapydScript, the same way you would create one in JavaScript, or a dictionary in Python:
 
-	styles = {
-		'background-color':	'#ffe',
-		'border-left':		'5px solid #ccc',
-		'width':			50,
-	}
+```javascript
+styles = {
+	'background-color':	'#ffe',
+	'border-left':		'5px solid #ccc',
+	'width':			50,
+}
+```
 
 Now you can pass it to jQuery:
 
-	$('#element').css(styles)
+```python
+$('#element').css(styles)
+```
 
 Another feature of RapydScript is ability to have functions as part of your object literal. JavaScript APIs often take callback/handler functions as part of their input parameters, and RapydScript lets you create such object literal without any quirks/hacks:
 
-	params = {
-		width:	50,
-		height:	30,
-		onclick:	def(event):
-			alert("you clicked me"),
-		onmouseover:	def(event):
-			$(this).css('background', 'red')
-		,
-		onmouseout:	def(event):
-			# reset the background
-			$(this).css('background', '')
-	}
+```js
+params = {
+	width:	50,
+	height:	30,
+	onclick:	def(event):
+		alert("you clicked me"),
+	onmouseover:	def(event):
+		$(this).css('background', 'red')
+	,
+	onmouseout:	def(event):
+		# reset the background
+		$(this).css('background', '')
+}
+```
 
 Note the comma on a new line following a function declaration, it needs to be there to let the compiler know there are more attributes in this object literal, yet it can't go on the same line as the function since it would get parsed as part of the function block. Like Python, however, RapydScript supports new-line shorthand using a `;`, which you could use to place the comma on the same line:
 
-	hash = {
-		'foo':	def():
-			print('foo');,
-		'bar':	def():
-			print('bar')
-	}
+```js
+hash = {
+	'foo':	def():
+		print('foo');,
+	'bar':	def():
+		print('bar')
+}
+```
 
 It is because of easy integration with JavaScript's native libraries that RapydScript keeps its own libraries to a minimum. For example, it does not implement string interpolation, like native Python. However, by using `sprintf.js` library (<https://github.com/alexei/sprintf.js>) you can reproduce the same behavior in RapydScript:
 
-	string = vsprintf('%d bottles of %s on the wall', (99, 'beer'))
+```py
+string = vsprintf('%d bottles of %s on the wall', (99, 'beer'))
+```
 
 Take a look at the `examples` directory to see RapydScript integration with `jQuery`, `jQuery-UI`, `D3`, and `Google Charts`.
 
@@ -179,42 +203,48 @@ Anonymous Functions
 -------------------
 Like JavaScript, RapydScript allows the use of anonymous functions. In fact, you've already seen the use of anonymous functions in previous section when creating an object literal ('onmouseover' and 'onmouseout' assignments). This is similar to Python's lambda function, except that the syntax isn't awkward like lambda, and the function isn't limited to one line. The following two function declarations are equivalent:
 
-	def factorial(n):
-		if n == 0:
-			return 1
-		return n * factorial(n-1)
-	
-	factorial = def(n):
-		if n == 0:
-			return 1
-		return n * factorial(n-1)
-	
+```js
+def factorial(n):
+	if n == 0:
+		return 1
+	return n * factorial(n-1)
+
+factorial = def(n):
+	if n == 0:
+		return 1
+	return n * factorial(n-1)
+```
+
 This might not seem like much at first, but if you're familiar with JavaScript, you know that this can be extermely useful to the programmer, especially when dealing with nested functions, which are a bit syntactically awkward in Python (it's not immediatelly obvious that those can be copied and assigned to other objects). To illustrate the usefulness, let's create a method that creates and returns an element that changes color while the user keeps the mouse pressed on it.
 
-	def makeDivThatTurnsGreen():
-		div = $('<div></div>')
-		turnGreen = def(event):
-			div.css('background', 'green')
-		div.mousedown(turnGreen)
-		resetColor = def(event):
-			div.css('background', '')
-		div.mouseup(resetColor)
-		return div
+```js
+def makeDivThatTurnsGreen():
+	div = $('<div></div>')
+	turnGreen = def(event):
+		div.css('background', 'green')
+	div.mousedown(turnGreen)
+	resetColor = def(event):
+		div.css('background', '')
+	div.mouseup(resetColor)
+	return div
+```
 
 At first glance, anonymous functions might not seem that useful. We could have easily created nested functions and assigned them instead. By using anonymous functions, however, we can quickly identify that these functions will be bound to a different object. They belong to the div, not the main function that created them, nor the logic that invoked it. The best use case for these is creating an element inside another function/object without getting confused which object the function belongs to.
 
 Additionally, as you already noticed in the previous section, anonymous functions can be used to avoid creating excessive temporary variables and make your code cleaner:
 
-	math_ops = {
-		add:	def(a, b): return a+b;,
-		sub:	def(a, b): return a-b;,
-		mul:	def(a, b): return a*b;,
-		div:	def(a, b): return a/b;,
-		roots:	def(a, b, c):
-			r = Math.sqrt(b*b - 4*a*c)
-			d = 2*a
-			return (-b + r)/d, (-b - r)/d
-	}
+```js
+math_ops = {
+	add:	def(a, b): return a+b;,
+	sub:	def(a, b): return a-b;,
+	mul:	def(a, b): return a*b;,
+	div:	def(a, b): return a/b;,
+	roots:	def(a, b, c):
+		r = Math.sqrt(b*b - 4*a*c)
+		d = 2*a
+		return (-b + r)/d, (-b - r)/d
+}
+```
 
 I'm sure you will agree that the above code is cleaner than declaring 5 temporary variables first and assigning them to the object literal keys after. Note that the example puts the function header (def()) and content on the same line. I'll refer to it as function inlining. This is meant as a feature of RapydScript to make the code cleaner in cases like the example above. While you can use it in longer functions by chaining statements together using `;`, a good rule of thumb (to keep your code clean) is if your function needs semi-colons ask yourself whether you should be inlining, and if it needs more than 2 semi-colons, the answer is probably no (note that you can also use semi-colons as newline separators within functions that aren't inlined, as in the example in the previous section).
 
@@ -223,102 +253,128 @@ Decorators
 ----------
 Like Python, RapydScript supports function decorators. While decorator arguments are not supported, the basic decorators work exactly the same way as in Python:
 
-	def makebold(fn):
-		def wrapped():
-			return "<b>" + fn() + "</b>"
-		return wrapped
+```py
+def makebold(fn):
+	def wrapped():
+		return "<b>" + fn() + "</b>"
+	return wrapped
 
-	def makeitalic(fn):
-		def wrapped():
-			return "<i>" + fn() + "</i>"
-		return wrapped
+def makeitalic(fn):
+	def wrapped():
+		return "<i>" + fn() + "</i>"
+	return wrapped
 
-	@makebold
-	@makeitalic
-	def hello():
-		return "hello world"
+@makebold
+@makeitalic
+def hello():
+	return "hello world"
 
-	hello() # returns "<b><i>hello world</i></b>"
+hello() # returns "<b><i>hello world</i></b>"
+```
 
 
 Self-Executing Functions
 ------------------------
 RapydScript wouldn't be useful if it required work-arounds for things that JavaScript handled easily. If you've worked with JavaScript or jQuery before, you've probably seen the following syntax:
 
-	(function(args){
-		// some logic here
-	})(args)
+```js
+(function(args){
+	// some logic here
+})(args)
+```
 
 This code calls the function immediately after declaring it instead of assigning it to a variable. Python doesn't have any way of doing this. The closest work-around is this:
 
-	def tmp(args):
-		# some logic here
-	tmp.__call__(args)
+```py
+def tmp(args):
+	# some logic here
+tmp.__call__(args)
+```
 
 While it's not horrible, it did litter our namespace with a temporary variable. If we have to do this repeatedly, this pattern does get annoying. This is where RapydScript decided to be a little unorthodox and implement the JavaScript-like solution:
 
-	(def(args):
-		# some logic here
-	)()
+```js
+(def(args):
+	# some logic here
+)()
+```
 
 A close cousin of the above is the following code (passing current scope to the function being called):
 
-	function(){
-		// some logic here
-	}.call(this);
+```js
+function(){
+	// some logic here
+}.call(this);
+```
 
 With RapydScript equivalent of:
 
-	def():
-		# some logic here
-	.call(this)
+```js
+def():
+	# some logic here
+.call(this)
+```
 
 There is also a third alternative, that will pass the arguments as an array:
 
-	def(a, b):
-		# some logic here
-	.apply(this, [a, b])
+```js
+def(a, b):
+	# some logic here
+.apply(this, [a, b])
+```
 
 
 Chaining Blocks
 ---------------
 As seen in previous section, RapydScript will bind any lines beginning with `.` to the outside of the block with the matching indentation. This logic isn't limited to the `.call()` method, you can use it with `.apply()` or any other method/property the function has assigned to it. This can be used for jQuery as well:
 
-	$(element)
-	.css('background-color', 'red')
-	.show()
+```js
+$(element)
+.css('background-color', 'red')
+.show()
+```
 
 The only limitation is that the indentation has to match, if you prefer to indent your chained calls, you can still do so by using the `\` delimiter:
 
-	$(element)\
-		.css('background-color', 'red')\
-		.show()
+```js
+$(element)\
+	.css('background-color', 'red')\
+	.show()
+```
 
 RapydScript also allows an alternative syntax for the same feature, for those preferring Python's traditional, hanging-indent look:
 
-	def(one, two) and call(this, 1, 2):
-		...
+```js
+def(one, two) and call(this, 1, 2):
+	...
+```
 
 Which is equivalent to the following:
 
-	def(one, two):
-		...
-	.call(this, 1, 2)
+```js
+def(one, two):
+	...
+.call(this, 1, 2)
+```
 
 Some of you might welcome this feature, some of you might not. RapydScript always aims to make its unique features unobtrusive to regular Python, which means that you don't have to use them if you disagree with them. Recently, we have enhanced this feature to handle `do/while` loops as well:
 
-	a = 0
-	do:
-		print(a)
-		a += 1
-	.while a < 1
+```js
+a = 0
+do:
+	print(a)
+	a += 1
+.while a < 1
+```
 
 In my opinion, this is something even Python could benefit from. Like with functions, you could use the hanging-indent form as well:
 
-	a = 0
-	do and while a < 1:
-		print(a)
-		a += 1
+```js
+a = 0
+do and while a < 1:
+	print(a)
+	a += 1
+```
 
 
 Function calling with optional arguments
@@ -329,6 +385,7 @@ named optional arguments, create functions with variable numbers of arguments
 and variable numbers of named arguments. Some examples will illustrate this
 best:
 
+```py
 	def f1(a, b=2):
 	   return [a, b]
 
@@ -349,6 +406,7 @@ best:
 
 	f4(1, 2, 3, a=1, b=2):
 		return [[1, 2, 3], {a:1, b:2}]
+```
 
 On difference between RapydScript and Python is that RapydScript is not as
 strict as Python when it comes to validating function arguments. This is both
@@ -369,11 +427,13 @@ case that the external library expects a function that receives an *options
 object* as its last argument. There is a convenient decorator in the standard
 library that makes this easy:
 
-	from stdlib import options_object
+```py
+from stdlib import options_object
 
-	@options_object
-	def callback(a, b, opt1=default1, opt2=default2):
-	   pass
+@options_object
+def callback(a, b, opt1=default1, opt2=default2):
+	pass
+```
 
 Now when you pass callback into the external library and it is called with an
 object containing options, they will be automatically converted by RapydScript
@@ -384,65 +444,86 @@ Inferred Tuple Packing/Unpacking
 --------------------------------
 Like Python, RapydScript allows inferred tuple packing/unpacking and assignment. While inferred/implicit logic is usually bad, it can sometimes make the code cleaner, and based on the order of statements in the Zen of Python, 'beautiful' takes priority over 'explicit'. For example, if you wanted to swap two variables, the following looks cleaner than explicitly declaring a temporary variable:
 
-	a, b = b, a
+```py
+a, b = b, a
+```
 
 Likewise, if a function returns multiple variables, it's cleaner to say:
 
-	a, b, c = fun()
+```py
+a, b, c = fun()
+```
 
 rather than:
 
-	tmp = fun()
-	a = tmp[0]
-	b = tmp[1]
-	c = tmp[2]
+```py
+tmp = fun()
+a = tmp[0]
+b = tmp[1]
+c = tmp[2]
+```
 
 Since JavaScript doesn't have tuples, RapydScript uses arrays for tuple packing/unpacking behind the scenes, but the functionality stays the same. Note that unpacking only occurs when you're assigning to multiple arguments:
 
-	a, b, c = fun()		# gets unpacked
-	tmp = fun()			# no unpacking, tmp will store an array of length 3
+```py
+a, b, c = fun()		# gets unpacked
+tmp = fun()			# no unpacking, tmp will store an array of length 3
+```
 
 Unpacking can also be done in `for` loops (which you can read about in later section):
 
-	for index, value in enumerate(items):
-		print(index+': '+value)
+```py
+for index, value in enumerate(items):
+	print(index+': '+value)
+```
 
 Tuple packing is the reverse operation, and is done to the variables being assigned, rather than the ones being assigned to. This can occur during assignment or function return:
 
-	def fun():
-		return 1, 2, 3
+```py
+def fun():
+	return 1, 2, 3
+```
 
 To summarize packing and unpacking, it's basically just syntax sugar to remove obvious assignment logic that would just litter the code. For example, the swap operation shown in the beginning of this section is equivalent to the following code:
 
-	tmp = [b, a]
-	a = tmp[0]
-	b = tmp[1]
+```py
+tmp = [b, a]
+a = tmp[0]
+b = tmp[1]
+```
 
 
 Python vs JavaScript
 --------------------
 RapydScript allows you to use both, Python and JavaScript names for the methods. For example, we can 'push()' a value to array, as well as 'append()' it:
 
-	arr = []
-	arr.push(2)
-	arr.append(4)
-	print(arr) # outputs [2,4]
+```py
+arr = []
+arr.push(2)
+arr.append(4)
+print(arr) # outputs [2,4]
+```
 
 In order to use Python's methods, you will have to include RapydScript's stdlib.js. There are two ways of doing this. One is by adding the following line in your html page:
 
-	<script type="text/javascript" src='stdlib.js'></script>
+```html
+<script type="text/javascript" src='stdlib.js'></script>
+```
 
 The other way is to include the following line at the top of your main RapydScript file:
 
-	import stdlib
+```py
+import stdlib
+```
 
-The advantage of the second method is that the library will automatically be pulled in without having to manually copy it over into your JavaScript directory. The first include method, however, might be useful when you have multiple independently compiled RapydScript programs on your page and don't want the overhead of the same stdlib included in each one.
-
+The advantage of the second method is that the library will automatically be pulled in without having to manually copy it over into your JavaScript directory. 
 In order to simulate Python-like methods, I had to bastardize a couple of JavaScript's own methods. For example, array.pop() has been overwritten to work like Python's pop() (or JavaScript's splice()):
 
-	arr.pop()		# removes last element (expected behavior in JavaScript and Python)
-	arr.pop(2)		# removes third element (expected behavior in Python, but not JavaScript)
-	arr.splice(2,1) # removes third element (expected behavior in JavaScript, but not Python)
+```py
+arr.pop()		# removes last element (expected behavior in JavaScript and Python)
+arr.pop(2)		# removes third element (expected behavior in Python, but not JavaScript)
+arr.splice(2,1) # removes third element (expected behavior in JavaScript, but not Python)
+```
 
 There is a subtle difference between the last 2 lines above, arr.pop(2) will return a single element, arr.splice(2,1) will return an array containing that single element. Most of the keywords are interchangeable as well:
 
@@ -471,28 +552,18 @@ Admittedly, `is` is not exactly the same thing in Python as `===` in JavaScript,
 
 You may also be interested in `deep_eq` function, which is part of `stdlib`. It performs deep equality test on two objects, and works on any types, including hashes and arrays:
 
-	deep_eq([1,2,3], [1,[2,3]])		# False
-	deep_eq([[1,2],3], [1,[2,3]])	# False
-	deep_eq([1,[2,3]], [1,[2,3]])	# True
+```py
+deep_eq([1,2,3], [1,[2,3]])		# False
+deep_eq([[1,2],3], [1,[2,3]])	# False
+deep_eq([1,[2,3]], [1,[2,3]])	# True
+```
 
 In rare cases RapydScript might not allow you to do what you need to, and you need access to pure JavaScript. When that's the case, you can wrap your JavaScript in a string, passing it to JS() method. Code inside JS() method is not a sandbox, you can still interact with it from normal RapydScript:
 
-	JS('a = {foo: "bar", baz: 1};')
-	print(a.foo)	# prints "bar"
-
-One last thing to note is the difference between `print()` and `console.log`, `print()` is part of RapydScript's stdlib, and is designed to work similar to Python's print statement, `console.log()` is JavaScript's version of debug output, which is more powerful but also more tedious when you just want a quick output. Here are some examples:
-
-	arr = [1,2,3,4]
-	print(arr)			# [1,2,3,4]
-	console.log(arr)	# [1,2,3,4]
-	
-	arr2 = [[1,2],[3,4]]
-	print(arr2)			# [[1,2],[3,4]]
-	console.log(arr2)	# [Array[2], Array[2]]
-	
-	hash = {'dogs': 1, 'cats': 2}
-	print(hash)			# {"dogs":1,"cats":2}
-	console.log(hash)	# Object
+```py
+JS('a = {foo: "bar", baz: 1};')
+print(a.foo)	# prints "bar"
+```
 
 One other topic I debated for a while is handling of conditionals. In Python, if you wanted a one-liner conditional that gets assigned to a variable, you would write something like this:
 
@@ -502,28 +573,36 @@ In JavaScript, the equivalent logic would be written as follows:
 
 	var foo = baz ? bar : 10
 
-Which one looks cleaner is subject to personal preference (I'm used to seeing condition first in most of the `if` statements, so the second way makes more sense to me). But where the second approach wins is when dealing with anonymous functions. Indeed, Python doesn't have to handle them, yet RapydScript does. As a result, I decided to go with JavaScript's approach here. This also allows me to assign functions here, same way as JavaScript would:
+RapydScript supports both syntaxes.
+
+Which one looks cleaner is subject to personal preference (I'm used to seeing condition first in most of the `if` statements, so the second way makes more sense to me). But where the second approach wins is when dealing with anonymous functions. Indeed, Python doesn't have to handle them, yet RapydScript does. This also allows me to assign functions here, same way as JavaScript would:
 
 	foo = baz ? def(): return bar; : def(): return 10
 
 
 Loops
 -----
-RapydScript's loops work like Python, not JavaScript. You can't, for example use 'for(i=0;i<max;i++)' syntax. You can, however, loop through arrays using 'for ... in' syntax without worrying about the extra irrelevant attributes regular JavaScript returns.
+RapydScript's loops work like Python, not JavaScript. You can't, for example use ```for(i=0;i<max;i++)``` syntax. You can, however, loop through arrays using 'for ... in' syntax without worrying about the extra irrelevant attributes regular JavaScript returns.
 
-	animals = ['cat', 'dog', 'mouse', 'horse']
-	for animal in animals:
-		print('I have a '+animal)
+```py
+animals = ['cat', 'dog', 'mouse', 'horse']
+for animal in animals:
+	print('I have a '+animal)
+```
 		
 If you need to use the index in the loop as well, you can do so by using enumerate():
 
-	for index, animal in enumerate(animals):
-		print("index:"+index, "animal:"+animal)
+```
+for index, animal in enumerate(animals):
+	print("index:"+index, "animal:"+animal)
+```
 
 Like in Python, if you just want the index, you can use range:
 
-	for index in range(len(animals)):			# or range(animals.length)
-		print("animal "+index+" is a "+animals[index])
+```py
+for index in range(len(animals)):			# or range(animals.length)
+	print("animal "+index+" is a "+animals[index])
+```
 
 When possible, RapydScript will automatically optimize the loop for you into JavaScript's basic syntax, so you're not missing much by not being able to call it directly.
 
@@ -533,22 +612,28 @@ List/Set/Dict Comprehensions
 
 RapydScript also supports comprehensions, using Python syntax. Instead of the following, for example:
 
-	myArray = []
-	for index in range(1,20):
-		if index*index % 3 == 0:
-			myArray.append(index*index)
+```py
+myArray = []
+for index in range(1,20):
+	if index*index % 3 == 0:
+		myArray.append(index*index)
+```
 
 You could write this:
 
-	myArray = [i*i for i in range(1,20) if i*i%3 == 0]
+```py
+myArray = [i*i for i in range(1,20) if i*i%3 == 0]
+```
 
 Similarly for set and dict comprehensions:
 
-	myDict = {x:x+1 for x in range(20) if x > 2}
-	mySet = {i*i for i in range(1,20) if i*i%3 == 0}
+```py
+myDict = {x:x+1 for x in range(20) if x > 2}
+mySet = {i*i for i in range(1,20) if i*i%3 == 0}
+```
 
-Note that set comprehensions currently create an ES6 Set object, so they wil
-lonly work if the javascript runtime you use supports ES 6 Sets. At some point
+Note that set comprehensions currently create an ES6 Set object, so they will
+only work if the javascript runtime you use supports ES 6 Sets. At some point
 in the future, I might add a builtin set type to RapydScript that behaves like
 the python set type.
 
@@ -556,24 +641,32 @@ Inclusive/Exclusive Sequences
 -----------------------------
 Like Python, RapydScript has a range() function. While powerful, the result it generates isn't immediately obvious when looking at the code. It's a minor pet peeve, but the couple extra seconds trying to visually parse it and remember that it's not inclusive can detract from the code flow. To remedy this, RapydScript borrows `to/til` operators from LiveScript (also known as human-readable versions of Ruby's `../...`). The following 4 lines of code are equivalent, for example:
 
-	a = [3 to 8]
-	a = [3 til 9]
-	a = range(3, 9)
-	a = [3, 4, 5, 6, 7, 8]
+```py
+a = [3 to 8]
+a = [3 til 9]
+a = range(3, 9)
+a = [3, 4, 5, 6, 7, 8]
+```
 
 You can also use sequences within loops:
 
-	for i in [1 to 5]:
-		print(i)
+```py
+for i in [1 to 5]:
+	print(i)
+```
 
 Or in list comprehensions:
 
-	[i*i for i in [1 to 6] if i%2 == 0]
+```py
+[i*i for i in [1 to 6] if i%2 == 0]
+```
 
 The `to/til` statement gets converted to range() at compile time, and therefore can support variables or even expressions for start and end of the range:
 
-	num = 5
-	rng = [num to num * 2]
+```py
+num = 5
+rng = [num to num * 2]
+```
 	
 The `to/til` operators bind less tightly than arithmetic operators, so parentheses are optional.
 
@@ -582,110 +675,135 @@ Classes
 -------
 This is where RapydScript really starts to shine. JavaScript is known for having really crappy class implementation (it's basically a hack on top of a normal function, most experienced users suggest using external libraries for creating those instead of creating them in pure JavaScript). Luckily RapydScript fixes that. Let's imagine we want a special text field that takes in a user color string and changes color based on it. Let's create such field via a class.
 
-	class ColorfulTextField:
-		def __init__(self):
-			field = $('<input></input>')
-			changeColor = def(event):
-				field.css('backround', field.val())
-			field.keydown(changeColor)
-			self.widget = field
+```js
+class ColorfulTextField:
+	def __init__(self):
+		field = $('<input></input>')
+		changeColor = def(event):
+			field.css('backround', field.val())
+		field.keydown(changeColor)
+		self.widget = field
+```
 
 This class abuses DOM's tolerant behavior, where it will default to the original setting when the passed-in color is invalid (saving us the extra error-checking logic). To append this field to our page we can run the following code:
 
-	textfield = ColorfulTextField()
-	$('body').append(textfield.widget)
+```py
+textfield = ColorfulTextField()
+$('body').append(textfield.widget)
+```
 
 If you're used to JavaScript, the code above probably set off a few red flags in your head. In pure JavaScript, you can't create an object without using a 'new' operator. Don't worry, the above code will compile to the following:
 
-	var textfield;
-	textfield = new ColorfulTextField()
-	$('body').append(textfield.widget);
+```js
+var textfield;
+textfield = new ColorfulTextField()
+$('body').append(textfield.widget);
+```
 
 RapydScript will automatically handle appending the 'new' keyword for you, assuming you used 'class' to create the class for your object. This also holds when creating an object inside a list or returning it as well. You could easily do the following, for example:
 
-	fields = [ColorfulTextField(), ColorfulTextField(), ColorfulTextField()]
+```
+fields = [ColorfulTextField(), ColorfulTextField(), ColorfulTextField()]
+```
 
 This is very useful for avoiding a common JavaScript error of creating 'undefined' objects by forgetting this keyword. One other point to note here is that regular DOM/JavaScript objects are also covered by this. So if you want to create a DOM image element, you should not use the 'new' keyword either:
 
-	myImage = Image()
+```py
+myImage = Image()
+```
 
 But RapydScript's capability doesn't end here. Like Python, RapydScript allows inheritance. Let's say, for example, we want a new field, which works similar to the one above. But in addition to changing color of the field, it allows us to change the color of a different item, with ID of 'target' after we press the 'apply' button, located right next to it. Not a problem, let's implement this guy:
 
-	class TextFieldAffectingOthers(ColorfulTextField):
-		def __init__(self):
-			ColorfulTextField.__init__(self)
-			field = self.widget
-			submit = $('<button type="button">apply</button>')
-			applyColor = def(event):
-				$('#target').css('background', field.val())
-			submit.click(applyColor)
-			self.widget = $('<div></div>')\
-				.append(field)\
-				.append(submit)
+```js
+
+class TextFieldAffectingOthers(ColorfulTextField):
+	def __init__(self):
+		ColorfulTextField.__init__(self)
+		field = self.widget
+		submit = $('<button type="button">apply</button>')
+		applyColor = def(event):
+			$('#target').css('background', field.val())
+		submit.click(applyColor)
+		self.widget = $('<div></div>')\
+			.append(field)\
+			.append(submit)
+```
 
 A couple things to note here. We can invoke methods from the parent class the same way we would in Python, by using `Parent.method(self, ...)` syntax. This allows us to control when and how (assuming it requires additional arguments) the parent method gets executed. Also note the use of `\` operator to break up a line. This is something Python allows for keeping each line short and legible. Likewise, RapydScript, being indentation-based, allows the same.
 
 An important distinction between Python and RapydScript is that RapydScript does not allow multiple inheritance. This might seem like a big deal at first, but in actuality it barely matters. When using multiple inheritance, we usually only care about a few methods from the alternative classes. Leveraging JavaScript prototypical inheritance, RapydScript allows us to reuse methods from another class without even inheriting from it:
 
-	class Something(Parent):
-		def method(self, var):
-			Parent.method(self, var)
-			SomethingElse.method(self, var)
-			SomethingElse.anotherMethod(self)
+```py
+class Something(Parent):
+	def method(self, var):
+		Parent.method(self, var)
+		SomethingElse.method(self, var)
+		SomethingElse.anotherMethod(self)
+```
 
 Notice that `Something` class has no `__init__` method. Like in Python, this method is optional for classes. If you omit it, an empty constructor will automatically get created for you by RapydScript (or when inheriting, the parent's constructor will be used). Also notice that we never inherited from SomethingElse class, yet we can invoke its methods. This brings us to the next point, the only real advantage of inheriting from another class (which you can't gain by calling the other classes method as shown above) is that the omitted methods are automatically copied from the parent. Admittedly, we might also care about `isinstance()` method, to have it work with the non-main parent, which is equivalent to JavaScript's `instanceof` operator.
 
 There is also a convenience function in RapydScript called `mixin` that lets you assign all methods of a given class to another, like Python's multiple inheritance:
 
-	mixin(Snake, Animal, false)     # add Animal's methods to Snake, don't overwrite ones already declared in Snake
-	mixin(Snake, Animal, true)      # add Animal's methods to Snake, overwriting ones already declared in Snake
+```py
+mixin(Snake, Animal, false)     # add Animal's methods to Snake, don't overwrite ones already declared in Snake
+mixin(Snake, Animal, true)      # add Animal's methods to Snake, overwriting ones already declared in Snake
+```
 
 To summarize classes, assume they work the same way as in Python, plus a few bonus cases. The following, for example, are equivalent:
 
-	class Aclass:
-		def __init__(self):
-			pass
-	
-		def method(self):
-			doSomething(self)
+```py
+class Aclass:
+	def __init__(self):
+		pass
 
-	class Aclass:
-		def __init__(self):
-			self.method = def():
-				doSomething(self)
+	def method(self):
+		doSomething(self)
+
+class Aclass:
+	def __init__(self):
+		self.method = def():
+			doSomething(self)
+```
 
 The variable `self` in the above example is not a keyword. Like in Python, it can be replaced with any other variable name. Also, like in Python, this variable will be tied to the class, unlike `this` keyword of JavaScript. RapydScript still treats `this` keyword the same way JavaScript does:
 
-	class Main:
-		def __init__(s):
-			main = this
-			method = def():
-				main.doSomething()
-			$('#element').click(method)
-		
-		def doSomething(s):
-			...
+```py
+class Main:
+	def __init__(s):
+		main = this
+		method = def():
+			main.doSomething()
+		$('#element').click(method)
+	
+	def doSomething(s):
+		...
+```
 
 Or, leveraging Pythonic binding to first argument, the same can be shortened to:
 
-	class Main:
-		def __init__(s):
-			method = def():
-				s.doSomething()
-			$('#element').click(method)
-		
-		def doSomething(s):
-			...
+```
+class Main:
+	def __init__(s):
+		method = def():
+			s.doSomething()
+		$('#element').click(method)
+	
+	def doSomething(s):
+		...
+```
 
 Like Python, RapydScript allows static methods. Marking the method static with `@staticmethod` decorator will compile that method such that it's not bound to the object instance, and ensure all calls to this method compile into static method calls:
 
-	class Test:
-		def normalMethod(self):
-			return 1
+```py
+class Test:
+	def normalMethod(self):
+		return 1
 
-		@staticmethod
-		def staticMethod(a):
-			return a+1
+	@staticmethod
+	def staticMethod(a):
+		return a+1
+```
 
 Some methods in the native JavaScript classes, such as `String.fromCharCode()` have also been marked as static to make things easier for the developer.
 
@@ -698,27 +816,33 @@ RapydScript will automatically detect classes declared within the same scope (as
 
 Marking a class as external is done via `external` decorator. You do not need to fill in the contents of the class, a simple `pass` statement will do:
 
-	@external
-	class Alpha:
-		pass
+```py
+@external
+class Alpha:
+	pass
+```
 
 RapydScript will now treat `Alpha` as if it was declared within the same scope, auto-prepending the `new` keyword when needed and using `prototype` to access its methods (see `casperjs` example in next section to see how this can be used in practice). You don't need to pre-declare the methods of this class (unless you decide to for personal reference, the compiler will simply ignore them) unless you want to mark certain methods as static:
 
-	@external
-	class Alpha:
-		@staticmethod
-		def one():
-			pass
+```py
+@external
+class Alpha:
+	@staticmethod
+	def one():
+		pass
+```
 
 `Alpha.one` is now a static method, every other method invoked on `Alpha` will still be treated as a regular class method. While not mandatory, you could pre-declare other methods you plan to use from `Alpha` class as well, to make your code easier to read for other developers, in which case this `external` declaration would also serve as a table of contents for `Alpha`:
 
-	@external
-	class Alpha:
-		def two(): pass
-		def three(): pass
+```py
+@external
+class Alpha:
+	def two(): pass
+	def three(): pass
 
-		@staticmethod
-		def one(): pass
+	@staticmethod
+	def one(): pass
+```
 
 As mentioned earlier, this is simply for making your code easier to read. The compiler itself will ignore all method declarations except ones marked with `staticmethod` decorator.
 
@@ -728,52 +852,60 @@ You could also use `external` decorator to bypass improperly imported RapydScrip
 ### Method Binding
 By default, RapydScript does not bind methods to the classes they're declared under. This behavior is unlike Python, but very much like the rest of JavaScript. For example, consider this code:
 
-	class Boy:
-		def __init__(self, name):
-			self.name = name
+```py
+class Boy:
+	def __init__(self, name):
+		self.name = name
 
-		def greet(self):
-			print('My name is' + self.name)
+	def greet(self):
+		print('My name is' + self.name)
 
-	tod = Boy('Tod')
-	tod.greet()                 # Hello, my name is Tod
-	getattr(tod, 'greet')()     # Hello, my name is undefined
+tod = Boy('Tod')
+tod.greet()                 # Hello, my name is Tod
+getattr(tod, 'greet')()     # Hello, my name is undefined
+```
 
 In some cases, however, you may wish for the functions to remain bound to the object they were retrieved from. For those cases, RapydScript has `bind` function. Unlike regular JavaScript `Function.prototype.bind`, RapydScript's `bind` can rebind methods that have already been bound. The binding we wanted to see in the above example can be achieved as follows:
 
-	bound = bind(getattr(tod, 'greet'), tod)
-	bound()                     # Hello, my name is Tod
+```py
+bound = bind(getattr(tod, 'greet'), tod)
+bound()                     # Hello, my name is Tod
+```
 
 To unbind a bound method, you can call pass `false` as a second argument instead of an object you wish to bind to. You can also auto-bind all methods of the class by calling `rebind_all`:
 
-	class Boy:
-		def __init__(self, name):
-			self.name = name
-			rebind_all(self)
+```py
+class Boy:
+	def __init__(self, name):
+		self.name = name
+		rebind_all(self)
 
-		def greet(self):
-			print('My name is' + self.name)
+	def greet(self):
+		print('My name is' + self.name)
 
-	tod = Boy('Tod')
-	tod.greet()                 # Hello, my name is Tod
-	getattr(tod, 'greet')()     # Hello, my name is Tod
+tod = Boy('Tod')
+tod.greet()                 # Hello, my name is Tod
+getattr(tod, 'greet')()     # Hello, my name is Tod
+```
 
-Likewise, `rebind_all(self, false)` will unbind all methods. It's not recommended to auto-bind classes that inherit from 3rd party libraries. For example, `casperjs` has `Casper` class, which RapydScript can easily inherit and extend:
+Likewise, ``rebind_all(self, false)`` will unbind all methods. It's not recommended to auto-bind classes that inherit from 3rd party libraries. For example, `casperjs` has `Casper` class, which RapydScript can easily inherit and extend:
 
-	@external
-	class Casper:
-		pass
+```py
+@external
+class Casper:
+	pass
 
-	class Scraper(Casper):
-		def __init__(self):
-			Casper.__init__(self)
-			self.start()
+class Scraper(Casper):
+	def __init__(self):
+		Casper.__init__(self)
+		self.start()
 
-	s = Scraper()
-	s.thenOpen('http://casperjs.org',
-		def(): this.echo(this.getTitle())
-	)
-	s.run()
+s = Scraper()
+s.thenOpen('http://casperjs.org',
+	def(): this.echo(this.getTitle())
+)
+s.run()
+```
 
 Including `rebind_all` call in the constructor, however, will break `Casper`. It is for that reason that `rebind_all` isn't added to the constructor by default by RapydScript. You could, however use `--auto-bind` compile flag to have RapydScript rebind automatically for you. There is a bit more that this flag does behind the scenes, which ensures that class binding behaves identical to Python, at the expense of some performance and compatibility with libraries like `casperjs`.
 
@@ -817,7 +949,9 @@ an ```__init__.pyj``` file. The only caveat is that star imports are not
 currently supported (this is by design, star imports are easily abused).
 You can import things from modules, just like you would in python:
 
-	from mypackage.mymodule import something, something_else
+```py
+from mypackage.mymodule import something, something_else
+```
 
 When you import modules, the RapydScript compiler automatically generates a
 single large JavaScript file containing all the imported packages/modules and
@@ -828,67 +962,83 @@ Exception Handling
 ------------------
 Like Python and JavaScript, RapydScript has exception handling logic. The following, for example, will warn the user if variable `foo` is not defined:
 
-	try:
-		print(foo)
-	except:
-		print("Foo wasn't declared yet")
+```py
+try:
+	print(foo)
+except:
+	print("Foo wasn't declared yet")
+```
 
 It's a good practice, however, to only catch exceptions we expect. Imagine, for example, if `foo` was defined, but as a circular structure (with one of its attributes referencing itself):
 
-	foo = {}
-	foo.bar = foo
+```py
+foo = {}
+foo.bar = foo
+```
 
 We would still trigger an exception, but for a completely different reason. A better way to rewrite our `try/except` block would be:
 
-	try:
-		print(foo)
-	except ReferenceError:
-		print("Foo wasn't declared yet")
+```py
+try:
+	print(foo)
+except ReferenceError:
+	print("Foo wasn't declared yet")
+```
 
 We could also handle circular structure exception, if we needed to:
 
-	try:
-		print(foo)
-	except ReferenceError:
-		print("Foo wasn't declared yet")
-	except TypeError:
-		print("One of foo's attributes references foo")
+```py
+try:
+	JSON.stringify(foo)
+except ReferenceError:
+	print("Foo wasn't declared yet")
+except TypeError:
+	print("One of foo's attributes references foo")
+```
 
 Or we could just dump the error back to the user:
 
-	try:
-		print(foo)
-	except as err:
-		print(err.name + ':' + err.message)
+```py
+try:
+	print(foo)
+except as err:
+	print(err.name + ':' + err.message)
+```
 
 In this example, `err` is a JavaScript error object, it has `name` and `message` attributes, more information can be found at <https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Error>. You can inherit from this object as if it was a class to create custom errors, just like you would in Python:		
 
-	class MyError(Error):
-		def __init__(self, message):
-			self.name = Error
-			self.message = message
-	
-	raise MyError('This is a custom error!')
+```py
+class MyError(Error):
+	def __init__(self, message):
+		self.name = Error
+		self.message = message
+
+raise MyError('This is a custom error!')
+```
 
 You can lump multiple errors in the same except block as well:
 
-	try:
-		print(foo)
-	except ReferenceError, TypeError as e:
-		print(e.name + ':' + e.message)
+```py
+try:
+	print(foo)
+except ReferenceError, TypeError as e:
+	print(e.name + ':' + e.message)
+```
 
 Basically, `try/except/finally` in RapydScript works very similar to the way it does in Python 3, lacking only the `else` directive (it didn't seem useful enough to implement). Like in Python and JavaScript, you can nest multiple exceptions inside each other, and use `raise` to throw the error back at the user:
 
-	try:
-		print(foo)
-	except ReferenceError as e:
-		if e.message == 'foo is not defined':
-			print('undefined')
-		else:
-			raise e
-	finally:
-		# reset foo
-		foo = 'bar'
+```py
+try:
+	print(foo)
+except ReferenceError as e:
+	if e.message == 'foo is not defined':
+		print('undefined')
+	else:
+		raise e
+finally:
+	# reset foo
+	foo = 'bar'
+```
 
 Like in Python (but unlike in regular JavaScript), you can use `raise` keyword by itself from within `except` block to reraise last-caught error.
 
@@ -897,38 +1047,46 @@ Scope Control
 -------------
 Scope refers to the context of a variable. For example, a variable declared inside a function is not seen by the code outside the function. This variable's scope is local to the function. JavaScript controls scope via `var` keyword. Any variable that you start using without declaring with a `var` first will try to reference inner-most variable with the same name, if one doesn't exist, it will create a global variable with that name. For example, the following JavaScript code will not only return `a` incremented by 1, but also overwrite the global variable `a` with `a+1`:
 
-	a = 1;
-	a_plus_1 = function() {
-		return ++a;
-	};
+```py
+a = 1;
+a_plus_1 = function() {
+	return ++a;
+};
+```
 
 Basically, JavaScript defaults to outer or global scope if you omit `var`. This behavior can introduce some very frustrating bugs in large applications. To avoid this problem, RapydScript's scope preference works in reverse (same as Python's). RapydScript will prefer local-most scope, always creating a local variable if you perform any sort of assignment on it in a function (this is called variable shadowing). Shadowing can create another annoyance, however, of function's variable changes getting discarded. For example, at first, it looks like the following code will set `a` to 2:
 
-	a = 1
-	b = 1
-	increment = def():
-		a += b
-	increment()
+```py
+a = 1
+b = 1
+increment = def():
+	a += b
+increment()
+```
 
 When executed, however, increment() function will discard any changes to `a`. This is because, like Python, RapydScript will not allow you to edit variables declared in outer scope. As soon as you use any sort of assignment with `a` in the inner scope, RapydScript will declare it as an internal variable, shadowing `a` in the outer scope. One way around this is to use the `global` keyword, declaring `a` as a global variable. This, however, must be done in every function that edits `a`. It also litters global scope, which it frowned upon because it can accidentally overwrite an unrelated variable with the same name (declared by someone else or another library). RapydScript solves this by introducing `nonlocal` keyword (just like Python 3):
 
-	a = 1
-	b = 1
-	increment = def():
-		nonlocal a
-		a += b
-	increment()
+```py
+a = 1
+b = 1
+increment = def():
+	nonlocal a
+	a += b
+increment()
+```
 
 Note that `b` is not affected by shadowing. It's the assignment operator that triggers shadowing, you can read outer-scope variables without having to use `nonlocal`. You can combine multiple non-local arguments by separating them with a comma: `nonlocal a, b, c`. You can also chain `nonlocal` declarations to escape multiple scopes:
 
-	def fun1():
-		a = 5
-		b = fun2():
+```py
+def fun1():
+	a = 5
+	b = fun2():
+		nonlocal a
+		a *= 2
+		c = fun3():
 			nonlocal a
-			a *= 2
-			c = fun3():
-				nonlocal a
-				a += 1
+			a += 1
+```
 
 Shadowing is preferred in most cases, since it can't accidently damage outside logic, and if you want to edit an external variable, you're usually better off assigning function's return value to it. There are cases, however, when using `nonlocal` makes the code cleaner. There is also `global`, but it is rarely a good solution, and use of `nonlocal` is preferred to it.
 
@@ -960,16 +1118,20 @@ in practice. To run the linter:
 
 It will catch many errors, for example,
 
-	def f():
-	   somevar = 1
-	   return someva
+```py
+def f():
+	somevar = 1
+	return someva
+```
 
 The linter will catch the typo above, saving you from having to discover it at
 runtime. Another example:
 
-	def f(somevar1):
-		somevar2 = somevar1 * 2
-		return somevar1
+```py
+def f(somevar1):
+	somevar2 = somevar1 * 2
+	return somevar1
+```
 
 Here, you probablt meant to return ``somevar2`` not ``somevar1``. The linter
 will detect that somevar2 is defined but not used and warn you about it.
@@ -995,29 +1157,35 @@ This seems to be a very old debate. Python code conventions suggest 4-space inde
 #### Object Literals vs Hashes/Dicts
 JavaScript treats object literals and hashes as the same thing. I'm not a fan of this policy. Some of the problems you can see resulting from this is Google Closure compiler's ADVANACED_OPTIMIZATIONS breaking a lot of seemingly-good JavaScript code. The main problem for most of the code that breaks seems to be renaming of methods/variables in one place and not another. My suggestion is to ALWAYS treat object literals as object literals and ALWAYS treat hashes as hashes, basically be consistent about quoting your keys. As an added bonus, your code will have a much better chance of compiling correctly via Closure compiler. For example:
 
-	obj = {
-		foo:	1,
-		bar:	def(): print('bar' + str(foo))
-	}
-	hash = {
-		'foo':	1,
-		'bar':	def(): print('bar' + str(foo))
-	}
-	
-	obj.bar()		# good
-	obj['bar']()	# bad
-	
-	hash.bar()		# bad
-	hash['bar']()	# good
+```js
+obj = {
+	foo:	1,
+	bar:	def(): print('bar' + str(foo))
+}
+hash = {
+	'foo':	1,
+	'bar':	def(): print('bar' + str(foo))
+}
+
+obj.bar()		# good
+obj['bar']()	# bad
+
+hash.bar()		# bad
+hash['bar']()	# good
+```
 
 #### Semi-Colons
 Don't abuse semi-colons. They're meant as a way to group related logic together, not to fit your entire web-app on one line. The following is fine:
 
-	X = 0; Y = 1
+```py
+X = 0; Y = 1
+```
 
 Anything that requires more than a couple semi-colons, however, or involves long mathematical computations, is better off on its own line. Use your discretion, if the logic requires more than one visual pass-through from the programmer to understand the flow, you probably shouldn't use semi-colons. A Fibanacci function, as shown below, would probably be the upper limit of the kind of logic you could sanely represent with semi-colons:
 
-	fib = def(x): if x<=1: return 1; return fib(x-1)+fib(x-2)
+```js
+fib = def(x): if x<=1: return 1; return fib(x-1)+fib(x-2)
+```
 
 Even for this example, however, I'd personally prefer to use multiple lines.
 
@@ -1027,10 +1195,12 @@ Occasionally you may need to use raw JavaScript due to a limitation of RapydScri
 #### jQuery-wrapped Elements
 If you use jQuery with your app, you will probably be storing these into variables a lot. If you've written a decently sized app, you've probably mistaken a bare element with wrapped element at least once. This is especially true of objects like `canvas`, where you need to access object's attributes and methods directly. My solution for these is simple, prepend jQuery-wrapped elements with `$`:
 
-	$canvas = ('<canvas></canvas>')
-	canvas = $canvas.get(0)
-	ctx = canvas.getContext('2d')
-	$canvas.appendTo(document)
+```js
+$canvas = ('<canvas></canvas>')
+canvas = $canvas.get(0)
+ctx = canvas.getContext('2d')
+$canvas.appendTo(document)
+```
 
 This is especially useful with function definitions, since you will immediately know what kind of object the function takes in just by skimming its signature.
 
