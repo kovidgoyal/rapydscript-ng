@@ -10,8 +10,14 @@
 
 # globals: exports, console
 
-def abs(n):
-    return Math.abs(n)
+def abs():
+    return Math.abs
+
+def max():
+    return Math.max
+
+def min():
+    return Math.min
 
 def _$rapyd$_bind(fn, thisArg):
     if fn.orig: fn = fn.orig
@@ -204,7 +210,9 @@ def _$rapyd$_desugar_kwargs():
         return ans
 
 if type(exports) == 'object':
-    exports.abs = abs
+    exports['abs()'] = abs
+    exports['max()'] = max
+    exports['min()'] = min
     exports.bind = _$rapyd$_bind
     exports.rebind_all = _$rapyd$_rebind_all
     exports.dir = dir

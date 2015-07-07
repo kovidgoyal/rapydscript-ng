@@ -1711,8 +1711,7 @@ def parse($TEXT, options):
                 elif isinstance(expr, AST_SymbolRef):
                     tmp_ = expr.name
                     # special functions that trigger addition of extra logic to generated JavaScript
-                    if tmp_ == "abs"
-                    or tmp_ == "bind"
+                    if tmp_ == "bind"
                     or tmp_ == "rebind_all"
                     or tmp_ == "dir"
                     or tmp_ == "enumerate"
@@ -1748,7 +1747,10 @@ def parse($TEXT, options):
                         S.in_parenthesized_expr = False
                         return ret
                     elif tmp_ == 'symbolfor'
-                    or tmp_ == 'len':
+                    or tmp_ == 'len'
+                    or tmp_ == 'abs'
+                    or tmp_ == 'max'
+                    or tmp_ == 'min':
                         baselib_items[tmp_ + '()'] = True
 
                 # fall-through to basic function call

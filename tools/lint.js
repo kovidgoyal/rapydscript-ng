@@ -30,7 +30,7 @@ var MESSAGES = {
 BUILTINS = {
     'this':true, 'self':true, 'window':true, 'document':true, 
     'print':true, 'len':true, 'range':true, 'dir':true, 'eval':true,
-    'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
+    'undefined':true, 'arguments':true, 'bind':true, 'abs':true, 'max':true, 'min':true,
     'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
     'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
     'parseInt':true, 'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
