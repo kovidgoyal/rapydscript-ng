@@ -28,13 +28,15 @@ var MESSAGES = {
 };
 
 BUILTINS = {
-    'this':true, 'self':true, 'window':true, 'document':true, 
-    'print':true, 'len':true, 'range':true, 'dir':true, 'eval':true,
-    'undefined':true, 'arguments':true, 'bind':true, 'abs':true, 'max':true, 'min':true,
-    'enumerate':true, 'rebind_all':true, 'extends':true, 'reversed':true,
-    'sum':true, 'getattr':true, 'setattr':true, 'hasattr':true, 'symbolfor':true,
-    'parseInt':true, 'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
-    '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true, 'float':true,
+    'this':true, 'self':true, 'window':true, 'document':true,
+    'iterator_symbol':true, 'print':true, 'len':true, 'range':true, 'dir':true,
+    'eval':true, 'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
+    'max':true, 'min':true, 'enumerate':true, 'rebind_all':true,
+    'extends':true, 'reversed':true, 'sum':true, 'getattr':true,
+    'setattr':true, 'hasattr':true, 'symbolfor':true, 'parseInt':true,
+    'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
+    '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
+    'float':true, 'iter':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 

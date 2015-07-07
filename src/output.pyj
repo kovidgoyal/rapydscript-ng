@@ -318,6 +318,9 @@ def OutputStream(options):
     # any code that should appear before the main body
     def prologue(module_):
         if not options.omit_baselib:
+            indent()
+            spaced.apply(None, (('var iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+            end_statement()
             for lib in module_.baselib:
                 dump_baselib(lib)
 #            for lib in dir(module_.baselib):
@@ -1377,13 +1380,16 @@ def codegen():
         if self.external:
             return
 
-        class_def = def(method):
+        class_def = def(method, is_var):
             output.indent()
             self.name.print(output)
-            if method and self.static.indexOf(method) != -1:
+            if not is_var and method and self.static.indexOf(method) != -1:
                 output.assign("." + method)
             else:
-                output.assign(".prototype" + ((method ? "." + method : "")))
+                if is_var:
+                    output.assign(".prototype[" + method + "]")
+                else:
+                    output.assign(".prototype" + ((method ? "." + method : "")))
 
         define_method = def(stmt):
             name = stmt.name.name
@@ -1474,6 +1480,11 @@ def codegen():
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):
                 define_method(stmt)
+                if stmt.name.name == '__iter__':
+                    class_def('iterator_symbol', True)
+                    self.name.print(output)
+                    output.print('.prototype.' + stmt.name.name)
+                    output.end_statement()
 
             elif isinstance(stmt, AST_Class):
                 console.error('Nested classes aren\'t supported yet')  # noqa:undef

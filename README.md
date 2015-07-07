@@ -777,6 +777,36 @@ Likewise, `rebind_all(self, false)` will unbind all methods. It's not recommende
 
 Including `rebind_all` call in the constructor, however, will break `Casper`. It is for that reason that `rebind_all` isn't added to the constructor by default by RapydScript. You could, however use `--auto-bind` compile flag to have RapydScript rebind automatically for you. There is a bit more that this flag does behind the scenes, which ensures that class binding behaves identical to Python, at the expense of some performance and compatibility with libraries like `casperjs`.
 
+Iterators
+----------
+
+RapydScript supports iterators, just like python, with a few differences to
+make interoperating with other JavaScript code nicer. You can make an iterator
+from an array or object by simply calling the builtin ``iter()`` function, just
+as you would in python. The result of the function is a javascript iterator
+object, that works both in RapydScript's for..in loops and ES6 JavaScript
+for..of loops. Indeed they will work with any vanilla JavaScript code that
+expects an iterable object. You can make your own classes iterable by defining
+an ``__iter__`` method, just as you would in python. For example:
+
+```python
+	class A:
+
+		def __init__(self):
+			self.items = [1, 2, 3]
+
+		def __iter__(self):
+			return iter(self.items)
+
+	for x in A():
+	   print (x)  # Will print 1, 2, 3
+```
+
+Note that unlike python, an iterators ``next()`` method does not return
+the next value, but instead an object with two properties: ``done and value``.
+``value`` is the next value and done will be ``True`` when the iterator is
+exhausted. No ``StopIteration`` exception is raised. These choices were
+made so that the iterator works with other JavaScript code.
 
 Modules
 -------
@@ -1091,6 +1121,10 @@ This list below records all the work I have done on RapydScript so far.
    ``rapydscript lint file.pyj``
 
 1. Added support for dict and set comprehensions, not just list comprehensions
+
+1. Added support for iterators that work seamlessly with JavaScript code. And
+   a builtin ``iter()`` function to easily create them from
+   arrays/strings/objects.
 
 1. RapydScript now supports the Python integer (floor) division operator. 
    ``100 // 3 = 33``

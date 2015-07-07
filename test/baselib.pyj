@@ -4,6 +4,21 @@ assert.equal(typeof symbolfor, 'function')
 if (typeof Symbol == 'function') assert.equal(typeof symbolfor('a'), 'symbol')
 assert.equal(symbolfor('a'), symbolfor('a'))
 
+class CustomIterable:
+
+    def __init__(self, items):
+        self.items = items
+
+    def __iter__(self):
+        return iter(self.items)
+
+t = []
+q = [1,2,3]
+for x in CustomIterable(q):
+    t.push(x)
+assert.deepEqual(q, t)
+
+
 if type(Map) == 'function':
     m = Map()
     m.set('a', 1)
@@ -31,3 +46,6 @@ if type(Map) == 'function':
     for i in reversed(m):
         t.push(i)
     assert.deepEqual(t, ['b', 'a'])
+
+    # Test that the iterator created by iter() is itself iterable
+    assert.deepEqual(s, Set(iter(s)))

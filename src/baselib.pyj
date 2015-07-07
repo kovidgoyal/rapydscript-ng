@@ -73,11 +73,11 @@ def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
     # rid of this function entirely
     if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
-    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
-        iterator = iterable[Symbol.iterator]()
+    if type(iterable[iterator_symbol]) == 'function':
+        iterator = iterable[iterator_symbol]()
         ans = []
         result = iterator.next()
-        if iterable[Symbol.iterator] == iterable.entries:
+        if iterable[iterator_symbol] == iterable.entries:
             while not result.done:
                 ans.push(result.value[0])
                 result = iterator.next()
@@ -94,12 +94,12 @@ def enumerate(iterable):
         arr = []
         for JS('var i=0;i<iterable.length;i++'): arr.push([i, iterable[i]])  # noqa:undef
         return arr
-    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
-        iterator = iterable[Symbol.iterator]()
+    if type(iterable[iterator_symbol]) == 'function':
+        iterator = iterable[iterator_symbol]()
         c = 0
         ans = []
         result = iterator.next()
-        if iterable[Symbol.iterator] == iterable.entries:
+        if iterable[iterator_symbol] == iterable.entries:
             while not result.done:
                 ans.push([c, result.value[0]])
                 result = iterator.next()
@@ -118,11 +118,11 @@ def enumerate(iterable):
 def reversed(iterable):
     if Array.isArray(iterable):
         return iterable.reverse()
-    if type(Symbol) == 'function' and type(iterable[Symbol.iterator]) == 'function':
-        iterator = iterable[Symbol.iterator]()
+    if type(iterable[iterator_symbol]) == 'function':
+        iterator = iterable[iterator_symbol]()
         ans = []
         result = iterator.next()
-        if iterable[Symbol.iterator] == iterable.entries:
+        if iterable[iterator_symbol] == iterable.entries:
             while not result.done:
                 ans.push(result.value[0])
                 result = iterator.next()
@@ -134,6 +134,24 @@ def reversed(iterable):
     if type(iterable) == 'string':
         return iterable.split('').reverse().join('')
     return Object.keys(iterable).reverse()
+
+def iter(iterable):
+    # Generate a JavaScript iterator object from iterable
+    if Array.isArray(iterable) or type(iterable) == 'string':
+        ans = {
+            '_i': -1,
+            'next':def():
+                this._i += 1
+                if this._i < iterable.length:
+                    return {done:False, value:iterable[this._i]}
+                return {done:True}
+        }
+        ans[iterator_symbol] = def():
+            return this
+        return ans
+    if type(iterable[iterator_symbol]) == 'function':
+        return iterable[iterator_symbol]()
+    return iter(Object.keys(iterable))
 
 def _$rapyd$_len():
     if JS('typeof Set') == 'function' and JS('typeof Map') == 'function':
@@ -217,6 +235,7 @@ if type(exports) == 'object':
     exports.rebind_all = _$rapyd$_rebind_all
     exports.dir = dir
     exports.enumerate = enumerate
+    exports.iter = iter
     exports.eslice = _$rapyd$_eslice
     exports.extends = _$rapyd$_extends
     exports['in'] = _$rapyd$_in
