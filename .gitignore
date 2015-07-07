@@ -4,3 +4,4 @@
 *.tmp
 *.orig
 *.pyj-cached
+node_modules
