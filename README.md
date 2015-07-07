@@ -1222,7 +1222,7 @@ RapydScript has a couple of mutually conflicting goals: Be as close to python
 as possible, while also generating clean, performant JavaScript and making
 interop with external JavaScript libraries easy.
 
-As a result, there are somethings in RapydScript that might come as surprises
+As a result, there are some things in RapydScript that might come as surprises
 to an experienced Python developer. The most important such gotchas are listed
 below:
 
