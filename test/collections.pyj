@@ -53,14 +53,14 @@ assert.equal(z, 'z')
 
 
 # DICTIONARIES
-d0 = {'a':'b','c':2, d:		'd',}
+d0 = {'a':'b','c':2, 'd':		'd',}
 d1 = {
 	'foo': 1,
 	"bar": "baz",
 	"fun1": def():
 		return 5
 	,
-	fun2: def(c):
+	'fun2': def(c):
 		return c+1
 }
 

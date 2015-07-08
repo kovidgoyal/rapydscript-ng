@@ -153,24 +153,24 @@ EX_EOF = {}
 
 def tokenizer($TEXT, filename):
     S = {
-        text: $TEXT.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, ""),
-        filename: filename,
-        pos: 0,
-        tokpos: 0,
-        line: 1,
-        tokline: 0,
-        col: 0,
-        tokcol: 0,
-        newline_before: False,
-        regex_allowed: False,
-        comments_before: [],
-        whitespace_before: [],
-        newblock: False,
-        endblock: False,
-        indentation_matters: [ True ],
-        cached_whitespace: "",
-        prev: undefined,
-        index_or_slice: [ False ]
+        'text': $TEXT.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, ""),
+        'filename': filename,
+        'pos': 0,
+        'tokpos': 0,
+        'line': 1,
+        'tokline': 0,
+        'col': 0,
+        'tokcol': 0,
+        'newline_before': False,
+        'regex_allowed': False,
+        'comments_before': [],
+        'whitespace_before': [],
+        'newblock': False,
+        'endblock': False,
+        'indentation_matters': [ True ],
+        'cached_whitespace': "",
+        'prev': undefined,
+        'index_or_slice': [ False ]
     }
     def peek():
         return S.text.charAt(S.pos)
@@ -216,14 +216,14 @@ def tokenizer($TEXT, filename):
             value = OP_MAP[value]
 
         ret = {
-            type: type,
-            value: value,
-            line: S.tokline,
-            col: S.tokcol,
-            pos: S.tokpos,
-            endpos: S.pos,
-            nlb: S.newline_before,
-            file: filename
+            'type': type,
+            'value': value,
+            'line': S.tokline,
+            'col': S.tokcol,
+            'pos': S.tokpos,
+            'endpos': S.pos,
+            'nlb': S.newline_before,
+            'file': filename
         }
         if not is_comment:
             ret.comments_before = S.comments_before

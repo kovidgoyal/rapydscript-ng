@@ -39,20 +39,20 @@ NATIVE_CLASSES = {
     'RegExp': {},
     'Error': {},
     'Object': {
-        static: [ "getOwnPropertyNames", "keys", "create" ]
+        'static': [ "getOwnPropertyNames", "keys", "create" ]
     },
     'String': {
-        static: [ "fromCharCode" ]
+        'static': [ "fromCharCode" ]
     },
     'Array': {
-        static: [ "isArray", "from", "of" ]
+        'static': [ "isArray", "from", "of" ]
     },
     'Number': {
-        static: [ "isFinite", "isNaN" ]
+        'static': [ "isFinite", "isNaN" ]
     },
     'Function': {},
     'Date': {
-        static: [ "UTC", "now", "parse" ]
+        'static': [ "UTC", "now", "parse" ]
     },
     'Boolean': {},
     'ArrayBuffer': {},
@@ -120,13 +120,13 @@ ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name" ]
 # -----[ Parser ]-----
 def parse($TEXT, options):
     options = defaults(options, {
-        strict: False,      # whether to use strict JavaScript mode
-        filename: None,     # name of the file being parsed
-        auto_bind: False,   # whether auto-binding of methods to classes is enabled
-        module_id:'__main__', # The id of the module being parsed
-        toplevel: None,
-        for_linting: False, # If True certain actions are not performed, such as importing modules
-        classes: undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
+        'strict': False,      # whether to use strict JavaScript mode
+        'filename': None,     # name of the file being parsed
+        'auto_bind': False,   # whether auto-binding of methods to classes is enabled
+        'module_id':'__main__', # The id of the module being parsed
+        'toplevel': None,
+        'for_linting': False, # If True certain actions are not performed, such as importing modules
+        'classes': undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
     })
     module_id = options.module_id
     baselib_items = {}
@@ -136,21 +136,21 @@ def parse($TEXT, options):
     IMPORTING[module_id] = True
 
     S = {
-        input: (typeof $TEXT == "string" ? tokenizer($TEXT, options.filename) : $TEXT),
-        token: None,
-        prev: None,
-        peeked: [],
-        in_function: 0,
-        in_directives: True,
-        statement_starting_token: None,
-        in_comprehension: False,
-        in_parenthesized_expr: False,
-        in_loop: 0,
-        in_class: [ False ],
-        classes: [ {} ],
-        functions: [ {} ],
-        labels: [],
-        decorators: [],
+        'input': (typeof $TEXT == "string" ? tokenizer($TEXT, options.filename) : $TEXT),
+        'token': None,
+        'prev': None,
+        'peeked': [],
+        'in_function': 0,
+        'in_directives': True,
+        'statement_starting_token': None,
+        'in_comprehension': False,
+        'in_parenthesized_expr': False,
+        'in_loop': 0,
+        'in_class': [ False ],
+        'classes': [ {} ],
+        'functions': [ {} ],
+        'labels': [],
+        'decorators': [],
     }
 
     if options.classes:
@@ -419,7 +419,7 @@ def parse($TEXT, options):
             # XXXv2: decide how to fix directives
             if dir and isinstance(stat.body, AST_String) and not is_("punc", ","):
                 return new AST_Directive({
-                    value: stat.body.value
+                    'value': stat.body.value
                 })
 
             return stat
@@ -427,7 +427,7 @@ def parse($TEXT, options):
             tmp_ = S.token.value
             next()
             return new AST_Directive({
-                value: tmp_
+                'value': tmp_
             })
         elif tmp_ == "num" or tmp_ == "regexp" or tmp_ == "operator" or tmp_ == "atom":
             return simple_statement()
@@ -435,15 +435,15 @@ def parse($TEXT, options):
             tmp_ = S.token.value
             if tmp_ == ":":
                 return new AST_BlockStatement({
-                    start: S.token,
-                    body: block_(),
-                    end: prev()
+                    'start': S.token,
+                    'body': block_(),
+                    'end': prev()
                 })
             elif tmp_ == "{" or tmp_ == "[" or tmp_ == "(":
                 return simple_statement()
             elif tmp_ == ";":
                 next()
-                return new AST_EmptyStatement({stype:';', start:prev(), end:prev()})
+                return new AST_EmptyStatement({'stype':';', 'start':prev(), 'end':prev()})
             else:
                 unexpected()
         elif tmp_ == "name":
@@ -461,8 +461,8 @@ def parse($TEXT, options):
                 return new AST_Debugger()
             elif tmp_ == "do":
                 return new AST_Do({
-                    body: in_loop(statement),
-                    condition: def():
+                    'body': in_loop(statement),
+                    'condition': def():
                         expect(".")
                         expect_token("keyword", "while")
                         tmp = expression(True)
@@ -472,8 +472,8 @@ def parse($TEXT, options):
                 })
             elif tmp_ == "while":
                 return new AST_While({
-                    condition: expression(True),
-                    body: in_loop(statement)
+                    'condition': expression(True),
+                    'body': in_loop(statement)
                 })
             elif tmp_ == "for":
                 if is_("name", "JS"):
@@ -498,9 +498,9 @@ def parse($TEXT, options):
                     return func
                 else:
                     return new AST_SimpleStatement({
-                        start: start,
-                        body: chain,
-                        end: prev()
+                        'start': start,
+                        'body': chain,
+                        'end': prev()
                     })
             elif tmp_ == "if":
                 return if_()
@@ -515,7 +515,7 @@ def parse($TEXT, options):
                 S.functions[-1].is_generator = False
 
                 return new AST_Return({
-                    value: (is_("punc", ";") ?
+                    'value': (is_("punc", ";") ?
                         def():
                             semicolon()
                             return None
@@ -532,21 +532,21 @@ def parse($TEXT, options):
                 return yield_()
             elif tmp_ == "switch":
                 return new AST_Switch({
-                    expression: parenthesised(),
-                    body: in_loop(switch_body_)
+                    'expression': parenthesised(),
+                    'body': in_loop(switch_body_)
                 })
             elif tmp_ == "raise":
                 if S.token.nlb:
                     return new AST_Throw({
-                        value: new AST_SymbolCatch({
-                            name: "_$rapyd$_Exception"
+                        'value': new AST_SymbolCatch({
+                            'name': "_$rapyd$_Exception"
                         })
                     })
 
                 tmp = expression(True)
                 semicolon()
                 return new AST_Throw({
-                    value: tmp
+                    'value': tmp
                 })
             elif tmp_ == "try":
                 return try_()
@@ -560,8 +560,8 @@ def parse($TEXT, options):
                 return tmp
             elif tmp_ == "with":
                 return new AST_With({
-                    expression: parenthesised(),
-                    body: statement()
+                    'expression': parenthesised(),
+                    'body': statement()
                 })
             else:
                 unexpected()
@@ -571,7 +571,7 @@ def parse($TEXT, options):
         tmp = expression(True)
         semicolon()
         return new AST_SimpleStatement({
-            body: tmp
+            'body': tmp
         })
 
     def break_cont(type):
@@ -590,8 +590,8 @@ def parse($TEXT, options):
         if is_yield_from:
             next()
         return new AST_Yield({
-            is_yield_from:is_yield_from,
-            value: (is_("punc", ";") ?
+            'is_yield_from':is_yield_from,
+            'value': (is_("punc", ";") ?
                 def():
                     semicolon()
                     return None
@@ -620,9 +620,9 @@ def parse($TEXT, options):
 
                 tmp.push(iter)
                 init = new AST_Array({
-                    start: init.start,
-                    elements: tmp,
-                    end: init.end
+                    'start': init.start,
+                    'elements': tmp,
+                    'end': init.end
                 })
 
             if is_("operator", "in"):
@@ -640,24 +640,24 @@ def parse($TEXT, options):
         #        expect(")")
         if list_comp:
             return {
-                init: init,
-                name: lhs,
-                object: obj
+                'init': init,
+                'name': lhs,
+                'object': obj
             }
 
         return new AST_ForIn({
-            init: init,
-            name: lhs,
-            object: obj,
-            body: in_loop(statement)
+            'init': init,
+            'name': lhs,
+            'object': obj,
+            'body': in_loop(statement)
         })
 
     # A native JavaScript for loop - for JS("var i=0; i<5000; i++"):
     def for_js():
         condition = expression(True, True)
         return new AST_ForJS({
-            condition: condition,
-            body: in_loop(statement)
+            'condition': condition,
+            'body': in_loop(statement)
         })
 
     # scan function/class body for nested class declarations
@@ -709,8 +709,8 @@ def parse($TEXT, options):
             do_import(package_module_id)
 
         if options.for_linting:
-            IMPORTED[key] = {is_cached:True, classes:{}, module_id:key, exports:[],
-                             submodules:[], nonlocalvars:[], baselib:{}, outputs:{}}
+            IMPORTED[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
+                             'submodules':[], 'nonlocalvars':[], 'baselib':{}, 'outputs':{}}
             if len(package_module_id) > 0:
                 IMPORTED[package_module_id].submodules.push(key)
             return
@@ -748,18 +748,18 @@ def parse($TEXT, options):
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             IMPORTED[key] = {
-                is_cached:True, classes:cached['classes'], outputs:cached['outputs'], module_id:key,
-                submodules:[], nonlocalvars:cached['nonlocalvars'], baselib:cached['baselib'], exports:cached.exports
+                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key,
+                'submodules':[], 'nonlocalvars':cached['nonlocalvars'], 'baselib':cached['baselib'], 'exports':cached.exports
             }
         else:
             parse(src_code, {
-                filename: filename,
-                toplevel: None,
-                basedir: options.basedir,
-                libdir: options.libdir,
-                module_id: key,
-                IMPORTED: IMPORTED,
-                IMPORTING: IMPORTING,
+                'filename': filename,
+                'toplevel': None,
+                'basedir': options.basedir,
+                'libdir': options.libdir,
+                'module_id': key,
+                'IMPORTED': IMPORTED,
+                'IMPORTING': IMPORTING,
             })  # This function will add the module to IMPORTED itself
 
         IMPORTED[key].srchash = srchash
@@ -836,12 +836,12 @@ def parse($TEXT, options):
                     obj = classes[argvar.name]
                     if obj:
                         key = (argvar.alias) ? argvar.alias.name : argvar.name
-                        S.classes[-1][key] = { "static": obj.static, bound: obj.bound }
+                        S.classes[-1][key] = { "static": obj.static, 'bound': obj.bound }
             else:
                 for cname in Object.keys(classes):
                     obj = classes[cname]
                     key = (imp.alias) ? imp.alias.name : imp.key
-                    S.classes[-1][key + '.' + obj.name.name] = { 'static': obj.static, bound: obj.bound }
+                    S.classes[-1][key + '.' + obj.name.name] = { 'static': obj.static, 'bound': obj.bound }
 
         return ans
 
@@ -857,12 +857,12 @@ def parse($TEXT, options):
 
         class_details = {
             "static": [],
-            bound: {}
+            'bound': {}
         }
         definition = new AST_Class({
-            name: name,
-            module_id:module_id,
-            parent: def():
+            'name': name,
+            'module_id':module_id,
+            'parent': def():
                 if is_("punc", "("):
                     S.in_parenthesized_expr = True
                     next()
@@ -873,12 +873,12 @@ def parse($TEXT, options):
                 else:
                     return None
             .call(this),
-            localvars: [],
+            'localvars': [],
             "static": class_details.static,
-            external: externaldecorator != -1,
-            bound: class_details.bound,
-            statements: [],
-            decorators: def():
+            'external': externaldecorator != -1,
+            'bound': class_details.bound,
+            'statements': [],
+            'decorators': def():
                 d = []
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
@@ -888,7 +888,7 @@ def parse($TEXT, options):
                 S.decorators = []
                 return d
             .call(this),
-            body: def(loop, labels):
+            'body': def(loop, labels):
                 # navigate to correct location in the module tree and append the class
                 S.in_class.push(name.name)
                 S.classes[S.classes.length - 1][name.name] = class_details
@@ -961,8 +961,8 @@ def parse($TEXT, options):
 
         is_generator = []
         definition = new ctor({
-            name: name,
-            argnames: def(a):
+            'name': name,
+            'argnames': def(a):
                 defaults = {}
                 first = True
                 seen_names = {}
@@ -1017,8 +1017,8 @@ def parse($TEXT, options):
                     baselib_items['symbolfor()'] = True
                 return a
             .call(this, []),
-            localvars: [],
-            decorators: def():
+            'localvars': [],
+            'decorators': def():
                 d = []
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
@@ -1028,7 +1028,7 @@ def parse($TEXT, options):
                 S.decorators = []
                 return d
             .call(this),
-            body: def(loop, labels):
+            'body': def(loop, labels):
                 S.in_class.push(False)
                 S.classes.push({})
                 S.in_function += 1
@@ -1084,9 +1084,9 @@ def parse($TEXT, options):
             belse = statement()
 
         return new AST_If({
-            condition: cond,
-            body: body,
-            alternative: belse
+            'condition': cond,
+            'body': body,
+            'alternative': belse
         })
 
     def block_():
@@ -1122,9 +1122,9 @@ def parse($TEXT, options):
 
                 cur = []
                 branch = new AST_Case({
-                    start: (tmp = S.token, next(), tmp),
-                    expression: expression(True),
-                    body: cur
+                    'start': (tmp = S.token, next(), tmp),
+                    'expression': expression(True),
+                    'body': cur
                 })
                 a.push(branch)
                 expect(":")
@@ -1134,8 +1134,8 @@ def parse($TEXT, options):
 
                 cur = []
                 branch = new AST_Default({
-                    start: (tmp = S.token, next(), expect(":"), tmp),
-                    body: cur
+                    'start': (tmp = S.token, next(), expect(":"), tmp),
+                    'body': cur
                 })
                 a.push(branch)
             else:
@@ -1168,41 +1168,41 @@ def parse($TEXT, options):
                 name = as_symbol(AST_SymbolCatch)
 
             bcatch.push(new AST_Except({
-                start: start,
-                argname: name,
-                errors: exceptions,
-                body: block_(),
-                end: prev()
+                'start': start,
+                'argname': name,
+                'errors': exceptions,
+                'body': block_(),
+                'end': prev()
             }))
 
         if is_("keyword", "finally"):
             start = S.token
             next()
             bfinally = new AST_Finally({
-                start: start,
-                body: block_(),
-                end: prev()
+                'start': start,
+                'body': block_(),
+                'end': prev()
             })
 
         if not bcatch.length and not bfinally:
             croak("Missing except/finally blocks")
 
         return new AST_Try({
-            body: body,
-            bcatch: (bcatch.length ? new AST_Catch({
+            'body': body,
+            'bcatch': (bcatch.length ? new AST_Catch({
                 body: bcatch
             }) : None),
-            bfinally: bfinally
+            'bfinally': bfinally
         })
 
     def vardefs(no_in, in_const, in_nonlocal):
         a = []
         while True:
             a.push(new AST_VarDef({
-                start: S.token,
-                name: as_symbol((in_const ? AST_SymbolConst : ((in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar))),
-                value: (is_("operator", "=") ? (next(), expression(False, no_in)) : None),
-                end: prev()
+                'start': S.token,
+                'name': as_symbol((in_const ? AST_SymbolConst : ((in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar))),
+                'value': (is_("operator", "=") ? (next(), expression(False, no_in)) : None),
+                'end': prev()
             }))
             if not is_("punc", ","):
                 break
@@ -1212,16 +1212,16 @@ def parse($TEXT, options):
 
     nonlocal_ = def(no_in):
         return new AST_Var({
-            start: prev(),
-            definitions: vardefs(no_in, False, True),
-            end: prev()
+            'start': prev(),
+            'definitions': vardefs(no_in, False, True),
+            'end': prev()
         })
 
     const_ = def():
         return new AST_Const({
-            start: prev(),
-            definitions: vardefs(False, True),
-            end: prev()
+            'start': prev(),
+            'definitions': vardefs(False, True),
+            'end': prev()
         })
 
     new_ = def():
@@ -1238,10 +1238,10 @@ def parse($TEXT, options):
             args = []
 
         return subscripts(new AST_New({
-            start: start,
-            expression: newexp,
-            args: args,
-            end: prev()
+            'start': start,
+            'expression': newexp,
+            'args': args,
+            'end': prev()
         }), True)
 
     def token_as_atom_node(tok):
@@ -1250,38 +1250,38 @@ def parse($TEXT, options):
             return token_as_symbol(tok, AST_SymbolRef)
         elif tmp_ == "num":
             return new AST_Number({
-                start: tok,
-                end: tok,
-                value: tok.value
+                'start': tok,
+                'end': tok,
+                'value': tok.value
             })
         elif tmp_ == "string":
             return new AST_String({
-                start: tok,
-                end: tok,
-                value: tok.value
+                'start': tok,
+                'end': tok,
+                'value': tok.value
             })
         elif tmp_ == "regexp":
             return new AST_RegExp({
-                start: tok,
-                end: tok,
-                value: tok.value
+                'start': tok,
+                'end': tok,
+                'value': tok.value
             })
         elif tmp_ == "atom":
             tmp__ = tok.value
             if tmp__ == "False":
                 return new AST_False({
-                    start: tok,
-                    end: tok
+                    'start': tok,
+                    'end': tok
                 })
             elif tmp__ == "True":
                 return new AST_True({
-                    start: tok,
-                    end: tok
+                    'start': tok,
+                    'end': tok
                 })
             elif tmp__ == "None":
                 return new AST_Null({
-                    start: tok,
-                    end: tok
+                    'start': tok,
+                    'end': tok
                 })
         token_error(tok, 'Expecting an atomic token (number/string/bool/regexp/None)')
 
@@ -1302,7 +1302,7 @@ def parse($TEXT, options):
                 next()
                 if is_('punc', ')'):
                     next()
-                    return new AST_Array({elements:[]})
+                    return new AST_Array({'elements':[]})
                 ex = expression(True)
                 ex.start = start
                 ex.end = S.token
@@ -1362,8 +1362,8 @@ def parse($TEXT, options):
 
             if is_("punc", ",") and allow_empty:
                 a.push(new AST_Hole({
-                    start: S.token,
-                    end: S.token
+                    'start': S.token,
+                    'end': S.token
                 }))
             else:
                 a.push(expression(False))
@@ -1423,7 +1423,7 @@ def parse($TEXT, options):
             expr.push(expression(False))
             if is_("keyword", "for"):
                 # list comprehension
-                return read_comprehension(new AST_ListComprehension({statement: expr[0]}))
+                return read_comprehension(new AST_ListComprehension({'statement': expr[0]}))
 
             if is_("operator", "til"):
                 # up to but not including upper limit
@@ -1431,8 +1431,8 @@ def parse($TEXT, options):
                 next()
                 expr.push(expression(False))
                 ret = subscripts(new AST_Call({
-                    start: S.token,
-                    expression: new AST_SymbolRef({
+                    'start': S.token,
+                    'expression': new AST_SymbolRef({
                         name: "range"
                     }),
                     args: expr,
@@ -1445,15 +1445,15 @@ def parse($TEXT, options):
                 baselib_items['range'] = True
                 next()
                 expr.push(new AST_Binary({
-                    left: expression(False),
-                    operator: "+",
-                    right: new AST_Number({
+                    'left': expression(False),
+                    'operator': "+",
+                    'right': new AST_Number({
                         value: 0.000001
                     })
                 }))
                 ret = subscripts(new AST_Call({
-                    start: S.token,
-                    expression: new AST_SymbolRef({
+                    'start': S.token,
+                    'expression': new AST_SymbolRef({
                         name: "range"
                     }),
                     args: expr,
@@ -1465,7 +1465,7 @@ def parse($TEXT, options):
                 expect(",")
 
         return new AST_Array({
-            elements: expr.concat(expr_list("]", not options.strict, True))
+            'elements': expr.concat(expr_list("]", not options.strict, True))
         })
     )
 
@@ -1494,37 +1494,37 @@ def parse($TEXT, options):
             if type == "name" and not is_("punc", ":"):
                 if name == "get":
                     a.push(new AST_ObjectGetter({
-                        start: start,
-                        key: name,
-                        quoted: quoted,
-                        value: function_(False, AST_Accessor),
-                        end: prev()
+                        'start': start,
+                        'key': name,
+                        'quoted': quoted,
+                        'value': function_(False, AST_Accessor),
+                        'end': prev()
                     }))
                     continue
 
                 if name == "set":
                     a.push(new AST_ObjectSetter({
-                        start: start,
-                        key: name,
-                        quoted: quoted,
-                        value: function_(False, AST_Accessor),
-                        end: prev()
+                        'start': start,
+                        'key': name,
+                        'quoted': quoted,
+                        'value': function_(False, AST_Accessor),
+                        'end': prev()
                     }))
                     continue
             expect(":")
             a.push(new AST_ObjectKeyVal({
-                start: start,
-                key: name,
-                quoted: quoted,
-                value: expression(False),
-                end: prev()
+                'start': start,
+                'key': name,
+                'quoted': quoted,
+                'value': expression(False),
+                'end': prev()
             }))
             if a.length == 1 and is_('keyword', 'for'):
                 return dict_comprehension(a)
 
         next()
         return new AST_Object({
-            properties: a
+            'properties': a
         })
     )
 
@@ -1555,10 +1555,10 @@ def parse($TEXT, options):
         else:
             left = expression(False)
             if not is_('punc', ':'):
-                return read_comprehension(new AST_SetComprehension({statement:left}))
+                return read_comprehension(new AST_SetComprehension({'statement':left}))
             expect(':')
             right = expression(False)
-        return read_comprehension(new AST_DictComprehension({statement:left, value_statement:right}))
+        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right}))
 
     def as_name():
         tmp = S.token
@@ -1572,9 +1572,9 @@ def parse($TEXT, options):
     def token_as_symbol(tok, ttype):
         name = tok.value
         return new ((name == "this" ? AST_This : ttype))({
-            name: JS("String(tok.value)"),
-            start: tok,
-            end: tok
+            'name': JS("String(tok.value)"),
+            'start': tok,
+            'end': tok
         })
 
     def as_symbol(ttype, noerror):
@@ -1590,9 +1590,9 @@ def parse($TEXT, options):
     # for generating/inserting a new symbol
     def new_symbol(type, name):
         sym = new ((name == "this" ? AST_This : type))({
-            name: JS("String(name)"),
-            start: None,
-            end: None
+            'name': JS("String(name)"),
+            'start': None,
+            'end': None
         })
         return sym
 
@@ -1607,10 +1607,10 @@ def parse($TEXT, options):
         if is_("punc", "."):
             next()
             return subscripts(new AST_Dot({
-                start: start,
-                expression: expr,
-                property: as_name(),
-                end: prev()
+                'start': start,
+                'expression': expr,
+                'property': as_name(),
+                'end': prev()
             }), allow_calls)
 
         if is_("punc", "[") and not S.token.nlb:
@@ -1648,14 +1648,14 @@ def parse($TEXT, options):
                     # splice-assignment (arr[start:end] = ...)
                     next()  # swallow the assignment
                     return subscripts(new AST_Splice({
-                        start: start,
-                        expression: expr,
-                        property: slice_bounds[0] or new AST_Number({
+                        'start': start,
+                        'expression': expr,
+                        'property': slice_bounds[0] or new AST_Number({
                             value: 0
                         }),
-                        property2: slice_bounds[1],
-                        assignment: expression(True),
-                        end: prev()
+                        'property2': slice_bounds[1],
+                        'assignment': expression(True),
+                        'end': prev()
                     }), allow_calls)
                 elif slice_bounds.length == 3:
                     # extended slice (arr[start:end:step])
@@ -1668,25 +1668,25 @@ def parse($TEXT, options):
                         slice_bounds[-2] = new AST_Undefined()
 
                     return subscripts(new AST_Call({
-                        start: start,
-                        expression: new AST_SymbolRef({
+                        'start': start,
+                        'expression': new AST_SymbolRef({
                             name: "eslice"
                         }),
-                        args: [expr].concat(slice_bounds),
-                        end: prev()
+                        'args': [expr].concat(slice_bounds),
+                        'end': prev()
                     }), allow_calls)
                 else:
                     # regular slice (arr[start:end])
                     slice_bounds = [i == None ? new AST_Number({
-                        value: 0
+                        'value': 0
                     }) : i for i in slice_bounds]
                     return subscripts(new AST_Call({
-                        start: start,
-                        expression: new AST_Dot({
-                            start: start,
-                            expression: expr,
-                            property: "slice",
-                            end: prev()
+                        'start': start,
+                        'expression': new AST_Dot({
+                            'start': start,
+                            'expression': expr,
+                            'property': "slice",
+                            'end': prev()
                         }),
                         args: slice_bounds,
                         end: prev()
@@ -1694,12 +1694,12 @@ def parse($TEXT, options):
             else:
                 # regular index (arr[index])
                 return subscripts(new AST_Sub({
-                    start: start,
-                    expression: expr,
-                    property: slice_bounds[0] or new AST_Number({
-                        value: 0
+                    'start': start,
+                    'expression': expr,
+                    'property': slice_bounds[0] or new AST_Number({
+                        'value': 0
                     }),
-                    end: prev()
+                    'end': prev()
                 }), allow_calls)
 
         if allow_calls and is_("punc", "(") and not S.token.nlb:
@@ -1712,9 +1712,9 @@ def parse($TEXT, options):
                     token_error(prev(), "Compile-time function JS() can't process variables or expressions")
 
                 ret = new AST_Verbatim({
-                    start: start,
-                    value: str_.value,
-                    end: prev()
+                    'start': start,
+                    'value': str_.value,
+                    'end': prev()
                 })
                 expect(")")
                 S.in_parenthesized_expr = False
@@ -1722,10 +1722,10 @@ def parse($TEXT, options):
             elif not expr.parens and get_class_in_scope(expr):
                 # this is an object being created using a class
                 ret = subscripts(new AST_New({
-                    start: start,
-                    expression: expr,
-                    args: func_call_list(),
-                    end: prev()
+                    'start': start,
+                    'expression': expr,
+                    'args': func_call_list(),
+                    'end': prev()
                 }), True)
                 S.in_parenthesized_expr = False
                 return ret
@@ -1740,12 +1740,12 @@ def parse($TEXT, options):
                         funcname.property = "constructor"
 
                     ret = subscripts(new AST_ClassCall({
-                        start: start,
+                        'start': start,
                         "class": expr.expression,
-                        method: funcname.property,
+                        'method': funcname.property,
                         "static": is_static_method(c, funcname.property),
-                        args: func_call_list(),
-                        end: prev()
+                        'args': func_call_list(),
+                        'end': prev()
                     }), True)
                     S.in_parenthesized_expr = False
                     return ret
@@ -1770,21 +1770,21 @@ def parse($TEXT, options):
                         # after they trigger the appropriate baselib flag
                     elif tmp_ == "type":
                         ret = new AST_UnaryPrefix({
-                            start: start,
-                            operator: "typeof",
-                            expression: func_call_list()[0],
-                            end: prev()
+                            'start': start,
+                            'operator': "typeof",
+                            'expression': func_call_list()[0],
+                            'end': prev()
                         })
                         S.in_parenthesized_expr = False
                         return ret
                     elif tmp_ == "isinstance":
                         args = func_call_list()
                         ret = new AST_Binary({
-                            start: start,
-                            operator: "instanceof",
-                            left: args[0],
-                            right: args[1],
-                            end: prev()
+                            'start': start,
+                            'operator': "instanceof",
+                            'left': args[0],
+                            'right': args[1],
+                            'end': prev()
                         })
                         S.in_parenthesized_expr = False
                         return ret
@@ -1797,10 +1797,10 @@ def parse($TEXT, options):
 
                 # fall-through to basic function call
                 ret = subscripts(new AST_Call({
-                    start: start,
-                    expression: expr,
-                    args: func_call_list(),
-                    end: prev()
+                    'start': start,
+                    'expression': expr,
+                    'args': func_call_list(),
+                    'end': prev()
                 }), True)
                 S.in_parenthesized_expr = False
                 return ret
@@ -1815,7 +1815,7 @@ def parse($TEXT, options):
                 if is_("name") and (peek().value == "@" or peek().value == "def" or peek().value == "class"):
                     S.decorators.push(S.token.value)
                     next()
-                    return new AST_EmptyStatement({stype:'@', start:prev(), end:prev()})
+                    return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
                 else:
                     unexpected()
 
@@ -1834,8 +1834,8 @@ def parse($TEXT, options):
 
     def make_unary(ctor, op, expr):
         return new ctor({
-            operator: op,
-            expression: expr
+            'operator': op,
+            'expression': expr
         })
 
     expr_op = def(left, min_prec, no_in):
@@ -1857,18 +1857,18 @@ def parse($TEXT, options):
             next()
             right = expr_op(maybe_unary(True), prec, no_in)
             ret = new AST_Binary({
-                start: left.start,
-                left: left,
-                operator: op,
-                right: right,
-                end: right.end
+                'start': left.start,
+                'left': left,
+                'operator': op,
+                'right': right,
+                'end': right.end
             })
             if not_in:
                 ret = new AST_UnaryPrefix({
-                    start: left.start,
-                    operator: "!",
-                    expression: ret,
-                    end: right.end
+                    'start': left.start,
+                    'operator': "!",
+                    'expression': ret,
+                    'end': right.end
                 })
             return expr_op(ret, min_prec, no_in)
         return left
@@ -1886,21 +1886,21 @@ def parse($TEXT, options):
             if pystyle:
                 expect_token('keyword', 'else')
                 conditional = new AST_Conditional({
-                    start: start,
-                    condition: ne,
-                    consequent: expr,
-                    alternative: expression(False, no_in),
-                    end: peek()
+                    'start': start,
+                    'condition': ne,
+                    'consequent': expr,
+                    'alternative': expression(False, no_in),
+                    'end': peek()
                 })
             else:
                 yes = ne
                 expect(":")
                 conditional = new AST_Conditional({
-                    start: start,
-                    condition: expr,
-                    consequent: yes,
-                    alternative: expression(False, no_in),
-                    end: peek()
+                    'start': start,
+                    'condition': expr,
+                    'consequent': yes,
+                    'alternative': expression(False, no_in),
+                    'end': peek()
                 })
             return conditional
         return expr
@@ -1923,11 +1923,11 @@ def parse($TEXT, options):
             if is_assignable(left):
                 next()
                 return new AST_Assign({
-                    start: start,
-                    left: left,
-                    operator: val,
-                    right: maybe_assign(no_in),
-                    end: prev()
+                    'start': start,
+                    'left': left,
+                    'operator': val,
+                    'right': maybe_assign(no_in),
+                    'end': prev()
                 })
             croak("Invalid assignment")
         return left
@@ -1942,10 +1942,10 @@ def parse($TEXT, options):
                 return a[0]
 
             return new AST_Seq({
-                start: start,
-                car: a.shift(),
-                cdr: build_seq(a),
-                end: peek()
+                'start': start,
+                'car': a.shift(),
+                'cdr': build_seq(a),
+                'end': peek()
             })
         if commas:
             left = [ expr ]
@@ -1954,14 +1954,14 @@ def parse($TEXT, options):
                 if isinstance(expr, AST_Assign):
                     left[left.length - 1] = left.slice(-1)[0].left
                     return new AST_Assign({
-                        start: start,
-                        left: (left.length == 1 ? left[0] : new AST_Array({
+                        'start': start,
+                        'left': (left.length == 1 ? left[0] : new AST_Array({
                             elements: left
                         })),
                         operator: expr.operator,
                         right: new AST_Seq({
-                            car: expr.right,
-                            cdr: expression(True, no_in)
+                            'car': expr.right,
+                            'cdr': expression(True, no_in)
                         }),
                         end: peek()
                     })
@@ -1973,13 +1973,13 @@ def parse($TEXT, options):
             if left.length > 1 and isinstance(left.slice(-1)[0], AST_Assign):
                 left[left.length - 1] = left.slice(-1)[0].left
                 return new AST_Assign({
-                    start: start,
-                    left: new AST_Array({
+                    'start': start,
+                    'left': new AST_Array({
                         elements: left
                     }),
-                    operator: expr.operator,
-                    right: expr.right,
-                    end: peek()
+                    'operator': expr.operator,
+                    'right': expr.right,
+                    'end': peek()
                 })
 
             return build_seq.call(this, left)
@@ -2010,16 +2010,16 @@ def parse($TEXT, options):
             toplevel.end = end
         else:
             toplevel = new AST_Toplevel({
-                start: start,
-                body: body,
-                strict: def():
+                'start': start,
+                'body': body,
+                'strict': def():
                     for stmt in body:
                         if isinstance(stmt, AST_Directive) and stmt.value == 'use strict':
                             return True
                     return False
                 .call(this),
-                shebang: shebang,
-                end: end
+                'shebang': shebang,
+                'end': end
             })
 
         def uniq(element, index, arr):

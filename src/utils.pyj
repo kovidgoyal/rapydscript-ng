@@ -204,39 +204,39 @@ def Dictionary():
     this._size = 0
 
 Dictionary.prototype = {
-    set: def(key, val):
+    'set': def(key, val):
         if not this.has(key):
             this._size += 1
         this._values["$" + key] = val
         return this
     ,
-    add: def(key, val):
+    'add': def(key, val):
         if this.has(key):
             this.get(key).push(val)
         else:
             this.set(key, [ val ])
         return this
     ,
-    get: def(key):
+    'get': def(key):
         return this._values["$" + key]
     ,
-    del_: def(key):
+    'del_': def(key):
         if this.has(key):
             this._size -= 1
             del this._values["$" + key]
         return this
     ,
-    has: def(key):
+    'has': def(key):
         return "$" + key in this._values
     ,
-    each: def(f):
+    'each': def(f):
         for i in dir(this._values):
             f(this._values[i], i.substr(1))
     ,
-    size: def():
+    'size': def():
         return this._size
     ,
-    map: def(f):
+    'map': def(f):
         ret = []
         for i in dir(this._values):
             ret.push(f(this._values[i], i.substr(1)))

@@ -5,7 +5,7 @@
 linter = require('../tools/lint.js')
 
 def lint(code):
-    return linter.lint_code(code, {filename:'<test>', report:def():
+    return linter.lint_code(code, {'filename':'<test>', 'report':def():
                                    pass
 })
 
@@ -138,4 +138,4 @@ class B(A):
 ''')
 
 # Object literals
-err_test('{a:1, a:2}', 'dup-key', 1, 'a')
+err_test('{"a":1, "a":2}', 'dup-key', 1, 'a')

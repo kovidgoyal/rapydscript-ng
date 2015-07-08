@@ -143,8 +143,8 @@ def iter(iterable):
             'next':def():
                 this._i += 1
                 if this._i < iterable.length:
-                    return {done:False, value:iterable[this._i]}
-                return {done:True}
+                    return {'done':False, 'value':iterable[this._i]}
+                return {'done':True}
         }
         ans[iterator_symbol] = def():
             return this
