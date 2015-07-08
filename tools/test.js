@@ -48,34 +48,41 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 console.log(colored(file, 'red') + ": Parsing failed: " + e + "\n\n");
             return;
         }
-        // generate output
-        var output = RapydScript.OutputStream({
-            baselib: baselib,
-            beautify: true
-        });
-        ast.print(output);
 
-        // test that output performs correct JS operations
-        var jsfile = path.join(os.tmpdir(), file + '.js');
-        var code = output.toString();
-        try {
-            vm.runInNewContext(code, {
-                'assert':require('assert'), 
-                'require':require, 
-                'fs':fs,
-                'RapydScript':RapydScript, 
-                'console':console,
-                'base_path': base_path,
-                'test_path':test_dir,
-            }, {'filename':jsfile});
-        } catch (e) {
-            failures.push(file);
-            failed = true;
-            fs.writeFileSync(jsfile, code);
-            if (e.stack) 
-                console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
-             else 
-                console.log(colored(file, 'red') + ": " + e + "\n\n");
+        var js_version = 5;
+        while (js_version < 7) {
+            // generate output
+            var output = RapydScript.OutputStream({
+                baselib: baselib,
+                beautify: true,
+                js_version: js_version,
+            });
+            ast.print(output);
+
+            // test that output performs correct JS operations
+            var jsfile = path.join(os.tmpdir(), file + '-es' + js_version + '.js');
+            var code = output.toString();
+            try {
+                vm.runInNewContext(code, {
+                    'assert':require('assert'), 
+                    'require':require, 
+                    'fs':fs,
+                    'RapydScript':RapydScript, 
+                    'console':console,
+                    'base_path': base_path,
+                    'test_path':test_dir,
+                }, {'filename':jsfile});
+            } catch (e) {
+                failures.push(file);
+                failed = true;
+                fs.writeFileSync(jsfile, code);
+                if (e.stack) 
+                    console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
+                else 
+                    console.log(colored(file, 'red') + ": " + e + "\n\n");
+                js_version = 1000;
+            }
+            js_version++;
         }
 		if (!failed) console.log(colored(file, 'green') + ": test completed successfully\n");
         else { console.log(colored(file, 'red') + ":\ttest failed\n"); }
