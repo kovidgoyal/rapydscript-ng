@@ -1352,14 +1352,32 @@ def codegen():
     def function_definition(self, output, nokeyword, strip_first):
         if not nokeyword:
             output.print("function")
-            if self.is_generator:
-                output.print('*')
 
         if self.name:
             output.space()
             self.name.print(output)
-        function_args(self.argnames, output, strip_first)
-        print_bracketed(self, output, True)
+        if self.is_generator:
+            output.print('()'), output.space()
+            output.with_block(def():
+                output.indent()
+                output.print('function* js_generator')
+                function_args(self.argnames, output, strip_first)
+                print_bracketed(self, output, True)
+                output.newline()
+                output.indent()
+                output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')
+                output.end_statement()
+                # Python's generator objects use a separate method to send data to the generator
+                output.indent()
+                output.spaced('result.send', '=', 'result.next')
+                output.end_statement()
+                output.indent()
+                output.spaced('return', 'result')
+                output.end_statement()
+            )
+        else:
+            function_args(self.argnames, output, strip_first)
+            print_bracketed(self, output, True)
 
     AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
         self = this

@@ -955,19 +955,6 @@ transpiling step.
 Generators create JavaScript iterator objects. For differences between python
 and JavaScript iterators, see the section on iterators above. 
 
-One small additional difference from python is that the generator object has no send
-method, instead you just call next with the data you want to send, so:
-
-```py
-g = mygenerator()
-g.next()
-g.send(data)  # does not work
-g.next(data)  # works
-```
-
-This can be fixed fairly easily by the compiler, maybe I will get around to it
-someday.
-
 Modules
 -------
 
