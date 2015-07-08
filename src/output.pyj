@@ -1327,16 +1327,16 @@ def codegen():
     )
 
     # -----[ functions ]-----
-    def decorate(node, output, internalsub):
+    def decorate(decorators, output, func):
         wrap = def(d):
             if d.length:
-                output.print(d.slice(0)[0].name)
+                output.print(d[0].name)
                 output.with_parens(def():
                     wrap(d.slice(1))
                 )
             else:
-                internalsub()
-        wrap(node.decorators)
+                func()
+        wrap(decorators)
 
     def function_args(argnames, output, strip_first):
         output.with_parens(def():
@@ -1349,28 +1349,28 @@ def codegen():
         )
         output.space()
 
+    def function_definition(self, output, nokeyword, strip_first):
+        if not nokeyword:
+            output.print("function")
+            if self.is_generator:
+                output.print('*')
+
+        if self.name:
+            output.space()
+            self.name.print(output)
+        function_args(self.argnames, output, strip_first)
+        print_bracketed(self, output, True)
+
     AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
         self = this
-        def internalsub():
-            if not nokeyword:
-                output.print("function")
-                if self.is_generator:
-                    output.print('*')
-
-            if self.name:
-                output.space()
-                self.name.print(output)
-            function_args(self.argnames, output, False)
-            print_bracketed(self, output, True)
-
         if self.decorators and self.decorators.length:
             output.print("var")
             output.space()
             output.assign(self.name.name)
-            decorate(self, output, internalsub)
+            decorate(self.decorators, output, def():function_definition(self, output, nokeyword, False);)
             output.semicolon()
         else:
-            internalsub()
+            function_definition(self, output, nokeyword, False)
     )
     DEFPRINT(AST_Lambda, def(self, output):
         self._do_print(output)
@@ -1395,21 +1395,14 @@ def codegen():
         define_method = def(stmt):
             name = stmt.name.name
             class_def(name)
-            def internalsub():
-                output.print("function")
-                if stmt.is_generator:
-                    output.print('*')
-                output.space()
-                output.print(name)
-                # only strip first argument if the method is static
-                function_args(stmt.argnames, output, self.static.indexOf(name) == -1)
-                print_bracketed(stmt, output, True)
+            # only strip first argument if the method is static
+            strip_first = self.static.indexOf(name) == -1
 
             # decorate the method
             if stmt.decorators and stmt.decorators.length:
-                decorate(stmt, output, internalsub)
+                decorate(stmt.decorators, output, def():function_definition(stmt, output, False, strip_first);)
             else:
-                internalsub()
+                function_definition(stmt, output, False, strip_first)
             output.semicolon()
             output.newline()
 
@@ -1450,7 +1443,7 @@ def codegen():
         if self.decorators and self.decorators.length:
             output.print('var ')
             output.assign(self.name)
-            decorate(self, output, internalsub)
+            decorate(self.decorators, output, internalsub)
             output.semicolon()
         else:
             internalsub()

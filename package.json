@@ -10,9 +10,9 @@
   ],
   "main": "tools/compiler.js",
   "scripts": {
-	  "test": "bin/rapydscript test",
-	  "start": "bin/rapydscript",
-	  "build-self": "bin/rapydscript self --complete"
+    "test": "bin/rapydscript test",
+    "start": "bin/rapydscript",
+    "build-self": "bin/rapydscript self --complete"
   },
   "version": "0.3.4",
   "license": "BSD-2-Clause",
@@ -27,10 +27,11 @@
     }
   ],
   "repository": {
-      "type": "git",
-      "url": "https://github.com/atsepkov/RapydScript.git"
+    "type": "git",
+    "url": "https://github.com/atsepkov/RapydScript.git"
   },
   "dependencies": {
+    "regenerator": ">= 0.8.32"
   },
   "bin": {
     "rapydscript": "bin/rapydscript"
