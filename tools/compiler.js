@@ -13,11 +13,31 @@ var path = require("path");
 var fs = require("fs");
 var crypto = require('crypto');
 var vm = require("vm");
+var regenerator = require('regenerator');
+var UglifyJS = require("uglify-js");
 
 function sha1sum(data) { 
     var h = crypto.createHash('sha1');
     h.update(data);
     return h.digest('hex');
+}
+
+function regenerate(code, beautify) {
+    var ans;
+    if (code) {
+        ans = regenerator.compile(code).code;
+        if (!beautify) {
+            ans = UglifyJS.minify(ans, {fromString:true}).code;
+        }
+    } else {
+        // Return the runtime
+        ans = regenerator.compile('', {includeRuntime:true}).code;
+        ans = ans.slice(ans.indexOf('!'), ans.lastIndexOf(')(')) + ')';
+        if (!beautify) {
+            ans = UglifyJS.minify(ans+'();', {fromString:true}).code.slice(0, -3);
+        }
+    }
+    return ans;
 }
 
 function create_compiler() {
@@ -28,6 +48,7 @@ function create_compiler() {
         writefile     : fs.writeFileSync,
         sha1sum       : sha1sum,
         require       : require,
+        regenerate    : regenerate,
         exports       : compiler_exports,
     });
 

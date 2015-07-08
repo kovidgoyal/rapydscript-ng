@@ -60,8 +60,9 @@ From Git:
 	git clone git://github.com/atsepkov/RapydScript.git
 	cd RapydScript
 	npm link .
+	npm install  # This will automatically install the dependencies for RapydScript
 
-If you're using OSX, you can probably use the same commands (let me know if that's not the case). If you're using Windows, you should be able to follow similar commands after installing node.js and git on your system.
+If you're using OSX, you can probably use the same commands (let me know if that's not the case). If you're using Windows, you should be able to follow similar commands after installing node.js, npm and git on your system.
 
 
 Compilation
@@ -943,17 +944,25 @@ made so that the iterator works with other JavaScript code.
 Generators
 ------------
 
-RapydScript supports generators (the python yield keyword). Currently,
-if you use the yield keyword the output javascript will only work in browsers
-that support javascript generators. If you need to run it on ES 5 only
-browsers, you can pass the output through a transpiler like
-[regenerator](https://github.com/facebook/regenerator)
+RapydScript supports generators (the python yield keyword). For example:
 
-It is on my TODO list to make this automatic, so there is no need for the extra
-transpiling step.
+```py
+def f():
+	for i in range(3):
+		yield i
+
+[x for x in f()] == [1, 2, 3]
+```
+
+There is full support for generators including the Python 3, ```yield from```
+syntax. 
 
 Generators create JavaScript iterator objects. For differences between python
 and JavaScript iterators, see the section on iterators above. 
+
+Currently, generators are down-converted to ES 5 switch statements. In the
+future, when ES 6 support is widespread, they will be converted to native
+JavaScrip ES 6 generators.
 
 Modules
 -------

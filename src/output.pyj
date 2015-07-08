@@ -10,6 +10,8 @@
 
 "use strict"
 
+# globals:console,regenerate,writefile
+
 from utils import make_predicate, defaults, repeat_string, noop
 from tokenizer import is_identifier_char
 from parse import COMPILER_VERSION, PRECEDENCE
@@ -314,6 +316,18 @@ def OutputStream(options):
             semicolon()
         newline()
 
+    def dump_yield():
+        indent()
+        spaced('var', '_$rapyd$_regenerator', '=', '{}')
+        end_statement()
+        code = regenerate(False, options.beautify)
+        if options.beautify:
+            code = code.replace(/\/\/.*$/mg, '\n').replace(/^\s*$/gm, '')  # strip comments
+            ci = make_indent(0)
+            code = [ci + x for x in code.split('\n')].join('\n')
+        print_(code + '(_$rapyd$_regenerator)')
+        end_statement()
+
     # any code that should appear before the main body
     def prologue(module_):
         if not options.omit_baselib:
@@ -321,9 +335,10 @@ def OutputStream(options):
             spaced.apply(None, (('var iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
             end_statement()
             for lib in module_.baselib:
-                dump_baselib(lib)
-#            for lib in dir(module_.baselib):
-#                dump_baselib(lib)
+                if lib == 'yield':
+                    dump_yield()
+                else:
+                    dump_baselib(lib)
 
     def get():
         return OUTPUT
@@ -341,12 +356,14 @@ def OutputStream(options):
     stack = []
     return {
         'index_counter': 0,
+        'options':options,
         'get': get,
         'toString': get,
         'indent': indent,
         'indentation': def():
             return indentation
         ,
+        'make_indent': make_indent,
         'current_width': def():
             return current_col - indentation
         ,
@@ -958,9 +975,9 @@ def codegen():
                                 raw = co.toString()
                                 cached.outputs[output_key(beautify, auto_bind)] = raw
                         try:
-                            writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))  # noqa:undef
+                            writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))
                         except Error as e:
-                            console.error('Failed to write output cache file:', self.filename + '-cached', 'with error:', e)  # noqa:undef
+                            console.error('Failed to write output cache file:', self.filename + '-cached', 'with error:', e)
             )
         )
         output.print("()")
@@ -1359,10 +1376,15 @@ def codegen():
         if self.is_generator:
             output.print('()'), output.space()
             output.with_block(def():
-                output.indent()
-                output.print('function* js_generator')
-                function_args(self.argnames, output, strip_first)
-                print_bracketed(self, output, True)
+                temp = OutputStream({'beautify':True})
+                temp.print('function* js_generator')
+                function_args(self.argnames, temp, strip_first)
+                print_bracketed(self, temp, True)
+                transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
+                if output.options.beautify:
+                    ci = output.make_indent(0)
+                    transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
+                output.print(transpiled)
                 output.newline()
                 output.indent()
                 output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')

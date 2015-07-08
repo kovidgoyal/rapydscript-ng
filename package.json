@@ -31,7 +31,8 @@
     "url": "https://github.com/atsepkov/RapydScript.git"
   },
   "dependencies": {
-    "regenerator": ">= 0.8.32"
+    "regenerator": ">= 0.8.32",
+    "uglify-js": ">= 2.4.23"
   },
   "bin": {
     "rapydscript": "bin/rapydscript"

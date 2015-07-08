@@ -1051,6 +1051,8 @@ def parse($TEXT, options):
             definition.static = staticmethod
             if definition.is_generator and definition.name and definition.name.name == '__init__':
                 croak('The __init__ method of a class cannot be a generator (yield not allowed)')
+        if definition.is_generator:
+            baselib_items['yield'] = True
 
         # detect local variables, strip function arguments
         assignments = scan_for_local_vars(definition.body, False).filter(def(element, index, arr):
