@@ -949,9 +949,9 @@ def codegen():
                     output.print('"' + self.module_id + '"')
                     output.semicolon()
                     output.newline()
-                def output_key(beautify, auto_bind):
-                    return 'beautify:' + beautify + ' auto_bind:' + auto_bind
-                okey = output_key(output.option('beautify'), output.option('auto_bind'))
+                def output_key(beautify, auto_bind, js_version):
+                    return 'beautify:' + beautify + ' auto_bind:' + auto_bind + ' js_version:' + js_version
+                okey = output_key(output.option('beautify'), output.option('auto_bind'), output.option('js_version'))
                 if self.is_cached and okey in self.outputs:
                     output.print(self.outputs[okey])
                     declare_submodules(self.module_id, self.submodules, output)
@@ -971,12 +971,13 @@ def codegen():
                             cached.exports.push({'name':symdef.name})
                         for beautify in [True, False]:
                             for auto_bind in [True, False]:
-                                co = OutputStream({'beautify':beautify, 'auto_bind':auto_bind, 'private_scope':False, 'write_name':False})
-                                co.with_indent(output.indentation(), def():
-                                    output_module(co)
-                                )
-                                raw = co.toString()
-                                cached.outputs[output_key(beautify, auto_bind)] = raw
+                                for js_version in [5, 6]:
+                                    co = OutputStream({'beautify':beautify, 'auto_bind':auto_bind, 'js_version':js_version, 'private_scope':False, 'write_name':False})
+                                    co.with_indent(output.indentation(), def():
+                                        output_module(co)
+                                    )
+                                    raw = co.toString()
+                                    cached.outputs[output_key(beautify, auto_bind, js_version)] = raw
                         try:
                             writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))
                         except Error as e:
