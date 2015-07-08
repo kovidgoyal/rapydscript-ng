@@ -366,9 +366,12 @@ function Linter(toplevel, filename, code, options) {
         var node = this.current_node;
         var seen = {};
         (node.properties || []).forEach(function (prop) {
-            if (Object.prototype.hasOwnProperty.call(seen, prop.key)) 
-                this.messages.push(msg_from_node(filename, 'dup-key', prop.key, prop));
-            seen[prop.key] = true;
+            if (prop.key instanceof RapydScript.AST_Constant) {
+                var val = prop.key.getValue();
+                if (Object.prototype.hasOwnProperty.call(seen, val)) 
+                    this.messages.push(msg_from_node(filename, 'dup-key', val, prop));
+                seen[val] = true;
+            }
         }, this);
     };
 

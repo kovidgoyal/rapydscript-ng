@@ -1269,13 +1269,6 @@ below:
   it, but at significant performance cost. See the section above on method
   binding for details.
 
-- You cannot use arbitrary expressions as keys in dict literals. So
-  ``{max(1,2):1}`` is a syntax error. Also, names are interpreted as strings
-  and not symbol references in dict literals. So ``x=1; {x:2}`` will give
-  you ``{"x":2}`` as in JavaScript, not ``{1:2}`` as in python. This gotcha
-  does not apply to dict and set comprehensions, where arbitrary expressions
-  are allowed.
-
 - The loop variables in list comprehensions do not leak into the surrounding
   scope, unlike Python. So if you do ```[x for x in [1]]``` x will not be
   defined outside the comprehension itself. This is arguably a mis-feature in
@@ -1324,6 +1317,12 @@ This list below records all the work I have done on RapydScript so far.
    the checks are for unused/undefined names, like ``pyflakes``. But, there are
    also many other checks for invalid or problematic code. To use it:
    ``rapydscript lint file.pyj``
+
+1. Made dict literals behave like python, not javascript. In particular, you
+   can now use arbitrary expressions as keys, not just constants. And if you
+   use a name without quotes, it is not automatically treated as a string. This
+   change is backwards incompatible, but the linter should jelp you easily find
+   all places in your code that need to be changed.
 
 1. Added support for dict and set comprehensions, not just list comprehensions
 
