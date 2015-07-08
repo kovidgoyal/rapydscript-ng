@@ -1338,6 +1338,16 @@ def codegen():
                 internalsub()
         wrap(node.decorators)
 
+    def function_args(argnames, output, strip_first):
+        output.with_parens(def():
+            if argnames and argnames.length and (argnames.is_simple_func == True or argnames.is_simple_func == undefined):
+                ((strip_first) ? argnames.slice(1) : argnames).forEach(def(arg, i):
+                    if i:
+                        output.comma()
+                    arg.print(output)
+                )
+        )
+        output.space()
 
     AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
         self = this
@@ -1350,17 +1360,7 @@ def codegen():
             if self.name:
                 output.space()
                 self.name.print(output)
-
-            output.with_parens(def():
-                if not self.argnames or self.argnames.is_simple_func == True or self.argnames.is_simple_func == undefined:
-                    self.argnames.forEach(def(arg, i):
-                        if i:
-                            output.comma()
-
-                        arg.print(output)
-                    )
-            )
-            output.space()
+            function_args(self.argnames, output, False)
             print_bracketed(self, output, True)
 
         if self.decorators and self.decorators.length:
@@ -1401,19 +1401,8 @@ def codegen():
                     output.print('*')
                 output.space()
                 output.print(name)
-
-                output.with_parens(def():
-                    if not self.argnames or self.argnames.is_simple_func == True or self.argnames.is_simple_func == undefined:
-                        stmt.argnames.forEach(def(arg, i):
-                            # only strip first argument if the method isn't static
-                            if self.static.indexOf(name) != -1:
-                                i += 1
-                            if i > 1:
-                                output.comma()
-                            if i:
-                                arg.print(output)
-                        )
-                )
+                # only strip first argument if the method is static
+                function_args(stmt.argnames, output, self.static.indexOf(name) == -1)
                 print_bracketed(stmt, output, True)
 
             # decorate the method
