@@ -52,6 +52,7 @@ def OutputStream(options):
         'baselib': None,
         'private_scope': True,
         'auto_bind': False,
+        'js_version':5,
         'write_name': True
     }, True)
     indentation = 0
@@ -317,6 +318,8 @@ def OutputStream(options):
         newline()
 
     def dump_yield():
+        if options.js_version >= 6:
+            return
         indent()
         spaced('var', '_$rapyd$_regenerator', '=', '{}')
         end_statement()
@@ -1376,15 +1379,20 @@ def codegen():
         if self.is_generator:
             output.print('()'), output.space()
             output.with_block(def():
-                temp = OutputStream({'beautify':True})
-                temp.print('function* js_generator')
-                function_args(self.argnames, temp, strip_first)
-                print_bracketed(self, temp, True)
-                transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
-                if output.options.beautify:
-                    ci = output.make_indent(0)
-                    transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
-                output.print(transpiled)
+                if output.options.js_version >= 6:
+                    output.print('function* js_generator')
+                    function_args(self.argnames, output, strip_first)
+                    print_bracketed(self, output, True)
+                else:
+                    temp = OutputStream({'beautify':True})
+                    temp.print('function* js_generator')
+                    function_args(self.argnames, temp, strip_first)
+                    print_bracketed(self, temp, True)
+                    transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
+                    if output.options.beautify:
+                        ci = output.make_indent(0)
+                        transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
+                    output.print(transpiled)
                 output.newline()
                 output.indent()
                 output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')

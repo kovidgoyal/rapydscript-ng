@@ -269,6 +269,12 @@ executed and their result assigned to an appropriately
 named variable.
 */});
 
+opt("js_version", 'js,j', 'string', '5', function(){/*
+The JavaScript version to output. By default, ES 5 
+compatible JavaScript is output. You can specify 6 
+to output ES 6 compatible JavaScript instead.
+*/}, ['5', '6']);
+
 opt("comments", undefined, 'string', '', function(){/*
 Preserve copyright comments in the output.
 By default this works like Google Closure, keeping 
