@@ -31,6 +31,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     files.forEach(function(file){
         var ast;
         var filepath = path.join(test_dir, file);
+        var failed = false;
         try {
             ast = RapydScript.parse(fs.readFileSync(filepath, "utf-8"), {
                 filename: file,
@@ -40,6 +41,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             });
         } catch(e) {
             failures.push(file);
+            failed = true;
             if (e.stack) 
                 console.log(colored(file, 'red') + ": Parsing failed\n" + e.stack + "\n\n");
              else 
@@ -67,14 +69,16 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 'test_path':test_dir,
             }, {'filename':jsfile});
         } catch (e) {
+            failures.push(file);
+            failed = true;
             fs.writeFileSync(jsfile, code);
             if (e.stack) 
                 console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
              else 
                 console.log(colored(file, 'red') + ": " + e + "\n\n");
         }
-		if (!failures.length) console.log(colored(file, 'green') + ": test completed successfully\n");
-        else { failures.push(file); console.log(colored(file, 'red') + ":\ttest failed\n"); }
+		if (!failed) console.log(colored(file, 'green') + ": test completed successfully\n");
+        else { console.log(colored(file, 'red') + ":\ttest failed\n"); }
     });
     if (failures.length) {
         console.log(colored('There were ' + failures.length + ' test failure(s):', 'red'));
