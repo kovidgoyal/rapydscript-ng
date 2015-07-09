@@ -962,7 +962,7 @@ and JavaScript iterators, see the section on iterators above.
 
 Currently, generators are down-converted to ES 5 switch statements. In the
 future, when ES 6 support is widespread, they will be converted to native
-JavaScrip ES 6 generators.
+JavaScript ES 6 generators.
 
 Modules
 -------
@@ -1341,6 +1341,10 @@ This list below records all the work I have done on RapydScript so far.
 1. RapydScript now supports generators (yield keyword). Currently it outputs
    ES 6 only code, but it is on my TODO list to convert that into an ES 5
    polyfill either using regenerator or hand-writing the code.
+
+1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
+   This code is cleaner and faster by making use of some ES 6 facilities.
+   Mainly for iterators and generators.
 
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
