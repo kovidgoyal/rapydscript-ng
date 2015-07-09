@@ -214,7 +214,7 @@ def _$rapyd$_symbolfor_polyfill():
     )
 
 def _$rapyd$_desugar_kwargs():
-    if Object.assign:
+    if type(Object.assign) == 'function':
         return def():
             ans = {}
             ans[symbolfor('_$rapyd$_kwargs_obj')] = True
@@ -223,8 +223,9 @@ def _$rapyd$_desugar_kwargs():
         ans = {}
         ans[symbolfor('_$rapyd$_kwargs_obj')] = True
         for JS('var i = 0; i < arguments.length; i++'):
-            for prop in Object.keys(arguments[i]):  # noqa:undef
-                ans[prop] = arguments[i][prop]  # noqa:undef
+            keys = Object.keys(arguments[i])
+            for JS('var j = 0; j < keys.length; j++'):
+                ans[keys[j]] = arguments[i][keys[j]]  # noqa:undef
         return ans
 
 if type(exports) == 'object':
