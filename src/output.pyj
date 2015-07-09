@@ -311,9 +311,10 @@ def OutputStream(options):
     def dump_baselib(key):
         indent()
         is_func = key.substr(key.length - 2) == '()'
+        v = 'const' if options.js_version > 5 else 'var'
         if is_func:
             ckey = key.substr(0, key.length - 2)
-            print_('var ' + ckey + ' = (')
+            spaced(v, ckey, '=', '(')
         print_(options.baselib[key])
         if is_func:
             print_(')()')
@@ -337,7 +338,9 @@ def OutputStream(options):
         if options.omit_baselib:
             return
         indent()
-        spaced.apply(None, (('var iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+        v = 'const' if options.js_version > 5 else 'var'
+        print_(v), space()
+        spaced.apply(None, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
         baselib_items = {}
         deps = options.baselib['#dependencies#']
@@ -1563,7 +1566,7 @@ def codegen():
             if isinstance(stmt, AST_Method):
                 define_method(stmt)
                 if stmt.name.name == '__iter__':
-                    class_def('iterator_symbol', True)
+                    class_def('_$rapyd$_iterator_symbol', True)
                     self.name.print(output)
                     output.print('.prototype.' + stmt.name.name)
                     output.end_statement()

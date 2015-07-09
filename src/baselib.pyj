@@ -8,7 +8,7 @@
 #                        http://www.pyjeon.com
 # License: BSD
 
-# globals: exports, console
+# globals: exports, console, _$rapyd$_iterator_symbol
 
 def abs():
     return Math.abs
@@ -83,8 +83,8 @@ def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
     # rid of this function entirely
     if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
-    if type(iterable[iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
@@ -104,11 +104,11 @@ def enumerate(iterable):
                     return {'done':False, 'value':[this._i, iterable[this._i]]}
                 return {'done':True}
         }
-        ans[iterator_symbol] = def():
+        ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
-    if type(iterable[iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = {
             '_iterator':iterator,
             '_i': -1,
@@ -119,7 +119,7 @@ def enumerate(iterable):
                 this._i += 1
                 return {'done':False, 'value':[this._i, r.value]}
         }
-        ans[iterator_symbol] = def():
+        ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
     return enumerate(Object.keys(iterable))
@@ -134,7 +134,7 @@ def reversed(iterable):
                     return {'done':False, 'value':iterable[this._i]}
                 return {'done':True}
         }
-        ans[iterator_symbol] = def():
+        ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
     raise TypeError('reversed() can only be called on arrays or strings')
@@ -150,11 +150,11 @@ def iter(iterable):
                     return {'done':False, 'value':iterable[this._i]}
                 return {'done':True}
         }
-        ans[iterator_symbol] = def():
+        ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
-    if type(iterable[iterator_symbol]) == 'function':
-        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
     return iter(Object.keys(iterable))
 
 def list(iterable):
@@ -162,8 +162,8 @@ def list(iterable):
         return iterable.slice()
     if type(iterable) == 'string':
         return iterable.split('')
-    if type(iterable[iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
