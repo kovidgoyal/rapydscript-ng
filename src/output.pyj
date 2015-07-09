@@ -342,7 +342,7 @@ def OutputStream(options):
         print_(v), space()
         spaced.apply(None, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
-        print_(v), space()
+        indent(), print_(v), space()
         spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
         baselib_items = {}
