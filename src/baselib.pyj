@@ -264,4 +264,4 @@ if type(exports) == 'object':
     exports.getattr = getattr
     exports.setattr = setattr
     exports.hasattr = hasattr
-    exports['desugar_kwargs()'] = _$rapyd$_desugar_kwargs
+    exports['_$rapyd$_desugar_kwargs()'] = _$rapyd$_desugar_kwargs

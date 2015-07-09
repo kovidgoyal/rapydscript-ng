@@ -1427,7 +1427,7 @@ def parse($TEXT, options):
                 else:
                     a.push(arg)
         if a.kwargs.length:
-            baselib_items['desugar_kwargs()'] = True
+            baselib_items['_$rapyd$_desugar_kwargs()'] = True
         next()
         return a
 

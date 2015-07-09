@@ -1883,7 +1883,7 @@ def codegen():
         has_kwargs =  has_kwarg_items or has_kwarg_formals
 
         output_kwargs = def():
-            output.print('desugar_kwargs(')
+            output.print('_$rapyd$_desugar_kwargs(')
             if has_kwarg_items:
                 self.args.kwarg_items.forEach(def(kwname, i):
                     if i > 0:
