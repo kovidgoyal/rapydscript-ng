@@ -34,6 +34,16 @@ def _$rapyd$_rebind_all(thisArg, rebind):
             if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
             else: thisArg[p] = thisArg[p].orig  # noqa:undef
 
+def _$rapyd$_flatten(arr):
+    ans = []
+    for JS('var i=0; i<arr.length; i++'):
+        value = arr[i]  # noqa:undef
+        if Array.isArray(value):
+            ans = ans.concat(_$rapyd$_flatten(value))
+        else:
+            ans.push(value)
+    return ans
+
 def dir(item):
     # TODO: this isn't really representative of real Python's dir(), nor is it
     # an intuitive replacement for "for ... in" loop, need to update this logic
@@ -239,6 +249,7 @@ if type(exports) == 'object':
     exports.iter = iter
     exports.eslice = _$rapyd$_eslice
     exports.extends = _$rapyd$_extends
+    exports['_$rapyd$_flatten'] = _$rapyd$_flatten
     exports['in'] = _$rapyd$_in
     exports.iterable = _$rapyd$_Iterable
     exports['len()'] = _$rapyd$_len

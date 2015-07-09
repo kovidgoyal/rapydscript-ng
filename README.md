@@ -1338,6 +1338,12 @@ This list below records all the work I have done on RapydScript so far.
 
 1. RapydScript now supports the Python conditional operator: ``1 if a else 2``.
 
+1. RapydScript now supports recursive de-structuring assignment, so you can do:
+   ```py
+   for a, (b, c) in enumerate([ [1,2], [3,4] ]):
+      ...
+   ```
+
 1. RapydScript now supports generators (yield keyword). Currently it outputs
    ES 6 only code, but it is on my TODO list to convert that into an ES 5
    polyfill either using regenerator or hand-writing the code.

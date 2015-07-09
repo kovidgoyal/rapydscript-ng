@@ -860,15 +860,15 @@ def codegen():
                 output.spaced('_$rapyd$_modules["' + module_id + '"]["' + key + '"]', '=', '_$rapyd$_modules["' + sub_module_id + '"]')
                 output.end_statement()
 
-    def unpack_tuple(tuple, output, in_statement):
-        tuple.elements.forEach(def(elem, i):
+    def unpack_tuple(elems, output, in_statement):
+        elems.forEach(def(elem, i):
             output.indent()
             output.assign(elem)
             output.print("_$rapyd$_Unpack")
             output.with_square(def():
                 output.print(i)
             )
-            if not in_statement or i < tuple.elements.length - 1:
+            if not in_statement or i < elems.length - 1:
                 output.semicolon()
                 output.newline()
         )
@@ -1105,10 +1105,14 @@ def codegen():
                 else:
                     itervar = "_$rapyd$_Index" + output.index_counter
                 if isinstance(self.init, AST_Array):
+                    flat = self.init.flatten()
                     output.assign("_$rapyd$_Unpack")
-                    output.print(itervar)
+                    if flat.length > self.init.elements.length:
+                        output.print('_$rapyd$_flatten(' + itervar + ')')
+                    else:
+                        output.print(itervar)
                     output.end_statement()
-                    unpack_tuple(self.init, output)
+                    unpack_tuple(flat, output)
                 else:
                     output.assign(self.init)
                     output.print(itervar)
@@ -1337,10 +1341,14 @@ def codegen():
                     output.indent()
                     itervar = (output.option('js_version') == 5) ? '_$rapyd$_Iter[_$rapyd$_Index]' : '_$rapyd$_Index'
                     if isinstance(self.init, AST_Array):
+                        flat = self.init.flatten()
                         output.assign("_$rapyd$_Unpack")
-                        output.print(itervar)
+                        if flat.length > self.init.elements.length:
+                            output.print('_$rapyd$_flatten(' + itervar + ')')
+                        else:
+                            output.print(itervar)
                         output.newline()
-                        unpack_tuple(self.init, output)
+                        unpack_tuple(flat, output)
                     else:
                         output.assign(self.init)
                         output.print(itervar)
@@ -2107,18 +2115,25 @@ def codegen():
                 self.right.print(output)
             )
             return
+        flattened = False
         if isinstance(self.left, AST_Array):
+            flat = self.left.flatten()
+            flattened = flat.length > self.left.elements.length
             output.print("_$rapyd$_Unpack")
         else:
             self.left.print(output)
         output.space()
         output.print(self.operator)
         output.space()
-        self.right.print(output)
+        if flattened:
+            output.print('_$rapyd$_flatten')
+            output.with_parens(def():self.right.print(output);)
+        else:
+            self.right.print(output)
         if isinstance(self.left, AST_Array):
             output.semicolon()
             output.newline()
-            unpack_tuple(self.left, output, True)
+            unpack_tuple(flat, output, True)
     )
     DEFPRINT(AST_Conditional, def(self, output):
         self.condition.print(output)

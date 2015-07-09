@@ -268,8 +268,9 @@ function Linter(toplevel, filename, code, options) {
             }
         } else if (node.left instanceof RapydScript.AST_Array) {
             // destructuring assignment: a, b = 1, 2
-            for (var i = 0; i < node.left.elements.length; i++) {
-                var cnode = node.left.elements[i];
+            var flat = node.left.flatten();
+            for (var i = 0; i < flat.length; i++) {
+                var cnode = flat[i];
                 if (cnode instanceof RapydScript.AST_SymbolRef) {
                     this.current_node = cnode;
                     cnode.lint_visited = true;

@@ -807,6 +807,22 @@ AST_Array = DEFNODE("Array", "elements", {
                 el._walk(visitor)
             )
         )
+    ,
+    'flatten': def():
+        def flatten(arr):
+            ans = []
+            for value in arr:
+                if isinstance(value, AST_Seq):
+                    value = value.to_array()
+                elif isinstance(value, AST_Array):
+                    value = value.elements
+                if Array.isArray(value):
+                    ans = ans.concat(flatten(value))
+                else:
+                    ans.push(value)
+            return ans
+        return flatten(this.elements)
+    ,
 })
 
 AST_Object = DEFNODE("Object", "properties", {

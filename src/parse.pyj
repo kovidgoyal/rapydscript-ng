@@ -293,7 +293,34 @@ def parse($TEXT, options):
 
         body        body to be scanned
         """
-        vars = []
+        localvars = []
+        seen = {}
+
+        def push(x):
+            if Object.prototype.hasOwnProperty.call(seen, x):
+                return
+            seen[x] = True
+            localvars.push(x)
+
+        def extend(arr):
+            for x in arr:
+                push(x)
+
+        def scan_in_array(arr):
+            for x in arr:
+                if isinstance(x, AST_Seq):
+                    x = x.to_array()
+                    baselib_items['_$rapyd$_flatten'] = True
+                elif isinstance(x, AST_Array):
+                    x = x.elements
+                    baselib_items['_$rapyd$_flatten'] = True
+                if Array.isArray(x):
+                    scan_in_array(x)
+                else:
+                    if not isinstance(x, AST_PropAccess):
+                        push(x.name)
+
+
         if Array.isArray(body):
             # this is a body of statements
             for stmt in dir(body):
@@ -303,74 +330,67 @@ def parse($TEXT, options):
 
                 # recursive descent into conditional, loop and exception bodies
                 [ "body", "alternative" ].forEach(def(option):
-                    nonlocal vars
                     opt = body[stmt][option]
                     if opt:
-                        vars = vars.concat(scan_for_local_vars(opt))
+                        extend(scan_for_local_vars(opt))
 
                     if isinstance(opt, AST_Assign) and not (isinstance(opt.right, AST_Scope)):
-                        vars = vars.concat(scan_for_local_vars(opt.right))
+                        extend(scan_for_local_vars(opt.right))
                 )
 
                 # pick up iterators from loops
                 if isinstance(body[stmt], AST_ForIn):
                     if isinstance(body[stmt].init, AST_Array):
                         # iteration via implicit tuple
-                        vars.push("_$rapyd$_Unpack")
-                        body[stmt].init.elements.forEach(def(elem):
-                            if vars.indexOf(elem.name) == -1:
-                                vars.push(elem.name)
-                        )
-                    elif vars.indexOf(body[stmt].init.name) == -1:
+                        push("_$rapyd$_Unpack")
+                        scan_in_array(body[stmt].init.elements)
+                    else:
                         # iteration via a single variable
-                        vars.push(body[stmt].init.name)
+                        push(body[stmt].init.name)
                 elif isinstance(body[stmt], AST_DWLoop):
-                    vars = vars.concat(scan_for_local_vars(body[stmt]))
+                    extend(scan_for_local_vars(body[stmt]))
                 elif isinstance(body[stmt], AST_If) \
                         and is_nested_comparison(body[stmt].condition):
                     # if statement condition with complex comparison
-                    vars.push("_$rapyd$_Temp")
+                    push("_$rapyd$_Temp")
                 elif isinstance(body[stmt], AST_Exit) and is_nested_comparison(body[stmt].value):
                     # returning a nested conditional
-                    vars.push("_$rapyd$_Temp")
+                    push("_$rapyd$_Temp")
 
         elif body.body:
             # recursive descent into wrapper statements that contain body blocks
-            vars = vars.concat(scan_for_local_vars(body.body))
+            extend(scan_for_local_vars(body.body))
             if body.alternative:
-                vars = vars.concat(scan_for_local_vars(body.alternative))
+                extend(scan_for_local_vars(body.alternative))
 
         elif isinstance(body, AST_Assign):
             # this is a single assignment operator
             if isinstance(body.left, AST_Array):
                 # assignment to an implicit tuple
-                vars.push("_$rapyd$_Unpack")
-                body.left.elements.forEach(def(elem):
-                    if not (isinstance(elem, AST_PropAccess)) and vars.indexOf(elem.name) == -1:
-                        vars.push(elem.name)
-                )
-            elif body.left.name and vars.indexOf(body.left.name) == -1:
+                push("_$rapyd$_Unpack")
+                scan_in_array(body.left.elements)
+            elif body.left.name:
                 # assignment to a single variable
-                vars.push(body.left.name)
+                push(body.left.name)
 
             if is_nested_comparison(body.right):
                 # assignment of nested conditional result to a variable
-                vars.push("_$rapyd$_Temp")
+                push("_$rapyd$_Temp")
             elif isinstance(body.right, AST_Conditional) and is_nested_comparison(body.right.condition):
                 # assignment of a ternary condition result that uses nested conditional
-                vars.push("_$rapyd$_Temp")
+                push("_$rapyd$_Temp")
 
         elif isinstance(body, AST_Conditional) and is_nested_comparison(body.condition):
             # ternary condition that uses nested conditional and triggers other logic
             # this is basically a really ugly way to write an if/else
-            vars.push("_$rapyd$_Temp")
+            push("_$rapyd$_Temp")
 
         elif is_nested_comparison(body):
             # statement itself is a stand-alone nested conditional - programmatically this would probably
             # be a useless statement
-            vars.push("_$rapyd$_Temp")
+            push("_$rapyd$_Temp")
 
-        return vars
+        return localvars
 
     def scan_for_nonlocal_defs(body):
         vars = []
@@ -612,13 +632,11 @@ def parse($TEXT, options):
             init = expression(True, True)
             # standardize AST_Seq into array now for consistency
             if isinstance(init, AST_Seq):
-                tmp = []
-                iter = init
-                while iter and iter.car:
-                    tmp.push(iter.car)
-                    iter = iter.cdr
-
-                tmp.push(iter)
+                if isinstance(init.car, AST_SymbolRef) and isinstance(init.cdr, AST_SymbolRef):
+                    # Optimization to prevent runtime call to _$rapyd$_flatten when init is simply (a, b)
+                    tmp = init.to_array()
+                else:
+                    tmp = [init]
                 init = new AST_Array({
                     'start': init.start,
                     'elements': tmp,
@@ -1055,9 +1073,7 @@ def parse($TEXT, options):
             baselib_items['yield'] = True
 
         # detect local variables, strip function arguments
-        assignments = scan_for_local_vars(definition.body, False).filter(def(element, index, arr):
-            return arr.lastIndexOf(element) is index
-        )
+        assignments = scan_for_local_vars(definition.body)
         for i in range(assignments.length):
             for j in range(definition.argnames.length+1):
                 if j == definition.argnames.length:
@@ -1997,7 +2013,7 @@ def parse($TEXT, options):
             return arr.lastIndexOf(element) == index
 
         toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body)
-        assignments = scan_for_local_vars(toplevel.body).filter(uniq)
+        assignments = scan_for_local_vars(toplevel.body)
         callables = scan_for_top_level_callables(toplevel.body).filter(uniq)
         toplevel.localvars = []
         assignments.forEach(def(item):
