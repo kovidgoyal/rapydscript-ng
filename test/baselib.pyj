@@ -18,6 +18,9 @@ for x in CustomIterable(q):
     t.push(x)
 assert.deepEqual(q, t)
 
+assert.deepEqual(['a', 'b'], list('ab'))
+assert.ok(q != list(q))
+assert.deepEqual(q, list(q))
 
 if type(Map) == 'function':
     m = Map()
@@ -27,6 +30,7 @@ if type(Map) == 'function':
     s.add(1)
     s.add(2)
     assert.equal(len(s), 2)
+    assert.deepEqual(list(s), [1, 2])
 
     t = []
     for i in s:

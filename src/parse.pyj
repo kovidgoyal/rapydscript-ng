@@ -1751,7 +1751,8 @@ def parse($TEXT, options):
                     or tmp_ == "getattr"
                     or tmp_ == "setattr"
                     or tmp_ == "hasattr"
-                    or tmp_ == 'iter':
+                    or tmp_ == 'iter'
+                    or tmp_ == 'list':
                         baselib_items[tmp_] = True
                         # NOTE: there is intentionally no return here, we want these functions to go through regular logic
                         # after they trigger the appropriate baselib flag
@@ -1766,10 +1767,12 @@ def parse($TEXT, options):
                         return ret
                     elif tmp_ == "isinstance":
                         args = func_call_list()
+                        if args.length != 2:
+                            croak('isinstance() must be called with exactly two arguments')
                         ret = new AST_Binary({
                             'start': start,
-                            'operator': "instanceof",
                             'left': args[0],
+                            'operator': 'instanceof',
                             'right': args[1],
                             'end': prev()
                         })

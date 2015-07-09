@@ -1352,6 +1352,10 @@ This list below records all the work I have done on RapydScript so far.
    This code is cleaner and faster by making use of some ES 6 facilities.
    Mainly for iterators and generators.
 
+1. Add a builtin list type that functions like Python's list type, except that
+   it create JavaScript Array object. You can pass any iterable to list and use
+   it in isinstance() just as you would in python.
+
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid

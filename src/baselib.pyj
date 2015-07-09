@@ -154,8 +154,23 @@ def iter(iterable):
             return this
         return ans
     if type(iterable[iterator_symbol]) == 'function':
-        return iterable[iterator_symbol]()
+        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
     return iter(Object.keys(iterable))
+
+def list(iterable):
+    if Array.isArray(iterable):
+        return iterable.slice()
+    if type(iterable) == 'string':
+        return iterable.split('')
+    if type(iterable[iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+        ans = []
+        result = iterator.next()
+        while not result.done:
+            ans.push(result.value)
+            result = iterator.next()
+        return ans
+    return Object.keys(iterable)
 
 def _$rapyd$_len():
     if JS('typeof Set') == 'function' and JS('typeof Map') == 'function':
@@ -242,6 +257,7 @@ if type(exports) == 'object':
     exports.enumerate = enumerate
     exports.iter = iter
     exports.eslice = _$rapyd$_eslice
+    exports.list = list
     exports.extends = _$rapyd$_extends
     exports['_$rapyd$_flatten'] = _$rapyd$_flatten
     exports['in'] = _$rapyd$_in

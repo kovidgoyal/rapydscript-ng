@@ -2096,12 +2096,14 @@ def codegen():
                 output.space()
                 self.right.print(output)
             )
+        elif self.operator == 'instanceof':
+            if self.right.name == 'Array' or self.right.name == 'list':
+                output.print('Array.isArray')
+                output.with_parens(def():self.left.print(output);)
+            else:
+                output.spaced(self.left, 'instanceof', self.right)
         else:
-            self.left.print(output)
-            output.space()
-            output.print(self.operator)
-            output.space()
-            self.right.print(output)
+            output.spaced(self.left, self.operator, self.right)
     )
     DEFPRINT(AST_Assign, def(self, output):
         if self.operator == '//=':

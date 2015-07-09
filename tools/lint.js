@@ -34,7 +34,7 @@ BUILTINS = {
     'max':true, 'min':true, 'enumerate':true, 'rebind_all':true,
     'extends':true, 'reversed':true, 'sum':true, 'getattr':true,
     'setattr':true, 'hasattr':true, 'symbolfor':true, 'parseInt':true,
-    'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
+    'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true, 'list':true,
     '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
     'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'RangeError':true,
     'ReferenceError':true, 'SyntaxError':true, 'TypeError':true, 'URIError':true,
