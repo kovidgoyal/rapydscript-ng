@@ -861,6 +861,32 @@ AST_ObjectKeyVal = DEFNODE("ObjectKeyVal", None, {
     '$documentation': "A key: value object property"
 }, AST_ObjectProperty)
 
+AST_Set = DEFNODE("Set", "items", {
+    '$documentation': "A set literal",
+    '$propdoc': {
+        'items': "[AST_SetItem*] array of items"
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.items.forEach(def(prop):
+                prop._walk(visitor)
+            )
+        )
+})
+
+AST_SetItem = DEFNODE("SetItem", "value", {
+    '$documentation': "An item in a set literal",
+    '$propdoc': {
+        'value': "[AST_Node] The value of this item",
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.value._walk(visitor)
+        )
+})
+
 AST_Symbol = DEFNODE("Symbol", "scope name thedef", {
     '$propdoc': {
         'name': "[string] name of this symbol",

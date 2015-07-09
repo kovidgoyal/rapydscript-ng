@@ -1356,6 +1356,8 @@ This list below records all the work I have done on RapydScript so far.
    it create JavaScript Array object. You can pass any iterable to list and use
    it in isinstance() just as you would in python.
 
+1. Support set literals
+
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid

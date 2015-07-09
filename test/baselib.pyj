@@ -22,31 +22,30 @@ assert.deepEqual(['a', 'b'], list('ab'))
 assert.ok(q != list(q))
 assert.deepEqual(q, list(q))
 assert.ok(isinstance([], (String, list)))
+m = Map()
+m.set('a', 1)
+assert.equal(len(m), 1)
+s = Set()
+s.add(1)
+s.add(2)
+assert.equal(len(s), 2)
+assert.deepEqual(list(s), [1, 2])
+assert.deepEqual(s, {1, 2})
 
-if type(Map) == 'function':
-    m = Map()
-    m.set('a', 1)
-    assert.equal(len(m), 1)
-    s = Set()
-    s.add(1)
-    s.add(2)
-    assert.equal(len(s), 2)
-    assert.deepEqual(list(s), [1, 2])
+t = []
+for i in s:
+    t.push(i)
+assert.deepEqual(t, [1, 2])
 
-    t = []
-    for i in s:
-        t.push(i)
-    assert.deepEqual(t, [1, 2])
+t = []
+for i in m:
+    t.push(i)
+assert.deepEqual(t, ['a'])
+t = []
+for c, i in enumerate(m):
+    t.push([c, i])
+assert.deepEqual(t, [[0, 'a']])
+assert.deepEqual(['y', 'x'], [x for x in reversed('xy')])
 
-    t = []
-    for i in m:
-        t.push(i)
-    assert.deepEqual(t, ['a'])
-    t = []
-    for c, i in enumerate(m):
-        t.push([c, i])
-    assert.deepEqual(t, [[0, 'a']])
-    assert.deepEqual(['y', 'x'], [x for x in reversed('xy')])
-
-    # Test that the iterator created by iter() is itself iterable
-    assert.deepEqual(s, Set(iter(s)))
+# Test that the iterator created by iter() is itself iterable
+assert.deepEqual(s, Set(iter(s)))

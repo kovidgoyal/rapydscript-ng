@@ -24,7 +24,7 @@ AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function,
 AST_Hole, AST_If, AST_Imports, AST_Infinity, AST_Jump, AST_Lambda,
 AST_ListComprehension, AST_LoopControl, AST_Method, AST_NaN, AST_New, AST_Node,
 AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
-AST_RegExp, AST_Return, AST_Scope, AST_Seq, AST_SimpleStatement, AST_Splice,
+AST_RegExp, AST_Return, AST_Scope, AST_Set, AST_Seq, AST_SimpleStatement, AST_Splice,
 AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_Switch,
 AST_SwitchBranch, AST_Symbol, AST_SymbolRef, AST_This, AST_Throw, AST_Toplevel,
 AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var,
@@ -2220,6 +2220,29 @@ def codegen():
         self.key.print(output)
         output.colon()
         self.value.print(output)
+    )
+    DEFPRINT(AST_Set, def(self, output):
+        if self.items.length == 0:
+            output.print('new Set()')
+            return
+        output.with_parens(def():
+            output.print('function()')
+            output.with_block(def():
+                output.indent()
+                output.spaced.apply(output, 'var s = new Set()'.split(' '))
+                output.end_statement()
+                self.items.forEach(def(item, i):
+                    output.indent()
+                    output.print('s.add')
+                    output.with_parens(def():item.value.print(output);)
+                    output.end_statement()
+                )
+                output.indent()
+                output.spaced('return', 's')
+                output.end_statement()
+            )
+        )
+        output.print('()')
     )
     AST_Symbol.DEFMETHOD("definition", def():
         return this.thedef
