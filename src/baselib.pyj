@@ -84,66 +84,60 @@ def _$rapyd$_Iterable(iterable):
     # rid of this function entirely
     if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
     if type(iterable[iterator_symbol]) == 'function':
-        iterator = iterable[iterator_symbol]()
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
         ans = []
         result = iterator.next()
-        if iterable[iterator_symbol] == iterable.entries:
-            while not result.done:
-                ans.push(result.value[0])
-                result = iterator.next()
-        else:
-            while not result.done:
-                ans.push(result.value)
-                result = iterator.next()
+        while not result.done:
+            ans.push(result.value)
+            result = iterator.next()
         return ans
     # so we can use 'for ... in' syntax with hashes and NodeLists
     return Object.keys(iterable)
 
 def enumerate(iterable):
     if Array.isArray(iterable) or type(iterable) == 'string':
-        arr = []
-        for JS('var i=0;i<iterable.length;i++'): arr.push([i, iterable[i]])  # noqa:undef
-        return arr
-    if type(iterable[iterator_symbol]) == 'function':
-        iterator = iterable[iterator_symbol]()
-        c = 0
-        ans = []
-        result = iterator.next()
-        if iterable[iterator_symbol] == iterable.entries:
-            while not result.done:
-                ans.push([c, result.value[0]])
-                result = iterator.next()
-                c += 1
-        else:
-            while not result.done:
-                ans.push([c, result.value])
-                result = iterator.next()
-                c +=1
+        ans = {
+            '_i': -1,
+            'next':def():
+                this._i += 1
+                if this._i < iterable.length:
+                    return {'done':False, 'value':[this._i, iterable[this._i]]}
+                return {'done':True}
+        }
+        ans[iterator_symbol] = def():
+            return this
         return ans
-    obj = Object.keys(iterable)
-    arr = []
-    for JS('var i=0;i<obj.length;i++'): arr.push([i, obj[i]])  # noqa:undef
-    return arr
+    if type(iterable[iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[iterator_symbol]()
+        ans = {
+            '_iterator':iterator,
+            '_i': -1,
+            'next':def():
+                r = this._iterator.next()
+                if r.done:
+                    return {'done':True}
+                this._i += 1
+                return {'done':False, 'value':[this._i, r.value]}
+        }
+        ans[iterator_symbol] = def():
+            return this
+        return ans
+    return enumerate(Object.keys(iterable))
 
 def reversed(iterable):
-    if Array.isArray(iterable):
-        return iterable.reverse()
-    if type(iterable[iterator_symbol]) == 'function':
-        iterator = iterable[iterator_symbol]()
-        ans = []
-        result = iterator.next()
-        if iterable[iterator_symbol] == iterable.entries:
-            while not result.done:
-                ans.push(result.value[0])
-                result = iterator.next()
-        else:
-            while not result.done:
-                ans.push(result.value)
-                result = iterator.next()
-        return ans.reverse()
-    if type(iterable) == 'string':
-        return iterable.split('').reverse().join('')
-    return Object.keys(iterable).reverse()
+    if Array.isArray(iterable) or type(iterable) == 'string':
+        ans = {
+            '_i': iterable.length,
+            'next':def():
+                this._i -= 1
+                if this._i > -1:
+                    return {'done':False, 'value':iterable[this._i]}
+                return {'done':True}
+        }
+        ans[iterator_symbol] = def():
+            return this
+        return ans
+    raise TypeError('reversed() can only be called on arrays or strings')
 
 def iter(iterable):
     # Generate a JavaScript iterator object from iterable
