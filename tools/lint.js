@@ -36,7 +36,8 @@ BUILTINS = {
     'setattr':true, 'hasattr':true, 'symbolfor':true, 'parseInt':true,
     'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true,
     '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
-    'float':true, 'iter':true,
+    'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'RangeError':true,
+    'ReferenceError':true, 'SyntaxError':true, 'TypeError':true, 'URIError':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
