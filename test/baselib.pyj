@@ -21,6 +21,7 @@ assert.deepEqual(q, t)
 assert.deepEqual(['a', 'b'], list('ab'))
 assert.ok(q != list(q))
 assert.deepEqual(q, list(q))
+assert.ok(isinstance([], (String, list)))
 
 if type(Map) == 'function':
     m = Map()

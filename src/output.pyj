@@ -2039,6 +2039,25 @@ def codegen():
         self.expression.print(output)
         output.print(self.operator)
     )
+    def write_instanceof(left, right, output):
+        def single(left, right):
+            if right.name == 'Array' or right.name == 'list':
+                output.print('Array.isArray')
+                output.with_parens(def():left.print(output);)
+            else:
+                output.spaced(left, 'instanceof', right)
+        if isinstance(right, AST_Seq):
+            right = new AST_Array({'elements':right.to_array()})
+        if isinstance(right, AST_Array):
+            output.with_parens(def():
+                right.elements.forEach(def (right, i, arr):
+                    single(left, right)
+                    if arr.length > 1 and i < arr.length - 1:
+                        output.space(), output.print('||'), output.space()
+                )
+            )
+        else:
+            single(left, right)
     DEFPRINT(AST_Binary, def(self, output):
         comparators = {
             "<": True,
@@ -2097,11 +2116,7 @@ def codegen():
                 self.right.print(output)
             )
         elif self.operator == 'instanceof':
-            if self.right.name == 'Array' or self.right.name == 'list':
-                output.print('Array.isArray')
-                output.with_parens(def():self.left.print(output);)
-            else:
-                output.spaced(self.left, 'instanceof', self.right)
+            write_instanceof(self.left, self.right, output)
         else:
             output.spaced(self.left, self.operator, self.right)
     )
