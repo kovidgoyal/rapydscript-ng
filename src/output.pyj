@@ -321,8 +321,6 @@ def OutputStream(options):
         newline()
 
     def dump_yield():
-        if options.js_version >= 6:
-            return
         indent()
         spaced('var', '_$rapyd$_regenerator', '=', '{}')
         end_statement()
@@ -336,17 +334,26 @@ def OutputStream(options):
 
     # any code that should appear before the main body
     def prologue(module_):
-        if not options.omit_baselib:
-            indent()
-            spaced.apply(None, (('var iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
-            end_statement()
-            for lib in module_.baselib:
-                if options.js_version == 6 and lib == 'iterable':
-                    continue
-                if lib == 'yield':
-                    dump_yield()
-                else:
-                    dump_baselib(lib)
+        if options.omit_baselib:
+            return
+        indent()
+        spaced.apply(None, (('var iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+        end_statement()
+        baselib_items = {}
+        deps = options.baselib['#dependencies#']
+        # resolve dependencies
+        for lib in module_.baselib:
+            baselib_items[lib] = True
+            if deps.hasOwnProperty(lib):
+                Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
+        # output used items
+        for lib in baselib_items:
+            if options.js_version >= 6 and (lib == 'iterable' or lib == 'yield'):
+                continue
+            if lib == 'yield':
+                dump_yield()
+            else:
+                dump_baselib(lib)
 
     def get():
         return OUTPUT
