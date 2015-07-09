@@ -342,6 +342,9 @@ def OutputStream(options):
         print_(v), space()
         spaced.apply(None, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
+        print_(v), space()
+        spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+        end_statement()
         baselib_items = {}
         deps = options.baselib['#dependencies#']
         # resolve dependencies
@@ -756,7 +759,7 @@ def codegen():
                             if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
                                 output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
                                               '(', i, '===', 'arguments.length-1', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                              kw, '[symbolfor("_$rapyd$_kwargs_obj")]', '===', 'true))', '?', '')
+                                              kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
                                 output.with_parens(def():
                                     a.defaults[arg.name].print(output)
                                 )
@@ -765,7 +768,7 @@ def codegen():
                                 output.space()
                             else:
                                 output.spaced('(', i, '===', 'arguments.length-1', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                              kw, '[symbolfor("_$rapyd$_kwargs_obj")]', '===', 'true)', '?', 'undefined', ':', '')
+                                              kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
                             output.print('arguments[' + i + ']')
                             output.end_statement()
                     if a.kwargs or a.has_defaults:
@@ -776,7 +779,7 @@ def codegen():
                         output.end_statement()
                         # Ensure kwargs is the options object
                         output.indent()
-                        output.spaced('if', '(typeof', kw, '!==', '"object"', '||', kw, '[symbolfor("_$rapyd$_kwargs_obj")]', '!==', 'true)', kw, '=', '{}')
+                        output.spaced('if', '(typeof', kw, '!==', '"object"', '||', kw, '[_$rapyd$_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
                         output.end_statement()
                         # Read values from the kwargs object for any formal parameters
                         if a.has_defaults:
@@ -802,7 +805,7 @@ def codegen():
                         output.end_statement()
                         # Remove the options object, if present
                         output.indent()
-                        output.spaced('if', '(typeof', kw, '===', '"object"', '&&', kw, '[symbolfor("_$rapyd$_kwargs_obj")]', '===', 'true)', a.starargs.name, '.pop()')
+                        output.spaced('if', '(typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name, '.pop()')
                         output.end_statement()
 
             # rebind parent's methods and bind own methods

@@ -8,7 +8,7 @@
 #                        http://www.pyjeon.com
 # License: BSD
 
-# globals: exports, console, _$rapyd$_iterator_symbol
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol
 
 def abs():
     return Math.abs
@@ -225,22 +225,15 @@ def setattr(obj, name, value):
 def hasattr(obj, name):
     return JS('name in obj')
 
-def _$rapyd$_symbolfor_polyfill():
-    if typeof Symbol == 'function' and typeof Symbol.for == 'function':
-        return Symbol.for
-    return (def(name):
-            return name + '-Symbol-' + '5d0927e5554349048cf0e3762a228256'
-    )
-
 def _$rapyd$_desugar_kwargs():
     if type(Object.assign) == 'function':
         return def():
             ans = {}
-            ans[symbolfor('_$rapyd$_kwargs_obj')] = True
+            ans[_$rapyd$_kwargs_symbol] = True
             return Object.assign.apply(ans, arguments)
     return def():
         ans = {}
-        ans[symbolfor('_$rapyd$_kwargs_obj')] = True
+        ans[_$rapyd$_kwargs_symbol] = True
         for JS('var i = 0; i < arguments.length; i++'):
             keys = Object.keys(arguments[i])
             for JS('var j = 0; j < keys.length; j++'):
@@ -271,5 +264,4 @@ if type(exports) == 'object':
     exports.getattr = getattr
     exports.setattr = setattr
     exports.hasattr = hasattr
-    exports['symbolfor()'] = _$rapyd$_symbolfor_polyfill
     exports['desugar_kwargs()'] = _$rapyd$_desugar_kwargs

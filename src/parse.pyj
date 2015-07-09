@@ -1031,8 +1031,6 @@ def parse($TEXT, options):
                 S.in_parenthesized_expr = False
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
-                if not a.is_simple_func:
-                    baselib_items['symbolfor()'] = True
                 return a
             .call(this, []),
             'localvars': [],
@@ -1429,7 +1427,6 @@ def parse($TEXT, options):
                 else:
                     a.push(arg)
         if a.kwargs.length:
-            baselib_items['symbolfor()'] = True
             baselib_items['desugar_kwargs()'] = True
         next()
         return a
@@ -1794,8 +1791,7 @@ def parse($TEXT, options):
                         })
                         S.in_parenthesized_expr = False
                         return ret
-                    elif tmp_ == 'symbolfor'
-                    or tmp_ == 'len'
+                    elif tmp_ == 'len'
                     or tmp_ == 'abs'
                     or tmp_ == 'max'
                     or tmp_ == 'min':

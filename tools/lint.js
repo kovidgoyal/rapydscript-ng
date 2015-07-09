@@ -33,11 +33,12 @@ BUILTINS = {
     'eval':true, 'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
     'max':true, 'min':true, 'enumerate':true, 'rebind_all':true,
     'extends':true, 'reversed':true, 'sum':true, 'getattr':true,
-    'setattr':true, 'hasattr':true, 'symbolfor':true, 'parseInt':true,
-    'parseFloat':true, 'isNaN':true, 'JSON':true, 'Math':true, 'list':true,
+    'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true,
+    'isNaN':true, 'JSON':true, 'Math':true, 'list':true,
     '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
-    'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'RangeError':true,
-    'ReferenceError':true, 'SyntaxError':true, 'TypeError':true, 'URIError':true,
+    'float':true, 'iter':true, 'Error':true, 'EvalError':true,
+    'RangeError':true, 'ReferenceError':true, 'SyntaxError':true,
+    'TypeError':true, 'URIError':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
