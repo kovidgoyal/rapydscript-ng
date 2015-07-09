@@ -262,11 +262,9 @@ minifying it.
 
 opt("omit_baselib", 'm', 'bool', false, function(){/*
 Omit baselib functions. Use this if you have a 
-different way of ensuring they're imported. Note
-that simply including baselib.js is no longer
-sufficient, as the polyfill functions have to be
-executed and their result assigned to an appropriately
-named variable.
+different way of ensuring they're imported. For example,
+you could import one of the baselib-plain-*.js files directly
+into the global namespace.
 */});
 
 opt("js_version", 'js,j', 'string', '5', function(){/*

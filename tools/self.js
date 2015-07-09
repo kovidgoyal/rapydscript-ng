@@ -128,6 +128,14 @@ function compile(src_path, lib_path, sources, source_hash) {
         var baselib = (which === 'pretty') ? pretty_baselib : ugly_baselib;
         var text = JSON.stringify(baselib, null, 2);
         fs.writeFileSync(path.join(lib_path, 'baselib-' + which + '.js'), text, 'utf-8');
+
+        ast = RapydScript.parse('');
+        Object.keys(baselib).forEach(function(k) { if (k.indexOf('#') == -1) ast.baselib[k] = true; });
+        ast.baselib['yield'] = true;
+        var output = RapydScript.OutputStream({'private_scope':false, 'write_name':false, 'baselib':baselib,
+            'beautify':which === 'pretty'});
+        ast.print(output);
+        fs.writeFileSync(path.join(lib_path, 'baselib-plain-' + which + '.js'), output.get(), 'utf-8');
     }
 
     try {

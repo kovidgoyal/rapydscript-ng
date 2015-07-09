@@ -17,7 +17,7 @@ var RapydScript = require('./compiler').create_compiler();
 
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
-	vm.runInContext(baselib, ctx, {'filename':'baselib.js'});
+	vm.runInContext(baselib, ctx, {'filename':'baselib-plain-pretty.js'});
 	var b = vm.runInContext('this', ctx);
 	for (var key in b) {
 		if (key.substr(0, 9) == '_$rapyd$_' && key.substr(key.length - 9) == '_polyfill') {
@@ -43,18 +43,7 @@ function expanduser(x) {
 }
 
 function read_baselib(lib_path) {
-    var b = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
-    var ans = [];
-    Object.keys(b).forEach(function(k) { 
-        if (k.indexOf('#') == -1) {
-            var is_func = k.slice(-2) == '()';
-            if ( is_func ) ans.push('var ' + k.slice(0, -2) + ' = (');
-            ans.push(b[k]);
-            if ( is_func ) ans.push(')();');
-            ans.push('\n');
-        }
-    });
-    return ans.join('\n');
+    return fs.readFileSync(path.join(lib_path, 'baselib-plain-pretty.js'), 'utf-8');
 }
 
 function repl_defaults(options) {
