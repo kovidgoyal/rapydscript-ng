@@ -61,6 +61,7 @@ function repl_defaults(options) {
     if (!options.enum_global) options.enum_global = enum_global;
         
     options.colored = (options.terminal) ? colored : (function (string) { return string; });
+    options.historySize = options.history_size || 1000;
     return options;
 }
 
