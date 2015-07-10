@@ -206,15 +206,19 @@ def range(start, stop, step):
         stop = start or 0
         start = 0
     step = arguments[2] or 1
-
     length = Math.max(Math.ceil((stop - start) / step), 0)
-    idx = 0
-    r = Array(length)
-
-    while idx < length:
-        r[JS('idx++')] = start
-        start += step
-    return r
+    return {
+        _$rapyd$_iterator_symbol: def(): return this;,
+        '_i': start - step,
+        '_idx': -1,
+        'next': def():
+            this._i += step
+            this._idx += 1
+            if this._idx >= length:
+                return {'done':True}
+            return {'done':False, 'value':this._i}
+        ,
+    }
 
 def sum(arr, start=0):
     return arr.reduce(

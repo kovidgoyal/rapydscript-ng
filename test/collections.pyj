@@ -27,10 +27,10 @@ a[-1] = 9
 assert.equal(a[-1], 9)
 
 # extended slices
-b = [0 to 10]
+b = list([0 to 10])
 s = 'abcde'
 assert.deepEqual(b[::2], [0, 2, 4, 6, 8, 10])
-assert.deepEqual(b[::-1], range(10,-1,-1))
+assert.deepEqual(b[::-1], list(range(10,-1,-1)))
 assert.deepEqual(b[7:0:-1], [7, 6, 5, 4, 3, 2, 1])
 assert.deepEqual(b[7:1:-2], [7, 5, 3])
 assert.equal(s[::2], 'ace')

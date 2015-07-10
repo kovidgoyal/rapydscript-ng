@@ -29,8 +29,8 @@ do:
 .while counter > 0
 assert.equal(factorial, 120)
 
-inclusive = [3 to 5]
-exclusive = [3 til 6]
+inclusive = list([3 to 5])
+exclusive = list([3 til 6])
 assert.deepEqual(inclusive, exclusive)
 assert.deepEqual(inclusive, [3,4,5])
 
