@@ -73,11 +73,18 @@ def _$rapyd$_extends(child, parent):
     child.prototype = Object.create(parent.prototype)
     child.prototype.constructor = child
 
-def _$rapyd$_in(val, arr):
-    if Array.isArray(arr) or JS('typeof arr') == 'string': return arr.indexOf(val) != -1
-    else:
-        if arr.hasOwnProperty(val): return True
-        return False
+def _$rapyd$_in():
+    if type(Map) == 'function' and type(Set) == 'function':
+        return def(val, arr):
+            if Array.isArray(arr) or JS('typeof arr') == 'string':
+                return arr.indexOf(val) != -1
+            if isinstance(arr, (Map, Set)):
+                return arr.has(val)
+            return arr.hasOwnProperty(val)
+    return def(val, arr):
+            if Array.isArray(arr) or JS('typeof arr') == 'string':
+                return arr.indexOf(val) != -1
+            return arr.hasOwnProperty(val)
 
 def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
@@ -253,7 +260,7 @@ if type(exports) == 'object':
     exports.list = list
     exports.extends = _$rapyd$_extends
     exports['_$rapyd$_flatten'] = _$rapyd$_flatten
-    exports['in'] = _$rapyd$_in
+    exports['_$rapyd$_in()'] = _$rapyd$_in
     exports.iterable = _$rapyd$_Iterable
     exports['len()'] = _$rapyd$_len
     exports.mixin = _$rapyd$_mixin

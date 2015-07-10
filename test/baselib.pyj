@@ -45,3 +45,7 @@ assert.deepEqual(['y', 'x'], [x for x in reversed('xy')])
 
 # Test that the iterator created by iter() is itself iterable
 assert.deepEqual(s, Set(iter(s)))
+
+assert.ok('a' in m)
+assert.ok(1 in s)
+assert.ok('1' not in s)

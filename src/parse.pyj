@@ -1852,7 +1852,7 @@ def parse($TEXT, options):
             if no_in:
                 op = None
             else:
-                baselib_items[op] = True
+                baselib_items['_$rapyd$_in()'] = True
 
         prec = (op != None ? PRECEDENCE[op] : None)
         if prec != None and prec > min_prec:
