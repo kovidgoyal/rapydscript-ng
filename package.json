@@ -1,7 +1,7 @@
 {
-  "name": "rapydscript",
+  "name": "rapydscript-ng",
   "description": "Pythonic JavaScript that doesn't suck",
-  "homepage": "http://rapydscript.pyjeon.com",
+  "homepage": "https://github.com/kovidgoyal/rapydscript-ng",
   "keywords": [
     "javascript",
     "rapydscript",
