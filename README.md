@@ -1139,7 +1139,7 @@ def f(somevar1):
 	return somevar1
 ```
 
-Here, you probablt meant to return ``somevar2`` not ``somevar1``. The linter
+Here, you probably meant to return ``somevar2`` not ``somevar1``. The linter
 will detect that somevar2 is defined but not used and warn you about it.
 
 The linter is highly configurable, you can add ot the list of builtin names
@@ -1187,7 +1187,7 @@ Don't abuse semi-colons. They're meant as a way to group related logic together,
 X = 0; Y = 1
 ```
 
-Anything that requires more than a couple semi-colons, however, or involves long mathematical computations, is better off on its own line. Use your discretion, if the logic requires more than one visual pass-through from the programmer to understand the flow, you probably shouldn't use semi-colons. A Fibanacci function, as shown below, would probably be the upper limit of the kind of logic you could sanely represent with semi-colons:
+Anything that requires more than a couple semi-colons, however, or involves long mathematical computations, is better off on its own line. Use your discretion, if the logic requires more than one visual pass-through from the programmer to understand the flow, you probably shouldn't use semi-colons. A Fibonacci function, as shown below, would probably be the upper limit of the kind of logic you could sanely represent with semi-colons:
 
 ```js
 fib = def(x): if x<=1: return 1; return fib(x-1)+fib(x-2)
@@ -1282,6 +1282,11 @@ This list below records all the work I have done on RapydScript so far.
 1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
    It even has its own tests to make sure nothing breaks :)
 
+1. There is now a ``linter`` that checks for various problems in your code. Most of
+   the checks are for unused/undefined names, like ``pyflakes``. But, there are
+   also many other checks for invalid or problematic code. To use it:
+   ``rapydscript lint file.pyj``
+
 1. The import/module system has been completely changed. It now works just like
    python, with modules being per file and packages being a directory with
    ```__init__.pyj```. The ```module:``` keyword has been removed.
@@ -1291,15 +1296,12 @@ This list below records all the work I have done on RapydScript so far.
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
 
-1. There is now a ``linter`` that checks for various problems in your code. Most of
-   the checks are for unused/undefined names, like ``pyflakes``. But, there are
-   also many other checks for invalid or problematic code. To use it:
-   ``rapydscript lint file.pyj``
+1. RapydScript now supports generators (yield keyword). 
 
 1. Made dict literals behave like python, not javascript. In particular, you
    can now use arbitrary expressions as keys, not just constants. And if you
    use a name without quotes, it is not automatically treated as a string. This
-   change is backwards incompatible, but the linter should jelp you easily find
+   change is backwards incompatible, but the linter should help you easily find
    all places in your code that need to be changed.
 
 1. Added support for dict and set comprehensions, not just list comprehensions
@@ -1325,10 +1327,6 @@ This list below records all the work I have done on RapydScript so far.
    for a, (b, c) in enumerate([ [1,2], [3,4] ]):
       ...
    ```
-
-1. RapydScript now supports generators (yield keyword). Currently it outputs
-   ES 6 only code, but it is on my TODO list to convert that into an ES 5
-   polyfill either using regenerator or hand-writing the code.
 
 1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
    This code is cleaner and faster by making use of some ES 6 facilities.
