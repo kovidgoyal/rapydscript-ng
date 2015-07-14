@@ -260,7 +260,7 @@ AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with
     }
 }, AST_Block)
 
-AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids strict shebang import_order module_id exports submodules classes filename srchash", {
+AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids shebang import_order module_id exports submodules classes filename srchash", {
     '$documentation': "The toplevel scope",
     '$propdoc': {
         'globals': "[Object/S] a map of name -> SymbolDef for all undeclared names",
@@ -268,7 +268,6 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids 
         'imports': "[Object/S] a map of module_id->AST_Toplevel for all imported modules (this represents all imported modules across all source files)",
         'imported_module_ids': "[string*] a list of module ids that were imported by this module, specifically",
         'nonlocalvars': "[String*] a list of all non-local variable names (names that come from the global scope)",
-        'strict': "[boolean/S] true if strict directive is in scope",
         'shebang': "[string] If #! line is present, it will be stored here",
         'import_order': "[number] The global order in which this scope was imported",
         'module_id': "[string] The id of this module",

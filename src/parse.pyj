@@ -118,7 +118,6 @@ ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name" ]
 # -----[ Parser ]-----
 def parse($TEXT, options):
     options = defaults(options, {
-        'strict': False,      # whether to use strict JavaScript mode
         'filename': None,     # name of the file being parsed
         'auto_bind': False,   # whether auto-binding of methods to classes is enabled
         'module_id':'__main__', # The id of the module being parsed
@@ -204,7 +203,7 @@ def parse($TEXT, options):
         return expect_token("punc", punc)
 
     def can_insert_semicolon():
-        return not options.strict and (S.token.nlb or is_("eof") or is_("punc", "}"))
+        return S.token.nlb or is_("eof") or is_("punc", "}")
 
     def semicolon():
         if is_("punc", ";"):
@@ -1473,7 +1472,7 @@ def parse($TEXT, options):
                 expect(",")
 
         return new AST_Array({
-            'elements': expr.concat(expr_list("]", not options.strict, True))
+            'elements': expr.concat(expr_list("]", True, True))
         })
     )
 
@@ -1485,7 +1484,7 @@ def parse($TEXT, options):
         while not is_("punc", "}"):
             if not first:
                 expect(",")
-            if not options.strict and is_("punc", "}"):
+            if is_("punc", "}"):
                 # allow trailing comma
                 break
             first = False
@@ -1521,7 +1520,7 @@ def parse($TEXT, options):
         while not is_("punc", "}"):
             expect(",")
             start = S.token
-            if not options.strict and is_("punc", "}"):
+            if is_("punc", "}"):
                 # allow trailing comma
                 break
             a.push(new AST_SetItem({'start':start, 'value':expression(False), 'end':prev()}))
@@ -1904,31 +1903,19 @@ def parse($TEXT, options):
             return conditional
         return expr
 
-    def is_assignable(expr):
-        if not options.strict:
-            return True
-
-        tmp_ = expr[0] + ""
-        if tmp_ == "dot" or tmp_ == "sub" or tmp_ == "new" or tmp_ == "call":
-            return True
-        elif tmp_ == "name":
-            return expr[1] != "this"
-
     maybe_assign = def(no_in):
         start = S.token
         left = maybe_conditional(no_in)
         val = S.token.value
         if is_("operator") and ASSIGNMENT(val):
-            if is_assignable(left):
-                next()
-                return new AST_Assign({
-                    'start': start,
-                    'left': left,
-                    'operator': val,
-                    'right': maybe_assign(no_in),
-                    'end': prev()
-                })
-            croak("Invalid assignment")
+            next()
+            return new AST_Assign({
+                'start': start,
+                'left': left,
+                'operator': val,
+                'right': maybe_assign(no_in),
+                'end': prev()
+            })
         return left
 
     expression = def(commas, no_in):
@@ -2011,12 +1998,6 @@ def parse($TEXT, options):
             toplevel = new AST_Toplevel({
                 'start': start,
                 'body': body,
-                'strict': def():
-                    for stmt in body:
-                        if isinstance(stmt, AST_Directive) and stmt.value == 'use strict':
-                            return True
-                    return False
-                .call(this),
                 'shebang': shebang,
                 'end': end
             })

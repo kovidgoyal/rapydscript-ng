@@ -898,9 +898,8 @@ def codegen():
                     # strict mode is more verbose about errors, and less forgiving about them
                     # kind of like Python
                     output.indent()
-                    output.print('"use strict"')
-                    output.semicolon()
-                    output.newline()
+                    output.print('"use strict;"')
+                    output.end_statement()
 
                     # TODO: this is a hack for now, should probably declare this in local-most scope
                     output.indent()
@@ -932,9 +931,6 @@ def codegen():
                 output.prologue(self)
                 write_imports(self, output)
                 write_main_name(output)
-
-            if self.strict:
-                declare_vars(self.localvars, output)
 
             display_body(self.body, True, output)
 
