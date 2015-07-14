@@ -167,14 +167,14 @@ Another feature of RapydScript is ability to have functions as part of your obje
 
 ```js
 params = {
-	width:	50,
-	height:	30,
-	onclick:	def(event):
+	'width':	50,
+	'height':	30,
+	'onclick':	def(event):
 		alert("you clicked me"),
-	onmouseover:	def(event):
+	'onmouseover':	def(event):
 		$(this).css('background', 'red')
 	,
-	onmouseout:	def(event):
+	'onmouseout':	def(event):
 		# reset the background
 		$(this).css('background', '')
 }
@@ -196,9 +196,6 @@ It is because of easy integration with JavaScript's native libraries that RapydS
 ```py
 string = vsprintf('%d bottles of %s on the wall', (99, 'beer'))
 ```
-
-Take a look at the `examples` directory to see RapydScript integration with `jQuery`, `jQuery-UI`, `D3`, and `Google Charts`.
-
 
 Anonymous Functions
 -------------------
@@ -236,11 +233,11 @@ Additionally, as you already noticed in the previous section, anonymous function
 
 ```js
 math_ops = {
-	add:	def(a, b): return a+b;,
-	sub:	def(a, b): return a-b;,
-	mul:	def(a, b): return a*b;,
-	div:	def(a, b): return a/b;,
-	roots:	def(a, b, c):
+	'add':	def(a, b): return a+b;,
+	'sub':	def(a, b): return a-b;,
+	'mul':	def(a, b): return a*b;,
+	'div':	def(a, b): return a/b;,
+	'roots':	def(a, b, c):
 		r = Math.sqrt(b*b - 4*a*c)
 		d = 2*a
 		return (-b + r)/d, (-b - r)/d
@@ -1183,8 +1180,8 @@ JavaScript treats object literals and hashes as the same thing. I'm not a fan of
 
 ```js
 obj = {
-	foo:	1,
-	bar:	def(): print('bar' + str(foo))
+	'foo':	1,
+	'bar':	def(): print('bar' + str(foo))
 }
 hash = {
 	'foo':	1,
