@@ -26,23 +26,6 @@ RapydScript allows to write your front-end in Python without the overhead that o
 Let's not waste any more time with the introductions, however. The best way to learn a new language/framework is to dive in.
 
 
-Community
----------
-If you have questions, bug reports, or feature requests, feel free to post them on our mailing list:  
-<http://groups.google.com/group/rapydscript>
-
-I bundled a few demos with RapydScript itself, but several members of the community put together much better demos themselves. If you would like to take a look at them to see what's possible with RapydScript, here are some examples:
-
-<http://salvatore.diodev.fr/RapydScript>  
-This includes the demos from RapydScript's `examples` directory, as well as a few others.
-
-<http://salvatore.diodev.fr/RapydBox>  
-This is a collection of very cool demos, showcasing RapydScript's similarity to real Python and at the same time its ability to work with other JavaScript. It relies on a JavaScript port of NodeBox (which was originally written in Python). NodeBox was ported from Python to JavaScript to allow cross-platform compatibility. Ironically, the original demos from Python version of NodeBox now work with JavaScript version of NodeBox with few changes (and sometimes none at all) by using RapydScript.
-
-<http://salvatore.diodev.fr/RapydGlow>
-RapydScript making use of GlowScript, another project done by a member of our community
-
-
 Installation
 ------------
 First make sure you have installed the latest version of [node.js](http://nodejs.org/) (You may need to restart your computer after this step). 
