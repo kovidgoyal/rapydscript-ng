@@ -22,7 +22,12 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var deep_eq = assert.deepEqual;
     assert.deepEqual = function(a, b) {
         // Compare array objects that have extra properties as simple arrays
-        if (Array.isArray(a) && Array.isArray(b)) return deep_eq(Array.prototype.concat.call(a), Array.prototype.concat.call(b));
+        if (Array.isArray(a) && Array.isArray(b)) {
+            if (a === b) return true;
+            if (a.length !== b.length) return false;
+            for(var i=0; i < a.length; i++) if (!assert.deepEqual(a[i], b[i])) return false;
+            return true;
+        }
         return deep_eq(a, b);
     };
 
