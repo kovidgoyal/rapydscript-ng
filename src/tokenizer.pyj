@@ -87,7 +87,7 @@ PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
 REGEXP_MODIFIERS = make_predicate(characters("gmsiy"))
 
 
-KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return yield switch til to try typeof var void while with or and not"
+KEYWORDS = "as break case class const continue debugger def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return yield switch til to try typeof var void while with or and not"
 
 KEYWORDS_ATOM = "False None True"
 
