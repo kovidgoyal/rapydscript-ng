@@ -1347,3 +1347,11 @@ This list below records all the work I have done on RapydScript so far.
 
 1. Countless other small fixes and improvement, too numerous too list here,
    read the commit log.
+
+Note: this is in no way a hostile fork, and I remain grateful to Alexander
+Tspekov for his great work on the original RapydScript. The reason for the fork
+is simply that the maintainers of the original project do not currently have
+the free time to keep up with the pace of development in this fork. I hope that
+someday most of the changes in this fork will be merged back into the original
+project. All changes in this fork are licensed under the same license as the
+original project, to make that possible.
