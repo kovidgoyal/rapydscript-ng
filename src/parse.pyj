@@ -1799,6 +1799,7 @@ def parse($TEXT, options):
                         baselib_items[tmp_ + '()'] = True
                     elif tmp_ == "sum"
                     or tmp_ == "map"
+                    or tmp_ == "zip"
                     or tmp_ == "filter":
                         baselib_items['functools'] = True
 
