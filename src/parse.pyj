@@ -1,8 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-"use strict"
-
 from utils import make_predicate, array_to_hash, defaults
 from errors import SyntaxError, ImportError
 from ast import (

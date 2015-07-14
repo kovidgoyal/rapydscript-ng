@@ -1,8 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-"use strict"
-
 from utils import noop, string_template
 
 def DEFNODE(type, props, methods, base):

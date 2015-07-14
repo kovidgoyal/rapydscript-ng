@@ -1,8 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-"use strict"
-
 def array_to_hash(a):
     ret = Object.create(None)
     for i in range(len(a)):

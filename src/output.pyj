@@ -1,8 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-"use strict"
-
 # globals:console,regenerate,writefile
 
 from utils import make_predicate, defaults, repeat_string, noop
