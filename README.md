@@ -1,7 +1,7 @@
 RapydScript
 ===========
 
-[![Build Status](https://secure.travis-ci.org/kovidgoyal/RapydScript.png)](http://travis-ci.org/kovidgoyal/RapydScript)
+[![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.png)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
 
 This is a fork of the original RapydScript that adds many new (not always
 backwards compatible) changes. For a list of changes, [see the bottom of this file](#user-content-changes-in-this-fork-compared-to-atsepkovrapydscript)
