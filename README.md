@@ -32,20 +32,22 @@ First make sure you have installed the latest version of [node.js](http://nodejs
 
 From NPM for use as a command line app:
 
-	npm install rapydscript -g
+	npm install rapydscript-ng -g
 
-From NPM for programmatic use:
+From NPM for use in your own node project:
 
-	npm install rapydscript
+	npm install rapydscript-ng
 
 From Git:
 
-	git clone git://github.com/atsepkov/RapydScript.git
-	cd RapydScript
-	npm link .
+	git clone git://github.com/kovidgoyal/rapydscript-ng.git
+	cd rapydscript-ng
+	sudo npm link .
 	npm install  # This will automatically install the dependencies for RapydScript
 
-If you're using OSX, you can probably use the same commands (let me know if that's not the case). If you're using Windows, you should be able to follow similar commands after installing node.js, npm and git on your system.
+If you're using OSX, you can probably use the same commands (let me know if
+that's not the case). If you're using Windows, you should be able to follow
+similar commands after installing node.js, npm and git on your system.
 
 
 Compilation

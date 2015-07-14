@@ -1,23 +1,12 @@
-This project is officially supported by Alexander Tsepkov.
+This project is officially supported by Kovid Goyal.
 
 Main Developers
 ---------------
-Alexander Tsepkov
+Kovid Goyal
 
 Other Contributors
 ------------------
+Alexander Tsepkov (main developer of the original RapydScript)
 Charles Law
 Tobias Weber
 Salvatore DI DIO
-
-Legalese
---------
-"Pyjeon" shall refer to Pyjeon LLC (or in the event of dissolution to the code maintainer - Alexander Tsepkov).
-
-"Project" shall refer to RapydScript as a whole.
-
-"You" (or "Your") shall mean the copyright owner of the work being contributed to the Project.
-
-"Contribution" shall mean any work contributed to the project, including, but not limited to, source code, graphics, or other digital work.
-
-By submitting Your Contribution to Pyjeon, You agree to grant Pyjeon exclusive rights to change the license terms of any and all portions of the Project as Pyjeon chooses to without obtaining explicit concent from You.

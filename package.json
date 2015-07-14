@@ -21,14 +21,13 @@
   },
   "maintainers": [
     {
-      "name": "Alexander Tsepkov",
-      "email": "atsepkov@pyjeon.com",
-      "web": "http://rapydscript.pyjeon.com"
+      "name": "Kovid Goyal",
+      "email": "kovid@kovidgoyal.net"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/atsepkov/RapydScript.git"
+    "url": "https://github.com/kovidgoyal/rapydscript-ng.git"
   },
   "dependencies": {
     "regenerator": ">= 0.8.32",

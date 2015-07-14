@@ -1,11 +1,4 @@
-# A RapydScript to JavaScript compiler.
-# https://github.com/atsepkov/RapydScript
-#
-# -------------------------------- (C) ---------------------------------
-#
-#                      Author: Alexander Tsepkov
-#                        <atsepkov@pyjeon.com>
-#                        http://www.pyjeon.com
+# vim:fileencoding=utf-8
 # License: BSD
 
 # globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol
