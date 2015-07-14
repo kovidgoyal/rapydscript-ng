@@ -49,3 +49,10 @@ assert.deepEqual(s, Set(iter(s)))
 assert.ok('a' in m)
 assert.ok(1 in s)
 assert.ok('1' not in s)
+
+# getattr()
+a = {'x':2}
+assert.equal(getattr(a, 'x'), 2)
+assert.equal(getattr(a, 'x', 1), 2)
+assert.equal(getattr(a, 'y', 1), 1)
+assert.throws(def():getattr(a, 'y');, AttributeError)

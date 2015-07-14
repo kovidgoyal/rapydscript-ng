@@ -213,15 +213,25 @@ def range(start, stop, step):
         ,
     }
 
-def sum(arr, start=0):
+def sum(arr, start):
     return arr.reduce(
         def(prev, cur): return prev+cur
         ,
-        start
+        start or 0
     )
 
-def getattr(obj, name):
-    return obj[name]
+def getattr(obj, name, defval):
+    try:
+        ret = obj[name]
+    except TypeError:
+        if defval == undefined:
+            raise AttributeError('The attribute ' + name + ' is not present')
+        return defval
+    if ret == undefined and not JS('(name in obj)'):
+        if defval == undefined:
+            raise AttributeError('The attribute ' + name + ' is not present')
+        ret = defval
+    return ret
 
 def setattr(obj, name, value):
     obj[name] = value
