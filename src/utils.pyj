@@ -39,19 +39,17 @@ def defaults(args, defs, croak):
         args = {}
     ret = args or {}
     if croak:
-        for i in dir(ret):
-            if ret.hasOwnProperty(i) and not defs.hasOwnProperty(i):
+        for i in ret:
+            if not defs.hasOwnProperty(i):
                 raise new DefaultsError("`" + i + "` is not a supported option", defs)
 
-    for i in dir(defs):
-        if defs.hasOwnProperty(i):
-            ret[i] = args and args.hasOwnProperty(i) ? args[i] : defs[i]
+    for i in defs:
+        ret[i] = args and args.hasOwnProperty(i) ? args[i] : defs[i]
     return ret
 
 def merge(obj, ext):
-    for i in dir(ext):
-        if ext.hasOwnProperty(i):
-            obj[i] = ext[i]
+    for i in ext:
+        obj[i] = ext[i]
     return obj
 
 def noop():
@@ -92,10 +90,9 @@ MAP = def():
                     if doit():
                         break
         else:
-            for i in dir(a):
-                if a.hasOwnProperty(i):
-                    if doit():
-                        break
+            for i in a:
+                if doit():
+                    break
         return top.concat(ret)
 
     MAP.at_top = def(val):
@@ -189,47 +186,3 @@ def make_predicate(words):
             a[k] = True
         return def(x):
             return a.hasOwnProperty(x)
-
-def Dictionary():
-    this._values = Object.create(None)
-    this._size = 0
-
-Dictionary.prototype = {
-    'set': def(key, val):
-        if not this.has(key):
-            this._size += 1
-        this._values["$" + key] = val
-        return this
-    ,
-    'add': def(key, val):
-        if this.has(key):
-            this.get(key).push(val)
-        else:
-            this.set(key, [ val ])
-        return this
-    ,
-    'get': def(key):
-        return this._values["$" + key]
-    ,
-    'del_': def(key):
-        if this.has(key):
-            this._size -= 1
-            del this._values["$" + key]
-        return this
-    ,
-    'has': def(key):
-        return "$" + key in this._values
-    ,
-    'each': def(f):
-        for i in dir(this._values):
-            f(this._values[i], i.substr(1))
-    ,
-    'size': def():
-        return this._size
-    ,
-    'map': def(f):
-        ret = []
-        for i in dir(this._values):
-            ret.push(f(this._values[i], i.substr(1)))
-        return ret
-}

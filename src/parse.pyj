@@ -252,8 +252,7 @@ def parse($TEXT, options):
         ans = []
         # Get the named functions and classes
         if Array.isArray(body):
-            for name in dir(body):
-                obj = body[name]
+            for obj in body:
                 if isinstance(obj, AST_Function) or isinstance(obj, AST_Class):
                     ans.push(obj.name)
                 else:
@@ -279,8 +278,7 @@ def parse($TEXT, options):
 
     def scan_for_classes(body):
         ans = {}
-        for name in dir(body):
-            obj = body[name]
+        for obj in body:
             if isinstance(obj, AST_Class):
                 ans[obj.name.name] = obj
         return ans
@@ -321,14 +319,14 @@ def parse($TEXT, options):
 
         if Array.isArray(body):
             # this is a body of statements
-            for stmt in dir(body):
+            for stmt in body:
                 # skip inner scopes
-                if isinstance(body[stmt], AST_Scope):
+                if isinstance(stmt, AST_Scope):
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
                 [ "body", "alternative" ].forEach(def(option):
-                    opt = body[stmt][option]
+                    opt = stmt[option]
                     if opt:
                         extend(scan_for_local_vars(opt))
 
@@ -337,21 +335,21 @@ def parse($TEXT, options):
                 )
 
                 # pick up iterators from loops
-                if isinstance(body[stmt], AST_ForIn):
-                    if isinstance(body[stmt].init, AST_Array):
+                if isinstance(stmt, AST_ForIn):
+                    if isinstance(stmt.init, AST_Array):
                         # iteration via implicit tuple
                         push("_$rapyd$_Unpack")
-                        scan_in_array(body[stmt].init.elements)
+                        scan_in_array(stmt.init.elements)
                     else:
                         # iteration via a single variable
-                        push(body[stmt].init.name)
-                elif isinstance(body[stmt], AST_DWLoop):
-                    extend(scan_for_local_vars(body[stmt]))
-                elif isinstance(body[stmt], AST_If) \
-                        and is_nested_comparison(body[stmt].condition):
+                        push(stmt.init.name)
+                elif isinstance(stmt, AST_DWLoop):
+                    extend(scan_for_local_vars(stmt))
+                elif isinstance(stmt, AST_If) \
+                        and is_nested_comparison(stmt.condition):
                     # if statement condition with complex comparison
                     push("_$rapyd$_Temp")
-                elif isinstance(body[stmt], AST_Exit) and is_nested_comparison(body[stmt].value):
+                elif isinstance(stmt, AST_Exit) and is_nested_comparison(stmt.value):
                     # returning a nested conditional
                     push("_$rapyd$_Temp")
 
@@ -393,19 +391,19 @@ def parse($TEXT, options):
     def scan_for_nonlocal_defs(body):
         vars = []
         if Array.isArray(body):
-            for stmt in dir(body):
-                if isinstance(body[stmt], AST_Scope):
+            for stmt in body:
+                if isinstance(stmt, AST_Scope):
                     continue
 
                 # don't invade nested scopes
-                if isinstance(body[stmt], AST_Definitions):
-                    body[stmt].definitions.forEach(def(vardef):
+                if isinstance(stmt, AST_Definitions):
+                    stmt.definitions.forEach(def(vardef):
                         vars.push(vardef.name.name)
                     )
 
                 [ "body", "alternative" ].forEach(def(option):
                     nonlocal vars
-                    opt = body[stmt][option]
+                    opt = stmt[option]
                     if opt:
                         vars = vars.concat(scan_for_nonlocal_defs(opt))
 
@@ -925,8 +923,7 @@ def parse($TEXT, options):
             .call(this, S.in_loop, S.labels)
         })
         # find the constructor
-        for i in dir(definition.body):
-            stmt = definition.body[i]
+        for stmt in definition.body:
             if isinstance(stmt, AST_Method) and stmt.name.name == "__init__":
                 definition.init = stmt
                 break
@@ -948,8 +945,7 @@ def parse($TEXT, options):
                     descend.call(node)
         visitor = new walker()
 
-        for i in dir(definition.body):
-            stmt = definition.body[i]
+        for stmt in definition.body:
             if not isinstance(stmt, AST_Class):
                 stmt.walk(visitor)
                 definition.statements.push(stmt)
@@ -1080,11 +1076,8 @@ def parse($TEXT, options):
                     break
 
         nonlocals = scan_for_nonlocal_defs(definition.body)
-        nonlocals.forEach(def(variable):
-            for i in dir(definition.localvars).reverse():
-                if definition.localvars[i].name == variable:
-                    definition.localvars.splice(i, 1)
-        )
+        nonlocals = {name for name in nonlocals}
+        definition.localvars = definition.localvars.filter(def(v): return not nonlocals.has(v.name);)
         return definition
 
     def if_():

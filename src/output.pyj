@@ -655,19 +655,20 @@ def codegen():
 
     def bind_methods(methods, output):
         # bind the methods
-        for arg in dir(methods):
-            output.indent()
-            output.print("this.")
-            output.assign(arg)
-            output.print("_$rapyd$_bind")
-            output.with_parens(def():
+        if methods:
+            for arg in methods:
+                output.indent()
                 output.print("this.")
-                output.print(arg)
-                output.comma()
-                output.print("this")
-            )
-            output.semicolon()
-            output.newline()
+                output.assign(arg)
+                output.print("_$rapyd$_bind")
+                output.with_parens(def():
+                    output.print("this.")
+                    output.print(arg)
+                    output.comma()
+                    output.print("this")
+                )
+                output.semicolon()
+                output.newline()
 
     def write_imports(module, output):
         imports = []
