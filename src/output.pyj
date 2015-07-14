@@ -338,11 +338,11 @@ def OutputStream(options):
         indent(), print_(v), space()
         spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
-        baselib_items = {}
+        baselib_items = {k:True for k in module_.baselib}
+        baselib_items['errors'] = True
         deps = options.baselib['#dependencies#']
         # resolve dependencies
-        for lib in module_.baselib:
-            baselib_items[lib] = True
+        for lib in baselib_items:
             if deps.hasOwnProperty(lib):
                 Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
         # output used items

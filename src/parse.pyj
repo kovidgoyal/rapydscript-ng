@@ -65,6 +65,13 @@ NATIVE_CLASSES = {
     'WeakSet': {},
     'Symbol': {},
 }
+ERROR_CLASSES = {
+    'Exception': {},
+    'AttributeError': {},
+    'IndexError': {},
+    'KeyError': {},
+    'ValueError': {},
+}
 COMMON_STATIC = [ "call", "apply", "bind", "toString" ]
 
 # -----[ Parser (constants) ]-----
@@ -682,6 +689,8 @@ def parse($TEXT, options):
             # check Native JS classes
             if NATIVE_CLASSES.hasOwnProperty(expr.name):
                 return NATIVE_CLASSES[expr.name]
+            if ERROR_CLASSES.hasOwnProperty(expr.name):
+                return ERROR_CLASSES[expr.name]
 
             # traverse in reverse to check local variables first
             for s in range(S.classes.length-1, -1, -1):

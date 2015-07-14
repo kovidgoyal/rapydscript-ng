@@ -20,7 +20,7 @@ function read_baselib_modules(RapydScript, src_path, lib_path) {
         var name = fname.slice('baselib-'.length, -4);
         ans[name] = {'code':{}};
         var raw = fs.readFileSync(path.join(src_path, fname), 'utf-8');
-        var ast = RapydScript.parse(raw, {'filename':fname, 'module_id':name, basedir:src_path});
+        var ast = RapydScript.parse(raw, {'filename':fname, basedir:src_path});
         ans[name].baselib_items = ast.baselib;
         [true, false].forEach(function (beautify) {
             output = RapydScript.OutputStream({
