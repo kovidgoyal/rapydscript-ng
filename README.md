@@ -1345,7 +1345,7 @@ This list below records all the work I have done on RapydScript so far.
    on Travis for continuous integration. I also took the opportunity to get rid
    of the dependencies on ```async``` and ```optimist```.
 
-1. Countless other small fixes and improvement, too numerous too list here,
+1. Countless other fixes and improvements, too numerous to list here --
    read the commit log.
 
 Note: this is in no way a hostile fork, and I remain grateful to Alexander
