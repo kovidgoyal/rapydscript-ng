@@ -1801,7 +1801,7 @@ def parse($TEXT, options):
                     or tmp_ == "map"
                     or tmp_ == "zip"
                     or tmp_ == "filter":
-                        baselib_items['functools'] = True
+                        baselib_items['itertools'] = True
 
                 # fall-through to basic function call
                 ret = subscripts(new AST_Call({
