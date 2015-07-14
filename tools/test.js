@@ -19,6 +19,12 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var test_dir = path.join(base_path, 'test');
 	var baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
     var files;
+    var deep_eq = assert.deepEqual;
+    assert.deepEqual = function(a, b) {
+        // Compare array objects that have extra properties as simple arrays
+        if (Array.isArray(a) && Array.isArray(b)) return deep_eq(Array.prototype.concat.call(a), Array.prototype.concat.call(b));
+        return deep_eq(a, b);
+    };
 
     if (argv.files.length) {
         files = [];
@@ -64,7 +70,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             var code = output.toString();
             try {
                 vm.runInNewContext(code, {
-                    'assert':require('assert'), 
+                    'assert':assert, 
                     'require':require, 
                     'fs':fs,
                     'RapydScript':RapydScript, 
