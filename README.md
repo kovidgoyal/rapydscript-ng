@@ -1142,9 +1142,9 @@ def f(somevar1):
 Here, you probably meant to return ``somevar2`` not ``somevar1``. The linter
 will detect that somevar2 is defined but not used and warn you about it.
 
-The linter is highly configurable, you can add ot the list of builtin names
+The linter is highly configurable, you can add to the list of built-in names
 that the linter will not raise undefined errors for. You can turn off
-individual checks that you dont find useful. See ``rapydscript lint -h`` for
+individual checks that you do not find useful. See ``rapydscript lint -h`` for
 details.
 
 Advanced Usage Topics
@@ -1152,33 +1152,14 @@ Advanced Usage Topics
 This section contains various topics which might be of interest to the programmer writing large projects using RapydScript, but might not be relevant to a programmer who is just getting started with RapydScript. The topics in this section focus on coding conventions to keep your code clean, optimizations, and additional libraries that come with RapydScript, as well as suggestions for writing your own libraries.
 
 ### Browser Compatibility
-By default, RapydScript compiles your logic such that it will work on modern browsers running HTML5, as well as older browser like IE6-8. To do so, the compiler sometimes has to generate rather messy and inefficient output. As of September, 2013, less than 8% of the world has been found to be using IE8. If you know that your users will not be using older browsers, you can compile your logic with `--screw-ie8` option to generate cleaner, faster code.
-
-### Code Conventions
-It's not hard to see that RapydScript is a cleaner language than JavaScript. However, like with all dynamically-typed languages (including Python), it's still easy to shoot yourself in the foot if you don't follow some sort of code conventions. Needless to say, they're called `conventions` for a reason, feel free to ignore them if you already have a set of conventions you follow or if you disagree with some.
+RapydScript compiles your code such that it will work on browsers that are
+compatible with the ES 5 JavaScript standard. The compiler has a 
+``--js-version`` option that can also be used to output ES 6 only code. This
+code is smaller and faster than the ES 5 version, but is not as widely
+compatible.
 
 #### Tabs vs Spaces
-This seems to be a very old debate. Python code conventions suggest 4-space indent, most of the bundled RapydScript files use 1-tab for indentation. The old version of RapydScript relied on tabs, new one uses spaces since that seems to be more consistent in both Python and JavaScript communities. Use whichever one you prefer, as long as you stay consistent. If you intend to submit your code to RapydScript, it must use spaces to be consistent with the rest of the code int he repository.
-
-#### Object Literals vs Hashes/Dicts
-JavaScript treats object literals and hashes as the same thing. I'm not a fan of this policy. Some of the problems you can see resulting from this is Google Closure compiler's ADVANACED_OPTIMIZATIONS breaking a lot of seemingly-good JavaScript code. The main problem for most of the code that breaks seems to be renaming of methods/variables in one place and not another. My suggestion is to ALWAYS treat object literals as object literals and ALWAYS treat hashes as hashes, basically be consistent about quoting your keys. As an added bonus, your code will have a much better chance of compiling correctly via Closure compiler. For example:
-
-```js
-obj = {
-	'foo':	1,
-	'bar':	def(): print('bar' + str(foo))
-}
-hash = {
-	'foo':	1,
-	'bar':	def(): print('bar' + str(foo))
-}
-
-obj.bar()		# good
-obj['bar']()	# bad
-
-hash.bar()		# bad
-hash['bar']()	# good
-```
+This seems to be a very old debate. Python code conventions suggest 4-space indent. The old version of RapydScript relied on tabs, new one uses spaces since that seems to be more consistent in both Python and JavaScript communities. Use whichever one you prefer, as long as you stay consistent. If you intend to submit your code to RapydScript, it must use spaces to be consistent with the rest of the code int he repository.
 
 #### Semi-Colons
 Don't abuse semi-colons. They're meant as a way to group related logic together, not to fit your entire web-app on one line. The following is fine:
