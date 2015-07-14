@@ -141,6 +141,8 @@ def reversed(iterable):
 
 def iter(iterable):
     # Generate a JavaScript iterator object from iterable
+    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
     if Array.isArray(iterable) or type(iterable) == 'string':
         ans = {
             '_i': -1,
@@ -153,8 +155,6 @@ def iter(iterable):
         ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
-    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
     return iter(Object.keys(iterable))
 
 def list(iterable):
@@ -213,13 +213,6 @@ def range(start, stop, step):
         ,
     }
 
-def sum(arr, start):
-    return arr.reduce(
-        def(prev, cur): return prev+cur
-        ,
-        start or 0
-    )
-
 def getattr(obj, name, defval):
     try:
         ret = obj[name]
@@ -274,7 +267,6 @@ if type(exports) == 'object':
     exports.print = _$rapyd$_print
     exports.range = range
     exports.reversed = reversed
-    exports.sum = sum
     exports.getattr = getattr
     exports.setattr = setattr
     exports.hasattr = hasattr

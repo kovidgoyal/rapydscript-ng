@@ -1762,7 +1762,6 @@ def parse($TEXT, options):
                     or tmp_ == "print"
                     or tmp_ == "range"
                     or tmp_ == "reversed"
-                    or tmp_ == "sum"
                     or tmp_ == "getattr"
                     or tmp_ == "setattr"
                     or tmp_ == "hasattr"
@@ -1798,6 +1797,10 @@ def parse($TEXT, options):
                     or tmp_ == 'max'
                     or tmp_ == 'min':
                         baselib_items[tmp_ + '()'] = True
+                    elif tmp_ == "sum"
+                    or tmp_ == "map"
+                    or tmp_ == "filter":
+                        baselib_items['functools'] = True
 
                 # fall-through to basic function call
                 ret = subscripts(new AST_Call({

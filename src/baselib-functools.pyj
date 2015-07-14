@@ -1,0 +1,56 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# globals: _$rapyd$_iterator_symbol
+
+def sum(iterable, start):
+    if Array.isArray(iterable):
+        return iterable.reduce(
+            def(prev, cur): return prev+cur
+            ,
+            start or 0
+        )
+    ans = start or 0
+    iterator = iter(iterable)
+    r = iterator.next()
+    while not r.done:
+        ans += r.value
+        r = iterator.next()
+    return ans
+
+def map():
+    func = arguments[0]
+    iterables = new Array(arguments.length - 1)
+    args = new Array(arguments.length - 1)
+    for JS('i = 1; i < arguments.length; i++'):
+        iterables[i - 1] = iter(arguments[i])  # noqa:undef
+    return {
+        '_func': func,
+        '_iterators': iterables,
+        '_args': args,
+        'next': def():
+            for JS('i = 0; i < this._iterators.length; i++'):
+                r = this._iterators[i].next()
+                if r.done:
+                    return {'done':True}
+                this._args[i] = r.value  # noqa:undef
+            return {'done':False, 'value':this._func.apply(undefined, this._args)}
+        ,
+        _$rapyd$_iterator_symbol: def (): return this;,
+    }
+
+def filter(func_or_none, iterable):
+    return {
+        '_iterator':iter(iterable),
+        '_func': bool if func_or_none is None else func_or_none,
+        'next': def():
+            r = this._iterator.next()
+            while not r.done:
+                if this._func(r.value):
+                    return r
+                r = this._iterator.next()
+            return {'done':True}
+        ,
+        _$rapyd$_iterator_symbol: def (): return this;,
+    }
