@@ -71,12 +71,16 @@ def _$rapyd$_in():
         return def(val, arr):
             if Array.isArray(arr) or JS('typeof arr') == 'string':
                 return arr.indexOf(val) != -1
+            if type(arr.__contains__) == 'function':
+                return arr.__contains__(val)
             if isinstance(arr, (Map, Set)):
                 return arr.has(val)
             return arr.hasOwnProperty(val)
     return def(val, arr):
             if Array.isArray(arr) or JS('typeof arr') == 'string':
                 return arr.indexOf(val) != -1
+            if type(arr.__contains__) == 'function':
+                return arr.__contains__(val)
             return arr.hasOwnProperty(val)
 
 def _$rapyd$_Iterable(iterable):
