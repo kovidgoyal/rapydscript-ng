@@ -205,6 +205,7 @@ AST_ListComprehension = DEFNODE("ListComprehension", "condition statement", {
         node = this
         return visitor._visit(node, def():
             node.init._walk(visitor)
+            node.object._walk(visitor)
             node.statement._walk(visitor)
             if (node.condition) node.condition._walk(visitor)
         )
@@ -224,6 +225,7 @@ AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement', {
         node = this
         return visitor._visit(node, def():
             node.init._walk(visitor)
+            node.object._walk(visitor)
             node.statement._walk(visitor)
             node.value_statement._walk(visitor)
             if (node.condition) node.condition._walk(visitor)
