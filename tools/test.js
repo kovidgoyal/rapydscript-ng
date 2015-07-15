@@ -20,15 +20,13 @@ module.exports = function(argv, base_path, src_path, lib_path) {
 	var baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
     var files;
     var deep_eq = assert.deepEqual;
-    assert.deepEqual = function(a, b) {
+    assert.deepEqual = function(a, b, message) {
         // Compare array objects that have extra properties as simple arrays
         if (Array.isArray(a) && Array.isArray(b)) {
-            if (a === b) return true;
-            if (a.length !== b.length) return false;
-            for(var i=0; i < a.length; i++) if (!assert.deepEqual(a[i], b[i])) return false;
-            return true;
-        }
-        return deep_eq(a, b);
+            if (a === b) return;
+            if (a.length !== b.length) throw new assert.AssertionError({actual:a, expected:b, operator:'deepEqual', stackStartFunction:assert.deepEqual});
+            for(var i=0; i < a.length; i++) assert.deepEqual(a[i], b[i]);
+        } else return deep_eq(a, b, message);
     };
 
     if (argv.files.length) {
