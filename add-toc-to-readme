@@ -1,0 +1,2 @@
+#!/bin/sh
+exec node_modules/doctoc/doctoc.js --title '**Contents**' README.md

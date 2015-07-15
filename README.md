@@ -4,7 +4,52 @@ RapydScript
 [![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.png)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
 
 This is a fork of the original RapydScript that adds many new (not always
-backwards compatible) changes. For a list of changes, [see the bottom of this file](#user-content-changes-in-this-fork-compared-to-atsepkovrapydscript)
+backwards compatible) changes. For a list of changes, [see the bottom of this file](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Contents**
+
+- [What is RapydScript?](#what-is-rapydscript)
+- [Installation](#installation)
+- [Compilation](#compilation)
+- [Getting Started](#getting-started)
+- [Leveraging other APIs](#leveraging-other-apis)
+- [Anonymous Functions](#anonymous-functions)
+- [Decorators](#decorators)
+- [Self-Executing Functions](#self-executing-functions)
+- [Chaining Blocks](#chaining-blocks)
+- [Function calling with optional arguments](#function-calling-with-optional-arguments)
+- [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
+- [Operators and keywords](#operators-and-keywords)
+- [Literal JavaScript](#literal-javascript)
+- [Lists](#lists)
+- [Loops](#loops)
+- [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
+- [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
+- [Classes](#classes)
+  - [External Classes](#external-classes)
+  - [Method Binding](#method-binding)
+- [Iterators](#iterators)
+- [Generators](#generators)
+- [Modules](#modules)
+- [Exception Handling](#exception-handling)
+- [Scope Control](#scope-control)
+- [Available Libraries](#available-libraries)
+- [Linter](#linter)
+- [Advanced Usage Topics](#advanced-usage-topics)
+  - [Browser Compatibility](#browser-compatibility)
+    - [Tabs vs Spaces](#tabs-vs-spaces)
+    - [Semi-Colons](#semi-colons)
+    - [Raw JavaScript](#raw-javascript)
+    - [jQuery-wrapped Elements](#jquery-wrapped-elements)
+    - [Libraries](#libraries)
+    - [External Libraries and Classes](#external-libraries-and-classes)
+- [Gotchas](#gotchas)
+- [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 What is RapydScript?
 --------------------
