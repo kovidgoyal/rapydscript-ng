@@ -1755,8 +1755,7 @@ def parse($TEXT, options):
                     or tmp_ == "getattr"
                     or tmp_ == "setattr"
                     or tmp_ == "hasattr"
-                    or tmp_ == 'iter'
-                    or tmp_ == 'list':
+                    or tmp_ == 'iter':
                         baselib_items[tmp_] = True
                         # NOTE: there is intentionally no return here, we want these functions to go through regular logic
                         # after they trigger the appropriate baselib flag

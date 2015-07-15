@@ -1,0 +1,178 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# globals:_$rapyd$_iterator_symbol
+
+def _$rapyd$_list_extend(iterable):
+    if Array.isArray(iterable) or type(iterable) == 'string':
+        # Allocate all new memory in one operation
+        start = this.length
+        this.length += iterable.length
+        for JS('var i = 0; i < iterable.length; i++'):
+            this[start + i] = iterable[i]  # noqa:undef
+    else:
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        result = iterator.next()
+        while not result.done:
+            this.push(result.value)
+            result = iterator.next()
+
+def _$rapyd$_list_index(val, start, stop):
+    start = start or 0
+    if start < 0:
+        start = this.length + start
+    if start < 0:
+        raise ValueError(val + ' is not in list')
+    if stop is undefined:
+        idx = this.indexOf(val, start)
+        if idx == -1:
+            raise ValueError(val + ' is not in list')
+        return idx
+    if stop < 0:
+        stop = this.length + stop
+    for JS('var i = start; i < stop; i++'):
+        if this[i] == val:
+            return i  # noqa:undef
+    raise ValueError(val + ' is not in list')
+
+def _$rapyd$_list_pop(index):
+    if this.length == 0:
+        raise IndexError('list is empty')
+    ans = this.splice(index, 1)
+    if not ans.length:
+        raise IndexError('pop index out of range')
+    return ans[0]
+
+def _$rapyd$_list_remove(value):
+    idx = this.indexOf(value)
+    if idx == -1:
+        raise ValueError(value + ' not in list')
+    this.splice(idx, 1)
+
+def _$rapyd$_list_to_string():
+    return '[' + this.join(', ') + ']'
+
+def _$rapyd$_list_insert(index, val):
+    if index < 0:
+        index += this.length
+    index = min(this.length, max(index, 0))
+    if index == 0:
+        this.unshift(val)
+        return
+    for JS('var i = this.length; i > index; i--'):
+        this[i] = this[i - 1]  # noqa:undef
+    this[index] = val
+
+def _$rapyd$_list_copy():
+    return _$rapyd$_list_constructor(this)
+
+def _$rapyd$_list_clear():
+    this.length = 0
+
+def _$rapyd$_list_as_array():
+    return Array.prototype.slice.call(this)
+
+def _$rapyd$_list_count(value):
+    return this.reduce(def(n, val): return n + (val == value);, 0)
+
+def _$rapyd$_list_sort_key(value):
+    t = type(value)
+    if t == 'string' or t == 'number':
+        return value
+    return value.toString()
+
+def _$rapyd$_list_sort_cmp(a, b):
+    if a < b:
+        return -1
+    if a > b:
+        return 1
+    return 0
+
+def _$rapyd$_list_sort(key=None, reverse=False):
+    key = key or _$rapyd$_list_sort_key
+    mult = (reverse) ? -1 : 1
+    # TODO: Re-implement this with dict() so that it actually works for arbitrary objects
+    keymap = {}
+    for JS('var i=0; i < this.length; i++'):
+        k = this[i]  # noqa:undef
+        keymap[k] = key(k)
+    this.sort(def (a, b): return mult * _$rapyd$_list_sort_cmp(keymap[a], keymap[b]);)
+
+def _$rapyd$_list_concat():  # ensure concat() returns an object of type list
+    ans = Array.prototype.concat.apply(this, arguments)
+    _$rapyd$_list_decorate(ans)
+    return ans
+
+def _$rapyd$_list_slice():  # ensure slice() returns an object of type list
+    ans = Array.prototype.slice.apply(this, arguments)
+    _$rapyd$_list_decorate(ans)
+    return ans
+
+def _$rapyd$_list_iterator(value):
+    self = this
+    return {
+        '_i':-1,
+        '_list':self,
+        'next':def():
+            this._i += 1
+            if this._i >= this._list.length:
+                return {'done':True}
+            return {'done':False, 'value':this._list[this._i]}
+        ,
+    }
+
+def _$rapyd$_list_len():
+    return this.length
+
+def _$rapyd$_list_contains(val):
+    return this.indexOf(val) != -1
+
+def _$rapyd$_list_decorate(ans):
+    ans.append = Array.prototype.push
+    ans.toString = _$rapyd$_list_to_string
+    ans.inspect = _$rapyd$_list_to_string
+    ans.extend = _$rapyd$_list_extend
+    ans.index = _$rapyd$_list_index
+    ans.pypop = _$rapyd$_list_pop
+    ans.remove = _$rapyd$_list_remove
+    ans.insert = _$rapyd$_list_insert
+    ans.copy = _$rapyd$_list_copy
+    ans.clear = _$rapyd$_list_clear
+    ans.count = _$rapyd$_list_count
+    ans.concat = _$rapyd$_list_concat
+    ans.pysort = _$rapyd$_list_sort
+    ans.slice = _$rapyd$_list_slice
+    ans.as_array = _$rapyd$_list_as_array
+    ans.__len__ = _$rapyd$_list_len
+    ans.__contains__ = _$rapyd$_list_contains
+    ans.constructor = _$rapyd$_list_constructor
+    if type(ans[_$rapyd$_iterator_symbol]) != 'function':
+        # Happens on ES 5 runtimes
+        ans[_$rapyd$_iterator_symbol] = _$rapyd$_list_iterator
+    return ans
+
+def _$rapyd$_list_constructor(iterable):
+    if iterable == undefined:
+        ans = []
+    elif Array.isArray(iterable) or type(iterable) == 'string':
+        ans = new Array(iterable.length)
+        for JS('var i = 0; i < iterable.length; i++'):
+            ans[i] = iterable[i]  # noqa:undef
+    elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        ans = []
+        result = iterator.next()
+        while not result.done:
+            ans.push(result.value)
+            result = iterator.next()
+    elif type(iterable) == 'number':
+        # non-pythonic optimization to allocate all needed memory in a single operation
+        ans = new Array(iterable)
+    else:
+        ans = Object.keys(iterable)
+    return _$rapyd$_list_decorate(ans)
+_$rapyd$_list_constructor.__name__ = 'list'
+
+JS('var list = _$rapyd$_list_constructor')
+JS('var list_wrap = _$rapyd$_list_decorate')

@@ -476,49 +476,23 @@ b = tmp[1]
 ```
 
 
-Python vs JavaScript
---------------------
-RapydScript allows you to use both, Python and JavaScript names for the methods. For example, we can 'push()' a value to array, as well as 'append()' it:
+Operators and keywords
+------------------------
 
-```py
-arr = []
-arr.push(2)
-arr.append(4)
-print(arr) # outputs [2,4]
-```
+RapydScript uses the python form for operators and keywords. Below is the
+mapping from RapydScript to JavaScript.
 
-In order to use Python's methods, you will have to include RapydScript's stdlib.js. There are two ways of doing this. One is by adding the following line in your html page:
-
-```html
-<script type="text/javascript" src='stdlib.js'></script>
-```
-
-The other way is to include the following line at the top of your main RapydScript file:
-
-```py
-import stdlib
-```
-
-The advantage of the second method is that the library will automatically be pulled in without having to manually copy it over into your JavaScript directory. 
-In order to simulate Python-like methods, I had to bastardize a couple of JavaScript's own methods. For example, array.pop() has been overwritten to work like Python's pop() (or JavaScript's splice()):
-
-```py
-arr.pop()		# removes last element (expected behavior in JavaScript and Python)
-arr.pop(2)		# removes third element (expected behavior in Python, but not JavaScript)
-arr.splice(2,1) # removes third element (expected behavior in JavaScript, but not Python)
-```
-
-There is a subtle difference between the last 2 lines above, arr.pop(2) will return a single element, arr.splice(2,1) will return an array containing that single element. Most of the keywords are interchangeable as well:
+Keywords:
 
 	RapydScript		JavaScript
 	
-	None/null		null
-	False/false		false
-	True/true		true
+	None			null
+	False			false
+	True			true
 	undefined		undefined
 	this			this
 
-The JavaScript operators, however, are not supported. You will have to use Python versions of those. If you're unfamiliar with them, here is the mapping RapydScript uses:
+Operators:
 
 	RapydScript		JavaScript
 	
@@ -533,13 +507,9 @@ The JavaScript operators, however, are not supported. You will have to use Pytho
 	
 Admittedly, `is` is not exactly the same thing in Python as `===` in JavaScript, but JavaScript is quirky when it comes to comparing objects anyway.
 
-You may also be interested in `deep_eq` function, which is part of `stdlib`. It performs deep equality test on two objects, and works on any types, including hashes and arrays:
 
-```py
-deep_eq([1,2,3], [1,[2,3]])		# False
-deep_eq([[1,2],3], [1,[2,3]])	# False
-deep_eq([1,[2,3]], [1,[2,3]])	# True
-```
+Literal JavaScript
+-----------------------
 
 In rare cases RapydScript might not allow you to do what you need to, and you need access to pure JavaScript. When that's the case, you can wrap your JavaScript in a string, passing it to JS() method. Code inside JS() method is not a sandbox, you can still interact with it from normal RapydScript:
 
@@ -548,20 +518,32 @@ JS('a = {foo: "bar", baz: 1};')
 print(a.foo)	# prints "bar"
 ```
 
-One other topic I debated for a while is handling of conditionals. In Python, if you wanted a one-liner conditional that gets assigned to a variable, you would write something like this:
+Note that as a convenience, RapydScript supports both the Python and JavaScript
+forms for the conditional ternary operator. Namely, both the following work:
 
-	foo = bar if baz else 10
+```js
+a = (condition) ? 1 : 2
+a = 1 if condition else 2
+```
 
-In JavaScript, the equivalent logic would be written as follows:
+Lists
+------
 
-	var foo = baz ? bar : 10
+Lists in RapydScript are almost identical to lists in Python, but are also
+native JavaScript arrays. The only small caveats are that the ``sort()`` and
+``pop()`` methods are renamed to ``pysort()`` and ``pypop()``. This is so that
+you can pass RapydScript lists to external JavaScript libraries without any
+conflicts. Note that even list literals in RapydScript create python like list
+objects, and you can also use the builtin ``list()`` function to create lists
+from other iterable objects, just as you would in python.  You can create a
+RapydScript list from a plain native JavaScript array by using the ``list_wrap()``
+function, like this:
 
-RapydScript supports both syntaxes.
-
-Which one looks cleaner is subject to personal preference (I'm used to seeing condition first in most of the `if` statements, so the second way makes more sense to me). But where the second approach wins is when dealing with anonymous functions. Indeed, Python doesn't have to handle them, yet RapydScript does. This also allows me to assign functions here, same way as JavaScript would:
-
-	foo = baz ? def(): return bar; : def(): return 10
-
+```py
+a = JS('[1, 2]')
+pya = list_wrap(a)
+# Now pya is a python like list object that satisfies pya === a
+```
 
 Loops
 -----
@@ -1315,7 +1297,10 @@ This list below records all the work I have done on RapydScript so far.
 
 1. Add a builtin list type that functions like Python's list type, except that
    it create JavaScript Array object. You can pass any iterable to list and use
-   it in isinstance() just as you would in python.
+   it in isinstance() just as you would in python. Furthermore, all
+   arrays/lists in RapydScript gehave just like pythons lists, with all the
+   same methods and properties. This applies both to list literals as well as
+   the return value of the ``list()`` function.
 
 1. Support set literals
 

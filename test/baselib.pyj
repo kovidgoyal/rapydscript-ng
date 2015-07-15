@@ -1,4 +1,5 @@
 # vim:fileencoding=utf-8
+# globals: _$rapyd$_iterator_symbol
 
 class CustomIterable:
 
@@ -69,3 +70,58 @@ assert.deepEqual(list(map(def(a):return a*2;, iter([1, 2]))), [2, 4])
 assert.deepEqual(list(filter(def(a):return a > 1;, [1, 2])), [2])
 assert.deepEqual(list(filter(def(a):return a > 1;, iter([1, 2]))), [2])
 assert.deepEqual(list(zip([1,2], [3,4])), [[1,3], [2, 4]])
+
+# lists
+a = [1, 2]
+a.extend([3, 4])
+assert.deepEqual(a, [1,2,3,4])
+s = new Set([5, 6])
+a.extend(s)
+assert.deepEqual(a, [1,2,3,4,5,6])
+a.extend('12')
+assert.deepEqual(a, [1,2,3,4,5,6,'1','2'])
+a = [1,2,3,4]
+for index, val in [[0, 1], [1, 2], [3, 4]]:
+    assert.equal(a.index(val), index)
+assert.throws(def():a.index(8);, ValueError)
+assert.throws(def():a.index(1, 1);, ValueError)
+assert.throws(def():a.index(4, 1, 2);, ValueError)
+assert.equal(1, a.index(2, 1, 2))
+assert.throws(def():a.pypop(10);, IndexError)
+assert.equal(a.pypop(-1), 4)
+assert.deepEqual(a, [1,2,3])
+assert.equal(a.remove(2), None)
+assert.deepEqual(a, [1, 3])
+assert.throws(def():a.remove(2);, ValueError)
+a = [1,2]
+a.insert(0, 0)
+assert.deepEqual(a, [0, 1, 2])
+a.insert(-1, 3)
+assert.deepEqual(a, [0, 1, 3, 2])
+a.insert(a.length, 6)
+assert.deepEqual(a, [0, 1, 3, 2, 6])
+assert.deepEqual(a.copy(), a)
+assert.ok(a != a.copy())
+assert.ok(a.copy().extend != undefined)
+a.clear()
+assert.equal(a.length, 0)
+assert.deepEqual(a.as_array(), a)
+assert.ok(a != a.as_array())
+assert.ok(a.as_array().extend == undefined)
+a = [1, 2, 1]
+assert.equal(a.count(1), 2)
+a = [3, 2, 4, 1]
+a.pysort()
+assert.deepEqual(a, [1,2,3,4])
+a.pysort(reverse=True)
+assert.deepEqual(a, [4,3,2,1])
+assert.deepEqual(a, a.slice())
+assert.ok(a != a.slice())
+assert.ok(a.slice().extend != undefined)
+assert.deepEqual(a, a.concat())
+assert.ok(a != a.concat())
+assert.ok(a.concat().extend != undefined)
+assert.deepEqual(list(a[_$rapyd$_iterator_symbol]()), a)
+assert.equal(a.length, a.__len__())
+assert.equal(a.length, len(a))
+assert.ok(a.__contains__(a[0]))

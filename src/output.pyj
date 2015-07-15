@@ -338,6 +338,7 @@ def OutputStream(options):
         end_statement()
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
+        baselib_items['containers'] = True
         deps = options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
@@ -2166,18 +2167,21 @@ def codegen():
 
     # -----[ literals ]-----
     DEFPRINT(AST_Array, def(self, output):
-        output.with_square(def():
-            a = self.elements
-            len_ = a.length
-            if len_ > 0:
-                output.space()
-            a.forEach(def(exp, i):
-                if i:
-                    output.comma()
-                exp.print(output)
+        output.print('_$rapyd$_list_decorate')
+        output.with_parens(def():
+            output.with_square(def():
+                a = self.elements
+                len_ = a.length
+                if len_ > 0:
+                    output.space()
+                a.forEach(def(exp, i):
+                    if i:
+                        output.comma()
+                    exp.print(output)
+                )
+                if len_ > 0:
+                    output.space()
             )
-            if len_ > 0:
-                output.space()
         )
     )
     DEFPRINT(AST_ExpressiveObject, def(self, output):
