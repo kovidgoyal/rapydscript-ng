@@ -38,7 +38,7 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 - [Available Libraries](#available-libraries)
 - [Linter](#linter)
 - [Advanced Usage Topics](#advanced-usage-topics)
-  - [Browser Compatibility](#browser-compatibility)
+    - [Browser Compatibility](#browser-compatibility)
     - [Tabs vs Spaces](#tabs-vs-spaces)
     - [Semi-Colons](#semi-colons)
     - [Raw JavaScript](#raw-javascript)
@@ -1178,7 +1178,7 @@ Advanced Usage Topics
 ---------------------
 This section contains various topics which might be of interest to the programmer writing large projects using RapydScript, but might not be relevant to a programmer who is just getting started with RapydScript. The topics in this section focus on coding conventions to keep your code clean, optimizations, and additional libraries that come with RapydScript, as well as suggestions for writing your own libraries.
 
-### Browser Compatibility
+#### Browser Compatibility
 RapydScript compiles your code such that it will work on browsers that are
 compatible with the ES 5 JavaScript standard. The compiler has a 
 ``--js-version`` option that can also be used to output ES 6 only code. This
