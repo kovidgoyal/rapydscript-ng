@@ -458,41 +458,6 @@ AST_If = DEFNODE("If", "condition alternative", {
         )
 }, AST_StatementWithBody)
 
-# -----[ SWITCH ]-----
-AST_Switch = DEFNODE("Switch", "expression", {
-    '$documentation': "A `switch` statement",
-    '$propdoc': {
-        'expression': "[AST_Node] the `switch` “discriminant”"
-    },
-    '_walk': def(visitor):
-        node = this
-        return visitor._visit(node, def():
-            node.expression._walk(visitor)
-            walk_body(node, visitor)
-        )
-}, AST_Block)
-
-AST_SwitchBranch = DEFNODE("SwitchBranch", None, {
-    '$documentation': "Base class for `switch` branches"
-}, AST_Block)
-
-AST_Default = DEFNODE("Default", None, {
-    '$documentation': "A `default` switch branch"
-}, AST_SwitchBranch)
-
-AST_Case = DEFNODE("Case", "expression", {
-    '$documentation': "A `case` switch branch",
-    '$propdoc': {
-        'expression': "[AST_Node] the `case` expression"
-    },
-    '_walk': def(visitor):
-        node = this
-        return visitor._visit(node, def():
-            node.expression._walk(visitor)
-            walk_body(node, visitor)
-        )
-}, AST_SwitchBranch)
-
 # -----[ EXCEPTIONS ]-----
 AST_Try = DEFNODE("Try", "bcatch bfinally", {
     '$documentation': "A `try` statement",

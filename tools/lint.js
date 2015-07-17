@@ -385,7 +385,7 @@ function Linter(toplevel, filename, code, options) {
         this.current_node = node;
         var scope_count = this.scopes.length;
         var branch_count = this.branches.length;
-        if (node instanceof RapydScript.AST_If || node instanceof RapydScript.AST_Switch || node instanceof RapydScript.AST_Try || node instanceof RapydScript.AST_Catch || node instanceof RapydScript.AST_Except) {
+        if (node instanceof RapydScript.AST_If || node instanceof RapydScript.AST_Try || node instanceof RapydScript.AST_Catch || node instanceof RapydScript.AST_Except) {
             this.branches.push(1);
         }
 
