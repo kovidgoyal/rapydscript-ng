@@ -272,7 +272,7 @@ def parse($TEXT, options):
 
         body        body to be scanned
         """
-        localvars = []
+        localvars = JS('[]')
         seen = {}
 
         def push(x):
@@ -348,7 +348,7 @@ def parse($TEXT, options):
         return localvars
 
     def scan_for_nonlocal_defs(body):
-        vars = []
+        vars = JS('[]')
         if Array.isArray(body):
             for stmt in body:
                 if isinstance(stmt, AST_Scope):
@@ -927,7 +927,7 @@ def parse($TEXT, options):
         if not ctor:
             ctor = in_class ? AST_Method : AST_Function
 
-        is_generator = []
+        is_generator = JS('[]')
         definition = new ctor({
             'name': name,
             'argnames': def(a):
@@ -982,16 +982,16 @@ def parse($TEXT, options):
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
                 return a
-            .call(this, []),
+            .call(this, JS('[]')),
             'localvars': [],
             'decorators': def():
-                d = []
+                d = JS('[]')
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
                         'name': decorator
                     }))
                 )
-                S.decorators = []
+                S.decorators = JS('[]')
                 return d
             .call(this),
             'body': def(loop, labels):
@@ -1054,7 +1054,7 @@ def parse($TEXT, options):
 
     def block_():
         expect(":")
-        a = []
+        a = JS('[]')
         if not S.token.nlb:
             while not S.token.nlb:
                 if is_("eof"):
@@ -1305,10 +1305,10 @@ def parse($TEXT, options):
         return a
 
     def func_call_list():
-        a = []
+        a = JS('[]')
         first = True
-        a.kwargs = []
-        a.kwarg_items = kwargs = []
+        a.kwargs = JS('[]')
+        a.kwarg_items = kwargs = JS('[]')
         a.starargs = False
         while not is_("punc", ')'):
             if first:
