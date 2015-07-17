@@ -1,0 +1,21 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def _$rapyd$_bool(val):
+    t = type(val)
+    if t == 'string' or t == 'number':
+        return JS('!!val')
+    if Array.isArray(val):
+        return val.length > 0
+    if t == 'boolean':
+        return val
+    if val == undefined or val is None:
+        return False
+    if type(val.__bool__) == 'function':
+        return val.__bool__()
+    if type(val.__len__) == 'function':
+        return val.__len__() > 0
+    return JS('!!val')
+
+JS('var bool = _$rapyd$_bool')

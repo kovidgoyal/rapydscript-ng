@@ -339,6 +339,7 @@ def OutputStream(options):
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
         baselib_items['containers'] = True
+        baselib_items['truth'] = True
         deps = options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
@@ -449,7 +450,6 @@ def codegen():
     SPECIAL_METHODS = {
         'bind': "_$rapyd$_bind",
         'rebind_all': "_$rapyd$_rebind_all",
-        'bool': "!!",
         "float": "parseFloat",
         "int": "parseInt",
         'mixin': "_$rapyd$_mixin",
