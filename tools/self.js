@@ -10,6 +10,7 @@ var path = require('path');
 var crypto = require('crypto');
 var fs = require('fs');
 var vm = require('vm');
+var zlib = require('zlib');
 
 function read_baselib_modules(RapydScript, src_path, lib_path) {
     var items = fs.readdirSync(src_path).filter(function(name) {
@@ -135,7 +136,9 @@ function compile(src_path, lib_path, sources, source_hash) {
         var output = RapydScript.OutputStream({'private_scope':false, 'write_name':false, 'baselib':baselib,
             'beautify':which === 'pretty'});
         ast.print(output);
-        fs.writeFileSync(path.join(lib_path, 'baselib-plain-' + which + '.js'), output.get(), 'utf-8');
+        var raw = output.get();
+        console.log('Entire baselib ('+which+') is: ' + zlib.deflateSync(raw).length + ' bytes gzipped and: ' + raw.length + ' bytes uncompressed');
+        fs.writeFileSync(path.join(lib_path, 'baselib-plain-' + which + '.js'), raw, 'utf-8');
     }
 
     try {
