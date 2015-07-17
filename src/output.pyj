@@ -728,7 +728,7 @@ def codegen():
 
         if isinstance(node, AST_Scope):
             # if function takes any arguments
-            if node.argnames != undefined:
+            if node.argnames:
                 # If this function has optional parameters/*args/**kwargs declare it differently
                 if node.argnames.is_simple_func != True:
                     a = node.argnames
@@ -756,9 +756,9 @@ def codegen():
                                               kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
                             output.print('arguments[' + i + ']')
                             output.end_statement()
-                    if a.kwargs != undefined or a.has_defaults:
+                    if a.kwargs or a.has_defaults:
                         # Look for an options object
-                        kw = (a.kwargs != undefined) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
+                        kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
                         output.indent()
                         output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
                         output.end_statement()
@@ -775,7 +775,7 @@ def codegen():
                                     output.indent()
                                     output.spaced(dname, '=', kw + '.' + dname)
                                     output.end_statement()
-                                    if a.kwargs != undefined:
+                                    if a.kwargs:
                                         output.indent()
                                         output.spaced('delete', kw + '.' + dname)
                                         output.end_statement()
@@ -1034,15 +1034,6 @@ def codegen():
         pass
     )
 
-    def write_condition(output, condition):
-        if isinstance(condition, AST_Constant):
-            # Optimization to avoid function call when checking on a literal
-            # also causes JS() output to not be passed into _$rapyd$_bool
-            condition.print(output)
-        else:
-            output.print('_$rapyd$_bool')
-            output.with_parens(def(): condition.print(output);)
-
     DEFPRINT(AST_Do, def(self, output):
         output.print("do")
         output.space()
@@ -1050,14 +1041,14 @@ def codegen():
         output.space()
         output.print("while")
         output.space()
-        output.with_parens(def(): write_condition(output, self.condition);)
+        output.with_parens(def(): self.condition.print(output);)
         output.semicolon()
     )
 
     DEFPRINT(AST_While, def(self, output):
         output.print("while")
         output.space()
-        output.with_parens(def(): write_condition(output, self.condition);)
+        output.with_parens(def(): self.condition.print(output);)
         output.space()
         self._do_print_body(output)
     )
@@ -1351,7 +1342,7 @@ def codegen():
                         output.indent()
                         output.print("if")
                         output.space()
-                        output.with_parens(def(): write_condition(output, self.condition);)
+                        output.with_parens(def(): self.condition.print(output);)
                         output.space()
                         output.with_block(def():
                             add_to_result()
@@ -1650,7 +1641,7 @@ def codegen():
     DEFPRINT(AST_If, def(self, output):
         output.print("if")
         output.space()
-        output.with_parens(def(): write_condition(output, self.condition);)
+        output.with_parens(def(): self.condition.print(output);)
         output.space()
         if self.alternative:
             make_then(self, output)
@@ -1810,8 +1801,8 @@ def codegen():
         if isinstance(self, AST_New) and no_constructor_parens(self, output):
             return
 
-        has_kwarg_items = bool(self.args.kwarg_items)
-        has_kwarg_formals = bool(self.args.kwargs)
+        has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
+        has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
         has_kwargs = has_kwarg_items or has_kwarg_formals
 
         output_kwargs = def():
@@ -1975,14 +1966,10 @@ def codegen():
     )
     DEFPRINT(AST_UnaryPrefix, def(self, output):
         op = self.operator
-        if op == '!':
-            output.print('!')
-            output.with_parens(def(): write_condition(output, self.expression);)
-        else:
-            output.print(op)
-            if /^[a-z]/i.test(op):
-                output.space()
-            self.expression.print(output)
+        output.print(op)
+        if /^[a-z]/i.test(op):
+            output.space()
+        self.expression.print(output)
     )
     DEFPRINT(AST_UnaryPostfix, def(self, output):
         self.expression.print(output)
@@ -2007,28 +1994,6 @@ def codegen():
             )
         else:
             single(left, right)
-
-    def write_boolean_operator(output, op):
-        condition = op.left
-        is_or = op.operator == '||'
-        consequent, alternative = [op.left, op.right] if is_or else [op.right, op.left]
-        if not isinstance(condition, (AST_Symbol, AST_Constant)):
-            # Cache the result of the left expression
-            orig = condition
-            condition = {}
-            condition.print = def(output):
-                output.print('_$rapyd$_bool')
-                output.with_parens(def():
-                    output.assign('_$rapyd$_cond_temp')
-                    orig.print(output)
-                )
-            if is_or:
-                consequent = {}
-                consequent.print = def(output): output.print('_$rapyd$_cond_temp')
-            else:
-                alternative = {}
-                alternative.print = def(output): output.print('_$rapyd$_cond_temp')
-        write_conditional(output, condition, consequent, alternative)
 
     DEFPRINT(AST_Binary, def(self, output):
         comparators = {
@@ -2078,10 +2043,6 @@ def codegen():
             output.print(self.operator)
             output.space()
             self.right.print(output)
-        elif self.operator == '&&':
-            write_boolean_operator(output, self)
-        elif self.operator == '||':
-            write_boolean_operator(output, self)
         elif self.operator == '//':
             output.print('Math.floor')
             output.with_parens(def():

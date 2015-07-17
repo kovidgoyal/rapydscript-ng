@@ -957,13 +957,13 @@ def parse($TEXT, options):
                     elif is_('operator', '*'):
                         # *args
                         next()
-                        if a.starargs != undefined:
+                        if a.starargs:
                             token_error(prev(), "Can't define multiple *args in function definition")
                         if a.kwargs:
                             token_error(prev(), "Can't define *args after **kwargs in function definition")
                         a.starargs = get_arg()
                     else:
-                        if a.starargs != undefined or a.kwargs != undefined:
+                        if a.starargs or a.kwargs:
                             token_error(prev(), "Can't define a formal parameter after *args or **kwargs")
                         a.push(get_arg())
                         if is_("operator", "="):
@@ -980,7 +980,7 @@ def parse($TEXT, options):
                 next()
                 S.in_parenthesized_expr = False
                 a.defaults = defaults
-                a.is_simple_func = a.starargs == undefined and a.kwargs == undefined and not a.has_defaults
+                a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
                 return a
             .call(this, []),
             'localvars': [],
