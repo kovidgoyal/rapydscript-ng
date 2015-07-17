@@ -24,6 +24,10 @@ from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
+BASELIB_ITEMS = {'dir', 'enumerate', 'range', 'reversed', 'getattr', 'setattr', 'hasattr', 'iter',
+                 'len', 'abs', 'max', 'min', 'sum', 'map', 'zip', 'filter'}
+BASELIB_FUNCS = {'len', 'abs', 'max', 'min'}
+BASELIB_ITERTOOLS = {'sum', 'map', 'zip', 'filter'}
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -1652,17 +1656,15 @@ def parse($TEXT, options):
                 elif isinstance(expr, AST_SymbolRef):
                     tmp_ = expr.name
                     # special functions that trigger addition of extra logic to generated JavaScript
-                    if tmp_ == "dir"
-                    or tmp_ == "enumerate"
-                    or tmp_ == "range"
-                    or tmp_ == "reversed"
-                    or tmp_ == "getattr"
-                    or tmp_ == "setattr"
-                    or tmp_ == "hasattr"
-                    or tmp_ == 'iter':
-                        baselib_items[tmp_] = True
+                    if BASELIB_ITEMS.has(tmp_):
                         # NOTE: there is intentionally no return here, we want these functions to go through regular logic
                         # after they trigger the appropriate baselib flag
+                        if BASELIB_FUNCS.has(tmp_):
+                            baselib_items[tmp_ + '()'] = True
+                        elif BASELIB_ITERTOOLS.has(tmp_):
+                            baselib_items['itertools'] = True
+                        else:
+                            baselib_items[tmp_] = True
                     elif tmp_ == "type":
                         ret = new AST_UnaryPrefix({
                             'start': start,
@@ -1685,16 +1687,6 @@ def parse($TEXT, options):
                         })
                         S.in_parenthesized_expr = False
                         return ret
-                    elif tmp_ == 'len'
-                    or tmp_ == 'abs'
-                    or tmp_ == 'max'
-                    or tmp_ == 'min':
-                        baselib_items[tmp_ + '()'] = True
-                    elif tmp_ == "sum"
-                    or tmp_ == "map"
-                    or tmp_ == "zip"
-                    or tmp_ == "filter":
-                        baselib_items['itertools'] = True
 
                 # fall-through to basic function call
                 ret = subscripts(new AST_Call({
