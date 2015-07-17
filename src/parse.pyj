@@ -1535,7 +1535,6 @@ def parse($TEXT, options):
 
             if is_("punc", ":"):
                 # slice [n:m:o?]
-                baselib_items["eslice"] = True
                 next()
                 if is_("punc", "]"):
                     unexpected()
@@ -1571,7 +1570,7 @@ def parse($TEXT, options):
                     return subscripts(new AST_Call({
                         'start': start,
                         'expression': new AST_SymbolRef({
-                            'name': "eslice"
+                            'name': "_$rapyd$_eslice"
                         }),
                         'args': [expr].concat(slice_bounds),
                         'end': prev()
@@ -1653,12 +1652,8 @@ def parse($TEXT, options):
                 elif isinstance(expr, AST_SymbolRef):
                     tmp_ = expr.name
                     # special functions that trigger addition of extra logic to generated JavaScript
-                    if tmp_ == "bind"
-                    or tmp_ == "rebind_all"
-                    or tmp_ == "dir"
+                    if tmp_ == "dir"
                     or tmp_ == "enumerate"
-                    or tmp_ == "mixin"
-                    or tmp_ == "print"
                     or tmp_ == "range"
                     or tmp_ == "reversed"
                     or tmp_ == "getattr"

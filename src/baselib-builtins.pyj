@@ -1,0 +1,63 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def _$rapyd$_bool(val):
+    # We have to ensure that we dont use _$rapyd$_bool itself here to avoid
+    # infinite recursion, so we wrap all conditionals in JS()
+    if JS("val == undefined"):  # this catches both undefined and null
+        return False
+    if JS('Array.isArray(val)'):
+        return val.length > 0
+    func = None
+    if JS('typeof (func = val.__bool__) === "function"'):
+        return func()
+    if JS('typeof (func = val.__len__) === "function"'):
+        return func() > 0
+    return JS('!!val')
+
+def _$rapyd$_bind(fn, thisArg):
+    if fn.orig: fn = fn.orig
+    if thisArg == False: return fn
+    ret = def():
+        return fn.apply(thisArg, arguments)
+    ret.orig = fn
+    return ret
+
+def _$rapyd$_rebind_all(thisArg, rebind):
+    if JS('typeof rebind') == "undefined": rebind = True
+    for JS('var p in thisArg'):
+        if thisArg[p] and thisArg[p].orig:
+            if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
+            else: thisArg[p] = thisArg[p].orig  # noqa:undef
+
+def _$rapyd$_eslice(arr, step, start, end):
+    arr = arr[:]
+    if type(arr) == 'string' or isinstance(arr, String):
+        isString = True
+        arr = arr.split('')
+
+    if step < 0:
+        step = -step
+        arr.reverse()
+        if type(start) != "undefined": start = arr.length - start - 1
+        if type(end) != "undefined": end = arr.length - end - 1
+    if type(start) == "undefined": start = 0
+    if type(end) == "undefined": end = arr.length
+
+    arr = arr.slice(start, end).filter(def(e, i): return i % step == 0;)
+    return isString ? arr.join('') : arr
+
+def _$rapyd$_mixin(target, source, overwrite):
+    for JS('var i in source'):
+        if source.hasOwnProperty(i) and overwrite or JS('typeof target[i]') == 'undefined':  # noqa:undef
+            target[i] = source[i]  # noqa:undef
+
+def _$rapyd$_print():
+    if JS('typeof console') == 'object':
+        JS('console.log.apply(console, arguments)')
+
+
+JS('var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all')
+JS('var float = parseFloat, int = parseInt, rebind_all = _$rapyd$_rebind_all')
+JS('var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice')

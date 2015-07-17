@@ -340,7 +340,7 @@ def OutputStream(options):
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
         baselib_items['containers'] = True
-        baselib_items['truth'] = True
+        baselib_items['builtins'] = True
         deps = options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
@@ -448,15 +448,6 @@ def OutputStream(options):
 # -----[ code generators ]-----
 def codegen():
     # -----[ utils ]-----
-    SPECIAL_METHODS = {
-        'bind': "_$rapyd$_bind",
-        'rebind_all': "_$rapyd$_rebind_all",
-        "float": "parseFloat",
-        "int": "parseInt",
-        'mixin': "_$rapyd$_mixin",
-        'print': "_$rapyd$_print",
-        'eslice': "_$rapyd$_eslice",
-    }
     def DEFPRINT(nodetype, generator):
         nodetype.DEFMETHOD("_codegen", generator)
 
@@ -1814,12 +1805,7 @@ def codegen():
                 output.print(".call")
         else:
             # regular function call
-            rename = SPECIAL_METHODS.hasOwnProperty(self.expression.name) ? SPECIAL_METHODS[self.expression.name] : undefined
-            if rename:
-                # this is a special baselib function
-                output.print(rename)
-            else:
-                self.expression.print(output)
+            self.expression.print(output)
 
         if isinstance(self, AST_New) and no_constructor_parens(self, output):
             return

@@ -12,21 +12,6 @@ def max():
 def min():
     return Math.min
 
-def _$rapyd$_bind(fn, thisArg):
-    if fn.orig: fn = fn.orig
-    if thisArg == False: return fn
-    ret = def():
-        return fn.apply(thisArg, arguments)
-    ret.orig = fn
-    return ret
-
-def _$rapyd$_rebind_all(thisArg, rebind):
-    if JS('typeof rebind') == "undefined": rebind = True
-    for JS('var p in thisArg'):
-        if thisArg[p] and thisArg[p].orig:
-            if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
-            else: thisArg[p] = thisArg[p].orig  # noqa:undef
-
 def _$rapyd$_flatten(arr):
     ans = []
     for JS('var i=0; i<arr.length; i++'):
@@ -44,23 +29,6 @@ def dir(item):
     arr = []
     for JS('var i in item'): arr.push(i)  # noqa:undef
     return arr
-
-def _$rapyd$_eslice(arr, step, start, end):
-    arr = arr[:]
-    if type(arr) == 'string' or isinstance(arr, String):
-        isString = True
-        arr = arr.split('')
-
-    if step < 0:
-        step = -step
-        arr.reverse()
-        if type(start) != "undefined": start = arr.length - start - 1
-        if type(end) != "undefined": end = arr.length - end - 1
-    if type(start) == "undefined": start = 0
-    if type(end) == "undefined": end = arr.length
-
-    arr = arr.slice(start, end).filter(def(e, i): return i % step == 0;)
-    return isString ? arr.join('') : arr
 
 def _$rapyd$_extends(child, parent):
     child.prototype = Object.create(parent.prototype)
@@ -174,15 +142,6 @@ def _$rapyd$_len():
         return Object.keys(obj).length
     )
 
-def _$rapyd$_mixin(target, source, overwrite):
-    for JS('var i in source'):
-        if source.hasOwnProperty(i) and overwrite or JS('typeof target[i]') == 'undefined':  # noqa:undef
-            target[i] = source[i]  # noqa:undef
-
-def _$rapyd$_print():
-    if JS('typeof console') == 'object':
-        console.log.apply(console, arguments)
-
 def range(start, stop, step):
     if arguments.length <= 1:
         stop = start or 0
@@ -240,19 +199,14 @@ if JS("typeof exports === 'object'"):
     exports['abs()'] = abs
     exports['max()'] = max
     exports['min()'] = min
-    exports.bind = _$rapyd$_bind
-    exports.rebind_all = _$rapyd$_rebind_all
     exports.dir = dir
     exports.enumerate = enumerate
     exports.iter = iter
-    exports.eslice = _$rapyd$_eslice
     exports.extends = _$rapyd$_extends
     exports['_$rapyd$_flatten'] = _$rapyd$_flatten
     exports['_$rapyd$_in()'] = _$rapyd$_in
     exports.iterable = _$rapyd$_Iterable
     exports['len()'] = _$rapyd$_len
-    exports.mixin = _$rapyd$_mixin
-    exports.print = _$rapyd$_print
     exports.range = range
     exports.reversed = reversed
     exports.getattr = getattr
