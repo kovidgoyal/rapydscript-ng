@@ -106,11 +106,11 @@ function check_for_changes(base_path, src_path, signatures) {
 }
 
 
-function compile(src_path, lib_path, sources, source_hash) {
+function compile(src_path, lib_path, sources, source_hash, profile) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
     var RapydScript = require('./compiler').create_compiler();
-    var output_options; 
+    var output_options, profiler, cpu_profile;
     var pretty_baselib, ugly_baselib;
     var temp = parse_baselib(RapydScript, src_path);
     pretty_baselib = temp[0]; ugly_baselib = temp[1];
@@ -142,7 +142,15 @@ function compile(src_path, lib_path, sources, source_hash) {
     }
 
     try {
+        if (profile) {
+            profiler = require('v8-profiler');
+            profiler.startProfiling();
+        }
         toplevel = parse_file(raw, file);
+        if (profile) {
+            cpu_profile = profiler.stopProfiling();
+            fs.writeFileSync('self.cpuprofile', JSON.stringify(cpu_profile), 'utf-8');
+        }
     } catch (e) {
         if (!(e instanceof RapydScript.SyntaxError)) throw e;
         console.error(e.toString());
@@ -157,21 +165,21 @@ function compile(src_path, lib_path, sources, source_hash) {
     return output;
 }
 
-function run_single_compile(base_path, src_path, lib_path) {
+function run_single_compile(base_path, src_path, lib_path, profile) {
     var signatures = path.join(lib_path, 'signatures.json');
     var temp = check_for_changes(base_path, src_path, signatures);
     var source_hash = temp[0], compiler_changed = temp[1], sources = temp[2], hashes = temp[3];
     
     if (compiler_changed) {
-        compile(src_path, lib_path, sources, source_hash);
+        compile(src_path, lib_path, sources, source_hash, profile);
         fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
     } else console.log('Compiler is built with the up-to-date version of itself');
     return compiler_changed;
 }
 
-module.exports = function compile_self(base_path, src_path, lib_path, complete) {
+module.exports = function compile_self(base_path, src_path, lib_path, complete, profile) {
     var changed;
     do {
-        changed = run_single_compile(base_path, src_path, lib_path);
+        changed = run_single_compile(base_path, src_path, lib_path, profile);
     } while (changed && complete);
 };

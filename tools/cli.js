@@ -404,6 +404,12 @@ opt("test", 't', 'bool', false, function(){/*
 Run the test suite after building completes.
 */});
 
+opt("profile", 'p', 'bool', false, function(){/*
+Run a CPU profiler which will output its data to
+self.cpuprofile. The data can then be analysed with 
+node-inspector.
+*/});
+
 var argv = module.exports.argv = parse_args();
 
 if (argv.help) {
