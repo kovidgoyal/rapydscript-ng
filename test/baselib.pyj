@@ -130,5 +130,21 @@ assert.ok([x for x in [1]].extend != undefined)
 class C:
     def __contains__(self, x):
         return x == 1
+    def __bool__(self):
+        return False
 assert.ok(1 in C())
 assert.ok(2 not in C())
+
+assert.ok(!bool(C()))
+if C():
+    assert.ok(False, '__bool__ failed')
+a = [] or [1]
+assert.deepEqual(a, [1])
+a = [] and [2]
+assert.deepEqual(a, [])
+assert.ok(not [])
+
+class L:
+    def __len__(self):
+        return 1
+assert.ok(bool(L()))

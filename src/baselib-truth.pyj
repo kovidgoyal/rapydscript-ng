@@ -3,19 +3,17 @@
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 def _$rapyd$_bool(val):
-    t = type(val)
-    if t == 'string' or t == 'number':
-        return JS('!!val')
-    if Array.isArray(val):
-        return val.length > 0
-    if t == 'boolean':
-        return val
-    if val == undefined or val is None:
+    # We have to ensure that we dont use _$rapyd$_bool itself here to avoid
+    # infinite recursion, so we wrap all conditionals in JS()
+    if JS("val == undefined"):  # this catches both undefined and null
         return False
-    if type(val.__bool__) == 'function':
-        return val.__bool__()
-    if type(val.__len__) == 'function':
-        return val.__len__() > 0
+    if JS('Array.isArray(val)'):
+        return val.length > 0
+    func = None
+    if JS('typeof (func = val.__bool__) === "function"'):
+        return func()
+    if JS('typeof (func = val.__len__) === "function"'):
+        return func() > 0
     return JS('!!val')
 
 JS('var bool = _$rapyd$_bool')

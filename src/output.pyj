@@ -336,6 +336,7 @@ def OutputStream(options):
         indent(), print_(v), space()
         spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
+        indent(), spaced('var', '_$rapyd$_cond_temp'), end_statement()
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
         baselib_items['containers'] = True
@@ -736,7 +737,7 @@ def codegen():
 
         if isinstance(node, AST_Scope):
             # if function takes any arguments
-            if node.argnames:
+            if node.argnames != undefined:
                 # If this function has optional parameters/*args/**kwargs declare it differently
                 if node.argnames.is_simple_func != True:
                     a = node.argnames
@@ -764,9 +765,9 @@ def codegen():
                                               kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
                             output.print('arguments[' + i + ']')
                             output.end_statement()
-                    if a.kwargs or a.has_defaults:
+                    if a.kwargs != undefined or a.has_defaults:
                         # Look for an options object
-                        kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
+                        kw = (a.kwargs != undefined) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
                         output.indent()
                         output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
                         output.end_statement()
@@ -783,14 +784,14 @@ def codegen():
                                     output.indent()
                                     output.spaced(dname, '=', kw + '.' + dname)
                                     output.end_statement()
-                                    if a.kwargs:
+                                    if a.kwargs != undefined:
                                         output.indent()
                                         output.spaced('delete', kw + '.' + dname)
                                         output.end_statement()
                                 )
                                 output.newline()
 
-                    if a.starargs:
+                    if a.starargs != undefined:
                         # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
                         nargs = a.length - offset
                         output.indent()
@@ -901,12 +902,6 @@ def codegen():
                     output.indent()
                     output.print('"use strict;"')
                     output.end_statement()
-
-                    # TODO: this is a hack for now, should probably declare this in local-most scope
-                    output.indent()
-                    output.print("var _$rapyd$_Temp")
-                    output.semicolon()
-                    output.newline()
 
                     output.prologue(self)
                     write_imports(self, output)
@@ -1048,6 +1043,15 @@ def codegen():
         pass
     )
 
+    def write_condition(output, condition):
+        if isinstance(condition, AST_Constant):
+            # Optimization to avoid function call when checking on a literal
+            # also causes JS() output to not be passed into _$rapyd$_bool
+            condition.print(output)
+        else:
+            output.print('_$rapyd$_bool')
+            output.with_parens(def(): condition.print(output);)
+
     DEFPRINT(AST_Do, def(self, output):
         output.print("do")
         output.space()
@@ -1055,18 +1059,14 @@ def codegen():
         output.space()
         output.print("while")
         output.space()
-        output.with_parens(def():
-            self.condition.print(output)
-        )
+        output.with_parens(def(): write_condition(output, self.condition);)
         output.semicolon()
     )
 
     DEFPRINT(AST_While, def(self, output):
         output.print("while")
         output.space()
-        output.with_parens(def():
-            self.condition.print(output)
-        )
+        output.with_parens(def(): write_condition(output, self.condition);)
         output.space()
         self._do_print_body(output)
     )
@@ -1360,9 +1360,7 @@ def codegen():
                         output.indent()
                         output.print("if")
                         output.space()
-                        output.with_parens(def():
-                            self.condition.print(output)
-                        )
+                        output.with_parens(def(): write_condition(output, self.condition);)
                         output.space()
                         output.with_block(def():
                             add_to_result()
@@ -1661,9 +1659,7 @@ def codegen():
     DEFPRINT(AST_If, def(self, output):
         output.print("if")
         output.space()
-        output.with_parens(def():
-            self.condition.print(output)
-        )
+        output.with_parens(def(): write_condition(output, self.condition);)
         output.space()
         if self.alternative:
             make_then(self, output)
@@ -1828,9 +1824,9 @@ def codegen():
         if isinstance(self, AST_New) and no_constructor_parens(self, output):
             return
 
-        has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
-        has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
-        has_kwargs =  has_kwarg_items or has_kwarg_formals
+        has_kwarg_items = bool(self.args.kwarg_items)
+        has_kwarg_formals = bool(self.args.kwargs)
+        has_kwargs = has_kwarg_items or has_kwarg_formals
 
         output_kwargs = def():
             output.print('_$rapyd$_desugar_kwargs(')
@@ -1993,10 +1989,14 @@ def codegen():
     )
     DEFPRINT(AST_UnaryPrefix, def(self, output):
         op = self.operator
-        output.print(op)
-        if /^[a-z]/i.test(op):
-            output.space()
-        self.expression.print(output)
+        if op == '!':
+            output.print('!')
+            output.with_parens(def(): write_condition(output, self.expression);)
+        else:
+            output.print(op)
+            if /^[a-z]/i.test(op):
+                output.space()
+            self.expression.print(output)
     )
     DEFPRINT(AST_UnaryPostfix, def(self, output):
         self.expression.print(output)
@@ -2021,6 +2021,29 @@ def codegen():
             )
         else:
             single(left, right)
+
+    def write_boolean_operator(output, op):
+        condition = op.left
+        is_or = op.operator == '||'
+        consequent, alternative = [op.left, op.right] if is_or else [op.right, op.left]
+        if not isinstance(condition, (AST_Symbol, AST_Constant)):
+            # Cache the result of the left expression
+            orig = condition
+            condition = {}
+            condition.print = def(output):
+                output.print('_$rapyd$_bool')
+                output.with_parens(def():
+                    output.assign('_$rapyd$_cond_temp')
+                    orig.print(output)
+                )
+            if is_or:
+                consequent = {}
+                consequent.print = def(output): output.print('_$rapyd$_cond_temp')
+            else:
+                alternative = {}
+                alternative.print = def(output): output.print('_$rapyd$_cond_temp')
+        write_conditional(output, condition, consequent, alternative)
+
     DEFPRINT(AST_Binary, def(self, output):
         comparators = {
             "<": True,
@@ -2056,9 +2079,9 @@ def codegen():
                 output.space()
                 output.with_parens(def():
                     nonlocal leftvar
-                    output.assign("_$rapyd$_Temp")
+                    output.assign("_$rapyd$_cond_temp")
                     self.left.right.print(output)
-                    leftvar = "_$rapyd$_Temp"
+                    leftvar = "_$rapyd$_cond_temp"
                 )
 
             output.space()
@@ -2069,6 +2092,10 @@ def codegen():
             output.print(self.operator)
             output.space()
             self.right.print(output)
+        elif self.operator == '&&':
+            write_boolean_operator(output, self)
+        elif self.operator == '||':
+            write_boolean_operator(output, self)
         elif self.operator == '//':
             output.print('Math.floor')
             output.with_parens(def():
@@ -2115,15 +2142,18 @@ def codegen():
             output.newline()
             unpack_tuple(flat, output, True)
     )
-    DEFPRINT(AST_Conditional, def(self, output):
-        self.condition.print(output)
+    def write_conditional(output, condition, consequent, alternative):
+        output.with_parens(def():condition.print(output);)
         output.space()
         output.print("?")
         output.space()
-        self.consequent.print(output)
+        consequent.print(output)
         output.space()
         output.colon()
-        self.alternative.print(output)
+        alternative.print(output)
+
+    DEFPRINT(AST_Conditional, def(self, output):
+        write_conditional(output, self.condition, self.consequent, self.alternative)
     )
 
     # -----[ literals ]-----

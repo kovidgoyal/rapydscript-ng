@@ -8,7 +8,7 @@ AST_Accessor, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional,
 AST_Const, AST_Constant, AST_Continue, AST_DWLoop, AST_Debugger, AST_Decorator,
 AST_Definitions, AST_DictComprehension, AST_Directive, AST_Do,
-AST_Dot, AST_EmptyStatement, AST_Except, AST_Exit, AST_ExpressiveObject,
+AST_Dot, AST_EmptyStatement, AST_Except, AST_ExpressiveObject,
 AST_False, AST_Finally, AST_ForIn, AST_ForJS, AST_Function, AST_Hole, AST_If,
 AST_Import, AST_ImportedVar, AST_Imports, AST_ListComprehension, AST_Method,
 AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal, AST_PropAccess,
@@ -227,26 +227,6 @@ def parse($TEXT, options):
             expr.end = end
             return expr
 
-    def is_nested_comparison(stmt):
-        """
-        Check if the statement is a nested comparison
-        """
-        comparators = {
-            "<": True,
-            ">": True,
-            "<=": True,
-            ">=": True,
-            "==": True,
-            "!=": True,
-            "===": True,
-            "!==": True
-        }
-        if isinstance(stmt, AST_Binary) and stmt.operator in comparators \
-                and isinstance(stmt.left, AST_Binary) and stmt.left.operator in comparators:
-            return True
-        else:
-            return False
-
     def scan_for_top_level_callables(body):
         ans = []
         # Get the named functions and classes
@@ -344,13 +324,6 @@ def parse($TEXT, options):
                         push(stmt.init.name)
                 elif isinstance(stmt, AST_DWLoop):
                     extend(scan_for_local_vars(stmt))
-                elif isinstance(stmt, AST_If) \
-                        and is_nested_comparison(stmt.condition):
-                    # if statement condition with complex comparison
-                    push("_$rapyd$_Temp")
-                elif isinstance(stmt, AST_Exit) and is_nested_comparison(stmt.value):
-                    # returning a nested conditional
-                    push("_$rapyd$_Temp")
 
         elif body.body:
             # recursive descent into wrapper statements that contain body blocks
@@ -367,23 +340,6 @@ def parse($TEXT, options):
             elif body.left.name:
                 # assignment to a single variable
                 push(body.left.name)
-
-            if is_nested_comparison(body.right):
-                # assignment of nested conditional result to a variable
-                push("_$rapyd$_Temp")
-            elif isinstance(body.right, AST_Conditional) and is_nested_comparison(body.right.condition):
-                # assignment of a ternary condition result that uses nested conditional
-                push("_$rapyd$_Temp")
-
-        elif isinstance(body, AST_Conditional) and is_nested_comparison(body.condition):
-            # ternary condition that uses nested conditional and triggers other logic
-            # this is basically a really ugly way to write an if/else
-            push("_$rapyd$_Temp")
-
-        elif is_nested_comparison(body):
-            # statement itself is a stand-alone nested conditional - programmatically this would probably
-            # be a useless statement
-            push("_$rapyd$_Temp")
 
         return localvars
 
@@ -997,13 +953,13 @@ def parse($TEXT, options):
                     elif is_('operator', '*'):
                         # *args
                         next()
-                        if a.starargs:
+                        if a.starargs != undefined:
                             token_error(prev(), "Can't define multiple *args in function definition")
                         if a.kwargs:
                             token_error(prev(), "Can't define *args after **kwargs in function definition")
                         a.starargs = get_arg()
                     else:
-                        if a.starargs or a.kwargs:
+                        if a.starargs != undefined or a.kwargs != undefined:
                             token_error(prev(), "Can't define a formal parameter after *args or **kwargs")
                         a.push(get_arg())
                         if is_("operator", "="):
@@ -1020,7 +976,7 @@ def parse($TEXT, options):
                 next()
                 S.in_parenthesized_expr = False
                 a.defaults = defaults
-                a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
+                a.is_simple_func = a.starargs == undefined and a.kwargs == undefined and not a.has_defaults
                 return a
             .call(this, []),
             'localvars': [],

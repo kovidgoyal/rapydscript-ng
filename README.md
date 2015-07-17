@@ -1240,11 +1240,6 @@ As a result, there are some things in RapydScript that might come as surprises
 to an experienced Python developer. The most important such gotchas are listed
 below:
 
-- Truthiness in JavaScript is very different from Python. Empty lists and dicts
-  are ``False`` in Python but ``True`` in JavaScript. The compiler could work
-  around that, but not without a significant performance cost, so it is best to
-  just get used to checking the length instead of the object directly.
-
 - Operators in JavaScript are very different from Python. ``1 + '1'`` would be
   an error in Python, but results in ``'11'`` in JavaScript. Similarly, ``[1] +
   [1]`` is a new list in Python, but a string in JavaScript. Keep that in mind

@@ -236,7 +236,7 @@ def _$rapyd$_desugar_kwargs():
                 ans[keys[j]] = arguments[i][keys[j]]  # noqa:undef
         return ans
 
-if type(exports) == 'object':
+if JS("typeof exports === 'object'"):
     exports['abs()'] = abs
     exports['max()'] = max
     exports['min()'] = min
