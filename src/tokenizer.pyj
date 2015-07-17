@@ -162,14 +162,14 @@ def tokenizer($TEXT, filename):
         'tokcol': 0,
         'newline_before': False,
         'regex_allowed': False,
-        'comments_before': [],
-        'whitespace_before': [],
+        'comments_before': JS('[]'),
+        'whitespace_before': JS('[]'),
         'newblock': False,
         'endblock': False,
-        'indentation_matters': [ True ],
+        'indentation_matters': JS('[ true ]'),
         'cached_whitespace': "",
         'prev': undefined,
-        'index_or_slice': [ False ]
+        'index_or_slice': JS('[ false ]'),
     }
     def peek():
         return S.text.charAt(S.pos)
@@ -226,9 +226,9 @@ def tokenizer($TEXT, filename):
         }
         if not is_comment:
             ret.comments_before = S.comments_before
-            S.comments_before = []
+            S.comments_before = JS('[]')  # Use a plain JS array for speed
             # make note of any newlines in the comments that came before
-            for i in range(len(ret.comments_before)):
+            for i in range(ret.comments_before.length):
                 ret.nlb = ret.nlb or ret.comments_before[i].nlb
 
         if not keep_newline:
@@ -236,7 +236,7 @@ def tokenizer($TEXT, filename):
 
         if type == "punc":
             #            if (value == ":" && peek() == "\n") {
-            if value == ":" and not S.index_or_slice.slice(-1)[0]
+            if value == ":" and not S.index_or_slice[-1]
             and (not S.text.substring(S.pos + 1, find("\n")).trim() or not S.text.substring(S.pos + 1, find("#")).trim()):
                 S.newblock = True
                 S.indentation_matters.push(True)
@@ -278,9 +278,9 @@ def tokenizer($TEXT, filename):
                 return test_indent_token(leading_whitespace)
 
     def test_indent_token(leading_whitespace):
-        most_recent = S.whitespace_before[S.whitespace_before.length - 1] or ""
+        most_recent = S.whitespace_before[-1] or ""
         S.endblock = False
-        if S.indentation_matters.slice(-1)[0] and leading_whitespace != most_recent:
+        if S.indentation_matters[-1] and leading_whitespace != most_recent:
             if S.newblock and leading_whitespace and leading_whitespace.indexOf(most_recent) == 0:
                 # positive indent, new block
                 S.newblock = False
