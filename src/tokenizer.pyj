@@ -12,6 +12,7 @@ RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i
 UNARY_POSTFIX = make_predicate([ "--", "++" ])
 
 OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"))
+INVALID_OPERATORS = {"++", "--", "===", "!=="}
 
 OPERATORS = make_predicate([
     "in",
@@ -547,7 +548,7 @@ def tokenizer($TEXT, filename):
             else:
                 return op
         op = grow(prefix or next())
-        if op in ["++", "--", "===", "!=="]:
+        if INVALID_OPERATORS.has(op):
             parse_error("Invalid operator «" + op + "»")
         return token("operator", op)
 

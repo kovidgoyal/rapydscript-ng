@@ -308,7 +308,7 @@ def parse($TEXT, options):
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
-                [ "body", "alternative" ].forEach(def(option):
+                JS('[ "body", "alternative" ]').forEach(def(option):
                     opt = stmt[option]
                     if opt:
                         extend(scan_for_local_vars(opt))
@@ -360,7 +360,7 @@ def parse($TEXT, options):
                         vars.push(vardef.name.name)
                     )
 
-                [ "body", "alternative" ].forEach(def(option):
+                JS('[ "body", "alternative" ]').forEach(def(option):
                     nonlocal vars
                     opt = stmt[option]
                     if opt:
@@ -1829,11 +1829,11 @@ def parse($TEXT, options):
                 'end': peek()
             })
         if commas:
-            left = [ expr ]
+            left = JS('[ expr ]')
             while is_("punc", ",") and not peek().nlb:
                 next()
                 if isinstance(expr, AST_Assign):
-                    left[left.length - 1] = left.slice(-1)[0].left
+                    left[-1] = left[-1].left
                     return new AST_Assign({
                         'start': start,
                         'left': (left.length == 1 ? left[0] : new AST_Array({
@@ -1851,8 +1851,8 @@ def parse($TEXT, options):
                 left.push(expr)
 
             # if last one was an assignment, fix it
-            if left.length > 1 and isinstance(left.slice(-1)[0], AST_Assign):
-                left[left.length - 1] = left.slice(-1)[0].left
+            if left.length > 1 and isinstance(left[-1], AST_Assign):
+                left[-1] = left[-1].left
                 return new AST_Assign({
                     'start': start,
                     'left': new AST_Array({
