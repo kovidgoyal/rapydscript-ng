@@ -154,7 +154,7 @@ def _$rapyd$_list_decorate(ans):
 
 def _$rapyd$_list_constructor(iterable):
     if iterable == undefined:
-        ans = []
+        ans = JS('[]')
     elif Array.isArray(iterable) or type(iterable) == 'string':
         ans = new Array(iterable.length)
         for JS('var i = 0; i < iterable.length; i++'):
