@@ -18,13 +18,6 @@ var RapydScript = require('./compiler').create_compiler();
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
 	vm.runInContext(baselib, ctx, {'filename':'baselib-plain-pretty.js'});
-	var b = vm.runInContext('this', ctx);
-	for (var key in b) {
-		if (key.substr(0, 9) == '_$rapyd$_' && key.substr(key.length - 9) == '_polyfill') {
-			var symname = key.substr(9, key.length - 18);
-			vm.runInContext('var ' +  symname + ' = ' + key + '();', ctx);
-		}
-	}
 	RapydScript.AST_Node.warn_function = function() {};
     return ctx;
 }
