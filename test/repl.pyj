@@ -58,7 +58,7 @@ def check(text, output):
 
 def check_in(text, output):
     send_text(text)
-    assert.ok(output in stdout)
+    assert.ok(output in stdout, output + ' not in ' + stdout)
     clear()
 
 def check_not_in(text, output):
