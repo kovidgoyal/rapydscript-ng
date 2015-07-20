@@ -34,7 +34,7 @@ NATIVE_CLASSES = {
     'RegExp': {},
     'Error': {},
     'Object': {
-        'static': [ "getOwnPropertyNames", "keys", "create" ]
+        'static': [ "getOwnPropertyNames", "keys", "create", 'defineProperty', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign' ]
     },
     'String': {
         'static': [ "fromCharCode" ]
@@ -1406,7 +1406,7 @@ def parse($TEXT, options):
             left = expression(False)
             if is_('keyword', 'for'):
                 return read_comprehension(new AST_SetComprehension({'statement':left}))
-            if is_('punc', ','):
+            if is_('punc', ',') or is_('punc', '}'):
                 end = prev()
                 return set_(start, end, left)
             if not isinstance(left, AST_Constant):
