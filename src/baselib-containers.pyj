@@ -4,6 +4,16 @@
 
 # globals:_$rapyd$_iterator_symbol
 
+def _$rapyd$_equals(a, b):
+    try:
+        return a.__eq__(b)
+    except TypeError:
+        return JS('a === b')
+
+JS('var equals = _$rapyd$_equals')
+
+# list {{{
+
 def _$rapyd$_list_extend(iterable):
     if Array.isArray(iterable) or type(iterable) == 'string':
         # Allocate all new memory in one operation
@@ -128,6 +138,18 @@ def _$rapyd$_list_len():
 def _$rapyd$_list_contains(val):
     return this.indexOf(val) != -1
 
+def _$rapyd$_list_eq(other):
+    if not Array.isArray(other):
+        return False
+    if other.length != this.length:
+        return False
+    if other.length == 0:
+        return True
+    for JS('var i = 0; i < other.length; i++'):
+        if not _$rapyd$_equals(this[i], other[i]):  # noqa:undef
+            return False
+    return True
+
 def _$rapyd$_list_decorate(ans):
     ans.append = Array.prototype.push
     ans.toString = _$rapyd$_list_to_string
@@ -146,6 +168,7 @@ def _$rapyd$_list_decorate(ans):
     ans.as_array = _$rapyd$_list_as_array
     ans.__len__ = _$rapyd$_list_len
     ans.__contains__ = _$rapyd$_list_contains
+    ans.__eq__ = _$rapyd$_list_eq
     ans.constructor = _$rapyd$_list_constructor
     if type(ans[_$rapyd$_iterator_symbol]) != 'function':
         # Happens on ES 5 runtimes
@@ -174,5 +197,260 @@ def _$rapyd$_list_constructor(iterable):
     return _$rapyd$_list_decorate(ans)
 _$rapyd$_list_constructor.__name__ = 'list'
 
-JS('var list = _$rapyd$_list_constructor')
-JS('var list_wrap = _$rapyd$_list_decorate')
+JS('var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate')
+# }}}
+
+# set {{{
+JS('var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation')
+
+def _$rapyd$_set_keyfor(x):
+    t = type(x)
+    if t == 'string' or t == 'number' or t == 'boolean':
+        return t[0] + x
+    if JS('x == null'): # also matches undefined
+        return "_!@#$0"
+    ans = x._$rapyd$_hash_key_prop
+    if ans == undefined:
+        JS('ans = "_!@#$" + ++_$rapyd$_global_object_id')
+        Object.defineProperty(x, '_$rapyd$_hash_key_prop', { 'value': ans })
+    return ans
+
+def _$rapyd$_set_polyfill():
+    this._store = {}
+    this.size = 0
+
+_$rapyd$_set_polyfill.prototype.add = def(x):
+    key = _$rapyd$_set_keyfor(x)
+    if not Object.hasOwnProperty.call(this._store, key):
+        this.size += 1
+        this._store[key] = x
+    return this
+
+_$rapyd$_set_polyfill.prototype.clear = def(x):
+    this._store = {}
+    this.size = 0
+
+_$rapyd$_set_polyfill.prototype.delete = def(x):
+    key = _$rapyd$_set_keyfor(x)
+    if Object.hasOwnProperty.call(this._store, key):
+        this.size -= 1
+        JS('delete this._store[key]')
+        return True
+    return False
+
+_$rapyd$_set_polyfill.prototype.has = def(x):
+    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x))
+
+_$rapyd$_set_polyfill.prototype.values = def(x):
+    keys = Object.keys(this._store)
+    s = this._store
+    return {
+        '_keys': keys,
+        '_i': -1,
+        '_s':s,
+        _$rapyd$_iterator_symbol: def (): return this;,
+        'next':def():
+            this._i += 1
+            if this._i >= this._keys.length:
+                return {'done': True}
+            return {'done':False, 'value':s[this._keys[this._i]]}
+    }
+
+if type(Set) != 'function' or type(Set.prototype.delete) != 'function':
+    JS('_$rapyd$_set_implementation = _$rapyd$_set_polyfill')
+else:
+    JS('_$rapyd$_set_implementation = Set')
+
+def _$rapyd$_set(iterable):
+    if isinstance(this, _$rapyd$_set):
+        this.jsset = new _$rapyd$_set_implementation()  # noqa:undef
+        ans = this
+        if iterable == undefined:
+            return ans
+        s = ans.jsset
+        if Array.isArray(iterable) or type(iterable) == 'string':
+            for JS('var i = 0; i < iterable.length; i++'):
+                s.add(iterable[i])  # noqa:undef
+        elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+            iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+            result = iterator.next()
+            while not result.done:
+                s.add(result.value)
+                result = iterator.next()
+        else:
+            for k in Object.keys(iterable):
+                s.add(k)
+        return ans
+    else:
+        return new _$rapyd$_set(iterable)
+_$rapyd$_set.prototype.__name__ = 'set'
+
+# These are for JavaScript users' convenience
+Object.defineProperties(_$rapyd$_set.prototype, {
+    'length': { 'get': def(): return this.jsset.size; },
+    'size': { 'get': def(): return this.jsset.size; },
+})
+
+_$rapyd$_set.prototype.__len__ = def(): return this.jsset.size
+_$rapyd$_set.prototype.has = _$rapyd$_set.prototype.__contains__ = def(x): return this.jsset.has(x)
+_$rapyd$_set.prototype.add = def(x): this.jsset.add(x)
+_$rapyd$_set.prototype.clear = def(): this.jsset.clear()
+_$rapyd$_set.prototype.copy = def(): return _$rapyd$_set(this)
+_$rapyd$_set.prototype.discard = def(x): this.jsset.delete(x)
+_$rapyd$_set.prototype[_$rapyd$_iterator_symbol] = def(): return this.jsset.values()
+
+_$rapyd$_set.prototype.difference = def():
+    ans = new _$rapyd$_set()
+    s = ans.jsset
+    iterator = this.jsset.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        has = False
+        for JS('var i = 0; i < arguments.length; i++'):
+            if arguments[i].has(x):  # noqa:undef
+                has = True
+                break
+        if not has:
+            s.add(x)
+        r = iterator.next()
+    return ans
+
+_$rapyd$_set.prototype.difference_update = def():
+    s = this.jsset
+    remove = JS('[]')
+    iterator = s.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        for JS('var i = 0; i < arguments.length; i++'):
+            if arguments[i].has(x):  # noqa:undef
+                remove.push(x)
+                break
+        r = iterator.next()
+    for JS('var i = 0; i < remove.length; i++'):
+        s.delete(remove[i])  # noqa:undef
+
+_$rapyd$_set.prototype.intersection = def():
+    ans = new _$rapyd$_set()
+    s = ans.jsset
+    iterator = this.jsset.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        has = True
+        for JS('var i = 0; i < arguments.length; i++'):
+            if not arguments[i].has(x):  # noqa:undef
+                has = False
+                break
+        if has:
+            s.add(x)
+        r = iterator.next()
+    return ans
+
+_$rapyd$_set.prototype.intersection_update = def():
+    s = this.jsset
+    remove = JS('[]')
+    iterator = s.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        for JS('var i = 0; i < arguments.length; i++'):
+            if not arguments[i].has(x):  # noqa:undef
+                remove.push(x)
+                break
+        r = iterator.next()
+    for JS('var i = 0; i < remove.length; i++'):
+        s.delete(remove[i])  # noqa:undef
+
+_$rapyd$_set.prototype.isdisjoint = def(other):
+    iterator = this.jsset.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        if other.has(x):
+            return False
+        r = iterator.next()
+    return True
+
+_$rapyd$_set.prototype.issubset = def(other):
+    iterator = this.jsset.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        if not other.has(x):
+            return False
+        r = iterator.next()
+    return True
+
+_$rapyd$_set.prototype.issuperset = def(other):
+    s = this.jsset
+    iterator = other.jsset.values()
+    r = iterator.next()
+    while not r.done:
+        x = r.value
+        if not s.has(x):
+            return False
+        r = iterator.next()
+    return True
+
+_$rapyd$_set.prototype.pop = def():
+    iterator = this.jsset.values()
+    r = iterator.next()
+    if r.done:
+        raise KeyError('pop from an empty set')
+    this.jsset.delete(r.value)
+    return r.value
+
+_$rapyd$_set.prototype.remove = def(x):
+    if not this.jsset.delete(x):
+        raise KeyError(x.toString())
+
+_$rapyd$_set.prototype.symmetric_difference = def(other):
+    return this.union(other).difference(this.intersection(other))
+
+_$rapyd$_set.prototype.symmetric_difference_update = def(other):
+    common = this.intersection(other)
+    this.update(other)
+    this.difference_update(common)
+
+_$rapyd$_set.prototype.union = def():
+    ans = _$rapyd$_set(this)
+    ans.update.apply(ans, arguments)
+    return ans
+
+_$rapyd$_set.prototype.update = def():
+    s = this.jsset
+    for JS('var i=0; i < arguments.length; i++'):
+        iterator = arguments[i][_$rapyd$_iterator_symbol]()  # noqa:undef
+        r = iterator.next()
+        while not r.done:
+            s.add(r.value)
+            r = iterator.next()
+
+_$rapyd$_set.prototype.toString = def():
+    return '{' + list(this).join(', ') + '}'
+_$rapyd$_set.prototype.inspect = _$rapyd$_set.prototype.toString
+
+_$rapyd$_set.prototype.__eq__ = def(other):
+    if not isinstance(other, this.constructor):
+        return False
+    if other.size != this.size:
+        return False
+    if other.size == 0:
+        return True
+    iterator = other[_$rapyd$_iterator_symbol]()
+    r = iterator.next()
+    while not r.done:
+        if not this.has(r.value):
+            return False
+        r = iterator.next()
+    return True
+
+def _$rapyd$_set_wrap(x):
+    ans = new _$rapyd$_set()
+    ans.jsset = x
+    return ans
+
+JS('var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap')
+# }}}

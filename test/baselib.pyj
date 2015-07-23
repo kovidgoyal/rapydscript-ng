@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # globals: _$rapyd$_iterator_symbol
+nonlocal _$rapyd$_set_implementation
 
 class CustomIterable:
 
@@ -22,7 +23,7 @@ assert.ok(isinstance([], (String, list)))
 m = Map()
 m.set('a', 1)
 assert.equal(len(m), 1)
-s = Set()
+s = set()
 s.add(1)
 s.add(2)
 assert.equal(len(s), 2)
@@ -45,7 +46,7 @@ assert.deepEqual(t, [[0, 'a']])
 assert.deepEqual(['y', 'x'], [x for x in reversed('xy')])
 
 # Test that the iterator created by iter() is itself iterable
-assert.deepEqual(s, Set(iter(s)))
+assert.deepEqual(s, set(iter(s)))
 
 assert.ok('a' in m)
 assert.ok(1 in s)
@@ -75,7 +76,7 @@ assert.deepEqual(list(zip([1,2], [3,4])), [[1,3], [2, 4]])
 a = [1, 2]
 a.extend([3, 4])
 assert.deepEqual(a, [1,2,3,4])
-s = new Set([5, 6])
+s = set([5, 6])
 a.extend(s)
 assert.deepEqual(a, [1,2,3,4,5,6])
 a.extend('12')
@@ -132,3 +133,65 @@ class C:
         return x == 1
 assert.ok(1 in C())
 assert.ok(2 not in C())
+
+# sets
+def test_sets():
+    a = set([1, 2, 3])
+    assert.ok(isinstance(a, set))
+    assert.ok(a.has(1))
+    assert.ok(not a.has(9))
+    assert.deepEqual(a, {1,2,3})
+    assert.ok(len(a) == 3)
+    assert.ok(a.length == 3)
+    assert.ok(a.size == 3)
+    assert.ok(not a.has('1'))
+    x = a.copy()
+    assert.deepEqual(a, x)
+    assert.ok(a != x)
+    b, c = {}, {}
+    a.add(b)
+    assert.ok(b in a)
+    assert.ok(c not in a)
+    assert.ok(None not in a)
+    a.add(None)
+    assert.ok(None in a)
+    a.discard(None)
+    assert.ok(None not in a)
+    a.clear()
+    assert.ok(a.length == 0)
+    assert.deepEqual({1,2,3}.difference({2}, {3}), {1})
+    a = {1, 2, 3}
+    a.difference_update({2}, {3})
+    assert.deepEqual(a, {1})
+    assert.deepEqual({1,2,3}.intersection({2, 3}, {3}), {3})
+    a = {1, 2, 3}
+    a.intersection_update({2, 3}, {3})
+    assert.deepEqual(a, {3})
+    assert.ok({1}.isdisjoint({2}))
+    assert.ok(not {1}.isdisjoint({1}))
+    assert.ok({1}.issubset({1, 2}))
+    assert.ok({1}.issubset({1}))
+    assert.ok(not {1}.issubset({2}))
+    assert.ok({1, 2}.issuperset({1, 2}))
+    assert.ok({1, 2}.issuperset({1}))
+    assert.ok(not {1}.issuperset({2}))
+    a = set()
+    assert.throws(def():a.pop();, KeyError)
+    assert.equal({1}.pop(), 1)
+    assert.throws(def ():a.remove(1);, KeyError)
+    a = {1}
+    a.remove(1)
+    assert.equal(a.length, 0)
+    assert.deepEqual({1,2,3}.symmetric_difference({2, 3, 4}), {1, 4})
+    a = {1, 2, 3}
+    a.symmetric_difference_update({2, 3, 4})
+    assert.deepEqual(a, {1, 4})
+    assert.deepEqual({1,2}.union({3, 4}, {1, 5}), {1, 2, 3, 4, 5})
+    a = {1}
+    a.update({1, 2})
+    assert.deepEqual(a, {1, 2})
+
+test_sets()
+_$rapyd$_set_implementation = _$rapyd$_set_polyfill  # noqa:undef
+test_sets()
+_$rapyd$_set_implementation = Set

@@ -26,6 +26,8 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             if (a === b) return;
             if (a.length !== b.length) throw new assert.AssertionError({actual:a, expected:b, operator:'deepEqual', stackStartFunction:assert.deepEqual});
             for(var i=0; i < a.length; i++) assert.deepEqual(a[i], b[i], message);
+        } else if (a !== undefined && typeof a.__eq__ === 'function') {
+            if (!a.__eq__(b)) throw new assert.AssertionError({actual:a, expected:b, operator:'deepEqual', stackStartFunction:assert.deepEqual});
         } else return deep_eq(a, b, message);
     };
 

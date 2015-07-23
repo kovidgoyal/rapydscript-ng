@@ -135,10 +135,12 @@ def _$rapyd$_len():
         return (def(obj):
             if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
             if JS('obj instanceof Set') or JS('obj instanceof Map'): return obj.size
+            if type(obj.__len__) == 'function': return obj.__len__()
             return Object.keys(obj).length
         )
     return (def(obj):
         if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
+        if type(obj.__len__) == 'function': return obj.__len__()
         return Object.keys(obj).length
     )
 

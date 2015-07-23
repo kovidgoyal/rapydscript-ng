@@ -23,7 +23,10 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 - [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
 - [Operators and keywords](#operators-and-keywords)
 - [Literal JavaScript](#literal-javascript)
-- [Lists](#lists)
+- [Containers (lists/sets/dicts)](#containers-listssetsdicts)
+  - [Lists](#lists)
+  - [Sets](#sets)
+  - [Dicts](#dicts)
 - [Loops](#loops)
 - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
 - [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
@@ -571,8 +574,10 @@ a = (condition) ? 1 : 2
 a = 1 if condition else 2
 ```
 
-Lists
-------
+Containers (lists/sets/dicts)
+------------------------------
+
+### Lists
 
 Lists in RapydScript are almost identical to lists in Python, but are also
 native JavaScript arrays. The only small caveats are that the ``sort()`` and
@@ -589,6 +594,49 @@ a = JS('[1, 2]')
 pya = list_wrap(a)
 # Now pya is a python like list object that satisfies pya === a
 ```
+
+### Sets
+
+Sets in RapydScript are identical to those in python. You can create them using
+set literals or comprehensions and all set operations are supported. You can
+store any object in a set, the only caveat is that RapydScript does not support
+the ``__hash__()`` method, so if you store an arbitrary object as opposed to a
+primitive type, object equality will be via the ``is`` operator.
+
+Note that sets are not a subclass of the ES 6 JavaScript Set object, however,
+they do use this object as a backend, when available. You can create a set from
+any enumerable container, like you would in python
+
+```py
+s = set(list or other set or string)
+```
+
+You can also wrap an existing JavaScript Set object efficiently, without
+creating a copy with:
+
+```py
+js_set = Set()
+py_set = set_wrap(js_set)
+```
+
+### Dicts
+
+dicts are the most different in RapydScript, from Python. This is because
+RapydScript uses the JavaScript Object as a dict, for compatibility with 
+external JavaScript libraries. This means there are several differences
+between RapydScript dicts and Python dicts.
+
+    - You can only use primitive types (strings/numbers) as keys in the dict
+    - If you use numbers as keys, they are auto-converted to strings
+    - You can access the keys of the dict as attributes of the dict object
+    - Trying to access a non-existent key returns ``undefined`` instead of
+      raising a KeyError
+    - dict objects do not have the same methods as python dict objects:
+      ``items(), keys(), values(), get(), pop(), etc.`` You can however use
+      RapydScript dict objects in ```for..in``` loops.
+
+It is on my TODO list to create a dedicated dict object that behaves like its
+python counterpart
 
 Loops
 -----

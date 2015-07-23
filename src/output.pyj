@@ -1238,7 +1238,7 @@ def codegen():
     )
 
     DEFPRINT(AST_ListComprehension, def(self, output):
-        result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'new Set()'}[self.TYPE]
+        result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'_$rapyd$_set()'}[self.TYPE]
         push_func = "_$rapyd$_Result." + ((self.TYPE == 'ListComprehension') ? 'push' : 'add')
         if self.TYPE == 'DictComprehension':
             add_to_result = def():
@@ -2166,17 +2166,17 @@ def codegen():
     )
     DEFPRINT(AST_Set, def(self, output):
         if self.items.length == 0:
-            output.print('new Set()')
+            output.print('_$rapyd$_set()')
             return
         output.with_parens(def():
             output.print('function()')
             output.with_block(def():
                 output.indent()
-                output.spaced.apply(output, 'var s = new Set()'.split(' '))
+                output.spaced.apply(output, 'var s = _$rapyd$_set()'.split(' '))
                 output.end_statement()
                 self.items.forEach(def(item, i):
                     output.indent()
-                    output.print('s.add')
+                    output.print('s.jsset.add')
                     output.with_parens(def():item.value.print(output);)
                     output.end_statement()
                 )
