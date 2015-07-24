@@ -1772,7 +1772,7 @@ def parse($TEXT, options):
     maybe_conditional = def(no_in):
         start = S.token
         expr = expr_ops(no_in)
-        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token != S.token and !S.in_comprehension and !S.token.nlb))):
+        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token != S.token and not S.in_comprehension and not S.token.nlb))):
             pystyle = is_('keyword', 'if')
             next()
             ne = expression(False)
