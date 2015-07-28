@@ -34,13 +34,13 @@ BUILTINS = {
     'max':true, 'min':true, 'enumerate':true, 'rebind_all':true,
     'extends':true, 'reversed':true, 'sum':true, 'getattr':true,
     'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true,
-    'isNaN':true, 'JSON':true, 'Math':true, 'list':true, 'set':true,
+    'isNaN':true, 'JSON':true, 'Math':true, 'list':true, 'set':true, 'list_wrap':true,
     '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
-    'float':true, 'iter':true, 'Error':true, 'EvalError':true,
+    'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'set_wrap':true,
     'RangeError':true, 'ReferenceError':true, 'SyntaxError':true,
     'TypeError':true, 'URIError':true, 'Exception':true, 'IndexError':true,
     'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true,
-    'filter':true, 'zip':true, 'equals': true,
+    'filter':true, 'zip':true, 'equals': true, 'dict':true, 'dict_wrap':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 

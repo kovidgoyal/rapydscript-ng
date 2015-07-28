@@ -13,7 +13,7 @@ AST_False, AST_Finally, AST_ForIn, AST_ForJS, AST_Function, AST_Hole, AST_If,
 AST_Import, AST_ImportedVar, AST_Imports, AST_ListComprehension, AST_Method,
 AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal, AST_PropAccess,
 AST_RegExp, AST_Return, AST_Scope, AST_Set, AST_SetComprehension, AST_SetItem,
-AST_Seq, AST_SimpleStatement, AST_Splice, AST_String, AST_Sub,
+AST_Seq, AST_SimpleStatement, AST_Splice, AST_String, AST_Sub, AST_ItemAccess,
 AST_SymbolAccessor, AST_SymbolAlias, AST_SymbolCatch, AST_SymbolConst,
 AST_SymbolDefun, AST_SymbolFunarg, AST_SymbolLambda, AST_SymbolNonlocal,
 AST_SymbolRef, AST_SymbolVar, AST_This, AST_Throw, AST_Toplevel, AST_True,
@@ -1393,7 +1393,11 @@ def parse($TEXT, options):
         expect("{")
         first = True
         has_non_const_keys = False
+        is_pydict = False
         a = []
+        if is_('punc', '!'):
+            next()
+            is_pydict = True
         while not is_("punc", "}"):
             if not first:
                 expect(",")
@@ -1405,6 +1409,7 @@ def parse($TEXT, options):
             start = S.token
             left = expression(False)
             if is_('keyword', 'for'):
+                # is_pydict is irrelevant here
                 return read_comprehension(new AST_SetComprehension({'statement':left}))
             if is_('punc', ',') or is_('punc', '}'):
                 end = prev()
@@ -1419,11 +1424,12 @@ def parse($TEXT, options):
                 'end': prev()
             }))
             if a.length == 1 and is_('keyword', 'for'):
-                return dict_comprehension(a)
+                return dict_comprehension(a, is_pydict)
 
         next()
         return new (has_non_const_keys ? AST_ExpressiveObject : AST_Object)({
-            'properties': a
+            'properties': a,
+            'is_pydict': is_pydict,
         })
     )
 
@@ -1454,7 +1460,7 @@ def parse($TEXT, options):
         S.in_comprehension = False
         return obj
 
-    def dict_comprehension(a):
+    def dict_comprehension(a, is_pydict):
         if a.length:
             left, right = a[0].key, a[0].value
         else:
@@ -1463,7 +1469,7 @@ def parse($TEXT, options):
                 return read_comprehension(new AST_SetComprehension({'statement':left}))
             expect(':')
             right = expression(False)
-        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right}))
+        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right, 'is_pydict':is_pydict}))
 
     def as_name():
         tmp = S.token
@@ -1520,6 +1526,10 @@ def parse($TEXT, options):
 
         if is_("punc", "[") and not S.token.nlb:
             next()
+            is_py_sub = False
+            if is_('punc', '!'):
+                next()
+                is_py_sub = True
             slice_bounds = []
             is_slice = False
             if is_("punc", ":"):
@@ -1597,6 +1607,21 @@ def parse($TEXT, options):
                     }), allow_calls)
             else:
                 # regular index (arr[index])
+                if is_py_sub:
+                    assignment = None
+                    if is_("operator") and S.token.value == "=":
+                        next()
+                        assignment = expression(True)
+                    return subscripts(new AST_ItemAccess({
+                        'start': start,
+                        'expression': expr,
+                        'property': slice_bounds[0] or new AST_Number({
+                            'value': 0
+                        }),
+                        'assignment':assignment,
+                        'end': prev()
+                    }), allow_calls)
+
                 return subscripts(new AST_Sub({
                     'start': start,
                     'expression': expr,

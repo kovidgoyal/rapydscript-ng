@@ -619,6 +619,17 @@ js_set = Set()
 py_set = set_wrap(js_set)
 ```
 
+Note that using non-primitive objects as set members does not behave the
+same way as in Python. For example:
+
+a = [1, 2]
+s = {a}
+a in s  # True
+[1, 2] in s # False
+
+This is because, as noted above, object equality is vai the ```is```
+operator, not hashes.
+
 ### Dicts
 
 dicts are the most different in RapydScript, from Python. This is because
@@ -635,8 +646,32 @@ between RapydScript dicts and Python dicts.
       ``items(), keys(), values(), get(), pop(), etc.`` You can however use
       RapydScript dict objects in ```for..in``` loops.
 
-It is on my TODO list to create a dedicated dict object that behaves like its
-python counterpart
+Fortunately, there is a builtin ```dict``` type that behaves just like Python's
+```dict``` with all the same methods. The only caveat is that you cannot use
+the regular syntax for dict literals or getting and setting items, instead you
+have to use a slightly modified, syntax, with the ```!``` operator, as show
+below:
+
+```py
+a = {!1:1, 2:2}
+a[!1]  # == 1
+a[!3] = 3
+```
+
+The ```!``` operator is needed to let the compiler know that you want to use
+python dicts not javascript objects. This is necessary to avoid a big
+performance hit when using the standard ```[]``` notation on native JavaScript
+arrays and objects.
+
+
+### Container comparisons
+
+RapydScript does not overload the comparison operators ```(==, !=, >, <, >=,
+<=)``` as doin so would be a big performance impact (function calls in
+JavaScript are very slow). So using them on containers is useless. Currently,
+there is a builtin ```equals()``` function that wors the same way as the
+equality operator in python (it uses the __eq__() method, which all the builtin
+containers in RapydScript implement). 
 
 Loops
 -----
@@ -1351,6 +1386,8 @@ This list below records all the work I have done on RapydScript so far.
    optional arguments, variable numbers of arguments, variable optional
    arguments, etc. There is no longer any kwargs decorator, as it is not
    needed.
+
+1. Added list, set and dict types that behave like python's corresponding types.
 
 1. RapydScript now supports generators (yield keyword). 
 

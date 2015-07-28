@@ -16,7 +16,7 @@ AST_Hole, AST_If, AST_Imports, AST_Infinity, AST_Jump, AST_Lambda,
 AST_ListComprehension, AST_LoopControl, AST_Method, AST_NaN, AST_New, AST_Node,
 AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
 AST_RegExp, AST_Return, AST_Scope, AST_Set, AST_Seq, AST_SimpleStatement, AST_Splice,
-AST_Statement, AST_StatementWithBody, AST_String, AST_Sub,
+AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
 AST_Symbol, AST_SymbolRef, AST_This, AST_Throw, AST_Toplevel,
 AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var,
 AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker
@@ -1239,23 +1239,40 @@ def codegen():
 
     DEFPRINT(AST_ListComprehension, def(self, output):
         result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'_$rapyd$_set()'}[self.TYPE]
-        push_func = "_$rapyd$_Result." + ((self.TYPE == 'ListComprehension') ? 'push' : 'add')
         if self.TYPE == 'DictComprehension':
-            add_to_result = def():
-                output.indent()
-                output.print('_$rapyd$_Result')
-                output.with_square(def():
-                    self.statement.print(output)
-                )
-                output.space(), output.print('='), output.space()
-                output.with_parens(def():
-                    if self.value_statement.TYPE == 'Seq':
-                        output.with_square(def():self.value_statement.print(output);)
-                    else:
-                        self.value_statement.print(output)
-                )
-                output.end_statement()
+            if self.is_pydict:
+                result_obj = '_$rapyd$_dict()'
+                add_to_result = def():
+                    output.indent()
+                    output.print('_$rapyd$_Result.set')
+                    output.with_parens(def():
+                        self.statement.print(output)
+                        output.space(), output.print(','), output.space()
+                        output.with_parens(def():
+                            if self.value_statement.TYPE == 'Seq':
+                                output.with_square(def():self.value_statement.print(output);)
+                            else:
+                                self.value_statement.print(output)
+                        )
+                    )
+                    output.end_statement()
+            else:
+                add_to_result = def():
+                    output.indent()
+                    output.print('_$rapyd$_Result')
+                    output.with_square(def():
+                        self.statement.print(output)
+                    )
+                    output.space(), output.print('='), output.space()
+                    output.with_parens(def():
+                        if self.value_statement.TYPE == 'Seq':
+                            output.with_square(def():self.value_statement.print(output);)
+                        else:
+                            self.value_statement.print(output)
+                    )
+                    output.end_statement()
         else:
+            push_func = "_$rapyd$_Result." + ((self.TYPE == 'ListComprehension') ? 'push' : 'add')
             add_to_result = def():
                 output.indent()
                 output.print(push_func)
@@ -1945,6 +1962,16 @@ def codegen():
         self.property.print(output)
         output.print("]")
     )
+    DEFPRINT(AST_ItemAccess, def(self, output):
+        self.expression.print(output)
+        output.print('.__' + (self.assignment ? 'setitem' : 'getitem') + '__')
+        output.with_parens(def():
+            self.property.print(output)
+            if self.assignment:
+                output.comma()
+                self.assignment.print(output)
+        )
+    )
     DEFPRINT(AST_Splice, def(self, output):
         # splice assignment via pythonic array[start:end]
         output.print('[].splice.apply')
@@ -2122,42 +2149,62 @@ def codegen():
             )
         )
     )
-    DEFPRINT(AST_ExpressiveObject, def(self, output):
+
+    def write_obj_literal(self, output):
         output.with_parens(def():
             output.print('function()')
             output.with_block(def():
                 output.indent()
-                output.spaced.apply(output, 'var d = {}'.split(' '))
+                if self.is_pydict:
+                    output.spaced.apply(output, 'var _$rapyd$_d = _$rapyd$_dict()'.split(' '))
+                else:
+                    output.spaced.apply(output, 'var _$rapyd$_d = {}'.split(' '))
                 output.end_statement()
                 self.properties.forEach(def(prop, i):
                     output.indent()
-                    output.print('d')
-                    output.with_square(def():prop.key.print(output);)
-                    output.space(), output.print('='), output.space()
-                    prop.value.print(output)
+                    if self.is_pydict:
+                        output.print('_$rapyd$_d.set')
+                        output.with_parens(def():
+                            prop.key.print(output)
+                            output.print(','), output.space()
+                            prop.value.print(output)
+                        )
+                    else:
+                        output.print('_$rapyd$_d')
+                        output.with_square(def():prop.key.print(output);)
+                        output.space(), output.print('='), output.space()
+                        prop.value.print(output)
                     output.end_statement()
                 )
                 output.indent()
-                output.spaced('return', 'd')
+                output.spaced('return', '_$rapyd$_d')
                 output.end_statement()
             )
         )
         output.print('()')
-    )
+
+    DEFPRINT(AST_ExpressiveObject, write_obj_literal)
+
     DEFPRINT(AST_Object, def(self, output):
-        if self.properties.length > 0:
-            output.with_block(def():
-                self.properties.forEach(def(prop, i):
-                    if i:
-                        output.print(",")
-                        output.newline()
-                    output.indent()
-                    prop.print(output)
-                )
-                output.newline()
-            )
+        if self.is_pydict:
+            if self.properties.length > 0:
+                write_obj_literal(self, output)
+            else:
+                output.print('_$rapyd$_dict()')
         else:
-            output.print("{}")
+            if self.properties.length > 0:
+                output.with_block(def():
+                    self.properties.forEach(def(prop, i):
+                        if i:
+                            output.print(",")
+                            output.newline()
+                        output.indent()
+                        prop.print(output)
+                    )
+                    output.newline()
+                )
+            else:
+                output.print("{}")
     )
     DEFPRINT(AST_ObjectKeyVal, def(self, output):
         self.key.print(output)
@@ -2261,6 +2308,7 @@ def codegen():
             or isinstance(p, AST_BaseCall) and p.expression is node
             or isinstance(p, AST_Dot) and p.expression is node
             or isinstance(p, AST_Sub) and p.expression is node
+            or isinstance(p, AST_ItemAccess) and p.expression is node
             or isinstance(p, AST_Conditional) and p.condition is node
             or isinstance(p, AST_Binary) and p.left is node
             or isinstance(p, AST_UnaryPostfix) and p.expression is node:

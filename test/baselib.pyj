@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
-# globals: _$rapyd$_iterator_symbol
-nonlocal _$rapyd$_set_implementation
+# globals: _$rapyd$_iterator_symbol, _$rapyd$_set_polyfill, _$rapyd$_dict_polyfill
+nonlocal _$rapyd$_set_implementation, _$rapyd$_dict_implementation
 
 class CustomIterable:
 
@@ -195,3 +195,42 @@ test_sets()
 _$rapyd$_set_implementation = _$rapyd$_set_polyfill  # noqa:undef
 test_sets()
 _$rapyd$_set_implementation = Set
+
+def test_dicts():
+    assert.deepEqual({!1:1, 2:2}, {!1:1, 2:2})
+    a = {!1:1, 2:2}
+    assert.ok(isinstance(a, dict))
+    assert.ok(1 in a), assert.ok(3 not in a), assert.ok('1' not in a)
+    assert.deepEqual(set(a), {1, 2})
+    assert.equal({!1:2}[!1], 2)
+    assert.throws(def():a[!'1'];, KeyError)
+    assert.equal(a.length, 2), assert.equal(len(a), 2)
+    assert.equal(a[!1], 1)
+    a[!1] = 3
+    assert.equal(a[!1], 3)
+    assert.ok(a != a.copy()), assert.deepEqual(a, a.copy())
+    a.clear()
+    assert.equal(a.length, 0), assert.deepEqual(list(a), [])
+    assert.deepEqual(set({!1:9, 2:8}.keys()), {1, 2})
+    assert.deepEqual(set({!1:9, 2:8}.values()), {8, 9})
+    items = [list_wrap(x) for x in {!1:9, 2:8}.items()]
+    items.sort()
+    assert.deepEqual(items, [[1,9], [2, 8]])
+    a = {!1:1, 2:2}
+    assert.equal(a.get(1), 1), assert.equal(a.get(3), None)
+    assert.equal(a.set_default(2, 2), 2)
+    assert.equal(a.set_default(3, 3), 3), assert.equal(a[!3], 3)
+    assert.deepEqual(dict.fromkeys([1, 2], 3), {!1:3, 2:3})
+    a = {!1:3, 2:3}
+    assert.equal(a.pop(2, 2), 3), assert.equal(a.pop(2, 2), 2)
+    assert.throws(def(): a.pop(2);, KeyError)
+    assert.deepEqual(a.popitem(), JS('[1, 3]'))
+    assert.throws(def():a.popitem();, KeyError)
+    a = {!1:1}
+    a.update({!2:2, 1:3})
+    assert.deepEqual(a, {!1:3, 2:2})
+
+test_dicts()
+_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill  # noqa:undef
+test_dicts()
+_$rapyd$_dict_implementation = Map

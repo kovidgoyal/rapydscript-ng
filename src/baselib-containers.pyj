@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals:_$rapyd$_iterator_symbol
+# globals:_$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol
 
 def _$rapyd$_equals(a, b):
     try:
@@ -102,12 +102,11 @@ def _$rapyd$_list_sort_cmp(a, b):
 def _$rapyd$_list_sort(key=None, reverse=False):
     key = key or _$rapyd$_list_sort_key
     mult = (reverse) ? -1 : 1
-    # TODO: Re-implement this with dict() so that it actually works for arbitrary objects
-    keymap = {}
+    keymap = dict()
     for JS('var i=0; i < this.length; i++'):
         k = this[i]  # noqa:undef
-        keymap[k] = key(k)
-    this.sort(def (a, b): return mult * _$rapyd$_list_sort_cmp(keymap[a], keymap[b]);)
+        keymap.set(k, key(k))
+    this.sort(def (a, b): return mult * _$rapyd$_list_sort_cmp(keymap.get(a), keymap.get(b));)
 
 def _$rapyd$_list_concat():  # ensure concat() returns an object of type list
     ans = Array.prototype.concat.apply(this, arguments)
@@ -206,9 +205,9 @@ JS('var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation')
 def _$rapyd$_set_keyfor(x):
     t = type(x)
     if t == 'string' or t == 'number' or t == 'boolean':
-        return t[0] + x
+        return '_' + t[0] + x
     if JS('x == null'): # also matches undefined
-        return "_!@#$0"
+        return "__!@#$0"
     ans = x._$rapyd$_hash_key_prop
     if ans == undefined:
         JS('ans = "_!@#$" + ++_$rapyd$_global_object_id')
@@ -278,8 +277,9 @@ def _$rapyd$_set(iterable):
                 s.add(result.value)
                 result = iterator.next()
         else:
-            for k in Object.keys(iterable):
-                s.add(k)
+            keys = Object.keys(iterable)
+            for JS('var i=0; i < keys.length; i++'):
+                s.add(keys[i])  # noqa:undef
         return ans
     else:
         return new _$rapyd$_set(iterable)
@@ -428,9 +428,8 @@ _$rapyd$_set.prototype.update = def():
             s.add(r.value)
             r = iterator.next()
 
-_$rapyd$_set.prototype.toString = def():
+_$rapyd$_set.prototype.toString = _$rapyd$_set.prototype.inspect = def():
     return '{' + list(this).join(', ') + '}'
-_$rapyd$_set.prototype.inspect = _$rapyd$_set.prototype.toString
 
 _$rapyd$_set.prototype.__eq__ = def(other):
     if not isinstance(other, this.constructor):
@@ -453,4 +452,237 @@ def _$rapyd$_set_wrap(x):
     return ans
 
 JS('var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap')
+# }}}
+
+# dict {{{
+JS('var _$rapyd$_dict_implementation')
+
+def _$rapyd$_dict_polyfill():
+    this._store = {}
+    this.size = 0
+
+_$rapyd$_dict_polyfill.prototype.set = def(x, value):
+    key = _$rapyd$_set_keyfor(x)
+    if not Object.hasOwnProperty.call(this._store, key):
+        this.size += 1
+    this._store[key] = JS('[x, value]')
+    return this
+
+_$rapyd$_dict_polyfill.prototype.clear = def(x):
+    this._store = {}
+    this.size = 0
+
+_$rapyd$_dict_polyfill.prototype.delete = def(x):
+    key = _$rapyd$_set_keyfor(x)
+    if Object.hasOwnProperty.call(this._store, key):
+        this.size -= 1
+        JS('delete this._store[key]')
+        return True
+    return False
+
+_$rapyd$_dict_polyfill.prototype.has = def(x):
+    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x))
+
+_$rapyd$_dict_polyfill.prototype.get = def(x):
+    try:
+        return this._store[_$rapyd$_set_keyfor(x)][1]
+    except TypeError:  # Key is not present
+        return undefined
+
+_$rapyd$_dict_polyfill.prototype.values = def(x):
+    keys = Object.keys(this._store)
+    s = this._store
+    return {
+        '_keys': keys,
+        '_i': -1,
+        '_s':s,
+        _$rapyd$_iterator_symbol: def (): return this;,
+        'next':def():
+            this._i += 1
+            if this._i >= this._keys.length:
+                return {'done': True}
+            return {'done':False, 'value':s[this._keys[this._i]][1]}
+    }
+
+_$rapyd$_dict_polyfill.prototype.keys = def(x):
+    keys = Object.keys(this._store)
+    s = this._store
+    return {
+        '_keys': keys,
+        '_i': -1,
+        '_s':s,
+        _$rapyd$_iterator_symbol: def (): return this;,
+        'next':def():
+            this._i += 1
+            if this._i >= this._keys.length:
+                return {'done': True}
+            return {'done':False, 'value':s[this._keys[this._i]][0]}
+    }
+
+_$rapyd$_dict_polyfill.prototype.entries = def(x):
+    keys = Object.keys(this._store)
+    s = this._store
+    return {
+        '_keys': keys,
+        '_i': -1,
+        '_s':s,
+        _$rapyd$_iterator_symbol: def (): return this;,
+        'next':def():
+            this._i += 1
+            if this._i >= this._keys.length:
+                return {'done': True}
+            return {'done':False, 'value':s[this._keys[this._i]]}
+    }
+
+if type(Map) != 'function' or type(Map.prototype.delete) != 'function':
+    JS('_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill')
+else:
+    JS('_$rapyd$_dict_implementation = Map')
+
+def _$rapyd$_dict(iterable):
+    if isinstance(this, _$rapyd$_dict):
+        this.jsmap = new _$rapyd$_dict_implementation()  # noqa:undef
+        if iterable != undefined:
+            this.update(iterable)
+        return this
+    else:
+        return new _$rapyd$_dict(iterable)
+_$rapyd$_dict.prototype.__name__ = 'dict'
+
+
+# These are for JavaScript users' convenience
+Object.defineProperties(_$rapyd$_dict.prototype, {
+    'length': { 'get': def(): return this.jsmap.size; },
+    'size': { 'get': def(): return this.jsmap.size; },
+})
+
+_$rapyd$_dict.prototype.__len__ = def(): return this.jsmap.size
+_$rapyd$_dict.prototype.has = _$rapyd$_dict.prototype.__contains__ = def(x): return this.jsmap.has(x)
+_$rapyd$_dict.prototype.set = _$rapyd$_dict.prototype.__setitem__ = def(key, value): this.jsmap.set(key, value)
+_$rapyd$_dict.prototype.clear = def(): this.jsmap.clear()
+_$rapyd$_dict.prototype.copy = def(): return _$rapyd$_dict(this)
+_$rapyd$_dict.prototype.keys = def(): return this.jsmap.keys()
+_$rapyd$_dict.prototype.values = def(): return this.jsmap.values()
+_$rapyd$_dict.prototype.items = _$rapyd$_dict.prototype.entries = def(): return this.jsmap.entries()
+_$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = def(): return this.jsmap.keys()
+
+_$rapyd$_dict.prototype.__getitem__ = def (key):
+    ans = this.jsmap.get(key)
+    if ans == undefined and not this.jsmap.has(key):
+        raise KeyError(key + '')
+    return ans
+
+_$rapyd$_dict.prototype.get = def (key, defval):
+    ans = this.jsmap.get(key)
+    if ans == undefined and not this.jsmap.has(key):
+        return (defval == undefined) ? None : defval
+    return ans
+
+_$rapyd$_dict.prototype.set_default = def (key, defval):
+    j = this.jsmap
+    if not j.has(key):
+        j.set(key, defval)
+        return defval
+    return j.get(key)
+
+_$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = def (iterable, value=None):
+    ans = _$rapyd$_dict()
+    iterator = iter(iterable)
+    r = iterator.next()
+    while not r.done:
+        ans.set(r.value, value)
+        r = iterator.next()
+    return ans
+
+_$rapyd$_dict.prototype.pop = def (key, defval):
+    ans = this.jsmap.get(key)
+    if ans == undefined and not this.jsmap.has(key):
+        if defval == undefined:
+            raise KeyError(key)
+        return defval
+    this.jsmap.delete(key)
+    return ans
+
+_$rapyd$_dict.prototype.popitem = def ():
+    r = this.jsmap.entries().next()
+    if r.done:
+        raise KeyError('dict is empty')
+    this.jsmap.delete(r.value[0])
+    return r.value
+
+_$rapyd$_dict.prototype.update = def ():
+    if arguments.length == 0:
+        return
+    m = this.jsmap
+    iterable = arguments[0]
+    if Array.isArray(iterable):
+        for JS('var i = 0; i < iterable.length; i++'):
+            m.set(iterable[i][0], iterable[i][1])  # noqa:undef
+    elif isinstance(iterable, _$rapyd$_dict):
+        iterator = iterable.items()
+        result = iterator.next()
+        while not result.done:
+            m.set(result.value[0], result.value[1])
+            result = iterator.next()
+    elif type(Map) == 'function' and isinstance(iterable, Map):
+        iterator = iterable.entries()
+        result = iterator.next()
+        while not result.done:
+            m.set(result.value[0], result.value[1])
+            result = iterator.next()
+    elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+        iterator = iterable[_$rapyd$_iterator_symbol]()
+        result = iterator.next()
+        while not result.done:
+            m.set(result.value[0], result.value[1])
+            result = iterator.next()
+    else:
+        keys = Object.keys(iterable)
+        for JS('var i=0; i < keys.length; i++'):
+            if keys[i] != _$rapyd$_iterator_symbol:
+                m.set(keys[i], iterable[keys[i]])  # noqa:undef
+    if arguments.length > 1:
+        _$rapyd$_dict.prototype.update.call(this, arguments[1])
+
+_$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = def():
+    entries = JS('[]')
+    iterator = this.jsmap.entries()
+    r = iterator.next()
+    while not r.done:
+        entries.push(r.value[0] + ': ' + r.value[1])
+        r = iterator.next()
+    return '{' + entries.join(', ') + '}'
+
+_$rapyd$_dict.prototype.__eq__ = def(other):
+    if not isinstance(other, this.constructor):
+        return False
+    if other.size != this.size:
+        return False
+    if other.size == 0:
+        return True
+    iterator = other.items()
+    r = iterator.next()
+    while not r.done:
+        x = this.jsmap.get(r.value[0])
+        if (x == undefined and not this.jsmap.has(r.value[0])) or x != r.value[1]:
+            return False
+        r = iterator.next()
+    return True
+
+_$rapyd$_dict.prototype.as_object = def(other):
+    ans = {}
+    iterator = this.jsmap.entries()
+    r = iterator.next()
+    while not r.done:
+        ans[r.value[0]] = r.value[1]
+        r = iterator.next()
+    return ans
+
+def _$rapyd$_dict_wrap(x):
+    ans = new _$rapyd$_dict()
+    ans.jsmap = x
+    return ans
+
+JS('var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap')
+
 # }}}

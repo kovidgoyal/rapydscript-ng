@@ -216,10 +216,11 @@ AST_SetComprehension = DEFNODE('SetComprehension', None, {
     '$documentation': 'A set comprehension',
 }, AST_ListComprehension)
 
-AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement', {
+AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement is_pydict', {
     '$documentation': 'A set comprehension',
     '$propdoc': {
-        'value_statement': "[AST_Node] statement to perform on each value before returning it"
+        'value_statement': "[AST_Node] statement to perform on each value before returning it",
+        'is_pydict': "[bool] True if this comprehension is for a python dict",
     },
     '_walk': def(visitor):
         node = this
@@ -679,6 +680,21 @@ AST_Sub = DEFNODE("Sub", None, {
         )
 }, AST_PropAccess)
 
+AST_ItemAccess = DEFNODE("ItemAccess", "assignment", {
+    '$documentation': 'Python index-style property access, i.e. `a.__getitem__("foo")`',
+    '$propdoc': {
+        'assignment': "[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access",
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.expression._walk(visitor)
+            node.property._walk(visitor)
+            if node.assignment:
+                node.assignment._walk(visitor)
+        )
+}, AST_PropAccess)
+
 AST_Splice = DEFNODE("Slice", "property2 assignment", {
     '$documentation': 'Index-style property access, i.e. `a[3:5]`',
     '$propdoc': {
@@ -781,10 +797,11 @@ AST_Array = DEFNODE("Array", "elements", {
     ,
 })
 
-AST_Object = DEFNODE("Object", "properties", {
+AST_Object = DEFNODE("Object", "properties is_pydict", {
     '$documentation': "An object literal",
     '$propdoc': {
-        'properties': "[AST_ObjectProperty*] array of properties"
+        'properties': "[AST_ObjectProperty*] array of properties",
+        'is_pydict': "[bool] True if this object is a python dict literal"
     },
     '_walk': def(visitor):
         node = this
