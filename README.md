@@ -1457,6 +1457,9 @@ This list below records all the work I have done on RapydScript so far.
 
 1. Support set literals
 
+1. Support python style string literals, with full unicode escapes and the raw
+   literal syntax.
+
 1. The command line interface has been cleaned up with many new options and
    improved modularization/robustness. The test suite is now run automatically
    on Travis for continuous integration. I also took the opportunity to get rid

@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
+from unicode_aliases import ALIAS_MAP
 from utils import make_predicate, characters
 from ast import AST_Token
 from errors import SyntaxError
@@ -13,6 +14,10 @@ UNARY_POSTFIX = make_predicate([ "--", "++" ])
 
 OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"))
 INVALID_OPERATORS = {"++", "--", "===", "!=="}
+
+ASCII_CONTROL_CHARS = {'a':7, 'b':8, 'f': 12, 'n': 10, 'r': 13, 't': 9, 'v': 11}
+HEX_PAT = /[a-fA-F0-9]/
+NAME_PAT = /[a-zA-Z ]/
 
 OPERATORS = make_predicate([
     "in",
@@ -345,44 +350,69 @@ def tokenizer($TEXT, filename):
         else:
             parse_error("Invalid syntax: " + num)
 
+    def read_hex_digits(count):
+        ans = ''
+        while count > 0:
+            count -= 1
+            if not HEX_PAT.test(peek()):
+                return ans
+            ans += next()
+        nval = parseInt(ans, 16)
+        if nval > 0x10FFFF:
+            return ans
+        return nval
 
-    def read_escaped_char(in_string, digester):
-        digester = digester or def(in_str):
-            return next(True, in_str)
-
-        ch = digester(in_string)
-        tmp_ = ch.charCodeAt(0)
-        if tmp_ == 110:
-            return "\n"
-        elif tmp_ == 114:
-            return "\r"
-        elif tmp_ == 116:
-            return "	"
-        elif tmp_ == 98:
-            return "\b"
-        elif tmp_ == 118:
-            return "\u000b" # \v
-        elif tmp_ == 102:
-            return "\f"
-        elif tmp_ == 48:
-            return "\0"
-        elif tmp_ == 120:
-            return String.fromCharCode(hex_bytes(2, digester))  # \x
-        elif tmp_ == 117:
-            return String.fromCharCode(hex_bytes(4, digester))  # \u
-        elif tmp_ == 10:
-            return ""   # newline
-        else:
-            return ch
-
-    def hex_bytes(n, digester):
-        num = 0
-        for i in range(n):
-            digit = parseInt(digester(), 16)
-            if isNaN(digit):
-                parse_error("Invalid hex-character pattern in string")
-            num = num << 4 | digit
-        return num
+    def read_escape_sequence():
+        q = next(True)
+        if q == '\n':
+            return ''
+        if q == '\\':
+            return q
+        if '"\''.indexOf(q) != -1:
+            return q
+        if ASCII_CONTROL_CHARS.hasOwnProperty(q):
+            return String.fromCharCode(ASCII_CONTROL_CHARS[q])
+        if '0' <= q <= '7':
+            octal = q
+            if '0' <= peek() <= '7':
+                octal += next()
+            if '0' <= peek() <= '7':
+                octal += next()
+            code = parseInt(octal, 8)
+            if isNaN(code):
+                return '\\' + octal
+            return String.fromCharCode(code)
+        if q == 'x':
+            code = read_hex_digits(2)
+            if type(code) == 'number':
+                return String.fromCharCode(code)
+            return '\\x' + code
+        if q == 'u':
+            code = read_hex_digits(4)
+            if type(code) == 'number':
+                return String.fromCharCode(code)
+            return '\\u' + code
+        if q == 'U':
+            code = read_hex_digits(8)
+            if type(code) == 'number':
+                if code <= 0xFFFF:
+                    return String.fromCharCode(code)
+                code -= 0x10000
+                return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
+            return '\\U' + code
+        if q == 'N' and peek() == '{':
+            next()
+            name = read_while(def (ch): return NAME_PAT.test(ch);)
+            if peek() != '}':
+                return '\\N{' + name
+            next()
+            if not name or not Object.prototype.hasOwnProperty.call(ALIAS_MAP, name):
+                return '\\N{' + name + '}'
+            code = ALIAS_MAP[name]
+            if code <= 0xFFFF:
+                return String.fromCharCode(code)
+            return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
+        return '\\' + q
 
     def with_eof_error(eof_error, cont):
         return def(x):
@@ -394,73 +424,38 @@ def tokenizer($TEXT, filename):
                 else:
                     raise
 
-    read_string = with_eof_error("Unterminated string constant", def():
+    read_string = with_eof_error("Unterminated string constant", def(is_raw_literal):
         quote = next()
         ret = ""
+        is_multiline = False
         if peek() == quote:
             # two quotes in a row
             next(True)
             if peek() == quote:
                 # multiline string (3 quotes in a row)
                 next(True)
-                i = find(quote + quote + quote, True) # location of string terminator
-                if i != -1:
-                    tmp = S.text.substring(S.pos, i)
-                    S.pos = i + 3
-                    while tmp.length:
-                        # parse escaped characters
-                        if tmp[0] == "\\":
-                            tmp = tmp.substr(1)
-                            ret += read_escaped_char(True, def():
-                                nonlocal tmp
-                                ch = tmp[0]
-                                tmp = tmp.substr(1)
-                                return ch
-                            )
-                        else:
-                            ret += tmp[0]
-                            tmp = tmp.substr(1)
-
-                    # add traversed lines to the counter
-                    find_newlines = ret.match(/\n/g)
-                    if find_newlines:
-                        S.line += find_newlines.length
-                    return token("string", ret)
+                is_multiline = True
             else:
-                return token("string", "")
+                return token("string", '')
 
-        while True:
-            ch = next(True)
-            if ch == "\n":
-                parse_error("End of line while scanning string literal.")
+        while ch = next(True):
+            if ch == "\n" and not is_multiline:
+                parse_error("End of line while scanning string literal")
 
             if ch == "\\":
-                # read OctalEscapeSequence (XXX: deprecated if "strict mode")
-                # https://github.com/mishoo/RapydScript/issues/178
-                octal_len = 0
-                first = None
-                ch = read_while(def(ch):
-                    nonlocal first
-                    if ch >= "0" and ch <= "7":
-                        if not first:
-                            first = ch
-                            return octal_len += 1
-                        elif first <= "3" and octal_len <= 2:
-                            return octal_len += 1
-                        elif first >= "4" and octal_len <= 1:
-                            return octal_len += 1
-                    return False
-                )
-                if octal_len > 0:
-                    ch = String.fromCharCode(parseInt(ch, 8))
-                elif peek() == "\n":
-                    # skip newlines if escaped by backslash
-                    next(True)
-                    continue
-                else:
-                    ch = read_escaped_char(True)
-            elif ch == quote:
-                break
+                ret += is_raw_literal ? ('\\' + next(True)) : read_escape_sequence()
+                continue
+
+            if ch == quote:
+                if not is_multiline:
+                    break
+                if peek() == quote:
+                    next()
+                    if peek() == quote:
+                        next()
+                        break
+                    else:
+                        ch += quote
             ret += ch
         return token("string", ret)
     )
@@ -592,7 +587,10 @@ def tokenizer($TEXT, filename):
         code = ch.charCodeAt(0)
         tmp_ = code
         if tmp_ == 34 or tmp_ == 39:    # double-quote (") or single quote (')
-            return read_string()
+            return read_string(False)
+        elif tmp_ == 114 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:
+            next()
+            return read_string(True)
         elif tmp_ == 35:                # pound-sign (#)
             if S.pos == 0 and S.text.charAt(1) == '!':
                 #shebang

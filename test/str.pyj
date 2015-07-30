@@ -2,6 +2,19 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+# Test literals
+
+assert.equal(r'\n', '\\n')
+assert.equal('\n'.charCodeAt(0), 10)
+assert.equal('\'', "'")
+assert.equal('\76'.charCodeAt(0), 62)  # octal escapes
+assert.equal('\x2a'.charCodeAt(0), 0x2a)  # hex escapes
+assert.equal('\u2028'.charCodeAt(0), 0x2028)
+assert.equal("\U0001F431", '🐱')
+assert.equal("\U0001F431", '🐱')
+assert.equal("\N{nbsp}", '\u00a0')
+assert.equal("\N{NBSP}", '\u00a0')
+
 # Test format()
 
 def test():
