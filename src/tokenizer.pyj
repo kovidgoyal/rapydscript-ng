@@ -248,7 +248,10 @@ def tokenizer($TEXT, filename):
                 S.indentation_matters.push(True)
 
             if value == "[":
-                if S.prev and S.prev.type == "name":
+                if S.prev and (
+                    S.prev.type == "name" or
+                    (S.prev.type == 'punc' and ')]'.indexOf(S.prev.value) != -1)
+                ):
                     S.index_or_slice.push(True)
                 else:
                     S.index_or_slice.push(False)
