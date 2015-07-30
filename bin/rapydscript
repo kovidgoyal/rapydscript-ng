@@ -51,7 +51,7 @@ if (!require('../tools/utils').generators_available()) {
     } else
 
     if (argv.mode === 'repl') {
-        load('repl')({'lib_path':lib_path, show_js:!argv.no_js});
+        load('repl')({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
     } else {
         load('compile')(start_time, argv, base_path, src_path, lib_path);
     }
