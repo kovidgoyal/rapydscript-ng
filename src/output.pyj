@@ -29,7 +29,6 @@ def OutputStream(options):
         'quote_keys': False,
         'space_colon': True,
         'ascii_only': False,
-        'inline_script': False,
         'width': 80,
         'max_line_len': 32000,
         'ie_proof': True,
@@ -68,51 +67,8 @@ def OutputStream(options):
 
         )
 
-    def make_string(str_):
-        dq = 0
-        sq = 0
-        str_ = str_.replace(/[\\\b\f\n\r\t\x22\x27\u2028\u2029\0]/g, def(s):
-            tmp_ = s
-            if tmp_ == "\\":
-                return "\\\\"
-            elif tmp_ == "\b":
-                return "\\b"
-            elif tmp_ == "\f":
-                return "\\f"
-            elif tmp_ == "\n":
-                return "\\n"
-            elif tmp_ == "	":
-                return "\\t"
-            elif tmp_ == "\r":
-                return "\\r"
-            elif tmp_ == "\u2028":
-                return "\\u2028"
-            elif tmp_ == "\u2029":
-                return "\\u2029"
-            elif tmp_ == '"':
-                dq += 1
-                return '"'
-            elif tmp_ == "'":
-                sq += 1
-                return "'"
-            elif tmp_ == "\0":
-                return "\\0"
-            return s
-        )
-        if options.ascii_only:
-            str_ = to_ascii(str_)
-
-        if dq > sq:
-            return "'" + str_.replace(/\x27/g, "\\'") + "'"
-        else:
-            return '"' + str_.replace(/\x22/g, '\\"') + '"'
-
     def encode_string(str_):
-        ret = make_string(str_)
-        if options.inline_script:
-            ret = ret.replace(/<\x2fscript([>\/\t\n\f\r ])/gi, "<\\/script$1")
-
-        return ret
+        return JSON.stringify(str_)
 
     def make_name(name):
         name = name.toString()
