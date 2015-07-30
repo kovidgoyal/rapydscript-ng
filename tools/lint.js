@@ -336,13 +336,15 @@ function Linter(toplevel, filename, code, options) {
                 var cnode = node.init.elements[i];
                 if (cnode instanceof RapydScript.AST_Seq) cnode = cnode.to_array();
                 if (cnode instanceof RapydScript.AST_SymbolRef) cnode = [cnode];
-                for (var j = 0; j < cnode.length; j++) {
-                    var elem = cnode[j];
-                    if (elem instanceof RapydScript.AST_SymbolRef) {
-                        this.current_node = elem;
-                        elem.lint_visited = true;
-                        this.add_binding(elem.name).is_loop = true;
-                        this.current_node = node;
+                if (Array.isArray(cnode)) {
+                    for (var j = 0; j < cnode.length; j++) {
+                        var elem = cnode[j];
+                        if (elem instanceof RapydScript.AST_SymbolRef) {
+                            this.current_node = elem;
+                            elem.lint_visited = true;
+                            this.add_binding(elem.name).is_loop = true;
+                            this.current_node = node;
+                        }
                     }
                 }
             }
