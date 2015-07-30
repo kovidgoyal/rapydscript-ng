@@ -743,7 +743,8 @@ You can test for the presence of unicode support with
 
 You can use the JavaScript regex literal syntax, including verbose regex
 literals, as shown below. In verbose mode, whitespace is ignored and # comments
-are allowed.
+are allowed (except inside character classes -- verbose mode works in the same
+way as in python, except you use the JavaScript Regex literal syntax).
 
 ```py
 import re
