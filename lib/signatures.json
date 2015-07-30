@@ -3,15 +3,15 @@
     "baselib-builtins": "f6d0a0f90227816804ab18e9d6f91f3314ebc104",
     "baselib-containers": "241d405fefba1ae465d8a9720a21fb2d2d7eab8e",
     "baselib-errors": "ed82e34944661183f987d3f4f88ba79b8a7ade4d",
-    "baselib-format": "8ea9b664893906d0217fdeb9d27c11d5f1493d9b",
     "baselib-itertools": "1d7986b8491af7fa6499a73ae6f61a295ab53350",
+    "baselib-str": "e87f148781293354ced3c18220375e3ab8a3d16a",
     "baselib": "8bdb0e6c47a95a2bda53762f99833cf018615efc",
     "compiler": "f0f1dafd06c68f89383ede998d4097b7dc09acde",
     "errors": "eb15520287db559585bbc9bdb934f9dc7f593f0a",
-    "output": "29c0a36df5df4810c93e1a354aed5dd457a774b9",
+    "output": "ef03bf7c1e39d085c1b432b9c605164e41ae78af",
     "parse": "e2aeff046b5b3c8dea749d6a2a71ce8da44fd330",
-    "tokenizer": "ecc9c2efe31edfb8553de71722b685c5e9157582",
+    "tokenizer": "4ec032a639aec816c7a4821179ac5b82310f0b82",
     "utils": "7fcdb42be93918357fdc1415d767a3249e41aad1",
-    "#compiler#": "6024f62c39c8fbe14942a449e3e2bb9a78b25a63",
-    "#compiled_with#": "6024f62c39c8fbe14942a449e3e2bb9a78b25a63"
+    "#compiler#": "18a28158ea52aabab0fb6ed37cc3bb12c46c0cbf",
+    "#compiled_with#": "18a28158ea52aabab0fb6ed37cc3bb12c46c0cbf"
 }

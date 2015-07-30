@@ -1,0 +1,78 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# globals: _$rapyd$_kwargs_symbol
+
+def _$rapyd$_str():
+    return arguments[0] + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+
+_$rapyd$_str.format = def ():
+    if type(this) == 'string':
+        template = this
+        args = Array.prototype.slice.call(arguments)
+    else:
+        template = arguments[0]
+        if template is undefined:
+            raise TypeError("Template is required")
+        args = Array.prototype.slice.call(arguments, 1)
+    kwargs = {}
+    if args.length and args[-1][_$rapyd$_kwargs_symbol] != undefined:
+        kwargs = args[-1]
+        args = args[:-1]
+
+    explicit = implicit = False
+    idx = 0
+
+    def resolve(arg, object):
+        if not arg:
+            return object
+        first, arg = arg[0], arg[1:]
+        key = arg.split(/[.\[]/, 1)[0]
+        rest = arg[key.length:]
+        ans = (first == '[') ? object[key[:-1]] : getattr(object, key)
+        if ans is undefined:
+            raise KeyError((first == '[') ? key[:-1] : key)
+        return resolve(rest, ans)
+
+    def apply_formatting(value, format_spec):
+        return value
+
+    return template.replace(
+        /([{}])\1|[{](.*?)(?:!([^:]+?)?)?(?::(.+?))?[}]/g,
+        def (match, literal, key, transformer, format_spec):
+            nonlocal explicit, implicit, idx
+            if literal:
+                return literal
+            if transformer and JS("['a', 'r', 's']").indexOf(transformer) == -1:
+                raise ValueError('Unknown conversion specifier: ' + transformer)
+            lkey = key.length and key.split(/[.\[]/, 1)[0]
+            if lkey:
+                explicit = True
+                if implicit:
+                    raise ValueError('cannot switch from automatic field numbering to manual field specification')
+                nvalue = parseInt(lkey)
+                object = isNaN(nvalue) ? kwargs[lkey] : args[nvalue]
+                if object is undefined:
+                    if isNaN(nvalue):
+                        raise KeyError(lkey)
+                    raise IndexError(lkey)
+                object = resolve(key[lkey.length:], object)
+            else:
+                implicit = True
+                if explicit:
+                    raise ValueError('cannot switch from manual field specification to automatic field numbering')
+                if idx >= args.length:
+                    raise IndexError('Not enough arguments to match template: ' + template)
+                object = args[idx]
+                idx += 1
+            if type(object) == 'function':
+                object = object()
+            ans = '' + object
+            if format_spec:
+                ans = apply_formatting(ans, format_spec)
+            return ans
+    )
+
+
+JS('var str = _$rapyd$_str')

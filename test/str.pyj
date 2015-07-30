@@ -1,0 +1,29 @@
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+# Test format()
+
+def test():
+    args = Array.prototype.slice.call(arguments, 1)
+    assert.equal(arguments[0], str.format.apply(None, args))
+
+def test_throws():
+    args = Array.prototype.slice.call(arguments)
+    def f():
+        return str.format.apply(None, args[1:])
+    assert.throws(f, args[0])
+
+test(' 1 2', ' {} {}', 1, 2)
+test('{ a ', '{{ {0} ', 'a')
+test('11', '{0}{0}', 1)
+test('12', '{a}{b}', a=1, b=2)
+test('12', '{a}{0}', 2, a=1)
+test('1', '{0[0]}', [1])
+test('1', '{0.a.b}', {'a':{'b':1}})
+test('1', '{0[a][b]}', {'a':{'b':1}})
+test('x', '{}', def (): return 'x';)
+test_throws(AttributeError, '{0.a}', {})
+test_throws(KeyError, '{a}', b=1)
+test_throws(IndexError, '{} {}', 1)
+test_throws(IndexError, '{1} {2}', 1)

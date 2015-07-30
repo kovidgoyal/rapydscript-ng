@@ -341,6 +341,7 @@ def OutputStream(options):
         baselib_items['errors'] = True
         baselib_items['containers'] = True
         baselib_items['builtins'] = True
+        baselib_items['str'] = True
         deps = options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
