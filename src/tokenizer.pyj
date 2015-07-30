@@ -480,34 +480,17 @@ def tokenizer($TEXT, filename):
         return token(shebang ? "shebang" : "comment1", ret, True)
 
     def read_name():
-        backslash = False
         name = ""
-        escaped = False
-
         while (ch = peek()) != None:
-            if not backslash:
-                if ch == "\\":
-                    if S.text.charAt(S.pos + 1) == "\n":
-                        S.pos += 2
-                        continue
-                    else:
-                        escaped = backslash = True, next()
-                elif is_identifier_char(ch):
-                    name += next()
-                else:
-                    break
+            if ch == "\\":
+                if S.text.charAt(S.pos + 1) == "\n":
+                    S.pos += 2
+                    continue
+                break
+            elif is_identifier_char(ch):
+                name += next()
             else:
-                if ch != "u":
-                    parse_error("Expecting UnicodeEscapeSequence -- uXXXX")
-                ch = read_escaped_char()
-                if not is_identifier_char(ch):
-                    parse_error("Unicode char: " + ch.charCodeAt(0) + " is not valid in identifier")
-                name += ch
-                backslash = False
-
-        if KEYWORDS(name) and escaped:
-            hex = name.charCodeAt(0).toString(16).toUpperCase()
-            name = "\\u" + "0000".substr(hex.length) + hex + name.slice(1)
+                break
         return name
 
     read_regexp = with_eof_error("Unterminated regular expression", def():
