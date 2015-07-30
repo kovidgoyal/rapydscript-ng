@@ -319,6 +319,13 @@ def tokenizer($TEXT, filename):
         after_e = False
         has_x = False
         has_dot = prefix == "."
+        if not prefix and peek() == '0' and S.text.charAt(S.pos + 1) == 'b':
+            next(), next()
+            num = read_while(def(ch): return ch == '0' or ch == '1';)
+            valid = parseInt(num, 2)
+            if isNaN(valid):
+                parse_error('Invalid syntax for a binary number')
+            return token('num', valid)
         num = read_while(def(ch, i):
             nonlocal after_e, has_dot, has_e, has_x
             code = ch.charCodeAt(0)

@@ -7,6 +7,7 @@ assert.equal(-100 // 3, -34)
 a = 100
 a //= 3
 assert.equal(a, 33)
+assert.equal(0b11, 3)
 
 # comparisons
 assert.ok(3<5<7)
