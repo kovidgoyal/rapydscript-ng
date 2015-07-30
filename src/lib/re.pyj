@@ -1,12 +1,9 @@
-###########################################################
-# RapydScript Standard Library
-# Author: Alexander Tsepkov
-# Copyright 2013 Pyjeon Software LLC
-# License: Apache License    2.0
-# This library is covered under Apache license, so that
-# you can distribute it with your RapydScript applications.
-###########################################################
+# vim:fileencoding=utf-8
+# License: BSD
+# Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# Copyright: 2013, Alexander Tsepkov
 
+# globals: _$rapyd$_iterator_symbol
 
 # basic implementation of Python's 're' library
 
@@ -15,147 +12,194 @@
 # use JavaScript's native RegExp object
 
 
+I = IGNORECASE = 1
+M = MULTILINE = 2
+# JavaScript doesn't really have a DOTALL-equivalent, I will hack around that by replacing dots with [\s\S]
+D = DOTALL = 4
+A = ASCII = 8
 
-module re:
-    I = IGNORECASE = 1
-    M = MULTILINE = 2
+supports_unicode = RegExp.prototype.unicode is not undefined
 
-    # JavaScript doesn't really have a DOTALL-equivalent, I will hack around that by replacing dots with [\s\S]
-    D = DOTALL = 4
+_RE_ESCAPE = /[-\/\\^$*+?.()|[\]{}]/g
 
-    class MatchObject:
-        def __init__(self, regex, match):
-            self.re = regex
-            self.string = match.input
-            self._groups = match
+_re_cache_map = {}
+_re_cache_items = JS('[]')
 
-            # compute start/end for each group
-            self._start = []
-            self._end = []
-            offset = 0
-            remainder = match.input
-            i = 0
-            while type(match[i]) !== "undefined":
-                loc = remainder.search(match[i])
-                self._start.push(loc+offset)
-                self._end.push(loc+offset+match[i].length-1)
-                remainder = remainder[loc:]
-                i += 1
+class MatchObject:
 
-        def groups(self):
-            return self._groups[:] # protect original
+    def __init__(self, regex, match):
+        self.re = regex
+        self.string = match.input
+        self._groups = match
 
-        def group(self, g=0):
-            return self._groups[g]
+        # compute start/end for each group
+        self._start = []
+        self._end = []
+        offset = 0
+        remainder = match.input
+        i = 0
+        while type(match[i]) != "undefined":
+            loc = remainder.search(match[i])
+            self._start.push(loc+offset)
+            self._end.push(loc+offset+match[i].length-1)
+            remainder = remainder[loc:]
+            i += 1
 
-        def start(g=0):
-            return self._start[g]
+    def groups(self):
+        return self._groups[:] # protect original
 
-        def end(g=0):
-            return self._end[g]
+    def group(self, g=0):
+        return self._groups[g]
 
-    class RegexObject(RegExp):
-        def __init__(self, pattern, flags):
-            if isinstance(pattern, RegexObject):
-                self.pattern = pattern.pattern
-                self.flags = pattern.flags | flags
-            else:
-                self.pattern = pattern # this isn't the real pattern, but rather the original string, for consistency with Python
-                self.flags = flags
+    def start(self, g=0):
+        return self._start[g]
 
-            modifiers = ''
-            if self.flags & IGNORECASE: modifiers += 'i'
-            if self.flags & MULTILINE: modifiers += 'm'
-            if self.flags & DOTALL:
-                pattern = pattern.replace(RegExp('\\.', 'g'), '[\\s\\S]')
-            self._modifiers = modifiers
+    def end(self, g=0):
+        return self._end[g]
 
-            # now create the real pattern
-            self._pattern = RegExp(pattern, modifiers)
+class RegexObject:
 
-        def search(self, string):
-            n = string.match(self._pattern)
-            if n is None:
-                return None
-            return MatchObject(self, n)
+    def __init__(self, pattern, flags):
+        flags = flags or 0
+        if isinstance(pattern, RegExp):
+            self.pattern = pattern.source
+            self.flags = flags
+        else:
+            self.pattern = pattern
+            self.flags = flags
 
-        def match(self, string):
-            n = string.match(RegExp('^' + self.pattern, self._modifiers))
-            if n is None:
-                return None
-            return MatchObject(self, n)
+        modifiers = ''
+        if self.flags & IGNORECASE: modifiers += 'i'
+        if self.flags & MULTILINE: modifiers += 'm'
+        if self.flags & DOTALL:
+            parsed = ''
+            in_class = previous_backslash = False
+            for ch in self.pattern:
+                if previous_backslash:
+                    parsed += '\\' + ch
+                    previous_backslash = False
+                elif in_class:
+                    parsed += ch
+                    if ch == ']':
+                        in_class = False
+                elif ch == '\\':
+                    parsed += ch
+                    previous_backslash = True
+                elif ch == '.':
+                    parsed += '[\\s\\S]'
+                elif ch == '[':
+                    parsed += ch
+                    in_class = True
+                else:
+                    parsed += ch
+            self.pattern = parsed
+        if not (self.flags & ASCII) and supports_unicode:
+            modifiers += 'u'
+        self._modifiers = modifiers
 
-        def split(self, string, maxsplit=None):
-            if maxsplit is not None:
-                return string.split(self._pattern, maxsplit)
-            else:
-                return string.split(self._pattern)
+        # now create the real pattern
+        self._pattern = RegExp(self.pattern, modifiers)
 
-        def findall(self, string):
-            matches = string.match(RegExp(self.pattern, self._modifiers + 'g'))
-            i = 0
-            ret = []
-            while type(matches[i]) !== "undefined":
-                ret.push(matches[i]) # a hack to avoid including non-array like portions of regex match
-                i += 1
-            return ret
+    def search(self, string):
+        n = string.match(self._pattern)
+        if n is None:
+            return None
+        return MatchObject(self, n)
 
-        def sub(self, repl, string, count=0):
-            if count == 0:
-                return string.replace(RegExp(self.pattern, self._modifiers + 'g'), repl)
+    def match(self, string):
+        n = string.match(RegExp('^' + self.pattern, self._modifiers))
+        if n is None:
+            return None
+        return MatchObject(self, n)
 
-            for i in range(count):
-                string = string.replace(self._pattern, repl)
-            return string
+    def split(self, string, maxsplit=None):
+        if maxsplit is not None:
+            return string.split(self._pattern, maxsplit)
+        else:
+            return string.split(self._pattern)
 
-        def subn(self, repl, string, count=0):
-            n = 0
-            if count == 0:
-                count = Number.MAX_VALUE
+    def findall(self, string):
+        matches = string.match(RegExp(self.pattern, self._modifiers + 'g'))
+        i = 0
+        ret = []
+        while type(matches[i]) != "undefined":
+            ret.push(matches[i]) # a hack to avoid including non-array like portions of regex match
+            i += 1
+        return ret
 
-            new_string = string
-            do:
-                string = new_string
-                new_string = string.replace(self._pattern, repl)
-                if new_string != string:
-                    n += 1
-                    count -= 1
-            .while new_string != string and count > 0
+    def finditer(self, string):
+        return {
+            '_string':string,
+            '_r': self,
+            _$rapyd$_iterator_symbol: def (): return this;,
+            'next': def ():
+                m = this._r.search(this._string)
+                if m is None:
+                    return {'done':True}
+                this._string = this._string[m.end():]
+                return {'done':False, 'value':m}
+        }
 
-            return string, n
+    def sub(self, repl, string, count=0):
+        if count == 0:
+            return string.replace(RegExp(self.pattern, self._modifiers + 'g'), repl)
 
-    def compile(pattern, flags=0):
-        return RegexObject(pattern, flags)
+        for i in range(count):
+            string = string.replace(self._pattern, repl)
+        return string
 
-    def search(pattern, string, flags=0):
-        return RegexObject(pattern, flags).search(string)
+    def subn(self, repl, string, count=0):
+        n = 0
+        if count == 0:
+            count = Number.MAX_VALUE
 
-    def match(pattern, string, flags=0):
-        return RegexObject(pattern, flags).match(string)
+        new_string = string
+        do:
+            string = new_string
+            new_string = string.replace(self._pattern, repl)
+            if new_string != string:
+                n += 1
+                count -= 1
+        .while new_string != string and count > 0
 
-    def split(pattern, string, maxsplit=0, flags=0):
-        return RegexObject(pattern, flags).split(string)
+        return string, n
 
-    def findall(pattern, string, flags=0):
-        return RegexObject(pattern, flags).findall(string)
+def _get_from_cache(pattern, flags):
+    if isinstance(pattern, RegExp):
+        pattern = pattern.source
+    key = JSON.stringify(JS('[pattern, flags]'))
+    if Object.prototype.hasOwnProperty.call(_re_cache_map, key):
+        return _re_cache_map[key]
+    if _re_cache_items.length >= 100:
+        JS('delete _re_cache_map[_re_cache_items.shift()]')
+    ans = RegexObject(pattern, flags)
+    _re_cache_map[key] = ans
+    _re_cache_items.push(key)
+    return ans
 
-    def sub(pattern, repl, string, count=0, flags=0):
-        return RegexObject(pattern, flags).sub(repl, string, count)
+def compile(pattern, flags=0):
+    return _get_from_cache(pattern, flags)
 
-    def subn(pattern, repl, string, count=0, flags=0):
-        return RegexObject(pattern, flags).subn(repl, string, count)
+def search(pattern, string, flags=0):
+    return _get_from_cache(pattern, flags).search(string)
 
+def match(pattern, string, flags=0):
+    return _get_from_cache(pattern, flags).match(string)
 
+def split(pattern, string, maxsplit=0, flags=0):
+    return _get_from_cache(pattern, flags).split(string)
 
-#import stdlib
-#a = re.compile('test.*one', re.I + re.M + re.D)
-#print(a)
-#s = "Isaac Newton, physicist"
-#c = re.search("(\\w+) (\\w+)", s)
-#print(c)
-#c = re.match("(\\w+) (\\w+)", s)
-#print(c)
-#print(re.split('\\s', s))
-#print(re.findall('s[a-z]', s))
-#print(re.sub('[A-Z]', '_', s))
-#print(re.subn('[A-Z]', '_', s))
+def findall(pattern, string, flags=0):
+    return _get_from_cache(pattern, flags).findall(string)
+
+def finditer(pattern, string, flags=0):
+    return _get_from_cache(pattern, flags).finditer(string)
+
+def sub(pattern, repl, string, count=0, flags=0):
+    return _get_from_cache(pattern, flags).sub(repl, string, count)
+
+def subn(pattern, repl, string, count=0, flags=0):
+    return _get_from_cache(pattern, flags).subn(repl, string, count)
+
+def escape(string):
+    return string.replace(_RE_ESCAPE, '\\$&')

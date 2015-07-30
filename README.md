@@ -29,6 +29,7 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
   - [Dicts](#dicts)
 - [Loops](#loops)
 - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
+- [Regular Expressions](#regular-expressions)
 - [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
 - [Classes](#classes)
   - [External Classes](#external-classes)
@@ -46,7 +47,6 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
     - [Semi-Colons](#semi-colons)
     - [Raw JavaScript](#raw-javascript)
     - [jQuery-wrapped Elements](#jquery-wrapped-elements)
-    - [Libraries](#libraries)
     - [External Libraries and Classes](#external-libraries-and-classes)
 - [Gotchas](#gotchas)
 - [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
@@ -730,6 +730,31 @@ only work if the javascript runtime you use supports ES 6 Sets. At some point
 in the future, I might add a builtin set type to RapydScript that behaves like
 the python set type.
 
+Regular Expressions
+----------------------
+
+RapydScript includes a ```re``` module that mimics the interface of the Python
+re module. However, it uses the JavaScript regular expression functionality
+under the hood, which has several differences from the Python regular
+expression engine. Most importantly it does not support lookbehind
+and it does not support unicode (on ES 6 runtimes, unicode is supported). 
+You can test for the presence of unicode support with
+```re.supports_unicode```. 
+
+You can use the JavaScript regex literal syntax, including verbose regex
+literals, as shown below. In verbose mode, whitespace is ignored and # comments
+are allowed.
+
+```py
+import re
+re.match(/ab/, 'ab') == re.match('ab', 'ab')
+
+re.match(///
+  a  # a comment
+  b  # Another comment
+  ///, 'ab')
+```
+
 Inclusive/Exclusive Sequences
 -----------------------------
 Like Python, RapydScript has a range() function. While powerful, the result it generates isn't immediately obvious when looking at the code. It's a minor pet peeve, but the couple extra seconds trying to visually parse it and remember that it's not inclusive can detract from the code flow. To remedy this, RapydScript borrows `to/til` operators from LiveScript (also known as human-readable versions of Ruby's `../...`). The following 4 lines of code are equivalent, for example:
@@ -1300,9 +1325,6 @@ $canvas.appendTo(document)
 ```
 
 This is especially useful with function definitions, since you will immediately know what kind of object the function takes in just by skimming its signature.
-
-#### Libraries
-I recommend that developers rely on native JavaScript logic when possible, rather than libraries like `math.pyj` and `re.pyj`. While they mimic Python without problems and work quite well, they introduce extra overhead that your web app doesn't need. Additionally, I think `re` module in Python is unnecessarily complex, and JavaScript's `RegExp` object is much easier to use. With that said, these libraries can be extremely useful for porting large applications from Python to the web, but if you're writing new code, it will probably be easier to maintain if you decide to use native JavaScript alternatives (such as `Math` and `RegExp`) instead.
 
 #### External Libraries and Classes
 RapydScript will pick up any classes you declare yourself as well as native JavaScript classes. It will not, however, pick up class-like objects created by outside frameworks. There are two approaches for dealing with those. One is via `@external` decorator, the other is via `new` operator when declaring such object. To keep code legible and consistent, I strongly prefer the use of `@external` decorator over the `new` operator for several reasons, even if it may be more verbose:
