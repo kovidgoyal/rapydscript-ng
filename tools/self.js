@@ -18,10 +18,16 @@ function read_baselib_modules(RapydScript, src_path, lib_path) {
     });
     var ans = {};
     items.forEach(function(fname) {
-        var name = fname.slice('baselib-'.length, -4);
+        var name = fname.slice('baselib-'.length, -4), ast;
         ans[name] = {'code':{}};
         var raw = fs.readFileSync(path.join(src_path, fname), 'utf-8');
-        var ast = RapydScript.parse(raw, {'filename':fname, basedir:src_path});
+        try {
+            ast = RapydScript.parse(raw, {'filename':fname, basedir:src_path});
+        } catch (e) {
+            if (!(e instanceof RapydScript.SyntaxError)) throw e;
+            console.error(e.toString());
+            process.exit(1);
+        }
         ans[name].baselib_items = ast.baselib;
         [true, false].forEach(function (beautify) {
             output = RapydScript.OutputStream({
@@ -57,8 +63,14 @@ function generate_baselib(ast, beautify, RapydScript, baselib_modules) {
 function parse_baselib(RapydScript, src_path, lib_path) {
     baselib_modules = read_baselib_modules(RapydScript, src_path, lib_path);
     baselib_path = path.join(src_path, 'baselib.pyj');
-    ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
-    return [generate_baselib(ast, true, RapydScript, baselib_modules), generate_baselib(ast, false, RapydScript, baselib_modules)];
+    try {
+        ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
+        return [generate_baselib(ast, true, RapydScript, baselib_modules), generate_baselib(ast, false, RapydScript, baselib_modules)];
+    } catch (e) {
+        if (!(e instanceof RapydScript.SyntaxError)) throw e;
+        console.error(e.toString());
+        process.exit(1);
+    }
 }
 
 function check_for_changes(base_path, src_path, signatures) {
