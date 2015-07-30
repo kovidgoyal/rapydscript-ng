@@ -260,7 +260,7 @@ module.exports = function(options) {
             toplevel = RapydScript.parse(source, {
                 'filename':'<repl>',
                 'basedir': process.cwd(),
-                'libdir': options.lib_path,
+                'libdir': options.imp_path,
                 'classes': classes
             });
         } catch(e) {
