@@ -59,6 +59,12 @@ assert.equal(getattr(a, 'x', 1), 2)
 assert.equal(getattr(a, 'y', 1), 1)
 assert.throws(def():getattr(a, 'y');, AttributeError)
 
+# int()/float()
+assert.equal(int('a', 16), 10)
+assert.throws(def ():int('a');, ValueError)
+assert.equal(float('10.3'), 10.3)
+assert.throws(def ():float('a');, ValueError)
+
 # sum()
 assert.equal(6, sum([1, 2, 3]))
 assert.equal(6, sum(iter([1, 2, 3])))

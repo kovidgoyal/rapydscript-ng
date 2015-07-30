@@ -46,7 +46,19 @@ def _$rapyd$_print():
     if JS('typeof console') == 'object':
         JS('console.log.apply(console, arguments)')
 
+def _$rapyd$_int():
+    ans = parseInt.apply(None, arguments)
+    if isNaN(ans):
+        base = (arguments.length > 1) ? arguments[1] : 10
+        raise ValueError('Invalid literal for int with base ' + base + ': ' + arguments[0])
+    return ans
+
+def _$rapyd$_float():
+    ans = parseFloat.apply(None, arguments)
+    if isNaN(ans):
+        raise ValueError('Could not convert string to float: ' + arguments[0])
+    return ans
 
 JS('var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all')
-JS('var float = parseFloat, int = parseInt, rebind_all = _$rapyd$_rebind_all')
+JS('var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all')
 JS('var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice')
