@@ -46,11 +46,10 @@ def _$rapyd$_print():
     if JS('typeof console') == 'object':
         JS('console.log.apply(console, arguments)')
 
-def _$rapyd$_int():
-    ans = parseInt.apply(None, arguments)
+def _$rapyd$_int(val, base):
+    ans = parseInt(val, base or 10)
     if isNaN(ans):
-        base = (arguments.length > 1) ? arguments[1] : 10
-        raise ValueError('Invalid literal for int with base ' + base + ': ' + arguments[0])
+        raise ValueError('Invalid literal for int with base ' + (base or 10) + ': ' + val)
     return ans
 
 def _$rapyd$_float():
