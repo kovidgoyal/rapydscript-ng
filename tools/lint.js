@@ -25,6 +25,7 @@ var MESSAGES = {
     'import-err': 'An import error caused compilation to abort',
     'def-after-use': 'The symbol "{name}" is defined (at line {line}) after it is used',
     'dup-key': 'JavaScript in strict mode does not allow for duplicate keys ("{name}" is duplicated) in object mode',
+    'dup-method': 'The method {name} was defined previously at line: {line}',
 };
 
 BUILTINS = {
@@ -101,6 +102,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
     this.unused_bindings = {};
     this.nonlocals = {};
     this.defined_after_use = {};
+    this.seen_method_names = {};
 
     this.add_binding = function(name, node, options) {
         var already_bound = this.bindings.hasOwnProperty(name);
@@ -252,12 +254,16 @@ function Linter(toplevel, filename, code, options) {
     this.handle_lambda = function() {
         var node = this.current_node;
         var name = (node.name) ? node.name.name : undefined;
+        var scope = this.scopes[this.scopes.length - 1];
         if (this.branches.length && name) {
             this.messages.push(msg_from_node(filename, 'func-in-branch', node.name, node));
         }
         if (name) {
-            if (node instanceof RapydScript.AST_Method) {}
-            else this.add_binding(name);
+            if (node instanceof RapydScript.AST_Method) {
+                if (Object.prototype.hasOwnProperty.call(scope.seen_method_names, name)) {
+                    this.messages.push(msg_from_node(filename, 'dup-method', node.name, node, WARN, scope.seen_method_names[name]));
+                } else scope.seen_method_names[name] = node.start.line;
+            } else this.add_binding(name);
         }
     };
 

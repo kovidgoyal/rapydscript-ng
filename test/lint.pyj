@@ -140,6 +140,7 @@ class B(A):
         A.__init__(self, 'b')
 ''')
 err_test('class A:\n def a(self):\n  a()', 'undef', 3, 'a')
+err_test('class A:\n def a(self):\n  pass\n def a(self):\n  pass', 'dup-method', 4, 'a')
 
 # Object literals
 err_test('{"a":1, "a":2}', 'dup-key', 1, 'a')
