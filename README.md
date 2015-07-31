@@ -736,10 +736,14 @@ Regular Expressions
 RapydScript includes a ```re``` module that mimics the interface of the Python
 re module. However, it uses the JavaScript regular expression functionality
 under the hood, which has several differences from the Python regular
-expression engine. Most importantly it does not support lookbehind
-and it does not support unicode (on ES 6 runtimes, unicode is supported). 
-You can test for the presence of unicode support with
-```re.supports_unicode```. 
+expression engine. Most importantly:
+
+  - it does not support lookbehind
+  - it does not support unicode (on ES 6 runtimes, unicode is supported, but
+	with a different syntax). You
+	can test for the presence of unicode support with
+	```re.supports_unicode```. 
+  - it does not support named groups
 
 You can use the JavaScript regex literal syntax, including verbose regex
 literals, as shown below. In verbose mode, whitespace is ignored and # comments
@@ -748,7 +752,7 @@ way as in python, except you use the JavaScript Regex literal syntax).
 
 ```py
 import re
-re.match(/ab/, 'ab') == re.match('ab', 'ab')
+re.match(/a(b)/, 'ab') == re.match('a(b)', 'ab')
 
 re.match(///
   a  # a comment

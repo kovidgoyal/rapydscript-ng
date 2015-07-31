@@ -16,11 +16,16 @@ assert.deepEqual(re.findall('s[a-z]', s), ['sa', 'si', 'st'])
 assert.deepEqual([m.group() for m in re.finditer('s[a-z]', s)], ['sa', 'si', 'st'])
 assert.deepEqual(re.findall(/s[a-z]/, s), ['sa', 'si', 'st'])
 assert.equal(re.sub('[A-Z]', '_', s), '_saac _ewton, physicist')
+assert.equal(re.sub('[A-Z]', '_', s, count=1), '_saac Newton, physicist')
 assert.equal(re.search('a[.]b', 'axb'), None)
 assert.equal(re.search('a[.]b', 'axb', flags=re.D), None)
 assert.equal(re.search('.+', 'a\nb').group(), 'a')
 assert.equal(re.search('.+', 'a\nb', flags=re.D).group(), 'a\nb')
-
+assert.equal(re.sub('a(b)', r'xx', 'ab'), r'xx')
+assert.equal(re.sub('a(b)', r'\\1', 'ab'), r'\1')
+assert.equal(re.sub('a(b)', r'\\\1', 'ab'), r'\b')
+assert.equal(re.sub('a(b)', r'\g<1>', 'ab'), r'b')
+assert.equal(re.sub('a(b)', def(m):return m.group(1);, 'ab'), r'b')
 # Test verbose mode literals
 assert.equal(re.search(///
     a
