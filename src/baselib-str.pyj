@@ -7,15 +7,12 @@
 def _$rapyd$_str():
     return arguments[0] + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
+# format()  {{{
 _$rapyd$_str.format = def ():
-    if type(this) == 'string':
-        template = this
-        args = Array.prototype.slice.call(arguments)
-    else:
-        template = arguments[0]
-        if template is undefined:
-            raise TypeError("Template is required")
-        args = Array.prototype.slice.call(arguments, 1)
+    template = arguments[0]
+    if template is undefined:
+        raise TypeError("Template is required")
+    args = Array.prototype.slice.call(arguments, 1)
     kwargs = {}
     if args.length and args[-1][_$rapyd$_kwargs_symbol] != undefined:
         kwargs = args[-1]
@@ -272,5 +269,70 @@ _$rapyd$_str._template_format_pat = ///
     (?:\.(\d+))? # precision
     ([bcdeEfFgGnosxX%])? # type
 ///
+# }}}
+
+_$rapyd$_str.capitalize = def (string):
+    if string:
+        string = string[0].toUpperCase() + string[1:].toLowerCase()
+    return string
+
+_$rapyd$_str.center = def(string, width, fill):
+    left = (width - string.length) // 2
+    right = width - left - string.length  # noqa:unused-local
+    fill = fill or ' '
+    return JS('Array(left+1).join(fill)') + string + JS('Array(right+1).join(fill)')
+
+_$rapyd$_str.count = def(string, needle, start, end):
+    start = start or 0
+    end = end or string.length
+    if start < 0 or end < 0:
+        string = string[start:end]
+        start, end = 0, string.length
+    pos = start
+    step = needle.length
+    ans = 0
+    while pos != -1:
+        pos = string.indexOf(needle, pos)
+        if pos != -1:
+            ans += 1
+            pos += step
+    return ans
+
+_$rapyd$_str.endswith = def(string, suffixes, start, end):
+    start = start or 0
+    if type(suffixes) == 'string':
+        suffixes = [suffixes]
+    if end is not undefined:
+        string = string[:end]
+    for JS('var i = 0; i < suffixes.length; i++'):
+        q = suffixes[i]  # noqa:undef
+        if string.indexOf(q, Math.max(start, string.length - q.length)) != -1:
+            return True
+    return False
+
+_$rapyd$_str.find = def(string, needle, start, end):
+    if start < 0:
+        start = string.length - start
+    ans = string.indexOf(needle, start)
+    if end is not undefined and ans != -1:
+        if end < 0:
+            end = string.length - end
+        if ans >= end:
+            return -1
+    return ans
+
+_$rapyd$_str.index = def(string, needle, start, end):
+    ans = _$rapyd$_str.find.apply(None, arguments)
+    if ans == -1:
+        raise ValueError('substring not found')
+    return ans
+
+_$rapyd$_str.ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
+_$rapyd$_str.ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+_$rapyd$_str.ascii_letters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+_$rapyd$_str.digits   = '0123456789'
+_$rapyd$_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+_$rapyd$_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
+_$rapyd$_str.whitespace   = ' \t\n\r\x0b\x0c'
 
 JS('var str = _$rapyd$_str')
