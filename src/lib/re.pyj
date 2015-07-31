@@ -109,6 +109,7 @@ def _expand(groups, repl):
             code = _ALIAS_MAP[key]
             if code <= 0xFFFF:
                 return String.fromCharCode(code)
+            code -= 0x10000
             return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
 
         return '\\' + q

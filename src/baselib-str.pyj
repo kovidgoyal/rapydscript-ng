@@ -28,7 +28,7 @@ _$rapyd$_str.format = def ():
         if not arg:
             return object
         first, arg = arg[0], arg[1:]
-        key = arg.split(/[.\[]/, 1)[0]
+        key = arg.split(_$rapyd$_str._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
         ans = (first == '[') ? object[key[:-1]] : getattr(object, key)
         if ans is undefined:
@@ -36,10 +36,131 @@ _$rapyd$_str.format = def ():
         return resolve(rest, ans)
 
     def apply_formatting(value, format_spec):
+        try:
+            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(_$rapyd$_str._template_format_pat)[1:]
+        except TypeError:
+            return value
+        if zeropad:
+            fill = fill or '0'
+            align = align or '='
+        else:
+            fill = fill or ' '
+            align = align or '>'
+        is_numeric = JS('Number(value) === value')
+        is_int = is_numeric and JS('value % 1 === 0')
+        precision = parseInt(precision, 10)
+        lftype = (ftype or '').toLowerCase()
+
+        if ftype == 'n':
+            is_numeric = True
+            if is_int:
+                if comma:
+                    raise ValueError("Cannot specify ',' with 'n'")
+                value = parseInt(value, 10).toLocaleString()
+            else:
+                value = parseFloat(value).toLocaleString()
+
+        elif JS("['b', 'c', 'd', 'o', 'x']").indexOf(lftype) != -1:
+            value = parseInt(value, 10)
+            is_numeric = True
+            if not isNaN(value):
+                if ftype == 'b':
+                    value = JS('(value >>> 0).toString(2)')
+                    if fhash:
+                        value = '0b' + value
+                elif ftype == 'c':
+                    if value > 0xFFFF:
+                        code = value - 0x10000
+                        value = String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
+                    else:
+                        value = String.fromCharCode(value)
+                elif ftype == 'd':
+                    if comma:
+                        value = value.toLocaleString('en-US')
+                    else:
+                        value = value.toString(10)
+                elif ftype == 'o':
+                    value = value.toString(8)
+                    if fhash:
+                        value = '0o' + value
+                elif lftype == 'x':
+                    value = value.toString(16)
+                    value = value.toLowerCase() if ftype == 'x' else value.toUpperCase()
+                    if fhash:
+                        value = '0x' + value
+
+        elif JS("['e','f','g','%']").indexOf(lftype) != -1:
+            is_numeric = True
+            value = parseFloat(value)
+            if lftype == 'e':
+                value = value.toExponential(6 if isNaN(precision) else precision)
+                value = value.toUpperCase() if ftype == 'E' else value.toLowerCase()
+            elif lftype == 'f':
+                value = value.toFixed(6 if isNaN(precision) else precision)
+                value = value.toUpperCase() if ftype == 'F' else value.toLowerCase()
+            elif ftype == '%':
+                value *= 100
+                value = value.toFixed(6 if isNaN(precision) else precision) + '%'
+            elif lftype == 'g':
+                if isNaN(precision):
+                    precision = 6
+                precision = max(1, precision)
+                exp = parseInt(value.toExponential(precision - 1).toLowerCase().split('e')[1], 10)
+                if -4 <= exp < precision:
+                    value = value.toFixed(precision - 1 - exp)
+                else:
+                    value = value.toExponential(precision - 1)
+                value = value.replace(/0+$/g, '')
+                if value[-1] == '.':
+                    value = value[:-1]
+                if ftype == 'G':
+                    value = value.toUpperCase()
+
+        else:
+            value += ''  # Ensure we have a string
+            if not isNaN(precision):
+                value = value[:precision]
+
+        value += ''  # Ensure we have a string
+
+        if is_numeric and sign:
+            nval = Number(value)
+            is_positive = not isNaN(nval) and nval >= 0
+            if is_positive and (sign == ' ' or sign == '+'):
+                value = sign + value
+
+        def repeat(char, num):
+            return JS('Array(num+1).join(char)')
+
+        if is_numeric and width and width[0] == '0':
+            width = width[1:]
+            fill, align = '0', '='
+
+        width = parseInt(width or '-1', 10)
+        if isNaN(width):
+            raise ValueError('Invalid width specification: ' + width)
+
+        if fill and value.length < width:
+            if align == '<':
+                value = value + repeat(fill, width - value.length)
+            elif align == '>':
+                value = repeat(fill, width - value.length) + value
+            elif align == '^':
+                left = (width - value.length) // 2
+                right = width - left - value.length
+                value = repeat(fill, left) + value + repeat(fill, right)
+            elif align == '=':
+                if value[0] in "+- ":
+                    value = value[0] + repeat(fill, width - value.length) + value[1:]
+                else:
+                    value = repeat(fill, width - value.length) + value
+            else:
+                raise ValueError('Unrecognized alignment: ' + align)
+
         return value
 
     return template.replace(
-        /([{}])\1|[{](.*?)(?:!([^:]+?)?)?(?::(.+?))?[}]/g,
+        _$rapyd$_str._template_pat,
         def (match, literal, key, transformer, format_spec):
             nonlocal explicit, implicit, idx
             if literal:
@@ -74,5 +195,17 @@ _$rapyd$_str.format = def ():
             return ans
     )
 
+_$rapyd$_str._template_pat = /([{}])\1|[{](.*?)(?:!([^:]+?)?)?(?::(.+?))?[}]/g
+_$rapyd$_str._template_resolve_pat = /[.\[]/
+_$rapyd$_str._template_format_pat = ///
+    ([^{}](?=[<>=^]))?([<>=^])? # fill & align
+    ([-+\x20])? # sign
+    (\#)? # integer base specifier
+    (0)? # zero-padding
+    (\d+)? # width
+    (,)? # use a comma thousands-seperator
+    (?:\.(\d+))? # precision
+    ([bcdeEfFgGnosxX%])? # type
+///
 
 JS('var str = _$rapyd$_str')
