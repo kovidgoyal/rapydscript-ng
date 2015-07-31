@@ -255,7 +255,10 @@ function Linter(toplevel, filename, code, options) {
         if (this.branches.length && name) {
             this.messages.push(msg_from_node(filename, 'func-in-branch', node.name, node));
         }
-        if (name) this.add_binding(name);
+        if (name) {
+            if (node instanceof RapydScript.AST_Method) {}
+            else this.add_binding(name);
+        }
     };
 
     this.handle_assign = function() {
