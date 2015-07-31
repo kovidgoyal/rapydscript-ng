@@ -1356,6 +1356,12 @@ below:
   [1]`` is a new list in Python, but a string in JavaScript. Keep that in mind
   as you write code.
 
+- There are many more keywords than in Python. Because RapydScript compiles
+  down to JavaScript, the set of keywords is all the keywords of Python + all
+  the keywords of JavaScript. For example, ``default`` and ``delete`` are
+  keywords in RapydScript. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords)
+  for a list of JavaScript keywords.
+
 - Method binding in RS is not automatic. So ``someobj.somemethod()`` will do the
   right thing, but ``x = someobj.somethod; x()`` will not. RS could work around
   it, but at significant performance cost. See the section above on method
