@@ -571,6 +571,6 @@ ALIAS_MAP = (def ():
         if parts.length >= 2:
             code_point = parseInt(parts[0], 16)
             if code_point != undefined and parts[1]:
-                ans[parts[1]] = ans[parts[1].toLowerCase()] = code_point
+                ans[parts[1].toLowerCase()] = code_point
     return ans
 )()

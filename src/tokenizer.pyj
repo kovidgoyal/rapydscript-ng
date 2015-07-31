@@ -416,9 +416,10 @@ def tokenizer($TEXT, filename):
             if peek() != '}':
                 return '\\N{' + name
             next()
-            if not name or not Object.prototype.hasOwnProperty.call(ALIAS_MAP, name):
+            key = (name or '').toLowerCase()
+            if not name or not Object.prototype.hasOwnProperty.call(ALIAS_MAP, key):
                 return '\\N{' + name + '}'
-            code = ALIAS_MAP[name]
+            code = ALIAS_MAP[key]
             if code <= 0xFFFF:
                 return String.fromCharCode(code)
             return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
