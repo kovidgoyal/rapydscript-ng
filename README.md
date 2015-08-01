@@ -660,9 +660,9 @@ arrays and objects.
 ### Container comparisons
 
 RapydScript does not overload the comparison operators ```(==, !=, >, <, >=,
-<=)``` as doin so would be a big performance impact (function calls in
+<=)``` as doing so would be a big performance impact (function calls in
 JavaScript are very slow). So using them on containers is useless. Currently,
-there is a builtin ```equals()``` function that wors the same way as the
+there is a builtin ```equals()``` function that works the same way as the
 equality operator in python (it uses the __eq__() method, which all the builtin
 containers in RapydScript implement). 
 
