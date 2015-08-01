@@ -779,6 +779,10 @@ expression engine. Most importantly:
 	can test for the presence of unicode support with
 	```re.supports_unicode```. 
   - it does not support named groups
+  - The ``MatchObject``'s ``start()`` and ``end()`` method cannot return correct values
+    for subgroups for some kinds of regular expressions, for example, those
+	with nested captures. This is because the JavaScript regex API does not expose
+	this information, so it has to be guessed via a heuristic.
 
 You can use the JavaScript regex literal syntax, including verbose regex
 literals, as shown below. In verbose mode, whitespace is ignored and # comments
