@@ -130,17 +130,17 @@ class MatchObject:
         self._groups = match
         self.pos, self.endpos = pos, endpos
 
+    def _compute_extents(self):
         # compute start/end for each group
-        self._start = []
-        self._end = []
-        remainder = match.input
-        i = 0
-        while match[i] != undefined:
-            loc = remainder.search(match[i])
-            self._start.push(loc)
-            self._end.push(loc + match[i].length)
-            remainder = remainder[loc:]
-            i += 1
+        match = self._groups
+        self._start = JS('Array(match.length)')
+        self._end = JS('Array(match.length)')
+        loc = 0
+        for JS('var i = 0; i < match.length; i++'):
+            g = match[i]
+            loc = self.string.indexOf(g, loc)
+            self._start[i] = loc
+            self._end[i] = loc + g.length  # noqa:undef
 
     def groups(self):
         return self._groups[:] # protect original
@@ -149,9 +149,13 @@ class MatchObject:
         return self._groups[g]
 
     def start(self, g=0):
+        if self._start is undefined:
+            self._compute_extents()
         return self._start[g]
 
     def end(self, g=0):
+        if self._end is undefined:
+            self._compute_extents()
         return self._end[g]
 
     def expand(self, repl):
