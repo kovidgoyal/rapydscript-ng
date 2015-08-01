@@ -29,11 +29,10 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
   - [Dicts](#dicts)
 - [Loops](#loops)
 - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
+- [Strings](#strings)
 - [Regular Expressions](#regular-expressions)
 - [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
 - [Classes](#classes)
-  - [External Classes](#external-classes)
-  - [Method Binding](#method-binding)
 - [Iterators](#iterators)
 - [Generators](#generators)
 - [Modules](#modules)
@@ -42,12 +41,6 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 - [Available Libraries](#available-libraries)
 - [Linter](#linter)
 - [Advanced Usage Topics](#advanced-usage-topics)
-    - [Browser Compatibility](#browser-compatibility)
-    - [Tabs vs Spaces](#tabs-vs-spaces)
-    - [Semi-Colons](#semi-colons)
-    - [Raw JavaScript](#raw-javascript)
-    - [jQuery-wrapped Elements](#jquery-wrapped-elements)
-    - [External Libraries and Classes](#external-libraries-and-classes)
 - [Gotchas](#gotchas)
 - [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
@@ -729,6 +722,48 @@ Note that set comprehensions currently create an ES6 Set object, so they will
 only work if the javascript runtime you use supports ES 6 Sets. At some point
 in the future, I might add a builtin set type to RapydScript that behaves like
 the python set type.
+
+Strings
+---------
+
+For reasons of compatibility with external JavaScript and performance,
+RapydScript does not make any changes to the native JavaScript string type.
+However, all the useful Python string methods are available on the builtin
+``str`` object. This is analogous to how the functions are available in the
+``string`` module in Python 2.x.  For example,
+
+```py
+str.strip(' a ') == 'a'
+str.split('a b') == ['a', 'b']
+...
+```
+
+One thing to keep in mind is that in JavaScript string are UTF-16, so they
+behave like strings in narrow builds of Python 2.x. This means that non-BMP
+unicode characters are represented as surrogate pairs. RapydScript includes
+some functions to make dealing with non-BMP unicode characters easier:
+
+  - ``str.uchrs(string, [with_positions])`` -- iterate over unicode characters in string, so, for example:
+
+	```py
+	list(str.uchrs('s🐱a')) == ['s', "🐱", 'a']
+	```
+
+	You can also get positions of individual characters:
+
+	```py
+	list(str.uchrs('s🐱a'), True) == [[0, 's'], [1, "🐱"], [3, 'a']]
+	```
+	Note that any broken surrogate pairs in the underlying string are returned
+	as the unicode replacement character U+FFFD
+
+  - ``str.uslice(string, [start, [stop]])`` -- get a slice based on unicode character positions, for example:
+
+	```py
+	str.uslice('s🐱a', 2') == 'a'  # even though a is at index 3 in the native string object
+	```
+
+  - ``str.ulen(string)`` -- return the number of unicode characters in the string
 
 Regular Expressions
 ----------------------

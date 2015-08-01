@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: _$rapyd$_kwargs_symbol
+# globals: _$rapyd$_kwargs_symbol, _$rapyd$_list_decorate, _$rapyd$_iterator_symbol
 
 def _$rapyd$_str():
     return arguments[0] + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
@@ -306,7 +306,7 @@ _$rapyd$_str.count = def(string, needle, start, end):
 _$rapyd$_str.endswith = def(string, suffixes, start, end):
     start = start or 0
     if type(suffixes) == 'string':
-        suffixes = [suffixes]
+        suffixes = JS('[suffixes]')
     if end is not undefined:
         string = string[:end]
     for JS('var i = 0; i < suffixes.length; i++'):
@@ -315,14 +315,36 @@ _$rapyd$_str.endswith = def(string, suffixes, start, end):
             return True
     return False
 
+_$rapyd$_str.startswith = def(string, prefixes, start, end):
+    start = start or 0
+    if type(prefixes) == 'string':
+        prefixes = JS('[prefixes]')
+    for JS('var i = 0; i < prefixes.length; i++'):
+        prefix = prefixes[i]  # noqa:undef
+        end = string.length if end is undefined else end
+        if end - start >= prefix.length and prefix == string[start:start + prefix.length]:
+            return True
+    return False
+
 _$rapyd$_str.find = def(string, needle, start, end):
-    if start < 0:
-        start = string.length - start
+    while start < 0:
+        start += string.length
     ans = string.indexOf(needle, start)
     if end is not undefined and ans != -1:
-        if end < 0:
-            end = string.length - end
-        if ans >= end:
+        while end < 0:
+            end += string.length
+        if ans >= end - needle.length:
+            return -1
+    return ans
+
+_$rapyd$_str.rfind = def(string, needle, start, end):
+    while end < 0:
+        end += string.length
+    ans = string.lastIndexOf(needle, end - 1)
+    if start is not undefined and ans != -1:
+        while start < 0:
+            start += string.length
+        if ans < start:
             return -1
     return ans
 
@@ -330,6 +352,246 @@ _$rapyd$_str.index = def(string, needle, start, end):
     ans = _$rapyd$_str.find.apply(None, arguments)
     if ans == -1:
         raise ValueError('substring not found')
+    return ans
+
+_$rapyd$_str.rindex = def(string, needle, start, end):
+    ans = _$rapyd$_str.rfind.apply(None, arguments)
+    if ans == -1:
+        raise ValueError('substring not found')
+    return ans
+
+_$rapyd$_str.islower = def(string):
+    return string.length > 0 and string.toUpperCase() != string
+
+_$rapyd$_str.isupper = def(string):
+    return string.length > 0 and string.toLowerCase() != string
+
+_$rapyd$_str.isspace = def(string):
+    return string.length > 0 and /^\s+$/.test(string)
+
+_$rapyd$_str.join = def(string, iterable):
+    if Array.isArray(iterable):
+        return iterable.join(string)
+    ans = ''
+    r = iterable.next()
+    while not r.done:
+        if ans:
+            ans += string
+        ans += r.value
+        r = iterable.next()
+    return ans
+
+_$rapyd$_str.ljust = def(string, width, fill):
+    if width > string.length:
+        fill = fill or ' '
+        string += JS('Array(width - string.length + 1).join(fill)')
+    return string
+
+_$rapyd$_str.rjust = def(string, width, fill):
+    if width > string.length:
+        fill = fill or ' '
+        string = JS('Array(width - string.length + 1).join(fill)') + string
+    return string
+
+_$rapyd$_str.lower = def(string):
+    return string.toLowerCase()
+
+_$rapyd$_str.upper = def(string):
+    return string.toUpperCase()
+
+_$rapyd$_str.lstrip = def(string, chars):
+    pos = 0
+    chars = chars or _$rapyd$_str.whitespace
+    while chars.indexOf(string[pos]) != -1:
+        pos += 1
+    if pos:
+        string = string[pos:]
+    return string
+
+_$rapyd$_str.rstrip = def(string, chars):
+    pos = string.length - 1
+    chars = chars or _$rapyd$_str.whitespace
+    while chars.indexOf(string[pos]) != -1:
+        pos -= 1
+    if pos < string.length - 1:
+        string = string[:pos + 1]
+    return string
+
+_$rapyd$_str.strip = def(string, chars):
+    return _$rapyd$_str.lstrip(_$rapyd$_str.rstrip(string, chars), chars)
+
+_$rapyd$_str.partition = def(string, sep):
+    idx = string.indexOf(sep)
+    if idx == -1:
+        return string, '', ''
+    return string[:idx], sep, string[idx + sep.length:]
+
+_$rapyd$_str.rpartition = def(string, sep):
+    idx = string.lastIndexOf(sep)
+    if idx == -1:
+        return '', '', string
+    return string[:idx], sep, string[idx + sep.length:]
+
+_$rapyd$_str.replace = def(string, old, repl, count):
+    if count == 1:
+        return string.replace(old, repl)
+    if count < 1:
+        return string
+    count = count or Number.MAX_VALUE
+    pos = 0
+    while count > 0:
+        count -= 1
+        idx = string.indexOf(old, pos)
+        if idx == -1:
+            break
+        pos = idx + repl.length
+        string = string[:idx] + repl + string[idx + old.length:]
+    return string
+
+_$rapyd$_str.split = def(string, sep, maxsplit):
+    if maxsplit == 0:
+        return [string]
+    if sep is undefined or sep is None:
+        if maxsplit > 0:
+            ans = string.split(/(\s+)/)
+            extra = ''
+            parts = JS('[]')
+            for JS('var i = 0; i < ans.length; i++'):
+                if parts.length >= maxsplit + 1:
+                    extra += ans[i]
+                elif i % 2 == 0:
+                    parts.push(ans[i])  # noqa:undef
+            parts[-1] += extra
+            ans = parts
+        else:
+            ans = string.split(/\s+/)
+    else:
+        if sep == '':
+            raise ValueError('empty separator')
+        ans = string.split(sep)
+        if maxsplit > 0 and ans.length > maxsplit:
+            extra = ans[maxsplit:].join(sep)
+            ans = ans[:maxsplit]
+            ans.push(extra)
+    return _$rapyd$_list_decorate(ans)
+
+_$rapyd$_str.rsplit = def(string, sep, maxsplit):
+    if not maxsplit:
+        return _$rapyd$_str.split.call(None, string, sep, maxsplit)
+    if sep is undefined or sep is None:
+        if maxsplit > 0:
+            ans = JS('[]')
+            is_space = /\s/
+            pos = string.length - 1
+            current = ''
+            while pos > -1 and maxsplit > 0:
+                spc = False
+                ch = string[pos]
+                while pos > -1 and is_space.test(ch):
+                    spc = True
+                    ch = JS('string[--pos]')
+                if spc:
+                    if current:
+                        ans.push(current)
+                        maxsplit -= 1
+                    current = ch
+                else:
+                    current += ch
+                pos -= 1
+            ans.push(string[:pos + 1] + current)
+            ans.reverse()
+        else:
+            ans = string.split(/\s+/)
+    else:
+        if sep == '':
+            raise ValueError('empty separator')
+        ans = JS('[]')
+        pos = end = string.length
+        while pos > -1 and maxsplit > 0:
+            maxsplit -= 1
+            idx = string.lastIndexOf(sep, pos)
+            if idx == -1:
+                break
+            ans.push(string[idx + sep.length:end])
+            pos = idx - 1
+            end = idx
+        ans.push(string[:end])
+        ans.reverse()
+    return _$rapyd$_list_decorate(ans)
+
+_$rapyd$_str.splitlines = def(string, keepends):
+    if keepends:
+        parts = string.split(/((?:\r?\n)|\r)/)
+        ans = JS('[]')
+        for JS('var i = 0; i < parts.length; i++'):
+            if i % 2 == 0:
+                ans.push(parts[i])
+            else:
+                ans[-1] += parts[i]  # noqa:undef
+    else:
+        ans = string.split(/(?:\r?\n)|\r/)
+    return _$rapyd$_list_decorate(ans)
+
+_$rapyd$_str.swapcase = def(string):
+    ans = JS('Array(string.length)')
+    for JS('var i = 0; i < ans.length; i++'):
+        a = string[i]
+        # We dont care about non-BMP chars as they are not cased anyway
+        b = a.toLowerCase()
+        if a == b:
+            b = a.toUpperCase()
+        ans[i] = b  # noqa:undef
+    return ans.join('')
+
+_$rapyd$_str.zfill = def(string, width):
+    if width > string.length:
+        string = JS('Array(width - string.length + 1).join("0")') + string
+    return string
+
+_$rapyd$_str.uchrs = def(string, with_positions):
+    # Return iterator over unicode chars in string. Will yield the unicode
+    # replacement char U+FFFD for broken surrogate pairs
+    return {
+        '_string': string,
+        '_pos': 0,
+        _$rapyd$_iterator_symbol: def(): return this;,
+        'next' : def():
+            length = this._string.length
+            if this._pos >= length:
+                return {'done': True}
+            pos = this._pos
+            value = JS('this._string.charCodeAt(this._pos++)')
+            ans = '\ufffd'
+            if 0xD800 <= value <= 0xDBFF:
+                if this._pos < length:
+                    # high surrogate, and there is a next character
+                    extra = JS('this._string.charCodeAt(this._pos++)')
+                    if (extra & 0xDC00) == 0xDC00: # low surrogate
+                        ans = String.fromCharCode(value, extra)
+            elif (value & 0xDC00) != 0xDC00: # not a low surrogate
+                ans = String.fromCharCode(value)
+            if with_positions:
+                return {'done':False, 'value':[pos, ans]}
+            else:
+                return {'done':False, 'value':ans}
+    }
+
+_$rapyd$_str.uslice = def(string, start, end):
+    items = JS('[]')
+    iterator = _$rapyd$_str.uchrs(string)
+    r = iterator.next()
+    while not r.done:
+        items.push(r.value)
+        r = iterator.next()
+    return items[start or 0:items.length if end is undefined else end].join('')
+
+_$rapyd$_str.ulen = def(string):
+    iterator = _$rapyd$_str.uchrs(string)
+    r = iterator.next()
+    ans = 0
+    while not r.done:
+        r = iterator.next()
+        ans += 1
     return ans
 
 _$rapyd$_str.ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
