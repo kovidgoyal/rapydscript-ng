@@ -29,18 +29,18 @@ var MESSAGES = {
 };
 
 BUILTINS = {
-    'this':true, 'self':true, 'window':true, 'document':true,
+    'this':true, 'self':true, 'window':true, 'document':true, 'chr':true, 'ord':true,
     'iterator_symbol':true, 'print':true, 'len':true, 'range':true, 'dir':true,
     'eval':true, 'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
-    'max':true, 'min':true, 'enumerate':true, 'rebind_all':true,
+    'max':true, 'min':true, 'enumerate':true, 'rebind_all':true, 'callable':true,
     'extends':true, 'reversed':true, 'sum':true, 'getattr':true, 'isFinite':true,
     'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true,
     'isNaN':true, 'JSON':true, 'Math':true, 'list':true, 'set':true, 'list_wrap':true,
-    '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true,
+    '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true, 'bin':true, 
     'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'set_wrap':true,
     'RangeError':true, 'ReferenceError':true, 'SyntaxError':true, 'str':true,
     'TypeError':true, 'URIError':true, 'Exception':true, 'IndexError':true,
-    'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true,
+    'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true, 'hex':true,
     'filter':true, 'zip':true, 'equals': true, 'dict':true, 'dict_wrap':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });

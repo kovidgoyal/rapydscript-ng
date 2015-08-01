@@ -30,6 +30,12 @@ assert.equal(len(s), 2)
 assert.deepEqual(list(s), [1, 2])
 assert.deepEqual(s, {1, 2})
 
+assert.equal(chr(ord('a')), 'a')
+assert.equal(chr(ord('🐱')), '🐱')
+assert.equal(bin(3), '0b11')
+assert.equal(bin(-3), '-0b11')
+assert.equal(hex(10), '0xa')
+assert.equal(hex(-10), '-0xa')
 t = []
 for i in s:
     t.push(i)

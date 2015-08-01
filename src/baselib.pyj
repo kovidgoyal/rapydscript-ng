@@ -30,6 +30,44 @@ def dir(item):
     for JS('var i in item'): arr.push(i)  # noqa:undef
     return arr
 
+def ord(x):
+    ans = x.charCodeAt(0)
+    if 0xD800 <= ans <= 0xDBFF:
+        second = x.charCodeAt(1)
+        if 0xDC00 <= second <= 0xDFFF:
+            return (ans - 0xD800) * 0x400 + second - 0xDC00 + 0x10000
+        raise TypeError('string is missing the low surrogate char')
+    return ans
+
+def chr(code):
+    if code <= 0xFFFF:
+        return String.fromCharCode(code)
+    code -= 0x10000
+    return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
+
+def callable(x):
+    return JS('typeof x === "function"')
+
+def bin(x):
+    if type(x) != 'number' or x % 1 != 0:
+        raise TypeError('integer required')
+    ans = x.toString(2)
+    if ans[0] == '-':
+        ans = '-' + '0b' + ans[1:]
+    else:
+        ans = '0b' + ans
+    return ans
+
+def hex(x):
+    if type(x) != 'number' or x % 1 != 0:
+        raise TypeError('integer required')
+    ans = x.toString(16)
+    if ans[0] == '-':
+        ans = '-' + '0x' + ans[1:]
+    else:
+        ans = '0x' + ans
+    return ans
+
 def _$rapyd$_extends(child, parent):
     child.prototype = Object.create(parent.prototype)
     child.prototype.constructor = child
@@ -202,6 +240,11 @@ if JS("typeof exports === 'object'"):
     exports['max()'] = max
     exports['min()'] = min
     exports.dir = dir
+    exports.ord = ord
+    exports.chr = chr
+    exports.bin = bin
+    exports.hex = hex
+    exports.callable = callable
     exports.enumerate = enumerate
     exports.iter = iter
     exports.extends = _$rapyd$_extends

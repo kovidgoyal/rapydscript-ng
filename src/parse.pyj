@@ -25,7 +25,8 @@ from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 BASELIB_ITEMS = {'dir', 'enumerate', 'range', 'reversed', 'getattr', 'setattr', 'hasattr', 'iter',
-                 'len', 'abs', 'max', 'min', 'sum', 'map', 'zip', 'filter'}
+                 'len', 'abs', 'max', 'min', 'sum', 'map', 'zip', 'filter', 'ord', 'chr', 'callable',
+                 'bin', 'hex'}
 BASELIB_FUNCS = {'len', 'abs', 'max', 'min'}
 BASELIB_ITERTOOLS = {'sum', 'map', 'zip', 'filter'}
 
