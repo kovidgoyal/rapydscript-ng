@@ -127,6 +127,7 @@ class MatchObject:
     def __init__(self, regex, match, pos, endpos):
         self.re = regex
         self.string = match.input
+        self._start_pos = match.index
         self._groups = match
         self.pos, self.endpos = pos, endpos
 
@@ -135,8 +136,10 @@ class MatchObject:
         match = self._groups
         self._start = JS('Array(match.length)')
         self._end = JS('Array(match.length)')
-        loc = 0
-        for JS('var i = 0; i < match.length; i++'):
+        self._start[0] = self._start_pos
+        self._end[0] = self._start_pos + match[0].length
+        loc = self._start_pos
+        for JS('var i = 1; i < match.length; i++'):
             g = match[i]
             loc = self.string.indexOf(g, loc)
             self._start[i] = loc
