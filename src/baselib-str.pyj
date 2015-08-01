@@ -21,11 +21,14 @@ _$rapyd$_str.format = def ():
     explicit = implicit = False
     idx = 0
 
+    if _$rapyd$_str.format._template_resolve_pat is undefined:
+        _$rapyd$_str.format._template_resolve_pat = /[.\[]/
+
     def resolve(arg, object):
         if not arg:
             return object
         first, arg = arg[0], arg[1:]
-        key = arg.split(_$rapyd$_str._template_resolve_pat, 1)[0]
+        key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
         ans = (first == '[') ? object[key[:-1]] : getattr(object, key)
         if ans is undefined:
@@ -33,7 +36,9 @@ _$rapyd$_str.format = def ():
         return resolve(rest, ans)
 
     def resolve_format_spec(format_spec):
-        return format_spec.replace(_$rapyd$_str._template_resolve_fs_pat, def (match, key):
+        if _$rapyd$_str.format._template_resolve_fs_pat is undefined:
+            _$rapyd$_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
+        return format_spec.replace(_$rapyd$_str.format._template_resolve_fs_pat, def (match, key):
             if not Object.prototype.hasOwnProperty.call(kwargs, key):
                 return ''
             return '' + kwargs[key]
@@ -42,8 +47,20 @@ _$rapyd$_str.format = def ():
     def apply_formatting(value, format_spec):
         if format_spec.indexOf('{') != -1:
             format_spec = resolve_format_spec(format_spec)
+        if _$rapyd$_str.format._template_format_pat is undefined:
+            _$rapyd$_str.format._template_format_pat = ///
+                ([^{}](?=[<>=^]))?([<>=^])? # fill & align
+                ([-+\x20])? # sign
+                (\#)? # integer base specifier
+                (0)? # zero-padding
+                (\d+)? # width
+                (,)? # use a comma thousands-seperator
+                (?:\.(\d+))? # precision
+                ([bcdeEfFgGnosxX%])? # type
+            ///
+
         try:
-            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(_$rapyd$_str._template_format_pat)[1:]
+            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(_$rapyd$_str.format._template_format_pat)[1:]
         except TypeError:
             return value
         if zeropad:
@@ -257,18 +274,6 @@ _$rapyd$_str.format = def ():
 
     return ans
 
-_$rapyd$_str._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
-_$rapyd$_str._template_resolve_pat = /[.\[]/
-_$rapyd$_str._template_format_pat = ///
-    ([^{}](?=[<>=^]))?([<>=^])? # fill & align
-    ([-+\x20])? # sign
-    (\#)? # integer base specifier
-    (0)? # zero-padding
-    (\d+)? # width
-    (,)? # use a comma thousands-seperator
-    (?:\.(\d+))? # precision
-    ([bcdeEfFgGnosxX%])? # type
-///
 # }}}
 
 _$rapyd$_str.capitalize = def (string):
