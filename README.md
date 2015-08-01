@@ -775,8 +775,7 @@ expression engine. Most importantly:
 
   - it does not support lookbehind
   - it does not support unicode (on ES 6 runtimes, unicode is supported, but
-	with a different syntax). You
-	can test for the presence of unicode support with
+	with a different syntax). You can test for the presence of unicode support with
 	```re.supports_unicode```. 
   - it does not support named groups
   - The ``MatchObject``'s ``start()`` and ``end()`` method cannot return correct values
