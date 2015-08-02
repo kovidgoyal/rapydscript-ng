@@ -157,6 +157,9 @@ def transform_regex(source, flags):
 
         if ch == '[':
             in_class = True
+            if source[pos] == ']':  # in python the empty set is not allowed, instead []] is the same as [\]]
+                pos += 1
+                ch = r'[\]'
         elif ch == '(':
             if source[pos] == '?':
                 extension = source[pos + 1]

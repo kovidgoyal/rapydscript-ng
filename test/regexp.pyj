@@ -34,6 +34,7 @@ assert.equal(re.sub('a(b)', r'\\1', 'ab'), r'\1')
 assert.equal(re.sub('a(b)', r'\\\1', 'ab'), r'\b')
 assert.equal(re.sub('a(b)', r'\g<1>', 'ab'), r'b')
 assert.equal(re.sub('a(b)', def(m):return m.group(1);, 'ab'), r'b')
+assert.equal(']', re.match('[]]', ']').group())
 
 assert.throws(def():re.search(r'(?<=a)b', 'ab');, re.error)
 assert.throws(def():re.search(r'(?(1)a|b)b', 'ab');, re.error)
