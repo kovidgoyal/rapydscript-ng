@@ -452,11 +452,11 @@ object* as its last argument. There is a convenient decorator in the standard
 library that makes this easy:
 
 ```py
-from stdlib import options_object
-
 @options_object
 def callback(a, b, opt1=default1, opt2=default2):
-	pass
+	console.log(opt1, opt2)
+
+callback(1, 2, {'opt1':'x', 'opt2':'y'})  # will print x, y
 ```
 
 Now when you pass callback into the external library and it is called with an

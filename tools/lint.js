@@ -34,7 +34,7 @@ BUILTINS = {
     'eval':true, 'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
     'max':true, 'min':true, 'enumerate':true, 'rebind_all':true, 'callable':true,
     'extends':true, 'reversed':true, 'sum':true, 'getattr':true, 'isFinite':true,
-    'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true,
+    'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true, 'options_object':true,
     'isNaN':true, 'JSON':true, 'Math':true, 'list':true, 'set':true, 'list_wrap':true,
     '_$rapyd$_modules':true, 'require':true, 'bool':true, 'int':true, 'bin':true, 
     'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'set_wrap':true,

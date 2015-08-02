@@ -2,6 +2,8 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+# globals:_$rapyd$_kwargs_symbol
+
 def _$rapyd$_bool(val):
     return JS('!!val')
 
@@ -57,6 +59,12 @@ def _$rapyd$_float():
     if isNaN(ans):
         raise ValueError('Could not convert string to float: ' + arguments[0])
     return ans
+
+def options_object(f):
+    return def():
+        if JS('typeof arguments[arguments.length - 1] === "object"'):
+            arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = True
+        return f.apply(this, arguments)
 
 JS('var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all')
 JS('var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all')

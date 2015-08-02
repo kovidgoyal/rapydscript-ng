@@ -175,8 +175,6 @@ de(Test().arguments, [undefined, 2, [], {}])
 de(Test(1, 3, 4, 5, b=8, c=9).arguments, [1, 8, [4, 5], {'c':9}])
 
 
-from stdlib_common import options_object
-
 @options_object
 def callback(a, b=1, c=2):
     return [a, b, c]
