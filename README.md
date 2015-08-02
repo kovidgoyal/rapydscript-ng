@@ -777,7 +777,6 @@ expression engine. Most importantly:
   - it does not support unicode (on ES 6 runtimes, unicode is supported, but
 	with a different syntax). You can test for the presence of unicode support with
 	```re.supports_unicode```. 
-  - it does not support named groups
   - The ``MatchObject``'s ``start()`` and ``end()`` method cannot return correct values
     for subgroups for some kinds of regular expressions, for example, those
 	with nested captures. This is because the JavaScript regex API does not expose
@@ -1491,6 +1490,10 @@ This list below records all the work I have done on RapydScript so far.
    for a, (b, c) in enumerate([ [1,2], [3,4] ]):
       ...
    ```
+
+1. Re-wrote the re.pyj module to more closely support the python regular
+   expression semantics, incldung named groups, finditer(), regex flags,
+   the python syntax for replacement strings, etc.
 
 1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
    This code is cleaner and faster by making use of some ES 6 facilities.

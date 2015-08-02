@@ -38,6 +38,12 @@ assert.equal(re.sub('a(b)', def(m):return m.group(1);, 'ab'), r'b')
 assert.throws(def():re.search(r'(?<=a)b', 'ab');, re.error)
 assert.throws(def():re.search(r'(?(1)a|b)b', 'ab');, re.error)
 
+# Test named groups
+assert.equal('aa', re.sub(r'(?P<a>a)b', r'\g<a>\1', 'ab'))
+assert.equal('bb', re.sub(r'(?P<a>a)(?P=a)', r'bb', 'aa'))
+assert.equal('ab', re.sub(r'(.)(?P<a>a)', r'\g<a>\1', 'ba'))
+assert.deepEqual({'a':'a', 'b':'b'}, re.search(r'(?P<a>a)(?P<b>b)', 'ab').groupdict())
+
 # Test verbose mode literals
 assert.equal(re.search(///
     a
