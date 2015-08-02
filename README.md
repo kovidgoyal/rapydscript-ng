@@ -773,7 +773,7 @@ re module. However, it uses the JavaScript regular expression functionality
 under the hood, which has several differences from the Python regular
 expression engine. Most importantly:
 
-  - it does not support lookbehind
+  - it does not support lookbehind and group existence assertions
   - it does not support unicode (on ES 6 runtimes, unicode is supported, but
 	with a different syntax). You can test for the presence of unicode support with
 	```re.supports_unicode```. 

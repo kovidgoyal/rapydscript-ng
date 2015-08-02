@@ -18,11 +18,14 @@ _NUM_PAT =  /^[0-9]/
 _GROUP_PAT = /<(\d+)>/
 _NAME_PAT = /^[a-zA-Z ]/
 
-I = IGNORECASE = 1
-M = MULTILINE = 2
-# JavaScript doesn't have a DOTALL-equivalent, I will hack around that by replacing dots with [\s\S]
-D = DOTALL = 4
-A = ASCII = 8
+I = IGNORECASE = 2
+L = LOCALE = 4
+M = MULTILINE = 8
+D = DOTALL = 16
+U = UNICODE = 32
+X = VERBOSE = 64
+DEBUG = 128
+A = ASCII = 256
 
 supports_unicode = RegExp.prototype.unicode is not undefined
 
@@ -122,6 +125,66 @@ def _expand(groups, repl):
             ans += ch
     return ans
 
+def transform_regex(source, flags):
+    pos = 0
+    previous_backslash = in_class = False
+    ans = ''
+    group_map = {}
+    flags = flags or 0
+
+    while pos < source.length:
+        ch = JS('source[pos++]')
+        if previous_backslash:
+            ans += '\\' + ch
+            previous_backslash = False
+            continue
+
+        if in_class:
+            if ch == ']':
+                in_class = False
+            ans += ch
+            continue
+
+        if ch == '\\':
+            previous_backslash = True
+            continue
+
+        if ch == '[':
+            in_class = True
+        elif ch == '(':
+            if source[pos] == '?':
+                extension = source[pos + 1]
+                if extension == '#':
+                    close = source.indexOf(')', pos + 1)
+                    if close == -1:
+                        raise ValueError('Expecting a closing )')
+                    pos = close + 1
+                    continue
+                if 'aiLmsux'.indexOf(extension) != -1:
+                    flag_map = {'a':ASCII, 'i':IGNORECASE, 'L':LOCALE, 'm':MULTILINE, 's':DOTALL, 'u':UNICODE, 'x':VERBOSE}
+                    close = source.indexOf(')', pos + 1)
+                    if close == -1:
+                        raise SyntaxError('Expecting a closing )')
+                    flgs = source[pos+1:close]
+                    for JS('var i = 0; i < flgs.length; i++'):
+                        q = flgs[i]  # noqa:undef
+                        if not flag_map.hasOwnProperty(q):
+                            raise SyntaxError('Invalid flag: ' + q)
+                        flags |= flag_map[q]
+                    pos = close + 1
+                    continue
+                if extension == '<':
+                    raise SyntaxError('Look behind assertions are not supported in JavaScript')
+                if extension == '(':
+                    raise SyntaxError('Group existence assertions are not supported in JavaScript')
+        elif ch == '.' and (flags & DOTALL):
+            ans += r'[\s\S]'  # JavaScript has no DOTALL
+            continue
+
+        ans += ch
+
+    return ans, flags, group_map
+
 class MatchObject:
 
     def __init__(self, regex, match, pos, endpos):
@@ -174,45 +237,16 @@ class MatchObject:
 class RegexObject:
 
     def __init__(self, pattern, flags):
-        flags = flags or 0
-        if isinstance(pattern, RegExp):
-            self.pattern = pattern.source
-            self.flags = flags
-        else:
-            self.pattern = pattern
-            self.flags = flags
+        self.pattern = pattern.source if isinstance(pattern, RegExp) else pattern
+        self.js_pattern, self.flags, self.group_name_map = transform_regex(self.pattern, flags)
 
         modifiers = ''
         if self.flags & IGNORECASE: modifiers += 'i'
         if self.flags & MULTILINE: modifiers += 'm'
-        if self.flags & DOTALL:
-            parsed = ''
-            in_class = previous_backslash = False
-            for ch in self.pattern:
-                if previous_backslash:
-                    parsed += '\\' + ch
-                    previous_backslash = False
-                elif in_class:
-                    parsed += ch
-                    if ch == ']':
-                        in_class = False
-                elif ch == '\\':
-                    parsed += ch
-                    previous_backslash = True
-                elif ch == '.':
-                    parsed += '[\\s\\S]'
-                elif ch == '[':
-                    parsed += ch
-                    in_class = True
-                else:
-                    parsed += ch
-            self.pattern = parsed
         if not (self.flags & ASCII) and supports_unicode:
             modifiers += 'u'
         self._modifiers = modifiers + 'g'
-
-        # now create the real pattern
-        self._pattern = RegExp(self.pattern, self._modifiers)
+        self._pattern = RegExp(self.js_pattern, self._modifiers)
 
     def _do_search(self, pat, string, pos, endpos):
         pat.lastIndex = 0
@@ -229,7 +263,7 @@ class RegexObject:
         return self._do_search(self._pattern, string, pos, endpos)
 
     def match(self, string, pos=0, endpos=None):
-        return self._do_search(RegExp('^' + self.pattern, self._modifiers), string, pos, endpos)
+        return self._do_search(RegExp('^' + self.js_pattern, self._modifiers), string, pos, endpos)
 
     def split(self, string, maxsplit=0):
         self._pattern.lastIndex = 0
