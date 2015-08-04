@@ -1,0 +1,65 @@
+#!/usr/bin/env node 
+// vim:ft=javascript:ts=4:et
+
+"use strict;";
+
+var fs = require('fs');
+var path = require('path');
+var crypto = require('crypto');
+
+var base = path.join(path.dirname(__dirname));
+var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
+
+var manifest = {}, total = 0;
+['compiler.js', 'baselib-pretty.js', 'baselib-ugly.js', 'baselib-plain-pretty.js'].forEach(function(x) {
+    manifest[x] = fs.readFileSync(path.join(base, 'lib', x), {'encoding':'utf-8'});
+    total += manifest[x].length;
+    if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
+});
+
+['repl.js', 'utils.js'].forEach(function(x) {
+    x = 'tools/' + x;
+    manifest[x] = fs.readFileSync(path.join(base, x), {'encoding':'utf-8'});
+    total += manifest[x].length;
+});
+
+
+var dedup = {};
+
+function sha1sum(data) { 
+    var h = crypto.createHash('sha1');
+    h.update(data);
+    return h.digest('hex');
+}
+
+function process_dir(name) {
+    var dpath = path.join(base, name);
+    var items = fs.readdirSync(dpath);
+    items.forEach(function (x) {
+        var iname = name + '/' + x;
+        var ipath = path.join(dpath, x);
+        var s = fs.statSync(ipath);
+        if (s.isDirectory()) return process_dir(iname);
+        var raw = fs.readFileSync(ipath, {'encoding':'utf-8'});
+        var sig = sha1sum(raw);
+        if (dedup.hasOwnProperty(sig)) {
+            manifest[iname] = [dedup[sig]];
+        } else {
+            manifest[iname] = raw;
+            dedup[sig] = iname;
+            total += s.size;
+        }
+    });
+}
+
+Object.keys(meta.dependencies).forEach(function (x) {
+    process_dir('node_modules/' + x);
+});
+console.log('// vim:fileencoding=utf-8');
+console.log('(function() {');
+console.log('var rs_version = ' + JSON.stringify(meta.version) + ';');
+console.log('var data = ' + JSON.stringify(manifest) + ';');
+console.log();
+console.log(fs.readFileSync(path.join(base, 'tools', 'export.js'), {'encoding':'utf-8'}));
+console.log('})()');
+console.error('RapydScript compiler (uncompressed) size: ' + (total/(1024 * 1024)).toFixed(1) + ' MB');

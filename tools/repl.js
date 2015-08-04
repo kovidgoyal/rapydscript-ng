@@ -10,10 +10,9 @@
 var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
-var readline = require('readline');
 var util = require('util');
 var colored = require('./utils').safe_colored;
-var RapydScript = require('./compiler').create_compiler();
+var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
 
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
@@ -47,7 +46,7 @@ function repl_defaults(options) {
     if (!options.ps1) options.ps1 = '>>> ';
     if (!options.ps2) options.ps2 = '... ';
     if (!options.console) options.console = console;
-    if (!options.readline) options.readline = readline;
+    if (!options.readline) options.readline = require('readline');
     if (options.terminal === undefined) options.terminal = options.output.isTTY;
     if (options.histfile === undefined) options.histfile = path.join(cachedir, 'rapydscript-repl.history');
     if (options.baselib === undefined) options.baselib = read_baselib(options.lib_path);
