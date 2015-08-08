@@ -101,7 +101,9 @@ def _$rapyd$_Iterable(iterable):
             ans.push(result.value)
             result = iterator.next()
         return ans
-    # so we can use 'for ... in' syntax with hashes and NodeLists
+    if type(HTMLCollection) == 'function' and isinstance(iterable, (HTMLCollection, NodeList)):
+        return iterable
+    # so we can use 'for ... in' syntax with objects, as we would with dicts in python
     return Object.keys(iterable)
 
 def enumerate(iterable):

@@ -5,7 +5,7 @@
     "baselib-errors": "ed82e34944661183f987d3f4f88ba79b8a7ade4d",
     "baselib-itertools": "1d7986b8491af7fa6499a73ae6f61a295ab53350",
     "baselib-str": "9f8b62c9de16a4c3a8547c838efc5e1ceeab47a3",
-    "baselib": "f9ce5e5491a1f6fed62f06241d32e798a9b259d3",
+    "baselib": "8d11a7af39b5c1090bd75a88cc7df1a6bd040ca1",
     "compiler": "f0f1dafd06c68f89383ede998d4097b7dc09acde",
     "errors": "eb15520287db559585bbc9bdb934f9dc7f593f0a",
     "output": "654ccbfe100f968cb8757281d7cc1aaced2e8b5d",
@@ -13,6 +13,6 @@
     "tokenizer": "a71615f723c2da268913593e8e1588ee2f376d6a",
     "unicode_aliases": "326c48a6a9c177b58078e80f93bfcd83f77e6f90",
     "utils": "7fcdb42be93918357fdc1415d767a3249e41aad1",
-    "#compiler#": "36064435baaa106a9e1332929ad0f3e0ffe9543e",
-    "#compiled_with#": "36064435baaa106a9e1332929ad0f3e0ffe9543e"
+    "#compiler#": "bbac9914023b4aa98b5b45bcd1304be705880fe1",
+    "#compiled_with#": "bbac9914023b4aa98b5b45bcd1304be705880fe1"
 }

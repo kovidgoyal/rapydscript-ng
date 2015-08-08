@@ -42,6 +42,7 @@ BUILTINS = {
     'TypeError':true, 'URIError':true, 'Exception':true, 'IndexError':true,
     'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true, 'hex':true,
     'filter':true, 'zip':true, 'equals': true, 'dict':true, 'dict_wrap':true,
+    'HTMLCollection': true, 'NodeList': true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
