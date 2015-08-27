@@ -1426,13 +1426,10 @@ below:
   yourself. Similarly, the compiler will try to convert SomeClass.method() into
   SomeClass.prototype.method() for you, but again, this is not 100% reliable.
 
-- jQuery erroneously assumes that no other library will be modifying
-  JavaScript's 'Object', and fails to do `object.hasOwnProperty()` check in
-  multiple places where it should. To avoid breaking it, I had to implement
-  stdlib such that dictionary methods are methods of a different object.
-  Regular Python allows you to call hash.keys() as well as dict.keys(hash).
-  RapydScript only supports the second notation - which is admittedly a bit
-  more awkward.
+- The {"a":b} syntax is used to create JavaScript objects. These do not behave
+  like python dictionaries. To create python like dictionary objects, you
+  should use the {!"a":b} syntax. This is done to ease interop with external
+  javascript libraries, most of which use javascript objects as dictionaries.
 
 Changes in this fork compared to atsepkov/RapydScript
 ----------------------------------------------------------
