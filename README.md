@@ -1483,8 +1483,6 @@ This list below records all the work I have done on RapydScript so far.
    to simply throw away all non-method code in the class context. It doesn't do
    that any more :)
 
-1. RapydScript now supports the Python conditional operator: ``1 if a else 2``.
-
 1. RapydScript now supports recursive de-structuring assignment, so you can do:
    ```py
    for a, (b, c) in enumerate([ [1,2], [3,4] ]):
@@ -1492,7 +1490,7 @@ This list below records all the work I have done on RapydScript so far.
    ```
 
 1. Re-wrote the re.pyj module to more closely support the python regular
-   expression semantics, incldung named groups, finditer(), regex flags,
+   expression semantics, including named groups, finditer(), regex flags,
    the python syntax for replacement strings, etc.
 
 1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
@@ -1502,7 +1500,7 @@ This list below records all the work I have done on RapydScript so far.
 1. Add a builtin list type that functions like Python's list type, except that
    it create JavaScript Array object. You can pass any iterable to list and use
    it in isinstance() just as you would in python. Furthermore, all
-   arrays/lists in RapydScript gehave just like pythons lists, with all the
+   arrays/lists in RapydScript behave just like pythons lists, with all the
    same methods and properties. This applies both to list literals as well as
    the return value of the ``list()`` function.
 
