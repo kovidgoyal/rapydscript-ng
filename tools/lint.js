@@ -362,6 +362,19 @@ function Linter(toplevel, filename, code, options) {
         }
     };
 
+    this.handle_for_js = function() {
+        var node = this.current_node;
+        var js = node.condition.value;
+        var statements = js.split(';');
+        var decl = statements[0].trim();
+        if (decl.startsWith('var ')) decl = decl.slice(4);
+        self = this;
+        decl.split(',').forEach(function (part) {
+            var name = /^[a-zA-Z0-9_]+/.exec(part.trimLeft())[0];
+            self.add_binding(name);
+        });
+    };
+
     this.handle_except = function() {
         var node = this.current_node;
         if (node.argname) {
@@ -428,6 +441,8 @@ function Linter(toplevel, filename, code, options) {
             this.handle_comprehension();
         } else if (node instanceof RapydScript.AST_ForIn) {
             this.handle_for_in();
+        } else if (node instanceof RapydScript.AST_ForJS) {
+            this.handle_for_js();
         } else if (node instanceof RapydScript.AST_Except) {
             this.handle_except();
         } else if (node instanceof RapydScript.AST_EmptyStatement) {
