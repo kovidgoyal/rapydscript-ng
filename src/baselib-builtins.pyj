@@ -5,7 +5,7 @@
 # globals:_$rapyd$_kwargs_symbol
 
 def _$rapyd$_bool(val):
-    return JS('!!val')
+    return v'!!val'
 
 def _$rapyd$_bind(fn, thisArg):
     if fn.orig: fn = fn.orig
@@ -16,8 +16,8 @@ def _$rapyd$_bind(fn, thisArg):
     return ret
 
 def _$rapyd$_rebind_all(thisArg, rebind):
-    if JS('typeof rebind') == "undefined": rebind = True
-    for JS('var p in thisArg'):
+    if v'typeof rebind' == "undefined": rebind = True
+    for v'var p in thisArg':
         if thisArg[p] and thisArg[p].orig:
             if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
             else: thisArg[p] = thisArg[p].orig  # noqa:undef
@@ -40,13 +40,13 @@ def _$rapyd$_eslice(arr, step, start, end):
     return isString ? arr.join('') : arr
 
 def _$rapyd$_mixin(target, source, overwrite):
-    for JS('var i in source'):
-        if source.hasOwnProperty(i) and overwrite or JS('typeof target[i]') == 'undefined':  # noqa:undef
+    for v'var i in source':
+        if source.hasOwnProperty(i) and overwrite or v'typeof target[i]' == 'undefined':  # noqa:undef
             target[i] = source[i]  # noqa:undef
 
 def _$rapyd$_print():
-    if JS('typeof console') == 'object':
-        JS('console.log.apply(console, arguments)')
+    if v'typeof console' == 'object':
+        v'console.log.apply(console, arguments)'
 
 def _$rapyd$_int(val, base):
     ans = parseInt(val, base or 10)
@@ -62,10 +62,10 @@ def _$rapyd$_float():
 
 def options_object(f):
     return def():
-        if JS('typeof arguments[arguments.length - 1] === "object"'):
+        if v'typeof arguments[arguments.length - 1] === "object"':
             arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = True
         return f.apply(this, arguments)
 
-JS('var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all')
-JS('var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all')
-JS('var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice')
+v'var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all'
+v'var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all'
+v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice'

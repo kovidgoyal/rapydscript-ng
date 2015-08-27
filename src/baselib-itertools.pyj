@@ -23,14 +23,14 @@ def map():
     func = arguments[0]
     iterators = new Array(arguments.length - 1)
     args = new Array(arguments.length - 1)
-    for JS('var i = 1; i < arguments.length; i++'):
+    for v'var i = 1; i < arguments.length; i++':
         iterators[i - 1] = iter(arguments[i])  # noqa:undef
     return {
         '_func': func,
         '_iterators': iterators,
         '_args': args,
         'next': def():
-            for JS('var i = 0; i < this._iterators.length; i++'):
+            for v'var i = 0; i < this._iterators.length; i++':
                 r = this._iterators[i].next()
                 if r.done:
                     return {'done':True}
@@ -57,13 +57,13 @@ def filter(func_or_none, iterable):
 
 def zip():
     iterators = new Array(arguments.length)
-    for JS('var i = 0; i < arguments.length; i++'):
+    for v'var i = 0; i < arguments.length; i++':
         iterators[i] = iter(arguments[i])  # noqa:undef
     return {
         '_iterators': iterators,
         'next': def():
             args = new Array(this._iterators.length)
-            for JS('var i = 0; i < this._iterators.length; i++'):
+            for v'var i = 0; i < this._iterators.length; i++':
                 r = this._iterators[i].next()
                 if r.done:
                     return {'done':True}

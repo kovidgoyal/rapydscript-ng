@@ -14,7 +14,7 @@ def min():
 
 def _$rapyd$_flatten(arr):
     ans = []
-    for JS('var i=0; i<arr.length; i++'):
+    for v'var i=0; i<arr.length; i++':
         value = arr[i]  # noqa:undef
         if Array.isArray(value):
             ans = ans.concat(_$rapyd$_flatten(value))
@@ -27,7 +27,7 @@ def dir(item):
     # an intuitive replacement for "for ... in" loop, need to update this logic
     # and introduce a different way of achieving "for ... in"
     arr = []
-    for JS('var i in item'): arr.push(i)  # noqa:undef
+    for v'var i in item': arr.push(i)  # noqa:undef
     return arr
 
 def ord(x):
@@ -46,7 +46,7 @@ def chr(code):
     return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
 
 def callable(x):
-    return JS('typeof x === "function"')
+    return v'typeof x === "function"'
 
 def bin(x):
     if type(x) != 'number' or x % 1 != 0:
@@ -75,7 +75,7 @@ def _$rapyd$_extends(child, parent):
 def _$rapyd$_in():
     if type(Map) == 'function' and type(Set) == 'function':
         return def(val, arr):
-            if Array.isArray(arr) or JS('typeof arr') == 'string':
+            if Array.isArray(arr) or v'typeof arr' == 'string':
                 return arr.indexOf(val) != -1
             if type(arr.__contains__) == 'function':
                 return arr.__contains__(val)
@@ -83,7 +83,7 @@ def _$rapyd$_in():
                 return arr.has(val)
             return arr.hasOwnProperty(val)
     return def(val, arr):
-            if Array.isArray(arr) or JS('typeof arr') == 'string':
+            if Array.isArray(arr) or v'typeof arr' == 'string':
                 return arr.indexOf(val) != -1
             if type(arr.__contains__) == 'function':
                 return arr.__contains__(val)
@@ -92,7 +92,7 @@ def _$rapyd$_in():
 def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
     # rid of this function entirely
-    if Array.isArray(iterable) or JS('typeof iterable') == 'string': return iterable
+    if Array.isArray(iterable) or v'typeof iterable' == 'string': return iterable
     if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
         iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
@@ -170,16 +170,16 @@ def iter(iterable):
     return iter(Object.keys(iterable))
 
 def _$rapyd$_len():
-    if JS('typeof Set') == 'function' and JS('typeof Map') == 'function':
+    if v'typeof Set' == 'function' and v'typeof Map' == 'function':
         # ES 6 collections are probably present
         return (def(obj):
-            if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
-            if JS('obj instanceof Set') or JS('obj instanceof Map'): return obj.size
+            if Array.isArray(obj) or v'typeof obj' == 'string': return obj.length
+            if v'obj instanceof Set' or v'obj instanceof Map': return obj.size
             if type(obj.__len__) == 'function': return obj.__len__()
             return Object.keys(obj).length
         )
     return (def(obj):
-        if Array.isArray(obj) or JS('typeof obj') == 'string': return obj.length
+        if Array.isArray(obj) or v'typeof obj' == 'string': return obj.length
         if type(obj.__len__) == 'function': return obj.__len__()
         return Object.keys(obj).length
     )
@@ -210,7 +210,7 @@ def getattr(obj, name, defval):
         if defval == undefined:
             raise AttributeError('The attribute ' + name + ' is not present')
         return defval
-    if ret == undefined and not JS('(name in obj)'):
+    if ret == undefined and not v'(name in obj)':
         if defval == undefined:
             raise AttributeError('The attribute ' + name + ' is not present')
         ret = defval
@@ -220,7 +220,7 @@ def setattr(obj, name, value):
     obj[name] = value
 
 def hasattr(obj, name):
-    return JS('name in obj')
+    return v'name in obj'
 
 def _$rapyd$_desugar_kwargs():
     if type(Object.assign) == 'function':
@@ -231,13 +231,13 @@ def _$rapyd$_desugar_kwargs():
     return def():
         ans = {}
         ans[_$rapyd$_kwargs_symbol] = True
-        for JS('var i = 0; i < arguments.length; i++'):
+        for v'var i = 0; i < arguments.length; i++':
             keys = Object.keys(arguments[i])
-            for JS('var j = 0; j < keys.length; j++'):
+            for v'var j = 0; j < keys.length; j++':
                 ans[keys[j]] = arguments[i][keys[j]]  # noqa:undef
         return ans
 
-if JS("typeof exports === 'object'"):
+if v"typeof exports === 'object'":
     exports['abs()'] = abs
     exports['max()'] = max
     exports['min()'] = min

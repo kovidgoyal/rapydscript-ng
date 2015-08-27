@@ -49,19 +49,19 @@ assert(not ("0" == 0))          # string vs integer: NEVER equal
 assert(not ("" == 0))           # string vs integer: NEVER equal
 assert(bool(1) == True)         # boolean conversion
 assert(bool("") == False)       # boolean conversion
-assert(JS('1 == true'))         # javascript override
-assert(not JS('(1 != true)'))   # javascript override
-assert(JS('String("test")') == "test")  # this should do string conversion rather than creating a string object
+assert(v'1 == true')         # javascript override
+assert(not v'(1 != true)')   # javascript override
+assert(v'String("test")' == "test")  # this should do string conversion rather than creating a string object
 assert(String("test") != "test")        # this should create a string object
 
 
 # raw JavaScript
-JS('var def = {}')                # ability to bypass reserved keywords in declaration
-JS('def').item = 3            # ability to use reserved keywords
-assert(JS('def.item') == 3)
+v'var def = {}'                # ability to bypass reserved keywords in declaration
+v'def'.item = 3            # ability to use reserved keywords
+assert(v'def.item' == 3)
 
 n = 5
-assert(JS("""
+assert(v"""
 (function() {
     var s = 0
     for (var i=0; i<=n; i++) {
@@ -69,9 +69,13 @@ assert(JS("""
     }
     return s
 })()
-""") == (def():
+""" == (def():
     s = 0
     for i in [0 to n]:
         s += i
     return s
 )())                        # shared scoping and equivalent capability
+a = []
+for v'i = 0; i < 1; i++':
+    a[i] = 1  # noqa: undef
+assert.deepEqual(a, [1])

@@ -10,39 +10,45 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Contents**
 
-- [What is RapydScript?](#what-is-rapydscript)
-- [Installation](#installation)
-- [Compilation](#compilation)
-- [Getting Started](#getting-started)
-- [Leveraging other APIs](#leveraging-other-apis)
-- [Anonymous Functions](#anonymous-functions)
-- [Decorators](#decorators)
-- [Self-Executing Functions](#self-executing-functions)
-- [Chaining Blocks](#chaining-blocks)
-- [Function calling with optional arguments](#function-calling-with-optional-arguments)
-- [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
-- [Operators and keywords](#operators-and-keywords)
-- [Literal JavaScript](#literal-javascript)
-- [Containers (lists/sets/dicts)](#containers-listssetsdicts)
-  - [Lists](#lists)
-  - [Sets](#sets)
-  - [Dicts](#dicts)
-- [Loops](#loops)
-- [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
-- [Strings](#strings)
-- [Regular Expressions](#regular-expressions)
-- [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
-- [Classes](#classes)
-- [Iterators](#iterators)
-- [Generators](#generators)
-- [Modules](#modules)
-- [Exception Handling](#exception-handling)
-- [Scope Control](#scope-control)
-- [Available Libraries](#available-libraries)
-- [Linter](#linter)
-- [Advanced Usage Topics](#advanced-usage-topics)
-- [Gotchas](#gotchas)
-- [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+  - [What is RapydScript?](#what-is-rapydscript)
+  - [Installation](#installation)
+  - [Compilation](#compilation)
+  - [Getting Started](#getting-started)
+  - [Leveraging other APIs](#leveraging-other-apis)
+  - [Anonymous Functions](#anonymous-functions)
+  - [Decorators](#decorators)
+  - [Self-Executing Functions](#self-executing-functions)
+  - [Chaining Blocks](#chaining-blocks)
+  - [Function calling with optional arguments](#function-calling-with-optional-arguments)
+  - [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
+  - [Operators and keywords](#operators-and-keywords)
+  - [Literal JavaScript](#literal-javascript)
+  - [Containers (lists/sets/dicts)](#containers-listssetsdicts)
+- [Now pya is a python like list object that satisfies pya === a](#now-pya-is-a-python-like-list-object-that-satisfies-pya--a)
+    - [Container comparisons](#container-comparisons)
+  - [Loops](#loops)
+  - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
+  - [Strings](#strings)
+  - [Regular Expressions](#regular-expressions)
+  - [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
+  - [Classes](#classes)
+    - [External Classes](#external-classes)
+    - [Method Binding](#method-binding)
+  - [Iterators](#iterators)
+  - [Generators](#generators)
+  - [Modules](#modules)
+  - [Exception Handling](#exception-handling)
+  - [Scope Control](#scope-control)
+  - [Available Libraries](#available-libraries)
+  - [Linter](#linter)
+  - [Advanced Usage Topics](#advanced-usage-topics)
+      - [Browser Compatibility](#browser-compatibility)
+      - [Tabs vs Spaces](#tabs-vs-spaces)
+      - [Semi-Colons](#semi-colons)
+      - [jQuery-wrapped Elements](#jquery-wrapped-elements)
+      - [External Libraries and Classes](#external-libraries-and-classes)
+  - [Gotchas](#gotchas)
+  - [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -552,11 +558,19 @@ Admittedly, `is` is not exactly the same thing in Python as `===` in JavaScript,
 Literal JavaScript
 -----------------------
 
-In rare cases RapydScript might not allow you to do what you need to, and you need access to pure JavaScript. When that's the case, you can wrap your JavaScript in a string, passing it to JS() method. Code inside JS() method is not a sandbox, you can still interact with it from normal RapydScript:
+In rare cases RapydScript might not allow you to do what you need to, and you
+need access to pure JavaScript, this is particularly useful for performance
+optimizations in inner loops. When that's the case, you can use a *verbatim
+string literal*.  That is simply a normal RapydScript string prefixed with the
+```v``` character. Code inside a verbatim string literal is not a sandbox, you
+can still interact with it from normal RapydScript:
 
 ```py
-JS('a = {foo: "bar", baz: 1};')
+v'a = {foo: "bar", baz: 1};'
 print(a.foo)	# prints "bar"
+
+for v'i = 0; i < arr.length; i++':
+   print (arr[i])
 ```
 
 Note that as a convenience, RapydScript supports both the Python and JavaScript
@@ -583,7 +597,7 @@ RapydScript list from a plain native JavaScript array by using the ``list_wrap()
 function, like this:
 
 ```py
-a = JS('[1, 2]')
+a = v'[1, 2]'
 pya = list_wrap(a)
 # Now pya is a python like list object that satisfies pya === a
 ```
@@ -1353,9 +1367,6 @@ fib = def(x): if x<=1: return 1; return fib(x-1)+fib(x-2)
 
 Even for this example, however, I'd personally prefer to use multiple lines.
 
-#### Raw JavaScript
-Occasionally you may need to use raw JavaScript due to a limitation of RapydScript. To keep code legible and consistent, I suggest minimizing the chunk of code contained within `JS`, keeping most of the logic within RapydScript itself. For example, instead of accessing a variable that shares reserved keyword as `JS('module.exports')` use `JS('module').exports`. This will make it more visually-obvious what you're trying to do as well as allow your syntax highlighter to do its job.
-
 #### jQuery-wrapped Elements
 If you use jQuery with your app, you will probably be storing these into variables a lot. If you've written a decently sized app, you've probably mistaken a bare element with wrapped element at least once. This is especially true of objects like `canvas`, where you need to access object's attributes and methods directly. My solution for these is simple, prepend jQuery-wrapped elements with `$`:
 
@@ -1489,6 +1500,9 @@ This list below records all the work I have done on RapydScript so far.
 1. Re-wrote the re.pyj module to more closely support the python regular
    expression semantics, including named groups, finditer(), regex flags,
    the python syntax for replacement strings, etc.
+
+1. Changed the syntax for embedded JavaScript to use verbatim string literals
+   instead of a magic compile time function.
 
 1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
    This code is cleaner and faster by making use of some ES 6 facilities.

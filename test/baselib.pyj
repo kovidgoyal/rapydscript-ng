@@ -236,7 +236,7 @@ def test_dicts():
     a = {!1:3, 2:3}
     assert.equal(a.pop(2, 2), 3), assert.equal(a.pop(2, 2), 2)
     assert.throws(def(): a.pop(2);, KeyError)
-    assert.deepEqual(a.popitem(), JS('[1, 3]'))
+    assert.deepEqual(a.popitem(), v'[1, 3]')
     assert.throws(def():a.popitem();, KeyError)
     a = {!1:1}
     a.update({!2:2, 1:3})

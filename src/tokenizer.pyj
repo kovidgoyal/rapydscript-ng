@@ -168,14 +168,14 @@ def tokenizer($TEXT, filename):
         'tokcol': 0,
         'newline_before': False,
         'regex_allowed': False,
-        'comments_before': JS('[]'),
-        'whitespace_before': JS('[]'),
+        'comments_before': v'[]',
+        'whitespace_before': v'[]',
         'newblock': False,
         'endblock': False,
-        'indentation_matters': JS('[ true ]'),
+        'indentation_matters': v'[ true ]',
         'cached_whitespace': "",
         'prev': undefined,
-        'index_or_slice': JS('[ false ]'),
+        'index_or_slice': v'[ false ]',
     }
     def peek():
         return S.text.charAt(S.pos)
@@ -232,7 +232,7 @@ def tokenizer($TEXT, filename):
         }
         if not is_comment:
             ret.comments_before = S.comments_before
-            S.comments_before = JS('[]')  # Use a plain JS array for speed
+            S.comments_before = v'[]'  # Use a plain JS array for speed
             # make note of any newlines in the comments that came before
             for i in range(ret.comments_before.length):
                 ret.nlb = ret.nlb or ret.comments_before[i].nlb
@@ -427,17 +427,18 @@ def tokenizer($TEXT, filename):
         return '\\' + q
 
     def with_eof_error(eof_error, cont):
-        return def(x):
+        return def():
             try:
-                return cont(x)
+                return cont.apply(None, arguments)
             except as ex:
                 if ex is EX_EOF:
                     parse_error(eof_error, True)
                 else:
                     raise
 
-    read_string = with_eof_error("Unterminated string constant", def(is_raw_literal):
+    read_string = with_eof_error("Unterminated string constant", def(is_raw_literal, is_js_literal):
         quote = next()
+        tok_type = (is_js_literal) ? 'js' : 'string'
         ret = ""
         is_multiline = False
         if peek() == quote:
@@ -448,7 +449,7 @@ def tokenizer($TEXT, filename):
                 next(True)
                 is_multiline = True
             else:
-                return token("string", '')
+                return token(tok_type, '')
 
         while ch = next(True):
             if ch == "\n" and not is_multiline:
@@ -469,7 +470,7 @@ def tokenizer($TEXT, filename):
                     else:
                         ch += quote
             ret += ch
-        return token("string", ret)
+        return token(tok_type, ret)
     )
 
     def read_line_comment(shebang=False):
@@ -603,6 +604,9 @@ def tokenizer($TEXT, filename):
         elif tmp_ == 114 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:
             next()
             return read_string(True)
+        elif tmp_ == 118 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:
+            next()
+            return read_string(False, True)
         elif tmp_ == 35:                # pound-sign (#)
             if S.pos == 0 and S.text.charAt(1) == '!':
                 #shebang

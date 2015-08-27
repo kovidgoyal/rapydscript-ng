@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-JS('var Exception = Error')
+v'var Exception = Error'
 
 class AttributeError(Error):
 

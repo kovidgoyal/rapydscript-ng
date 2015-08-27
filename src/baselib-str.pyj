@@ -69,8 +69,8 @@ _$rapyd$_str.format = def ():
         else:
             fill = fill or ' '
             align = align or '>'
-        is_numeric = JS('Number(value) === value')
-        is_int = is_numeric and JS('value % 1 === 0')
+        is_numeric = v'Number(value) === value'
+        is_int = is_numeric and v'value % 1 === 0'
         precision = parseInt(precision, 10)
         lftype = (ftype or '').toLowerCase()
 
@@ -83,12 +83,12 @@ _$rapyd$_str.format = def ():
             else:
                 value = parseFloat(value).toLocaleString()
 
-        elif JS("['b', 'c', 'd', 'o', 'x']").indexOf(lftype) != -1:
+        elif v"['b', 'c', 'd', 'o', 'x']".indexOf(lftype) != -1:
             value = parseInt(value, 10)
             is_numeric = True
             if not isNaN(value):
                 if ftype == 'b':
-                    value = JS('(value >>> 0).toString(2)')
+                    value = v'(value >>> 0).toString(2)'
                     if fhash:
                         value = '0b' + value
                 elif ftype == 'c':
@@ -112,7 +112,7 @@ _$rapyd$_str.format = def ():
                     if fhash:
                         value = '0x' + value
 
-        elif JS("['e','f','g','%']").indexOf(lftype) != -1:
+        elif v"['e','f','g','%']".indexOf(lftype) != -1:
             is_numeric = True
             value = parseFloat(value)
             if lftype == 'e':
@@ -153,7 +153,7 @@ _$rapyd$_str.format = def ():
                 value = sign + value
 
         def repeat(char, num):
-            return JS('Array(num+1).join(char)')
+            return v'Array(num+1).join(char)'
 
         if is_numeric and width and width[0] == '0':
             width = width[1:]
@@ -208,7 +208,7 @@ _$rapyd$_str.format = def ():
     def render_markup(markup):
         nonlocal explicit, implicit, idx
         key, transformer, format_spec = parse_markup(markup)
-        if transformer and JS("['a', 'r', 's']").indexOf(transformer) == -1:
+        if transformer and v"['a', 'r', 's']".indexOf(transformer) == -1:
             raise ValueError('Unknown conversion specifier: ' + transformer)
         lkey = key.length and key.split(/[.\[]/, 1)[0]
         if lkey:
@@ -285,7 +285,7 @@ _$rapyd$_str.center = def(string, width, fill):
     left = (width - string.length) // 2
     right = width - left - string.length  # noqa:unused-local
     fill = fill or ' '
-    return JS('Array(left+1).join(fill)') + string + JS('Array(right+1).join(fill)')
+    return v'Array(left+1).join(fill)' + string + v'Array(right+1).join(fill)'
 
 _$rapyd$_str.count = def(string, needle, start, end):
     start = start or 0
@@ -306,10 +306,10 @@ _$rapyd$_str.count = def(string, needle, start, end):
 _$rapyd$_str.endswith = def(string, suffixes, start, end):
     start = start or 0
     if type(suffixes) == 'string':
-        suffixes = JS('[suffixes]')
+        suffixes = v'[suffixes]'
     if end is not undefined:
         string = string[:end]
-    for JS('var i = 0; i < suffixes.length; i++'):
+    for v'var i = 0; i < suffixes.length; i++':
         q = suffixes[i]  # noqa:undef
         if string.indexOf(q, Math.max(start, string.length - q.length)) != -1:
             return True
@@ -318,8 +318,8 @@ _$rapyd$_str.endswith = def(string, suffixes, start, end):
 _$rapyd$_str.startswith = def(string, prefixes, start, end):
     start = start or 0
     if type(prefixes) == 'string':
-        prefixes = JS('[prefixes]')
-    for JS('var i = 0; i < prefixes.length; i++'):
+        prefixes = v'[prefixes]'
+    for v'var i = 0; i < prefixes.length; i++':
         prefix = prefixes[i]  # noqa:undef
         end = string.length if end is undefined else end
         if end - start >= prefix.length and prefix == string[start:start + prefix.length]:
@@ -384,13 +384,13 @@ _$rapyd$_str.join = def(string, iterable):
 _$rapyd$_str.ljust = def(string, width, fill):
     if width > string.length:
         fill = fill or ' '
-        string += JS('Array(width - string.length + 1).join(fill)')
+        string += v'Array(width - string.length + 1).join(fill)'
     return string
 
 _$rapyd$_str.rjust = def(string, width, fill):
     if width > string.length:
         fill = fill or ' '
-        string = JS('Array(width - string.length + 1).join(fill)') + string
+        string = v'Array(width - string.length + 1).join(fill)' + string
     return string
 
 _$rapyd$_str.lower = def(string):
@@ -455,8 +455,8 @@ _$rapyd$_str.split = def(string, sep, maxsplit):
         if maxsplit > 0:
             ans = string.split(/(\s+)/)
             extra = ''
-            parts = JS('[]')
-            for JS('var i = 0; i < ans.length; i++'):
+            parts = v'[]'
+            for v'var i = 0; i < ans.length; i++':
                 if parts.length >= maxsplit + 1:
                     extra += ans[i]
                 elif i % 2 == 0:
@@ -480,7 +480,7 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
         return _$rapyd$_str.split.call(None, string, sep, maxsplit)
     if sep is undefined or sep is None:
         if maxsplit > 0:
-            ans = JS('[]')
+            ans = v'[]'
             is_space = /\s/
             pos = string.length - 1
             current = ''
@@ -489,7 +489,7 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
                 ch = string[pos]
                 while pos > -1 and is_space.test(ch):
                     spc = True
-                    ch = JS('string[--pos]')
+                    ch = v'string[--pos]'
                 if spc:
                     if current:
                         ans.push(current)
@@ -505,7 +505,7 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
     else:
         if sep == '':
             raise ValueError('empty separator')
-        ans = JS('[]')
+        ans = v'[]'
         pos = end = string.length
         while pos > -1 and maxsplit > 0:
             maxsplit -= 1
@@ -522,8 +522,8 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
 _$rapyd$_str.splitlines = def(string, keepends):
     if keepends:
         parts = string.split(/((?:\r?\n)|\r)/)
-        ans = JS('[]')
-        for JS('var i = 0; i < parts.length; i++'):
+        ans = v'[]'
+        for v'var i = 0; i < parts.length; i++':
             if i % 2 == 0:
                 ans.push(parts[i])
             else:
@@ -533,8 +533,8 @@ _$rapyd$_str.splitlines = def(string, keepends):
     return _$rapyd$_list_decorate(ans)
 
 _$rapyd$_str.swapcase = def(string):
-    ans = JS('Array(string.length)')
-    for JS('var i = 0; i < ans.length; i++'):
+    ans = v'Array(string.length)'
+    for v'var i = 0; i < ans.length; i++':
         a = string[i]
         # We dont care about non-BMP chars as they are not cased anyway
         b = a.toLowerCase()
@@ -545,7 +545,7 @@ _$rapyd$_str.swapcase = def(string):
 
 _$rapyd$_str.zfill = def(string, width):
     if width > string.length:
-        string = JS('Array(width - string.length + 1).join("0")') + string
+        string = v'Array(width - string.length + 1).join("0")' + string
     return string
 
 _$rapyd$_str.uchrs = def(string, with_positions):
@@ -560,12 +560,12 @@ _$rapyd$_str.uchrs = def(string, with_positions):
             if this._pos >= length:
                 return {'done': True}
             pos = this._pos
-            value = JS('this._string.charCodeAt(this._pos++)')
+            value = v'this._string.charCodeAt(this._pos++)'
             ans = '\ufffd'
             if 0xD800 <= value <= 0xDBFF:
                 if this._pos < length:
                     # high surrogate, and there is a next character
-                    extra = JS('this._string.charCodeAt(this._pos++)')
+                    extra = v'this._string.charCodeAt(this._pos++)'
                     if (extra & 0xDC00) == 0xDC00: # low surrogate
                         ans = String.fromCharCode(value, extra)
             elif (value & 0xDC00) != 0xDC00: # not a low surrogate
@@ -577,7 +577,7 @@ _$rapyd$_str.uchrs = def(string, with_positions):
     }
 
 _$rapyd$_str.uslice = def(string, start, end):
-    items = JS('[]')
+    items = v'[]'
     iterator = _$rapyd$_str.uchrs(string)
     r = iterator.next()
     while not r.done:
@@ -602,4 +602,4 @@ _$rapyd$_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 _$rapyd$_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
 _$rapyd$_str.whitespace   = ' \t\n\r\x0b\x0c'
 
-JS('var str = _$rapyd$_str')
+v'var str = _$rapyd$_str'

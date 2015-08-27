@@ -99,7 +99,7 @@ def OutputStream(options):
     requireSemicolonChars = make_predicate("( [ + * / - , .")
     def print_(str_):
         nonlocal might_need_space, might_need_semicolon, last, current_line, current_pos, current_col, OUTPUT
-        str_ = JS("String(str_)")
+        str_ = v"String(str_)"
         ch = str_.charAt(0)
         if might_need_semicolon:
             if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(last):
@@ -194,7 +194,7 @@ def OutputStream(options):
         return indentation + options.indent_level
 
     def spaced():
-        for JS('var i=0; i < arguments.length; i++'):
+        for v'var i=0; i < arguments.length; i++':
             if i > 0:
                 space()
             if type(arguments[i].print) == 'function':

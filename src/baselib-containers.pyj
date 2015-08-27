@@ -8,9 +8,9 @@ def _$rapyd$_equals(a, b):
     try:
         return a.__eq__(b)
     except TypeError:
-        return JS('a === b')
+        return v'a === b'
 
-JS('var equals = _$rapyd$_equals')
+'var equals = _$rapyd$_equals'
 
 # list {{{
 
@@ -19,7 +19,7 @@ def _$rapyd$_list_extend(iterable):
         # Allocate all new memory in one operation
         start = this.length
         this.length += iterable.length
-        for JS('var i = 0; i < iterable.length; i++'):
+        for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
         iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
@@ -41,7 +41,7 @@ def _$rapyd$_list_index(val, start, stop):
         return idx
     if stop < 0:
         stop = this.length + stop
-    for JS('var i = start; i < stop; i++'):
+    for v'var i = start; i < stop; i++':
         if this[i] == val:
             return i  # noqa:undef
     raise ValueError(val + ' is not in list')
@@ -70,7 +70,7 @@ def _$rapyd$_list_insert(index, val):
     if index == 0:
         this.unshift(val)
         return
-    for JS('var i = this.length; i > index; i--'):
+    for v'var i = this.length; i > index; i--':
         this[i] = this[i - 1]  # noqa:undef
     this[index] = val
 
@@ -103,7 +103,7 @@ def _$rapyd$_list_sort(key=None, reverse=False):
     key = key or _$rapyd$_list_sort_key
     mult = (reverse) ? -1 : 1
     keymap = dict()
-    for JS('var i=0; i < this.length; i++'):
+    for v'var i=0; i < this.length; i++':
         k = this[i]  # noqa:undef
         keymap.set(k, key(k))
     this.sort(def (a, b): return mult * _$rapyd$_list_sort_cmp(keymap.get(a), keymap.get(b));)
@@ -144,7 +144,7 @@ def _$rapyd$_list_eq(other):
         return False
     if other.length == 0:
         return True
-    for JS('var i = 0; i < other.length; i++'):
+    for v'var i = 0; i < other.length; i++':
         if not _$rapyd$_equals(this[i], other[i]):  # noqa:undef
             return False
     return True
@@ -176,10 +176,10 @@ def _$rapyd$_list_decorate(ans):
 
 def _$rapyd$_list_constructor(iterable):
     if iterable == undefined:
-        ans = JS('[]')
+        ans = v'[]'
     elif Array.isArray(iterable) or type(iterable) == 'string':
         ans = new Array(iterable.length)
-        for JS('var i = 0; i < iterable.length; i++'):
+        for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
     elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
         iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
@@ -196,21 +196,21 @@ def _$rapyd$_list_constructor(iterable):
     return _$rapyd$_list_decorate(ans)
 _$rapyd$_list_constructor.__name__ = 'list'
 
-JS('var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate')
+v'var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate'
 # }}}
 
 # set {{{
-JS('var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation')
+v'var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation'
 
 def _$rapyd$_set_keyfor(x):
     t = type(x)
     if t == 'string' or t == 'number' or t == 'boolean':
         return '_' + t[0] + x
-    if JS('x == null'): # also matches undefined
+    if v'x == null': # also matches undefined
         return "__!@#$0"
     ans = x._$rapyd$_hash_key_prop
     if ans == undefined:
-        JS('ans = "_!@#$" + ++_$rapyd$_global_object_id')
+        v'ans = "_!@#$" + ++_$rapyd$_global_object_id'
         Object.defineProperty(x, '_$rapyd$_hash_key_prop', { 'value': ans })
     return ans
 
@@ -233,7 +233,7 @@ _$rapyd$_set_polyfill.prototype.delete = def(x):
     key = _$rapyd$_set_keyfor(x)
     if Object.hasOwnProperty.call(this._store, key):
         this.size -= 1
-        JS('delete this._store[key]')
+        v'delete this._store[key]'
         return True
     return False
 
@@ -256,9 +256,9 @@ _$rapyd$_set_polyfill.prototype.values = def(x):
     }
 
 if type(Set) != 'function' or type(Set.prototype.delete) != 'function':
-    JS('_$rapyd$_set_implementation = _$rapyd$_set_polyfill')
+    v'_$rapyd$_set_implementation = _$rapyd$_set_polyfill'
 else:
-    JS('_$rapyd$_set_implementation = Set')
+    v'_$rapyd$_set_implementation = Set'
 
 def _$rapyd$_set(iterable):
     if isinstance(this, _$rapyd$_set):
@@ -268,7 +268,7 @@ def _$rapyd$_set(iterable):
             return ans
         s = ans.jsset
         if Array.isArray(iterable) or type(iterable) == 'string':
-            for JS('var i = 0; i < iterable.length; i++'):
+            for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])  # noqa:undef
         elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
             iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
@@ -278,7 +278,7 @@ def _$rapyd$_set(iterable):
                 result = iterator.next()
         else:
             keys = Object.keys(iterable)
-            for JS('var i=0; i < keys.length; i++'):
+            for v'var i=0; i < keys.length; i++':
                 s.add(keys[i])  # noqa:undef
         return ans
     else:
@@ -307,7 +307,7 @@ _$rapyd$_set.prototype.difference = def():
     while not r.done:
         x = r.value
         has = False
-        for JS('var i = 0; i < arguments.length; i++'):
+        for v'var i = 0; i < arguments.length; i++':
             if arguments[i].has(x):  # noqa:undef
                 has = True
                 break
@@ -318,17 +318,17 @@ _$rapyd$_set.prototype.difference = def():
 
 _$rapyd$_set.prototype.difference_update = def():
     s = this.jsset
-    remove = JS('[]')
+    remove = v'[]'
     iterator = s.values()
     r = iterator.next()
     while not r.done:
         x = r.value
-        for JS('var i = 0; i < arguments.length; i++'):
+        for v'var i = 0; i < arguments.length; i++':
             if arguments[i].has(x):  # noqa:undef
                 remove.push(x)
                 break
         r = iterator.next()
-    for JS('var i = 0; i < remove.length; i++'):
+    for v'var i = 0; i < remove.length; i++':
         s.delete(remove[i])  # noqa:undef
 
 _$rapyd$_set.prototype.intersection = def():
@@ -339,7 +339,7 @@ _$rapyd$_set.prototype.intersection = def():
     while not r.done:
         x = r.value
         has = True
-        for JS('var i = 0; i < arguments.length; i++'):
+        for v'var i = 0; i < arguments.length; i++':
             if not arguments[i].has(x):  # noqa:undef
                 has = False
                 break
@@ -350,17 +350,17 @@ _$rapyd$_set.prototype.intersection = def():
 
 _$rapyd$_set.prototype.intersection_update = def():
     s = this.jsset
-    remove = JS('[]')
+    remove = v'[]'
     iterator = s.values()
     r = iterator.next()
     while not r.done:
         x = r.value
-        for JS('var i = 0; i < arguments.length; i++'):
+        for v'var i = 0; i < arguments.length; i++':
             if not arguments[i].has(x):  # noqa:undef
                 remove.push(x)
                 break
         r = iterator.next()
-    for JS('var i = 0; i < remove.length; i++'):
+    for v'var i = 0; i < remove.length; i++':
         s.delete(remove[i])  # noqa:undef
 
 _$rapyd$_set.prototype.isdisjoint = def(other):
@@ -421,7 +421,7 @@ _$rapyd$_set.prototype.union = def():
 
 _$rapyd$_set.prototype.update = def():
     s = this.jsset
-    for JS('var i=0; i < arguments.length; i++'):
+    for v'var i=0; i < arguments.length; i++':
         iterator = arguments[i][_$rapyd$_iterator_symbol]()  # noqa:undef
         r = iterator.next()
         while not r.done:
@@ -451,11 +451,11 @@ def _$rapyd$_set_wrap(x):
     ans.jsset = x
     return ans
 
-JS('var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap')
+v'var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap'
 # }}}
 
 # dict {{{
-JS('var _$rapyd$_dict_implementation')
+v'var _$rapyd$_dict_implementation'
 
 def _$rapyd$_dict_polyfill():
     this._store = {}
@@ -465,7 +465,7 @@ _$rapyd$_dict_polyfill.prototype.set = def(x, value):
     key = _$rapyd$_set_keyfor(x)
     if not Object.hasOwnProperty.call(this._store, key):
         this.size += 1
-    this._store[key] = JS('[x, value]')
+    this._store[key] = v'[x, value]'
     return this
 
 _$rapyd$_dict_polyfill.prototype.clear = def(x):
@@ -476,7 +476,7 @@ _$rapyd$_dict_polyfill.prototype.delete = def(x):
     key = _$rapyd$_set_keyfor(x)
     if Object.hasOwnProperty.call(this._store, key):
         this.size -= 1
-        JS('delete this._store[key]')
+        v'delete this._store[key]'
         return True
     return False
 
@@ -535,9 +535,9 @@ _$rapyd$_dict_polyfill.prototype.entries = def(x):
     }
 
 if type(Map) != 'function' or type(Map.prototype.delete) != 'function':
-    JS('_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill')
+    v'_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill'
 else:
-    JS('_$rapyd$_dict_implementation = Map')
+    v'_$rapyd$_dict_implementation = Map'
 
 def _$rapyd$_dict(iterable):
     if isinstance(this, _$rapyd$_dict):
@@ -616,7 +616,7 @@ _$rapyd$_dict.prototype.update = def ():
     m = this.jsmap
     iterable = arguments[0]
     if Array.isArray(iterable):
-        for JS('var i = 0; i < iterable.length; i++'):
+        for v'var i = 0; i < iterable.length; i++':
             m.set(iterable[i][0], iterable[i][1])  # noqa:undef
     elif isinstance(iterable, _$rapyd$_dict):
         iterator = iterable.items()
@@ -638,14 +638,14 @@ _$rapyd$_dict.prototype.update = def ():
             result = iterator.next()
     else:
         keys = Object.keys(iterable)
-        for JS('var i=0; i < keys.length; i++'):
+        for v'var i=0; i < keys.length; i++':
             if keys[i] != _$rapyd$_iterator_symbol:
                 m.set(keys[i], iterable[keys[i]])  # noqa:undef
     if arguments.length > 1:
         _$rapyd$_dict.prototype.update.call(this, arguments[1])
 
 _$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = def():
-    entries = JS('[]')
+    entries = v'[]'
     iterator = this.jsmap.entries()
     r = iterator.next()
     while not r.done:
@@ -683,6 +683,6 @@ def _$rapyd$_dict_wrap(x):
     ans.jsmap = x
     return ans
 
-JS('var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap')
+v'var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap'
 
 # }}}

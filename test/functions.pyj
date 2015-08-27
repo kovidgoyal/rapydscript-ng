@@ -23,7 +23,7 @@ assert.equal(mul(2,2), 4)
 # for some reason input to throws must be of type block, hence the 'def' wrapper
 assert.throws(
     def():
-        div(6,3)
+        div(6,3)  # noqa: undef
     ,
     /div is not defined/
 )
@@ -72,7 +72,7 @@ r()
 assert.equal(count, 1)
 
 st = "this is a string"
-assert.equal(type(st), JS("typeof st"))
+assert.equal(type(st), v"typeof st")
 
 # testing inlined functions
 inlined = [
@@ -107,7 +107,7 @@ assert.equal(hello("world"), "<b><i>hello world</i></b>")
 # just because something is a reserved keyword in RapydScript, doesn't mean other libraries won't attempt to use it
 # let's make sure we parse that correctly
 five = {}
-JS("five.is = function(n) { return 5 == n };")
+v"five.is = function(n) { return 5 == n };"
 assert.ok(five.is(5))
 
 # function assignment via conditional

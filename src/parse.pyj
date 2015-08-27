@@ -118,7 +118,7 @@ PRECEDENCE = def(a, ret):
 
 STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ])
 
-ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name" ])
+ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name", "js" ])
 
 # -----[ Parser ]-----
 def parse($TEXT, options):
@@ -273,7 +273,7 @@ def parse($TEXT, options):
 
         body        body to be scanned
         """
-        localvars = JS('[]')
+        localvars = v'[]'
         seen = {}
 
         def push(x):
@@ -309,7 +309,7 @@ def parse($TEXT, options):
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
-                JS('[ "body", "alternative" ]').forEach(def(option):
+                v'[ "body", "alternative" ]'.forEach(def(option):
                     opt = stmt[option]
                     if opt:
                         extend(scan_for_local_vars(opt))
@@ -349,7 +349,7 @@ def parse($TEXT, options):
         return localvars
 
     def scan_for_nonlocal_defs(body):
-        vars = JS('[]')
+        vars = v'[]'
         if Array.isArray(body):
             for stmt in body:
                 if isinstance(stmt, AST_Scope):
@@ -361,7 +361,7 @@ def parse($TEXT, options):
                         vars.push(vardef.name.name)
                     )
 
-                JS('[ "body", "alternative" ]').forEach(def(option):
+                v'[ "body", "alternative" ]'.forEach(def(option):
                     nonlocal vars
                     opt = stmt[option]
                     if opt:
@@ -405,7 +405,7 @@ def parse($TEXT, options):
             return new AST_Directive({
                 'value': tmp_
             })
-        elif tmp_ == "num" or tmp_ == "regexp" or tmp_ == "operator" or tmp_ == "atom":
+        elif tmp_ == "num" or tmp_ == "regexp" or tmp_ == "operator" or tmp_ == "atom" or tmp_ == "js":
             return simple_statement()
         elif tmp_ == "punc":
             tmp_ = S.token.value
@@ -452,7 +452,7 @@ def parse($TEXT, options):
                     'body': in_loop(statement)
                 })
             elif tmp_ == "for":
-                if is_("name", "JS"):
+                if is_('js'):
                     return for_js()
                 return for_()
             elif tmp_ == "from":
@@ -621,9 +621,9 @@ def parse($TEXT, options):
             'body': in_loop(statement)
         })
 
-    # A native JavaScript for loop - for JS("var i=0; i<5000; i++"):
+    # A native JavaScript for loop - for v"var i=0; i<5000; i++":
     def for_js():
-        condition = expression(True, True)
+        condition = as_atom_node()
         return new AST_ForJS({
             'condition': condition,
             'body': in_loop(statement)
@@ -928,7 +928,7 @@ def parse($TEXT, options):
         if not ctor:
             ctor = in_class ? AST_Method : AST_Function
 
-        is_generator = JS('[]')
+        is_generator = v'[]'
         definition = new ctor({
             'name': name,
             'argnames': def(a):
@@ -983,16 +983,16 @@ def parse($TEXT, options):
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
                 return a
-            .call(this, JS('[]')),
+            .call(this, v'[]'),
             'localvars': [],
             'decorators': def():
-                d = JS('[]')
+                d = v'[]'
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
                         'name': decorator
                     }))
                 )
-                S.decorators = JS('[]')
+                S.decorators = v'[]'
                 return d
             .call(this),
             'body': def(loop, labels):
@@ -1055,7 +1055,7 @@ def parse($TEXT, options):
 
     def block_():
         expect(":")
-        a = JS('[]')
+        a = v'[]'
         if not S.token.nlb:
             while not S.token.nlb:
                 if is_("eof"):
@@ -1205,7 +1205,13 @@ def parse($TEXT, options):
                     'start': tok,
                     'end': tok
                 })
-        token_error(tok, 'Expecting an atomic token (number/string/bool/regexp/None)')
+        elif tmp_ == "js":
+            return new AST_Verbatim({
+                'start': tok,
+                'end': tok,
+                'value': tok.value,
+            })
+        token_error(tok, 'Expecting an atomic token (number/string/bool/regexp/js/None)')
 
     def as_atom_node():
         ret = token_as_atom_node(S.token)
@@ -1306,10 +1312,10 @@ def parse($TEXT, options):
         return a
 
     def func_call_list():
-        a = JS('[]')
+        a = v'[]'
         first = True
-        a.kwargs = JS('[]')
-        a.kwarg_items = kwargs = JS('[]')
+        a.kwargs = v'[]'
+        a.kwarg_items = kwargs = v'[]'
         a.starargs = False
         while not is_("punc", ')'):
             if first:
@@ -1484,7 +1490,7 @@ def parse($TEXT, options):
     def token_as_symbol(tok, ttype):
         name = tok.value
         return new ((name == "this" ? AST_This : ttype))({
-            'name': JS("String(tok.value)"),
+            'name': v"String(tok.value)",
             'start': tok,
             'end': tok
         })
@@ -1502,7 +1508,7 @@ def parse($TEXT, options):
     # for generating/inserting a new symbol
     def new_symbol(type, name):
         sym = new ((name == "this" ? AST_This : type))({
-            'name': JS("String(name)"),
+            'name': v"String(name)",
             'start': None,
             'end': None
         })
@@ -1635,21 +1641,7 @@ def parse($TEXT, options):
         if allow_calls and is_("punc", "(") and not S.token.nlb:
             S.in_parenthesized_expr = True
             next()
-            if isinstance(expr, AST_SymbolRef) and expr.name == "JS":
-                # raw JavaScript chunk of code
-                str_ = expression(False)
-                if not (isinstance(str_, AST_String)):
-                    token_error(prev(), "Compile-time function JS() can't process variables or expressions")
-
-                ret = new AST_Verbatim({
-                    'start': start,
-                    'value': str_.value,
-                    'end': prev()
-                })
-                expect(")")
-                S.in_parenthesized_expr = False
-                return subscripts(ret, True)
-            elif not expr.parens and get_class_in_scope(expr):
+            if not expr.parens and get_class_in_scope(expr):
                 # this is an object being created using a class
                 ret = subscripts(new AST_New({
                     'start': start,
@@ -1855,7 +1847,7 @@ def parse($TEXT, options):
                 'end': peek()
             })
         if commas:
-            left = JS('[ expr ]')
+            left = v'[ expr ]'
             while is_("punc", ",") and not peek().nlb:
                 next()
                 if isinstance(expr, AST_Assign):
