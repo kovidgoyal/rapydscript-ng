@@ -464,9 +464,9 @@ function Linter(toplevel, filename, code, options) {
                 messages.push({filename:filename, ident:ident, message:MESSAGES[ident],
                     level:WARN, name:';', start_line:num, start_col:line.lastIndexOf(';')});
             }
-            var parts = line.split(' ');
+            var parts = line.split('#');
             var last = parts[parts.length - 1], filters;
-            if (last && last.substr(0, 4).toLowerCase().replace('#', '') === 'noqa') {
+            if (last && last.trimLeft().substr(0, 4).toLowerCase() === 'noqa') {
                 parts = last.split(':').slice(1);
                 if (parts.length) {
                     filters = {};
