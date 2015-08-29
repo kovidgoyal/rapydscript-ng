@@ -1445,7 +1445,7 @@ below:
 Changes in this fork compared to atsepkov/RapydScript
 ----------------------------------------------------------
 
-Some of these changes might have been merged back into the official repository.
+Some of these changes might have been merged back into the original repository.
 This list below records all the work I have done on RapydScript so far.
 
 1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
