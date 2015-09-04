@@ -1809,7 +1809,10 @@ def codegen():
             output.print(')')
 
         if self.args.starargs:
-            obj = (self.expression.expression ? self.expression.expression.name : "this")
+            if isinstance(self, AST_New):
+                obj = '_$rapyd$_new_temp'
+            else:
+                obj = (self.expression.expression ? self.expression.expression.name : "this")
             output.print(".apply")
             output.with_parens(def():
                 output.print(obj)
@@ -1864,9 +1867,26 @@ def codegen():
             )
     )
     DEFPRINT(AST_New, def(self, output):
-        output.print("new")
-        output.space()
-        AST_BaseCall.prototype._codegen(self, output)
+        if self.args.starargs:
+            output.with_parens(def():
+                output.print('function()')
+                output.with_block(def():
+                    output.indent()
+                    output.print('var _$rapyd$_new_temp = Object.create(')
+                    self.expression.print(output)
+                    output.print(')')
+                    output.end_statement(), output.indent()
+                    AST_BaseCall.prototype._codegen(self, output)
+                    output.end_statement(), output.indent()
+                    output.print('return _$rapyd$_new_temp')
+                    output.end_statement()
+                )
+            )
+            output.print('()')
+        else:
+            output.print("new")
+            output.space()
+            AST_BaseCall.prototype._codegen(self, output)
     )
     AST_Seq.DEFMETHOD("_do_print", def(output):
         self = this
