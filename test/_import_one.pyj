@@ -23,6 +23,6 @@ else:
 
 GLOBAL_SYMBOL = 'i am global'
 
-from two.other import other
+from _import_two.other import other
 
 test_other = other
