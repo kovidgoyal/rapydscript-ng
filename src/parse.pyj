@@ -232,12 +232,15 @@ def parse($TEXT, options):
             return expr
 
     def scan_for_top_level_callables(body):
-        ans = []
+        ans = v'[]'
         # Get the named functions and classes
         if Array.isArray(body):
             for obj in body:
                 if isinstance(obj, AST_Function) or isinstance(obj, AST_Class):
-                    ans.push(obj.name)
+                    if obj.name:
+                        ans.push(obj.name)
+                    else:
+                        token_error(obj.start, "Top-level functions must have names")
                 else:
                     # skip inner scopes
                     if isinstance(obj, AST_Scope):
