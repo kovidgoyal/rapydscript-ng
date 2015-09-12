@@ -59,8 +59,8 @@ def E(tag, *args, **kwargs):
     ans = create_element(tag)
 
     for attr in kwargs:
-        attr = str.replace(str.rstrip(attr, '_'), '_', '-')
-        ans.setAttribute(attr, kwargs[attr])
+        vattr = str.replace(str.rstrip(attr, '_'), '_', '-')
+        ans.setAttribute(vattr, kwargs[attr])
 
     for arg in args:
         if type(arg) == 'string':
