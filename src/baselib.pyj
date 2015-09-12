@@ -101,7 +101,7 @@ def _$rapyd$_Iterable(iterable):
             ans.push(result.value)
             result = iterator.next()
         return ans
-    if type(HTMLCollection) == 'function' and isinstance(iterable, (HTMLCollection, NodeList)):
+    if type(HTMLCollection) == 'function' and isinstance(iterable, (HTMLCollection, NodeList, NamedNodeMap)):
         return iterable
     # so we can use 'for ... in' syntax with objects, as we would with dicts in python
     return Object.keys(iterable)
