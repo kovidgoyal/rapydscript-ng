@@ -145,3 +145,7 @@ err_test('class A:\n def a(self):\n  pass\n def a(self):\n  pass', 'dup-method',
 
 # Object literals
 err_test('{"a":1, "a":2}', 'dup-key', 1, 'a')
+
+# keyword arg values
+ok_test('def f():\n a=1\n f(b=a)')
+ok_test('def f():\n a={}\n f(**a)')

@@ -1317,7 +1317,7 @@ def parse($TEXT, options):
         a = v'[]'
         first = True
         a.kwargs = v'[]'
-        a.kwarg_items = kwargs = v'[]'
+        a.kwarg_items = v'[]'
         a.starargs = False
         while not is_("punc", ')'):
             if first:
@@ -1332,7 +1332,7 @@ def parse($TEXT, options):
                 a.starargs = True
             elif is_('operator', '**'):
                 next()
-                kwargs.push(as_symbol(AST_SymbolVar, False))
+                a.kwarg_items.push(as_symbol(AST_SymbolRef, False))
                 a.starargs = True
             else:
                 arg = expression(False)

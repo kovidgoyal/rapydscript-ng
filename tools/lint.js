@@ -411,6 +411,11 @@ function Linter(toplevel, filename, code, options) {
         }, this);
     };
 
+    this.handle_call = function() {
+        var node = this.current_node;
+        node.args.kwargs.forEach(function(kw) { kw[0].lint_visited = true; });
+    };
+
     this._visit = function (node, cont) {
         if (node.lint_visited) return;
         this.current_node = node;
@@ -428,6 +433,8 @@ function Linter(toplevel, filename, code, options) {
             this.handle_imported_var();
         } else if (node instanceof RapydScript.AST_Class) {
             this.handle_class();
+        } else if (node instanceof RapydScript.AST_BaseCall) {
+            this.handle_call();
         } else if (node instanceof RapydScript.AST_Assign) {
             this.handle_assign();
         } else if (node instanceof RapydScript.AST_VarDef) {
