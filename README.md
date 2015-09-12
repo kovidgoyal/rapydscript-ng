@@ -10,45 +10,45 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Contents**
 
-  - [What is RapydScript?](#what-is-rapydscript)
-  - [Installation](#installation)
-  - [Compilation](#compilation)
-  - [Getting Started](#getting-started)
-  - [Leveraging other APIs](#leveraging-other-apis)
-  - [Anonymous Functions](#anonymous-functions)
-  - [Decorators](#decorators)
-  - [Self-Executing Functions](#self-executing-functions)
-  - [Chaining Blocks](#chaining-blocks)
-  - [Function calling with optional arguments](#function-calling-with-optional-arguments)
-  - [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
-  - [Operators and keywords](#operators-and-keywords)
-  - [Literal JavaScript](#literal-javascript)
-  - [Containers (lists/sets/dicts)](#containers-listssetsdicts)
-- [Now pya is a python like list object that satisfies pya === a](#now-pya-is-a-python-like-list-object-that-satisfies-pya--a)
-    - [Container comparisons](#container-comparisons)
-  - [Loops](#loops)
-  - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
-  - [Strings](#strings)
-  - [Regular Expressions](#regular-expressions)
-  - [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
-  - [Classes](#classes)
-    - [External Classes](#external-classes)
-    - [Method Binding](#method-binding)
-  - [Iterators](#iterators)
-  - [Generators](#generators)
-  - [Modules](#modules)
-  - [Exception Handling](#exception-handling)
-  - [Scope Control](#scope-control)
-  - [Available Libraries](#available-libraries)
-  - [Linter](#linter)
-  - [Advanced Usage Topics](#advanced-usage-topics)
-      - [Browser Compatibility](#browser-compatibility)
-      - [Tabs vs Spaces](#tabs-vs-spaces)
-      - [Semi-Colons](#semi-colons)
-      - [jQuery-wrapped Elements](#jquery-wrapped-elements)
-      - [External Libraries and Classes](#external-libraries-and-classes)
-  - [Gotchas](#gotchas)
-  - [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+- [What is RapydScript?](#what-is-rapydscript)
+- [Installation](#installation)
+- [Compilation](#compilation)
+- [Getting Started](#getting-started)
+- [Leveraging other APIs](#leveraging-other-apis)
+- [Anonymous Functions](#anonymous-functions)
+- [Decorators](#decorators)
+- [Self-Executing Functions](#self-executing-functions)
+- [Chaining Blocks](#chaining-blocks)
+- [Function calling with optional arguments](#function-calling-with-optional-arguments)
+- [Inferred Tuple Packing/Unpacking](#inferred-tuple-packingunpacking)
+- [Operators and keywords](#operators-and-keywords)
+- [Literal JavaScript](#literal-javascript)
+- [Containers (lists/sets/dicts)](#containers-listssetsdicts)
+  - [Container comparisons](#container-comparisons)
+- [Loops](#loops)
+- [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
+- [Strings](#strings)
+- [Regular Expressions](#regular-expressions)
+- [Creating DOM tree's efficiently](#creating-dom-trees-efficiently)
+- [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
+- [Classes](#classes)
+  - [External Classes](#external-classes)
+  - [Method Binding](#method-binding)
+- [Iterators](#iterators)
+- [Generators](#generators)
+- [Modules](#modules)
+- [Exception Handling](#exception-handling)
+- [Scope Control](#scope-control)
+- [Available Libraries](#available-libraries)
+- [Linter](#linter)
+- [Advanced Usage Topics](#advanced-usage-topics)
+    - [Browser Compatibility](#browser-compatibility)
+    - [Tabs vs Spaces](#tabs-vs-spaces)
+    - [Semi-Colons](#semi-colons)
+    - [jQuery-wrapped Elements](#jquery-wrapped-elements)
+    - [External Libraries and Classes](#external-libraries-and-classes)
+- [Gotchas](#gotchas)
+- [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -599,7 +599,7 @@ function, like this:
 ```py
 a = v'[1, 2]'
 pya = list_wrap(a)
-# Now pya is a python like list object that satisfies pya === a
+ # Now pya is a python like list object that satisfies pya === a
 ```
 
 ### Sets
@@ -810,6 +810,43 @@ re.match(///
   b  # Another comment
   ///, 'ab')
 ```
+
+Creating DOM tree's efficiently
+---------------------------------
+
+RapydScript includes a small module in its standard library to create DOM tress
+efficiently. It leverages the powerful support for python style function
+calling. Best illustrated with an example:
+
+```py
+from elementmaker import E
+
+E.div(id="container", class_="xxx",
+	E.div('The Heading', data_heading="1"),
+	E.p('Some text ',
+		E.i('with italics'),
+		E('custom', ' and a csutom tag'),
+	)
+)
+```
+
+This is equivalent to:
+
+```html
+<div id="container" class="xxx">
+	<div data-heading="1">The Heading</div>
+	<p>Some text <i>with italics</i><custom> and a custom tag</custom></p>
+</div>
+```
+
+Basically, you create text nodes and children as positional arguments and
+attributes as keyword arguments. Note that if an attribute name is a reserved
+keyword in RapydScript, you can postfix it with an underscore. So ```class_```
+becomes ```class```. Also, underscores are automatically replaced by hyphens,
+so ```data-*``` attributes can be created. Finally, if you need a non-standard
+tag, you simply use the ```E()``` function by itself with the first argument
+being the tag name.
+
 
 Inclusive/Exclusive Sequences
 -----------------------------
@@ -1500,6 +1537,9 @@ This list below records all the work I have done on RapydScript so far.
 1. Re-wrote the re.pyj module to more closely support the python regular
    expression semantics, including named groups, finditer(), regex flags,
    the python syntax for replacement strings, etc.
+
+1. Created an elementmaker module to the stdlib to efficiently build DOM trees
+   in pure RapydScript
 
 1. Changed the syntax for embedded JavaScript to use verbatim string literals
    instead of a magic compile time function.
