@@ -2078,12 +2078,15 @@ def codegen():
             )
             return
         flattened = False
-        if isinstance(self.left, AST_Array):
-            flat = self.left.flatten()
-            flattened = flat.length > self.left.elements.length
+        left = self.left
+        if isinstance(left, AST_Seq):
+            left = new AST_Array({'elements':v'[left.car, left.cdr]'})
+        if isinstance(left, AST_Array):
+            flat = left.flatten()
+            flattened = flat.length > left.elements.length
             output.print("_$rapyd$_Unpack")
         else:
-            self.left.print(output)
+            left.print(output)
         output.space()
         output.print(self.operator)
         output.space()
@@ -2092,7 +2095,7 @@ def codegen():
             output.with_parens(def():self.right.print(output);)
         else:
             self.right.print(output)
-        if isinstance(self.left, AST_Array):
+        if isinstance(left, AST_Array):
             output.semicolon()
             output.newline()
             unpack_tuple(flat, output, True)

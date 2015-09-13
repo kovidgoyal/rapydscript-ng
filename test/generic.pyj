@@ -38,6 +38,10 @@ assert.deepEqual([ [x, y, z, w] for ((x, y), (z, w)) in [ [[1, 2], [3, 4]] ] ],
                  [[1, 2, 3, 4]])
 assert.deepEqual([ [x, y, z] for x, (y, z) in [ [1, [2, 3] ] ]],
                  [[1, 2, 3]])
+(a, b) = [1, 2]
+assert.deepEqual([a, b], [1, 2])
+(a, (b, c)) = [1, [2, 3]]
+assert.deepEqual([a, b, c], [1, 2, 3])
 
 # strict equality
 assert(1 == 1)                  # number vs number: ok
