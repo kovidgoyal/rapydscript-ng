@@ -307,7 +307,7 @@ def parse($TEXT, options):
                 lhs = new AST_Array({'elements':lhs.to_array()})
             if isinstance(lhs, AST_Array):
                 # assignment to an implicit tuple
-                push("_$rapyd$_Unpack")
+                push("_$rapyd$_unpack")
                 scan_in_array(lhs.elements)
             elif lhs.name:
                 # assignment to a single variable
@@ -334,7 +334,7 @@ def parse($TEXT, options):
                 if isinstance(stmt, AST_ForIn):
                     if isinstance(stmt.init, AST_Array):
                         # iteration via implicit tuple
-                        push("_$rapyd$_Unpack")
+                        push("_$rapyd$_unpack")
                         scan_in_array(stmt.init.elements)
                     else:
                         # iteration via a single variable

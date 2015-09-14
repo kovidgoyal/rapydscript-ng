@@ -823,7 +823,7 @@ def codegen():
         elems.forEach(def(elem, i):
             output.indent()
             output.assign(elem)
-            output.print("_$rapyd$_Unpack")
+            output.print("_$rapyd$_unpack")
             output.with_square(def():
                 output.print(i)
             )
@@ -1051,7 +1051,7 @@ def codegen():
                     itervar = "_$rapyd$_Index" + output.index_counter
                 if isinstance(self.init, AST_Array):
                     flat = self.init.flatten()
-                    output.assign("_$rapyd$_Unpack")
+                    output.assign("_$rapyd$_unpack")
                     if flat.length > self.init.elements.length:
                         output.print('_$rapyd$_flatten(' + itervar + ')')
                     else:
@@ -1304,7 +1304,7 @@ def codegen():
                     itervar = (output.option('js_version') == 5) ? '_$rapyd$_Iter[_$rapyd$_Index]' : '_$rapyd$_Index'
                     if isinstance(self.init, AST_Array):
                         flat = self.init.flatten()
-                        output.assign("_$rapyd$_Unpack")
+                        output.assign("_$rapyd$_unpack")
                         if flat.length > self.init.elements.length:
                             output.print('_$rapyd$_flatten(' + itervar + ')')
                         else:
@@ -2074,7 +2074,7 @@ def codegen():
         if isinstance(left, AST_Array):
             flat = left.flatten()
             flattened = flat.length > left.elements.length
-            output.print("_$rapyd$_Unpack")
+            output.print("_$rapyd$_unpack")
         else:
             left.print(output)
         output.space()
