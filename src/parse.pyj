@@ -1828,6 +1828,13 @@ def parse($TEXT, options):
             return conditional
         return expr
 
+    def create_assign(data):
+        if data.right and isinstance(data.right, AST_Seq) and (
+                isinstance(data.right.car, AST_Assign) or
+                isinstance(data.right.cdr, AST_Assign)) and data.operator != '=':
+            token_error(data.start, 'Invalid assignment operator for chained assignment: ' + data.operator)
+        return new AST_Assign(data)
+
     maybe_assign = def(no_in, only_plain_assignment):
         start = S.token
         left = maybe_conditional(no_in)
@@ -1836,7 +1843,7 @@ def parse($TEXT, options):
             if only_plain_assignment and val != '=':
                 croak('Invalid assignment operator for chained assignment: ' + val)
             next()
-            return new AST_Assign({
+            return create_assign({
                 'start': start,
                 'left': left,
                 'operator': val,
@@ -1866,7 +1873,7 @@ def parse($TEXT, options):
                 next()
                 if isinstance(expr, AST_Assign):
                     left[-1] = left[-1].left
-                    return new AST_Assign({
+                    return create_assign({
                         'start': start,
                         'left': (left.length == 1 ? left[0] : new AST_Array({
                             'elements': left
@@ -1885,7 +1892,7 @@ def parse($TEXT, options):
             # if last one was an assignment, fix it
             if left.length > 1 and isinstance(left[-1], AST_Assign):
                 left[-1] = left[-1].left
-                return new AST_Assign({
+                return create_assign({
                     'start': start,
                     'left': new AST_Array({
                         'elements': left

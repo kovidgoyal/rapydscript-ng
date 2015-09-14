@@ -55,6 +55,8 @@ a = b = 11
 assert.deepEqual([a, b], [11, 11])
 
 throw_test('a += b += 1')
+throw_test('a += 1, 2 += b')
+throw_test('a += [1, 2] += b')
 
 
 # strict equality
