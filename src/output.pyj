@@ -841,9 +841,6 @@ def codegen():
     )
     DEFPRINT(AST_Toplevel, def(self, output):
         is_main = output.is_main()
-        if is_main and self.shebang:
-            output.print(self.shebang)
-            output.newline()
 
         if output.option("private_scope") and is_main:
             output.with_parens(def():
