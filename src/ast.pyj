@@ -831,7 +831,46 @@ AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", {
 })
 
 AST_Assign = DEFNODE("Assign", None, {
-    '$documentation': "An assignment expression — `a = b + 5`"
+    '$documentation': "An assignment expression — `a = b + 5`",
+
+    'is_chained': def():
+        return isinstance(this.right, AST_Assign) or (
+            isinstance(this.right, AST_Seq) and (
+                isinstance(this.right.car, AST_Assign) or isinstance(this.right.cdr, AST_Assign))
+        )
+    ,
+
+    'traverse_chain': def():
+        right = this.right
+        while True:
+            if isinstance(right, AST_Assign):
+                right = right.right
+                continue
+            if isinstance(right, AST_Seq):
+                if isinstance(right.car, AST_Assign):
+                    right = new AST_Seq({'car':right.car.right, 'cdr': right.cdr})
+                    continue
+                if isinstance(right.cdr, AST_Assign):
+                    right = right.cdr.right
+                    continue
+            break
+        left_hand_sides = v'[this.left]'
+        next = this.right
+        while True:
+            if isinstance(next, AST_Assign):
+                left_hand_sides.push(next.left)
+                next = next.right
+                continue
+            if isinstance(next, AST_Seq):
+                if isinstance(next.cdr, AST_Assign):
+                    assign = next.cdr
+                    left_hand_sides.push(new AST_Seq({'car':next.car, 'cdr':assign.left}))
+                    next = assign.right
+                    continue
+            break
+        return left_hand_sides, right
+
+
 }, AST_Binary)
 
 # -----[ LITERALS ]-----

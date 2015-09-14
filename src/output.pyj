@@ -2102,7 +2102,18 @@ def codegen():
                 self.right.print(output)
             )
             return
-        print_assignment(self, output)
+        if self.operator == '=' and self.is_chained():
+            left_hand_sides, rhs = self.traverse_chain()
+            temp_rhs = new AST_SymbolRef({'name':'_$rapyd$_chain_assign_temp'})
+            print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
+            output.end_statement(), output.indent()
+            for lhs in left_hand_sides:
+                print_assignment(new AST_Assign({'left':lhs, 'right':temp_rhs, 'operator':self.operator}), output)
+                output.end_statement()
+                if lhs is not left_hand_sides[-1]:
+                    output.indent()
+        else:
+            print_assignment(self, output)
 
     )
     def write_conditional(output, condition, consequent, alternative):
