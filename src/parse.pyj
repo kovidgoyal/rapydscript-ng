@@ -1425,7 +1425,13 @@ def parse($TEXT, options):
             first = False
 
             start = S.token
-            left = expression(False)
+            ctx = S.input.context()
+            orig = ctx.expecting_object_literal_key
+            ctx.expecting_object_literal_key = True
+            try:
+                left = expression(False)
+            finally:
+                ctx.expecting_object_literal_key = orig
             if is_('keyword', 'for'):
                 # is_pydict is irrelevant here
                 return read_comprehension(new AST_SetComprehension({'statement':left}))

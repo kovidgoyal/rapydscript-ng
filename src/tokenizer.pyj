@@ -176,6 +176,7 @@ def tokenizer($TEXT, filename):
         'cached_whitespace': "",
         'prev': undefined,
         'index_or_slice': v'[ false ]',
+        'expecting_object_literal_key': False,  # This is set by the parser when it is expecting an object literal key
     }
     def peek():
         return S.text.charAt(S.pos)
@@ -243,6 +244,7 @@ def tokenizer($TEXT, filename):
         if type == "punc":
             #            if (value == ":" && peek() == "\n") {
             if value == ":" and not S.index_or_slice[-1]
+            and not S.expecting_object_literal_key
             and (not S.text.substring(S.pos + 1, find("\n")).trim() or not S.text.substring(S.pos + 1, find("#")).trim()):
                 S.newblock = True
                 S.indentation_matters.push(True)

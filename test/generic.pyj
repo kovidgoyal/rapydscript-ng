@@ -72,6 +72,10 @@ throw_test('a += b += 1')
 throw_test('a += 1, 2 += b')
 throw_test('a += [1, 2] += b')
 
+# object literals
+{1:
+ 1
+   }  # Check that arbitrary indentation is allowed after : for an object literal key
 
 # strict equality
 assert(1 == 1)                  # number vs number: ok
