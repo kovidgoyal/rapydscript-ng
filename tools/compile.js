@@ -29,7 +29,7 @@ function read_whole_file(filename, cb) {
 module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     // configure settings for the output
     var OUTPUT_OPTIONS = {
-        beautify: argv.beautify,
+        beautify: !argv.uglify,
         private_scope: !argv.bare,
         auto_bind: argv.auto_bind,
         omit_baselib: argv.omit_baselib,
