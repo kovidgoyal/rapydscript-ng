@@ -1818,17 +1818,19 @@ def parse($TEXT, options):
             return conditional
         return expr
 
-    maybe_assign = def(no_in):
+    maybe_assign = def(no_in, only_plain):
         start = S.token
         left = maybe_conditional(no_in)
         val = S.token.value
         if is_("operator") and ASSIGNMENT(val):
+            if only_plain and val != '=':
+                croak('Invalid assignment operator for chained assignment: ' + val)
             next()
             return new AST_Assign({
                 'start': start,
                 'left': left,
                 'operator': val,
-                'right': maybe_assign(no_in),
+                'right': maybe_assign(no_in, True),
                 'end': prev()
             })
         return left

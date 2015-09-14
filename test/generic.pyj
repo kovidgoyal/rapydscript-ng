@@ -1,3 +1,10 @@
+def throw_test(code):
+    orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
+    assert.throws(def():
+        RapydScript.parse(code, {'filename':code}).body[0]
+    , RapydScript.SyntaxError)
+    RapydScript.AST_Node.warn_function = orig
+
 # arithmetic
 assert.equal(3**4, Math.pow(3, 4))
 assert.equal(100**-2, Math.pow(100, -2))
@@ -42,6 +49,13 @@ assert.deepEqual([ [x, y, z] for x, (y, z) in [ [1, [2, 3] ] ]],
 assert.deepEqual([a, b], [1, 2])
 (a, (b, c)) = [1, [2, 3]]
 assert.deepEqual([a, b, c], [1, 2, 3])
+
+# Chained assignment
+a = b = 11
+assert.deepEqual([a, b], [11, 11])
+
+throw_test('a += b += 1')
+
 
 # strict equality
 assert(1 == 1)                  # number vs number: ok
