@@ -269,8 +269,8 @@ def OutputStream(options):
         print_(options.baselib[key])
         if is_func:
             print_(')()')
-            semicolon()
-        semicolon(), newline()
+        semicolon()
+        newline()
 
     def dump_yield():
         indent()
