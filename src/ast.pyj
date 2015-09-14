@@ -69,7 +69,7 @@ AST_Node = DEFNODE("Node", "start end", {
     'walk': def(visitor):
         return this._walk(visitor)
     ,
-    '_dump': def(depth, omit, offset, include_name):
+    '_dump': def(depth=100, omit={'start', 'end'}, offset=0, include_name=True):
         p = console.log
         reset = "\x1b[0m"
         yellow = "\x1b[33m"

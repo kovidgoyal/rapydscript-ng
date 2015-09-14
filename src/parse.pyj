@@ -302,6 +302,22 @@ def parse($TEXT, options):
                     if not isinstance(x, AST_PropAccess):
                         push(x.name)
 
+        def scan_assign(assign):
+            if isinstance(assign.left, AST_Array):
+                # assignment to an implicit tuple
+                push("_$rapyd$_Unpack")
+                scan_in_array(assign.left.elements)
+            elif assign.left.name:
+                # assignment to a single variable
+                push(assign.left.name)
+            if isinstance(assign.right, AST_Assign):
+                scan_assign(assign.right)
+            elif isinstance(assign.right, AST_Seq):
+                if isinstance(assign.right.cdr, AST_Assign):
+                    push(assign.right.car.name)
+                    scan_assign(assign.right.cdr)
+                elif isinstance(assign.right.car, AST_Assign):
+                    scan_assign(assign.right.car)
 
         if Array.isArray(body):
             # this is a body of statements
@@ -340,13 +356,7 @@ def parse($TEXT, options):
 
         elif isinstance(body, AST_Assign):
             # this is a single assignment operator
-            if isinstance(body.left, AST_Array):
-                # assignment to an implicit tuple
-                push("_$rapyd$_Unpack")
-                scan_in_array(body.left.elements)
-            elif body.left.name:
-                # assignment to a single variable
-                push(body.left.name)
+            scan_assign(body)
 
         return localvars
 
@@ -1818,12 +1828,12 @@ def parse($TEXT, options):
             return conditional
         return expr
 
-    maybe_assign = def(no_in, only_plain):
+    maybe_assign = def(no_in, only_plain_assignment):
         start = S.token
         left = maybe_conditional(no_in)
         val = S.token.value
         if is_("operator") and ASSIGNMENT(val):
-            if only_plain and val != '=':
+            if only_plain_assignment and val != '=':
                 croak('Invalid assignment operator for chained assignment: ' + val)
             next()
             return new AST_Assign({
