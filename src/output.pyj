@@ -2065,18 +2065,8 @@ def codegen():
         else:
             output.spaced(self.left, self.operator, self.right)
     )
-    DEFPRINT(AST_Assign, def(self, output):
-        if self.operator == '//=':
-            output.assign(self.left)
-            output.print('Math.floor')
-            output.with_parens(def():
-                self.left.print(output)
-                output.space()
-                output.print('/')
-                output.space()
-                self.right.print(output)
-            )
-            return
+
+    def print_assignment(self, output):
         flattened = False
         left = self.left
         if isinstance(left, AST_Seq):
@@ -2099,6 +2089,21 @@ def codegen():
             output.semicolon()
             output.newline()
             unpack_tuple(flat, output, True)
+
+    DEFPRINT(AST_Assign, def(self, output):
+        if self.operator == '//=':
+            output.assign(self.left)
+            output.print('Math.floor')
+            output.with_parens(def():
+                self.left.print(output)
+                output.space()
+                output.print('/')
+                output.space()
+                self.right.print(output)
+            )
+            return
+        print_assignment(self, output)
+
     )
     def write_conditional(output, condition, consequent, alternative):
         output.with_parens(def():condition.print(output);)
