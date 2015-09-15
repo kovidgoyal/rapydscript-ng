@@ -105,6 +105,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
     this.nonlocals = {};
     this.defined_after_use = {};
     this.seen_method_names = {};
+    this.methods = {};
 
     this.add_binding = function(name, node, options) {
         var already_bound = this.bindings.hasOwnProperty(name);
@@ -140,6 +141,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
                 }
                 delete this.undefined_references[name];
             }
+            if (Object.hasOwnProperty.call(this.methods, name)) delete this.undefined_references[name];
         }, this);
 
         // Find unused bindings
@@ -262,6 +264,7 @@ function Linter(toplevel, filename, code, options) {
         }
         if (name) {
             if (node instanceof RapydScript.AST_Method) {
+                scope.methods[name] = true;
                 if (Object.prototype.hasOwnProperty.call(scope.seen_method_names, name)) {
                     this.messages.push(msg_from_node(filename, 'dup-method', node.name, node, WARN, scope.seen_method_names[name]));
                 } else scope.seen_method_names[name] = node.start.line;

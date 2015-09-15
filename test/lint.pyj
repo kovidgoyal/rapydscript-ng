@@ -134,6 +134,7 @@ class A:
 
     def unused(self):
         pass
+    other = unused
 
 class B(A):
 
