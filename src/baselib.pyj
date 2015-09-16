@@ -225,16 +225,16 @@ def hasattr(obj, name):
 def _$rapyd$_desugar_kwargs():
     if type(Object.assign) == 'function':
         return def():
-            ans = {}
-            ans[_$rapyd$_kwargs_symbol] = True
-            return Object.assign.apply(ans, arguments)
+            ans = {_$rapyd$_kwargs_symbol: True}
+            for v'var i = 0; i < arguments.length; i++':
+                Object.assign(ans, arguments[i])
+            return ans
     return def():
-        ans = {}
-        ans[_$rapyd$_kwargs_symbol] = True
+        ans = {_$rapyd$_kwargs_symbol: True}
         for v'var i = 0; i < arguments.length; i++':
             keys = Object.keys(arguments[i])
             for v'var j = 0; j < keys.length; j++':
-                ans[keys[j]] = arguments[i][keys[j]]  # noqa:undef
+                ans[keys[j]] = arguments[i][keys[j]]
         return ans
 
 if v"typeof exports === 'object'":
