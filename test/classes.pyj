@@ -172,7 +172,7 @@ assert.equal(m.plus(2, 5), -7)
 assert.equal(m.pi, 3.14)
 
 
-class CV:
+class CV():
 
     a = b = 1
     c = a + b
