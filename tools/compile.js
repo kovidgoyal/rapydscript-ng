@@ -51,12 +51,14 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
 
     function write_output(output) {
         if (argv.output) {
-            fs.writeFileSync(argv.output, output, "utf8");
-        } else {
+            // Node's filesystem module cannot write directly to /dev/stdout
+            if (argv.output == '/dev/stdout') console.log(output);
+            else if (argv.output == '/dev/stderr') console.error(output);
+            else fs.writeFileSync(argv.output, output, "utf8");
+        } else if (!argv.execute){
             console.log(output);
         }
         if (argv.execute) {
-            console.log('\n------------ Running script -------------\n');
             vm.runInNewContext(output, {'console':console, 'require':require}, {'filename':files[0]});
         }
     }

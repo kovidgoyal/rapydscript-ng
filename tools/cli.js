@@ -295,9 +295,11 @@ Display operations run time on STDERR.
 */});
 
 opt("execute", 'x,exec', 'bool', false, function(){/*
-When compiling RapydScript code, after outputting
-it, execute it in node itself. This acts as a poor
-man's REPL :)
+Compile and execute the RapydScript code, all in
+one invocation. Useful if you wish to use RapydScript for
+scripting. Note that you can also use the -o option to
+have the compiled JavaScript written out to a file
+before being executed.
 */});
 
 create_group('repl', '', function(){/*
