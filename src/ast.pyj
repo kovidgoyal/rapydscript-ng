@@ -385,8 +385,11 @@ AST_Decorator = DEFNODE("Decorator", "expression", {
         'expression': "[AST_Node] the decorator expression"
     },
     '_walk': def(visitor):
-        if this.expression:
-            this.expression.walk(visitor)
+        node = this
+        return visitor._visit(node, def():
+            if node.expression:
+                node.expression.walk(visitor)
+        )
     ,
 })
 

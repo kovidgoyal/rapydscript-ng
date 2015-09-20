@@ -120,6 +120,8 @@ STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ])
 
 ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name", "js" ])
 
+compile_time_decorators = ['staticmethod', 'external', 'property']
+
 def has_simple_decorator(decorators, name):
     remove = v'[]'
     for v'var i = 0; i < decorators.length; i++':
