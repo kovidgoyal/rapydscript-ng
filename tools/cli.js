@@ -299,7 +299,9 @@ Compile and execute the RapydScript code, all in
 one invocation. Useful if you wish to use RapydScript for
 scripting. Note that you can also use the -o option to
 have the compiled JavaScript written out to a file
-before being executed.
+before being executed. If you specify this option you
+should not specify the -m option to omit the baselib, or 
+execution will fail.
 */});
 
 create_group('repl', '', function(){/*
