@@ -1,0 +1,2 @@
+#!/bin/sh
+git checkout lib && bin/rapydscript self && echo $@ | node --stack-trace-limit=1000 bin/rapydscript 
