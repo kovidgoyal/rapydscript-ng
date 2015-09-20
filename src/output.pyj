@@ -1486,9 +1486,10 @@ def codegen():
                 else:
                     output.assign(".prototype" + ((method ? "." + method : "")))
 
-        define_method = def(stmt):
+        define_method = def(stmt, is_property):
             name = stmt.name.name
-            class_def(name)
+            if not is_property:
+                class_def(name)
             # only strip first argument if the method is static
             strip_first = self.static.indexOf(name) == -1
 
@@ -1497,18 +1498,31 @@ def codegen():
                 decorate(stmt.decorators, output, def():function_definition(stmt, output, False, strip_first);)
             else:
                 function_definition(stmt, output, False, strip_first)
-            output.semicolon()
-            output.newline()
+            if not is_property:
+                output.semicolon()
+                output.newline()
+
+        properties = {}
+        for m in self.body:
+            if isinstance(m, AST_Method):
+                if m.is_getter or m.is_setter:
+                    name = m.name.name
+                    if not Object.prototype.hasOwnProperty.call(properties, name):
+                        properties[name] = {}
+                    if m.is_getter:
+                        properties[name].getter = m
+                    else:
+                        properties[name].setter = m
 
         # generate constructor
         def internalsub():
-            if self.init or self.parent:
-                output.print("function")
-                output.space()
-                self.name.print(output)
-                output.print("()")
-                output.space()
-                output.with_block(def():
+            output.print("function")
+            output.space()
+            self.name.print(output)
+            output.print("()")
+            output.space()
+            output.with_block(def():
+                if self.init or self.parent:
                     bind_methods(self.bound, output)
                     output.indent()
                     cname = (self.name) ? self.name : self.parent
@@ -1521,17 +1535,32 @@ def codegen():
                     )
                     output.semicolon()
                     output.newline()
-                )
-            else:
-                # no init method or parent, create empty init
-                output.print("function")
-                output.space()
-                self.name.print(output)
-                output.print("()")
-                output.space()
-                output.with_block(def():
+                else:
+                    # no init method or parent, create empty init
                     bind_methods(self.bound, output)
-                )
+                if len(properties):
+                    output.indent(), output.print('Object.defineProperties')
+                    output.with_parens(def():
+                        output.print('this'), output.comma(), output.space(), output.with_block(def():
+                            for name in properties:
+                                prop = properties[name]
+                                output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
+                                output.with_block(def():
+                                    output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
+                                    if prop.getter:
+                                        output.indent(), output.print('"get":'), output.space()
+                                        define_method(prop.getter, True), output.comma(), output.newline()
+                                    output.indent(), output.print('"set":'), output.space()
+                                    if prop.setter:
+                                        define_method(prop.setter, True), output.newline()
+                                    else:
+                                        output.spaced('function', '()', '{', '''throw new AttributeError("can't set attribute")''', '}'), output.newline()
+                                )
+                                output.comma(), output.newline()
+                        )
+                    )
+                    output.end_statement()
+            )
 
         # decorate the class
         if self.decorators and self.decorators.length:
@@ -1558,6 +1587,8 @@ def codegen():
         # actual methods
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):
+                if stmt.is_getter or stmt.is_setter:
+                    return
                 define_method(stmt)
                 if stmt.name.name == '__iter__':
                     class_def('_$rapyd$_iterator_symbol', True)

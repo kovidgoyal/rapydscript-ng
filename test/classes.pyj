@@ -188,3 +188,31 @@ class CV():
 c = CV()
 assert.deepEqual([c.a, c.b, c.c, c.d], [1, 1, 2, 1])
 assert.equal(c.one(), c.two())
+
+
+class Properties:
+
+    def __init__(self):
+        self._a = 0
+
+    @property
+    def a(self):
+        return self._a
+
+    @a.setter
+    def a(self, val):
+        self._a = val
+
+    @property
+    def b(self):
+        return 1
+
+p = Properties()
+assert.equal(p._a, p.a)
+p.a = 11
+assert.equal(11, p.a)
+assert.equal(p.b, 1)
+assert.throws(
+    def():
+        p.b = 2
+)

@@ -455,10 +455,12 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         )
 }, AST_Scope)
 
-AST_Method = DEFNODE("Method", "static", {
+AST_Method = DEFNODE("Method", "static is_getter is_setter", {
     '$documentation': "A class method definition",
     '$propdoc': {
-        "static": "[boolean] true if method is static"
+        "static": "[boolean] true if method is static",
+        "is_getter": "[boolean] true if method is a property getter",
+        "is_setter": "[boolean] true if method is a property setter",
     }
 }, AST_Lambda)
 

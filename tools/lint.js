@@ -266,7 +266,7 @@ function Linter(toplevel, filename, code, options) {
             if (node instanceof RapydScript.AST_Method) {
                 scope.methods[name] = true;
                 if (Object.prototype.hasOwnProperty.call(scope.seen_method_names, name)) {
-                    this.messages.push(msg_from_node(filename, 'dup-method', node.name, node, WARN, scope.seen_method_names[name]));
+                    if (!node.is_setter) this.messages.push(msg_from_node(filename, 'dup-method', node.name, node, WARN, scope.seen_method_names[name]));
                 } else scope.seen_method_names[name] = node.start.line;
             } else this.add_binding(name);
         }

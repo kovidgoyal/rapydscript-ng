@@ -1520,6 +1520,9 @@ This list below records all the work I have done on RapydScript so far.
 
 1. Added support for arbitrary expressions as decorators
 
+1. Added support for property getter/setters using the same pyntax as python
+   (@property decorator)
+
 1. RapydScript now supports the Python integer (floor) division operator. 
    ``100 // 3 = 33``
 
