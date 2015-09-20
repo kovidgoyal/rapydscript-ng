@@ -288,6 +288,10 @@ AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement is_pydict'
     ,
 }, AST_ListComprehension)
 
+AST_GeneratorComprehension = DEFNODE('GeneratorComprehension', None, {
+    '$documentation': 'A generator comprehension',
+}, AST_ListComprehension)
+
 AST_With = DEFNODE("With", "expression", {
     '$documentation': "A `with` statement",
     '$propdoc': {

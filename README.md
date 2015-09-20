@@ -1512,7 +1512,7 @@ This list below records all the work I have done on RapydScript so far.
    change is backwards incompatible, but the linter should help you easily find
    all places in your code that need to be changed.
 
-1. Added support for dict and set comprehensions, not just list comprehensions
+1. Added support for dict, set and generator comprehensions, not just list comprehensions
 
 1. Added support for iterators that work seamlessly with JavaScript code. And
    a builtin ``iter()`` function to easily create them from

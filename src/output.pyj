@@ -11,7 +11,7 @@ AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
 AST_Constant, AST_Continue, AST_Debugger, AST_Definitions,
 AST_Directive, AST_Do, AST_Dot, AST_EmptyStatement, AST_Except, AST_Exit,
-AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function,
+AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function, AST_GeneratorComprehension,
 AST_Hole, AST_If, AST_Imports, AST_Infinity, AST_Jump, AST_Lambda,
 AST_ListComprehension, AST_LoopControl, AST_Method, AST_NaN, AST_New, AST_Node,
 AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
@@ -174,6 +174,11 @@ def OutputStream(options):
         return ret
     : def(col, cont):
         return cont()
+
+    def set_indentation(val):
+        nonlocal indentation
+        if options.beautify:
+            indentation = val
 
     newline = options.beautify ? def():
         print_("\n")
@@ -339,6 +344,7 @@ def OutputStream(options):
         'indentation': def():
             return indentation
         ,
+        'set_indentation': set_indentation,
         'make_indent': make_indent,
         'current_width': def():
             return current_col - indentation
@@ -1197,10 +1203,12 @@ def codegen():
 
     DEFPRINT(AST_ListComprehension, def(self, output):
         result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'_$rapyd$_set()'}[self.TYPE]
+        is_generator = self.TYPE == 'GeneratorComprehension'
+        es5 = output.option('js_version') == 5
         if self.TYPE == 'DictComprehension':
             if self.is_pydict:
                 result_obj = '_$rapyd$_dict()'
-                add_to_result = def():
+                add_to_result = def(output):
                     output.indent()
                     output.print('_$rapyd$_Result.set')
                     output.with_parens(def():
@@ -1215,7 +1223,7 @@ def codegen():
                     )
                     output.end_statement()
             else:
-                add_to_result = def():
+                add_to_result = def(output):
                     output.indent()
                     output.print('_$rapyd$_Result')
                     output.with_square(def():
@@ -1231,7 +1239,9 @@ def codegen():
                     output.end_statement()
         else:
             push_func = "_$rapyd$_Result." + ((self.TYPE == 'ListComprehension') ? 'push' : 'add')
-            add_to_result = def():
+            if is_generator:
+                push_func = 'yield '
+            add_to_result = def(output):
                 output.indent()
                 output.print(push_func)
                 output.with_parens(def():
@@ -1247,93 +1257,123 @@ def codegen():
             output.print("()")
             output.space()
             output.with_block(def():
-                output.indent()
-                output.assign("var _$rapyd$_Iter")
-                if output.option('js_version') == 5:
-                    output.print("_$rapyd$_Iterable")
-                    output.with_parens(def():
-                        self.object.print(output)
+                body_out = output
+                if is_generator:
+                    if es5:
+                        body_out = OutputStream({'beautify':True})
+                    body_out.indent()
+                    body_out.print('function* js_generator()'), body_out.space(), body_out.print('{')
+                    body_out.newline()
+                    previous_indentation = output.indentation()
+                    output.set_indentation(output.next_indent())
+                body_out.indent()
+                body_out.assign("var _$rapyd$_Iter")
+                if es5:
+                    body_out.print("_$rapyd$_Iterable")
+                    body_out.with_parens(def():
+                        self.object.print(body_out)
                     )
                 else:
-                    self.object.print(output)
+                    self.object.print(body_out)
 
-                output.comma()
-                output.assign("_$rapyd$_Result")
-                output.print(result_obj)
+                if result_obj:
+                    body_out.comma()
+                    body_out.assign("_$rapyd$_Result")
+                    body_out.print(result_obj)
                 # make sure to locally scope loop variables
                 if isinstance(self.init, AST_Array):
                     self.init.elements.forEach(def(i):
-                        output.comma()
-                        i.print(output)
+                        body_out.comma()
+                        i.print(body_out)
                     )
                 else:
-                    output.comma()
-                    self.init.print(output)
-                output.end_statement()
+                    body_out.comma()
+                    self.init.print(body_out)
+                body_out.end_statement()
 
-                if output.option('js_version') != 5:
-                    init_es6_itervar(output, '_$rapyd$_Iter')
-                output.indent()
-                output.print("for")
-                output.space()
-                output.with_parens(def():
-                    if output.option('js_version') == 5:
-                        output.print("var")
-                        output.space()
-                        output.assign("_$rapyd$_Index")
-                        output.print("0")
-                        output.semicolon()
-                        output.space()
-                        output.print("_$rapyd$_Index")
-                        output.space()
-                        output.print("<")
-                        output.space()
-                        output.print("_$rapyd$_Iter.length")
-                        output.semicolon()
-                        output.space()
-                        output.print("_$rapyd$_Index++")
+                if not es5:
+                    init_es6_itervar(body_out, '_$rapyd$_Iter')
+                body_out.indent()
+                body_out.print("for")
+                body_out.space()
+                body_out.with_parens(def():
+                    if es5:
+                        body_out.print("var")
+                        body_out.space()
+                        body_out.assign("_$rapyd$_Index")
+                        body_out.print("0")
+                        body_out.semicolon()
+                        body_out.space()
+                        body_out.print("_$rapyd$_Index")
+                        body_out.space()
+                        body_out.print("<")
+                        body_out.space()
+                        body_out.print("_$rapyd$_Iter.length")
+                        body_out.semicolon()
+                        body_out.space()
+                        body_out.print("_$rapyd$_Index++")
                     else:
-                        output.spaced('var', '_$rapyd$_Index', 'of', '_$rapyd$_Iter')
+                        body_out.spaced('var', '_$rapyd$_Index', 'of', '_$rapyd$_Iter')
                 )
-                output.space()
-                output.with_block(def():
-                    output.indent()
-                    itervar = (output.option('js_version') == 5) ? '_$rapyd$_Iter[_$rapyd$_Index]' : '_$rapyd$_Index'
+                body_out.space()
+                body_out.with_block(def():
+                    body_out.indent()
+                    itervar = (es5) ? '_$rapyd$_Iter[_$rapyd$_Index]' : '_$rapyd$_Index'
                     if isinstance(self.init, AST_Array):
                         flat = self.init.flatten()
-                        output.assign("_$rapyd$_unpack")
+                        body_out.assign("_$rapyd$_unpack")
                         if flat.length > self.init.elements.length:
-                            output.print('_$rapyd$_flatten(' + itervar + ')')
+                            body_out.print('_$rapyd$_flatten(' + itervar + ')')
                         else:
-                            output.print(itervar)
-                        output.end_statement()
-                        unpack_tuple(flat, output)
+                            body_out.print(itervar)
+                        body_out.end_statement()
+                        unpack_tuple(flat, body_out)
                     else:
-                        output.assign(self.init)
-                        output.print(itervar)
-                        output.end_statement()
+                        body_out.assign(self.init)
+                        body_out.print(itervar)
+                        body_out.end_statement()
 
                     if self.condition:
-                        output.indent()
-                        output.print("if")
-                        output.space()
-                        output.with_parens(def(): self.condition.print(output);)
-                        output.space()
-                        output.with_block(def():
-                            add_to_result()
+                        body_out.indent()
+                        body_out.print("if")
+                        body_out.space()
+                        body_out.with_parens(def(): self.condition.print(body_out);)
+                        body_out.space()
+                        body_out.with_block(def():
+                            add_to_result(body_out)
                         )
-                        output.newline()
+                        body_out.newline()
                     else:
-                        add_to_result()
+                        add_to_result(body_out)
                 )
-                output.newline()
+                body_out.newline()
                 if self.TYPE == 'ListComprehension':
-                    output.indent()
-                    output.spaced('_$rapyd$_Result', '=', '_$rapyd$_list_constructor(_$rapyd$_Result)')
+                    body_out.indent()
+                    body_out.spaced('_$rapyd$_Result', '=', '_$rapyd$_list_constructor(_$rapyd$_Result)')
+                    body_out.end_statement()
+                if not is_generator:
+                    body_out.indent()
+                    body_out.print("return _$rapyd$_Result")
+                    body_out.end_statement()
+                if is_generator:
+                    output.set_indentation(previous_indentation)
+                    body_out.newline(), body_out.indent(), body_out.print('}')  # end js_generator
+                    if es5:
+                        transpiled = regenerate(body_out.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
+                        if output.options.beautify:
+                            ci = output.make_indent(0)
+                            transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
+                        output.print(transpiled)
+                    output.newline(), output.indent()
+                    output.spaced('var', 'result', '=', 'js_generator.call(this)')
                     output.end_statement()
-                output.indent()
-                output.print("return _$rapyd$_Result")
-                output.end_statement()
+                    # Python's generator objects use a separate method to send data to the generator
+                    output.indent()
+                    output.spaced('result.send', '=', 'result.next')
+                    output.end_statement()
+                    output.indent()
+                    output.spaced('return', 'result')
+                    output.end_statement()
             )
         )
         output.print("()")
@@ -1382,6 +1422,7 @@ def codegen():
             output.print('()'), output.space()
             output.with_block(def():
                 if output.options.js_version >= 6:
+                    output.indent()
                     output.print('function* js_generator')
                     function_args(self.argnames, output, strip_first)
                     print_bracketed(self, output, True)
