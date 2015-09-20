@@ -603,10 +603,10 @@ def tokenizer($TEXT, filename):
         tmp_ = code
         if tmp_ == 34 or tmp_ == 39:    # double-quote (") or single quote (')
             return read_string(False)
-        elif tmp_ == 114 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:
+        elif tmp_ == 114 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:  # r''
             next()
             return read_string(True)
-        elif tmp_ == 118 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:
+        elif tmp_ == 118 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:  # v''
             next()
             return read_string(False, True)
         elif tmp_ == 35:                # pound-sign (#)
