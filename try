@@ -1,2 +1,24 @@
-#!/bin/sh
-git checkout lib && bin/rapydscript self && echo $@ | node --stack-trace-limit=1000 bin/rapydscript 
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+
+args = sys.argv[1:]
+
+cmd = ['bin/rapydscript']
+
+while args:
+    if args[0] in ('-m', '-x'):
+        cmd.append(args.pop(0))
+    else:
+        break
+
+raw = ' '.join(args)
+
+subprocess.check_call('git checkout lib'.split())
+subprocess.check_call(cmd[:1] + ['self'])
+p = subprocess.Popen(
+    ['node', '--stack-trace-limit=1000'] + cmd, stdin=subprocess.PIPE)
+p.stdin.write(raw.encode('utf-8'))
+p.stdin.close()
+raise SystemExit(p.wait())
