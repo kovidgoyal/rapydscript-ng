@@ -1365,7 +1365,7 @@ def parse($TEXT, options):
             expr.push(expression(False))
             if is_("keyword", "for"):
                 # list comprehension
-                return read_comprehension(new AST_ListComprehension({'statement': expr[0]}))
+                return read_comprehension(new AST_ListComprehension({'statement': expr[0]}), ']')
 
             if is_("operator", "til"):
                 # up to but not including upper limit
@@ -1438,7 +1438,7 @@ def parse($TEXT, options):
                 ctx.expecting_object_literal_key = orig
             if is_('keyword', 'for'):
                 # is_pydict is irrelevant here
-                return read_comprehension(new AST_SetComprehension({'statement':left}))
+                return read_comprehension(new AST_SetComprehension({'statement':left}), '}')
             if is_('punc', ',') or is_('punc', '}'):
                 end = prev()
                 return set_(start, end, left)
@@ -1494,10 +1494,10 @@ def parse($TEXT, options):
         else:
             left = expression(False)
             if not is_('punc', ':'):
-                return read_comprehension(new AST_SetComprehension({'statement':left}))
+                return read_comprehension(new AST_SetComprehension({'statement':left}), '}')
             expect(':')
             right = expression(False)
-        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right, 'is_pydict':is_pydict}))
+        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right, 'is_pydict':is_pydict}), '}')
 
     def as_name():
         tmp = S.token
