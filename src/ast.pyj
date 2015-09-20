@@ -379,11 +379,15 @@ AST_Imports = DEFNODE('Imports', 'imports', {
 
 }, AST_Statement)
 
-AST_Decorator = DEFNODE("Decorator", "name", {
+AST_Decorator = DEFNODE("Decorator", "expression", {
     '$documentation': "Class for function decorators",
     '$propdoc': {
-        'name': "[string] decorator name"
-    }
+        'expression': "[AST_Node] the decorator expression"
+    },
+    '_walk': def(visitor):
+        if this.expression:
+            this.expression.walk(visitor)
+    ,
 })
 
 AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_generator", {

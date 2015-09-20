@@ -120,6 +120,19 @@ STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ])
 
 ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name", "js" ])
 
+def has_simple_decorator(decorators, name):
+    remove = v'[]'
+    for v'var i = 0; i < decorators.length; i++':
+        s = decorators[i]
+        if isinstance(s, AST_SymbolRef) and not s.parens and s.name == name:
+            remove.push(i)
+    if remove.length:
+        remove.reverse()
+        for v'var i = 0; i < remove.length; i++':
+            decorators.splice(remove[i], 1)
+        return True
+    return False
+
 # -----[ Parser ]-----
 def parse($TEXT, options):
     options = defaults(options, {
@@ -152,7 +165,8 @@ def parse($TEXT, options):
         'classes': [ {} ],
         'functions': [ {} ],
         'labels': [],
-        'decorators': [],
+        'decorators': v'[]',
+        'parsing_decorator': False,
     }
 
     if options.classes:
@@ -834,9 +848,7 @@ def parse($TEXT, options):
             unexpected()
 
         # detect external classes
-        externaldecorator = S.decorators.indexOf("external")
-        if externaldecorator != -1:
-            S.decorators.splice(externaldecorator, 1)
+        externaldecorator = has_simple_decorator(S.decorators, 'external')
 
         class_details = {
             "static": [],
@@ -862,17 +874,17 @@ def parse($TEXT, options):
             .call(this),
             'localvars': [],
             "static": class_details.static,
-            'external': externaldecorator != -1,
+            'external': externaldecorator,
             'bound': class_details.bound,
             'statements': [],
             'decorators': def():
                 d = []
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
-                        'name': decorator
+                        'expression': decorator
                     }))
                 )
-                S.decorators = []
+                S.decorators = v'[]'
                 return d
             .call(this),
             'body': def(loop, labels):
@@ -930,9 +942,8 @@ def parse($TEXT, options):
 
         staticmethod = False
         if in_class:
-            staticloc = S.decorators.indexOf("staticmethod")
-            if staticloc != -1:
-                S.decorators.splice(staticloc, 1)
+            staticloc = has_simple_decorator(S.decorators, 'staticmethod')
+            if staticloc:
                 S.classes[S.classes.length - 2][in_class].static.push(name.name)
                 staticmethod = True
             elif name.name != "__init__" and options.auto_bind:
@@ -1005,7 +1016,7 @@ def parse($TEXT, options):
                 d = v'[]'
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
-                        'name': decorator
+                        'expression': decorator
                     }))
                 )
                 S.decorators = v'[]'
@@ -1756,16 +1767,17 @@ def parse($TEXT, options):
 
     maybe_unary = def(allow_calls):
         start = S.token
+        if is_('operator', '@'):
+            if S.parsing_decorator:
+                croak('Nested decorators are not allowed')
+            next()
+            S.parsing_decorator = True
+            expr = expression()
+            S.parsing_decorator = False
+            S.decorators.push(expr)
+            return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
         if is_("operator") and UNARY_PREFIX(start.value):
             next()
-            if start.value == "@":
-                if is_("name") and (peek().value == "@" or peek().value == "def" or peek().value == "class"):
-                    S.decorators.push(S.token.value)
-                    next()
-                    return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
-                else:
-                    unexpected()
-
             ex = make_unary(AST_UnaryPrefix, start.value, maybe_unary(allow_calls))
             ex.start = start
             ex.end = prev()

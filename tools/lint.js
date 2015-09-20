@@ -316,11 +316,6 @@ function Linter(toplevel, filename, code, options) {
         this.register_use(node.name);
     };
 
-    this.handle_decorator = function() {
-        var node = this.current_node;
-        this.register_use(node.name);
-    };
-
     this.handle_scope = function() {
         var node = this.current_node;
         var nscope = new Scope(node instanceof RapydScript.AST_Toplevel, this.scopes[this.scopes.length - 1], filename, node instanceof RapydScript.AST_Class);
@@ -444,8 +439,6 @@ function Linter(toplevel, filename, code, options) {
             this.handle_vardef();
         } else if (node instanceof RapydScript.AST_SymbolRef) {
             this.handle_symbol_ref();
-        } else if (node instanceof RapydScript.AST_Decorator) {
-            this.handle_decorator();
         } else if (node instanceof RapydScript.AST_SymbolFunarg) {
             this.handle_symbol_funarg();
         } else if (node instanceof RapydScript.AST_ListComprehension) {

@@ -1390,15 +1390,18 @@ def codegen():
 
     # -----[ functions ]-----
     def decorate(decorators, output, func):
-        wrap = def(d):
-            if d.length:
-                output.print(d[0].name)
+        pos = 0
+        wrap = def():
+            nonlocal pos
+            if pos < decorators.length:
+                decorators[pos].expression.print(output)
+                pos += 1
                 output.with_parens(def():
-                    wrap(d.slice(1))
+                    wrap()
                 )
             else:
                 func()
-        wrap(decorators)
+        wrap()
 
     def function_args(argnames, output, strip_first):
         output.with_parens(def():

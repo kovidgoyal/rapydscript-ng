@@ -281,7 +281,7 @@ I'm sure you will agree that the above code is cleaner than declaring 5 temporar
 
 Decorators
 ----------
-Like Python, RapydScript supports function decorators. While decorator arguments are not supported, the basic decorators work exactly the same way as in Python:
+Like Python, RapydScript supports function decorators. 
 
 ```py
 def makebold(fn):
@@ -1517,6 +1517,8 @@ This list below records all the work I have done on RapydScript so far.
 1. Added support for iterators that work seamlessly with JavaScript code. And
    a builtin ``iter()`` function to easily create them from
    arrays/strings/objects.
+
+1. Added support for arbitrary expressions as decorators
 
 1. RapydScript now supports the Python integer (floor) division operator. 
    ``100 // 3 = 33``
