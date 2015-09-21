@@ -21,4 +21,8 @@ p = subprocess.Popen(
     ['node', '--stack-trace-limit=1000'] + cmd, stdin=subprocess.PIPE)
 p.stdin.write(raw.encode('utf-8'))
 p.stdin.close()
-raise SystemExit(p.wait())
+try:
+    raise SystemExit(p.wait())
+except KeyboardInterrupt:
+    p.kill()
+    raise SystemExit(1)
