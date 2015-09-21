@@ -640,7 +640,7 @@ def tokenizer($TEXT, filename):
             S.newline_before = False
             return next_token()
 
-        if code == 92 or is_identifier_start(code):
+        if is_identifier_start(code):
             return read_word()
 
         parse_error("Unexpected character «" + ch + "»")
