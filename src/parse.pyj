@@ -18,7 +18,7 @@ AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAccessor, AST_SymbolAlias,
 AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
-AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With,
+AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
 AST_Yield
 )
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
@@ -371,6 +371,11 @@ def parse($TEXT, options):
                         push(stmt.init.name)
                 elif isinstance(stmt, AST_DWLoop):
                     extend(scan_for_local_vars(stmt))
+                elif isinstance(stmt, AST_With):
+                    push('_$rapyd$_with_exception'), push('_$rapyd$_with_suppress')
+                    for clause in stmt.clauses:
+                        if clause.alias:
+                            push(clause.alias.name)
 
         elif body.body:
             # recursive descent into wrapper statements that contain body blocks
@@ -571,13 +576,38 @@ def parse($TEXT, options):
                 semicolon()
                 return tmp
             elif tmp_ == "with":
-                return new AST_With({
-                    'expression': parenthesised(),
-                    'body': statement()
-                })
+                return with_()
             else:
                 unexpected()
     )
+
+    def with_():
+        clauses = v'[]'
+        start = S.token
+        while True:
+            if is_('eof'):
+                unexpected()
+            expr = expression()
+            alias = None
+            if is_('keyword', 'as'):
+                next()
+                alias = as_symbol(AST_SymbolAlias)
+            clauses.push(new AST_WithClause({'expression':expr, 'alias':alias}))
+            if is_('punc', ','):
+                next()
+                continue
+            if not is_('punc', ':'):
+                unexpected()
+            break
+
+        if not clauses.length:
+            token_error(start, 'with statement must have at least one clause')
+        body = statement()
+
+        return new AST_With({
+            'clauses': clauses,
+            'body': body
+        })
 
     def simple_statement(tmp):
         tmp = expression(True)

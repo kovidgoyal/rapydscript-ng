@@ -216,3 +216,39 @@ assert.throws(
     def():
         p.b = 2
 )
+
+class Context:
+
+    val = 1
+
+    def __enter__(self):
+        self.val = 2
+        return self
+
+    def __exit__(self):
+        self.val = 3
+        return True
+
+with Context() as c:
+    assert.eq(c.val, 2)
+assert.equal(c.val, 3)
+
+with Context() as d:
+    assert.equal(d.val, 2)
+    raise Exception('error')
+assert.equal(d.val, 3)
+
+class Throws:
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self):
+        pass
+
+assert.throws(
+    def ():
+        with Throws():
+            raise Exception('error')
+    , Exception
+)

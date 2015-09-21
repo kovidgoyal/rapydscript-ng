@@ -292,18 +292,35 @@ AST_GeneratorComprehension = DEFNODE('GeneratorComprehension', None, {
     '$documentation': 'A generator comprehension',
 }, AST_ListComprehension)
 
-AST_With = DEFNODE("With", "expression", {
+AST_With = DEFNODE("With", "clauses", {
     '$documentation': "A `with` statement",
     '$propdoc': {
-        'expression': "[AST_Node] the `with` expression"
+        'clauses': "[AST_WithClause*] the `with` clauses (comma separated)"
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.clauses.forEach(def(exp):
+                exp._walk(visitor)
+            )
+            node.body._walk(visitor)
+        )
+}, AST_StatementWithBody)
+
+AST_WithClause = DEFNODE('WithClause', 'expression alias', {
+    '$documentation': 'A clause in a with statement',
+    '$propdoc': {
+        'expression': '[AST_Node] the expression',
+        'alias': '[AST_SymbolAlias?] optional alias for this expression',
     },
     '_walk': def(visitor):
         node = this
         return visitor._visit(node, def():
             node.expression._walk(visitor)
-            node.body._walk(visitor)
+            if node.alias:
+                node.alias._walk(visitor)
         )
-}, AST_StatementWithBody)
+}, AST_Node)
 
 # -----[ scope and functions ]-----
 AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with uses_eval parent_scope enclosed cname", {
@@ -990,7 +1007,7 @@ AST_Symbol = DEFNODE("Symbol", "scope name thedef", {
 })
 
 AST_SymbolAlias = DEFNODE("SymbolAlias", None, {
-    '$documentation': "An alias used in an import statement"
+    '$documentation': "An alias used in an import statement or with statement"
 }, AST_Symbol)
 
 AST_SymbolAccessor = DEFNODE("SymbolAccessor", None, {

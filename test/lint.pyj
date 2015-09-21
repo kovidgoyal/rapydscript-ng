@@ -150,3 +150,12 @@ err_test('{"a":1, "a":2}', 'dup-key', 1, 'a')
 # keyword arg values
 ok_test('def f():\n a=1\n f(b=a)')
 ok_test('def f():\n a={}\n f(**a)')
+
+# with statement
+ok_test('''
+def f():
+    a = 1
+    with a as b:
+        b()
+''')
+err_test('with a:\n pass', 'undef', '1', 'a')

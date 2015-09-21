@@ -337,6 +337,7 @@ def OutputStream(options):
     stack = []
     return {
         'index_counter': 0,
+        'with_counter': 0,
         'options':options,
         'get': get,
         'toString': get,
@@ -1378,14 +1379,48 @@ def codegen():
         )
         output.print("()")
     )
+
     DEFPRINT(AST_With, def(self, output):
-        output.print("with")
-        output.space()
-        output.with_parens(def():
-            self.expression.print(output)
+        exits = v'[]'
+        output.assign('_$rapyd$_with_exception'), output.print('undefined'), output.end_statement()
+        for clause in self.clauses:
+            output.with_counter += 1
+            clause_name = '_$rapyd$_with_clause_' + output.with_counter
+            exits.push(clause_name)
+            output.indent(), output.print('var '), output.assign(clause_name)
+            clause.expression.print(output)
+            output.end_statement()
+            output.indent()
+            if clause.alias:
+                output.assign(clause.alias.name)
+            output.print(clause_name + '.__enter__()')
+            output.end_statement()
+        output.indent(), output.print('try'), output.space()
+        output.with_block(def():
+            output.indent()
+            self._do_print_body(output)
+            output.newline()
         )
-        output.space()
-        self._do_print_body(output)
+        output.space(), output.print('catch(e)')
+        output.with_block(def():
+            output.indent(), output.assign('_$rapyd$_with_exception'), output.print('e'), output.end_statement()
+        )
+        output.newline(), output.indent(), output.spaced('if', '(_$rapyd$_with_exception', '===', 'undefined)')
+        output.with_block(def():
+            for clause in exits:
+                output.indent(), output.print(clause + '.__exit__()'), output.end_statement()
+        )
+        output.space(), output.print('else'), output.space()
+        output.with_block(def():
+            output.indent(), output.assign('_$rapyd$_with_suppress'), output.print('false'), output.end_statement()
+            for clause in exits:
+                output.indent()
+                output.spaced('_$rapyd$_with_suppress', '|=', '_$rapyd$_bool(' + clause + '.__exit__(_$rapyd$_with_exception.constructor,',
+                              '_$rapyd$_with_exception,', '_$rapyd$_with_exception.stack))')
+                output.end_statement()
+            output.indent(), output.spaced('if', '(!_$rapyd$_with_suppress)', 'throw _$rapyd$_with_exception'), output.end_statement()
+        )
+
     )
 
     # -----[ functions ]-----
