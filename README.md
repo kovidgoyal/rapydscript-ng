@@ -99,14 +99,16 @@ similar commands after installing node.js, npm and git on your system.
 
 Compilation
 -----------
-Once you have installed RapydScript, compiling your application is as simple as running the following command:
+Once you have installed RapydScript, compiling your application is as simple as
+running the following command:
 
 	rapydscript [options] <location of main file>
 
-By default this will dump the output to STDOUT, but you can specify the output file using `--output` option. The generated file can then be referenced in your html page the same way as you would with a typical JavaScript file. If you're only using RapydScript for classes and functions, then you're all set. If you're using additional Python methods, such as `range()`, `print()`, `list.append()`, `list.remove()`, then you will want to link RapydScript's stdlib.js in your html page as well. There are two ways of doing this, one is to include it as a JavaScript file in your HTML, the other is to include it as an `import` in your source code and let RapydScript pull it in automatically.
-
-RapydScript can take multiple input files. However, the typical use case is to pass a single main file, that in turn imports other modules. You can also pipe in a file to STDIN instead of specifying a path on the command line.
-For more help, use ```rapydscript -h```.
+By default this will dump the output to STDOUT, but you can specify the output
+file using `--output` option. The generated file can then be referenced in your
+html page the same way as you would with a typical JavaScript file. If you're
+only using RapydScript for classes and functions, then you're all set. For more
+help, use ```rapydscript -h```.
 
 Getting Started
 ---------------
@@ -115,7 +117,10 @@ RapydScript comes with its own Read-Eval-Print-Loop (REPL). Just run
 ``rapydscript`` without any arguments to get started trying out the code
 snippets below.
 
-Like JavaScript, RapydScript can be used to create anything from a quick function to a complex web-app. RapydScript can access anything regular JavaScript can, in the same manner. Let's say we want to write a function that greets us with a "Hello World" pop-up. The following code will do it:
+Like JavaScript, RapydScript can be used to create anything from a quick
+function to a complex web-app. RapydScript can access anything regular
+JavaScript can, in the same manner. Let's say we want to write a function that
+greets us with a "Hello World" pop-up. The following code will do it:
 
 ```python
 def greet():
@@ -130,7 +135,9 @@ function greet() {
 }
 ```
 
-Now you can reference this function from other JavaScript or the page itself (using "onclick", for example). For our next example, let's say you want a function that computes factorial of a number:
+Now you can reference this function from other JavaScript or the page itself
+(using "onclick", for example). For our next example, let's say you want a
+function that computes factorial of a number:
 
 ```python
 def factorial(n):
@@ -166,12 +173,19 @@ function computeFactorial() {
 }
 ```
 
-Notice that RapydScript automatically declares variables in local scope when you try to assign to them. This not only makes your code shorter, but saves you from making common JavaScript mistake of overwriting a global. For more information on controlling variable scope, see `Scope Control` section.
+Notice that RapydScript automatically declares variables in local scope when
+you try to assign to them. This not only makes your code shorter, but saves you
+from making common JavaScript mistake of overwriting a global. For more
+information on controlling variable scope, see `Scope Control` section.
 
 
 Leveraging other APIs
 ---------------------
-Aside from Python-like stdlib, RapydScript does not have any of its own APIs. Nor does it need to, there are already good options available that we can leverage instead. If we wanted, for example, to rewrite the above factorial logic using jQuery, we could easily do so:
+
+Aside from Python-like stdlib, RapydScript does not have any of its own APIs.
+Nor does it need to, there are already good options available that we can
+leverage instead. If we wanted, for example, to rewrite the above factorial
+logic using jQuery, we could easily do so:
 
 ```python
 def computeFactorial():
@@ -179,7 +193,9 @@ def computeFactorial():
 	$("#result").text(factorial(n))
 ```
 
-Many of these external APIs, however, take object literals as input. Like with JavaScript, you can easily create those with RapydScript, the same way you would create one in JavaScript, or a dictionary in Python:
+Many of these external APIs, however, take object literals as input. Like with
+JavaScript, you can easily create those with RapydScript, the same way you
+would create a dictionary in Python:
 
 ```javascript
 styles = {
@@ -195,7 +211,10 @@ Now you can pass it to jQuery:
 $('#element').css(styles)
 ```
 
-Another feature of RapydScript is ability to have functions as part of your object literal. JavaScript APIs often take callback/handler functions as part of their input parameters, and RapydScript lets you create such object literal without any quirks/hacks:
+Another feature of RapydScript is ability to have functions as part of your
+object literal. JavaScript APIs often take callback/handler functions as part
+of their input parameters, and RapydScript lets you create such object literal
+without any quirks/hacks:
 
 ```js
 params = {
@@ -212,7 +231,12 @@ params = {
 }
 ```
 
-Note the comma on a new line following a function declaration, it needs to be there to let the compiler know there are more attributes in this object literal, yet it can't go on the same line as the function since it would get parsed as part of the function block. Like Python, however, RapydScript supports new-line shorthand using a `;`, which you could use to place the comma on the same line:
+Note the comma on a new line following a function declaration, it needs to be
+there to let the compiler know there are more attributes in this object
+literal, yet it can't go on the same line as the function since it would get
+parsed as part of the function block. Like Python, however, RapydScript
+supports new-line shorthand using a `;`, which you could use to place the comma
+on the same line:
 
 ```js
 hash = {
@@ -223,15 +247,17 @@ hash = {
 }
 ```
 
-It is because of easy integration with JavaScript's native libraries that RapydScript keeps its own libraries to a minimum. For example, it does not implement string interpolation, like native Python. However, by using `sprintf.js` library (<https://github.com/alexei/sprintf.js>) you can reproduce the same behavior in RapydScript:
-
-```py
-string = vsprintf('%d bottles of %s on the wall', (99, 'beer'))
-```
+It is because of easy integration with JavaScript's native libraries that RapydScript keeps its own libraries to a minimum. 
 
 Anonymous Functions
 -------------------
-Like JavaScript, RapydScript allows the use of anonymous functions. In fact, you've already seen the use of anonymous functions in previous section when creating an object literal ('onmouseover' and 'onmouseout' assignments). This is similar to Python's lambda function, except that the syntax isn't awkward like lambda, and the function isn't limited to one line. The following two function declarations are equivalent:
+
+Like JavaScript, RapydScript allows the use of anonymous functions. In fact,
+you've already seen the use of anonymous functions in previous section when
+creating an object literal ('onmouseover' and 'onmouseout' assignments). This
+is similar to Python's lambda function, except that the syntax isn't awkward
+like lambda, and the function isn't limited to one line. The following two
+function declarations are equivalent:
 
 ```js
 def factorial(n):
@@ -245,7 +271,13 @@ factorial = def(n):
 	return n * factorial(n-1)
 ```
 
-This might not seem like much at first, but if you're familiar with JavaScript, you know that this can be extermely useful to the programmer, especially when dealing with nested functions, which are a bit syntactically awkward in Python (it's not immediatelly obvious that those can be copied and assigned to other objects). To illustrate the usefulness, let's create a method that creates and returns an element that changes color while the user keeps the mouse pressed on it.
+This might not seem like much at first, but if you're familiar with JavaScript,
+you know that this can be extermely useful to the programmer, especially when
+dealing with nested functions, which are a bit syntactically awkward in Python
+(it's not immediatelly obvious that those can be copied and assigned to other
+objects). To illustrate the usefulness, let's create a method that creates and
+returns an element that changes color while the user keeps the mouse pressed on
+it.
 
 ```js
 def makeDivThatTurnsGreen():
@@ -259,9 +291,17 @@ def makeDivThatTurnsGreen():
 	return div
 ```
 
-At first glance, anonymous functions might not seem that useful. We could have easily created nested functions and assigned them instead. By using anonymous functions, however, we can quickly identify that these functions will be bound to a different object. They belong to the div, not the main function that created them, nor the logic that invoked it. The best use case for these is creating an element inside another function/object without getting confused which object the function belongs to.
+At first glance, anonymous functions might not seem that useful. We could have
+easily created nested functions and assigned them instead. By using anonymous
+functions, however, we can quickly identify that these functions will be bound
+to a different object. They belong to the div, not the main function that
+created them, nor the logic that invoked it. The best use case for these is
+creating an element inside another function/object without getting confused
+which object the function belongs to.
 
-Additionally, as you already noticed in the previous section, anonymous functions can be used to avoid creating excessive temporary variables and make your code cleaner:
+Additionally, as you already noticed in the previous section, anonymous
+functions can be used to avoid creating excessive temporary variables and make
+your code cleaner:
 
 ```js
 math_ops = {
@@ -276,7 +316,17 @@ math_ops = {
 }
 ```
 
-I'm sure you will agree that the above code is cleaner than declaring 5 temporary variables first and assigning them to the object literal keys after. Note that the example puts the function header (def()) and content on the same line. I'll refer to it as function inlining. This is meant as a feature of RapydScript to make the code cleaner in cases like the example above. While you can use it in longer functions by chaining statements together using `;`, a good rule of thumb (to keep your code clean) is if your function needs semi-colons ask yourself whether you should be inlining, and if it needs more than 2 semi-colons, the answer is probably no (note that you can also use semi-colons as newline separators within functions that aren't inlined, as in the example in the previous section).
+I'm sure you will agree that the above code is cleaner than declaring 5
+temporary variables first and assigning them to the object literal keys after.
+Note that the example puts the function header (def()) and content on the same
+line. I'll refer to it as function inlining. This is meant as a feature of
+RapydScript to make the code cleaner in cases like the example above. While you
+can use it in longer functions by chaining statements together using `;`, a
+good rule of thumb (to keep your code clean) is if your function needs
+semi-colons ask yourself whether you should be inlining, and if it needs more
+than 2 semi-colons, the answer is probably no (note that you can also use
+semi-colons as newline separators within functions that aren't inlined, as in
+the example in the previous section).
 
 
 Decorators
@@ -305,7 +355,9 @@ hello() # returns "<b><i>hello world</i></b>"
 
 Self-Executing Functions
 ------------------------
-RapydScript wouldn't be useful if it required work-arounds for things that JavaScript handled easily. If you've worked with JavaScript or jQuery before, you've probably seen the following syntax:
+RapydScript wouldn't be useful if it required work-arounds for things that
+JavaScript handled easily. If you've worked with JavaScript or jQuery before,
+you've probably seen the following syntax:
 
 ```js
 (function(args){
@@ -313,7 +365,9 @@ RapydScript wouldn't be useful if it required work-arounds for things that JavaS
 })(args)
 ```
 
-This code calls the function immediately after declaring it instead of assigning it to a variable. Python doesn't have any way of doing this. The closest work-around is this:
+This code calls the function immediately after declaring it instead of
+assigning it to a variable. Python doesn't have any way of doing this. The
+closest work-around is this:
 
 ```py
 def tmp(args):
@@ -321,7 +375,10 @@ def tmp(args):
 tmp.__call__(args)
 ```
 
-While it's not horrible, it did litter our namespace with a temporary variable. If we have to do this repeatedly, this pattern does get annoying. This is where RapydScript decided to be a little unorthodox and implement the JavaScript-like solution:
+While it's not horrible, it did litter our namespace with a temporary variable.
+If we have to do this repeatedly, this pattern does get annoying. This is where
+RapydScript decided to be a little unorthodox and implement the JavaScript-like
+solution:
 
 ```js
 (def(args):
