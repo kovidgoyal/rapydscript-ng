@@ -1247,7 +1247,22 @@ def parse($TEXT, options):
             'end': prev()
         }), True)
 
-    def token_as_atom_node(tok):
+    def string_():
+        strings = v'[]'
+        start = S.token
+        while True:
+            strings.push(S.token.value)
+            if peek().type != 'string':
+                break
+            next()
+        return new AST_String({
+            'start': start,
+            'end': S.token,
+            'value': strings.join('')
+        })
+
+    def token_as_atom_node():
+        tok = S.token
         tmp_ = tok.type
         if tmp_ == "name":
             return token_as_symbol(tok, AST_SymbolRef)
@@ -1258,11 +1273,7 @@ def parse($TEXT, options):
                 'value': tok.value
             })
         elif tmp_ == "string":
-            return new AST_String({
-                'start': tok,
-                'end': tok,
-                'value': tok.value
-            })
+            return string_()
         elif tmp_ == "regexp":
             return new AST_RegExp({
                 'start': tok,
@@ -1295,7 +1306,7 @@ def parse($TEXT, options):
         token_error(tok, 'Expecting an atomic token (number/string/bool/regexp/js/None)')
 
     def as_atom_node():
-        ret = token_as_atom_node(S.token)
+        ret = token_as_atom_node()
         next()
         return ret
 

@@ -118,5 +118,11 @@ for v'i = 0; i < 1; i++':
     a[i] = 1  # noqa: undef
 assert.deepEqual(a, [1])
 
+# String literal concatenation
+
+assert.equal('1' '2', '12')
+assert.equal('1'
+             '2' '3', '123')
+
 # Various bits of miscellaneous code that caused parser infinite loops and other breakage
 throw_test('for a in b:\\n 1+1')

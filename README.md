@@ -1621,6 +1621,8 @@ This list below records all the work I have done on RapydScript so far.
 
 1. Support set literals
 
+1. Implement automatic concatenation of neighboring string literals: `'12' == '1' '2'`
+
 1. Support python style string literals, with full unicode escapes and the raw
    literal syntax.
 
