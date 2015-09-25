@@ -72,6 +72,7 @@ function wrap(lines, width) {
 		prev = '';
 		if (line.length > width) {
 			prev = line.substr(width);
+            if (prev) prev += ' ';
 			line = line.substr(0, width - 1);
 			if (line.substr(line.length - 1 !== ' ')) line += '-';
 		} 
