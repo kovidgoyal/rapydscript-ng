@@ -512,7 +512,7 @@ def parse($TEXT, options):
                 return class_()
             elif tmp_ == "def":
                 start = prev()
-                func = function_(S.in_class.slice(-1)[0])
+                func = function_(S.in_class[-1])
                 func.start = start
                 func.end = prev()
                 chain = subscripts(func, True)
