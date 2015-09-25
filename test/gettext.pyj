@@ -1,0 +1,24 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+g = require('../tools/gettext.js')
+
+def gettext(code):
+    ans = {}
+    g.gettext(ans, code, '<test>')
+    return ans
+
+def test_string(code, *args):
+    catalog = gettext(code)
+    assert.equal(len(catalog), len(args))
+    for msgid, q in zip(Object.keys(catalog), args):
+        assert.equal(g.entry_to_string(msgid, catalog[msgid]), q)
+
+test_string('a = _("one")', '#: <test>:1\nmsgid "one"\nmsgstr ""')
+test_string('a = _("one")\nb = gettext("one")', '#: <test>:1\n#: <test>:2\nmsgid "one"\nmsgstr ""')
+test_string('''a = _("""one
+two""")''', '#: <test>:1\nmsgid "one\\ntwo"\nmsgstr ""')
+test_string('a = _("{}one")', '#: <test>:1\n#, python-brace-format\nmsgid "{}one"\nmsgstr ""')
+test_string('a = _("{one}")', '#: <test>:1\n#, python-brace-format\nmsgid "{one}"\nmsgstr ""')
+test_string('ngettext("one", "two", 1)', '#: <test>:1\nmsgid "one"\nmsgid_plural "two"\nmsgstr ""')
+test_string('''_('o"ne')''', '#: <test>:1\nmsgid "o\\"ne"\nmsgstr ""')

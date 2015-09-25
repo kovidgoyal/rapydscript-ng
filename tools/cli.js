@@ -413,6 +413,35 @@ self.cpuprofile. The data can then be analysed with
 node-inspector.
 */});
 
+create_group('gettext', "[input1.pyj input_dir ...]", function(){/*
+Extract strings marked for translation from the specified
+source files and directories. 
+*/}, function() {/*
+Directories are scanned recursively for .pyj files. If no 
+arguments are specified, the source code is read from stdin.
+
+Translatable string are output on stdout in the .po format.
+Translatable strings are detected in the input as literal 
+string arguments to the functions _(), gettext() and ngettext().
+*/
+});
+
+opt("omit-header", 'm', 'bool', false, function(){/*
+Do not write header with 'msgid ""' entry.
+*/});
+
+opt("package-name", '', 'string', 'XXX', function(){/*
+Set the package name in the header
+*/});
+
+opt("package-version", '', 'string', 'XXX', function(){/*
+Set the package version in the header
+*/});
+
+opt("bugs-address", 'bug-address', 'string', 'bugs@example.com', function(){/*
+Set the email address for bug reports in the header
+*/});
+
 var argv = module.exports.argv = parse_args();
 
 if (argv.help) {

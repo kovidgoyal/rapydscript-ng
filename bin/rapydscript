@@ -52,7 +52,13 @@ if (!require('../tools/utils').generators_available()) {
 
     if (argv.mode === 'repl') {
         load('repl')({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
-    } else {
+    } else 
+    
+    if (argv.mode === 'gettext') {
+        load('gettext').cli(argv, base_path, src_path, lib_path);
+    } else
+    
+    {
         load('compile')(start_time, argv, base_path, src_path, lib_path);
     }
 }
