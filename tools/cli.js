@@ -442,6 +442,23 @@ opt("bugs-address", 'bug-address', 'string', 'bugs@example.com', function(){/*
 Set the email address for bug reports in the header
 */});
 
+create_group('msgfmt', "", function(){/*
+Compile a .po file into a .json file that can
+be used to load translations in a browser.
+*/}, function() {/*
+The .po file is read from
+stdin and the .json file written to stdout. Note
+that it is assumed the .po file is encoded in UTF-8.
+If you .po file is in some other encoding, you will need to 
+convert it to UTF-8 first.
+*/
+});
+
+opt("use-fuzzy", 'f', 'bool', false, function(){/*
+Use fuzzy translations, they are ignored by default.
+*/});
+
+
 var argv = module.exports.argv = parse_args();
 
 if (argv.help) {

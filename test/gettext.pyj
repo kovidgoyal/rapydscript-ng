@@ -22,3 +22,33 @@ test_string('a = _("{}one")', '#: <test>:1\n#, python-brace-format\nmsgid "{}one
 test_string('a = _("{one}")', '#: <test>:1\n#, python-brace-format\nmsgid "{one}"\nmsgstr ""')
 test_string('ngettext("one", "two", 1)', '#: <test>:1\nmsgid "one"\nmsgid_plural "two"\nmsgstr ""')
 test_string('''_('o"ne')''', '#: <test>:1\nmsgid "o\\"ne"\nmsgstr ""')
+
+m = require('../tools/msgfmt.js')
+catalog = m.parse(r'''
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; \n"
+
+#, fuzzy
+msgid "one\n"
+"continued"
+msgstr "ON"
+"E"
+
+msgid "two"
+msgid_plural "three"
+msgstr[0] "a"
+"bc"
+msgstr[1] "def"
+''')
+
+assert.equal(2, catalog['nplurals'])
+assert.equal(catalog['entries'].length, 2)
+item = catalog['entries'][0]
+assert.equal(item['msgid'], 'one\ncontinued')
+assert.deepEqual(item['msgstr'], v"['ONE']")
+assert.ok(item['fuzzy'], 'item not fuzzy')
+item = catalog['entries'][1]
+assert.equal(item['msgid'], 'two')
+assert.deepEqual(item['msgstr'], v"['abc', 'def']")
+assert.ok(not item['fuzzy'], 'item not fuzzy')
