@@ -47,6 +47,13 @@ BUILTINS = {
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
+if (!String.prototype.startsWith) {
+  String.prototype.startsWith = function(searchString, position) {
+    position = position || 0;
+    return this.indexOf(searchString, position) === position;
+  };
+}
+
 function cmp(a, b) {
     return (a < b) ? -1 : ((a > b) ? 1 : 0);
 }
@@ -660,10 +667,15 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         (rl.noqa || '').split(',').forEach(function (x) { g[x.trim()] = true; });
         final_noqa = merge(final_noqa, g);
 
-        // Look for # globals: in the first few lines of the file
+        // Look for # globals: or # noqa: in the first few lines of the file
         code.split('\n', 20).forEach(function (line) {
-            if (line.replace(' ', '').substr(0, 9) === '#globals:') 
-                (line.split(':', 2)[1] || '').split(',').forEach(function (item) { final_builtins[item.trim()] = true; });
+            var lq = line.replace(/\s+/g, '');
+            if (lq.startsWith('#globals:')) {
+                (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_builtins[item] = true; });
+            }
+            else if (lq.startsWith('#noqa:')) {
+                (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_noqa[item] = true; });
+            }
         });
 
         // Lint!

@@ -329,10 +329,16 @@ In the actual source files, you can turn off specific checks
 on a line by line basis by adding: # noqa:check1,check2...
 to the end of the line. For example:
 
-  f()  # noqa:undef
+  f()  # noqa: undef
 
 will prevent the linter from showing undefined symbol
-errors for this line. Similarly, you can tell the linter
+errors for this line. You can also turn off individual checks
+at the file level, by putting the noqa directive on a
+line by itself near the top of the file, for example:
+
+# noqa: undef
+
+Similarly, you can tell the linter
 about global (builtin) symbols with a comment near the top
 of the file, for example:
 
