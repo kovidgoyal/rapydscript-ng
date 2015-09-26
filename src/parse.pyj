@@ -244,12 +244,6 @@ def parse($TEXT, options):
             next()
             S.token.nlb = True
 
-    def parenthesised():
-        expect("(")
-        exp = expression(True)
-        expect(")")
-        return exp
-
     def embed_tokens(parser):
         return def():
             start = S.token
@@ -1457,43 +1451,7 @@ def parse($TEXT, options):
                 # list comprehension
                 return read_comprehension(new AST_ListComprehension({'statement': expr[0]}), ']')
 
-            if is_("operator", "til"):
-                # up to but not including upper limit
-                baselib_items['range'] = True
-                next()
-                expr.push(expression(False))
-                ret = subscripts(new AST_Call({
-                    'start': S.token,
-                    'expression': new AST_SymbolRef({
-                        'name': "range"
-                    }),
-                    'args': expr,
-                    'end': prev()
-                }), True)
-                expect("]")
-                return ret
-            elif is_("operator", "to"):
-                # now add a tiny number to make sure we include the upper limit
-                baselib_items['range'] = True
-                next()
-                expr.push(new AST_Binary({
-                    'left': expression(False),
-                    'operator': "+",
-                    'right': new AST_Number({
-                        'value': 0.000001
-                    })
-                }))
-                ret = subscripts(new AST_Call({
-                    'start': S.token,
-                    'expression': new AST_SymbolRef({
-                        'name': "range"
-                    }),
-                    'args': expr,
-                    'end': prev()
-                }), True)
-                expect("]")
-                return ret
-            elif not is_("punc", "]"):
+            if not is_("punc", "]"):
                 expect(",")
 
         return new AST_Array({

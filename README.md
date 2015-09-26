@@ -30,7 +30,6 @@ backwards compatible) changes. For a list of changes, [see the bottom of this fi
 - [Strings](#strings)
 - [Regular Expressions](#regular-expressions)
 - [Creating DOM tree's efficiently](#creating-dom-trees-efficiently)
-- [Inclusive/Exclusive Sequences](#inclusiveexclusive-sequences)
 - [Classes](#classes)
   - [External Classes](#external-classes)
   - [Method Binding](#method-binding)
@@ -905,40 +904,6 @@ tag, you simply use the ```E()``` function by itself with the first argument
 being the tag name.
 
 
-Inclusive/Exclusive Sequences
------------------------------
-Like Python, RapydScript has a range() function. While powerful, the result it generates isn't immediately obvious when looking at the code. It's a minor pet peeve, but the couple extra seconds trying to visually parse it and remember that it's not inclusive can detract from the code flow. To remedy this, RapydScript borrows `to/til` operators from LiveScript (also known as human-readable versions of Ruby's `../...`). The following 4 lines of code are equivalent, for example:
-
-```py
-a = [3 to 8]
-a = [3 til 9]
-a = range(3, 9)
-a = [3, 4, 5, 6, 7, 8]
-```
-
-You can also use sequences within loops:
-
-```py
-for i in [1 to 5]:
-	print(i)
-```
-
-Or in list comprehensions:
-
-```py
-[i*i for i in [1 to 6] if i%2 == 0]
-```
-
-The `to/til` statement gets converted to range() at compile time, and therefore can support variables or even expressions for start and end of the range:
-
-```py
-num = 5
-rng = [num to num * 2]
-```
-	
-The `to/til` operators bind less tightly than arithmetic operators, so parentheses are optional.
-
-
 Classes
 -------
 This is where RapydScript really starts to shine. JavaScript is known for having really crappy class implementation (it's basically a hack on top of a normal function, most experienced users suggest using external libraries for creating those instead of creating them in pure JavaScript). Luckily RapydScript fixes that. Let's imagine we want a special text field that takes in a user color string and changes color based on it. Let's create such field via a class.
@@ -1620,6 +1585,9 @@ This list below records all the work I have done on RapydScript so far.
    the return value of the ``list()`` function.
 
 1. Support set literals
+
+1. Remove the to/til operators. They are not particularly useful and break
+   compatibility with python code that might use to and til as variable names.
 
 1. Implement automatic concatenation of neighboring string literals: `'12' == '1' '2'`
 

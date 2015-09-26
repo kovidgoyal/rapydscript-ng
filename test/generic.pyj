@@ -99,7 +99,7 @@ v'def'.item = 3            # ability to use reserved keywords
 assert(v'def.item' == 3)
 
 n = 5
-assert(v"""
+assert.equal(v"""
 (function() {
     var s = 0
     for (var i=0; i<=n; i++) {
@@ -107,9 +107,9 @@ assert(v"""
     }
     return s
 })()
-""" == (def():
+""", (def():
     s = 0
-    for i in [0 to n]:
+    for i in range(n+1):
         s += i
     return s
 )())                        # shared scoping and equivalent capability
