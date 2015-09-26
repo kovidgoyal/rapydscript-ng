@@ -109,7 +109,7 @@ IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i
 
 def is_string_modifier(val):
     for ch in val:
-        if 'vrVR'.indexOf(ch) == -1:
+        if 'vruVRU'.indexOf(ch) == -1:
             return False
     return True
 
