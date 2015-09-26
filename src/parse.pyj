@@ -1235,11 +1235,10 @@ def parse($TEXT, options):
         if is_("punc", "("):
             S.in_parenthesized_expr = True
             next()
-            args = expr_list(")")
+            args = func_call_list()
             S.in_parenthesized_expr = False
         else:
-            args = []
-
+            args = func_call_list(True)
         return subscripts(new AST_New({
             'start': start,
             'expression': newexp,
@@ -1408,12 +1407,14 @@ def parse($TEXT, options):
             a.starargs = True
         return a
 
-    def func_call_list():
+    def func_call_list(empty):
         a = v'[]'
         first = True
         a.kwargs = v'[]'
         a.kwarg_items = v'[]'
         a.starargs = False
+        if empty:
+            return a
         single_comprehension = False
         while not is_("punc", ')') and not is_('eof'):
             if not first:

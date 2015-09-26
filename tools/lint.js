@@ -416,7 +416,7 @@ function Linter(toplevel, filename, code, options) {
 
     this.handle_call = function() {
         var node = this.current_node;
-        node.args.kwargs.forEach(function(kw) { kw[0].lint_visited = true; });
+        if (node.args.kwargs) node.args.kwargs.forEach(function(kw) { kw[0].lint_visited = true; });
     };
 
     this.handle_with_clause = function() {
