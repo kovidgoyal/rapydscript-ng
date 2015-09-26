@@ -1,6 +1,8 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from gettext import gettext as _, ngettext, install
+
 g = require('../tools/gettext.js')
 
 def gettext(code):
@@ -54,3 +56,12 @@ item = catalog['entries'][1]
 assert.equal(item['msgid'], 'two')
 assert.deepEqual(item['msgstr'], v"['abc', 'def']")
 assert.ok(not item['fuzzy'], 'item not fuzzy')
+
+install({'entries': {
+    'one':['ONE'],
+    'two':['1', '2'],
+}})
+
+assert.equal(_('one'), 'ONE')
+assert.equal(ngettext('two', 'xxx', 1), '1')
+assert.equal(ngettext('two', 'xxx', 100), '2')

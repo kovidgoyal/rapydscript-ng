@@ -1446,6 +1446,55 @@ RapydScript will pick up any classes you declare yourself as well as native Java
 - developers are much more likely to forget a single instance of `new` operator when declaring an object than to forget an import, the errors due to omitted `new` keyword are also likely to be more subtle and devious to debug
 
 
+Internationalization
+-------------------------
+
+RapydScript includes support for internationalization -- i.e. the translation
+of user interface strings defined in the RapydScript source code. The interface
+for this is very similar to Python's gettext module.  Suppose you have some
+code that needs internalization support, the first step is to mark all
+user-viewable strings as translatable:
+
+```py
+from gettext import gettext as _
+create_button(_('My Button'))
+create_button(_('Another Button'))
+```
+
+Now we need to extract these string from the source code into a .pot file which
+can be used to create translations. To do that, run:
+
+```
+rapydscript gettext file.pyj > messages.pot
+```
+
+Now send the `messages.pot` file to your translators. Suppose you get back a
+`de.po` file from the translators with German translations. You now need to
+compile this into a format that can be used by RapydScript (RapydScript uses a
+JSON based format for easy operation over HTTP). Simply run:
+
+```
+rapydscript msgfmt < messages.pot > messages.json
+```
+
+Now, suppose you load up the translation data in your application. Exactly how
+you do that is upto you. You can load it via Ajax or using a `<script>` tag. To
+activate the loaded data, simply run:
+
+```py
+from gettext import install
+
+install(translation_data)
+```
+
+Now everywhere in your program that you have calls to the `_()` function, you
+will get translated output. So make sure you install the translation data
+before building the rest of your user-interface.
+
+Just as in python, you also have a `ngettext()` function for translating
+strings that depend on a count.
+
+
 Gotchas
 ---------
 
@@ -1518,6 +1567,9 @@ This list below records all the work I have done on RapydScript so far.
 1. The import/module system has been completely changed. It now works just like
    python, with modules being per file and packages being a directory with
    ```__init__.pyj```. The ```module:``` keyword has been removed.
+
+1. There is support for internationalization, using the standard gettext file
+   formats and API. See the section on Internationalization above.
 
 1. RapydScript now supports the full python syntax for defining functions with
    optional arguments, variable numbers of arguments, variable optional
