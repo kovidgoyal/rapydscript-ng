@@ -7,7 +7,7 @@
 "use strict;";
 
 var fs = require('fs');
-var RapydScript = require("./compiler").create_compiler();
+var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
 var path = require('path');
 
 function parse_file(code, filename) {
@@ -21,7 +21,7 @@ function parse_file(code, filename) {
 
 function detect_format(msgid) {
     var q = msgid.replace('{{', '');
-    if (/{[0-9a-zA-Z_}]+/.test(q)) return 'python-brace-format';
+    if (/\{[0-9a-zA-Z_}]+/.test(q)) return 'python-brace-format';
     return null;
 }
 
@@ -89,14 +89,14 @@ function entry_to_string(msgid, data) {
 }
 
 function write_output(catalog, options, write) {
-    write = write || (function(x) { process.stdout.write(x); });
+    write = write || (function(x) { process.stdout.write(new Buffer(x, 'utf-8')); });
     function print() {
         var val = Array.prototype.slice.call(arguments).join(' ') + '\n';
-        write(new Buffer(val, 'utf-8'));
+        write(val);
     }
     function header_line() {
         var val = '"' + Array.prototype.slice.call(arguments).join(' ') + '\\n"\n';
-        write(new Buffer(val, 'utf-8'));
+        write(val);
     }
     if (!options.omit_header) {
         var now = (new Date()).toISOString();

@@ -167,17 +167,21 @@ function read_stdin(cont) {
     process.stdin.on('end', function() { cont(chunks.join('')); });
 }
 
+function serialize_catalog(catalog, options) {
+    if (!options.use_fuzzy) catalog.entries = catalog.entries.filter(function(e) { return !e.fuzzy; });
+    entries = {};
+    catalog.entries.forEach(function (entry) {
+        entries[entry.msgid] = entry.msgstr;
+    });
+    return JSON.stringify({'plural_forms':catalog.plural_forms, 'entries':entries, 'language':catalog.language});
+}
+
 module.exports.cli = function(argv, base_path, src_path, lib_path) {
     read_stdin(function process(data) {
         var catalog = parse(data);
-        if (!argv.use_fuzzy) catalog.entries = catalog.entries.filter(function(e) { return !e.fuzzy; });
-        entries = {};
-        catalog.entries.forEach(function (entry) {
-            entries[entry.msgid] = entry.msgstr;
-        });
-        var ans = {'plural_forms':catalog.plural_forms, 'entries':entries, 'language':catalog.language};
-        console.log(JSON.stringify(ans));
+        console.log(serialize_catalog(catalog, argv));
     });
 };
 
 module.exports.parse = parse;
+module.exports.build = function(data, options) { return serialize_catalog(parse(data), options); };
