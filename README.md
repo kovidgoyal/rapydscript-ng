@@ -4,7 +4,7 @@ RapydScript
 [![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.png)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
 
 This is a fork of the original RapydScript that adds many new (not always
-backwards compatible) changes. For a list of changes, [see the bottom of this file](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+backwards compatible) features. For a list of changes, [see the bottom of this file](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
