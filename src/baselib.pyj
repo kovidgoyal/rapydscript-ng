@@ -81,13 +81,13 @@ def _$rapyd$_in():
                 return arr.__contains__(val)
             if isinstance(arr, (Map, Set)):
                 return arr.has(val)
-            return arr.hasOwnProperty(val)
+            return Object.prototype.hasOwnProperty.call(arr, val)
     return def(val, arr):
             if Array.isArray(arr) or v'typeof arr' == 'string':
                 return arr.indexOf(val) != -1
             if type(arr.__contains__) == 'function':
                 return arr.__contains__(val)
-            return arr.hasOwnProperty(val)
+            return Object.prototype.hasOwnProperty.call(arr, val)
 
 def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
