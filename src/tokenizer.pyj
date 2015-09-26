@@ -107,6 +107,12 @@ KEYWORDS_BEFORE_EXPRESSION = make_predicate(KEYWORDS_BEFORE_EXPRESSION)
 KEYWORDS_ATOM = make_predicate(KEYWORDS_ATOM)
 IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i
 
+def is_string_modifier(val):
+    for ch in val:
+        if 'vrVR'.indexOf(ch) == -1:
+            return False
+    return True
+
 def is_letter(code):
     return code >= 97 and code <= 122 or code >= 65 and code <= 90 or code >= 170 and UNICODE.letter.test(String.fromCharCode(code))
 
@@ -601,12 +607,6 @@ def tokenizer($TEXT, filename):
         tmp_ = code
         if tmp_ == 34 or tmp_ == 39:    # double-quote (") or single quote (')
             return read_string(False)
-        elif tmp_ == 114 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:  # r''
-            next()
-            return read_string(True)
-        elif tmp_ == 118 and '"\''.indexOf(S.text.charAt(S.pos + 1)) != -1:  # v''
-            next()
-            return read_string(False, True)
         elif tmp_ == 35:                # pound-sign (#)
             if S.pos == 0 and S.text.charAt(1) == '!':
                 #shebang
@@ -639,7 +639,14 @@ def tokenizer($TEXT, filename):
             return next_token()
 
         if is_identifier_start(code):
-            return read_word()
+            tok = read_word()
+            if '\'"'.indexOf(peek()) != -1 and is_string_modifier(tok.value):
+                mods = tok.value.toLowerCase()
+                stok = read_string(mods.indexOf('r') != -1, mods.indexOf('v') != -1)
+                tok.endpos = stok.endpos
+                tok.value = stok.value
+                tok.type = stok.type
+            return tok
 
         parse_error("Unexpected character «" + ch + "»")
 
