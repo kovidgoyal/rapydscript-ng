@@ -262,7 +262,7 @@ def parse($TEXT, options):
             for obj in body:
                 if isinstance(obj, AST_Function) or isinstance(obj, AST_Class):
                     if obj.name:
-                        ans.push(obj.name)
+                        ans.push(obj.name.name)
                     else:
                         token_error(obj.start, "Top-level functions must have names")
                 else:
@@ -1996,18 +1996,23 @@ def parse($TEXT, options):
                 'end': end
             })
 
-        def uniq(element, index, arr):
-            return arr.lastIndexOf(element) == index
-
         toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body)
-        assignments = scan_for_local_vars(toplevel.body)
-        callables = scan_for_top_level_callables(toplevel.body).filter(uniq)
         toplevel.localvars = []
-        assignments.forEach(def(item):
+        toplevel.exports = []
+        seen_exports = {}
+
+        def add_item(item, isvar):
             if (toplevel.nonlocalvars.indexOf(item) < 0):
-                toplevel.localvars.push(new_symbol(AST_SymbolVar, item))
-        )
-        toplevel.exports = toplevel.localvars.concat(callables).filter(uniq)
+                symbol = new_symbol(AST_SymbolVar, item)
+                if isvar:
+                    toplevel.localvars.push(symbol)
+                if not Object.prototype.hasOwnProperty.call(seen_exports, item):
+                    toplevel.exports.push(symbol)
+                    seen_exports[item] = True
+
+        scan_for_local_vars(toplevel.body).forEach(def(item): add_item(item, True);)
+        scan_for_top_level_callables(toplevel.body).forEach(add_item)
+
         toplevel.filename = options.filename
         toplevel.submodules = []
         toplevel.imported_module_ids = imported_module_ids
