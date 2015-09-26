@@ -11,7 +11,7 @@ AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
 AST_Constant, AST_Continue, AST_Debugger, AST_Definitions,
 AST_Directive, AST_Do, AST_Dot, AST_EmptyStatement, AST_Except, AST_Exit,
-AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function, AST_GeneratorComprehension,
+AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function,
 AST_Hole, AST_If, AST_Imports, AST_Infinity, AST_Jump, AST_Lambda,
 AST_ListComprehension, AST_LoopControl, AST_Method, AST_NaN, AST_New, AST_Node,
 AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
@@ -310,7 +310,7 @@ def OutputStream(options):
         deps = options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
-            if deps.hasOwnProperty(lib):
+            if Object.prototype.hasOwnProperty.call(deps, lib):
                 Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
         # output used items
         for lib in baselib_items:
@@ -381,7 +381,7 @@ def OutputStream(options):
         'assign': assign_var,
         'prologue': prologue,
         "import": def(module_):
-            if not IMPORTED.hasOwnProperty(module_.key):
+            if not Object.prototype.hasOwnProperty.call(IMPORTED, module_.key):
                 IMPORTED[module_.key] = module_
         ,
         'is_main': def():
@@ -808,7 +808,7 @@ def codegen():
     def declare_exports(module_id, exports, submodules, output):
         seen = {}
         for symbol in exports:
-            if not seen.hasOwnProperty(module_id):
+            if not Object.prototype.hasOwnProperty.call(seen, module_id):
                 output.newline()
                 output.indent()
                 output.print('_$rapyd$_modules["' + module_id + '"]["' + symbol.name + '"] = ' + symbol.name)
@@ -819,7 +819,7 @@ def codegen():
     def declare_submodules(module_id, submodules, output):
         seen = {}
         for sub_module_id in submodules:
-            if not seen.hasOwnProperty(sub_module_id):
+            if not Object.prototype.hasOwnProperty.call(seen, sub_module_id):
                 seen[sub_module_id] = True
                 key = sub_module_id.split('.')[-1]
                 output.indent()
