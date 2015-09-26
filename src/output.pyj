@@ -808,7 +808,7 @@ def codegen():
     def declare_exports(module_id, exports, submodules, output):
         seen = {}
         for symbol in exports:
-            if not Object.prototype.hasOwnProperty.call(seen, module_id):
+            if not Object.prototype.hasOwnProperty.call(seen, symbol.name):
                 output.newline()
                 output.indent()
                 output.print('_$rapyd$_modules["' + module_id + '"]["' + symbol.name + '"] = ' + symbol.name)
