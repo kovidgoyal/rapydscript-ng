@@ -40,6 +40,9 @@ ok_test('def f(*a):\n return a')
 ok_test('def f(**a):\n return a')
 ok_test('def f(a):\n return 1')
 
+# Extended slices
+ok_test('a = []; a[::2], a[1:-1]')
+
 # Top level unused ignored
 ok_test('a=1\ndef f():\n pass')
 
