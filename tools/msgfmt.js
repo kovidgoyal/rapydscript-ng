@@ -19,6 +19,7 @@ function parse(data, on_error) {
     var current_entry = create_entry();
     var lnum = 0;
     var nplurals = null;
+    var language = null;
 
     function fatal() {
         var msg = Array.prototype.slice.call(arguments).join(' ');
@@ -40,6 +41,9 @@ function parse(data, on_error) {
                 var match = /^nplurals\s*=\s*(\d+)\s*;/.exec(plural_forms);
                 if (!match || match[1] === undefined) fatal('Invalid Plural-Forms header:', plural_forms);
                 nplurals = parseInt(match[1]);
+            } 
+            else if (line.startsWith('Language:')) {
+                language = line.slice('Language:'.length).trim();
             }
         });
     }
@@ -147,7 +151,8 @@ function parse(data, on_error) {
         state(line, lines);
     }
     commit_entry();
-    return {entries:entries, plural_forms:plural_forms, nplurals:nplurals};
+    if (language === null) fatal('No language specified in the header of this po file');
+    return {entries:entries, plural_forms:plural_forms, nplurals:nplurals, language:language};
 }
 
 function read_stdin(cont) {
@@ -170,7 +175,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         catalog.entries.forEach(function (entry) {
             entries[entry.msgid] = entry.msgstr;
         });
-        var ans = {'plural_forms':catalog.plural_forms, 'entries':entries};
+        var ans = {'plural_forms':catalog.plural_forms, 'entries':entries, 'language':catalog.language};
         console.log(JSON.stringify(ans));
     });
 };

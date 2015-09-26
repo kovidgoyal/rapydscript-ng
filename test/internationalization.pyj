@@ -27,6 +27,7 @@ m = require('../tools/msgfmt.js')
 catalog = m.parse(r'''
 msgid ""
 msgstr ""
+"Language: en\n"
 "Plural-Forms: nplurals=2; \n"
 
 #, fuzzy
@@ -43,6 +44,7 @@ msgstr[1] "def"
 ''')
 
 assert.equal(2, catalog['nplurals'])
+assert.equal('en', catalog['language'])
 assert.equal(catalog['entries'].length, 2)
 item = catalog['entries'][0]
 assert.equal(item['msgid'], 'one\ncontinued')
