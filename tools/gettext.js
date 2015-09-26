@@ -75,7 +75,7 @@ function gettext(catalog, code, filename) {
 }
 
 function esc(string) {
-    return string.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\t', '\\t').replace('\r', '');
+    return (string || '').replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\t', '\\t').replace('\r', '');
 }
 
 function entry_to_string(msgid, data) {
@@ -88,14 +88,15 @@ function entry_to_string(msgid, data) {
     return ans.join('\n');
 }
 
-function write_output(catalog, options) {
+function write_output(catalog, options, write) {
+    write = write || (function(x) { process.stdout.write(x); });
     function print() {
         var val = Array.prototype.slice.call(arguments).join(' ') + '\n';
-        process.stdout.write(new Buffer(val, 'utf-8'));
+        write(new Buffer(val, 'utf-8'));
     }
     function header_line() {
         var val = '"' + Array.prototype.slice.call(arguments).join(' ') + '\\n"\n';
-        process.stdout.write(new Buffer(val, 'utf-8'));
+        write(new Buffer(val, 'utf-8'));
     }
     if (!options.omit_header) {
         var now = (new Date()).toISOString();
@@ -151,7 +152,6 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
     read_files(argv.files);
 
     function process_single_file(err, code) {
-        var output, final_builtins = merge(builtins), final_noqa = merge(noqa), rl;
         if (err) {
             console.error("ERROR: can't read file: " + files[0]);
             process.exit(1);
@@ -175,4 +175,5 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
 
 module.exports.gettext = gettext;
 module.exports.entry_to_string = entry_to_string;
+module.exports.write_output = write_output;
 // }}}

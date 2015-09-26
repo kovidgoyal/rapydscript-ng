@@ -432,19 +432,19 @@ string arguments to the functions _(), gettext() and ngettext().
 */
 });
 
-opt("omit-header", 'm', 'bool', false, function(){/*
+opt("omit_header", 'm', 'bool', false, function(){/*
 Do not write header with 'msgid ""' entry.
 */});
 
-opt("package-name", '', 'string', 'XXX', function(){/*
+opt("package_name", '', 'string', 'XXX', function(){/*
 Set the package name in the header
 */});
 
-opt("package-version", '', 'string', 'XXX', function(){/*
+opt("package_version", '', 'string', 'XXX', function(){/*
 Set the package version in the header
 */});
 
-opt("bugs-address", 'bug-address', 'string', 'bugs@example.com', function(){/*
+opt("bugs_address", 'bug_address', 'string', 'bugs@example.com', function(){/*
 Set the email address for bug reports in the header
 */});
 
@@ -460,7 +460,7 @@ convert it to UTF-8 first.
 */
 });
 
-opt("use-fuzzy", 'f', 'bool', false, function(){/*
+opt("use_fuzzy", 'f', 'bool', false, function(){/*
 Use fuzzy translations, they are ignored by default.
 */});
 
