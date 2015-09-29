@@ -94,13 +94,13 @@ UNARY_PREFIX = make_predicate([
 
 ASSIGNMENT = make_predicate([ "=", "+=", "-=", "/=", "//=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
 
-PRECEDENCE = def(a, ret):
+PRECEDENCE = (def(a, ret):
     for i in range(a.length):
         b = a[i]
         for j in range(b.length):
             ret[b[j]] = i+1
     return ret
-.call(this, [
+)([
     # lowest precedence
     [ "||" ],
     [ "&&" ],
@@ -478,13 +478,13 @@ def parse($TEXT, options):
             elif tmp_ == "do":
                 return new AST_Do({
                     'body': in_loop(statement),
-                    'condition': def():
+                    'condition': (def():
                         expect(".")
                         expect_token("keyword", "while")
                         tmp = expression(True)
                         semicolon()
                         return tmp
-                    .call(this)
+                    )()
                 })
             elif tmp_ == "while":
                 return new AST_While({
@@ -532,15 +532,15 @@ def parse($TEXT, options):
 
                 return new AST_Return({
                     'value': (is_("punc", ";") ?
-                        def():
+                        (def():
                             semicolon()
                             return None
-                        .call(this) : (can_insert_semicolon() ? None
-                            : def():
+                        )() : (can_insert_semicolon() ? None
+                            : (def():
                                 tmp = expression(True)
                                 semicolon()
                                 return tmp
-                            .call(this)
+                            )()
                         )
                     )
                 })
@@ -628,15 +628,15 @@ def parse($TEXT, options):
         return new AST_Yield({
             'is_yield_from':is_yield_from,
             'value': (is_("punc", ";") ?
-                def():
+                (def():
                     semicolon()
                     return None
-                .call(this) : (can_insert_semicolon() ? None
-                    : def():
+                )() : (can_insert_semicolon() ? None
+                    : (def():
                         tmp = expression(True)
                         semicolon()
                         return tmp
-                    .call(this)
+                    )()
                 )
             )
         })
@@ -896,7 +896,7 @@ def parse($TEXT, options):
         definition = new AST_Class({
             'name': name,
             'module_id':module_id,
-            'parent': def():
+            'parent': (def():
                 if is_("punc", "("):
                     S.in_parenthesized_expr = True
                     next()
@@ -910,13 +910,13 @@ def parse($TEXT, options):
                     return a
                 else:
                     return None
-            .call(this),
+            )(),
             'localvars': [],
             "static": class_details.static,
             'external': externaldecorator,
             'bound': class_details.bound,
             'statements': [],
-            'decorators': def():
+            'decorators': (def():
                 d = []
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
@@ -925,8 +925,8 @@ def parse($TEXT, options):
                 )
                 S.decorators = v'[]'
                 return d
-            .call(this),
-            'body': def(loop, labels):
+            )(),
+            'body': (def(loop, labels):
                 # navigate to correct location in the module tree and append the class
                 S.in_class.push(name.name)
                 S.classes[S.classes.length - 1][name.name] = class_details
@@ -942,7 +942,7 @@ def parse($TEXT, options):
                 S.in_loop = loop
                 S.labels = labels
                 return a
-            .call(this, S.in_loop, S.labels)
+            )(S.in_loop, S.labels)
         })
         # find the constructor
         for stmt in definition.body:
@@ -1001,7 +1001,7 @@ def parse($TEXT, options):
         is_generator = v'[]'
         definition = new ctor({
             'name': name,
-            'argnames': def(a):
+            'argnames': (def(a):
                 defaults = {}
                 first = True
                 seen_names = {}
@@ -1053,9 +1053,9 @@ def parse($TEXT, options):
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
                 return a
-            .call(this, v'[]'),
+            )(v'[]'),
             'localvars': [],
-            'decorators': def():
+            'decorators': (def():
                 d = v'[]'
                 S.decorators.forEach(def(decorator):
                     d.push(new AST_Decorator({
@@ -1064,8 +1064,8 @@ def parse($TEXT, options):
                 )
                 S.decorators = v'[]'
                 return d
-            .call(this),
-            'body': def(loop, labels):
+            )(),
+            'body': (def(loop, labels):
                 S.in_class.push(False)
                 S.classes.push({})
                 S.in_function += 1
@@ -1081,7 +1081,7 @@ def parse($TEXT, options):
                 S.in_loop = loop
                 S.labels = labels
                 return a
-            .call(this, S.in_loop, S.labels)
+            )(S.in_loop, S.labels)
         })
         definition.is_generator = is_generator[0]
         if isinstance(definition, AST_Method):
@@ -1962,7 +1962,7 @@ def parse($TEXT, options):
                     'end': peek()
                 })
 
-            return build_seq.call(this, left)
+            return build_seq(left)
         return expr
 
     def in_loop(cont):
@@ -1971,7 +1971,7 @@ def parse($TEXT, options):
         S.in_loop -= 1
         return ret
 
-    return def():
+    return (def():
         start = S.token
         body = []
         first_token = True
@@ -2024,5 +2024,5 @@ def parse($TEXT, options):
         toplevel.baselib = baselib_items
         IMPORTING[module_id] = False
         return toplevel
-    .call(this)
+    )()
 
