@@ -67,6 +67,7 @@ NATIVE_CLASSES = {
     'WeakMap': {},
     'Set': {},
     'WeakSet': {},
+    'XMLHttpRequest': {},
 }
 ERROR_CLASSES = {
     'Exception': {},
