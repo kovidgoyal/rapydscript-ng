@@ -84,10 +84,11 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 failures.push(file);
                 failed = true;
                 fs.writeFileSync(jsfile, code);
+                console.error('Failed running: ' + colored(jsfile, 'red'));
                 if (e.stack) 
-                    console.log(colored(file, 'red') + ":\n" + e.stack + "\n\n");
+                    console.error(colored(file, 'red') + ":\n" + e.stack + "\n\n");
                 else 
-                    console.log(colored(file, 'red') + ": " + e + "\n\n");
+                    console.error(colored(file, 'red') + ": " + e + "\n\n");
                 js_version = 1000;
             }
             js_version++;
