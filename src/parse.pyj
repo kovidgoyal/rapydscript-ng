@@ -785,7 +785,7 @@ def parse($TEXT, options):
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             IMPORTED[key] = {
-                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key,
+                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key, 'import_order':Object.keys(IMPORTED).length,
                 'submodules':[], 'nonlocalvars':cached['nonlocalvars'], 'baselib':cached['baselib'], 'exports':cached.exports
             }
         else:
