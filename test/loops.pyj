@@ -45,3 +45,6 @@ i = 0
 for letter in word:
     assert.equal(letter, word[i])
     i += 1
+
+for b in (1, 1):
+    assert.equal(b, 1)

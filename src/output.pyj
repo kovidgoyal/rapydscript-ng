@@ -1084,6 +1084,12 @@ def codegen():
         output.end_statement()
 
     DEFPRINT(AST_ForIn, def(self, output):
+        def write_object():
+            if self.object.TYPE == "Seq":
+                (new AST_Array({'elements':self.object.to_array()})).print(output)
+            else:
+                self.object.print(output)
+
         if is_simple_for(self):
             # optimize range() into a simple for loop
             increment = None
@@ -1144,9 +1150,7 @@ def codegen():
             if output.options.js_version == 5:
                 output.assign("var _$rapyd$_Iter" + output.index_counter)
                 output.print("_$rapyd$_Iterable")
-                output.with_parens(def():
-                    self.object.print(output)
-                )
+                output.with_parens(write_object)
                 output.semicolon()
                 output.newline()
                 output.indent()
@@ -1171,7 +1175,7 @@ def codegen():
             else:
                 itervar = "_$rapyd$_Iter" + output.index_counter
                 output.assign("var " + itervar)
-                self.object.print(output)
+                write_object()
                 output.end_statement()
                 init_es6_itervar(output, itervar)
                 output.indent()
