@@ -207,10 +207,14 @@ class Properties:
     def b(self):
         return 1
 
+    def c(self):
+        return self.a
+
 p = Properties()
 assert.equal(p._a, p.a)
 p.a = 11
 assert.equal(11, p.a)
+assert.equal(p.c(), p.a)
 assert.equal(p.b, 1)
 assert.throws(
     def():
