@@ -194,6 +194,7 @@ class Properties:
 
     def __init__(self):
         self._a = 0
+        assert.equal(self.a, 0)
 
     @property
     def a(self):

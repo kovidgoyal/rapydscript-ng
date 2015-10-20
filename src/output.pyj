@@ -1561,22 +1561,6 @@ def codegen():
             output.print("()")
             output.space()
             output.with_block(def():
-                if self.init or self.parent:
-                    bind_methods(self.bound, output)
-                    output.indent()
-                    cname = (self.name) ? self.name : self.parent
-                    cname.print(output)
-                    output.print(".prototype.__init__.apply")
-                    output.with_parens(def():
-                        output.print("this")
-                        output.comma()
-                        output.print("arguments")
-                    )
-                    output.semicolon()
-                    output.newline()
-                else:
-                    # no init method or parent, create empty init
-                    bind_methods(self.bound, output)
                 if len(properties):
                     output.indent(), output.print('Object.defineProperties')
                     output.with_parens(def():
@@ -1599,6 +1583,23 @@ def codegen():
                         )
                     )
                     output.end_statement()
+
+                if self.init or self.parent:
+                    bind_methods(self.bound, output)
+                    output.indent()
+                    cname = (self.name) ? self.name : self.parent
+                    cname.print(output)
+                    output.print(".prototype.__init__.apply")
+                    output.with_parens(def():
+                        output.print("this")
+                        output.comma()
+                        output.print("arguments")
+                    )
+                    output.semicolon()
+                    output.newline()
+                else:
+                    # no init method or parent, create empty init
+                    bind_methods(self.bound, output)
             )
 
         # decorate the class
