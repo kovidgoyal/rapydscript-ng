@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals:_$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol
+# globals:_$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike
 
 def _$rapyd$_equals(a, b):
     try:
@@ -177,7 +177,7 @@ def _$rapyd$_list_decorate(ans):
 def _$rapyd$_list_constructor(iterable):
     if iterable == undefined:
         ans = v'[]'
-    elif Array.isArray(iterable) or type(iterable) == 'string':
+    elif _$rapyd$_arraylike(iterable):
         ans = new Array(iterable.length)
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
@@ -267,7 +267,7 @@ def _$rapyd$_set(iterable):
         if iterable == undefined:
             return ans
         s = ans.jsset
-        if Array.isArray(iterable) or type(iterable) == 'string':
+        if _$rapyd$_arraylike(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])  # noqa:undef
         elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':

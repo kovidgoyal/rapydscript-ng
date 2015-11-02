@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike
 
 def abs():
     return Math.abs
@@ -92,7 +92,8 @@ def _$rapyd$_in():
 def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
     # rid of this function entirely
-    if Array.isArray(iterable) or v'typeof iterable' == 'string': return iterable
+    if _$rapyd$_arraylike(iterable):
+        return iterable
     if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
         iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
@@ -101,13 +102,11 @@ def _$rapyd$_Iterable(iterable):
             ans.push(result.value)
             result = iterator.next()
         return ans
-    if type(HTMLCollection) == 'function' and isinstance(iterable, (HTMLCollection, NodeList, NamedNodeMap)):
-        return iterable
     # so we can use 'for ... in' syntax with objects, as we would with dicts in python
     return Object.keys(iterable)
 
 def enumerate(iterable):
-    if Array.isArray(iterable) or type(iterable) == 'string':
+    if _$rapyd$_arraylike(iterable):
         ans = {
             '_i': -1,
             'next':def():
@@ -137,7 +136,7 @@ def enumerate(iterable):
     return enumerate(Object.keys(iterable))
 
 def reversed(iterable):
-    if Array.isArray(iterable) or type(iterable) == 'string':
+    if _$rapyd$_arraylike(iterable):
         ans = {
             '_i': iterable.length,
             'next':def():
@@ -155,7 +154,7 @@ def iter(iterable):
     # Generate a JavaScript iterator object from iterable
     if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
         return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
-    if Array.isArray(iterable) or type(iterable) == 'string':
+    if _$rapyd$_arraylike(iterable):
         ans = {
             '_i': -1,
             'next':def():
@@ -173,13 +172,13 @@ def _$rapyd$_len():
     if v'typeof Set' == 'function' and v'typeof Map' == 'function':
         # ES 6 collections are probably present
         return (def(obj):
-            if Array.isArray(obj) or v'typeof obj' == 'string': return obj.length
+            if _$rapyd$_arraylike(obj): return obj.length
             if v'obj instanceof Set' or v'obj instanceof Map': return obj.size
             if type(obj.__len__) == 'function': return obj.__len__()
             return Object.keys(obj).length
         )
     return (def(obj):
-        if Array.isArray(obj) or v'typeof obj' == 'string': return obj.length
+        if _$rapyd$_arraylike(obj): return obj.length
         if type(obj.__len__) == 'function': return obj.__len__()
         return Object.keys(obj).length
     )

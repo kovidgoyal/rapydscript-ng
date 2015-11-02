@@ -74,6 +74,17 @@ def _$rapyd$_float():
         raise ValueError('Could not convert string to float: ' + arguments[0])
     return ans
 
+def _$rapyd$_arraylike_creator():
+    if type(HTMLCollection) == 'function':
+        return def(x):
+            if Array.isArray(x) or v'typeof x' == 'string' or isinstance(x, (HTMLCollection, NodeList, NamedNodeMap)):
+                return True
+            return False
+    return def(x):
+        if Array.isArray(x) or v'typeof x' == 'string':
+            return True
+        return False
+
 def options_object(f):
     return def():
         if v'typeof arguments[arguments.length - 1] === "object"':
@@ -81,5 +92,5 @@ def options_object(f):
         return f.apply(this, arguments)
 
 v'var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all'
-v'var float = _$rapyd$_float, int = _$rapyd$_int, rebind_all = _$rapyd$_rebind_all'
+v'var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike'
 v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice'
