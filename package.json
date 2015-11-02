@@ -14,7 +14,7 @@
     "start": "bin/rapydscript",
     "build-self": "bin/rapydscript self --complete"
   },
-  "version": "0.4.3",
+  "version": "0.4.4",
   "license": "BSD-2-Clause",
   "engines": {
     "node": ">=0.12.0"
