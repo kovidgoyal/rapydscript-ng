@@ -181,3 +181,12 @@ def callback(a, b=1, c=2):
     return [a, b, c]
 
 de(callback(0, {'c':4}), [0, 1, 4])
+
+def afunc(a=1):
+    return a
+
+def a2func(*args):
+    return args[0]
+
+eq(afunc(None), None)
+eq(a2func(None), None)
