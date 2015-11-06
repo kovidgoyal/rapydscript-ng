@@ -494,7 +494,7 @@ best:
 		return [[1, 2, 3], {a:1, b:2}]
 ```
 
-On difference between RapydScript and Python is that RapydScript is not as
+One difference between RapydScript and Python is that RapydScript is not as
 strict as Python when it comes to validating function arguments. This is both
 for performance and to make it easier to interoperate with other JavaScript
 libraries. So if you do not pass enough arguments when calling a function, the
@@ -507,6 +507,28 @@ separate object for an optional argument specified as an object literal
 each time the function is called.  This makes it slightly less efficient, but
 prevents the common bug in python caused by using a mutable object literal as
 the default value for an optional argument.
+
+The last difference is that you cannot use named arguments when calling a
+function that has not been defined with named arguments. So, for example, the
+following works in python but not in RapydScript:
+
+```py
+def f(a):
+    return a
+
+f(a=1)
+```
+
+Instead, in RapydScript you must do:
+
+```py
+def f(a=3):
+    return a
+
+f(a=1)
+```
+
+This is for performance of *normal* JavaScript function calls.
 
 When creating callbacks to pass to other JavaScript libraries, it is often the
 case that the external library expects a function that receives an *options
