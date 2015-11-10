@@ -2012,7 +2012,7 @@ def parse($TEXT, options):
                     seen_exports[item] = True
 
         scan_for_local_vars(toplevel.body).forEach(def(item): add_item(item, True);)
-        scan_for_top_level_callables(toplevel.body).forEach(add_item)
+        scan_for_top_level_callables(toplevel.body).forEach(def (item): add_item(item, False);)
 
         toplevel.filename = options.filename
         toplevel.submodules = []
