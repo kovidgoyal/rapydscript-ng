@@ -147,13 +147,13 @@ _$rapyd$_str.format = def ():
         value += ''  # Ensure we have a string
 
         if is_numeric and sign:
-            nval = Number(value)
+            nval = v'Number(value)'
             is_positive = not isNaN(nval) and nval >= 0
             if is_positive and (sign == ' ' or sign == '+'):
                 value = sign + value
 
         def repeat(char, num):
-            return v'Array(num+1).join(char)'
+            return v'(new Array(num+1)).join(char)'
 
         if is_numeric and width and width[0] == '0':
             width = width[1:]
@@ -285,7 +285,7 @@ _$rapyd$_str.center = def(string, width, fill):
     left = (width - string.length) // 2
     right = width - left - string.length  # noqa:unused-local
     fill = fill or ' '
-    return v'Array(left+1).join(fill)' + string + v'Array(right+1).join(fill)'
+    return v'new Array(left+1).join(fill)' + string + v'new Array(right+1).join(fill)'
 
 _$rapyd$_str.count = def(string, needle, start, end):
     start = start or 0
@@ -384,13 +384,13 @@ _$rapyd$_str.join = def(string, iterable):
 _$rapyd$_str.ljust = def(string, width, fill):
     if width > string.length:
         fill = fill or ' '
-        string += v'Array(width - string.length + 1).join(fill)'
+        string += v'new Array(width - string.length + 1).join(fill)'
     return string
 
 _$rapyd$_str.rjust = def(string, width, fill):
     if width > string.length:
         fill = fill or ' '
-        string = v'Array(width - string.length + 1).join(fill)' + string
+        string = v'new Array(width - string.length + 1).join(fill)' + string
     return string
 
 _$rapyd$_str.lower = def(string):
@@ -533,7 +533,7 @@ _$rapyd$_str.splitlines = def(string, keepends):
     return _$rapyd$_list_decorate(ans)
 
 _$rapyd$_str.swapcase = def(string):
-    ans = v'Array(string.length)'
+    ans = v'new Array(string.length)'
     for v'var i = 0; i < ans.length; i++':
         a = string[i]
         # We dont care about non-BMP chars as they are not cased anyway
@@ -545,7 +545,7 @@ _$rapyd$_str.swapcase = def(string):
 
 _$rapyd$_str.zfill = def(string, width):
     if width > string.length:
-        string = v'Array(width - string.length + 1).join("0")' + string
+        string = v'new Array(width - string.length + 1).join("0")' + string
     return string
 
 _$rapyd$_str.uchrs = def(string, with_positions):
