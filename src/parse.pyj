@@ -35,6 +35,13 @@ NATIVE_CLASSES = {
     'Image': {},
     'RegExp': {},
     'Error': {},
+    'EvalError': {},
+    'InternalError': {},
+    'RangeError': {},
+    'ReferenceError': {},
+    'SyntaxError': {},
+    'TypeError': {},
+    'URIError': {},
     'Object': {
         'static': [ "getOwnPropertyNames", "keys", "create", 'defineProperty', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign' ]
     },
@@ -44,14 +51,10 @@ NATIVE_CLASSES = {
     'Array': {
         'static': [ "isArray", "from", "of" ]
     },
-    'Number': {
-        'static': [ "isFinite", "isNaN" ]
-    },
     'Function': {},
     'Date': {
         'static': [ "UTC", "now", "parse" ]
     },
-    'Boolean': {},
     'ArrayBuffer': {},
     'DataView': {},
     'Float32Array': {},
