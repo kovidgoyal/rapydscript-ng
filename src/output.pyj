@@ -884,7 +884,7 @@ def codegen():
                 write_imports(self, output)
                 write_main_name(output)
 
-            display_body(self.body, True, output)
+            display_complex_body(self, True, output)
 
     )
     def print_module(self, output):
