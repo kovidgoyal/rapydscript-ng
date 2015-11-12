@@ -1,11 +1,10 @@
-"use strict;";
 /*
  * repl.js
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license.
  */
-
+"use strict";  /*jshint node:true */
 
 var fs = require('fs');
 var path = require('path');
@@ -148,6 +147,7 @@ function prefix_matches(prefix, items) {
 }
 
 function find_completions(line, ctx, options) {
+    var t;
     try {
         t = RapydScript.tokenizer(line, '<repl>');
     } catch(e) { return []; }
@@ -195,8 +195,8 @@ module.exports = function(options) {
     options = repl_defaults(options);
     options.completer = completer;
     var rl = options.readline.createInterface(options);
-	ps1 = options.colored(options.ps1, 'green');
-	ps2 = options.colored(options.ps2, 'yellow');
+	var ps1 = options.colored(options.ps1, 'green');
+	var ps2 = options.colored(options.ps2, 'yellow');
 	var ctx = create_ctx(options.baselib, options.show_js, options.console);
     var buffer = [];
     var more = false;

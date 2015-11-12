@@ -1,7 +1,7 @@
 #!/usr/bin/env node 
 // vim:ft=javascript:ts=4:et
 
-"use strict;";
+"use strict";
 
 var fs = require('fs');
 var path = require('path');

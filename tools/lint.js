@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 var fs = require('fs');
 var RapydScript = require("./compiler").create_compiler();
@@ -28,7 +28,7 @@ var MESSAGES = {
     'dup-method': 'The method {name} was defined previously at line: {line}',
 };
 
-BUILTINS = {
+var BUILTINS = {
     'this':true, 'self':true, 'window':true, 'document':true, 'chr':true, 'ord':true,
     'iterator_symbol':true, 'print':true, 'len':true, 'range':true, 'dir':true,
     'eval':true, 'undefined':true, 'arguments':true, 'bind':true, 'abs':true,
@@ -379,7 +379,7 @@ function Linter(toplevel, filename, code, options) {
         var statements = js.split(';');
         var decl = statements[0].trim();
         if (decl.startsWith('var ')) decl = decl.slice(4);
-        self = this;
+        var self = this;
         decl.split(',').forEach(function (part) {
             var name = /^[a-zA-Z0-9_]+/.exec(part.trimLeft())[0];
             self.add_binding(name);
@@ -520,7 +520,7 @@ function Linter(toplevel, filename, code, options) {
         this.walked_scopes.forEach(function (scope) {
             messages = messages.concat(scope.messages());
         });
-        noqa = options.noqa || {};
+        var noqa = options.noqa || {};
         messages = messages.filter(function(msg) {
             var ignore = (msg.start_line !== undefined && line_filters.hasOwnProperty(msg.start_line) && line_filters[msg.start_line].hasOwnProperty(msg.ident));
             var filter = noqa.hasOwnProperty(msg.ident);

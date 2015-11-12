@@ -856,7 +856,7 @@ def codegen():
                     # strict mode is more verbose about errors, and less forgiving about them
                     # kind of like Python
                     output.indent()
-                    output.print('"use strict;"')
+                    output.print('"use strict"')
                     output.end_statement()
 
                     output.prologue(self)

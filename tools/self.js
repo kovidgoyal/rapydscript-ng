@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 var path = require('path');
 var crypto = require('crypto');
@@ -30,7 +30,7 @@ function read_baselib_modules(RapydScript, src_path, lib_path) {
         }
         ans[name].baselib_items = ast.baselib;
         [true, false].forEach(function (beautify) {
-            output = RapydScript.OutputStream({
+            var output = RapydScript.OutputStream({
                 beautify: beautify, write_name: false, private_scope:false, omit_baselib: true,  
             });
             ast.print(output);
@@ -41,16 +41,16 @@ function read_baselib_modules(RapydScript, src_path, lib_path) {
 }
 
 function generate_baselib(ast, beautify, RapydScript, baselib_modules) {
-    output = RapydScript.OutputStream({
+    var output = RapydScript.OutputStream({
         beautify: beautify, write_name: false,
         omit_baselib: true,  // We are generating baselib here, cannot depend on it
     });
     ast.print(output);
-    code = output.get();
-    exports = {};
-    ctx = vm.createContext({'console':console, 'exports':exports, '_$rapyd$_modules':{}});
+    var code = output.get();
+    var exports = {};
+    var ctx = vm.createContext({'console':console, 'exports':exports, '_$rapyd$_modules':{}});
     vm.runInContext(code, ctx, {filename:'baselib.pyj'});
-    ans = {};
+    var ans = {};
     Object.keys(exports).forEach(function(key) { ans[key] = exports[key].toString(); });
     ans['#dependencies#'] = {};
     Object.keys(baselib_modules).forEach(function(key) {
@@ -61,10 +61,10 @@ function generate_baselib(ast, beautify, RapydScript, baselib_modules) {
 }
 
 function parse_baselib(RapydScript, src_path, lib_path) {
-    baselib_modules = read_baselib_modules(RapydScript, src_path, lib_path);
-    baselib_path = path.join(src_path, 'baselib.pyj');
+    var baselib_modules = read_baselib_modules(RapydScript, src_path, lib_path);
+    var baselib_path = path.join(src_path, 'baselib.pyj');
     try {
-        ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
+        var ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
         return [generate_baselib(ast, true, RapydScript, baselib_modules), generate_baselib(ast, false, RapydScript, baselib_modules)];
     } catch (e) {
         if (!(e instanceof RapydScript.SyntaxError)) throw e;
@@ -142,7 +142,7 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
         var text = JSON.stringify(baselib, null, 2);
         fs.writeFileSync(path.join(lib_path, 'baselib-' + which + '.js'), text, 'utf-8');
 
-        ast = RapydScript.parse('');
+        var ast = RapydScript.parse('');
         Object.keys(baselib).forEach(function(k) { if (k.indexOf('#') == -1) ast.baselib[k] = true; });
         ast.baselib['yield'] = true;
         var output = RapydScript.OutputStream({'private_scope':false, 'write_name':false, 'baselib':baselib,

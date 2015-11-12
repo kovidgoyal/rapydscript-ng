@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 // Thin wrapper around lib/compiler.js to setup some global facilities and
 // export the compiler's symbols safely.

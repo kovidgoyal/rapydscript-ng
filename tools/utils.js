@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 var comment_contents = /\/\*!?(?:\@preserve)?[ \t]*(?:\r\n|\n)([\s\S]*?)(?:\r\n|\n)[ \t]*\*\//;
 var colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
@@ -56,8 +56,9 @@ function repeat(str, num) {
 }
 
 function generators_available() {
+    var gen;
     try {
-        eval('var gen = function *(){}'); // jshint ignore:line
+        eval('gen = function *(){}'); // jshint ignore:line
         return typeof gen === 'function' && gen.constructor.name == 'GeneratorFunction';
     } catch(e) {
         return false;

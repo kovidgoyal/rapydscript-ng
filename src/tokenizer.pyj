@@ -315,6 +315,7 @@ def tokenizer($TEXT, filename):
     def read_while(pred):
         ret = ""
         i = 0
+        ch = ''
         while (ch = peek()) and pred(ch, i):
             i += 1
             ret += next()
@@ -494,7 +495,7 @@ def tokenizer($TEXT, filename):
         return token(shebang ? "shebang" : "comment1", ret, True)
 
     def read_name():
-        name = ""
+        name = ch = ""
         while (ch = peek()) != None:
             if ch == "\\":
                 if S.text.charAt(S.pos + 1) == "\n":
@@ -509,7 +510,7 @@ def tokenizer($TEXT, filename):
 
     read_regexp = with_eof_error("Unterminated regular expression", def():
         prev_backslash = False
-        regexp = ''
+        regexp = ch = ''
         in_class = False
         verbose_regexp = False
         in_comment = False
@@ -522,7 +523,7 @@ def tokenizer($TEXT, filename):
             else: # empty regexp (//)
                 mods = read_name()
                 return token("regexp", RegExp(regexp, mods))
-        while ch = next(True):
+        while (ch = next(True)):
             if in_comment:
                 if ch == '\n':
                     in_comment = False

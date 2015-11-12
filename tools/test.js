@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 var path = require('path');
 var fs = require('fs');
 var RapydScript = require('./compiler').create_compiler();

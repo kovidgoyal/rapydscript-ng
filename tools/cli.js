@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 var path = require('path');
 var utils = require('./utils');
@@ -60,7 +60,7 @@ function print_usage(group) {  // {{{
 	var COL_WIDTH = 79;
 	var OPT_WIDTH = 23;
 
-    usage = (group) ? group.usage :  "[sub-command] ...";
+    var usage = (group) ? group.usage :  "[sub-command] ...";
 	console.log(colored('Usage:', COL1), colored(path.basename(process.argv[1]), COL2), usage, '\n');
     if (!group) {
         // Overall usage
@@ -174,7 +174,7 @@ function parse_args() {  // {{{
 			val = t;
 		} else val = undefined;
 
-		name = name_map[arg.replace('-', '_')];
+		var name = name_map[arg.replace('-', '_')];
 		if (!name) {
 			print_usage(group);
 			console.error('\nThe option:', colored('-' + oarg, 'red'), 'is not recognized');

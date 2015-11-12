@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 var fs = require('fs');
 var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();

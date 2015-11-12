@@ -4,7 +4,7 @@
  *
  * Distributed under terms of the BSD license
  */
-"use strict;";
+"use strict";  /*jshint node:true */
 
 function unesc(string) {
     return string.replace('\\"', '"').replace('\\n', '\n').replace('\\r', '\r').replace('\\t', '\t').replace('\\\\', '\\');
@@ -142,7 +142,7 @@ function parse(data, on_error) {
         else fatal('Expecting msgstr or msgid at line number:', lnum);
     }
 
-    state = start;
+    var state = start;
 
     while (lines.length) {
         var line = lines.shift().trim();
@@ -169,7 +169,7 @@ function read_stdin(cont) {
 
 function serialize_catalog(catalog, options) {
     if (!options.use_fuzzy) catalog.entries = catalog.entries.filter(function(e) { return !e.fuzzy; });
-    entries = {};
+    var entries = {};
     catalog.entries.forEach(function (entry) {
         entries[entry.msgid] = entry.msgstr;
     });

@@ -114,7 +114,7 @@ assert.equal(v"""
     return s
 )())                        # shared scoping and equivalent capability
 a = []
-for v'i = 0; i < 1; i++':
+for v'var i = 0; i < 1; i++':
     a[i] = 1  # noqa: undef
 assert.deepEqual(a, [1])
 
