@@ -11,7 +11,7 @@ var colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
 
 function ansi(code) {
     code = code || 0;
-    return '\033[' + code + 'm';
+    return String.fromCharCode(27) + '[' + code + 'm';
 }
 
 function colored(string, color, bold) {
