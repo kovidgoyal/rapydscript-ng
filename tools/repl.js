@@ -241,7 +241,7 @@ module.exports = function(options) {
         }
         try {
             // Despite what the docs say node does not actually output any errors by itself
-            // so, in case this bug is fixed alter, we turn it off explicitly.
+            // so, in case this bug is fixed later, we turn it off explicitly.
             result = vm.runInContext(js, ctx, {'filename':'<repl>', 'displayErrors':false});
         } catch(e) {
             if (e.stack) options.console.error(e.stack);
