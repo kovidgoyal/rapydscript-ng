@@ -868,7 +868,8 @@ def codegen():
                         output.with_block(def():
                             write_main_name(output)
                             output.newline()
-                            display_complex_body(self, True, output)
+                            declare_vars(self.localvars, output)
+                            display_body(self.body, True, output)
                             output.newline()
                         )
                     )
@@ -884,7 +885,8 @@ def codegen():
                 write_imports(self, output)
                 write_main_name(output)
 
-            display_complex_body(self, True, output)
+            declare_vars(self.localvars, output)
+            display_body(self.body, True, output)
 
     )
     def print_module(self, output):
