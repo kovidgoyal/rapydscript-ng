@@ -10,7 +10,7 @@ def _$rapyd$_equals(a, b):
     except TypeError:
         return v'a === b'
 
-'var equals = _$rapyd$_equals'
+v'var equals = _$rapyd$_equals;'
 
 # list {{{
 
@@ -206,11 +206,11 @@ def _$rapyd$_set_keyfor(x):
     t = type(x)
     if t == 'string' or t == 'number' or t == 'boolean':
         return '_' + t[0] + x
-    if v'x == null': # also matches undefined
+    if v'x === null': # also matches undefined
         return "__!@#$0"
     ans = x._$rapyd$_hash_key_prop
     if ans == undefined:
-        v'ans = "_!@#$" + ++_$rapyd$_global_object_id'
+        v'ans = "_!@#$" + (++_$rapyd$_global_object_id)'
         Object.defineProperty(x, '_$rapyd$_hash_key_prop', { 'value': ans })
     return ans
 
