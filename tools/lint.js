@@ -44,7 +44,7 @@ var BUILTINS = {
     'filter':true, 'zip':true, 'equals': true, 'dict':true, 'dict_wrap':true,
     'HTMLCollection': true, 'NodeList': true, 'alert': true, 'console': true,
     'Node':true, 'Symbol':true, 'NamedNodeMap':true, '_$rapyd$_eslice': true,
-    'Number':true, 'Boolean':true,
+    'Number':true, 'Boolean':true, 'encodeURIComponent':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
