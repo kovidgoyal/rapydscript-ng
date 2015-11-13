@@ -71,6 +71,8 @@ NATIVE_CLASSES = {
     'Set': {},
     'WeakSet': {},
     'XMLHttpRequest': {},
+    'TextEncoder': {},
+    'TextDecoder': {},
 }
 ERROR_CLASSES = {
     'Exception': {},
