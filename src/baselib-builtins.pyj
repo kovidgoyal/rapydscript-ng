@@ -47,7 +47,7 @@ def _$rapyd$_mixin(target, source, overwrite):
 def _$rapyd$_print():
     if v'typeof console' == 'object':
         parts = v'[]'
-        for v'i = 0; i < arguments.length; i++':
+        for v'var i = 0; i < arguments.length; i++':
             part = arguments[i]
             if v'typeof part' == 'string':
                 parts.push(part)
