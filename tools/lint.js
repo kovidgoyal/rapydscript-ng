@@ -45,7 +45,8 @@ var BUILTINS = {
     'HTMLCollection': true, 'NodeList': true, 'alert': true, 'console': true,
     'Node':true, 'Symbol':true, 'NamedNodeMap':true, '_$rapyd$_eslice': true,
     'Number':true, 'Boolean':true, 'encodeURIComponent':true, 'setTimeout': true,
-    'setInterval': true, 'setImmediate': true, 'clearTimeout': true
+    'setInterval': true, 'setImmediate': true, 'clearTimeout': true, 'clearInterval': true,
+    'clearImmediate': true, 'requestAnimationFrame': true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
