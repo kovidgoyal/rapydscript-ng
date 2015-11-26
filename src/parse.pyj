@@ -1495,7 +1495,7 @@ def parse($TEXT, options):
             if is_('keyword', 'for'):
                 # is_pydict is irrelevant here
                 return read_comprehension(new AST_SetComprehension({'statement':left}), '}')
-            if is_('punc', ',') or is_('punc', '}'):
+            if a.length == 0 and (is_('punc', ',') or is_('punc', '}')):
                 end = prev()
                 return set_(start, end, left)
             if not isinstance(left, AST_Constant):
