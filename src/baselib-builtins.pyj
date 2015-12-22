@@ -76,8 +76,9 @@ def _$rapyd$_float():
 
 def _$rapyd$_arraylike_creator():
     if type(HTMLCollection) == 'function':
+        names = v'["[object HTMLCollection]", "[object NodeList]", "[object NamedNodeMap]"]'
         return def(x):
-            if Array.isArray(x) or v'typeof x' == 'string' or isinstance(x, (HTMLCollection, NodeList, NamedNodeMap)):
+            if Array.isArray(x) or v'typeof x' == 'string' or names.indexOf(Object.prototype.toString.call(x)) > -1:
                 return True
             return False
     return def(x):
