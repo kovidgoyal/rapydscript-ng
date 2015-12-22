@@ -73,6 +73,9 @@ NATIVE_CLASSES = {
     'XMLHttpRequest': {},
     'TextEncoder': {},
     'TextDecoder': {},
+    'MouseEvent': {},
+    'Event': {},
+    'CustomEvent': {},
 }
 ERROR_CLASSES = {
     'Exception': {},
