@@ -10,7 +10,8 @@ var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
 var util = require('util');
-var colored = require('./utils').safe_colored;
+var utils = require('./utils');
+var colored = utils.safe_colored;
 var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
 
 function create_ctx(baselib, show_js, console) {
@@ -202,6 +203,7 @@ module.exports = function(options) {
     var more = false;
     var LINE_CONTINUATION_CHARS = ':\\';
     var toplevel;
+    var import_dirs = utils.get_import_dirs();
 
     options.console.log(options.colored('Welcome to the RapydScript REPL! Press Ctrl+C then Ctrl+D to quit.', 'green', true));
     if (options.show_js)
@@ -260,6 +262,7 @@ module.exports = function(options) {
                 'filename':'<repl>',
                 'basedir': process.cwd(),
                 'libdir': options.imp_path,
+                'import_dirs': import_dirs,
                 'classes': classes
             });
         } catch(e) {

@@ -94,6 +94,19 @@ function merge() {
     return ans;
 }
 
+function get_import_dirs(paths_string, ignore_env) {
+    var path = require('path');
+    var paths = [];
+    function merge(new_path) {
+        if (paths.indexOf(new_path) == -1) paths.push(new_path);
+    }
+    if (!ignore_env && process && process.env && process.env.RAPYDSCRIPT_IMPORT_PATH) {
+        process.env.RAPYDSCRIPT_IMPORT_PATH.split(path.delimiter).forEach(merge);
+    }
+    if (paths_string) paths_string.split(path.delimiter).forEach(merge);
+    return paths;
+}
+
 exports.comment_contents = comment_contents;
 exports.repeat = repeat;
 exports.wrap = wrap;
@@ -101,3 +114,4 @@ exports.merge = merge;
 exports.colored = colored;
 exports.safe_colored = (supports_color()) ? colored : safe_colored;
 exports.generators_available = generators_available;
+exports.get_import_dirs = get_import_dirs;

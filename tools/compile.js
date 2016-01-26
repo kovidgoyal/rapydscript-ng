@@ -10,6 +10,7 @@ var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
 var RapydScript = require("./compiler").create_compiler();
+var utils = require('./utils');
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -46,6 +47,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             basedir: path.dirname(file),
             auto_bind: argv.auto_bind,
             libdir: path.join(src_path, 'lib'),
+            import_dirs: utils.get_import_dirs(argv.import_path),
         });
     }
 

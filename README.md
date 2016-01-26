@@ -1236,6 +1236,12 @@ single large JavaScript file containing all the imported packages/modules and
 their dependencies, recursively. This makes it very easy to integrate the
 output of RapydScript into your website.
 
+Modules are searched for by default in the rapydscript builtin modules
+directory and the directory of the rapydscript file that you are
+compiling. You can add additional directories to the searched locations via
+the RAPYDSCRIPT_IMPORT_PATH environment variable or the --import-path option 
+to the RapydScript compiler. See the documentation of the option for details.
+
 Exception Handling
 ------------------
 Like Python and JavaScript, RapydScript has exception handling logic. The following, for example, will warn the user if variable `foo` is not defined:

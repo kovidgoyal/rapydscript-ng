@@ -165,8 +165,13 @@ def parse($TEXT, options):
         'module_id':'__main__', # The id of the module being parsed
         'toplevel': None,
         'for_linting': False, # If True certain actions are not performed, such as importing modules
+        'import_dirs': v'[]',
         'classes': undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
     })
+    import_dirs = [x for x in options.import_dirs]
+    for location in v'[options.libdir, options.basedir]':
+        if location:
+            import_dirs.push(location)
     module_id = options.module_id
     baselib_items = {}
     imported_module_ids = []
@@ -774,14 +779,14 @@ def parse($TEXT, options):
         src_code = filename = None
         modpath = key.replace('.', '/')
 
-        for location in [options.basedir, options.libdir]:
+        for location in import_dirs:
             if location:
                 data, filename = safe_read(location + '/' + modpath)
                 if data is not None:
                     src_code = data
                     break
         if src_code is None:
-            import_error("Failed Import: '" + key + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'")
+            import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(':'))
 
         try:
             cached = JSON.parse(readfile(filename + '-cached', 'utf-8'))  # noqa:undef
