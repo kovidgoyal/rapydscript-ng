@@ -1033,6 +1033,8 @@ def parse($TEXT, options):
                         first = False
                     else:
                         expect(",")
+                        if is_('punc', ')'):
+                            break
                     if is_('operator', '**'):
                         # **kwargs
                         next()

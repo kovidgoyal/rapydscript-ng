@@ -120,3 +120,7 @@ baz = 1 ? def():
 assert.equal(foo(), 6)
 assert.equal(bar(), 5)
 assert.equal(baz(), 5)
+
+def trailing_comma(a, b,):
+    return a + b
+assert.equal(trailing_comma(1, 2), 3)
