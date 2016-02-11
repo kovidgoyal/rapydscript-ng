@@ -1,10 +1,10 @@
 {
     "ast": "8f56320cdf52278f6a132f8988f5d1f30162f341",
-    "baselib-builtins": "6c92a5f5198f33ef243fc2b71232982ec55e31ae",
+    "baselib-builtins": "a54978e4fba935b41ab3905ab4e7e05816692c9b",
     "baselib-containers": "a416cdf01795b2350867766b9dd0e7c3c739fd00",
     "baselib-errors": "fe773d6e0550447d888337b913991af436e8649b",
     "baselib-itertools": "b2e1f37770fbce50d73c1d517239906a791234d0",
-    "baselib-str": "21ffdce9d9564877c84df7e0340cd383eac256d8",
+    "baselib-str": "b57ab310449065ed0ca56641a10be5015a71f01c",
     "baselib": "5b53cfcd08e575d6d8a860e86e8c43523bd79de6",
     "compiler": "43a9548702de60041ffe40ab8e3f756ea0ed3949",
     "errors": "eb15520287db559585bbc9bdb934f9dc7f593f0a",
@@ -13,6 +13,6 @@
     "tokenizer": "9f6066f503a6f4ab9c5a03faec5349b484bfe9d4",
     "unicode_aliases": "326c48a6a9c177b58078e80f93bfcd83f77e6f90",
     "utils": "7fcdb42be93918357fdc1415d767a3249e41aad1",
-    "#compiler#": "dc89da69d7627cc50f2a155a828300b51b6c5c07",
-    "#compiled_with#": "dc89da69d7627cc50f2a155a828300b51b6c5c07"
+    "#compiler#": "2d4a9a137b012f62fee2e444fdd46b2ec75dd20f",
+    "#compiled_with#": "2d4a9a137b012f62fee2e444fdd46b2ec75dd20f"
 }

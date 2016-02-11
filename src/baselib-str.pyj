@@ -4,8 +4,63 @@
 
 # globals: _$rapyd$_kwargs_symbol, _$rapyd$_list_decorate, _$rapyd$_iterator_symbol
 
-def _$rapyd$_str():
-    return arguments[0] + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+def _$rapyd$_repr_js_builtin(x, as_array):
+    ans = v'[]'
+    b = '{}'
+    if as_array:
+        b = '[]'
+        for v'var i = 0; i < x.length; i++':
+            ans.push(_$rapyd$_repr(x[i]))
+    else:
+        keys = Object.keys(x)
+        for v'var k = 0; k < keys.length; k++':
+            k = keys[k]
+            ans.push(JSON.stringify(k) + ':' + _$rapyd$_repr(x[k]))
+    return b[0] + ans.join(', ') + b[1]
+
+def _$rapyd$_repr(x):
+    if x is None:
+        return 'None'
+    if x is undefined:
+        return 'undefined'
+    ans = x
+    if v'typeof x.__repr__ === "function"':
+        ans = x.__repr__()
+    elif x is True or x is False:
+        ans = 'True' if x else 'False'
+    elif Array.isArray(x):
+        ans = _$rapyd$_repr_js_builtin(x, True)
+    else:
+        ans = x.toString() if v'typeof x.toString === "function"' else x
+        if ans == '[object Object]':
+            # Assume this is a dictionary
+            return _$rapyd$_repr_js_builtin(x)
+        try:
+            ans = JSON.stringify(x)
+        except:
+            pass
+    return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+
+def _$rapyd$_str(x):
+    if x is None:
+        return 'None'
+    if x is undefined:
+        return 'undefined'
+    ans = x
+    if v'typeof x.__str__ === "function"':
+        ans = x.__str__()
+    elif v'typeof x.__repr__ === "function"':
+        ans = x.__repr__()
+    elif x is True or x is False:
+        ans = 'True' if x else 'False'
+    elif Array.isArray(x):
+        ans = _$rapyd$_repr_js_builtin(x, True)
+    elif v'typeof x.toString === "function"':
+        ans = x.toString()
+        if ans == '[object Object]':
+            # Assume this is a dictionary
+            ans = _$rapyd$_repr_js_builtin(x)
+    return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
 # format()  {{{
 _$rapyd$_str.format = def ():
@@ -602,4 +657,4 @@ _$rapyd$_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 _$rapyd$_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
 _$rapyd$_str.whitespace   = ' \t\n\r\x0b\x0c'
 
-v'var str = _$rapyd$_str'
+v'var str = _$rapyd$_str, repr = _$rapyd$_repr'

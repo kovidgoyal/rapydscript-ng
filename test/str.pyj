@@ -126,3 +126,13 @@ ae('001', str.zfill('1', 3))
 ae('111', str.zfill('111', 2))
 ae('a\u2028', str.uslice('s🐱a\u2028', 2))
 ae(4, str.ulen('s🐱a\u2028', 2))
+
+for f in (str, repr):
+    ae(f(True), 'True')
+    ae(f(False), 'False')
+    ae(f(None), 'None')
+    ae(f(1), '1')
+    ae(f([1,'2']), '[1, "2"]')
+    ae(f({1:[1, '2']}), '{"1":[1, "2"]}')
+ae(str('a'), 'a')
+ae(repr('a'), '"a"')

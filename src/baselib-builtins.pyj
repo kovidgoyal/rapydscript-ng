@@ -48,18 +48,7 @@ def _$rapyd$_print():
     if v'typeof console' == 'object':
         parts = v'[]'
         for v'var i = 0; i < arguments.length; i++':
-            part = arguments[i]
-            if v'typeof part' == 'string':
-                parts.push(part)
-            elif part == None:
-                parts.push('None')
-            elif v'typeof part' == 'boolean':
-                parts.push('True' if part else 'False')
-            else:
-                try:
-                    parts.push(JSON.stringify(part))
-                except:
-                    parts.push(part.toString())
+            parts.push(_$rapyd$_str(arguments[i]))  # noqa: undef
         console.log(parts.join(' '))
 
 def _$rapyd$_int(val, base):
