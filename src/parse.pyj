@@ -1431,6 +1431,8 @@ def parse($TEXT, options):
         while not is_("punc", ')') and not is_('eof'):
             if not first:
                 expect(",")
+                if is_('punc', ')'):
+                    break
             if is_('operator', '*'):
                 next()
                 arg = expression(False)

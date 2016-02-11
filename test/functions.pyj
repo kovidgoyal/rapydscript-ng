@@ -124,3 +124,5 @@ assert.equal(baz(), 5)
 def trailing_comma(a, b,):
     return a + b
 assert.equal(trailing_comma(1, 2), 3)
+assert.equal(trailing_comma(1, 2,), 3)
+
