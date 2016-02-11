@@ -277,3 +277,16 @@ assert.throws(
             raise Exception('error')
     , Exception
 )
+
+class X:
+
+    def __init__(self):
+        self.a = 3
+
+class Y(X):
+    pass
+
+class Z(Y):
+    pass
+
+assert.equal(Z().a, X().a)

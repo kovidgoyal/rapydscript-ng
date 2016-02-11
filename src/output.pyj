@@ -1558,22 +1558,15 @@ def codegen():
                 output.indent()
                 output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
                 output.end_statement()
-                if self.init or self.parent:
-                    output.indent()
-                    if self.init:
-                        self.name.print(output)
-                    else:
-                        self.parent.print(output)
-                        output.spaced('.prototype.__init__', '&&')
-                        output.space(), self.parent.print(output)
-                    output.print(".prototype.__init__.apply")
-                    output.with_parens(def():
-                        output.print("this")
-                        output.comma()
-                        output.print("arguments")
-                    )
-                    output.semicolon()
-                    output.newline()
+                output.indent()
+                self.name.print(output)
+                output.print(".prototype.__init__.apply")
+                output.with_parens(def():
+                    output.print("this")
+                    output.comma()
+                    output.print("arguments")
+                )
+                output.end_statement()
             )
 
         # decorate the class
@@ -1625,6 +1618,26 @@ def codegen():
             output.end_statement()
 
         # actual methods
+        if not self.init:
+            # Create a default __init__ method
+            class_def('__init__')
+            output.spaced('function', '__init__()', '')
+            output.with_block(def():
+                if self.parent:
+                    output.indent()
+                    self.parent.print(output)
+                    output.spaced('.prototype.__init__', '&&')
+                    output.space(), self.parent.print(output)
+                    output.print(".prototype.__init__.apply")
+                    output.with_parens(def():
+                        output.print("this")
+                        output.comma()
+                        output.print("arguments")
+                    )
+                    output.end_statement()
+            )
+            output.end_statement()
+
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):
                 if stmt.is_getter or stmt.is_setter:
