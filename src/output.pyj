@@ -1920,10 +1920,13 @@ def codegen():
             if isinstance(self, AST_New):
                 obj = '_$rapyd$_new_temp'
             else:
-                obj = (self.expression.expression ? self.expression.expression.name : "this")
+                obj = (self.expression.expression ? self.expression.expression : "this")
             output.print(".apply")
             output.with_parens(def():
-                output.print(obj)
+                if type(obj) == 'string':
+                    output.print(obj)
+                else:
+                    obj.print(output)
                 output.comma()
                 # basic arguments
                 i = 0

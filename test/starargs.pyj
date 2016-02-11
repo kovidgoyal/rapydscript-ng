@@ -166,10 +166,19 @@ def f11(a, b, x=1):
 de(f11(x=3), [undefined, undefined, 3])
 # }}}
 
+class Other:
+    def func(self, **kw):
+        if self:
+            return kw
+
 class Test:
 
     def __init__(self, a, b=2, *args, **kwargs):
         self.q = [a, b, args, kwargs]
+        self.other = Other()
+
+    def forwarded(self, **kw):
+        return self.other.func(**kw)
 
 de(Test().q, [undefined, 2, [], {}])
 de(Test(1, 3, 4, 5, b=8, c=9).q, [1, 8, [4, 5], {'c':9}])
@@ -190,3 +199,4 @@ def a2func(*args):
 
 eq(afunc(None), None)
 eq(a2func(None), None)
+de(Test().forwarded(a=1), {'a':1})
