@@ -1572,6 +1572,7 @@ def codegen():
                                 output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
                                 output.with_block(def():
                                     output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
+                                    output.indent(), output.print('"configurable":'), output.space(), output.print('true'), output.comma(), output.newline()
                                     if prop.getter:
                                         output.indent(), output.print('"get":'), output.space()
                                         define_method(prop.getter, True), output.comma(), output.newline()

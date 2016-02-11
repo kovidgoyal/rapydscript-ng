@@ -211,6 +211,17 @@ class Properties:
     def c(self):
         return self.a
 
+class OverrideProps(Properties):
+
+    @property
+    def a(self):
+        return self._a * 2
+
+    @a.setter
+    def a(self, val):
+        self._a = val
+
+
 p = Properties()
 assert.equal(p._a, p.a)
 p.a = 11
@@ -221,6 +232,10 @@ assert.throws(
     def():
         p.b = 2
 )
+p = OverrideProps()
+assert.equal(p._a, p.a)
+p.a = 11
+assert.equal(22, p.a)
 
 class Context:
 
