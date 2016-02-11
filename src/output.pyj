@@ -1544,6 +1544,11 @@ def codegen():
                 output.semicolon()
                 output.newline()
 
+        def define_default_method(name, body):
+            class_def(name)
+            output.spaced('function', name, '()', '')
+            output.with_block(def(): output.indent(), body();)
+            output.end_statement()
 
         # generate constructor
         def write_constructor():
@@ -1620,11 +1625,8 @@ def codegen():
         # actual methods
         if not self.init:
             # Create a default __init__ method
-            class_def('__init__')
-            output.spaced('function', '__init__()', '')
-            output.with_block(def():
+            define_default_method('__init__', def():
                 if self.parent:
-                    output.indent()
                     self.parent.print(output)
                     output.spaced('.prototype.__init__', '&&')
                     output.space(), self.parent.print(output)
@@ -1636,13 +1638,15 @@ def codegen():
                     )
                     output.end_statement()
             )
-            output.end_statement()
+
+        defined_methods = {}
 
         self.body.forEach(def(stmt, i):
             if isinstance(stmt, AST_Method):
                 if stmt.is_getter or stmt.is_setter:
                     return
                 define_method(stmt)
+                defined_methods[stmt.name.name] = True
                 if stmt.name.name == '__iter__':
                     class_def('_$rapyd$_iterator_symbol', True)
                     self.name.print(output)
@@ -1652,6 +1656,20 @@ def codegen():
             elif isinstance(stmt, AST_Class):
                 console.error('Nested classes aren\'t supported yet')  # noqa:undef
         )
+
+        if not defined_methods['__repr__']:
+            define_default_method('__repr__', def():
+                output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', '"')
+                self.name.print(output)
+                output.spaced('"', '+', '" #"', '+', 'this._$rapyd$_object_id', '+', '">"')
+                output.end_statement()
+            )
+
+        if not defined_methods['__str__']:
+            define_default_method('__str__', def():
+                output.spaced('return', 'this.__repr__()')
+                output.end_statement()
+            )
 
         # Other statements in the class context
         self.statements.forEach(def(stmt):

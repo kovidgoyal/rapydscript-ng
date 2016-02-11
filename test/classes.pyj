@@ -58,13 +58,15 @@ assert.equal(bound(), angela.how_long())
 # function methods
 assert.deepEqual(dir(angela).sort(), [
     "__init__",
+    '__repr__',
+    '__str__',
     "constructor",
     "duration",
     "get_bound_method",
     "greet",
     "how_long",
     "name",
-    "nickname"
+    "nickname",
 ])
 
 # test that binding works in relation to the actual class, not the parent
@@ -290,3 +292,5 @@ class Z(Y):
     pass
 
 assert.equal(Z().a, X().a)
+assert.ok(repr(Z()).indexOf('<__main__.Z') == 0)
+assert.ok(str(Z()).indexOf('<__main__.Z') == 0)
