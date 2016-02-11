@@ -1543,17 +1543,6 @@ def codegen():
                 output.semicolon()
                 output.newline()
 
-        properties = {}
-        for m in self.body:
-            if isinstance(m, AST_Method):
-                if m.is_getter or m.is_setter:
-                    name = m.name.name
-                    if not Object.prototype.hasOwnProperty.call(properties, name):
-                        properties[name] = {}
-                    if m.is_getter:
-                        properties[name].getter = m
-                    else:
-                        properties[name].setter = m
 
         # generate constructor
         def internalsub():
@@ -1562,33 +1551,10 @@ def codegen():
             self.name.print(output)
             output.print("()")
             output.space()
-            output.with_block(def():
-                if len(properties):
-                    output.indent(), output.print('Object.defineProperties')
-                    output.with_parens(def():
-                        output.print('this'), output.comma(), output.space(), output.with_block(def():
-                            for name in properties:
-                                prop = properties[name]
-                                output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
-                                output.with_block(def():
-                                    output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
-                                    output.indent(), output.print('"configurable":'), output.space(), output.print('true'), output.comma(), output.newline()
-                                    if prop.getter:
-                                        output.indent(), output.print('"get":'), output.space()
-                                        define_method(prop.getter, True), output.comma(), output.newline()
-                                    output.indent(), output.print('"set":'), output.space()
-                                    if prop.setter:
-                                        define_method(prop.setter, True), output.newline()
-                                    else:
-                                        output.spaced('function', '()', '{', '''throw new AttributeError("can't set attribute")''', '}'), output.newline()
-                                )
-                                output.comma(), output.newline()
-                        )
-                    )
-                    output.end_statement()
 
+            output.with_block(def():
+                bind_methods(self.bound, output)
                 if self.init or self.parent:
-                    bind_methods(self.bound, output)
                     output.indent()
                     if self.init:
                         self.name.print(output)
@@ -1604,9 +1570,6 @@ def codegen():
                     )
                     output.semicolon()
                     output.newline()
-                else:
-                    # no init method or parent, create empty init
-                    bind_methods(self.bound, output)
             )
 
         # decorate the class
@@ -1630,6 +1593,32 @@ def codegen():
             )
             output.semicolon()
             output.newline()
+
+        # dynamic properties
+        property_names = Object.keys(self.dynamic_properties)
+        if property_names.length:
+            output.indent()
+            output.print('Object.defineProperties')
+            output.with_parens(def():
+                self.name.print(output), output.print('.prototype'), output.comma(), output.space(), output.with_block(def():
+                    for name in property_names:
+                        prop = self.dynamic_properties[name]
+                        output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
+                        output.with_block(def():
+                            output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
+                            if prop.getter:
+                                output.indent(), output.print('"get":'), output.space()
+                                define_method(prop.getter, True), output.comma(), output.newline()
+                            output.indent(), output.print('"set":'), output.space()
+                            if prop.setter:
+                                define_method(prop.setter, True), output.newline()
+                            else:
+                                output.spaced('function', '()', '{', '''throw new AttributeError("can't set attribute")''', '}'), output.newline()
+                        )
+                        output.comma(), output.newline()
+                )
+            )
+            output.end_statement()
 
         # actual methods
         self.body.forEach(def(stmt, i):

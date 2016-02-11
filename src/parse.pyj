@@ -910,6 +910,7 @@ def parse($TEXT, options):
         definition = new AST_Class({
             'name': name,
             'module_id':module_id,
+            'dynamic_properties': {},
             'parent': (def():
                 if is_("punc", "("):
                     S.in_parenthesized_expr = True
@@ -960,9 +961,14 @@ def parse($TEXT, options):
         })
         # find the constructor
         for stmt in definition.body:
-            if isinstance(stmt, AST_Method) and stmt.name.name == "__init__":
-                definition.init = stmt
-                break
+            if isinstance(stmt, AST_Method):
+                if stmt.is_getter or stmt.is_setter:
+                    descriptor = definition.dynamic_properties[stmt.name.name]
+                    if not descriptor:
+                        descriptor = definition.dynamic_properties[stmt.name.name] = {}
+                    descriptor['getter' if stmt.is_getter else 'setter'] = stmt
+                elif stmt.name.name == "__init__":
+                    definition.init = stmt
         # find the class variables
         class_var_names = {}
         # Ensure that if a class variable refers to another class variable in

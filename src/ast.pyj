@@ -447,18 +447,19 @@ AST_Function = DEFNODE("Function", None, {
     '$documentation': "A function expression"
 }, AST_Lambda)
 
-AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id statements", {
+AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id statements dynamic_properties", {
     '$documentation': "A class declaration",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this class",
         'init': "[AST_Function] constructor for the class",
-        'parent': "[AST_Class?] parent class this class inherits from",
+        'parent': "[AST_Symbol?] parent class this class inherits from",
         "static": "[string*] list of static methods",
         'external': "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
         'bound': "[string*] list of methods that need to be bound to behave correctly (function pointers)",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'module_id': "[string] The id of the module this class is defined in",
         'statements': "[AST_Node*] list of statements in the class scope (excluding method definitions)",
+        'dynamic_properties': '[dict] map of dynamic property names to property descriptors of the form {getter:AST_Method, setter:AST_Method',
     },
     '_walk': def(visitor):
         node = this

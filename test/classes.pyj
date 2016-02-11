@@ -193,8 +193,8 @@ assert.equal(c.one(), c.two())
 class Properties:
 
     def __init__(self):
-        self._a = 0
-        assert.equal(self.a, 0)
+        self._a = 19
+        assert.equal(self.a, 19)
 
     @property
     def a(self):
@@ -216,6 +216,10 @@ class A:
     def val(self):
         return 'a'
 
+    @property
+    def parent(self):
+        return 'parent'
+
 class B(A):
     @property
     def val(self):
@@ -233,6 +237,8 @@ assert.throws(
         p.b = 2
 )
 p = B()
+assert.equal(p.val, 'b')
+assert.equal(p.parent, 'parent')
 
 class Context:
 
