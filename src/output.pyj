@@ -1590,8 +1590,12 @@ def codegen():
                 if self.init or self.parent:
                     bind_methods(self.bound, output)
                     output.indent()
-                    cname = (self.name) ? self.name : self.parent
-                    cname.print(output)
+                    if self.init:
+                        self.name.print(output)
+                    else:
+                        self.parent.print(output)
+                        output.spaced('.prototype.__init__', '&&')
+                        output.space(), self.parent.print(output)
                     output.print(".prototype.__init__.apply")
                     output.with_parens(def():
                         output.print("this")
