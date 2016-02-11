@@ -92,6 +92,9 @@ def options_object(f):
             arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = True
         return f.apply(this, arguments)
 
+def _$rapyd$_id(x):
+    return x._$rapyd$_object_id
+
 v'var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all'
 v'var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike'
-v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice'
+v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id'

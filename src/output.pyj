@@ -302,6 +302,7 @@ def OutputStream(options):
         spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
         end_statement()
         indent(), spaced('var', '_$rapyd$_cond_temp'), end_statement()
+        indent(), spaced('var', '_$rapyd$_object_counter', '=', '0'), end_statement()
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
         baselib_items['containers'] = True
@@ -1545,7 +1546,7 @@ def codegen():
 
 
         # generate constructor
-        def internalsub():
+        def write_constructor():
             output.print("function")
             output.space()
             self.name.print(output)
@@ -1554,6 +1555,9 @@ def codegen():
 
             output.with_block(def():
                 bind_methods(self.bound, output)
+                output.indent()
+                output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
+                output.end_statement()
                 if self.init or self.parent:
                     output.indent()
                     if self.init:
@@ -1576,10 +1580,10 @@ def codegen():
         if self.decorators and self.decorators.length:
             output.print('var ')
             output.assign(self.name)
-            decorate(self.decorators, output, internalsub)
+            decorate(self.decorators, output, write_constructor)
             output.semicolon()
         else:
-            internalsub()
+            write_constructor()
 
         output.newline()
         # inheritance

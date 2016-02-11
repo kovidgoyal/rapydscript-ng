@@ -239,6 +239,8 @@ assert.throws(
 p = B()
 assert.equal(p.val, 'b')
 assert.equal(p.parent, 'parent')
+assert.equal(id(p), id(p))
+assert.notEqual(id(p), id(B()))
 
 class Context:
 

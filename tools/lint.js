@@ -47,7 +47,7 @@ var BUILTINS = {
     'Number':true, 'Boolean':true, 'encodeURIComponent':true,
     'decodeURIComponent':true, 'setTimeout': true, 'setInterval': true,
     'setImmediate': true, 'clearTimeout': true, 'clearInterval': true,
-    'clearImmediate': true, 'requestAnimationFrame': true,
+    'clearImmediate': true, 'requestAnimationFrame': true, 'id':true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
