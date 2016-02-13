@@ -14,8 +14,8 @@ def _$rapyd$_repr_js_builtin(x, as_array):
     else:
         keys = Object.keys(x)
         for v'var k = 0; k < keys.length; k++':
-            k = keys[k]
-            ans.push(JSON.stringify(k) + ':' + _$rapyd$_repr(x[k]))
+            key = keys[k]
+            ans.push(JSON.stringify(key) + ':' + _$rapyd$_repr(x[key]))
     return b[0] + ans.join(', ') + b[1]
 
 def _$rapyd$_repr(x):
