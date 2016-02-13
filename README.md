@@ -271,9 +271,9 @@ factorial = def(n):
 ```
 
 This might not seem like much at first, but if you're familiar with JavaScript,
-you know that this can be extermely useful to the programmer, especially when
+you know that this can be extremely useful to the programmer, especially when
 dealing with nested functions, which are a bit syntactically awkward in Python
-(it's not immediatelly obvious that those can be copied and assigned to other
+(it's not immediately obvious that those can be copied and assigned to other
 objects). To illustrate the usefulness, let's create a method that creates and
 returns an element that changes color while the user keeps the mouse pressed on
 it.
@@ -1395,7 +1395,7 @@ Linter
 
 The RapydScript compiler includes its own, built in linter. The linter is
 modeled on pyflakes, it catches instances of unused/undefined variables,
-fucntions, symbols, etc. While this sounds simple, it is surprisingly effective
+functions, symbols, etc. While this sounds simple, it is surprisingly effective
 in practice. To run the linter:
 
 	rapydscript lint file.pyj
