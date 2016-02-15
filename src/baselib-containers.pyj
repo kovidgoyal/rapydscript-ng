@@ -197,6 +197,11 @@ def _$rapyd$_list_constructor(iterable):
 _$rapyd$_list_constructor.__name__ = 'list'
 
 v'var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate'
+
+def sorted(iterable, key=None, reverse=False):
+    ans = _$rapyd$_list_constructor(iterable)
+    ans.pysort(key, reverse)
+    return ans
 # }}}
 
 # set {{{
