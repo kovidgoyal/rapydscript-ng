@@ -351,6 +351,15 @@ def parse($TEXT, options):
                 # assignment to a single variable
                 push(lhs.name)
 
+        def add_for_in(stmt):
+            if isinstance(stmt.init, AST_Array):
+                # iteration via implicit tuple
+                push("_$rapyd$_unpack")
+                scan_in_array(stmt.init.elements)
+            else:
+                # iteration via a single variable
+                push(stmt.init.name)
+
         if Array.isArray(body):
             # this is a body of statements
             for stmt in body:
@@ -370,13 +379,7 @@ def parse($TEXT, options):
 
                 # pick up iterators from loops
                 if isinstance(stmt, AST_ForIn):
-                    if isinstance(stmt.init, AST_Array):
-                        # iteration via implicit tuple
-                        push("_$rapyd$_unpack")
-                        scan_in_array(stmt.init.elements)
-                    else:
-                        # iteration via a single variable
-                        push(stmt.init.name)
+                    add_for_in(stmt)
                 elif isinstance(stmt, AST_DWLoop):
                     extend(scan_for_local_vars(stmt))
                 elif isinstance(stmt, AST_With):
@@ -399,6 +402,11 @@ def parse($TEXT, options):
                 push('_$rapyd$_chain_assign_temp')
             else:
                 add_assign_lhs(body.left)
+            if not isinstance(body.right, AST_Scope):
+                extend(scan_for_local_vars(body.right))
+
+        elif isinstance(body, AST_ForIn):
+            add_for_in(body)
 
         return localvars
 

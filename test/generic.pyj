@@ -127,3 +127,7 @@ assert.equal(u'a', 'a')
 
 # Various bits of miscellaneous code that caused parser infinite loops and other breakage
 throw_test('for a in b:\\n 1+1')
+
+def localvars_in_comprehension():
+    return {k:i for i, k in enumerate([1,2])}
+assert.deepEqual(localvars_in_comprehension(), {'1':0, '2':1})
