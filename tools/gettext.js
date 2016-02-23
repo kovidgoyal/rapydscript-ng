@@ -145,7 +145,11 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
 
     function read_files(src) {
         src.forEach(function(f) {
-            if (fs.lstatSync(f).isDirectory()) read_files(fs.readdirSync(f));
+            if (fs.lstatSync(f).isDirectory()) {
+                var children = [];
+                fs.readdirSync(f).forEach(function(x) { children.push(path.join(f, x)); });
+                read_files(children);
+            }
             else files.push(f);
         });
     }
