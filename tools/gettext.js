@@ -75,7 +75,7 @@ function gettext(catalog, code, filename) {
 }
 
 function esc(string) {
-    return (string || '').replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\t', '\\t').replace('\r', '');
+    return (string || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '');
 }
 
 function entry_to_string(msgid, data) {
