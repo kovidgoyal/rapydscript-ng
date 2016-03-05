@@ -1049,7 +1049,7 @@ def codegen():
     AST_ForIn.DEFMETHOD("_do_print_body", def(output):
         self = this
         output.with_block(def():
-            if not (is_simple_for(self) or is_simple_for_in(self)):
+            if not (self.simple_for_index or is_simple_for_in(self)):
                 # if we're using multiple iterators, unpack them
                 output.indent()
                 if output.option('js_version') == 5:
@@ -1071,6 +1071,11 @@ def codegen():
                     output.end_statement()
 
                 output.index_counter += 1
+            if self.simple_for_index:
+                output.indent()
+                output.assign(self.init)
+                output.print(self.simple_for_index)
+                output.end_statement()
 
             self.body.body.forEach(def(stmt, i):
                 output.indent()
@@ -1109,21 +1114,23 @@ def codegen():
                 end = args[1]
                 increment = args[2]
 
+            self.simple_for_index = idx = '_$rapyd$_Index' + output.index_counter
+            output.index_counter += 1
             output.print("for")
             output.space()
             output.with_parens(def():
-                output.assign(self.init)
+                output.spaced('var', idx, '='), output.space()
                 start.print ? start.print(output) : output.print(start)
                 output.semicolon()
                 output.space()
-                self.init.print(output)
+                output.print(idx)
                 output.space()
                 isinstance(increment, AST_Unary) ? output.print(">") : output.print("<")
                 output.space()
                 end.print(output)
                 output.semicolon()
                 output.space()
-                self.init.print(output)
+                output.print(idx)
                 if increment and (not (isinstance(increment, AST_Unary)) or increment.expression.value != "1"):
                     if isinstance(increment, AST_Unary):
                         output.print("-=")

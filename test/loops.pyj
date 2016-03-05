@@ -48,3 +48,11 @@ for letter in word:
 
 for b in (1, 1):
     assert.equal(b, 1)
+
+for q in range(3):
+    u = q
+assert.equal(u, q)
+for q in range(3):
+    u = q
+    q = 10
+assert.equal(u, 2)
