@@ -844,7 +844,7 @@ some functions to make dealing with non-BMP unicode characters easier:
 	You can also get positions of individual characters:
 
 	```py
-	list(str.uchrs('s🐱a'), True) == [[0, 's'], [1, "🐱"], [3, 'a']]
+	list(str.uchrs('s🐱a', True)) == [[0, 's'], [1, "🐱"], [3, 'a']]
 	```
 	Note that any broken surrogate pairs in the underlying string are returned
 	as the unicode replacement character U+FFFD
