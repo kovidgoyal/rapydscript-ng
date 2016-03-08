@@ -827,6 +827,7 @@ However, all the useful Python string methods are available on the builtin
 ```py
 str.strip(' a ') == 'a'
 str.split('a b') == ['a', 'b']
+str.format('{0:02d} {1}', 1, 2) == '01 2'
 ...
 ```
 
