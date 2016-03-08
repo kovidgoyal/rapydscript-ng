@@ -237,7 +237,8 @@ function parse_args() {  // {{{
 
 create_group('compile', "[input1.pyj input2.pyj ...]", function(){/*
 Compile RapydScript source code into JavaScript
-output.
+output. You can also pipe the source code into 
+stdin.
 */});
 
 opt("output", 'o', 'string', '', function(){/*
