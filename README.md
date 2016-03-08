@@ -755,8 +755,8 @@ RapydScript does not overload the comparison operators ```(==, !=, >, <, >=,
 <=)``` as doing so would be a big performance impact (function calls in
 JavaScript are very slow). So using them on containers is useless. Currently,
 there is a builtin ```equals()``` function that works the same way as the
-equality operator in python (it uses the __eq__() method, which all the builtin
-containers in RapydScript implement). 
+equality operator in python (it uses the ```__eq__()``` method under the hood,
+which is implemented for lists and sets, but not dicts).
 
 Loops
 -----
