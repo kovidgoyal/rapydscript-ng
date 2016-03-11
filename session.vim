@@ -3,7 +3,7 @@ python << EOF
 import os, vim
 items = {x.replace('=', r'\=') for x in os.listdir('.')}
 items -= {'.git', 'lib'}
-vim.command('nnoremap <leader>k :silent !git difftool -d ' + ' '.join(items) + ' -d &<CR>')
+vim.command('nnoremap <leader>k :silent !git difftool -d ' + ' '.join(items) + ' -d &<CR>:redraw!<CR>')
 EOF
 endif
 
