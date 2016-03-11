@@ -256,5 +256,6 @@ if (typeof exports === 'object') {
     exports.gettext_output = gettext_output;
     exports.msgfmt = msgfmt;
     exports.rs_version = rs_version;
+    exports.file_data = data;
 }
 

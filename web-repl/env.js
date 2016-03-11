@@ -14,6 +14,8 @@ function sha1sum(text) {
 }
 
 (function() {
+    var write_cache = {};
+
     var builtin_modules = {
         'vm': {
             'createContext': function create_context(ctx) {
@@ -41,10 +43,28 @@ function sha1sum(text) {
             },
         },
         'inspect': function inspect(x) { return x.toString(); },
+
+        'fs': {
+            'readFileSync': function readfile(name) {
+                var data = exports.file_data[name];
+                if (data) return data;
+                data = write_cache[name];
+                if (data) return data;
+                var err = Error();
+                err.code = 'ENOENT';
+                throw err;
+            },
+
+            'writeFileSync': function writefile(name, data) {
+                write_cache[name] = data;
+            },
+
+        },
     };
 
     function require(name) {
         return builtin_modules[name] || {};
     }
+
     window.require = require;
 })();

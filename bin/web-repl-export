@@ -22,6 +22,23 @@ var manifest = {}, total = 0;
     total += manifest[x].length;
 });
 
+var stdlib = path.join(base, 'src', 'lib');
+
+function process_dir(relpath) {
+    var fullpath = (relpath) ? path.join(stdlib, relpath) : stdlib;
+    fs.readdirSync(fullpath).forEach(function (x) {
+        var q = path.join(fullpath, x);
+        var s = fs.statSync(q);
+        if (s.isDirectory()) return process_dir(relpath + '/' + x);
+        if (!x.endsWith('.pyj')) return;
+        var iname = path.normalize('__stdlib__' + '/' + relpath + '/' + x);
+        var raw = fs.readFileSync(q, {'encoding':'utf-8'});
+        manifest[iname] = raw;
+        total += s.size;
+    });
+}
+process_dir('');
+
 
 var rs = '// vim:fileencoding=utf-8\n';
 rs += '(function() {\n';
@@ -29,6 +46,7 @@ rs += 'var rs_version = ' + JSON.stringify(meta.version) + ';\n';
 rs += 'var data = ' + JSON.stringify(manifest) + ';\n\n';
 rs += fs.readFileSync(path.join(base, 'tools', 'export.js'), {'encoding':'utf-8'});
 rs += '})()';
+
 
 var base_dir = process.argv.slice(-1)[0];
 base_dir = path.normalize(path.resolve(base_dir));

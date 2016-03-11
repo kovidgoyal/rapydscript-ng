@@ -48,7 +48,7 @@ module.exports = function(compiler, baselib) {
                 return false;
             }
             try {
-                compiler.parse(source, {'filename': '<repl>', 'basedir': '::'});
+                compiler.parse(source, {'filename': '<repl>', 'basedir': '__stdlib__'});
             } catch(e) {
                 if (e.is_eof && e.line === lines.length && e.col > 0) {
                     return false;
@@ -65,7 +65,7 @@ module.exports = function(compiler, baselib) {
             options = options || {};
             this.toplevel = compiler.parse(code, {
                 'filename': '<repl>',
-                'basedir': '::',
+                'basedir': '__stdlib__',
                 'classes': classes,
             });
             var out = compiler.OutputStream(output_options);
