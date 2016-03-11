@@ -1,0 +1,54 @@
+#!/usr/bin/env node 
+// vim:ft=javascript:ts=4:et
+
+"use strict";
+
+var fs = require('fs');
+var path = require('path');
+
+var base = path.normalize(path.resolve(path.join(path.dirname(__dirname))));
+var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
+
+var manifest = {}, total = 0;
+['compiler.js', 'baselib-plain-pretty.js'].forEach(function(x) {
+    manifest[x] = fs.readFileSync(path.join(base, 'lib', x), {'encoding':'utf-8'});
+    total += manifest[x].length;
+    if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
+});
+
+['web_repl.js', 'utils.js'].forEach(function(x) {
+    x = 'tools/' + x;
+    manifest[x] = fs.readFileSync(path.join(base, x), {'encoding':'utf-8'});
+    total += manifest[x].length;
+});
+
+
+var rs = '// vim:fileencoding=utf-8\n';
+rs += '(function() {\n';
+rs += 'var rs_version = ' + JSON.stringify(meta.version) + ';\n';
+rs += 'var data = ' + JSON.stringify(manifest) + ';\n\n';
+rs += fs.readFileSync(path.join(base, 'tools', 'export.js'), {'encoding':'utf-8'});
+rs += '})()';
+
+var base_dir = process.argv.slice(-1)[0];
+base_dir = path.normalize(path.resolve(base_dir));
+
+try {
+    fs.mkdirSync(base_dir);
+} catch(e) {
+    if (e.code != 'EEXIST') throw e;
+}
+
+process.chdir(base_dir);
+fs.readdirSync('.').forEach(function(x) {
+    var stats = fs.lstatSync(x);
+    if (stats.isFile() || stats.isSymbolicLink()) fs.unlinkSync(x);
+});
+fs.writeFileSync('rapydscript.js', rs, {'encoding':'utf-8'});
+var web_repl = path.join(base, 'web-repl');
+fs.readdirSync(web_repl).forEach(function(x) {
+    var data = fs.readFileSync(path.join(web_repl, x), {'encoding':'utf-8'});
+    fs.writeFileSync(x, data, {'encoding':'utf-8'});
+});
+console.log('RapydScript compiler (uncompressed) size: ' + (total/(1024)).toFixed(1) + ' KB');
+console.log('web-repl exported to: ' + base_dir);
