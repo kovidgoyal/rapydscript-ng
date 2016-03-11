@@ -2,7 +2,7 @@
  * 
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * Distributed under terms of the GPLv3 license
+ * Distributed under terms of the BSD license
  */
 "use strict";  /*jshint node:true */
 
@@ -37,6 +37,15 @@ module.exports = function(compiler, baselib) {
             });
             var out = compiler.OutputStream(output_options);
             this.toplevel.print(out);
+            if (classes) {
+                var exports = {};
+                this.toplevel.exports.forEach(function (name) { exports[name] = true; });
+                Object.getOwnPropertyNames(classes).forEach(function (name) {
+                    if (!exports.hasOwnProperty(name) && !this.toplevel.classes.hasOwnProperty(name))
+                        this.toplevel.classes[name] = classes[name];
+                });
+            }
+    
             return out.toString();
         },
 
