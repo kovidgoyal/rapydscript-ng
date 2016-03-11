@@ -248,6 +248,11 @@ function msgfmt(data, options) {
     return m.build(data, options);
 }
 
+function completer(compiler, options) {
+    m = vrequire('tools/completer.js');
+    return m(compiler, options);
+}
+
 if (typeof exports === 'object') {
     exports.compile = compile;
     exports.web_repl = web_repl;
@@ -257,5 +262,5 @@ if (typeof exports === 'object') {
     exports.msgfmt = msgfmt;
     exports.rs_version = rs_version;
     exports.file_data = data;
+    exports.completer = completer;
 }
-

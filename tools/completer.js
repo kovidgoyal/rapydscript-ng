@@ -10,6 +10,7 @@ module.exports = function(compiler, options) {
     "use strict";
     var all_keywords = compiler.ALL_KEYWORDS.split(' ');
     var vm = require('vm');
+    options = options || {};
     if (!options.enum_global) options.enum_global = "var global = Function('return this')(); Object.getOwnPropertyNames(global);";
 
     function global_names(ctx) {
