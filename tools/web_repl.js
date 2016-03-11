@@ -72,10 +72,11 @@ module.exports = function(compiler, baselib) {
             this.toplevel.print(out);
             if (classes) {
                 var exports = {};
+                var self = this;
                 this.toplevel.exports.forEach(function (name) { exports[name] = true; });
                 Object.getOwnPropertyNames(classes).forEach(function (name) {
-                    if (!exports.hasOwnProperty(name) && !this.toplevel.classes.hasOwnProperty(name))
-                        this.toplevel.classes[name] = classes[name];
+                    if (!exports.hasOwnProperty(name) && !self.toplevel.classes.hasOwnProperty(name))
+                        self.toplevel.classes[name] = classes[name];
                 });
             }
     
