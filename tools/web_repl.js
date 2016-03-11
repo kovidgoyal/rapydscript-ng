@@ -8,7 +8,7 @@
 
 
 module.exports = function(compiler, baselib) {
-	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true};
+	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true, 'js_version': 6};
     var vm = require('vm');
     compiler.AST_Node.warn_function = function() {};
     var ctx = vm.createContext();
