@@ -115,7 +115,7 @@
     }
 
     function show_completions(completions) {
-        var e = document.getElementById('completions');
+        var comps = document.getElementById('completions'), e = comps.lastChild;
         e.innerHTML = '';
         var groups = [], current_group = [];
         completions.forEach(function(x) {
@@ -139,7 +139,7 @@
             });
             e.appendChild(g);
         });
-        e.style.display = 'block';
+        comps.style.display = 'block';
     }
 
     function check_for_completions() {
@@ -208,6 +208,8 @@
         document.getElementById('run').addEventListener('click', run_code);
         document.getElementById('input').focus();
         document.getElementById('input').addEventListener('keydown', on_input);
+        document.getElementById('completions').firstChild.addEventListener('click', hide_completions);
+        check_for_completions();
     }
 
     window.onload = on_load;
