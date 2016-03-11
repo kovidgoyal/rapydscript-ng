@@ -13,6 +13,7 @@ module.exports = function(compiler, baselib) {
     compiler.AST_Node.warn_function = function() {};
     var ctx = vm.createContext();
     var LINE_CONTINUATION_CHARS = ':\\';
+    var find_completions = null;
     vm.runInContext(baselib, ctx);
     vm.runInContext('var __name__ = "__repl__";', ctx);
 
@@ -92,6 +93,15 @@ module.exports = function(compiler, baselib) {
             }
             return ans;
         },
+
+        'init_completions': function init_completions(completelib) {
+            find_completions = completelib(compiler);
+        },
+
+        'find_completions': function find_completions_(line) {
+            return find_completions(line, ctx);
+        },
+
     };
 };
 

@@ -81,6 +81,30 @@ code.language-javascript {
     align-self: stretch;
 }
 
+#completions {
+    display: none;
+    position: absolute;
+    bottom: 25vh;
+    bottom: calc(25vh - 1ex);
+    width: 100vw;
+    border: solid 1px currentColor;
+    height: auto;
+    max-height: 20vh;
+    overflow: auto;
+    padding: 1ex 1em;
+    background-color: #ffefd5;
+    z-index: 200;
+    border-radius: 4px;
+    white-space: pre-wrap;
+}
+
+.completion-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin-bottom: 2ex;
+}
+
 </style>
     </head>
     <body>
@@ -100,9 +124,10 @@ code.language-javascript {
             </div>
         </div>
         <div id="bottom">
-            <textarea id="input"></textarea>
+            <textarea id="input" spellcheck="false"></textarea>
             <button id="run">Run!</button>
         </div>
+        <div id="completions"></div>
         <link href="prism.css" type="text/css" rel="stylesheet"></link>
     </body>
 </html>

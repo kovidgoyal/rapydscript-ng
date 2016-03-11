@@ -74,6 +74,7 @@
 
     function read_eval(code) {
         var js, obj, text;
+        hide_completions();
         try {
             js = compile(code);
         } catch(e) {
@@ -105,10 +106,75 @@
         document.getElementById('input').focus();
     }
 
+    function hide_completions() {
+        document.getElementById('completions').style.display = 'none';
+    }
+
+    function completions_visible() {
+        return document.getElementById('completions').style.display !== 'none';
+    }
+
+    function show_completions(completions) {
+        var e = document.getElementById('completions');
+        e.innerHTML = '';
+        var groups = [], current_group = [];
+        completions.forEach(function(x) {
+            if (x) current_group.push(x);
+            else {
+                if (current_group.length) groups.push(current_group);
+                current_group = [];
+            }
+        });
+        if (current_group.length) groups.push(current_group);
+        groups.forEach(function(group) {
+            if (!group.length) return;
+            var g = document.createElement('div');
+            g.setAttribute('class', 'completion-group');
+            var longest_length = group.concat().sort(function (a, b) { return b.length - a.length; })[0].length + 1;
+            group.forEach(function(word) {
+                var node = document.createTextNode(word + '\xa0'.repeat(longest_length - word.length));
+                var div = document.createElement('div');
+                div.appendChild(node);
+                g.appendChild(div);
+            });
+            e.appendChild(g);
+        });
+        e.style.display = 'block';
+    }
+
+    function check_for_completions() {
+        var input = document.getElementById('input'), source = input.value;
+        var ss = input.selectionStart;
+        if (ss === undefined || input.selectionEnd !== ss) return hide_completions();
+        var before = source.substr(0, ss);
+        var ret = web_repl.find_completions(before);
+        if (!ret || ret.length != 2) return hide_completions();
+        var completions = ret[0], prefix = longest_common_prefix(completions), last_tok = ret[1];
+        if (prefix == last_tok && completions.length == 1) return hide_completions();
+        if (completions_visible() || completions.length == 1) {
+            if (prefix.length > last_tok.length) {
+                var insertion = prefix.substr(last_tok.length);
+                input.value = before + insertion + source.substr(ss);
+                input.setSelectionRange(ss + insertion.length, ss + insertion.length);
+            }
+        }
+        if (completions.length > 1) show_completions(completions);
+        else hide_completions();
+    }
+
+    function longest_common_prefix(items) {
+        if (!items.length) return '';
+        var sorted = items.concat().sort(), a1 = sorted[0], a2 = sorted[sorted.length-1], limit = a1.length, i = 0;
+        while ( i < limit && a1.charAt(i) === a2.charAt(i)) i++;
+        return a1.substr(0, i);
+    }
+
     function on_input(ev) {
-        if (ev.keyCode === 13 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {
-            var input = document.getElementById('input');
-            var source = input.value;
+        var input, source;
+        var code = ev.keyCode || ev.which;
+        if (code === 13 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {  // Enter
+            input = document.getElementById('input');
+            source = input.value;
             ev.preventDefault();
             if (web_repl.is_input_complete(source)) {
                 setTimeout(run_code, 0);
@@ -121,22 +187,30 @@
             if (source.trimRight().endsWith(':')) next_line += '    ';
             input.value = source + '\n' + next_line;
         }
+        else if (code === 9 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {  // Tab
+            ev.preventDefault();
+            check_for_completions();
+        }
     }
 
     function on_load() {
         web_repl = exports.web_repl();
         web_repl.replace_print(println);
+        web_repl.init_completions(exports.completer);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('top').style.display = 'flex';
         document.getElementById('bottom').style.display = 'flex';
         add_output(
             ('RapydScript-ng ' + exports.rs_version + '\n' +
             'Type RapydScript code into the box at the bottom and click the' + 
-            ' Run button.'), 'blue'
+            ' Run button. You can press Tab for completions.'), 'blue'
         );
         document.getElementById('run').addEventListener('click', run_code);
         document.getElementById('input').focus();
-        document.getElementById('input').addEventListener('keypress', on_input);
+        document.getElementById('input').addEventListener('keydown', on_input);
+        document.getElementById('input').value = 'window.location.href.'; 
+        document.getElementById('input').setSelectionRange(40, 40);
+        check_for_completions();
     }
 
     window.onload = on_load;
