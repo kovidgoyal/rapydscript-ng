@@ -17,6 +17,7 @@ var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_r
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
 	vm.runInContext(baselib, ctx, {'filename':'baselib-plain-pretty.js'});
+    vm.runInContext('var __name__ = "__repl__";', ctx);
 	RapydScript.AST_Node.warn_function = function() {};
     return ctx;
 }
