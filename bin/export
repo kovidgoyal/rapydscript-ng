@@ -17,7 +17,7 @@ var manifest = {}, total = 0;
     if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
 });
 
-['web_repl.js', 'repl.js', 'utils.js', 'gettext.js', 'msgfmt.js'].forEach(function(x) {
+['web_repl.js', 'repl.js', 'completer.js', 'utils.js', 'gettext.js', 'msgfmt.js'].forEach(function(x) {
     x = 'tools/' + x;
     manifest[x] = fs.readFileSync(path.join(base, x), {'encoding':'utf-8'});
     total += manifest[x].length;
