@@ -32,6 +32,7 @@
         }
         output.appendChild(node);
         output.appendChild(document.createElement('hr'));
+        output.lastChild.scrollIntoView();
     }
 
     function add_javascript(text) {
@@ -42,6 +43,7 @@
         output.appendChild(code);
         output.appendChild(document.createElement('hr'));
         Prism.highlightElement(code);
+        output.lastChild.scrollIntoView();
     }
 
     function show_compiler_error(text, line, col) {
@@ -67,6 +69,7 @@
         }
         output.appendChild(e);
         output.appendChild(document.createElement('hr'));
+        output.lastChild.scrollIntoView();
     }
 
     function read_eval(code) {

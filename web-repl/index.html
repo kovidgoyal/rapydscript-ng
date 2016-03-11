@@ -29,6 +29,7 @@ hr {
 #top {
     border-bottom: solid 1px currentColor;
     height: 75vh;
+    max-height: 75vh;
 }
 
 #bottom {
@@ -51,15 +52,20 @@ hr {
     border-left: solid 1px currentColor;
 }
 
-.panel  h2 {
+.panel > div {
+    height: 75vh;
+    max-height: 7xvh;
+    overflow:auto;
+}
+
+.panel h2 {
     background-color: lightGray;
     border-bottom: solid 1px currentColor;
     vertical-align: middle;
     padding: 1ex 1rem;
 }
 
-.panel > div {
-    overflow: auto;
+.panel .output {
     padding: 1ex 1rem;
     white-space: pre-wrap;
 }
@@ -81,12 +87,16 @@ code.language-javascript {
         <pre id="loading">Loading RapydScript REPL, please wait...</pre>
         <div id="top">
             <div id="left" class="panel"> 
-                <h2>Compiled JavaScript</h2>
-                <div id="js"></div>
+                <div id="left-scroll">
+                    <h2>Compiled JavaScript</h2>
+                    <div id="js" class="output"></div>
+                </div>
             </div>
             <div id="right" class="panel">
-                <h2>Output</h2>
-                <div id="output"></div>
+                <div id="right-scroll">
+                    <h2>Output</h2>
+                    <div id="output" class="output"></div>
+                </div>
             </div>
         </div>
         <div id="bottom">
