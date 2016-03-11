@@ -12,11 +12,13 @@ module.exports = function(compiler, baselib) {
     var vm = require('vm');
     compiler.AST_Node.warn_function = function() {};
     var ctx = vm.createContext();
+    var LINE_CONTINUATION_CHARS = ':\\';
     vm.runInContext(baselib, ctx);
     vm.runInContext('var __name__ = "__repl__";', ctx);
 
     return {
         'toplevel': null,
+        'in_block_mode': false,
 
         'replace_print': function replace_print(write_line_func) {
             ctx.print = function() {
@@ -25,6 +27,37 @@ module.exports = function(compiler, baselib) {
                     parts.push(ctx._$rapyd$_str(arguments[i]));
                 write_line_func(parts.join(' '));
             };
+        },
+
+        'is_input_complete': function is_input_complete(source) {
+            if (!source || !source.trim()) return false;
+            var lines = source.split('\n');
+            var last_line = lines[lines.length - 1].trimRight();
+            if (this.in_block_mode) {
+                // In a block only exit after two blank lines
+                if (lines.length < 2) return false;
+                var second_last_line = lines[lines.length - 2].trimRight();
+                var block_ended = !!(!last_line && !second_last_line);
+                if (!block_ended) return false;
+                this.in_block_mode = false;
+                return true;
+            }
+
+            if (last_line && LINE_CONTINUATION_CHARS.indexOf(last_line.substr(last_line.length - 1)) > -1) {
+                this.in_block_mode = true;
+                return false;
+            }
+            try {
+                compiler.parse(source, {'filename': '<repl>', 'basedir': '::'});
+            } catch(e) {
+                if (e.is_eof && e.line === lines.length && e.col > 0) {
+                    return false;
+                }
+                this.in_block_mode = false;
+                return true;
+            }
+            this.in_block_mode = false;
+            return true;
         },
 
         'compile': function web_repl_compile(code, options) {

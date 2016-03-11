@@ -45,7 +45,6 @@
         try {
             js = compile(code);
         } catch(e) {
-            if (e.is_eof && e.line == buffer.length && e.col > 0) return true;
             if (e.message && e.line !== undefined) text = ('Error:' + e.line + ':' + e.col + ':' + e.message);
             else text = e.stack || e.toString();
             add_output(text, 'red');
@@ -70,6 +69,24 @@
         document.getElementById('input').focus();
     }
 
+    function on_input(ev) {
+        if (ev.keyCode === 13 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {
+            var input = document.getElementById('input');
+            var source = input.value;
+            ev.preventDefault();
+            if (web_repl.is_input_complete(source)) {
+                setTimeout(run_code, 0);
+                return;
+            }
+            var lines = source.split('\n');
+            var last_line = lines[lines.length - 1];
+            var prev_leading_whitespace = last_line.match(/^\s+/);
+            var next_line = prev_leading_whitespace || '';
+            if (source.trimRight().endsWith(':')) next_line += '    ';
+            input.value = source + '\n' + next_line;
+        }
+    }
+
     function on_load() {
         web_repl = exports.web_repl();
         web_repl.replace_print(println);
@@ -83,6 +100,7 @@
         );
         document.getElementById('run').addEventListener('click', run_code);
         document.getElementById('input').focus();
+        document.getElementById('input').addEventListener('keypress', on_input);
     }
 
     window.onload = on_load;
