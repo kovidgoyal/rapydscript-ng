@@ -36,8 +36,12 @@
 
     function add_javascript(text) {
         var output = document.getElementById('js');
-        output.appendChild(document.createTextNode(text));
+        var code = document.createElement('code');
+        code.appendChild(document.createTextNode(text));
+        code.setAttribute('class', 'language-javascript');
+        output.appendChild(code);
         output.appendChild(document.createElement('hr'));
+        Prism.highlightElement(code);
     }
 
     function read_eval(code) {

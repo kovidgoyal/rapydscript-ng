@@ -5,6 +5,7 @@
         <meta charset="utf-8" />
         <script type="text/javascript" src="sha1.js" defer></script>
         <script type="text/javascript" src="env.js" defer></script>
+        <script type="text/javascript" src="prism.js" defer data-manual></script>
         <script type="text/javascript" src="rapydscript.js" defer></script>
         <script type="text/javascript" src="main.js" defer></script>
 <style type="text/css">
@@ -13,7 +14,7 @@ body, div, h1, h2, h3 { margin: 0; padding: 0; border-width: 0; box-sizing: bord
 
 body {
     color: black;
-    background-color: #eee;
+    background-color: #f5f2f0;
     font-family: monospace;
 }
 
@@ -63,6 +64,11 @@ hr {
     white-space: pre-wrap;
 }
 
+code.language-javascript {
+    white-space: pre-wrap !important;
+    font-family: monospace !important;
+}
+
 #input {
     margin-right: 1rem;
     flex: 2;
@@ -87,6 +93,7 @@ hr {
             <textarea id="input"></textarea>
             <button id="run">Run!</button>
         </div>
+        <link href="prism.css" type="text/css" rel="stylesheet"></link>
     </body>
 </html>
 
