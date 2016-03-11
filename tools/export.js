@@ -222,8 +222,13 @@ function compile(code, filename, options) {
     return out.get();
 }
 
+function web_repl() {
+    var repl = vrequire('tools/web_repl.js');
+    return repl(create_compiler(), data['baselib-plain-pretty.js']);
+}
+
 function init_repl(options) {
-    repl = vrequire('tools/repl.js');
+    var repl = vrequire('tools/repl.js');
     options.baselib = data['baselib-plain-pretty.js'];
     return repl(options);
 }
@@ -245,6 +250,7 @@ function msgfmt(data, options) {
 
 if (typeof exports === 'object') {
     exports.compile = compile;
+    exports.web_repl = web_repl;
     exports.init_repl = init_repl;
     exports.gettext_parse = gettext_parse;
     exports.gettext_output = gettext_output;

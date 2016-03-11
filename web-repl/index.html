@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>RapydScript REPL</title>
+        <meta charset="utf-8" />
+        <script type="text/javascript" src="sha1.js" defer></script>
+        <script type="text/javascript" src="env.js" defer></script>
+        <script type="text/javascript" src="rapydscript.js" defer></script>
+        <script type="text/javascript" src="main.js" defer></script>
+<style type="text/css">
+
+body, div, h1, h2, h3 { margin: 0; padding: 0; border-width: 0; box-sizing: border-box }
+
+body {
+    color: black;
+    background-color: #eee;
+    font-family: monospace;
+}
+
+hr {
+    border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+#top, #bottom  {
+    display: none;
+}
+
+#top {
+    border-bottom: solid 1px currentColor;
+    height: 75vh;
+}
+
+#bottom {
+    border-top: solid 1px currentColor;
+    padding: 1ex 1rem;
+    height: 25vh;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.panel {
+    width: 50vw;
+}
+
+#left {
+    border-right: solid 1px currentColor;
+}
+
+#right {
+    border-left: solid 1px currentColor;
+}
+
+.panel  h2 {
+    background-color: lightGray;
+    border-bottom: solid 1px currentColor;
+    vertical-align: middle;
+    padding: 1ex 1rem;
+}
+
+.panel > div {
+    overflow: auto;
+    padding: 1ex 1rem;
+    white-space: pre-wrap;
+}
+
+#input {
+    margin-right: 1rem;
+    flex: 2;
+    align-self: stretch;
+}
+
+</style>
+    </head>
+    <body>
+        <pre id="loading">Loading RapydScript REPL, please wait...</pre>
+        <div id="top">
+            <div id="left" class="panel"> 
+                <h2>Compiled JavaScript</h2>
+                <div id="js"></div>
+            </div>
+            <div id="right" class="panel">
+                <h2>Output</h2>
+                <div id="output"></div>
+            </div>
+        </div>
+        <div id="bottom">
+            <textarea id="input"></textarea>
+            <button id="run">Run!</button>
+        </div>
+    </body>
+</html>
+
