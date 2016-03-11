@@ -44,14 +44,43 @@
         Prism.highlightElement(code);
     }
 
+    function show_compiler_error(text, line, col) {
+        var output = document.getElementById('js');
+        var e = document.createElement('div');
+        e.style.color = 'red';
+        var b = document.createElement('b');
+        b.textContent = "Failed to compile RapydScript with error:\n";
+        e.appendChild(b);
+        e.appendChild(document.createTextNode(text + '\n'));
+        if (line) {
+            var t = document.createElement('span');
+            t.style.color = 'black';
+            e.appendChild(document.createTextNode('☛ '));
+            t.textContent = line + '\n';
+            e.appendChild(t);
+            if (col !== null) {
+                t = document.createElement('span');
+                e.appendChild(document.createTextNode('☛ '));
+                t.textContent = ' '.repeat(col) + '⬆';
+                e.appendChild(t);
+            }
+        }
+        output.appendChild(e);
+        output.appendChild(document.createElement('hr'));
+    }
+
     function read_eval(code) {
         var js, obj, text;
         try {
             js = compile(code);
         } catch(e) {
-            if (e.message && e.line !== undefined) text = ('Error:' + e.line + ':' + e.col + ':' + e.message);
-            else text = e.stack || e.toString();
-            add_output(text, 'red');
+            var text, line = null, col = null;
+            if (e.message && e.line) {
+                text = e.message;
+                line = code.split('\n')[e.line - 1];
+                col = e.col;
+            } else text = e.stack || e.toString();
+            show_compiler_error(text, line, col);
             return false;
         }
         add_javascript(js);
