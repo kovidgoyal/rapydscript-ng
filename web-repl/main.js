@@ -208,9 +208,6 @@
         document.getElementById('run').addEventListener('click', run_code);
         document.getElementById('input').focus();
         document.getElementById('input').addEventListener('keydown', on_input);
-        document.getElementById('input').value = 'window.location.href.'; 
-        document.getElementById('input').setSelectionRange(40, 40);
-        check_for_completions();
     }
 
     window.onload = on_load;
