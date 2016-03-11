@@ -30,6 +30,8 @@ def _$rapyd$_repr(x):
         ans = 'True' if x else 'False'
     elif Array.isArray(x):
         ans = _$rapyd$_repr_js_builtin(x, True)
+    elif type(x) == 'function':
+        ans = x.toString()
     else:
         ans = x.toString() if v'typeof x.toString === "function"' else x
         if ans == '[object Object]':
