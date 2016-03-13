@@ -222,6 +222,11 @@ function compile(code, filename, options) {
     return out.get();
 }
 
+function create_embedded_compiler(runjs) {
+    var c = vrequire('tools/embedded_compiler.js');
+    return c(create_compiler(), data['baselib-plain-pretty.js'], runjs);
+}
+
 function web_repl() {
     var repl = vrequire('tools/web_repl.js');
     return repl(create_compiler(), data['baselib-plain-pretty.js']);
@@ -255,6 +260,7 @@ function completer(compiler, options) {
 
 if (typeof exports === 'object') {
     exports.compile = compile;
+    exports.create_embedded_compiler = create_embedded_compiler;
     exports.web_repl = web_repl;
     exports.init_repl = init_repl;
     exports.gettext_parse = gettext_parse;

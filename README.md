@@ -48,6 +48,8 @@ backwards compatible) features. For a list of changes, [see the bottom of this f
     - [Semi-Colons](#semi-colons)
     - [jQuery-wrapped Elements](#jquery-wrapped-elements)
     - [External Libraries and Classes](#external-libraries-and-classes)
+    - [Embedding the RapydScript compiler in your webpage](#embedding-the-rapydscript-compiler-in-your-webpage)
+- [Internationalization](#internationalization)
 - [Gotchas](#gotchas)
 - [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
@@ -1479,6 +1481,37 @@ RapydScript will pick up any classes you declare yourself as well as native Java
 - class declaration that uses `@external` decorator can be exported into a reusable module
 - developers are much more likely to forget a single instance of `new` operator when declaring an object than to forget an import, the errors due to omitted `new` keyword are also likely to be more subtle and devious to debug
 
+#### Embedding the RapydScript compiler in your webpage
+
+You can embed the RapydScript compiler in your webpage so that you can have
+your webapp directly compile user supplied RapydScript code into JavaScript.
+To do so, simply include the [embeddable rapydscript compiler](https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js) 
+in your page, and use it to compile arbitrary RapydScript code. 
+
+You create the compiler by calling: `RapydScript.create_compiler()` and compile
+code with `compiler.compile(code)`. You can execute the resulting JavaScript
+using the standard `eval()` function. See the sample
+HTML below for an example.
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test embedded RapydScript</title>
+        <script src="rapydscript.js"></script>
+        <script>
+var compiler = RapydScript.create_embedded_compiler();
+var js = compiler.compile("def hello_world():\n a='RapydScript is cool!'\n print(a)\n alert(a)");
+window.onload = function() {
+    document.body.textContent = js;
+    eval(js);
+    eval('hello_world()');
+};
+        </script>
+    </head>
+    <body style="white-space:pre-wrap"></body>
+</html>
+```
 
 Internationalization
 -------------------------
