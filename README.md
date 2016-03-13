@@ -1513,7 +1513,7 @@ window.onload = function() {
 </html>
 ```
 
-There are a couple of caveats when using the embedded compiler:
+There are a couple of caveats when using the embedded compiler.
 
     * It only works when run in a modern browser (one that supports ES6) so no
       Internet Explorer. Technically, it is possible to have it work with older
