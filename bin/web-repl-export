@@ -65,10 +65,6 @@ try {
 }
 
 process.chdir(base_dir);
-fs.readdirSync('.').forEach(function(x) {
-    var stats = fs.lstatSync(x);
-    if (stats.isFile() || stats.isSymbolicLink()) fs.unlinkSync(x);
-});
 fs.writeFileSync('rapydscript.js', rs, {'encoding':'utf-8'});
 var web_repl = path.join(base, 'web-repl');
 fs.readdirSync(web_repl).forEach(function(x) {
