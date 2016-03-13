@@ -5,20 +5,16 @@
  * Distributed under terms of the BSD license
  */
 "use strict";  /*jshint node:true */
-
+var vm = require('vm');
+var embedded_compiler = require('tools/embedded_compiler.js');
 
 module.exports = function(compiler, baselib) {
-	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true, 'js_version': 6};
-    var vm = require('vm');
-    compiler.AST_Node.warn_function = function() {};
     var ctx = vm.createContext();
     var LINE_CONTINUATION_CHARS = ':\\';
     var find_completions = null;
-    vm.runInContext(baselib, ctx);
-    vm.runInContext('var __name__ = "__repl__";', ctx);
+    var streaming_compiler = embedded_compiler(compiler, baselib, function(js) { return vm.runInContext(js, ctx); }, '__repl__');
 
     return {
-        'toplevel': null,
         'in_block_mode': false,
 
         'replace_print': function replace_print(write_line_func) {
@@ -61,27 +57,8 @@ module.exports = function(compiler, baselib) {
             return true;
         },
 
-        'compile': function web_repl_compile(code, options) {
-            var classes = (this.toplevel) ? this.toplevel.classes : undefined;
-            options = options || {};
-            this.toplevel = compiler.parse(code, {
-                'filename': '<repl>',
-                'basedir': '__stdlib__',
-                'classes': classes,
-            });
-            var out = compiler.OutputStream(output_options);
-            this.toplevel.print(out);
-            if (classes) {
-                var exports = {};
-                var self = this;
-                this.toplevel.exports.forEach(function (name) { exports[name] = true; });
-                Object.getOwnPropertyNames(classes).forEach(function (name) {
-                    if (!exports.hasOwnProperty(name) && !self.toplevel.classes.hasOwnProperty(name))
-                        self.toplevel.classes[name] = classes[name];
-                });
-            }
-    
-            return out.toString();
+        'compile': function web_repl_compile(code, filename) {
+            return streaming_compiler.compile(code, filename);
         },
 
         'runjs': function runjs(code) {

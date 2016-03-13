@@ -7,13 +7,13 @@
 "use strict";  /*jshint node:true */
 
 
-module.exports = function(compiler, baselib, runjs) {
+module.exports = function(compiler, baselib, runjs, name) {
 	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true, 'js_version': 6};
     compiler.AST_Node.warn_function = function() {};
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
     runjs(baselib);
-    runjs('var __name__ = "__embedded__";');
+    runjs('var __name__ = "' + (name || '__embedded__') + '";');
 
     return {
         'toplevel': null,
