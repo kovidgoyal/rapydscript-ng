@@ -6,6 +6,8 @@ RapydScript
 This is a fork of the original RapydScript that adds many new (not always
 backwards compatible) features. For a list of changes, [see the bottom of this file](#changes-in-this-fork-compared-to-atsepkovrapydscript)
 
+[Try RapydScript-ng live via an in-browser REPL!](http://kovidgoyal.github.io/rapydscript/repl/)
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Contents**
@@ -74,6 +76,9 @@ Let's not waste any more time with the introductions, however. The best way to l
 
 Installation
 ------------
+
+[Try RapydScript-ng live via an in-browser REPL!](http://kovidgoyal.github.io/rapydscript/repl/)
+
 First make sure you have installed the latest version of [node.js](http://nodejs.org/) (You may need to restart your computer after this step). 
 
 From NPM for use as a command line app:
@@ -1586,7 +1591,7 @@ Some of these changes might have been merged back into the original repository.
 This list below records all the work I have done on RapydScript so far.
 
 1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
-   It even has its own tests to make sure nothing breaks :)
+   You can also try the REPL [live in your browser](https://kovidgoyal.github.io/rapydscript/repl/)
 
 1. There is now a ``linter`` that checks for various problems in your code. Most of
    the checks are for unused/undefined names, like ``pyflakes``. But, there are
