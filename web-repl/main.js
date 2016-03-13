@@ -162,6 +162,12 @@
         else hide_completions();
     }
 
+    function update_completions() {
+        if (completions_visible()) {
+            check_for_completions();
+        }
+    }
+
     function longest_common_prefix(items) {
         if (!items.length) return '';
         var sorted = items.concat().sort(), a1 = sorted[0], a2 = sorted[sorted.length-1], limit = a1.length, i = 0;
@@ -191,6 +197,9 @@
             ev.preventDefault();
             check_for_completions();
         }
+        else if (code === 27 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {  // Esc
+            hide_completions();
+        }
     }
 
     function on_load() {
@@ -208,8 +217,8 @@
         document.getElementById('run').addEventListener('click', run_code);
         document.getElementById('input').focus();
         document.getElementById('input').addEventListener('keydown', on_input);
+        document.getElementById('input').addEventListener('keyup', function() { setTimeout(update_completions, 0); });
         document.getElementById('completions').firstChild.addEventListener('click', hide_completions);
-        check_for_completions();
     }
 
     window.onload = on_load;
