@@ -135,7 +135,7 @@ def has_simple_decorator(decorators, name):
     remove = v'[]'
     for v'var i = 0; i < decorators.length; i++':
         s = decorators[i]
-        if isinstance(s, AST_SymbolRef) and not s.parens and s.name == name:
+        if isinstance(s, AST_SymbolRef) and not s.parens and s.name is name:
             remove.push(i)
     if remove.length:
         remove.reverse()
@@ -148,7 +148,7 @@ def has_setter_decorator(decorators, name):
     remove = v'[]'
     for v'var i = 0; i < decorators.length; i++':
         s = decorators[i]
-        if isinstance(s, AST_Dot) and isinstance(s.expression, AST_SymbolRef) and s.expression.name == name and s.property == 'setter':
+        if isinstance(s, AST_Dot) and isinstance(s.expression, AST_SymbolRef) and s.expression.name is name and s.property is 'setter':
             remove.push(i)
     if remove.length:
         remove.reverse()
@@ -180,7 +180,7 @@ def parse($TEXT, options):
     IMPORTING[module_id] = True
 
     S = {
-        'input': (typeof $TEXT == "string" ? tokenizer($TEXT, options.filename) : $TEXT),
+        'input': (typeof $TEXT is "string" ? tokenizer($TEXT, options.filename) : $TEXT),
         'token': None,
         'prev': None,
         'peeked': [],
@@ -210,7 +210,7 @@ def parse($TEXT, options):
         else:
             S.token = S.input()
 
-        S.in_directives = S.in_directives and (S.token.type == "string" or is_("punc", ";"))
+        S.in_directives = S.in_directives and (S.token.type is "string" or is_("punc", ";"))
         return S.token
 
     S.token = next()
@@ -229,15 +229,15 @@ def parse($TEXT, options):
     def croak(msg, line, col, pos, is_eof):
         # note: undefined means nothing was passed in, None/null means a null value was passed in
         ctx = S.input.context()
-        raise new SyntaxError(msg, ctx.filename, (line != undefined ? line : ctx.tokline),
-                 (col != undefined ? col : ctx.tokcol), (pos != undefined ? pos : ctx.tokpos), is_eof)
+        raise new SyntaxError(msg, ctx.filename, (line is not undefined ? line : ctx.tokline),
+                 (col is not undefined ? col : ctx.tokcol), (pos is not undefined ? pos : ctx.tokpos), is_eof)
 
     def token_error(token, msg):
-        is_eof = (token.type == 'eof') ? True : False
+        is_eof = (token.type is 'eof') ? True : False
         croak(msg, token.line, token.col, undefined, is_eof)
 
     def unexpected(token):
-        if token == undefined:
+        if token is undefined:
             token = S.token
         token_error(token, "Unexpected token: " + token.type + " «" + token.value + "»")
 
@@ -262,7 +262,7 @@ def parse($TEXT, options):
         return def():
             start = S.token
             expr = parser()
-            if expr == undefined:
+            if expr is undefined:
                 unexpected()
             end = prev()
             expr.start = start
@@ -446,12 +446,12 @@ def parse($TEXT, options):
         # So we just accept that this cannot be supported in RS, and avoid hacks that mess
         # with the internal state of S. In any case,
         # statements starting with a literal are very rare.
-        if S.token.type == 'operator' and S.token.value.substr(0, 1) == '/':
+        if S.token.type is 'operator' and S.token.value.substr(0, 1) is '/':
             token_error(S.token, 'RapydScript does not support statements starting with regexp literals')
 
         S.statement_starting_token = S.token
         tmp_ = S.token.type
-        if tmp_ == "string":
+        if tmp_ is "string":
             dir = S.in_directives
             stat = simple_statement()
             # XXXv2: decide how to fix directives
@@ -461,43 +461,43 @@ def parse($TEXT, options):
                 })
 
             return stat
-        elif tmp_ == "shebang":
+        elif tmp_ is "shebang":
             tmp_ = S.token.value
             next()
             return new AST_Directive({
                 'value': tmp_
             })
-        elif tmp_ == "num" or tmp_ == "regexp" or tmp_ == "operator" or tmp_ == "atom" or tmp_ == "js":
+        elif tmp_ is "num" or tmp_ is "regexp" or tmp_ is "operator" or tmp_ is "atom" or tmp_ is "js":
             return simple_statement()
-        elif tmp_ == "punc":
+        elif tmp_ is "punc":
             tmp_ = S.token.value
-            if tmp_ == ":":
+            if tmp_ is ":":
                 return new AST_BlockStatement({
                     'start': S.token,
                     'body': block_(),
                     'end': prev()
                 })
-            elif tmp_ == "{" or tmp_ == "[" or tmp_ == "(":
+            elif tmp_ is "{" or tmp_ is "[" or tmp_ is "(":
                 return simple_statement()
-            elif tmp_ == ";":
+            elif tmp_ is ";":
                 next()
                 return new AST_EmptyStatement({'stype':';', 'start':prev(), 'end':prev()})
             else:
                 unexpected()
-        elif tmp_ == "name":
+        elif tmp_ is "name":
             if (is_token(peek(), 'punc', ':')) token_error(peek(), 'invalid syntax, colon not allowed here')
             return simple_statement()
-        elif tmp_ == "keyword":
+        elif tmp_ is "keyword":
             tmp_ = S.token.value
             next()
-            if tmp_ == "break":
+            if tmp_ is "break":
                 return break_cont(AST_Break)
-            elif tmp_ == "continue":
+            elif tmp_ is "continue":
                 return break_cont(AST_Continue)
-            elif tmp_ == "debugger":
+            elif tmp_ is "debugger":
                 semicolon()
                 return new AST_Debugger()
-            elif tmp_ == "do":
+            elif tmp_ is "do":
                 return new AST_Do({
                     'body': in_loop(statement),
                     'condition': (def():
@@ -508,31 +508,31 @@ def parse($TEXT, options):
                         return tmp
                     )()
                 })
-            elif tmp_ == "while":
+            elif tmp_ is "while":
                 return new AST_While({
                     'condition': expression(True),
                     'body': in_loop(statement)
                 })
-            elif tmp_ == "for":
+            elif tmp_ is "for":
                 if is_('js'):
                     return for_js()
                 return for_()
-            elif tmp_ == "from":
+            elif tmp_ is "from":
                 return import_(True)
-            elif tmp_ == "import":
+            elif tmp_ is "import":
                 return import_(False)
-            elif tmp_ == "class":
+            elif tmp_ is "class":
                 baselib_items["extends"] = True
                 if options.auto_bind:
                     baselib_items["rebind_all"] = True
                 return class_()
-            elif tmp_ == "def":
+            elif tmp_ is "def":
                 start = prev()
                 func = function_(S.in_class[-1])
                 func.start = start
                 func.end = prev()
                 chain = subscripts(func, True)
-                if chain == func:
+                if chain is func:
                     return func
                 else:
                     return new AST_SimpleStatement({
@@ -540,13 +540,13 @@ def parse($TEXT, options):
                         'body': chain,
                         'end': prev()
                     })
-            elif tmp_ == "if":
+            elif tmp_ is "if":
                 return if_()
-            elif tmp_ == "pass":
+            elif tmp_ is "pass":
                 semicolon()
                 return new AST_EmptyStatement({'stype':'pass', 'start':prev(), 'end':prev()})
-            elif tmp_ == "return":
-                if S.in_function == 0:
+            elif tmp_ is "return":
+                if S.in_function is 0:
                     croak("'return' outside of function")
                 if S.functions[-1].is_generator:
                     croak("'return' not allowed in a function with yield")
@@ -566,9 +566,9 @@ def parse($TEXT, options):
                         )
                     )
                 })
-            elif tmp_ == "yield":
+            elif tmp_ is "yield":
                 return yield_()
-            elif tmp_ == "raise":
+            elif tmp_ is "raise":
                 if S.token.nlb:
                     return new AST_Throw({
                         'value': new AST_SymbolCatch({
@@ -581,17 +581,17 @@ def parse($TEXT, options):
                 return new AST_Throw({
                     'value': tmp
                 })
-            elif tmp_ == "try":
+            elif tmp_ is "try":
                 return try_()
-            elif tmp_ == "nonlocal":
+            elif tmp_ is "nonlocal":
                 tmp = nonlocal_()
                 semicolon()
                 return tmp
-            elif tmp_ == "const":
+            elif tmp_ is "const":
                 tmp = const_()
                 semicolon()
                 return tmp
-            elif tmp_ == "with":
+            elif tmp_ is "with":
                 return with_()
             else:
                 unexpected()
@@ -633,15 +633,15 @@ def parse($TEXT, options):
         })
 
     def break_cont(type):
-        if S.in_loop == 0:
+        if S.in_loop is 0:
             croak(type.TYPE + " not inside a loop or switch")
         semicolon()
         return new type()
 
     def yield_():
-        if S.in_function == 0:
+        if S.in_function is 0:
             croak("'yield' outside of function")
-        if S.functions[-1].is_generator == False:
+        if S.functions[-1].is_generator is False:
             croak("'yield' not allowed in a function with return")
         S.functions[-1].is_generator = True
         is_yield_from = is_('keyword', 'from')
@@ -778,10 +778,10 @@ def parse($TEXT, options):
                 try:
                     return [readfile(path, "utf-8"), path]  # noqa:undef
                 except as e:
-                    if e.code == 'ENOENT' or e.code == 'EPERM' or e.code == 'EACCESS':
-                        if i == 1:
+                    if e.code is 'ENOENT' or e.code is 'EPERM' or e.code is 'EACCESS':
+                        if i is 1:
                             return None, None
-                    if i == 1:
+                    if i is 1:
                         raise
 
         src_code = filename = None
@@ -802,7 +802,7 @@ def parse($TEXT, options):
             cached = None
 
         srchash = sha1sum(src_code)  # noqa:undef
-        if cached and cached['version'] == COMPILER_VERSION and cached['signature'] == srchash:
+        if cached and cached['version'] is COMPILER_VERSION and cached['signature'] is srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             IMPORTED[key] = {
@@ -975,7 +975,7 @@ def parse($TEXT, options):
                     if not descriptor:
                         descriptor = definition.dynamic_properties[stmt.name.name] = {}
                     descriptor['getter' if stmt.is_getter else 'setter'] = stmt
-                elif stmt.name.name == "__init__":
+                elif stmt.name.name is "__init__":
                     definition.init = stmt
         # find the class variables
         class_var_names = {}
@@ -1017,7 +1017,7 @@ def parse($TEXT, options):
                     croak('A method cannot be both static and a property getter/setter')
                 S.classes[S.classes.length - 2][in_class].static.push(name.name)
                 staticmethod = True
-            elif name.name != "__init__" and options.auto_bind:
+            elif name.name is not "__init__" and options.auto_bind:
                 baselib_items["bind"] = True
                 S.classes[S.classes.length - 2][in_class].bound[name.name] = True
 
@@ -1037,7 +1037,7 @@ def parse($TEXT, options):
                 def get_arg():
                     if Object.prototype.hasOwnProperty.call(seen_names, S.token.value):
                         token_error(prev(), "Can't repeat parameter names")
-                    if S.token.value == 'arguments':
+                    if S.token.value is 'arguments':
                         token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript")
                     seen_names[S.token.value] = True
                     return as_symbol(AST_SymbolFunarg)
@@ -1120,7 +1120,7 @@ def parse($TEXT, options):
             definition.is_setter = property_setter
             if definition.argnames.length < 1 and not definition.static:
                 croak('Methods of a class must have at least one argument, traditionally named self')
-            if definition.name and definition.name.name == '__init__':
+            if definition.name and definition.name.name is '__init__':
                 if definition.is_generator:
                     croak('The __init__ method of a class cannot be a generator (yield not allowed)')
                 if property_getter or property_setter:
@@ -1132,9 +1132,9 @@ def parse($TEXT, options):
         assignments = scan_for_local_vars(definition.body)
         for i in range(assignments.length):
             for j in range(definition.argnames.length+1):
-                if j == definition.argnames.length:
+                if j is definition.argnames.length:
                     definition.localvars.push(new_symbol(AST_SymbolVar, assignments[i]))
-                elif j < definition.argnames.length and assignments[i] == definition.argnames[j].name:
+                elif j < definition.argnames.length and assignments[i] is definition.argnames[j].name:
                     break
 
         nonlocals = scan_for_nonlocal_defs(definition.body)
@@ -1277,7 +1277,7 @@ def parse($TEXT, options):
         start = S.token
         while True:
             strings.push(S.token.value)
-            if peek().type != 'string':
+            if peek().type is not 'string':
                 break
             next()
         return new AST_String({
@@ -1289,40 +1289,40 @@ def parse($TEXT, options):
     def token_as_atom_node():
         tok = S.token
         tmp_ = tok.type
-        if tmp_ == "name":
+        if tmp_ is "name":
             return token_as_symbol(tok, AST_SymbolRef)
-        elif tmp_ == "num":
+        elif tmp_ is "num":
             return new AST_Number({
                 'start': tok,
                 'end': tok,
                 'value': tok.value
             })
-        elif tmp_ == "string":
+        elif tmp_ is "string":
             return string_()
-        elif tmp_ == "regexp":
+        elif tmp_ is "regexp":
             return new AST_RegExp({
                 'start': tok,
                 'end': tok,
                 'value': tok.value
             })
-        elif tmp_ == "atom":
+        elif tmp_ is "atom":
             tmp__ = tok.value
-            if tmp__ == "False":
+            if tmp__ is "False":
                 return new AST_False({
                     'start': tok,
                     'end': tok
                 })
-            elif tmp__ == "True":
+            elif tmp__ is "True":
                 return new AST_True({
                     'start': tok,
                     'end': tok
                 })
-            elif tmp__ == "None":
+            elif tmp__ is "None":
                 return new AST_Null({
                     'start': tok,
                     'end': tok
                 })
-        elif tmp_ == "js":
+        elif tmp_ is "js":
             return new AST_Verbatim({
                 'start': tok,
                 'end': tok,
@@ -1342,7 +1342,7 @@ def parse($TEXT, options):
         start = S.token
         if is_("punc"):
             tmp_ = start.value
-            if tmp_ == "(":
+            if tmp_ is "(":
                 S.in_parenthesized_expr = True
                 next()
                 if is_('punc', ')'):
@@ -1361,9 +1361,9 @@ def parse($TEXT, options):
                     expect(")")
                 S.in_parenthesized_expr = False
                 return subscripts(ex, allow_calls)
-            elif tmp_ == "[":
+            elif tmp_ is "[":
                 return subscripts(array_(), allow_calls)
-            elif tmp_ == "{":
+            elif tmp_ is "{":
                 return subscripts(object_(), allow_calls)
 
             unexpected()
@@ -1521,7 +1521,7 @@ def parse($TEXT, options):
             if is_('keyword', 'for'):
                 # is_pydict is irrelevant here
                 return read_comprehension(new AST_SetComprehension({'statement':left}), '}')
-            if a.length == 0 and (is_('punc', ',') or is_('punc', '}')):
+            if a.length is 0 and (is_('punc', ',') or is_('punc', '}')):
                 end = prev()
                 return set_(start, end, left)
             if not isinstance(left, AST_Constant):
@@ -1533,7 +1533,7 @@ def parse($TEXT, options):
                 'value': expression(False),
                 'end': prev()
             }))
-            if a.length == 1 and is_('keyword', 'for'):
+            if a.length is 1 and is_('keyword', 'for'):
                 return dict_comprehension(a, is_pydict)
 
         next()
@@ -1587,14 +1587,14 @@ def parse($TEXT, options):
         tmp = S.token
         next()
         tmp_ = tmp.type
-        if tmp_ == "name" or tmp_ == "operator" or tmp_ == "keyword" or tmp_ == "atom":
+        if tmp_ is "name" or tmp_ is "operator" or tmp_ is "keyword" or tmp_ is "atom":
             return tmp.value
         else:
             unexpected()
 
     def token_as_symbol(tok, ttype):
         name = tok.value
-        return new ((name == "this" ? AST_This : ttype))({
+        return new ((name is "this" ? AST_This : ttype))({
             'name': v"String(tok.value)",
             'start': tok,
             'end': tok
@@ -1612,7 +1612,7 @@ def parse($TEXT, options):
 
     # for generating/inserting a new symbol
     def new_symbol(type, name):
-        sym = new ((name == "this" ? AST_This : type))({
+        sym = new ((name is "this" ? AST_This : type))({
             'name': v"String(name)",
             'start': None,
             'end': None
@@ -1620,7 +1620,7 @@ def parse($TEXT, options):
         return sym
 
     def is_static_method(cls, method):
-        if COMMON_STATIC.indexOf(method) != -1 or cls.static and cls.static.indexOf(method) != -1:
+        if COMMON_STATIC.indexOf(method) is not -1 or cls.static and cls.static.indexOf(method) is not -1:
             return True
         else:
             return False
@@ -1670,7 +1670,7 @@ def parse($TEXT, options):
             expect("]")
 
             if is_slice:
-                if is_("operator") and S.token.value == "=":
+                if is_("operator") and S.token.value is "=":
                     # splice-assignment (arr[start:end] = ...)
                     next()  # swallow the assignment
                     return subscripts(new AST_Splice({
@@ -1683,7 +1683,7 @@ def parse($TEXT, options):
                         'assignment': expression(True),
                         'end': prev()
                     }), allow_calls)
-                elif slice_bounds.length == 3:
+                elif slice_bounds.length is 3:
                     # extended slice (arr[start:end:step])
                     slice_bounds.unshift(slice_bounds.pop())
                     if not slice_bounds[-1]:
@@ -1703,7 +1703,7 @@ def parse($TEXT, options):
                     }), allow_calls)
                 else:
                     # regular slice (arr[start:end])
-                    slice_bounds = [i == None ? new AST_Number({
+                    slice_bounds = [i is None ? new AST_Number({
                         'value': 0
                     }) : i for i in slice_bounds]
                     return subscripts(new AST_Call({
@@ -1721,7 +1721,7 @@ def parse($TEXT, options):
                 # regular index (arr[index])
                 if is_py_sub:
                     assignment = None
-                    if is_("operator") and S.token.value == "=":
+                    if is_("operator") and S.token.value is "=":
                         next()
                         assignment = expression(True)
                     return subscripts(new AST_ItemAccess({
@@ -1763,7 +1763,7 @@ def parse($TEXT, options):
                 if c:
                     # generate class call
                     funcname = expr
-                    if funcname.property == "__init__":
+                    if funcname.property is "__init__":
                         funcname.property = "constructor"
 
                     ret = subscripts(new AST_ClassCall({
@@ -1788,7 +1788,7 @@ def parse($TEXT, options):
                             baselib_items['itertools'] = True
                         else:
                             baselib_items[tmp_] = True
-                    elif tmp_ == "type":
+                    elif tmp_ is "type":
                         ret = new AST_UnaryPrefix({
                             'start': start,
                             'operator': "typeof",
@@ -1797,9 +1797,9 @@ def parse($TEXT, options):
                         })
                         S.in_parenthesized_expr = False
                         return ret
-                    elif tmp_ == "isinstance":
+                    elif tmp_ is "isinstance":
                         args = func_call_list()
-                        if args.length != 2:
+                        if args.length is not 2:
                             croak('isinstance() must be called with exactly two arguments')
                         ret = new AST_Binary({
                             'start': start,
@@ -1858,19 +1858,19 @@ def parse($TEXT, options):
     expr_op = def(left, min_prec, no_in):
         op = (is_("operator") ? S.token.value : None)
         not_in = False
-        if op == "!" and peek().type == "operator" and peek().value == "in":
+        if op is "!" and peek().type is "operator" and peek().value is "in":
             next()
             op = "in"
             not_in = True
 
-        if op == "in":
+        if op is "in":
             if no_in:
                 op = None
             else:
                 baselib_items['_$rapyd$_in()'] = True
 
-        prec = (op != None ? PRECEDENCE[op] : None)
-        if prec != None and prec > min_prec:
+        prec = (op is not None ? PRECEDENCE[op] : None)
+        if prec is not None and prec > min_prec:
             next()
             right = expr_op(maybe_unary(True), prec, no_in)
             ret = new AST_Binary({
@@ -1896,7 +1896,7 @@ def parse($TEXT, options):
     maybe_conditional = def(no_in):
         start = S.token
         expr = expr_ops(no_in)
-        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token != S.token and not S.in_comprehension and not S.token.nlb))):
+        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token is not S.token and not S.in_comprehension and not S.token.nlb))):
             pystyle = is_('keyword', 'if')
             next()
             ne = expression(False)
@@ -1925,7 +1925,7 @@ def parse($TEXT, options):
     def create_assign(data):
         if data.right and isinstance(data.right, AST_Seq) and (
                 isinstance(data.right.car, AST_Assign) or
-                isinstance(data.right.cdr, AST_Assign)) and data.operator != '=':
+                isinstance(data.right.cdr, AST_Assign)) and data.operator is not '=':
             token_error(data.start, 'Invalid assignment operator for chained assignment: ' + data.operator)
         return new AST_Assign(data)
 
@@ -1934,7 +1934,7 @@ def parse($TEXT, options):
         left = maybe_conditional(no_in)
         val = S.token.value
         if is_("operator") and ASSIGNMENT(val):
-            if only_plain_assignment and val != '=':
+            if only_plain_assignment and val is not '=':
                 croak('Invalid assignment operator for chained assignment: ' + val)
             next()
             return create_assign({
@@ -1952,7 +1952,7 @@ def parse($TEXT, options):
         start = S.token
         expr = maybe_assign(no_in)
         def build_seq(a):
-            if a.length == 1:
+            if a.length is 1:
                 return a[0]
 
             return new AST_Seq({
@@ -1969,7 +1969,7 @@ def parse($TEXT, options):
                     left[-1] = left[-1].left
                     return create_assign({
                         'start': start,
-                        'left': (left.length == 1 ? left[0] : new AST_Array({
+                        'left': (left.length is 1 ? left[0] : new AST_Array({
                             'elements': left
                         })),
                         'operator': expr.operator,
@@ -2011,7 +2011,7 @@ def parse($TEXT, options):
         first_token = True
         while not is_("eof"):
             element = statement()
-            if first_token and isinstance(element, AST_Directive) and element.value.indexOf('#!') == 0:
+            if first_token and isinstance(element, AST_Directive) and element.value.indexOf('#!') is 0:
                 shebang = element.value
             else:
                 body.push(element)

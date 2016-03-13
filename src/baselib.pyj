@@ -49,20 +49,20 @@ def callable(x):
     return v'typeof x === "function"'
 
 def bin(x):
-    if type(x) != 'number' or x % 1 != 0:
+    if type(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(2)
-    if ans[0] == '-':
+    if ans[0] is '-':
         ans = '-' + '0b' + ans[1:]
     else:
         ans = '0b' + ans
     return ans
 
 def hex(x):
-    if type(x) != 'number' or x % 1 != 0:
+    if type(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(16)
-    if ans[0] == '-':
+    if ans[0] is '-':
         ans = '-' + '0x' + ans[1:]
     else:
         ans = '0x' + ans
@@ -73,19 +73,19 @@ def _$rapyd$_extends(child, parent):
     child.prototype.constructor = child
 
 def _$rapyd$_in():
-    if type(Map) == 'function' and type(Set) == 'function':
+    if type(Map) is 'function' and type(Set) is 'function':
         return def(val, arr):
-            if Array.isArray(arr) or v'typeof arr' == 'string':
-                return arr.indexOf(val) != -1
-            if type(arr.__contains__) == 'function':
+            if Array.isArray(arr) or v'typeof arr' is 'string':
+                return arr.indexOf(val) is not -1
+            if type(arr.__contains__) is 'function':
                 return arr.__contains__(val)
             if isinstance(arr, (Map, Set)):
                 return arr.has(val)
             return Object.prototype.hasOwnProperty.call(arr, val)
     return def(val, arr):
-            if Array.isArray(arr) or v'typeof arr' == 'string':
-                return arr.indexOf(val) != -1
-            if type(arr.__contains__) == 'function':
+            if Array.isArray(arr) or v'typeof arr' is 'string':
+                return arr.indexOf(val) is not -1
+            if type(arr.__contains__) is 'function':
                 return arr.__contains__(val)
             return Object.prototype.hasOwnProperty.call(arr, val)
 
@@ -94,8 +94,8 @@ def _$rapyd$_Iterable(iterable):
     # rid of this function entirely
     if _$rapyd$_arraylike(iterable):
         return iterable
-    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
@@ -118,8 +118,8 @@ def enumerate(iterable):
         ans[_$rapyd$_iterator_symbol] = def():
             return this
         return ans
-    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = {
             '_iterator':iterator,
             '_i': -1,
@@ -152,8 +152,8 @@ def reversed(iterable):
 
 def iter(iterable):
     # Generate a JavaScript iterator object from iterable
-    if type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-        return (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+        return (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
     if _$rapyd$_arraylike(iterable):
         ans = {
             '_i': -1,
@@ -169,17 +169,17 @@ def iter(iterable):
     return iter(Object.keys(iterable))
 
 def _$rapyd$_len():
-    if v'typeof Set' == 'function' and v'typeof Map' == 'function':
+    if v'typeof Set' is 'function' and v'typeof Map' is 'function':
         # ES 6 collections are probably present
         return (def(obj):
             if _$rapyd$_arraylike(obj): return obj.length
             if v'obj instanceof Set' or v'obj instanceof Map': return obj.size
-            if type(obj.__len__) == 'function': return obj.__len__()
+            if type(obj.__len__) is 'function': return obj.__len__()
             return Object.keys(obj).length
         )
     return (def(obj):
         if _$rapyd$_arraylike(obj): return obj.length
-        if type(obj.__len__) == 'function': return obj.__len__()
+        if type(obj.__len__) is 'function': return obj.__len__()
         return Object.keys(obj).length
     )
 
@@ -206,11 +206,11 @@ def getattr(obj, name, defval):
     try:
         ret = obj[name]
     except TypeError:
-        if defval == undefined:
+        if defval is undefined:
             raise AttributeError('The attribute ' + name + ' is not present')
         return defval
-    if ret == undefined and not v'(name in obj)':
-        if defval == undefined:
+    if ret is undefined and not v'(name in obj)':
+        if defval is undefined:
             raise AttributeError('The attribute ' + name + ' is not present')
         ret = defval
     return ret
@@ -222,7 +222,7 @@ def hasattr(obj, name):
     return v'name in obj'
 
 def _$rapyd$_desugar_kwargs():
-    if type(Object.assign) == 'function':
+    if type(Object.assign) is 'function':
         return def():
             ans = {}
             ans[_$rapyd$_kwargs_symbol] = True

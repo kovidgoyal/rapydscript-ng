@@ -30,11 +30,11 @@ def _$rapyd$_repr(x):
         ans = 'True' if x else 'False'
     elif Array.isArray(x):
         ans = _$rapyd$_repr_js_builtin(x, True)
-    elif type(x) == 'function':
+    elif type(x) is 'function':
         ans = x.toString()
     else:
         ans = x.toString() if v'typeof x.toString === "function"' else x
-        if ans == '[object Object]':
+        if ans is '[object Object]':
             # Assume this is a dictionary
             return _$rapyd$_repr_js_builtin(x)
         try:
@@ -59,7 +59,7 @@ def _$rapyd$_str(x):
         ans = _$rapyd$_repr_js_builtin(x, True)
     elif v'typeof x.toString === "function"':
         ans = x.toString()
-        if ans == '[object Object]':
+        if ans is '[object Object]':
             # Assume this is a dictionary
             ans = _$rapyd$_repr_js_builtin(x)
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
@@ -71,7 +71,7 @@ _$rapyd$_str.format = def ():
         raise TypeError("Template is required")
     args = Array.prototype.slice.call(arguments, 1)
     kwargs = {}
-    if args.length and args[-1][_$rapyd$_kwargs_symbol] != undefined:
+    if args.length and args[-1][_$rapyd$_kwargs_symbol] is not undefined:
         kwargs = args[-1]
         args = args[:-1]
 
@@ -87,9 +87,9 @@ _$rapyd$_str.format = def ():
         first, arg = arg[0], arg[1:]
         key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
-        ans = (first == '[') ? object[key[:-1]] : getattr(object, key)
+        ans = (first is '[') ? object[key[:-1]] : getattr(object, key)
         if ans is undefined:
-            raise KeyError((first == '[') ? key[:-1] : key)
+            raise KeyError((first is '[') ? key[:-1] : key)
         return resolve(rest, ans)
 
     def resolve_format_spec(format_spec):
@@ -102,7 +102,7 @@ _$rapyd$_str.format = def ():
         )
 
     def apply_formatting(value, format_spec):
-        if format_spec.indexOf('{') != -1:
+        if format_spec.indexOf('{') is not -1:
             format_spec = resolve_format_spec(format_spec)
         if _$rapyd$_str.format._template_format_pat is undefined:
             _$rapyd$_str.format._template_format_pat = ///
@@ -131,7 +131,7 @@ _$rapyd$_str.format = def ():
         precision = parseInt(precision, 10)
         lftype = (ftype or '').toLowerCase()
 
-        if ftype == 'n':
+        if ftype is 'n':
             is_numeric = True
             if is_int:
                 if comma:
@@ -140,48 +140,48 @@ _$rapyd$_str.format = def ():
             else:
                 value = parseFloat(value).toLocaleString()
 
-        elif v"['b', 'c', 'd', 'o', 'x']".indexOf(lftype) != -1:
+        elif v"['b', 'c', 'd', 'o', 'x']".indexOf(lftype) is not -1:
             value = parseInt(value, 10)
             is_numeric = True
             if not isNaN(value):
-                if ftype == 'b':
+                if ftype is 'b':
                     value = v'(value >>> 0).toString(2)'
                     if fhash:
                         value = '0b' + value
-                elif ftype == 'c':
+                elif ftype is 'c':
                     if value > 0xFFFF:
                         code = value - 0x10000
                         value = String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
                     else:
                         value = String.fromCharCode(value)
-                elif ftype == 'd':
+                elif ftype is 'd':
                     if comma:
                         value = value.toLocaleString('en-US')
                     else:
                         value = value.toString(10)
-                elif ftype == 'o':
+                elif ftype is 'o':
                     value = value.toString(8)
                     if fhash:
                         value = '0o' + value
-                elif lftype == 'x':
+                elif lftype is 'x':
                     value = value.toString(16)
-                    value = value.toLowerCase() if ftype == 'x' else value.toUpperCase()
+                    value = value.toLowerCase() if ftype is 'x' else value.toUpperCase()
                     if fhash:
                         value = '0x' + value
 
-        elif v"['e','f','g','%']".indexOf(lftype) != -1:
+        elif v"['e','f','g','%']".indexOf(lftype) is not -1:
             is_numeric = True
             value = parseFloat(value)
-            if lftype == 'e':
+            if lftype is 'e':
                 value = value.toExponential(6 if isNaN(precision) else precision)
-                value = value.toUpperCase() if ftype == 'E' else value.toLowerCase()
-            elif lftype == 'f':
+                value = value.toUpperCase() if ftype is 'E' else value.toLowerCase()
+            elif lftype is 'f':
                 value = value.toFixed(6 if isNaN(precision) else precision)
-                value = value.toUpperCase() if ftype == 'F' else value.toLowerCase()
-            elif ftype == '%':
+                value = value.toUpperCase() if ftype is 'F' else value.toLowerCase()
+            elif ftype is '%':
                 value *= 100
                 value = value.toFixed(6 if isNaN(precision) else precision) + '%'
-            elif lftype == 'g':
+            elif lftype is 'g':
                 if isNaN(precision):
                     precision = 6
                 precision = max(1, precision)
@@ -191,9 +191,9 @@ _$rapyd$_str.format = def ():
                 else:
                     value = value.toExponential(precision - 1)
                 value = value.replace(/0+$/g, '')
-                if value[-1] == '.':
+                if value[-1] is '.':
                     value = value[:-1]
-                if ftype == 'G':
+                if ftype is 'G':
                     value = value.toUpperCase()
 
         else:
@@ -206,13 +206,13 @@ _$rapyd$_str.format = def ():
         if is_numeric and sign:
             nval = v'Number(value)'
             is_positive = not isNaN(nval) and nval >= 0
-            if is_positive and (sign == ' ' or sign == '+'):
+            if is_positive and (sign is ' ' or sign is '+'):
                 value = sign + value
 
         def repeat(char, num):
             return v'(new Array(num+1)).join(char)'
 
-        if is_numeric and width and width[0] == '0':
+        if is_numeric and width and width[0] is '0':
             width = width[1:]
             fill, align = '0', '='
 
@@ -221,15 +221,15 @@ _$rapyd$_str.format = def ():
             raise ValueError('Invalid width specification: ' + width)
 
         if fill and value.length < width:
-            if align == '<':
+            if align is '<':
                 value = value + repeat(fill, width - value.length)
-            elif align == '>':
+            elif align is '>':
                 value = repeat(fill, width - value.length) + value
-            elif align == '^':
+            elif align is '^':
                 left = (width - value.length) // 2
                 right = width - left - value.length
                 value = repeat(fill, left) + value + repeat(fill, right)
-            elif align == '=':
+            elif align is '=':
                 if value[0] in "+- ":
                     value = value[0] + repeat(fill, width - value.length) + value[1:]
                 else:
@@ -245,15 +245,15 @@ _$rapyd$_str.format = def ():
         state = 0
         while pos < markup.length:
             ch = markup[pos]
-            if state == 0:
-                if ch == '!':
+            if state is 0:
+                if ch is '!':
                     state = 1
-                elif ch == ':':
+                elif ch is ':':
                     state = 2
                 else:
                     key += ch
-            elif state == 1:
-                if ch == ':':
+            elif state is 1:
+                if ch is ':':
                     state = 2
                 else:
                     transformer += ch
@@ -265,7 +265,7 @@ _$rapyd$_str.format = def ():
     def render_markup(markup):
         nonlocal explicit, implicit, idx
         key, transformer, format_spec = parse_markup(markup)
-        if transformer and v"['a', 'r', 's']".indexOf(transformer) == -1:
+        if transformer and v"['a', 'r', 's']".indexOf(transformer) is -1:
             raise ValueError('Unknown conversion specifier: ' + transformer)
         lkey = key.length and key.split(/[.\[]/, 1)[0]
         if lkey:
@@ -287,7 +287,7 @@ _$rapyd$_str.format = def ():
                 raise IndexError('Not enough arguments to match template: ' + template)
             object = args[idx]
             idx += 1
-        if type(object) == 'function':
+        if type(object) is 'function':
             object = object()
         ans = '' + object
         if format_spec:
@@ -302,10 +302,10 @@ _$rapyd$_str.format = def ():
     while pos < template.length:
         ch = template[pos]
         if in_brace:
-            if ch == '{':
+            if ch is '{':
                 in_brace += 1
                 markup += '{'
-            elif ch == '}':
+            elif ch is '}':
                 in_brace -= 1
                 if in_brace > 0:
                     markup += '}'
@@ -314,8 +314,8 @@ _$rapyd$_str.format = def ():
             else:
                 markup += ch
         else:
-            if ch == '{':
-                if template[pos+1] == '{':
+            if ch is '{':
+                if template[pos+1] is '{':
                     pos += 1
                     ans += '{'
                 else:
@@ -353,33 +353,33 @@ _$rapyd$_str.count = def(string, needle, start, end):
     pos = start
     step = needle.length
     ans = 0
-    while pos != -1:
+    while pos is not -1:
         pos = string.indexOf(needle, pos)
-        if pos != -1:
+        if pos is not -1:
             ans += 1
             pos += step
     return ans
 
 _$rapyd$_str.endswith = def(string, suffixes, start, end):
     start = start or 0
-    if type(suffixes) == 'string':
+    if type(suffixes) is 'string':
         suffixes = v'[suffixes]'
     if end is not undefined:
         string = string[:end]
     for v'var i = 0; i < suffixes.length; i++':
         q = suffixes[i]  # noqa:undef
-        if string.indexOf(q, Math.max(start, string.length - q.length)) != -1:
+        if string.indexOf(q, Math.max(start, string.length - q.length)) is not -1:
             return True
     return False
 
 _$rapyd$_str.startswith = def(string, prefixes, start, end):
     start = start or 0
-    if type(prefixes) == 'string':
+    if type(prefixes) is 'string':
         prefixes = v'[prefixes]'
     for v'var i = 0; i < prefixes.length; i++':
         prefix = prefixes[i]  # noqa:undef
         end = string.length if end is undefined else end
-        if end - start >= prefix.length and prefix == string[start:start + prefix.length]:
+        if end - start >= prefix.length and prefix is string[start:start + prefix.length]:
             return True
     return False
 
@@ -387,7 +387,7 @@ _$rapyd$_str.find = def(string, needle, start, end):
     while start < 0:
         start += string.length
     ans = string.indexOf(needle, start)
-    if end is not undefined and ans != -1:
+    if end is not undefined and ans is not -1:
         while end < 0:
             end += string.length
         if ans >= end - needle.length:
@@ -398,7 +398,7 @@ _$rapyd$_str.rfind = def(string, needle, start, end):
     while end < 0:
         end += string.length
     ans = string.lastIndexOf(needle, end - 1)
-    if start is not undefined and ans != -1:
+    if start is not undefined and ans is not -1:
         while start < 0:
             start += string.length
         if ans < start:
@@ -407,21 +407,21 @@ _$rapyd$_str.rfind = def(string, needle, start, end):
 
 _$rapyd$_str.index = def(string, needle, start, end):
     ans = _$rapyd$_str.find.apply(None, arguments)
-    if ans == -1:
+    if ans is -1:
         raise ValueError('substring not found')
     return ans
 
 _$rapyd$_str.rindex = def(string, needle, start, end):
     ans = _$rapyd$_str.rfind.apply(None, arguments)
-    if ans == -1:
+    if ans is -1:
         raise ValueError('substring not found')
     return ans
 
 _$rapyd$_str.islower = def(string):
-    return string.length > 0 and string.toUpperCase() != string
+    return string.length > 0 and string.toUpperCase() is not string
 
 _$rapyd$_str.isupper = def(string):
-    return string.length > 0 and string.toLowerCase() != string
+    return string.length > 0 and string.toLowerCase() is not string
 
 _$rapyd$_str.isspace = def(string):
     return string.length > 0 and /^\s+$/.test(string)
@@ -459,7 +459,7 @@ _$rapyd$_str.upper = def(string):
 _$rapyd$_str.lstrip = def(string, chars):
     pos = 0
     chars = chars or _$rapyd$_str.whitespace
-    while chars.indexOf(string[pos]) != -1:
+    while chars.indexOf(string[pos]) is not -1:
         pos += 1
     if pos:
         string = string[pos:]
@@ -468,7 +468,7 @@ _$rapyd$_str.lstrip = def(string, chars):
 _$rapyd$_str.rstrip = def(string, chars):
     pos = string.length - 1
     chars = chars or _$rapyd$_str.whitespace
-    while chars.indexOf(string[pos]) != -1:
+    while chars.indexOf(string[pos]) is not -1:
         pos -= 1
     if pos < string.length - 1:
         string = string[:pos + 1]
@@ -479,18 +479,18 @@ _$rapyd$_str.strip = def(string, chars):
 
 _$rapyd$_str.partition = def(string, sep):
     idx = string.indexOf(sep)
-    if idx == -1:
+    if idx is -1:
         return string, '', ''
     return string[:idx], sep, string[idx + sep.length:]
 
 _$rapyd$_str.rpartition = def(string, sep):
     idx = string.lastIndexOf(sep)
-    if idx == -1:
+    if idx is -1:
         return '', '', string
     return string[:idx], sep, string[idx + sep.length:]
 
 _$rapyd$_str.replace = def(string, old, repl, count):
-    if count == 1:
+    if count is 1:
         return string.replace(old, repl)
     if count < 1:
         return string
@@ -499,14 +499,14 @@ _$rapyd$_str.replace = def(string, old, repl, count):
     while count > 0:
         count -= 1
         idx = string.indexOf(old, pos)
-        if idx == -1:
+        if idx is -1:
             break
         pos = idx + repl.length
         string = string[:idx] + repl + string[idx + old.length:]
     return string
 
 _$rapyd$_str.split = def(string, sep, maxsplit):
-    if maxsplit == 0:
+    if maxsplit is 0:
         return [string]
     if sep is undefined or sep is None:
         if maxsplit > 0:
@@ -516,14 +516,14 @@ _$rapyd$_str.split = def(string, sep, maxsplit):
             for v'var i = 0; i < ans.length; i++':
                 if parts.length >= maxsplit + 1:
                     extra += ans[i]
-                elif i % 2 == 0:
+                elif i % 2 is 0:
                     parts.push(ans[i])  # noqa:undef
             parts[-1] += extra
             ans = parts
         else:
             ans = string.split(/\s+/)
     else:
-        if sep == '':
+        if sep is '':
             raise ValueError('empty separator')
         ans = string.split(sep)
         if maxsplit > 0 and ans.length > maxsplit:
@@ -560,14 +560,14 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
         else:
             ans = string.split(/\s+/)
     else:
-        if sep == '':
+        if sep is '':
             raise ValueError('empty separator')
         ans = v'[]'
         pos = end = string.length
         while pos > -1 and maxsplit > 0:
             maxsplit -= 1
             idx = string.lastIndexOf(sep, pos)
-            if idx == -1:
+            if idx is -1:
                 break
             ans.push(string[idx + sep.length:end])
             pos = idx - 1
@@ -581,7 +581,7 @@ _$rapyd$_str.splitlines = def(string, keepends):
         parts = string.split(/((?:\r?\n)|\r)/)
         ans = v'[]'
         for v'var i = 0; i < parts.length; i++':
-            if i % 2 == 0:
+            if i % 2 is 0:
                 ans.push(parts[i])
             else:
                 ans[-1] += parts[i]  # noqa:undef
@@ -595,7 +595,7 @@ _$rapyd$_str.swapcase = def(string):
         a = string[i]
         # We dont care about non-BMP chars as they are not cased anyway
         b = a.toLowerCase()
-        if a == b:
+        if a is b:
             b = a.toUpperCase()
         ans[i] = b  # noqa:undef
     return ans.join('')
@@ -623,9 +623,9 @@ _$rapyd$_str.uchrs = def(string, with_positions):
                 if this._pos < length:
                     # high surrogate, and there is a next character
                     extra = v'this._string.charCodeAt(this._pos++)'
-                    if (extra & 0xDC00) == 0xDC00: # low surrogate
+                    if (extra & 0xDC00) is 0xDC00: # low surrogate
                         ans = String.fromCharCode(value, extra)
-            elif (value & 0xDC00) != 0xDC00: # not a low surrogate
+            elif (value & 0xDC00) is not 0xDC00: # not a low surrogate
                 ans = String.fromCharCode(value)
             if with_positions:
                 return {'done':False, 'value':[pos, ans]}

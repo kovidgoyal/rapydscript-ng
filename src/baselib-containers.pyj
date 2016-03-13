@@ -15,14 +15,14 @@ v'var equals = _$rapyd$_equals;'
 # list {{{
 
 def _$rapyd$_list_extend(iterable):
-    if Array.isArray(iterable) or type(iterable) == 'string':
+    if Array.isArray(iterable) or type(iterable) is 'string':
         # Allocate all new memory in one operation
         start = this.length
         this.length += iterable.length
         for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             this.push(result.value)
@@ -36,18 +36,18 @@ def _$rapyd$_list_index(val, start, stop):
         raise ValueError(val + ' is not in list')
     if stop is undefined:
         idx = this.indexOf(val, start)
-        if idx == -1:
+        if idx is -1:
             raise ValueError(val + ' is not in list')
         return idx
     if stop < 0:
         stop = this.length + stop
     for v'var i = start; i < stop; i++':
-        if this[i] == val:
+        if this[i] is val:
             return i  # noqa:undef
     raise ValueError(val + ' is not in list')
 
 def _$rapyd$_list_pop(index):
-    if this.length == 0:
+    if this.length is 0:
         raise IndexError('list is empty')
     ans = this.splice(index, 1)
     if not ans.length:
@@ -56,7 +56,7 @@ def _$rapyd$_list_pop(index):
 
 def _$rapyd$_list_remove(value):
     idx = this.indexOf(value)
-    if idx == -1:
+    if idx is -1:
         raise ValueError(value + ' not in list')
     this.splice(idx, 1)
 
@@ -67,7 +67,7 @@ def _$rapyd$_list_insert(index, val):
     if index < 0:
         index += this.length
     index = min(this.length, max(index, 0))
-    if index == 0:
+    if index is 0:
         this.unshift(val)
         return
     for v'var i = this.length; i > index; i--':
@@ -84,11 +84,11 @@ def _$rapyd$_list_as_array():
     return Array.prototype.slice.call(this)
 
 def _$rapyd$_list_count(value):
-    return this.reduce(def(n, val): return n + (val == value);, 0)
+    return this.reduce(def(n, val): return n + (val is value);, 0)
 
 def _$rapyd$_list_sort_key(value):
     t = type(value)
-    if t == 'string' or t == 'number':
+    if t is 'string' or t is 'number':
         return value
     return value.toString()
 
@@ -135,14 +135,14 @@ def _$rapyd$_list_len():
     return this.length
 
 def _$rapyd$_list_contains(val):
-    return this.indexOf(val) != -1
+    return this.indexOf(val) is not -1
 
 def _$rapyd$_list_eq(other):
     if not Array.isArray(other):
         return False
-    if other.length != this.length:
+    if other.length is not this.length:
         return False
-    if other.length == 0:
+    if other.length is 0:
         return True
     for v'var i = 0; i < other.length; i++':
         if not _$rapyd$_equals(this[i], other[i]):  # noqa:undef
@@ -169,26 +169,26 @@ def _$rapyd$_list_decorate(ans):
     ans.__contains__ = _$rapyd$_list_contains
     ans.__eq__ = _$rapyd$_list_eq
     ans.constructor = _$rapyd$_list_constructor
-    if type(ans[_$rapyd$_iterator_symbol]) != 'function':
+    if type(ans[_$rapyd$_iterator_symbol]) is not 'function':
         # Happens on ES 5 runtimes
         ans[_$rapyd$_iterator_symbol] = _$rapyd$_list_iterator
     return ans
 
 def _$rapyd$_list_constructor(iterable):
-    if iterable == undefined:
+    if iterable is undefined:
         ans = v'[]'
     elif _$rapyd$_arraylike(iterable):
         ans = new Array(iterable.length)
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
-    elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-        iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
             ans.push(result.value)
             result = iterator.next()
-    elif type(iterable) == 'number':
+    elif type(iterable) is 'number':
         # non-pythonic optimization to allocate all needed memory in a single operation
         ans = new Array(iterable)
     else:
@@ -209,12 +209,12 @@ v'var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation'
 
 def _$rapyd$_set_keyfor(x):
     t = type(x)
-    if t == 'string' or t == 'number' or t == 'boolean':
+    if t is 'string' or t is 'number' or t is 'boolean':
         return '_' + t[0] + x
     if v'x === null': # also matches undefined
         return "__!@#$0"
     ans = x._$rapyd$_hash_key_prop
-    if ans == undefined:
+    if ans is undefined:
         v'ans = "_!@#$" + (++_$rapyd$_global_object_id)'
         Object.defineProperty(x, '_$rapyd$_hash_key_prop', { 'value': ans })
     return ans
@@ -260,7 +260,7 @@ _$rapyd$_set_polyfill.prototype.values = def(x):
             return {'done':False, 'value':s[this._keys[this._i]]}
     }
 
-if type(Set) != 'function' or type(Set.prototype.delete) != 'function':
+if type(Set) is not 'function' or type(Set.prototype.delete) is not 'function':
     v'_$rapyd$_set_implementation = _$rapyd$_set_polyfill'
 else:
     v'_$rapyd$_set_implementation = Set'
@@ -269,14 +269,14 @@ def _$rapyd$_set(iterable):
     if isinstance(this, _$rapyd$_set):
         this.jsset = new _$rapyd$_set_implementation()  # noqa:undef
         ans = this
-        if iterable == undefined:
+        if iterable is undefined:
             return ans
         s = ans.jsset
         if _$rapyd$_arraylike(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])  # noqa:undef
-        elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
-            iterator = (type(Map) == 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+            iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -439,9 +439,9 @@ _$rapyd$_set.prototype.toString = _$rapyd$_set.prototype.inspect = def():
 _$rapyd$_set.prototype.__eq__ = def(other):
     if not isinstance(other, this.constructor):
         return False
-    if other.size != this.size:
+    if other.size is not this.size:
         return False
-    if other.size == 0:
+    if other.size is 0:
         return True
     iterator = other[_$rapyd$_iterator_symbol]()
     r = iterator.next()
@@ -539,7 +539,7 @@ _$rapyd$_dict_polyfill.prototype.entries = def(x):
             return {'done':False, 'value':s[this._keys[this._i]]}
     }
 
-if type(Map) != 'function' or type(Map.prototype.delete) != 'function':
+if type(Map) is not 'function' or type(Map.prototype.delete) is not 'function':
     v'_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill'
 else:
     v'_$rapyd$_dict_implementation = Map'
@@ -547,7 +547,7 @@ else:
 def _$rapyd$_dict(iterable):
     if isinstance(this, _$rapyd$_dict):
         this.jsmap = new _$rapyd$_dict_implementation()  # noqa:undef
-        if iterable != undefined:
+        if iterable is not undefined:
             this.update(iterable)
         return this
     else:
@@ -573,14 +573,14 @@ _$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = def(): return this.jsmap.key
 
 _$rapyd$_dict.prototype.__getitem__ = def (key):
     ans = this.jsmap.get(key)
-    if ans == undefined and not this.jsmap.has(key):
+    if ans is undefined and not this.jsmap.has(key):
         raise KeyError(key + '')
     return ans
 
 _$rapyd$_dict.prototype.get = def (key, defval):
     ans = this.jsmap.get(key)
-    if ans == undefined and not this.jsmap.has(key):
-        return (defval == undefined) ? None : defval
+    if ans is undefined and not this.jsmap.has(key):
+        return (defval is undefined) ? None : defval
     return ans
 
 _$rapyd$_dict.prototype.set_default = def (key, defval):
@@ -601,8 +601,8 @@ _$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = def (iterable, value
 
 _$rapyd$_dict.prototype.pop = def (key, defval):
     ans = this.jsmap.get(key)
-    if ans == undefined and not this.jsmap.has(key):
-        if defval == undefined:
+    if ans is undefined and not this.jsmap.has(key):
+        if defval is undefined:
             raise KeyError(key)
         return defval
     this.jsmap.delete(key)
@@ -616,7 +616,7 @@ _$rapyd$_dict.prototype.popitem = def ():
     return r.value
 
 _$rapyd$_dict.prototype.update = def ():
-    if arguments.length == 0:
+    if arguments.length is 0:
         return
     m = this.jsmap
     iterable = arguments[0]
@@ -629,13 +629,13 @@ _$rapyd$_dict.prototype.update = def ():
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(Map) == 'function' and isinstance(iterable, Map):
+    elif type(Map) is 'function' and isinstance(iterable, Map):
         iterator = iterable.entries()
         result = iterator.next()
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(iterable[_$rapyd$_iterator_symbol]) == 'function':
+    elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
         iterator = iterable[_$rapyd$_iterator_symbol]()
         result = iterator.next()
         while not result.done:
@@ -644,7 +644,7 @@ _$rapyd$_dict.prototype.update = def ():
     else:
         keys = Object.keys(iterable)
         for v'var i=0; i < keys.length; i++':
-            if keys[i] != _$rapyd$_iterator_symbol:
+            if keys[i] is not _$rapyd$_iterator_symbol:
                 m.set(keys[i], iterable[keys[i]])  # noqa:undef
     if arguments.length > 1:
         _$rapyd$_dict.prototype.update.call(this, arguments[1])
@@ -661,15 +661,15 @@ _$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = def():
 _$rapyd$_dict.prototype.__eq__ = def(other):
     if not isinstance(other, this.constructor):
         return False
-    if other.size != this.size:
+    if other.size is not this.size:
         return False
-    if other.size == 0:
+    if other.size is 0:
         return True
     iterator = other.items()
     r = iterator.next()
     while not r.done:
         x = this.jsmap.get(r.value[0])
-        if (x == undefined and not this.jsmap.has(r.value[0])) or x != r.value[1]:
+        if (x is undefined and not this.jsmap.has(r.value[0])) or x is not r.value[1]:
             return False
         r = iterator.next()
     return True

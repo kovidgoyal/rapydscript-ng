@@ -15,14 +15,14 @@ def characters(str_):
 
 def member(name, array):
     for i in range(array.length-1, -1, -1):
-        if array[i] == name:
+        if array[i] is name:
             return True
     return False
 
 def repeat_string(str_, i):
     if i <= 0:
         return ""
-    if i == 1:
+    if i is 1:
         return str_
     d = repeat_string(str_, i >> 1)
     d += d
@@ -176,7 +176,7 @@ def set_intersection(a, b):
 def make_predicate(words):
     if not Array.isArray(words):
         words = words.split(" ")
-    if type(Set) == 'function':
+    if type(Set) is 'function':
         a = Set(words)
         return def(x):
             return a.has(x)

@@ -9,14 +9,14 @@ def _$rapyd$_bool(val):
 
 def _$rapyd$_bind(fn, thisArg):
     if fn.orig: fn = fn.orig
-    if thisArg == False: return fn
+    if thisArg is False: return fn
     ret = def():
         return fn.apply(thisArg, arguments)
     ret.orig = fn
     return ret
 
 def _$rapyd$_rebind_all(thisArg, rebind):
-    if v'typeof rebind' == "undefined": rebind = True
+    if v'typeof rebind' is "undefined": rebind = True
     for v'var p in thisArg':
         if thisArg[p] and thisArg[p].orig:
             if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
@@ -24,28 +24,28 @@ def _$rapyd$_rebind_all(thisArg, rebind):
 
 def _$rapyd$_eslice(arr, step, start, end):
     arr = arr[:]
-    if type(arr) == 'string' or isinstance(arr, String):
+    if type(arr) is 'string' or isinstance(arr, String):
         isString = True
         arr = arr.split('')
 
     if step < 0:
         step = -step
         arr.reverse()
-        if type(start) != "undefined": start = arr.length - start - 1
-        if type(end) != "undefined": end = arr.length - end - 1
-    if type(start) == "undefined": start = 0
-    if type(end) == "undefined": end = arr.length
+        if type(start) is not "undefined": start = arr.length - start - 1
+        if type(end) is not "undefined": end = arr.length - end - 1
+    if type(start) is "undefined": start = 0
+    if type(end) is "undefined": end = arr.length
 
-    arr = arr.slice(start, end).filter(def(e, i): return i % step == 0;)
+    arr = arr.slice(start, end).filter(def(e, i): return i % step is 0;)
     return isString ? arr.join('') : arr
 
 def _$rapyd$_mixin(target, source, overwrite):
     for v'var i in source':
-        if source.hasOwnProperty(i) and overwrite or v'typeof target[i]' == 'undefined':  # noqa:undef
+        if source.hasOwnProperty(i) and overwrite or v'typeof target[i]' is 'undefined':  # noqa:undef
             target[i] = source[i]  # noqa:undef
 
 def _$rapyd$_print():
-    if v'typeof console' == 'object':
+    if v'typeof console' is 'object':
         parts = v'[]'
         for v'var i = 0; i < arguments.length; i++':
             parts.push(_$rapyd$_str(arguments[i]))  # noqa: undef
@@ -64,14 +64,14 @@ def _$rapyd$_float():
     return ans
 
 def _$rapyd$_arraylike_creator():
-    if type(HTMLCollection) == 'function':
+    if type(HTMLCollection) is 'function':
         names = v'["[object HTMLCollection]", "[object NodeList]", "[object NamedNodeMap]"]'
         return def(x):
-            if Array.isArray(x) or v'typeof x' == 'string' or names.indexOf(Object.prototype.toString.call(x)) > -1:
+            if Array.isArray(x) or v'typeof x' is 'string' or names.indexOf(Object.prototype.toString.call(x)) > -1:
                 return True
             return False
     return def(x):
-        if Array.isArray(x) or v'typeof x' == 'string':
+        if Array.isArray(x) or v'typeof x' is 'string':
             return True
         return False
 

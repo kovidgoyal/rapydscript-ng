@@ -565,12 +565,12 @@ ALIAS_MAP = (def ():
     ans = {}
     for line in DB.split('\n'):
         line = line.trim()
-        if not line or line[0] == '#':
+        if not line or line[0] is '#':
             continue
         parts = line.split(';')
         if parts.length >= 2:
             code_point = parseInt(parts[0], 16)
-            if code_point != undefined and parts[1]:
+            if code_point is not undefined and parts[1]:
                 ans[parts[1].toLowerCase()] = code_point
     return ans
 )()
