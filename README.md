@@ -1513,6 +1513,15 @@ window.onload = function() {
 </html>
 ```
 
+There are a couple of caveats when using the embedded compiler:
+
+    * It only works when run in a modern browser (one that supports ES6) so no
+      Internet Explorer. Technically, it is possible to have it work with older
+      browsers, but that would increase the size of the embedded compiler by an
+      order of magnitude (600 KB -> 6 MB)
+    * Importing of modules only works with the standard library modules. There
+      is currently no way to make your own modules importable.
+
 Internationalization
 -------------------------
 
