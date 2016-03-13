@@ -203,14 +203,14 @@
     }
 
     function on_load() {
-        web_repl = exports.web_repl();
+        web_repl = RapydScript.web_repl();
         web_repl.replace_print(println);
-        web_repl.init_completions(exports.completer);
+        web_repl.init_completions(RapydScript.completer);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('top').style.display = 'flex';
         document.getElementById('bottom').style.display = 'flex';
         add_output(
-            ('RapydScript-ng ' + exports.rs_version + '\n' +
+            ('RapydScript-ng ' + RapydScript.rs_version + '\n' +
             'Type RapydScript code into the box at the bottom and click the' + 
             ' Run button. You can press Tab for completions.'), 'blue'
         );
