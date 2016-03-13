@@ -142,7 +142,7 @@
         comps.style.display = 'block';
     }
 
-    function check_for_completions(no_auto_insert) {
+    function check_for_completions() {
         var input = document.getElementById('input'), source = input.value;
         var ss = input.selectionStart;
         if (ss === undefined || input.selectionEnd !== ss) return hide_completions();
@@ -151,7 +151,7 @@
         if (!ret || ret.length != 2) return hide_completions();
         var completions = ret[0], prefix = longest_common_prefix(completions), last_tok = ret[1];
         if (prefix == last_tok && completions.length == 1) return hide_completions();
-        if (!no_auto_insert && (completions_visible() || completions.length == 1)) {
+        if (completions_visible() || completions.length == 1) {
             if (prefix.length > last_tok.length) {
                 var insertion = prefix.substr(last_tok.length);
                 input.value = before + insertion + source.substr(ss);
@@ -164,7 +164,15 @@
 
     function update_completions() {
         if (completions_visible()) {
-            check_for_completions(true);
+            var input = document.getElementById('input'), source = input.value;
+            var ss = input.selectionStart;
+            if (ss === undefined || input.selectionEnd !== ss) return hide_completions();
+            var before = source.substr(0, ss);
+            var ret = web_repl.find_completions(before);
+            if (!ret || ret.length != 2) return hide_completions();
+            var completions = ret[0], prefix = longest_common_prefix(completions), last_tok = ret[1];
+            if (prefix == last_tok && completions.length == 1) return hide_completions();
+            show_completions(completions);
         }
     }
 
