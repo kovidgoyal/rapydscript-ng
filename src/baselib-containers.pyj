@@ -21,6 +21,8 @@ def _$rapyd$_equals(a, b):
     return False
 
 def _$rapyd$_not_equals(a, b):
+    if a is b:
+        return False
     if a and type(a.__ne__) is 'function':
         return a.__ne__(b)
     if b and type(b.__ne__) is 'function':

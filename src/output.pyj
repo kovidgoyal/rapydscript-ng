@@ -2156,6 +2156,22 @@ def codegen():
         else:
             single(left, right)
 
+    def write_smart_equality(self, output):
+        def is_ok(x):
+            return not isinstance(x, (AST_Array, AST_Set, AST_Object, AST_Statement, AST_Binary, AST_Conditional, AST_BaseCall))
+        if is_ok(self.left) and is_ok(self.right):
+            if self.operator is '==':
+                output.print('(')
+                output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', '_$rapyd$_equals(')
+                self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
+            else:
+                output.print('(')
+                output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', '_$rapyd$_not_equals(')
+                self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
+        else:
+            output.print('_$rapyd$_' + ('equals(' if self.operator is '==' else 'not_equals('))
+            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')')
+
     DEFPRINT(AST_Binary, def(self, output):
         comparators = {
             "<": True,
@@ -2213,14 +2229,8 @@ def codegen():
                 output.space()
                 self.right.print(output)
             )
-        elif self.operator is '==':
-            output.print('(')
-            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', '_$rapyd$_equals(')
-            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
-        elif self.operator is '!=':
-            output.print('(')
-            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', '_$rapyd$_not_equals(')
-            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
+        elif self.operator is '==' or self.operator is '!=':
+            write_smart_equality(self, output)
         elif self.operator is 'instanceof':
             write_instanceof(self.left, self.right, output)
         else:

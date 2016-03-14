@@ -152,3 +152,7 @@ assert.ok(D(1) == D(1))
 assert.ok(D(2) != D(1))
 assert.ok(D(1) == {'data':1})
 assert.ok({'data':1} == D(1))
+
+arr = []
+{} == arr.append(2)
+assert.ok(arr.length is 1)
