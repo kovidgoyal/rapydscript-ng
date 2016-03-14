@@ -8,6 +8,7 @@ var path = require('path');
 
 var base = path.normalize(path.resolve(path.join(path.dirname(__dirname))));
 var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
+var commit_sha = fs.readFileSync(path.join(base, '.git', 'refs', 'heads', 'master'), {'encoding':'utf-8'});
 
 var manifest = {}, total = 0;
 ['compiler.js', 'baselib-plain-pretty.js'].forEach(function(x) {
@@ -44,6 +45,7 @@ var rs = '// vim:fileencoding=utf-8\n';
 rs += '(function(external_namespace) {\n';
 rs += '"use strict;"\n';
 rs += 'var rs_version = ' + JSON.stringify(meta.version) + ';\n';
+rs += 'var rs_commit_sha = ' + JSON.stringify(commit_sha) + ';\n';
 rs += '\n// Embedded modules {{{\n';
 rs += 'var data = ' + JSON.stringify(manifest) + ';\n\n';
 rs += '// End embedded modules }}}\n\n';

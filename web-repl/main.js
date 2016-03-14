@@ -218,7 +218,7 @@
         document.getElementById('top').style.display = 'flex';
         document.getElementById('bottom').style.display = 'flex';
         add_output(
-            ('RapydScript-ng ' + RapydScript.rs_version + '\n' +
+            ('RapydScript-ng ' + RapydScript.rs_version + ' (at commit: ' + RapydScript.rs_commit_sha.substr(0, 10) + ')\n' +
             'Type RapydScript code into the box at the bottom and click the' + 
             ' Run button. You can press Tab for completions.'), 'blue'
         );

@@ -269,4 +269,5 @@ if (typeof exports === 'object') {
     exports.rs_version = rs_version;
     exports.file_data = data;
     exports.completer = completer;
+    if (typeof rs_commit_sha === 'string') exports.rs_commit_sha = rs_commit_sha;
 }
