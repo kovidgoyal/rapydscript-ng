@@ -326,7 +326,6 @@ def tokenizer($TEXT, filename):
 
     def read_num(prefix):
         has_e = False
-        after_e = False
         has_x = False
         has_dot = prefix is "."
         if not prefix and peek() is '0' and S.text.charAt(S.pos + 1) is 'b':
@@ -336,27 +335,35 @@ def tokenizer($TEXT, filename):
             if isNaN(valid):
                 parse_error('Invalid syntax for a binary number')
             return token('num', valid)
+        seen = v'[]'
         num = read_while(def(ch, i):
-            nonlocal after_e, has_dot, has_e, has_x
-            code = ch.charCodeAt(0)
-            tmp_ = code
-            if tmp_ is 120 or tmp_ is 88:
-                # xX
-                return has_x ? False : has_x = True
-            elif tmp_ is 101 or tmp_ is 69:
-                # eE
-                return has_x ? True : (has_e ? False : has_e = after_e = True)
-            elif tmp_ is 45:
-                # -
-                return after_e or i is 0 and not prefix
-            elif tmp_ is 43:
-                # +
-                return after_e
-            elif tmp_ is 46:
-                # .
-                after_e = False
+            nonlocal has_dot, has_e, has_x
+            seen.push(ch)
+            if ch is 'x' or ch is 'X':
+                if has_x or seen.length is not 2 or seen[0] is not '0':
+                    return False
+                has_x = True
+                return True
+            elif ch is 'e' or ch is 'E':
+                if has_x:
+                    return True
+                if has_e or i == 0:
+                    return False
+                has_e = True
+                return True
+            elif ch is '-':
+                if i is 0 and not prefix:
+                    return True
+                if has_e and seen[i-1].toLowerCase() is 'e':
+                    return True
+                return False
+            elif ch is '+':
+                if has_e and seen[i-1].toLowerCase() is 'e':
+                    return True
+                return False
+            elif ch is '.':
                 return not has_dot and not has_x and not has_e ? has_dot = True : False
-            return is_alphanumeric_char(code)
+            return is_alphanumeric_char(ch.charCodeAt(0))
         )
         if prefix:
             num = prefix + num

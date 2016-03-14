@@ -131,3 +131,9 @@ throw_test('for a in b:\\n 1+1')
 def localvars_in_comprehension():
     return {k:i for i, k in enumerate([1,2])}
 assert.deepEqual(localvars_in_comprehension(), {'1':0, '2':1})
+
+# Numbers
+assert.equal(1e2, 100)
+assert.equal(-1e2, -100)
+assert.equal(1e+2, 100)
+assert.equal(1E-1, 0.1)
