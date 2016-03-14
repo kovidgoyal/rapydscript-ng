@@ -22,6 +22,8 @@ assert.ok(7 in a)
 assert.ok(i1 in b)
 assert.ok(i2 not in b)
 assert.ok(b == b.copy())
+assert.ok([1] in [[1], [2]])
+assert.ok([3] not in [[1], [2]])
 
 # assignment
 a[-1] = 9

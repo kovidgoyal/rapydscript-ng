@@ -163,7 +163,7 @@ def _$rapyd$_list_eq(other):
     if this.length != other.length:
         return False
     for v'var i = 0; i < this.length; i++':
-        if not this[i] == other[i]:
+        if not (this[i] == other[i]):
             return False
     return True
 
