@@ -41,7 +41,7 @@ var BUILTINS = {
     'RangeError':true, 'ReferenceError':true, 'SyntaxError':true, 'str':true,
     'TypeError':true, 'URIError':true, 'Exception':true, 'IndexError':true,
     'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true, 'hex':true,
-    'filter':true, 'zip':true, 'equals': true, 'dict':true, 'dict_wrap':true,
+    'filter':true, 'zip':true, 'dict':true, 'dict_wrap':true,
     'HTMLCollection': true, 'NodeList': true, 'alert': true, 'console': true,
     'Node':true, 'Symbol':true, 'NamedNodeMap':true, '_$rapyd$_eslice': true,
     'Number':true, 'Boolean':true, 'encodeURIComponent':true,

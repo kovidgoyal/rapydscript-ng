@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains
 
 def abs():
     return Math.abs
@@ -75,19 +75,23 @@ def _$rapyd$_extends(child, parent):
 def _$rapyd$_in():
     if type(Map) is 'function' and type(Set) is 'function':
         return def(val, arr):
-            if Array.isArray(arr) or v'typeof arr' is 'string':
+            if type(arr) is 'string':
                 return arr.indexOf(val) is not -1
             if type(arr.__contains__) is 'function':
                 return arr.__contains__(val)
             if isinstance(arr, (Map, Set)):
                 return arr.has(val)
+            if _$rapyd$_arraylike(arr):
+                return _$rapyd$_list_contains.call(arr, val)
             return Object.prototype.hasOwnProperty.call(arr, val)
     return def(val, arr):
-            if Array.isArray(arr) or v'typeof arr' is 'string':
-                return arr.indexOf(val) is not -1
-            if type(arr.__contains__) is 'function':
-                return arr.__contains__(val)
-            return Object.prototype.hasOwnProperty.call(arr, val)
+        if type(arr) is 'string':
+            return arr.indexOf(val) is not -1
+        if type(arr.__contains__) is 'function':
+            return arr.__contains__(val)
+        if _$rapyd$_arraylike(arr):
+            return _$rapyd$_list_contains.call(arr, val)
+        return Object.prototype.hasOwnProperty.call(arr, val)
 
 def _$rapyd$_Iterable(iterable):
     # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get

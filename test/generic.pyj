@@ -137,3 +137,18 @@ assert.equal(1e2, 100)
 assert.equal(-1e2, -100)
 assert.equal(1e+2, 100)
 assert.equal(1E-1, 0.1)
+
+# Equality operators
+
+class D:
+
+    def __init__(self, data):
+        self.data = data
+
+    def __eq__(self, other):
+        return self.data == other.data
+
+assert.ok(D(1) == D(1))
+assert.ok(D(2) != D(1))
+assert.ok(D(1) == {'data':1})
+assert.ok({'data':1} == D(1))

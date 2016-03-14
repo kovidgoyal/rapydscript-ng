@@ -758,12 +758,14 @@ arrays and objects.
 
 ### Container comparisons
 
-RapydScript does not overload the comparison operators ```(==, !=, >, <, >=,
+Container equality (the `==` and `!=` operators) work for lists and sets and
+RapydScript dicts (but not arbitrary javascript objects). You can also define
+the ``__eq__(self, other)`` method in your classes to have these operators work
+for your own types.
+
+RapydScript does not overload the ordering operators ```(>, <, >=,
 <=)``` as doing so would be a big performance impact (function calls in
-JavaScript are very slow). So using them on containers is useless. Currently,
-there is a builtin ```equals()``` function that works the same way as the
-equality operator in python (it uses the ```__eq__()``` method under the hood,
-which is implemented for lists and sets, but not dicts).
+JavaScript are very slow). So using them on containers is useless. 
 
 Loops
 -----
@@ -1591,7 +1593,8 @@ below:
 - Operators in JavaScript are very different from Python. ``1 + '1'`` would be
   an error in Python, but results in ``'11'`` in JavaScript. Similarly, ``[1] +
   [1]`` is a new list in Python, but a string in JavaScript. Keep that in mind
-  as you write code.
+  as you write code. RapydScript does not implement operator overloading, as
+  method calls in JavaScript are very slow compared to raw operators.
 
 - There are many more keywords than in Python. Because RapydScript compiles
   down to JavaScript, the set of keywords is all the keywords of Python + all

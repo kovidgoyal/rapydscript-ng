@@ -5,10 +5,27 @@
 # globals:_$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike
 
 def _$rapyd$_equals(a, b):
-    try:
+    if a is b:
+        return True
+    if a and type(a.__eq__) is 'function':
         return a.__eq__(b)
-    except TypeError:
-        return v'a === b'
+    if b and type(b.__eq__) is 'function':
+        return b.__eq__(a)
+    if _$rapyd$_arraylike(a) and _$rapyd$_arraylike(b):
+        if a.length != b.length:
+            return False
+        for v'var i=0; i < a.length; i++':
+            if not (a[i] == b[i]):
+                return False
+        return True
+    return False
+
+def _$rapyd$_not_equals(a, b):
+    if a and type(a.__ne__) is 'function':
+        return a.__ne__(b)
+    if b and type(b.__ne__) is 'function':
+        return b.__ne__(a)
+    return not _$rapyd$_equals(a, b)
 
 v'var equals = _$rapyd$_equals;'
 
@@ -42,7 +59,7 @@ def _$rapyd$_list_index(val, start, stop):
     if stop < 0:
         stop = this.length + stop
     for v'var i = start; i < stop; i++':
-        if this[i] is val:
+        if this[i] == val:
             return i  # noqa:undef
     raise ValueError(val + ' is not in list')
 
@@ -135,17 +152,18 @@ def _$rapyd$_list_len():
     return this.length
 
 def _$rapyd$_list_contains(val):
-    return this.indexOf(val) is not -1
+    for v'var i = 0; i < this.length; i++':
+        if this[i] == val:
+            return True
+    return False
 
 def _$rapyd$_list_eq(other):
-    if not Array.isArray(other):
+    if not _$rapyd$_arraylike(other):
         return False
-    if other.length is not this.length:
+    if this.length != other.length:
         return False
-    if other.length is 0:
-        return True
-    for v'var i = 0; i < other.length; i++':
-        if not _$rapyd$_equals(this[i], other[i]):  # noqa:undef
+    for v'var i = 0; i < this.length; i++':
+        if not this[i] == other[i]:
             return False
     return True
 

@@ -21,6 +21,7 @@ assert.deepEqual(a[2:], [6,7])
 assert.ok(7 in a)
 assert.ok(i1 in b)
 assert.ok(i2 not in b)
+assert.ok(b == b.copy())
 
 # assignment
 a[-1] = 9

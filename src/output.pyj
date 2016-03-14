@@ -2213,6 +2213,14 @@ def codegen():
                 output.space()
                 self.right.print(output)
             )
+        elif self.operator is '==':
+            output.print('(')
+            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', '_$rapyd$_equals(')
+            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
+        elif self.operator is '!=':
+            output.print('(')
+            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', '_$rapyd$_not_equals(')
+            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
         elif self.operator is 'instanceof':
             write_instanceof(self.left, self.right, output)
         else:
