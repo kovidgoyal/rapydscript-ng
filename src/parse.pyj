@@ -76,6 +76,7 @@ NATIVE_CLASSES = {
     'MouseEvent': {},
     'Event': {},
     'CustomEvent': {},
+    'Blob': {},
 }
 ERROR_CLASSES = {
     'Exception': {},
