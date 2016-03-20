@@ -25,7 +25,8 @@ q = E.div(
         E.span('a'),
         E.span('b'),
         E.a(),
-        id='1'
+        id='1',
+        boolean_attr=True,
     )
 dummy_elem_eq(q, {'name':'div', 'children':[
     {
@@ -40,4 +41,4 @@ dummy_elem_eq(q, {'name':'div', 'children':[
         'name':'a',
         'children':[], 'attributes': {}
     },
-], 'attributes':{'id':'1'}})
+], 'attributes':{'id':'1', 'boolean-attr':'boolean-attr'}})
