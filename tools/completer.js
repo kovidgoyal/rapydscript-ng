@@ -2,7 +2,7 @@
  * 
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
- * Distributed under terms of the GPLv3 license
+ * Distributed under terms of the BSD license
  */
 
 
