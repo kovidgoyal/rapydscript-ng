@@ -18,6 +18,16 @@ def _$rapyd$_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
+    if a and b and a.constructor is b.constructor and a.constructor is Object:
+        # Do a dict like comparison
+        akeys, bkeys = Object.keys(a), Object.keys(b)
+        if akeys.length is not bkeys.length:
+            return False
+        for v'var i=0; i < akeys.length; i++':
+            key = akeys[i]
+            if not (a[key] == b[key]):
+                return False
+        return True
     return False
 
 def _$rapyd$_not_equals(a, b):

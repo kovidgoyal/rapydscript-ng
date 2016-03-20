@@ -10,6 +10,7 @@ i0 = Item()
 i1 = Item()
 i2 = Item()
 b = [i0, i1]
+assert.ok(i0 != i1)
 
 # access and slicing
 assert.equal(len(a), 4)
@@ -98,3 +99,11 @@ hash = {
     "baz": 1,
 }
 assert.deepEqual(Object.keys(hash), [k for k in hash])
+
+a = {1:2}
+b = {2:1}
+assert.ok(a != b)
+b = a
+assert.ok(a == b)
+b = {1:2}
+assert.ok(a == b)
