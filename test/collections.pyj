@@ -107,3 +107,7 @@ b = a
 assert.ok(a == b)
 b = {1:2}
 assert.ok(a == b)
+
+# iterating over TypedArrays
+assert.deepEqual(list(Uint8Array(2)), [0, 0])
+assert.deepEqual(list(Int32Array([1,-1])), [1,-1])
