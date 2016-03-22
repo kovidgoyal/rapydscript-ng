@@ -35,7 +35,7 @@ def _$rapyd$_repr(x):
     else:
         name = Object.prototype.toString.call(x).slice(8, -1)
         if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
-            return name+'(['+[str.format('0x{:02x}', i) for i in x].join(', ')+'])'
+            return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
         ans = x.toString() if v'typeof x.toString === "function"' else x
         if ans is '[object Object]':
             # Assume this is a dictionary
@@ -63,7 +63,7 @@ def _$rapyd$_str(x):
     elif v'typeof x.toString === "function"':
         name = Object.prototype.toString.call(x).slice(8, -1)
         if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
-            return name+'(['+[str.format('0x{:02x}', i) for i in x].join(', ')+'])'
+            return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
         ans = x.toString()
         if ans is '[object Object]':
             # Assume this is a dictionary
