@@ -1,0 +1,71 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from aes import CBC, CTR, GCM, generate_tag, as_hex, AES
+
+# Test roundtripping
+
+text = 'testing a basic roundtrip ø̄ū'
+
+cbc = CBC()
+crypted = cbc.encrypt(text)
+decrypted = cbc.decrypt(crypted)
+assert.equal(text, decrypted)
+secret_tag = generate_tag()
+crypted = cbc.encrypt(text, secret_tag)
+decrypted = cbc.decrypt(crypted, secret_tag)
+assert.equal(text, decrypted)
+
+ctr = CTR()
+crypted = ctr.encrypt(text)
+decrypted = ctr.decrypt(crypted)
+assert.equal(text, decrypted)
+crypted = ctr.encrypt(text, secret_tag)
+decrypted = ctr.decrypt(crypted, secret_tag)
+assert.equal(text, decrypted)
+
+gcm = GCM()
+crypted = gcm.encrypt(text)
+decrypted = gcm.decrypt(crypted)
+assert.equal(text, decrypted)
+crypted = gcm.encrypt(text, secret_tag)
+decrypted = gcm.decrypt(crypted, secret_tag)
+assert.equal(text, decrypted)
+
+def from_hex(text):
+    text = str.replace(text, ' ', '')
+    ans = Uint8Array(text.length // 2)
+    for i in range(text.length // 2):
+        ans[i] = int(text[2*i:2*i+2], 16)
+    return ans
+
+def from32(ints):
+    ans = Uint8Array(ints.length * 4)
+    for i, num in enumerate(ints):
+        off = i*4
+        ans[off] = (num & 0xff000000) >> 24
+        ans[off+1] = (num & 0x00ff0000) >> 16
+        ans[off+2] = (num & 0x0000ff00) >> 8
+        ans[off+3] = num & 0x000000ff
+    return ans
+assert.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
+
+# Test basic AES
+k1 = '000102030405060708090a0b0c0d0e0f'
+k2 = k1 + '1011121314151617'
+k3 = k2 + '18191a1b1c1d1e1f'
+b = [0x00112233, 0x44556677, 0x8899aabb, 0xccddeeff]
+
+for data in [
+    (b, k1, '69c4e0d86a7b0430d8cdb78070b4c55a', False),
+    ([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a], k1, '00112233445566778899aabbccddeeff', True),
+    (b, k2, 'dda97ca4864cdfe06eaf70a0ec0d7191', False),
+    ([0xdda97ca4, 0x864cdfe0, 0x6eaf70a0, 0xec0d7191], k2, '00112233445566778899aabbccddeeff', True),
+    (b, k3, '8ea2b7ca516745bfeafc49904b496089', False),
+    ([0x8ea2b7ca, 0x516745bf, 0xeafc4990, 0x4b496089], k3, '00112233445566778899aabbccddeeff', True),
+]:
+    block, key, expected, decrypt = data
+    aes = AES(from_hex(key))
+    output = Uint8Array(block.length * 4)
+    aes.decrypt32(block, output, 0) if decrypt else aes.encrypt32(block, output, 0)
+    assert.equal(expected, as_hex(output, ''))
