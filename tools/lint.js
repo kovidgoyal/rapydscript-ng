@@ -48,7 +48,7 @@ var BUILTINS = {
     'decodeURIComponent':true, 'setTimeout': true, 'setInterval': true,
     'setImmediate': true, 'clearTimeout': true, 'clearInterval': true,
     'clearImmediate': true, 'requestAnimationFrame': true, 'id':true, 'repr': true,
-    'sorted':true, '__name__':true
+    'sorted':true, '__name__':true, 'equals': true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 
