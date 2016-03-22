@@ -111,6 +111,39 @@ def run_tests():
         ans = cbc.decrypt_bytes(outputbytes, [], iv)
         assert.equal(as_hex(ans), as_hex(inputbytes))
 
+    # Test AES-CTR
+    keys = [
+         '00000000000000000000000000000000',
+         '2b7e151628aed2a6abf7158809cf4f3c'
+    ]
+
+    ivs = [
+         '650cdb80ff9fc758342d2bd99ee2abcf',
+         'f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff'
+    ]
+
+    inputs = [
+         'This is a 48-byte message (exactly 3 AES blocks)',
+         '6bc1bee22e409f96e93d7e117393172a' 'ae2d8a571e03ac9c9eb76fac45af8e51' '30c81c46a35ce411e5fbc1191a0a52ef' 'f69f2445df4f9b17ad2b417be66c3710'
+    ]
+
+    outputs = [
+         '5ede11d00e9a76ec1d5e7e811ea3dd1c' 'e09ee941210f825d35718d3282796f1c' '07c3f1cb424f2b365766ab5229f5b5a4',
+         '874d6191b620e3261bef6864990db6ce' '9806f66b7970fdff8617187bb9fffdff' '5ae4df3edbd5d35e5b4f09020db03eab' '1e031dda2fbe03d1792170a0f3009cee'
+    ]
+
+    for i in range(keys.length):
+        iv = from_hex(ivs[i])
+        ctr = CTR(from_hex(keys[i]), iv)
+        x = inputs[i]
+        inputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
+        x = outputs[i]
+        outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
+        temp = Uint8Array(inputbytes)
+        ctr._crypt(temp)
+        assert.equal(as_hex(temp, ''), outputs[i])
+
+
 a = Uint8Array(1)
 if a.slice:  # node 0.12 does not have TypedArray.slice which the aes module uses
     run_tests()

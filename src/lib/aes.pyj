@@ -48,8 +48,8 @@ string_to_bytes = string_to_bytes_encoder if type(TextEncoder) is 'function' els
 bytes_to_string = bytes_to_string_decoder if type(TextDecoder) is 'function' else bytes_to_string_slow
 
 def increment_counter(c):
-    # c is a Uint8Array
-    for v'var i = c.length; i >= 0; i--':
+    # c must be a Uint8Array of length 16
+    for v'var i = 15; i >= 12; i--':
         if c[i] is 255:
             c[i] = 0
         else:
@@ -442,22 +442,22 @@ class CTR(ModeOfOperation):  # {{{
     # using it for bi-directional messaging it is best to use a different
     # secret key for each direction
 
-    def __init__(self, key, counter):
+    def __init__(self, key, iv):
         ModeOfOperation.__init__(self, key)
         self.wmem = Uint8Array(16)
-        self.counter_block = Uint8Array(16)
+        self.counter_block = Uint8Array(iv or 16)
+        if self.counter_block.length != 16:
+            raise ValueError('iv must be 16 bytes long')
         self.counter_index = 16
 
     def _crypt(self, bytes):
-        for v'var i = 0; i < bytes.length; i++':
+        for v'var i = 0; i < bytes.length; i++, self.counter_index++':
             if self.counter_index is 16:
                 self.counter_index = 0
                 self.aes.encrypt(self.counter_block, self.wmem, 0)
                 increment_counter(self.counter_block)
             bytes[i] ^= self.wmem[self.counter_index]
-            self.counter_index += 1
         self.counter_index = 16
-        increment_counter(self.counter_block)
 
     def encrypt(self, plaintext, tag):
         outbytes = string_to_bytes(plaintext)
