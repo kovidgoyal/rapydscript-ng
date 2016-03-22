@@ -4,7 +4,7 @@
     "baselib-containers": "b2cfbd662799ccbe7ea30e26ec7a8223d8d96b71",
     "baselib-errors": "fe773d6e0550447d888337b913991af436e8649b",
     "baselib-itertools": "b2e1f37770fbce50d73c1d517239906a791234d0",
-    "baselib-str": "c46cd87347f71d7be8074ab2f3201955f67e0cab",
+    "baselib-str": "2b04f6b4098f74a99657b4cd4ccd7232db167ffd",
     "baselib": "9f3980996f15d33dc78ac9ce86dfa67bcd7eba6d",
     "compiler": "5165655a1617f9c7cab464acf09816c0eb8776c8",
     "errors": "eb15520287db559585bbc9bdb934f9dc7f593f0a",
@@ -13,6 +13,6 @@
     "tokenizer": "88533b2ecbb18028d99c1679f1b46bdecb83fdfd",
     "unicode_aliases": "79ac6eaa5e6be44a5397d62c561f854a8fe7528e",
     "utils": "678a59e67a3c3ecebdbb8703407005c978c75097",
-    "#compiler#": "dd18fa874a2a6442ce8ceaa8cc4be4a932bfce4e",
+    "#compiler#": "023a2ec91df27963094963ccd59c1590b71c5fe4",
     "#compiled_with#": "dd18fa874a2a6442ce8ceaa8cc4be4a932bfce4e"
 }
