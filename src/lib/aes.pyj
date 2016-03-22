@@ -393,17 +393,14 @@ def typed_array_as_js(x):
 
 class CBC(ModeOfOperation):  # {{{
 
-    def encrypt_bytes(self, bytes, tag_bytes):
-        iv = first_iv = random_bytes(16)
-        mlen = bytes.length + tag_bytes.length + 1
-        padsz = 16 - (mlen % 16)
+    def encrypt_bytes(self, bytes, tag_bytes, iv):
+        iv = first_iv = iv or random_bytes(16)
+        mlen = bytes.length + tag_bytes.length
+        padsz = (16 - (mlen % 16)) % 16
         inputbytes = Uint8Array(mlen + padsz)
-        inputbytes[0] = padsz
         if tag_bytes.length:
-            inputbytes.set(tag_bytes, 1)
-        inputbytes.set(bytes, 1 + tag_bytes.length)
-        if padsz:
-            inputbytes.set(random_bytes(padsz), 1 + tag_bytes.length + bytes.length)
+            inputbytes.set(tag_bytes)
+        inputbytes.set(bytes, tag_bytes.length)
 
         offset = 0
         outputbytes = Uint8Array(inputbytes.length)
@@ -416,16 +413,9 @@ class CBC(ModeOfOperation):  # {{{
         return {'iv':first_iv, 'cipherbytes':outputbytes}
 
     def encrypt(self, plaintext, tag):
-        # Encrypt the plaintext (a string) returning an object that contains
-        # the used initialization vector and the encrypted bytes (as
-        # Uint8Arrays). If the optional tag (a string) is present, it is also
-        # encrypted along with plaintext.It can be used to ensure message integrity.
-        # See the __main__ block at the bottom of this file for example usage.
         return self.encrypt_bytes(string_to_bytes(plaintext), self.tag_as_bytes(tag))
 
-    def decrypt(self, output_from_encrypt, tag):
-        tag_bytes = self.tag_as_bytes(tag)
-        iv, inputbytes = output_from_encrypt.iv, output_from_encrypt.cipherbytes
+    def decrypt_bytes(self, inputbytes, tag_bytes, iv):
         offset = 0
         outputbytes = Uint8Array(inputbytes.length)
         for v'var block = 0; block < inputbytes.length; block += 16':
@@ -434,14 +424,15 @@ class CBC(ModeOfOperation):  # {{{
                 iv, offset = inputbytes, block - 16
             for v'var i = 0; i < 16; i++':
                 outputbytes[block + i] ^= iv[offset + i]
-        padsz = outputbytes[0]
         for v'var i = 0; i < tag_bytes.length; i++':
-            if tag_bytes[i] != outputbytes[i+1]:
+            if tag_bytes[i] != outputbytes[i]:
                 raise ValueError('Corrupt message')
-        mlen = outputbytes.length - 1 - padsz - tag_bytes.length
-        mstart = 1 + tag_bytes.length
-        outputbytes = outputbytes.subarray(mstart, mstart + mlen)
-        return bytes_to_string(outputbytes)
+        outputbytes = outputbytes.subarray(tag_bytes.length)
+        return outputbytes
+
+    def decrypt(self, output_from_encrypt, tag):
+        ans = self.decrypt_bytes(output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), output_from_encrypt.iv)
+        return str.rstrip(bytes_to_string(ans), '\0')
 # }}}
 
 class CTR(ModeOfOperation):  # {{{

@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from aes import CBC, CTR, GCM, generate_tag, as_hex, AES
+from aes import CBC, CTR, GCM, generate_tag, as_hex, AES, string_to_bytes
 
 def run_tests():
     # Test roundtripping
@@ -70,6 +70,46 @@ def run_tests():
         output = Uint8Array(block.length * 4)
         aes.decrypt32(block, output, 0) if decrypt else aes.encrypt32(block, output, 0)
         assert.equal(expected, as_hex(output, ''))
+
+    # Test AES-CBC
+    keys = [
+         '06a9214036b8a15b512e03d534120006',
+         'c286696d887c9aa0611bbb3e2025a45a',
+         '6c3ea0477630ce21a2ce334aa746c2cd',
+         '56e47a38c5598974bc46903dba290349'
+      ]
+
+    ivs = [
+         '3dafba429d9eb430b422da802c9fac41',
+         '562e17996d093d28ddb3ba695a2e6f58',
+         'c782dc4c098c66cbd9cd27d825682c81',
+         '8ce82eefbea0da3c44699ed7db51b7d9'
+      ]
+
+    inputs = [
+        'Single block msg',
+        '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f',
+        'This is a 48-byte message (exactly 3 AES blocks)',
+        'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf'
+    ]
+
+    outputs = [
+        'e353779c1079aeb82708942dbe77181a',
+        'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
+        'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+        'c30e32ffedc0774e6aff6af0869f71aa0f3af07a9a31a9c684db207eb0ef8e4e35907aa632c3ffdf868bb7b29d3d46ad83ce9f9a102ee99d49a53e87f4c3da55'
+    ]
+    for i in range(keys.length):
+        cbc = CBC(from_hex(keys[i]))
+        x = inputs[i]
+        inputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
+        x = outputs[i]
+        outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
+        iv = from_hex(ivs[i])
+        ans = cbc.encrypt_bytes(inputbytes, [], iv)
+        assert.equal(as_hex(ans.cipherbytes, ''), outputs[i])
+        ans = cbc.decrypt_bytes(outputbytes, [], iv)
+        assert.equal(as_hex(ans), as_hex(inputbytes))
 
 a = Uint8Array(1)
 if a.slice:  # node 0.12 does not have TypedArray.slice which the aes module uses
