@@ -6,32 +6,31 @@
 from utils import noop
 from parse import PRECEDENCE
 from ast import (
-AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
-AST_Catch, AST_Class, AST_Conditional, AST_Const, AST_Constant,
-AST_Continue, AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
-AST_EmptyStatement, AST_Exit, AST_ExpressiveObject, AST_Finally,
-AST_ForIn, AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports,
-AST_Infinity, AST_Lambda, AST_ListComprehension, AST_LoopControl,
-AST_NaN, AST_New, AST_Node, AST_Number, AST_Object, AST_ObjectKeyVal,
-AST_ObjectProperty, AST_PropAccess, AST_RegExp, AST_Return, AST_Set,
-AST_Seq, AST_SimpleStatement, AST_Splice, AST_Statement, AST_StatementWithBody,
-AST_String, AST_Sub, AST_ItemAccess, AST_Symbol, AST_This,
-AST_Throw, AST_Toplevel, AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix,
-AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With,
-AST_Yield, TreeWalker
+    AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
+    AST_Catch, AST_Class, AST_Conditional, AST_Const, AST_Constant, AST_Continue,
+    AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
+    AST_EmptyStatement, AST_Exit, AST_ExpressiveObject, AST_Finally, AST_ForIn,
+    AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports, AST_Infinity,
+    AST_Lambda, AST_ListComprehension, AST_LoopControl, AST_NaN, AST_New, AST_Node,
+    AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
+    AST_RegExp, AST_Return, AST_Set, AST_Seq, AST_SimpleStatement, AST_Splice,
+    AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
+    AST_Symbol, AST_This, AST_Throw, AST_Toplevel, AST_Try, AST_Unary,
+    AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
+    AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker
 )
 from output.exceptions import print_try, print_catch, print_finally
 from output.stream import OutputStream
 from output.classes import print_class
 from output.literals import print_array, print_obj_literal, print_object, print_set, print_regexp
 from output.loops import print_do_loop, print_while_loop, print_for_loop_body, print_for_in, print_list_comprehension
-from output.modules import print_top_level
+from output.modules import print_top_level, print_imports
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_unary_postfix, print_binary_op, print_assign,
-    print_conditional)
+    print_conditional, print_seq, print_new)
 from output.functions import decorate, function_definition, no_constructor_parens, print_function_call
-from output.statements import print_bracketed, first_in_statement, force_statement
+from output.statements import print_bracketed, first_in_statement, force_statement, print_with
 from output.utils import make_block, make_num
 
 # -----[ code generators ]-----
@@ -230,35 +229,9 @@ def generate_code():
         output.semicolon()
     )
     DEFPRINT(AST_Toplevel, print_top_level)
-    DEFPRINT(AST_Imports, def(container, output):
-        def add_aname(aname, key, from_import):
-            output.print('var ')
-            output.assign(aname)
-            output.print('_$rapyd$_modules["')
-            output.print(key)
-            output.print('"]')
-            if from_import:
-                output.print('.')
-                output.print(from_import)
-            output.semicolon()
-            output.newline()
-            output.indent()
 
-        for self in container.imports:
-            output.import_(self.module)
-            if self.argnames:
-                # A from import
-                for argname in self.argnames:
-                    akey = (argname.alias) ? argname.alias.name : argname.name
-                    add_aname(akey, self.key, argname.name)
-            else:
-                if self.alias:
-                    add_aname(self.alias.name, self.key, False)
-                else:
-                    bound_name = self.key.split('.', 1)[0]
-                    add_aname(bound_name, bound_name, False)
+    DEFPRINT(AST_Imports, print_imports)
 
-    )
     DEFPRINT(AST_SimpleStatement, def(self, output):
         if not (isinstance(self.body, AST_EmptyStatement)):
             self.body.print(output)
@@ -303,48 +276,7 @@ def generate_code():
 
     DEFPRINT(AST_ListComprehension, print_list_comprehension)
 
-    DEFPRINT(AST_With, def(self, output):
-        exits = v'[]'
-        output.assign('_$rapyd$_with_exception'), output.print('undefined'), output.end_statement()
-        for clause in self.clauses:
-            output.with_counter += 1
-            clause_name = '_$rapyd$_with_clause_' + output.with_counter
-            exits.push(clause_name)
-            output.indent(), output.print('var '), output.assign(clause_name)
-            clause.expression.print(output)
-            output.end_statement()
-            output.indent()
-            if clause.alias:
-                output.assign(clause.alias.name)
-            output.print(clause_name + '.__enter__()')
-            output.end_statement()
-        output.indent(), output.print('try'), output.space()
-        output.with_block(def():
-            output.indent()
-            self._do_print_body(output)
-            output.newline()
-        )
-        output.space(), output.print('catch(e)')
-        output.with_block(def():
-            output.indent(), output.assign('_$rapyd$_with_exception'), output.print('e'), output.end_statement()
-        )
-        output.newline(), output.indent(), output.spaced('if', '(_$rapyd$_with_exception', '===', 'undefined)')
-        output.with_block(def():
-            for clause in exits:
-                output.indent(), output.print(clause + '.__exit__()'), output.end_statement()
-        )
-        output.space(), output.print('else'), output.space()
-        output.with_block(def():
-            output.indent(), output.assign('_$rapyd$_with_suppress'), output.print('false'), output.end_statement()
-            for clause in exits:
-                output.indent()
-                output.spaced('_$rapyd$_with_suppress', '|=', '_$rapyd$_bool(' + clause + '.__exit__(_$rapyd$_with_exception.constructor,',
-                              '_$rapyd$_with_exception,', '_$rapyd$_with_exception.stack))')
-                output.end_statement()
-            output.indent(), output.spaced('if', '(!_$rapyd$_with_suppress)', 'throw _$rapyd$_with_exception'), output.end_statement()
-        )
-
-    )
+    DEFPRINT(AST_With, print_with)
 
     AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
         self = this
@@ -515,50 +447,10 @@ def generate_code():
     # -----[ other expressions ]-----
     DEFPRINT(AST_BaseCall, print_function_call)
 
-    DEFPRINT(AST_New, def(self, output):
-        if self.args.starargs:
-            output.with_parens(def():
-                output.print('function()')
-                output.with_block(def():
-                    output.indent()
-                    output.print('var _$rapyd$_new_temp = Object.create(')
-                    self.expression.print(output)
-                    output.print(')')
-                    output.end_statement(), output.indent()
-                    AST_BaseCall.prototype._codegen(self, output)
-                    output.end_statement(), output.indent()
-                    output.print('return _$rapyd$_new_temp')
-                    output.end_statement()
-                )
-            )
-            output.print('()')
-        else:
-            output.print("new")
-            output.space()
-            AST_BaseCall.prototype._codegen(self, output)
-    )
-    AST_Seq.DEFMETHOD("_do_print", def(output):
-        self = this
-        p = output.parent()
-        print_seq = def():
-            self.car.print(output)
-            if self.cdr:
-                output.comma()
-                if output.should_break():
-                    output.newline()
-                    output.indent()
-                self.cdr.print(output)
+    DEFPRINT(AST_New, print_new)
 
-        # this will effectively convert tuples to arrays
-        if isinstance(p, AST_Binary)
-        or isinstance(p, AST_Return)
-        or isinstance(p, AST_Array)
-        or isinstance(p, AST_BaseCall)
-        or isinstance(p, AST_SimpleStatement):
-            output.with_square(print_seq)
-        else:
-            print_seq()
-    )
+    AST_Seq.DEFMETHOD("_do_print", print_seq)
+
     DEFPRINT(AST_Seq, def(self, output):
         self._do_print(output)
     )

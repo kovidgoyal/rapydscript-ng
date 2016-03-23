@@ -3,7 +3,8 @@
 
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
-    AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign
+    AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
+    AST_Return, AST_SimpleStatement
 )
 from output.loops import unpack_tuple
 
@@ -235,4 +236,48 @@ def print_conditional(self, output, condition, consequent, alternative):
     output.space()
     output.colon()
     alternative.print(output)
+
+def print_new(self, output):
+    if self.args.starargs:
+        output.with_parens(def():
+            output.print('function()')
+            output.with_block(def():
+                output.indent()
+                output.print('var _$rapyd$_new_temp = Object.create(')
+                self.expression.print(output)
+                output.print(')')
+                output.end_statement(), output.indent()
+                AST_BaseCall.prototype._codegen(self, output)
+                output.end_statement(), output.indent()
+                output.print('return _$rapyd$_new_temp')
+                output.end_statement()
+            )
+        )
+        output.print('()')
+    else:
+        output.print("new")
+        output.space()
+        AST_BaseCall.prototype._codegen(self, output)
+
+def print_seq(output):
+    self = this
+    p = output.parent()
+    print_seq = def():
+        self.car.print(output)
+        if self.cdr:
+            output.comma()
+            if output.should_break():
+                output.newline()
+                output.indent()
+            self.cdr.print(output)
+
+    # this will effectively convert tuples to arrays
+    if isinstance(p, AST_Binary)
+    or isinstance(p, AST_Return)
+    or isinstance(p, AST_Array)
+    or isinstance(p, AST_BaseCall)
+    or isinstance(p, AST_SimpleStatement):
+        output.with_square(print_seq)
+    else:
+        print_seq()
 
