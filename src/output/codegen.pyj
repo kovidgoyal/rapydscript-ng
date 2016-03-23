@@ -5,7 +5,7 @@
 
 from utils import noop
 from parse import COMPILER_VERSION, PRECEDENCE
-from output_stream import OutputStream
+from output.stream import OutputStream
 from ast import (
 AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const, AST_Constant,
@@ -24,7 +24,7 @@ AST_Yield, TreeWalker
 
 
 # -----[ code generators ]-----
-def codegen():
+def generate_code():
     # -----[ utils ]-----
     def DEFPRINT(nodetype, generator):
         nodetype.DEFMETHOD("_codegen", generator)

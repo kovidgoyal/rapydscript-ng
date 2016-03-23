@@ -84,9 +84,16 @@ function check_for_changes(base_path, src_path, signatures) {
         if (e.code != 'ENOENT') throw (e);
     }
 
-    var src_file_names = fs.readdirSync(src_path).filter(function(fname) {
-        return fname.substr(-4) === '.pyj';
-    });
+    var src_file_names = [];
+
+    function process_dir(p) {
+        fs.readdirSync(p).forEach(function(name) {
+            var fp = path.join(p, name);
+            if (name.substr(-4) === '.pyj') src_file_names.push(path.relative(src_path, fp));
+            else if (name != 'lib' && fs.statSync(fp).isDirectory()) process_dir(fp);
+        });
+    }
+    process_dir(src_path);
 
     compiler_hash = crypto.createHash('sha1');
     source_hash = crypto.createHash('sha1');
