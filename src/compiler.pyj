@@ -7,7 +7,8 @@ from utils import DefaultsError, string_template
 from errors import ImportError, SyntaxError
 from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
 from parse import parse, NATIVE_CLASSES, compile_time_decorators
-from output import OutputStream
+from output_stream import OutputStream
+from output import codegen  # noqa: unused-import
 
 # The following allows this module to be used from a pure javascript, require()
 # based environment like Node.js
