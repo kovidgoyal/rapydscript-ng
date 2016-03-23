@@ -1,0 +1,79 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from output.statements import print_bracketed
+
+def print_try(self, output):
+    output.print("try")
+    output.space()
+    print_bracketed(self, output)
+    if self.bcatch:
+        output.space()
+        self.bcatch.print(output)
+
+    if self.bfinally:
+        output.space()
+        self.bfinally.print(output)
+
+def print_catch(self, output):
+    output.print("catch")
+    output.space()
+    output.with_parens(def():
+        output.print("_$rapyd$_Exception")
+    )
+    output.space()
+    #        print_bracketed(self, output)
+    if self.body.length > 1 or self.body[0].errors.length:
+        output.with_block(def():
+            output.indent()
+            no_default = True
+            self.body.forEach(def(exception, i):
+                nonlocal no_default
+                if i:
+                    output.print("else ")
+
+                if exception.errors.length:
+                    output.print("if")
+                    output.space()
+                    output.with_parens(def():
+                        exception.errors.forEach(def(err, i):
+                            if i:
+                                output.newline()
+                                output.indent()
+                                output.print("||")
+                                output.space()
+
+                            output.print("_$rapyd$_Exception")
+                            output.space()
+                            output.print("instanceof")
+                            output.space()
+                            err.print(output)
+                        )
+                    )
+                    output.space()
+                else:
+                    no_default = False
+                print_bracketed(exception, output, True)
+                output.space()
+            )
+            if no_default:
+                output.print("else")
+                output.space()
+                output.with_block(def():
+                    output.indent()
+                    output.print("throw")
+                    output.space()
+                    output.print("_$rapyd$_Exception")
+                    output.semicolon()
+                    output.newline()
+                )
+            output.newline()
+        )
+    else:
+        print_bracketed(self.body[0], output, True)
+
+def print_finally(self, output):
+    output.print("finally")
+    output.space()
+    print_bracketed(self, output)
+

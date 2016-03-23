@@ -20,6 +20,7 @@ AST_Throw, AST_Toplevel, AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With,
 AST_Yield, TreeWalker
 )
+from output.exceptions import print_try, print_catch, print_finally
 from output.stream import OutputStream
 from output.classes import print_class
 from output.literals import print_array, print_obj_literal, print_object, print_set, print_regexp
@@ -30,8 +31,8 @@ from output.operators import (
     print_unary_prefix, print_unary_postfix, print_binary_op, print_assign,
     print_conditional)
 from output.functions import decorate, function_definition, no_constructor_parens, print_function_call
-from output.statements import print_bracketed
-
+from output.statements import print_bracketed, first_in_statement, force_statement
+from output.utils import make_block, make_num
 
 # -----[ code generators ]-----
 def generate_code():
@@ -455,80 +456,11 @@ def generate_code():
     )
 
     # -----[ exceptions ]-----
-    DEFPRINT(AST_Try, def(self, output):
-        output.print("try")
-        output.space()
-        print_bracketed(self, output)
-        if self.bcatch:
-            output.space()
-            self.bcatch.print(output)
+    DEFPRINT(AST_Try, print_try)
 
-        if self.bfinally:
-            output.space()
-            self.bfinally.print(output)
-    )
-    DEFPRINT(AST_Catch, def(self, output):
-        output.print("catch")
-        output.space()
-        output.with_parens(def():
-            output.print("_$rapyd$_Exception")
-        )
-        output.space()
-        #        print_bracketed(self, output)
-        if self.body.length > 1 or self.body[0].errors.length:
-            output.with_block(def():
-                output.indent()
-                no_default = True
-                self.body.forEach(def(exception, i):
-                    nonlocal no_default
-                    if i:
-                        output.print("else ")
+    DEFPRINT(AST_Catch, print_catch)
 
-                    if exception.errors.length:
-                        output.print("if")
-                        output.space()
-                        output.with_parens(def():
-                            exception.errors.forEach(def(err, i):
-                                if i:
-                                    output.newline()
-                                    output.indent()
-                                    output.print("||")
-                                    output.space()
-
-                                output.print("_$rapyd$_Exception")
-                                output.space()
-                                output.print("instanceof")
-                                output.space()
-                                err.print(output)
-                            )
-                        )
-                        output.space()
-                    else:
-                        no_default = False
-                    print_bracketed(exception, output, True)
-                    output.space()
-                )
-                if no_default:
-                    output.print("else")
-                    output.space()
-                    output.with_block(def():
-                        output.indent()
-                        output.print("throw")
-                        output.space()
-                        output.print("_$rapyd$_Exception")
-                        output.semicolon()
-                        output.newline()
-                    )
-                output.newline()
-            )
-        else:
-            print_bracketed(self.body[0], output, True)
-    )
-    DEFPRINT(AST_Finally, def(self, output):
-        output.print("finally")
-        output.space()
-        print_bracketed(self, output)
-    )
+    DEFPRINT(AST_Finally, print_finally)
 
     # -----[ var/const ]-----
     AST_Definitions.DEFMETHOD("_do_print", def(output, kind):
@@ -697,85 +629,4 @@ def generate_code():
     )
     DEFPRINT(AST_RegExp, print_regexp)
 
-    def force_statement(stat, output):
-        if output.option("bracketize"):
-            if not stat or isinstance(stat, AST_EmptyStatement):
-                output.print("{}")
-            elif isinstance(stat, AST_BlockStatement):
-                stat.print(output)
-            else:
-                output.with_block(def():
-                    output.indent()
-                    stat.print(output)
-                    output.newline()
-                )
-        else:
-            if not stat or isinstance(stat, AST_EmptyStatement):
-                output.force_semicolon()
-            else:
-                stat.print(output)
 
-    # return true if the node at the top of the stack (that means the
-    # innermost node in the current output) is lexically the first in
-    # a statement.
-    def first_in_statement(output):
-        a = output.stack()
-        i = a.length
-        node = a[i -= 1]
-        p = a[i -= 1]
-        while i > 0:
-            if isinstance(p, AST_Statement) and p.body is node:
-                return True
-            if isinstance(p, AST_Seq) and p.car is node
-            or isinstance(p, AST_BaseCall) and p.expression is node
-            or isinstance(p, AST_Dot) and p.expression is node
-            or isinstance(p, AST_Sub) and p.expression is node
-            or isinstance(p, AST_ItemAccess) and p.expression is node
-            or isinstance(p, AST_Conditional) and p.condition is node
-            or isinstance(p, AST_Binary) and p.left is node
-            or isinstance(p, AST_UnaryPostfix) and p.expression is node:
-                node = p
-                p = a[i -= 1]
-            else:
-                return False
-
-    def best_of(a):
-        best = a[0]
-        len_ = best.length
-        for i in range(1, a.length):
-            if a[i].length < len_:
-                best = a[i]
-                len_ = best.length
-        return best
-
-    def make_num(num):
-        str_ = num.toString(10)
-        a = [ str_.replace(/^0\./, ".").replace("e+", "e") ]
-        m = None
-
-        if Math.floor(num) is num:
-            if num >= 0:
-                a.push("0x" + num.toString(16).toLowerCase(), # probably pointless
-                "0" + num.toString(8))
-            else:
-                a.push("-0x" + (-num).toString(16).toLowerCase(), # probably pointless
-                "-0" + (-num).toString(8))
-
-            if m = /^(.*?)(0+)$/.exec(num):
-                a.push(m[1] + "e" + m[2].length)
-
-        elif m = /^0?\.(0+)(.*)$/.exec(num):
-            a.push(m[2] + "e-" + (m[1].length + m[2].length), str_.substr(str_.indexOf(".")))
-
-        return best_of(a)
-
-    def make_block(stmt, output):
-        if isinstance(stmt, AST_BlockStatement):
-            stmt.print(output)
-            return
-
-        output.with_block(def():
-            output.indent()
-            stmt.print(output)
-            output.newline()
-        )

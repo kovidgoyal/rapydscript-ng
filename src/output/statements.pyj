@@ -1,7 +1,54 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ast import AST_EmptyStatement, AST_Definitions, AST_Scope, AST_Method, AST_Except
+from ast import (
+    AST_Definitions, AST_Scope, AST_Method, AST_Except, AST_EmptyStatement,
+    AST_Statement, AST_Seq, AST_BaseCall, AST_Dot, AST_Sub, AST_ItemAccess,
+    AST_Conditional, AST_Binary, AST_UnaryPostfix, AST_BlockStatement
+)
+
+def force_statement(stat, output):
+    if output.option("bracketize"):
+        if not stat or isinstance(stat, AST_EmptyStatement):
+            output.print("{}")
+        elif isinstance(stat, AST_BlockStatement):
+            stat.print(output)
+        else:
+            output.with_block(def():
+                output.indent()
+                stat.print(output)
+                output.newline()
+            )
+    else:
+        if not stat or isinstance(stat, AST_EmptyStatement):
+            output.force_semicolon()
+        else:
+            stat.print(output)
+
+# return true if the node at the top of the stack (that means the
+# innermost node in the current output) is lexically the first in
+# a statement.
+def first_in_statement(output):
+    a = output.stack()
+    i = a.length
+    node = a[i -= 1]
+    p = a[i -= 1]
+    while i > 0:
+        if isinstance(p, AST_Statement) and p.body is node:
+            return True
+        if isinstance(p, AST_Seq) and p.car is node
+        or isinstance(p, AST_BaseCall) and p.expression is node
+        or isinstance(p, AST_Dot) and p.expression is node
+        or isinstance(p, AST_Sub) and p.expression is node
+        or isinstance(p, AST_ItemAccess) and p.expression is node
+        or isinstance(p, AST_Conditional) and p.condition is node
+        or isinstance(p, AST_Binary) and p.left is node
+        or isinstance(p, AST_UnaryPostfix) and p.expression is node:
+            node = p
+            p = a[i -= 1]
+        else:
+            return False
+
 
 def bind_methods(methods, output):
     # bind the methods
