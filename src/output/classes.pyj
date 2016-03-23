@@ -1,0 +1,173 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from ast import AST_Class, AST_Method
+from output.functions import decorate, function_definition
+from output.statements import bind_methods
+
+def print_class(output):
+    self = this
+    if self.external:
+        return
+
+    class_def = def(method, is_var):
+        output.indent()
+        self.name.print(output)
+        if not is_var and method and self.static.indexOf(method) is not -1:
+            output.assign("." + method)
+        else:
+            if is_var:
+                output.assign(".prototype[" + method + "]")
+            else:
+                output.assign(".prototype" + ((method ? "." + method : "")))
+
+    define_method = def(stmt, is_property):
+        name = stmt.name.name
+        if not is_property:
+            class_def(name)
+        # only strip first argument if the method is static
+        strip_first = self.static.indexOf(name) is -1
+
+        # decorate the method
+        if stmt.decorators and stmt.decorators.length:
+            decorate(stmt.decorators, output, def():function_definition(stmt, output, False, strip_first);)
+        else:
+            function_definition(stmt, output, False, strip_first)
+        if not is_property:
+            output.semicolon()
+            output.newline()
+
+    def define_default_method(name, body):
+        class_def(name)
+        output.spaced('function', name, '()', '')
+        output.with_block(def(): output.indent(), body();)
+        output.end_statement()
+
+    # generate constructor
+    def write_constructor():
+        output.print("function")
+        output.space()
+        self.name.print(output)
+        output.print("()")
+        output.space()
+
+        output.with_block(def():
+            bind_methods(self.bound, output)
+            output.indent()
+            output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
+            output.end_statement()
+            output.indent()
+            self.name.print(output)
+            output.print(".prototype.__init__.apply")
+            output.with_parens(def():
+                output.print("this")
+                output.comma()
+                output.print("arguments")
+            )
+            output.end_statement()
+        )
+
+    # decorate the class
+    if self.decorators and self.decorators.length:
+        output.print('var ')
+        output.assign(self.name)
+        decorate(self.decorators, output, write_constructor)
+        output.semicolon()
+    else:
+        write_constructor()
+
+    output.newline()
+    # inheritance
+    if self.parent:
+        output.indent()
+        output.print("_$rapyd$_extends")
+        output.with_parens(def():
+            self.name.print(output)
+            output.comma()
+            self.parent.print(output)
+        )
+        output.semicolon()
+        output.newline()
+
+    # dynamic properties
+    property_names = Object.keys(self.dynamic_properties)
+    if property_names.length:
+        output.indent()
+        output.print('Object.defineProperties')
+        output.with_parens(def():
+            self.name.print(output), output.print('.prototype'), output.comma(), output.space(), output.with_block(def():
+                for name in property_names:
+                    prop = self.dynamic_properties[name]
+                    output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
+                    output.with_block(def():
+                        output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
+                        if prop.getter:
+                            output.indent(), output.print('"get":'), output.space()
+                            define_method(prop.getter, True), output.comma(), output.newline()
+                        output.indent(), output.print('"set":'), output.space()
+                        if prop.setter:
+                            define_method(prop.setter, True), output.newline()
+                        else:
+                            output.spaced('function', '()', '{', '''throw new AttributeError("can't set attribute")''', '}'), output.newline()
+                    )
+                    output.comma(), output.newline()
+            )
+        )
+        output.end_statement()
+
+    # actual methods
+    if not self.init:
+        # Create a default __init__ method
+        define_default_method('__init__', def():
+            if self.parent:
+                self.parent.print(output)
+                output.spaced('.prototype.__init__', '&&')
+                output.space(), self.parent.print(output)
+                output.print(".prototype.__init__.apply")
+                output.with_parens(def():
+                    output.print("this")
+                    output.comma()
+                    output.print("arguments")
+                )
+                output.end_statement()
+        )
+
+    defined_methods = {}
+
+    self.body.forEach(def(stmt, i):
+        if isinstance(stmt, AST_Method):
+            if stmt.is_getter or stmt.is_setter:
+                return
+            define_method(stmt)
+            defined_methods[stmt.name.name] = True
+            if stmt.name.name is '__iter__':
+                class_def('_$rapyd$_iterator_symbol', True)
+                self.name.print(output)
+                output.print('.prototype.' + stmt.name.name)
+                output.end_statement()
+
+        elif isinstance(stmt, AST_Class):
+            console.error('Nested classes aren\'t supported yet')  # noqa:undef
+    )
+
+    if not defined_methods['__repr__']:
+        define_default_method('__repr__', def():
+            output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', '"')
+            self.name.print(output)
+            output.spaced('"', '+', '" #"', '+', 'this._$rapyd$_object_id', '+', '">"')
+            output.end_statement()
+        )
+
+    if not defined_methods['__str__']:
+        define_default_method('__str__', def():
+            output.spaced('return', 'this.__repr__()')
+            output.end_statement()
+        )
+
+    # Other statements in the class context
+    self.statements.forEach(def(stmt):
+        if not isinstance(stmt, AST_Method):
+            output.indent()
+            stmt.print(output)
+            output.newline()
+    )

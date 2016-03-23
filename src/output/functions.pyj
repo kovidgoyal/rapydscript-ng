@@ -1,0 +1,75 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# globals:regenerate
+
+from output.stream import OutputStream
+from output.statements import print_bracketed
+
+def decorate(decorators, output, func):
+    pos = 0
+    def wrap():
+        nonlocal pos
+        if pos < decorators.length:
+            decorators[pos].expression.print(output)
+            pos += 1
+            output.with_parens(def():
+                wrap()
+            )
+        else:
+            func()
+    wrap()
+
+def function_args(argnames, output, strip_first):
+    output.with_parens(def():
+        if argnames and argnames.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
+            ((strip_first) ? argnames.slice(1) : argnames).forEach(def(arg, i):
+                if i:
+                    output.comma()
+                arg.print(output)
+            )
+    )
+    output.space()
+
+def function_definition(self, output, nokeyword, strip_first):
+    if not nokeyword:
+        output.print("function")
+
+    if self.name:
+        output.space()
+        self.name.print(output)
+    if self.is_generator:
+        output.print('()'), output.space()
+        output.with_block(def():
+            if output.options.js_version >= 6:
+                output.indent()
+                output.print('function* js_generator')
+                function_args(self.argnames, output, strip_first)
+                print_bracketed(self, output, True)
+            else:
+                temp = OutputStream({'beautify':True})
+                temp.print('function* js_generator')
+                function_args(self.argnames, temp, strip_first)
+                print_bracketed(self, temp, True)
+                transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
+                if output.options.beautify:
+                    ci = output.make_indent(0)
+                    transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
+                output.print(transpiled)
+            output.newline()
+            output.indent()
+            output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')
+            output.end_statement()
+            # Python's generator objects use a separate method to send data to the generator
+            output.indent()
+            output.spaced('result.send', '=', 'result.next')
+            output.end_statement()
+            output.indent()
+            output.spaced('return', 'result')
+            output.end_statement()
+        )
+    else:
+        function_args(self.argnames, output, strip_first)
+        print_bracketed(self, output, True)
+
+
+

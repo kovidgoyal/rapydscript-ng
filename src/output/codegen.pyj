@@ -5,22 +5,25 @@
 
 from utils import noop
 from parse import COMPILER_VERSION, PRECEDENCE
-from output.stream import OutputStream
 from ast import (
 AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const, AST_Constant,
 AST_Continue, AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
-AST_EmptyStatement, AST_Except, AST_Exit, AST_ExpressiveObject, AST_Finally,
+AST_EmptyStatement, AST_Exit, AST_ExpressiveObject, AST_Finally,
 AST_ForIn, AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports,
-AST_Infinity, AST_Lambda, AST_ListComprehension, AST_LoopControl, AST_Method,
+AST_Infinity, AST_Lambda, AST_ListComprehension, AST_LoopControl,
 AST_NaN, AST_New, AST_Node, AST_Number, AST_Object, AST_ObjectKeyVal,
-AST_ObjectProperty, AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Set,
+AST_ObjectProperty, AST_PropAccess, AST_RegExp, AST_Return, AST_Set,
 AST_Seq, AST_SimpleStatement, AST_Splice, AST_Statement, AST_StatementWithBody,
 AST_String, AST_Sub, AST_ItemAccess, AST_Symbol, AST_SymbolRef, AST_This,
 AST_Throw, AST_Toplevel, AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With,
 AST_Yield, TreeWalker
 )
+from output.stream import OutputStream
+from output.classes import print_class
+from output.functions import decorate, function_definition
+from output.statements import declare_vars, display_body, print_bracketed
 
 
 # -----[ code generators ]-----
@@ -211,34 +214,6 @@ def generate_code():
         output.print("debugger")
         output.semicolon()
     )
-    # -----[ statements ]-----
-    def display_body(body, is_toplevel, output):
-        last = body.length - 1
-        body.forEach(def(stmt, i):
-            if not (isinstance(stmt, AST_EmptyStatement)) and not (isinstance(stmt, AST_Definitions)):
-                output.indent()
-                stmt.print(output)
-                if not (i is last and is_toplevel):
-                    output.newline()
-        )
-
-    def bind_methods(methods, output):
-        # bind the methods
-        if methods:
-            for arg in methods:
-                output.indent()
-                output.print("this.")
-                output.assign(arg)
-                output.print("_$rapyd$_bind")
-                output.with_parens(def():
-                    output.print("this.")
-                    output.print(arg)
-                    output.comma()
-                    output.print("this")
-                )
-                output.semicolon()
-                output.newline()
-
     def write_imports(module, output):
         imports = []
         for import_id in Object.keys(module.imports):
@@ -286,131 +261,6 @@ def generate_code():
             output.print('var __name__ = "__main__"')
             output.semicolon()
             output.newline()
-            output.newline()
-
-    def display_complex_body(node, is_toplevel, output):
-        offset = 0
-        # argument offset
-        # this is a method, add 'var self = this'
-        if isinstance(node, AST_Method) and not node.static:
-            output.indent()
-            output.print("var")
-            output.space()
-            output.assign(node.argnames[0])
-            output.print("this")
-            output.semicolon()
-            output.newline()
-            offset += 1
-
-        if isinstance(node, AST_Scope):
-            # if function takes any arguments
-            if node.argnames:
-                # If this function has optional parameters/*args/**kwargs declare it differently
-                if node.argnames.is_simple_func is not True:
-                    a = node.argnames
-                    kw = 'arguments[arguments.length-1]'
-                    # Define all formal parameters
-                    for c, arg in enumerate(a):
-                        i = c - offset
-                        if i >= 0:
-                            output.indent()
-                            output.print("var")
-                            output.space()
-                            output.assign(arg)
-                            if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
-                                output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
-                                              '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                              kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
-                                output.with_parens(def():
-                                    a.defaults[arg.name].print(output)
-                                )
-                                output.space()
-                                output.print(':')
-                                output.space()
-                            else:
-                                output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                              kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
-                            output.print('arguments[' + i + ']')
-                            output.end_statement()
-                    if a.kwargs or a.has_defaults:
-                        # Look for an options object
-                        kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
-                        output.indent()
-                        output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
-                        output.end_statement()
-                        # Ensure kwargs is the options object
-                        output.indent()
-                        output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[_$rapyd$_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
-                        output.end_statement()
-                        # Read values from the kwargs object for any formal parameters
-                        if a.has_defaults:
-                            for dname in Object.keys(a.defaults):
-                                output.indent()
-                                output.spaced('if', '(Object.prototype.hasOwnProperty.call(' + kw + ',', '"' + dname + '"))')
-                                output.with_block(def():
-                                    output.indent()
-                                    output.spaced(dname, '=', kw + '.' + dname)
-                                    output.end_statement()
-                                    if a.kwargs:
-                                        output.indent()
-                                        output.spaced('delete', kw + '.' + dname)
-                                        output.end_statement()
-                                )
-                                output.newline()
-
-                    if a.starargs is not undefined:
-                        # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
-                        nargs = a.length - offset
-                        output.indent()
-                        output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs, ')')
-                        output.end_statement()
-                        # Remove the options object, if present
-                        output.indent()
-                        output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name, '.pop()')
-                        output.end_statement()
-
-            # rebind parent's methods and bind own methods
-            # for now we'll make a naive assumption that a function
-            # named __init__ will only occur inside a class
-            if output.option("auto_bind") and node.name and node.name.name is "__init__":
-                output.indent()
-                output.print("_$rapyd$_rebind_all")
-                output.with_parens(def():
-                    output.print("this")
-                    output.comma()
-                    output.print("true")
-                )
-                output.semicolon()
-                output.newline()
-                bind_methods(node.bound, output)
-
-            declare_vars(node.localvars, output)
-
-        elif isinstance(node, AST_Except):
-            if node.argname:
-                output.indent()
-                output.print("var")
-                output.space()
-                output.assign(node.argname)
-                output.print("_$rapyd$_Exception")
-                output.semicolon()
-                output.newline()
-
-        display_body(node.body, is_toplevel, output)
-
-    def declare_vars(vars, output):
-        # declare all variables as local, unless explictly set otherwise
-        if vars.length:
-            output.indent()
-            output.print("var")
-            output.space()
-            vars.forEach(def(arg, i):
-                if i:
-                    output.comma()
-
-                arg.print(output)
-            )
-            output.semicolon()
             output.newline()
 
     def declare_exports(module_id, exports, submodules, output):
@@ -590,17 +440,6 @@ def generate_code():
             self.body.print(output)
             output.semicolon()
     )
-    def print_bracketed(node, output, complex):
-        if node.body.length > 0:
-            output.with_block(def():
-                if complex:
-                    display_complex_body(node, False, output)
-                else:
-                    display_body(node.body, False, output)
-            )
-        else:
-            output.print("{}")
-
     DEFPRINT(AST_BlockStatement, def(self, output):
         print_bracketed(self, output)
     )
@@ -1044,73 +883,6 @@ def generate_code():
 
     )
 
-    # -----[ functions ]-----
-    def decorate(decorators, output, func):
-        pos = 0
-        wrap = def():
-            nonlocal pos
-            if pos < decorators.length:
-                decorators[pos].expression.print(output)
-                pos += 1
-                output.with_parens(def():
-                    wrap()
-                )
-            else:
-                func()
-        wrap()
-
-    def function_args(argnames, output, strip_first):
-        output.with_parens(def():
-            if argnames and argnames.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
-                ((strip_first) ? argnames.slice(1) : argnames).forEach(def(arg, i):
-                    if i:
-                        output.comma()
-                    arg.print(output)
-                )
-        )
-        output.space()
-
-    def function_definition(self, output, nokeyword, strip_first):
-        if not nokeyword:
-            output.print("function")
-
-        if self.name:
-            output.space()
-            self.name.print(output)
-        if self.is_generator:
-            output.print('()'), output.space()
-            output.with_block(def():
-                if output.options.js_version >= 6:
-                    output.indent()
-                    output.print('function* js_generator')
-                    function_args(self.argnames, output, strip_first)
-                    print_bracketed(self, output, True)
-                else:
-                    temp = OutputStream({'beautify':True})
-                    temp.print('function* js_generator')
-                    function_args(self.argnames, temp, strip_first)
-                    print_bracketed(self, temp, True)
-                    transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
-                    if output.options.beautify:
-                        ci = output.make_indent(0)
-                        transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
-                    output.print(transpiled)
-                output.newline()
-                output.indent()
-                output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')
-                output.end_statement()
-                # Python's generator objects use a separate method to send data to the generator
-                output.indent()
-                output.spaced('result.send', '=', 'result.next')
-                output.end_statement()
-                output.indent()
-                output.spaced('return', 'result')
-                output.end_statement()
-            )
-        else:
-            function_args(self.argnames, output, strip_first)
-            print_bracketed(self, output, True)
-
     AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
         self = this
         if self.decorators and self.decorators.length:
@@ -1125,179 +897,10 @@ def generate_code():
     DEFPRINT(AST_Lambda, def(self, output):
         self._do_print(output)
     )
-    # -----[ classes ]-----
-    AST_Class.DEFMETHOD("_do_print", def(output):
-        self = this
-        if self.external:
-            return
-
-        class_def = def(method, is_var):
-            output.indent()
-            self.name.print(output)
-            if not is_var and method and self.static.indexOf(method) is not -1:
-                output.assign("." + method)
-            else:
-                if is_var:
-                    output.assign(".prototype[" + method + "]")
-                else:
-                    output.assign(".prototype" + ((method ? "." + method : "")))
-
-        define_method = def(stmt, is_property):
-            name = stmt.name.name
-            if not is_property:
-                class_def(name)
-            # only strip first argument if the method is static
-            strip_first = self.static.indexOf(name) is -1
-
-            # decorate the method
-            if stmt.decorators and stmt.decorators.length:
-                decorate(stmt.decorators, output, def():function_definition(stmt, output, False, strip_first);)
-            else:
-                function_definition(stmt, output, False, strip_first)
-            if not is_property:
-                output.semicolon()
-                output.newline()
-
-        def define_default_method(name, body):
-            class_def(name)
-            output.spaced('function', name, '()', '')
-            output.with_block(def(): output.indent(), body();)
-            output.end_statement()
-
-        # generate constructor
-        def write_constructor():
-            output.print("function")
-            output.space()
-            self.name.print(output)
-            output.print("()")
-            output.space()
-
-            output.with_block(def():
-                bind_methods(self.bound, output)
-                output.indent()
-                output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
-                output.end_statement()
-                output.indent()
-                self.name.print(output)
-                output.print(".prototype.__init__.apply")
-                output.with_parens(def():
-                    output.print("this")
-                    output.comma()
-                    output.print("arguments")
-                )
-                output.end_statement()
-            )
-
-        # decorate the class
-        if self.decorators and self.decorators.length:
-            output.print('var ')
-            output.assign(self.name)
-            decorate(self.decorators, output, write_constructor)
-            output.semicolon()
-        else:
-            write_constructor()
-
-        output.newline()
-        # inheritance
-        if self.parent:
-            output.indent()
-            output.print("_$rapyd$_extends")
-            output.with_parens(def():
-                self.name.print(output)
-                output.comma()
-                self.parent.print(output)
-            )
-            output.semicolon()
-            output.newline()
-
-        # dynamic properties
-        property_names = Object.keys(self.dynamic_properties)
-        if property_names.length:
-            output.indent()
-            output.print('Object.defineProperties')
-            output.with_parens(def():
-                self.name.print(output), output.print('.prototype'), output.comma(), output.space(), output.with_block(def():
-                    for name in property_names:
-                        prop = self.dynamic_properties[name]
-                        output.indent(), output.print(JSON.stringify(name) + ':'), output.space()
-                        output.with_block(def():
-                            output.indent(), output.print('"enumerable":'), output.space(), output.print('true'), output.comma(), output.newline()
-                            if prop.getter:
-                                output.indent(), output.print('"get":'), output.space()
-                                define_method(prop.getter, True), output.comma(), output.newline()
-                            output.indent(), output.print('"set":'), output.space()
-                            if prop.setter:
-                                define_method(prop.setter, True), output.newline()
-                            else:
-                                output.spaced('function', '()', '{', '''throw new AttributeError("can't set attribute")''', '}'), output.newline()
-                        )
-                        output.comma(), output.newline()
-                )
-            )
-            output.end_statement()
-
-        # actual methods
-        if not self.init:
-            # Create a default __init__ method
-            define_default_method('__init__', def():
-                if self.parent:
-                    self.parent.print(output)
-                    output.spaced('.prototype.__init__', '&&')
-                    output.space(), self.parent.print(output)
-                    output.print(".prototype.__init__.apply")
-                    output.with_parens(def():
-                        output.print("this")
-                        output.comma()
-                        output.print("arguments")
-                    )
-                    output.end_statement()
-            )
-
-        defined_methods = {}
-
-        self.body.forEach(def(stmt, i):
-            if isinstance(stmt, AST_Method):
-                if stmt.is_getter or stmt.is_setter:
-                    return
-                define_method(stmt)
-                defined_methods[stmt.name.name] = True
-                if stmt.name.name is '__iter__':
-                    class_def('_$rapyd$_iterator_symbol', True)
-                    self.name.print(output)
-                    output.print('.prototype.' + stmt.name.name)
-                    output.end_statement()
-
-            elif isinstance(stmt, AST_Class):
-                console.error('Nested classes aren\'t supported yet')  # noqa:undef
-        )
-
-        if not defined_methods['__repr__']:
-            define_default_method('__repr__', def():
-                output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', '"')
-                self.name.print(output)
-                output.spaced('"', '+', '" #"', '+', 'this._$rapyd$_object_id', '+', '">"')
-                output.end_statement()
-            )
-
-        if not defined_methods['__str__']:
-            define_default_method('__str__', def():
-                output.spaced('return', 'this.__repr__()')
-                output.end_statement()
-            )
-
-        # Other statements in the class context
-        self.statements.forEach(def(stmt):
-            if not isinstance(stmt, AST_Method):
-                output.indent()
-                stmt.print(output)
-                output.newline()
-        )
-
-    )
+    AST_Class.DEFMETHOD("_do_print", print_class)
     DEFPRINT(AST_Class, def(self, output):
         self._do_print(output)
     )
-
     # -----[ exits ]-----
     AST_Exit.DEFMETHOD("_do_print", def(output, kind):
         self = this
