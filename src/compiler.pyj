@@ -8,7 +8,9 @@ from errors import ImportError, SyntaxError
 from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
 from parse import parse, NATIVE_CLASSES, compile_time_decorators
 from output_stream import OutputStream
-from output import codegen  # noqa: unused-import
+from output import codegen
+
+codegen()  # create the print methods on the AST nodes
 
 # The following allows this module to be used from a pure javascript, require()
 # based environment like Node.js

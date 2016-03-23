@@ -60,7 +60,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         var js_version = 5;
         while (js_version < 7) {
             // generate output
-            var output = RapydScript.OutputStream({
+            var output = new RapydScript.OutputStream({
                 baselib: baselib,
                 beautify: true,
                 js_version: js_version,

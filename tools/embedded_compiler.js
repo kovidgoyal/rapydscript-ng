@@ -25,7 +25,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'basedir': '__stdlib__',
                 'classes': classes,
             });
-            var out = compiler.OutputStream(output_options);
+            var out = new compiler.OutputStream(output_options);
             this.toplevel.print(out);
             if (classes) {
                 var exports = {};

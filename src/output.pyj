@@ -8,18 +8,18 @@ from parse import COMPILER_VERSION, PRECEDENCE
 from output_stream import OutputStream
 from ast import (
 AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
-AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
-AST_Constant, AST_Continue, AST_Debugger, AST_Definitions,
-AST_Directive, AST_Do, AST_Dot, AST_EmptyStatement, AST_Except, AST_Exit,
-AST_ExpressiveObject, AST_Finally, AST_ForIn, AST_ForJS, AST_Function,
-AST_Hole, AST_If, AST_Imports, AST_Infinity, AST_Jump, AST_Lambda,
-AST_ListComprehension, AST_LoopControl, AST_Method, AST_NaN, AST_New, AST_Node,
-AST_Number, AST_Object, AST_ObjectKeyVal, AST_ObjectProperty, AST_PropAccess,
-AST_RegExp, AST_Return, AST_Scope, AST_Set, AST_Seq, AST_SimpleStatement, AST_Splice,
-AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
-AST_Symbol, AST_SymbolRef, AST_This, AST_Throw, AST_Toplevel,
-AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var,
-AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker
+AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const, AST_Constant,
+AST_Continue, AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
+AST_EmptyStatement, AST_Except, AST_Exit, AST_ExpressiveObject, AST_Finally,
+AST_ForIn, AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports,
+AST_Infinity, AST_Lambda, AST_ListComprehension, AST_LoopControl, AST_Method,
+AST_NaN, AST_New, AST_Node, AST_Number, AST_Object, AST_ObjectKeyVal,
+AST_ObjectProperty, AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Set,
+AST_Seq, AST_SimpleStatement, AST_Splice, AST_Statement, AST_StatementWithBody,
+AST_String, AST_Sub, AST_ItemAccess, AST_Symbol, AST_SymbolRef, AST_This,
+AST_Throw, AST_Toplevel, AST_Try, AST_Unary, AST_UnaryPostfix, AST_UnaryPrefix,
+AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With,
+AST_Yield, TreeWalker
 )
 
 
@@ -36,12 +36,10 @@ def codegen():
         if force_parens or self.needs_parens(stream):
             stream.with_parens(def():
                 self.add_comments(stream)
-                self.add_source_map(stream)
                 generator(self, stream)
             )
         else:
             self.add_comments(stream)
-            self.add_source_map(stream)
             generator(self, stream)
 
         stream.pop_node()
@@ -573,7 +571,7 @@ def codegen():
             output.indent()
 
         for self in container.imports:
-            output.import(self.module)
+            output.import_(self.module)
             if self.argnames:
                 # A from import
                 for argname in self.argnames:
@@ -1683,7 +1681,6 @@ def codegen():
                 output.print(".")
         output.print(".")
         # the name after dot would be mapped about here.
-        output.add_mapping(self.end)
         output.print_name(self.property)
     )
     DEFPRINT(AST_Sub, def(self, output):
@@ -2141,38 +2138,3 @@ def codegen():
             stmt.print(output)
             output.newline()
         )
-
-    # -----[ source map generators ]-----
-    def DEFMAP(nodetype, generator):
-        nodetype.DEFMETHOD("add_source_map", def(stream):
-            generator(this, stream)
-        )
-
-    # We could easily add info for ALL nodes, but it seems to me that
-    # would be quite wasteful, hence this noop in the base class.
-    DEFMAP(AST_Node, noop)
-    def basic_sourcemap_gen(self, output):
-        output.add_mapping(self.start)
-
-    # XXX: I'm not exactly sure if we need it for all of these nodes,
-    # or if we should add even more.
-    DEFMAP(AST_Directive, basic_sourcemap_gen)
-    DEFMAP(AST_Debugger, basic_sourcemap_gen)
-    DEFMAP(AST_Symbol, basic_sourcemap_gen)
-    DEFMAP(AST_Jump, basic_sourcemap_gen)
-    DEFMAP(AST_StatementWithBody, basic_sourcemap_gen)
-    # since the label symbol will mark it
-    DEFMAP(AST_Lambda, basic_sourcemap_gen)
-    DEFMAP(AST_BlockStatement, basic_sourcemap_gen)
-    DEFMAP(AST_Toplevel, noop)
-    DEFMAP(AST_New, basic_sourcemap_gen)
-    DEFMAP(AST_Try, basic_sourcemap_gen)
-    DEFMAP(AST_Catch, basic_sourcemap_gen)
-    DEFMAP(AST_Finally, basic_sourcemap_gen)
-    DEFMAP(AST_Definitions, basic_sourcemap_gen)
-    DEFMAP(AST_Constant, basic_sourcemap_gen)
-    DEFMAP(AST_ObjectProperty, def(self, output):
-        output.add_mapping(self.start, self.key)
-    )
-
-codegen()

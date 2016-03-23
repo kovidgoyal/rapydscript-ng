@@ -93,7 +93,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         });
 
         try {
-            output = RapydScript.OutputStream(OUTPUT_OPTIONS);
+            output = new RapydScript.OutputStream(OUTPUT_OPTIONS);
         } catch(ex) {
             if (ex instanceof RapydScript.DefaultsError) {
                 console.error(ex.msg);

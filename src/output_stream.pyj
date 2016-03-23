@@ -2,398 +2,352 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals:regenerate
 
-from utils import make_predicate, defaults, repeat_string, noop
+from utils import make_predicate, defaults, repeat_string
 from tokenizer import is_identifier_char
-from ast import AST_Node
 
 DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g
 
-def OutputStream(options):
-    options = defaults(options, {
-        'indent_start': 0,
-        'indent_level': 4,
-        'quote_keys': False,
-        'space_colon': True,
-        'ascii_only': False,
-        'width': 80,
-        'max_line_len': 32000,
-        'ie_proof': True,
-        'beautify': False,
-        'source_map': None,
-        'bracketize': False,
-        'semicolons': True,
-        'comments': False,
-        'preserve_line': False,
-        'omit_baselib': False,
-        'baselib': None,
-        'private_scope': True,
-        'auto_bind': False,
-        'js_version':5,
-        'write_name': True
-    }, True)
-    indentation = 0
-    current_col = 0
-    current_line = 1
-    current_pos = 0
-    OUTPUT = ""
-    IMPORTED = {}
-    def to_ascii(str_, identifier):
-        return str_.replace(/[\u0080-\uffff]/g, def(ch):
-            code = ch.charCodeAt(0).toString(16)
-            if code.length <= 2 and not identifier:
-                while code.length < 2:
-                    code = "0" + code
+def to_ascii(str_, identifier):
+    return str_.replace(/[\u0080-\uffff]/g, def(ch):
+        code = ch.charCodeAt(0).toString(16)
+        if code.length <= 2 and not identifier:
+            while code.length < 2:
+                code = "0" + code
 
-                return "\\x" + code
-            else:
-                while code.length < 4:
-                    code = "0" + code
+            return "\\x" + code
+        else:
+            while code.length < 4:
+                code = "0" + code
 
-                return "\\u" + code
+            return "\\u" + code
 
-        )
+    )
 
-    def encode_string(str_):
-        return JSON.stringify(str_).replace(DANGEROUS, def(a):
-                return '\\u' + a.charCodeAt(0).toString(16)
-        )
+def encode_string(str_):
+    return JSON.stringify(str_).replace(DANGEROUS, def(a):
+            return '\\u' + a.charCodeAt(0).toString(16)
+    )
+require_semi_colon_chars = make_predicate("( [ + * / - , .")
 
-    def make_name(name):
+class OutputStream:
+
+    def __init__(self, options):
+        self.options = defaults(options, {
+            'indent_start': 0,
+            'indent_level': 4,
+            'quote_keys': False,
+            'space_colon': True,
+            'ascii_only': False,
+            'width': 80,
+            'max_line_len': 32000,
+            'ie_proof': True,
+            'beautify': False,
+            'source_map': None,
+            'bracketize': False,
+            'semicolons': True,
+            'comments': False,
+            'preserve_line': False,
+            'omit_baselib': False,
+            'baselib': None,
+            'private_scope': True,
+            'auto_bind': False,
+            'js_version':5,
+            'write_name': True
+        }, True)
+        self._indentation = 0
+        self.current_col = 0
+        self.current_line = 1
+        self.current_pos = 0
+        self.OUTPUT = ""
+        self.IMPORTED = {}
+        self.might_need_space = False
+        self.might_need_semicolon = False
+        self._last = None
+        self._stack = []
+        self.index_counter = 0
+        self.with_counter = 0
+
+    def make_name(self, name):
         name = name.toString()
-        if options.ascii_only:
+        if self.options.ascii_only:
             name = to_ascii(name, True)
 
         return name
 
-    def make_indent(back):
-        return repeat_string(" ", options.indent_start + indentation - back * options.indent_level)
+    def print_name(self, name):
+        self.print(self.make_name(name))
+
+    def make_indent(self, back):
+        return repeat_string(" ", self.options.indent_start + self._indentation - back * self.options.indent_level)
 
     # -----[ beautification/minification ]-----
-    might_need_space = False
-    might_need_semicolon = False
-    last = None
-    def last_char():
-        return last.charAt(last.length - 1)
+    def last_char(self):
+        return self._last.charAt(self._last.length - 1)
 
-    def maybe_newline():
-        if options.max_line_len and current_col > options.max_line_len:
-            print_("\n")
+    def maybe_newline(self):
+        if self.options.max_line_len and self.current_col > self.options.max_line_len:
+            self.print("\n")
 
-
-    requireSemicolonChars = make_predicate("( [ + * / - , .")
-    def print_(str_):
-        nonlocal might_need_space, might_need_semicolon, last, current_line, current_pos, current_col, OUTPUT
+    def print(self, str_):
         str_ = v"String(str_)"
         ch = str_.charAt(0)
-        if might_need_semicolon:
-            if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(last):
-                if options.semicolons or requireSemicolonChars(ch):
-                    OUTPUT += ";"
-                    current_col += 1
-                    current_pos += 1
+        if self.might_need_semicolon:
+            if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(self._last):
+                if self.options.semicolons or require_semi_colon_chars(ch):
+                    self.OUTPUT += ";"
+                    self.current_col += 1
+                    self.current_pos += 1
                 else:
-                    OUTPUT += "\n"
-                    current_pos += 1
-                    current_line += 1
-                    current_col = 0
+                    self.OUTPUT += "\n"
+                    self.current_pos += 1
+                    self.current_line += 1
+                    self.current_col = 0
 
-                if not options.beautify:
-                    might_need_space = False
-
-
-            might_need_semicolon = False
-            maybe_newline()
-
-        if not options.beautify and options.preserve_line and stack[stack.length - 1]:
-            target_line = stack[stack.length - 1].start.line
-            while current_line < target_line:
-                OUTPUT += "\n"
-                current_pos += 1
-                current_line += 1
-                current_col = 0
-                might_need_space = False
+                if not self.options.beautify:
+                    self.might_need_space = False
 
 
-        if might_need_space:
-            prev = last_char()
+            self.might_need_semicolon = False
+            self.maybe_newline()
+
+        if not self.options.beautify and self.options.preserve_line and self._stack[self._stack.length - 1]:
+            target_line = self._stack[self._stack.length - 1].start.line
+            while self.current_line < target_line:
+                self.OUTPUT += "\n"
+                self.current_pos += 1
+                self.current_line += 1
+                self.current_col = 0
+                self.might_need_space = False
+
+
+        if self.might_need_space:
+            prev = self.last_char()
             if is_identifier_char(prev) and (is_identifier_char(ch) or ch is "\\")
             or /^[\+\-\/]$/.test(ch) and ch is prev:
-                OUTPUT += " "
-                current_col += 1
-                current_pos += 1
+                self.OUTPUT += " "
+                self.current_col += 1
+                self.current_pos += 1
 
-            might_need_space = False
+            self.might_need_space = False
 
         a = str_.split(/\r?\n/)
         n = a.length - 1
-        current_line += n
+        self.current_line += n
         if n is 0:
-            current_col += a[n].length
+            self.current_col += a[n].length
         else:
-            current_col = a[n].length
+            self.current_col = a[n].length
 
-        current_pos += str_.length
-        last = str_
-        OUTPUT += str_
+        self.current_pos += str_.length
+        self._last = str_
+        self.OUTPUT += str_
 
-    space = options.beautify ? def(): print_(" ")
-    : def():
-        nonlocal might_need_space
-        might_need_space = True
+    def space(self):
+        if self.options.beautify:
+            self.print(' ')
+        else:
+            self.might_need_space = True
 
-    indent = options.beautify ? def(half):
-        if options.beautify:
-            print_(make_indent((half ? 0.5 : 0)))
-    : noop
+    def indent(self, half):
+        if self.options.beautify:
+            self.print(self.make_indent((half ? 0.5 : 0)))
 
-    with_indent = options.beautify ? def(col, cont):
-        nonlocal indentation
-        if col is True:
-            col = next_indent()
+    def with_indent(self, col, proceed):
+        if self.options.beautify:
+            if col is True:
+                col = self.next_indent()
 
-        save_indentation = indentation
-        indentation = col
-        ret = cont()
-        indentation = save_indentation
-        return ret
-    : def(col, cont):
-        return cont()
+            save_indentation = self._indentation
+            self._indentation = col
+            ret = proceed()
+            self._indentation = save_indentation
+            return ret
+        else:
+            return proceed()
 
-    def set_indentation(val):
-        nonlocal indentation
-        if options.beautify:
-            indentation = val
+    def indentation(self):
+        return self._indentation
 
-    newline = options.beautify ? def():
-        print_("\n")
-    : noop
+    def set_indentation(self, val):
+        if self.options.beautify:
+            self._indentation = val
 
-    semicolon = options.beautify ? def():
-        print_(";")
-    : def():
-        nonlocal might_need_semicolon
-        might_need_semicolon = True
+    def newline(self):
+        if self.options.beautify:
+            self.print("\n")
 
-    def force_semicolon():
-        nonlocal might_need_semicolon
-        might_need_semicolon = False
-        print_(";")
+    def semicolon(self):
+        if self.options.beautify:
+            self.print(";")
+        else:
+            self.might_need_semicolon = True
 
-    def next_indent():
-        return indentation + options.indent_level
+    def force_semicolon(self):
+        self.might_need_semicolon = False
+        self.print(";")
 
-    def spaced():
+    def next_indent(self):
+        return self._indentation + self.options.indent_level
+
+    def spaced(self):
         for v'var i=0; i < arguments.length; i++':
             if i > 0:
-                space()
+                self.space()
             if type(arguments[i].print) is 'function':
-                arguments[i].print(this)
+                arguments[i].print(self)
             else:
-                print_(arguments[i])  # noqa:undef
+                self.print(arguments[i])
 
-    def end_statement():
-        semicolon()
-        newline()
+    def end_statement(self):
+        self.semicolon()
+        self.newline()
 
-    def with_block(cont):
+    def with_block(self, cont):
         ret = None
-        print_("{")
-        newline()
-        with_indent(next_indent(), def():
+        self.print("{")
+        self.newline()
+        self.with_indent(self.next_indent(), def():
             nonlocal ret
             ret = cont()
         )
-        indent()
-        print_("}")
+        self.indent()
+        self.print("}")
         return ret
 
-    def with_parens(cont):
-        print_("(")
-        #XXX: still nice to have that for argument lists
-        #var ret = with_indent(current_col, cont)
+    def with_parens(self, cont):
+        self.print("(")
         ret = cont()
-        print_(")")
+        self.print(")")
         return ret
 
-    def with_square(cont):
-        print_("[")
-        #var ret = with_indent(current_col, cont)
+    def with_square(self, cont):
+        self.print("[")
         ret = cont()
-        print_("]")
+        self.print("]")
         return ret
 
-    def comma():
-        print_(",")
-        space()
+    def comma(self):
+        self.print(",")
+        self.space()
 
-    def colon():
-        print_(":")
-        if options.space_colon:
-            space()
-
-
-    add_mapping = (options.source_map ? def(token, name):
-        try:
-            if token:
-                options.source_map.add(token.file or "?", current_line, current_col, token.line, token.col, (not name and token.type is "name" ? token.value : name))
-        except:
-            AST_Node.warn("Couldn't figure out mapping for {file}:{line},{col} → {cline},{ccol} [{name}]", {
-                'file': token.file,
-                'line': token.line,
-                'col': token.col,
-                'cline': current_line,
-                'ccol': current_col,
-                'name': name or ""
-            })
-    : noop)
+    def colon(self):
+        self.print(":")
+        if self.options.space_colon:
+            self.space()
 
     # retrieve baselib function based on requested key
-    def dump_baselib(key):
-        indent()
+    def dump_baselib(self, key):
+        self.indent()
         is_func = key.substr(key.length - 2) is '()'
-        v = 'const' if options.js_version > 5 else 'var'
+        v = 'const' if self.options.js_version > 5 else 'var'
         if is_func:
             ckey = key.substr(0, key.length - 2)
-            spaced(v, ckey, '=', '(')
-        print_(options.baselib[key])
+            self.spaced(v, ckey, '=', '(')
+        self.print(self.options.baselib[key])
         if is_func:
-            print_(')()')
-        semicolon()
-        newline()
+            self.print(')()')
+        self.end_statement()
 
-    def dump_yield():
-        indent()
-        spaced('var', '_$rapyd$_regenerator', '=', '{}')
-        end_statement()
-        code = regenerate(False, options.beautify)
-        if options.beautify:
+    def dump_yield(self):
+        self.indent()
+        self.spaced('var', '_$rapyd$_regenerator', '=', '{}')
+        self.end_statement()
+        code = regenerate(False, self.options.beautify)
+        if self.options.beautify:
             code = code.replace(/\/\/.*$/mg, '\n').replace(/^\s*$/gm, '')  # strip comments
-            ci = make_indent(0)
+            ci = self.make_indent(0)
             code = [ci + x for x in code.split('\n')].join('\n')
-        print_(code + '(_$rapyd$_regenerator)')
-        end_statement()
+        self.print(code + '(_$rapyd$_regenerator)')
+        self.end_statement()
 
     # any code that should appear before the main body
-    def prologue(module_):
-        if options.omit_baselib:
+    def prologue(self, module_):
+        if self.options.omit_baselib:
             return
-        indent()
-        v = 'const' if options.js_version > 5 else 'var'
-        print_(v), space()
-        spaced.apply(None, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
-        end_statement()
-        indent(), print_(v), space()
-        spaced.apply(None, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
-        end_statement()
-        indent(), spaced('var', '_$rapyd$_cond_temp'), end_statement()
-        indent(), spaced('var', '_$rapyd$_object_counter', '=', '0'), end_statement()
+        self.indent()
+        v = 'const' if self.options.js_version > 5 else 'var'
+        self.print(v), self.space()
+        self.spaced.apply(self, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+        self.end_statement()
+        self.indent(), self.print(v), self.space()
+        self.spaced.apply(self, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+        self.end_statement()
+        self.indent(), self.spaced('var', '_$rapyd$_cond_temp'), self.end_statement()
+        self.indent(), self.spaced('var', '_$rapyd$_object_counter', '=', '0'), self.end_statement()
         baselib_items = {k:True for k in module_.baselib}
         baselib_items['errors'] = True
         baselib_items['containers'] = True
         baselib_items['builtins'] = True
         baselib_items['str'] = True
-        deps = options.baselib['#dependencies#']
+        deps = self.options.baselib['#dependencies#']
         # resolve dependencies
         for lib in baselib_items:
             if Object.prototype.hasOwnProperty.call(deps, lib):
                 Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
         # output used items
         for lib in baselib_items:
-            if options.js_version >= 6 and (lib is 'iterable' or lib is 'yield'):
+            if self.options.js_version >= 6 and (lib is 'iterable' or lib is 'yield'):
                 continue
             if lib is 'yield':
-                dump_yield()
+                self.dump_yield()
             else:
-                dump_baselib(lib)
+                self.dump_baselib(lib)
 
-    def get():
-        return OUTPUT
+    def get(self):
+        return self.OUTPUT
 
-    # generates: '[name] = '
-    def assign_var(name):
-        if typeof name is "string":
-            print_(name)
+    def toString(self):
+        return self.OUTPUT
+
+    def assign(self, name):
+        # generates: '[name] = '
+        if type(name) is "string":
+            self.print(name)
         else:
-            name.print(this)
-        space()
-        print_("=")
-        space()
+            name.print(self)
+        self.space()
+        self.print("=")
+        self.space()
 
-    stack = []
-    return {
-        'index_counter': 0,
-        'with_counter': 0,
-        'options':options,
-        'get': get,
-        'toString': get,
-        'indent': indent,
-        'indentation': def():
-            return indentation
-        ,
-        'set_indentation': set_indentation,
-        'make_indent': make_indent,
-        'current_width': def():
-            return current_col - indentation
-        ,
-        'should_break': def():
-            return options.width and this.current_width() >= options.width
-        ,
-        'newline': newline,
-        'print': print_,
-        'space': space,
-        'comma': comma,
-        'colon': colon,
-        'last': def():
-            return last
-        ,
-        'semicolon': semicolon,
-        'force_semicolon': force_semicolon,
-        'to_ascii': to_ascii,
-        'print_name': def(name):
-            print_(make_name(name))
-        ,
-        'print_string': def(str_):
-            print_(encode_string(str_))
-        ,
-        'next_indent': next_indent,
-        'with_indent': with_indent,
-        'with_block': with_block,
-        'with_parens': with_parens,
-        'spaced': spaced,
-        'end_statement': end_statement,
-        'with_square': with_square,
-        'add_mapping': add_mapping,
-        'assign': assign_var,
-        'prologue': prologue,
-        "import": def(module_):
-            if not Object.prototype.hasOwnProperty.call(IMPORTED, module_.key):
-                IMPORTED[module_.key] = module_
-        ,
-        'is_main': def():
-            return OUTPUT.length is 0
-        ,
-        'option': def(opt):
-            return options[opt]
-        ,
-        'line': def():
-            return current_line
-        ,
-        'col': def():
-            return current_col
-        ,
-        'pos': def():
-            return current_pos
-        ,
-        'push_node': def(node):
-            stack.push(node)
-        ,
-        'pop_node': def():
-            return stack.pop()
-        ,
-        'stack': def():
-            return stack
-        ,
-        'parent': def(n):
-            return stack[stack.length - 2 - (n or 0)]
+    def current_width(self):
+        return self.current_col - self._indentation
 
-    }
+    def should_break(self):
+        return self.options.width and self.current_width() >= self.options.width
+
+    def last(self):
+        return self._last
+
+    def print_string(self, str_):
+        self.print(encode_string(str_))
+
+    def import_(self, module):
+        if not Object.prototype.hasOwnProperty.call(self.IMPORTED, module.key):
+            self.IMPORTED[module.key] = module
+
+    def is_main(self):
+        return self.OUTPUT.length is 0
+
+    def option(self, opt):
+        return self.options[opt]
+
+    def line(self):
+        return self.current_line
+
+    def col(self):
+        return self.current_col
+
+    def pos(self):
+        return self.current_pos
+
+    def push_node(self, node):
+        self._stack.push(node)
+
+    def pop_node(self):
+        return self._stack.pop()
+
+    def stack(self):
+        return self._stack
+
+    def parent(self, n):
+        return self._stack[self._stack.length - 2 - (n or 0)]

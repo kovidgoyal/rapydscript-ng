@@ -155,7 +155,7 @@ module.exports = function(options) {
             else options.console.log(e.stack || e.toString());
             return false;
         }
-        var output = RapydScript.OutputStream(output_options);
+        var output = new RapydScript.OutputStream(output_options);
         toplevel.print(output);
         output = output.toString();
         if (classes) {

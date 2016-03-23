@@ -217,7 +217,7 @@ function compile(code, filename, options) {
         js_version: options.js_version || 5,
     };
     if (!out_ops.omit_baselib) out_ops.baselib = data['baselib-' + (out_ops.beautify ? 'pretty' : 'ugly') + '.js'];
-    var out = RapydScript.OutputStream(out_ops);
+    var out = new RapydScript.OutputStream(out_ops);
     ast.print(out);
     return out.get();
 }
