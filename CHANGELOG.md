@@ -19,7 +19,7 @@ version 0.5.1
 
 Fix a bug that caused the equality operators to not work for lists. Also,
 fix the new equality operators causing their arguments to be evaluated twice
-when the arguments are expressions, such as fucntion calls, generators, object
+when the arguments are expressions, such as function calls, generators, object
 literals, etc.
 
 version 0.5.0
