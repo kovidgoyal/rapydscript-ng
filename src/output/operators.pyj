@@ -1,0 +1,238 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from ast import (
+    AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
+    AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign
+)
+from output.loops import unpack_tuple
+
+def print_getattr(self, output):  # AST_Dot
+    expr = self.expression
+    expr.print(output)
+    if isinstance(expr, AST_Number) and expr.getValue() >= 0:
+        if not /[xa-f.]/i.test(output.last()):
+            output.print(".")
+    output.print(".")
+    # the name after dot would be mapped about here.
+    output.print_name(self.property)
+
+def print_getitem(self, output):  # AST_Sub
+    self.expression.print(output)
+    output.print("[")
+    # parse negative constants into len-constant
+    if isinstance(self.property, AST_Unary) and self.property.operator is "-"
+    and isinstance(self.property.expression, AST_Number):
+        # TODO: this might parse incorrectly if expression is a
+        # function call that might not return the same result
+        # when called repeatedly. We might eventually want to
+        # save the return to a temporary variable and use that
+        # instead if expression is a function. Or we could just
+        # throw an error if negative indices are used with a
+        # type that's not AST_SymbolVar
+        self.expression.print(output)
+        output.print(".length")
+
+    self.property.print(output)
+    output.print("]")
+
+def print_rich_getitem(self, output):  # AST_ItemAccess
+    self.expression.print(output)
+    output.print('.__' + (self.assignment ? 'setitem' : 'getitem') + '__')
+    output.with_parens(def():
+        self.property.print(output)
+        if self.assignment:
+            output.comma()
+            self.assignment.print(output)
+    )
+
+def print_splice_assignment(self, output):
+    # splice assignment via pythonic array[start:end]
+    output.print('[].splice.apply')
+    output.with_parens(def():
+        self.expression.print(output)
+        output.comma()
+        output.with_square(def():
+            self.property.print(output)
+            output.comma()
+            self.property2.print(output)
+            output.print('-')
+            self.property.print(output)
+        )
+        output.print('.concat')
+        output.with_parens(def():
+            self.assignment.print(output)
+        )
+    )
+
+def print_unary_prefix(self, output):
+    op = self.operator
+    output.print(op)
+    if /^[a-z]/i.test(op):
+        output.space()
+    self.expression.print(output)
+
+def print_unary_postfix(self, output):
+    self.expression.print(output)
+    output.print(self.operator)
+
+def write_instanceof(left, right, output):
+    def single(left, right):
+        if right.name is 'Array' or right.name is 'list':
+            output.print('Array.isArray')
+            output.with_parens(def():left.print(output);)
+        else:
+            output.spaced(left, 'instanceof', right)
+    if isinstance(right, AST_Seq):
+        right = new AST_Array({'elements':right.to_array()})
+    if isinstance(right, AST_Array):
+        output.with_parens(def():
+            right.elements.forEach(def (right, i, arr):
+                single(left, right)
+                if arr.length > 1 and i < arr.length - 1:
+                    output.space(), output.print('||'), output.space()
+            )
+        )
+    else:
+        single(left, right)
+
+def write_smart_equality(self, output):
+    def is_ok(x):
+        return not isinstance(x, (AST_Array, AST_Set, AST_Object, AST_Statement, AST_Binary, AST_Conditional, AST_BaseCall))
+    if is_ok(self.left) and is_ok(self.right):
+        if self.operator is '==':
+            output.print('(')
+            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', '_$rapyd$_equals(')
+            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
+        else:
+            output.print('(')
+            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', '_$rapyd$_not_equals(')
+            self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
+    else:
+        output.print('_$rapyd$_' + ('equals(' if self.operator is '==' else 'not_equals('))
+        self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')')
+
+def print_binary_op(self, output):
+    comparators = {
+        "<": True,
+        ">": True,
+        "<=": True,
+        ">=": True,
+        "==": True,
+        "!=": True
+    }
+    function_ops = {
+        "in": "_$rapyd$_in",
+        "**": "Math.pow"
+    }
+
+    if self.operator in function_ops:
+        output.print(function_ops[self.operator])
+        output.with_parens(def():
+            self.left.print(output)
+            output.comma()
+            self.right.print(output)
+        )
+    elif comparators[self.operator] and isinstance(self.left, AST_Binary) and comparators[self.left.operator]:
+        if isinstance(self.left.right, AST_Symbol):
+            # left side compares against a regular variable,
+            # no caching needed
+            self.left.print(output)
+            leftvar = self.left.right.name
+        else:
+            # some logic is being performed, let's cache it
+            self.left.left.print(output)
+            output.space()
+            output.print(self.left.operator)
+            output.space()
+            output.with_parens(def():
+                nonlocal leftvar
+                output.assign("_$rapyd$_cond_temp")
+                self.left.right.print(output)
+                leftvar = "_$rapyd$_cond_temp"
+            )
+
+        output.space()
+        output.print("&&")
+        output.space()
+        output.print(leftvar)
+        output.space()
+        output.print(self.operator)
+        output.space()
+        self.right.print(output)
+    elif self.operator is '//':
+        output.print('Math.floor')
+        output.with_parens(def():
+            self.left.print(output)
+            output.space()
+            output.print('/')
+            output.space()
+            self.right.print(output)
+        )
+    elif self.operator is '==' or self.operator is '!=':
+        write_smart_equality(self, output)
+    elif self.operator is 'instanceof':
+        write_instanceof(self.left, self.right, output)
+    else:
+        output.spaced(self.left, self.operator, self.right)
+
+def print_assignment(self, output):
+    flattened = False
+    left = self.left
+    if isinstance(left, AST_Seq):
+        left = new AST_Array({'elements':v'[left.car, left.cdr]'})
+    if isinstance(left, AST_Array):
+        flat = left.flatten()
+        flattened = flat.length > left.elements.length
+        output.print("_$rapyd$_unpack")
+    else:
+        left.print(output)
+    output.space()
+    output.print(self.operator)
+    output.space()
+    if flattened:
+        output.print('_$rapyd$_flatten')
+        output.with_parens(def():self.right.print(output);)
+    else:
+        self.right.print(output)
+    if isinstance(left, AST_Array):
+        output.semicolon()
+        output.newline()
+        unpack_tuple(flat, output, True)
+
+def print_assign(self, output):
+    if self.operator is '//=':
+        output.assign(self.left)
+        output.print('Math.floor')
+        output.with_parens(def():
+            self.left.print(output)
+            output.space()
+            output.print('/')
+            output.space()
+            self.right.print(output)
+        )
+        return
+    if self.operator is '=' and self.is_chained():
+        left_hand_sides, rhs = self.traverse_chain()
+        temp_rhs = new AST_SymbolRef({'name':'_$rapyd$_chain_assign_temp'})
+        print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
+        output.end_statement(), output.indent()
+        for lhs in left_hand_sides:
+            print_assignment(new AST_Assign({'left':lhs, 'right':temp_rhs, 'operator':self.operator}), output)
+            output.end_statement()
+            if lhs is not left_hand_sides[-1]:
+                output.indent()
+    else:
+        print_assignment(self, output)
+
+def print_conditional(self, output, condition, consequent, alternative):
+    condition, consequent, alternative = self.condition, self.consequent, self.alternative
+    output.with_parens(def():condition.print(output);)
+    output.space()
+    output.print("?")
+    output.space()
+    consequent.print(output)
+    output.space()
+    output.colon()
+    alternative.print(output)
+

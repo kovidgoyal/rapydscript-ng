@@ -2,6 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals:regenerate
 
+from ast import AST_ClassCall, AST_New
 from output.stream import OutputStream
 from output.statements import print_bracketed
 
@@ -71,5 +72,117 @@ def function_definition(self, output, nokeyword, strip_first):
         function_args(self.argnames, output, strip_first)
         print_bracketed(self, output, True)
 
+def no_constructor_parens(self, output):
+    # self should be AST_New.  decide if we want to show parens or not.
+    return self.args.length is 0 and not output.option("beautify")
 
+def print_function_call(self, output):
+
+    if isinstance(self, AST_ClassCall):
+        # class methods are called through the prototype unless static
+        if self.static:
+            self.class.print(output)
+            output.print(".")
+            output.print(self.method)
+        else:
+            self.class.print(output)
+            output.print(".prototype.")
+            output.print(self.method)
+            output.print(".call")
+    else:
+        # regular function call
+        self.expression.print(output)
+
+    if isinstance(self, AST_New) and no_constructor_parens(self, output):
+        return
+
+    has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
+    has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
+    has_kwargs = has_kwarg_items or has_kwarg_formals
+
+    output_kwargs = def():
+        output.print('_$rapyd$_desugar_kwargs(')
+        if has_kwarg_items:
+            self.args.kwarg_items.forEach(def(kwname, i):
+                if i > 0:
+                    output.print(',')
+                    output.space()
+                kwname.print(output)
+            )
+            if has_kwarg_formals:
+                output.print(',')
+                output.space()
+
+        if has_kwarg_formals:
+            output.print('{')
+            self.args.kwargs.forEach(def(pair, i):
+                if i: output.comma()
+                pair[0].print(output)
+                output.print(':')
+                output.space()
+                pair[1].print(output)
+            )
+            output.print('}')
+        output.print(')')
+
+    if self.args.starargs:
+        if isinstance(self, AST_New):
+            obj = '_$rapyd$_new_temp'
+        else:
+            obj = (self.expression.expression ? self.expression.expression : "this")
+        output.print(".apply")
+        output.with_parens(def():
+            if type(obj) is 'string':
+                output.print(obj)
+            else:
+                obj.print(output)
+            output.comma()
+            # basic arguments
+            i = 0
+            while i < self.args.length:
+                expr = self.args[i]
+                is_first = i is 0
+                if not is_first:
+                    output.print('.concat(')
+                if expr.is_array:
+                    expr.print(output)
+                    i += 1
+                else:
+                    output.print('[')
+                    while i < self.args.length and not self.args[i].is_array:
+                        self.args[i].print(output)
+                        if i + 1 < self.args.length and not self.args[i+1].is_array:
+                            output.print(',')
+                            output.space()
+                        i += 1
+                    output.print(']')
+                if not is_first:
+                    output.print(')')
+
+            # now kwargs
+            if has_kwargs:
+                if self.args.length:
+                    output.print('.concat(')
+                output.print('[')
+                output_kwargs()
+                output.print(']')
+                if self.args.length:
+                    output.print(')')
+        )
+    else:
+        output.with_parens(def():
+            # normal args
+            self.args.forEach(def(expr, i):
+                if i:
+                    output.comma()
+                expr.print(output)
+            )
+
+            # kwargs as hash
+            if has_kwargs:
+                if self.args.length:
+                    output.print(',')
+                    output.space()
+                output_kwargs()
+        )
 
