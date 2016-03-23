@@ -538,15 +538,15 @@ class GCM(ModeOfOperation):  # {{{
         in_block[3] = (in_block[3] + 1) & 0xFFFFFFFF  # increment counter
 
         # Process additional_data
-        overflow = additional_data.length % 16
-        if overflow:
-            t = Uint8Array(additional_data.length + 16 - overflow)
-            t.set(additional_data)
-            additional_data = t
         S = Uint32Array(4)
-        while additional_data.length:
-            additional_data = additional_data.subarray(4)
-            convert_to_int32(additional_data, self.wmem, 0, 16)
+        overflow = additional_data.length % 16
+        for v'var i = 0; i < additional_data.length - overflow; i += 16':
+            convert_to_int32(additional_data, self.wmem, i, 16)
+            S = self.galois.ghash(S, self.wmem)
+        if overflow:
+            self.byte_block.fill(0)
+            self.byte_block.set(additional_data.subarray(additional_data.length - overflow))
+            convert_to_int32(self.byte_block, self.wmem)
             S = self.galois.ghash(S, self.wmem)
         return J0, in_block, S
 
