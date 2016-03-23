@@ -1,3 +1,19 @@
+version 0.5.2
+==============
+
+ * New module in stdlib: **aes.pyj** that implements the symmetric encryption
+   ciphers: AES-GCM, AES-CBC, AES-CTR
+
+ * Improved support for TypedArrays -- you can now iterate over them just like
+   normal arrays and also repr() wors for them.
+
+ * elementmaker.pyj: Allow setting HTML 5 boolean attributes using True/False.
+   Fix E.iframe() not working.
+
+ * Make the equality operators also work with javascript dicts (when
+   javascript objects are used as dicts)
+
+
 version 0.5.1
 ==============
 
