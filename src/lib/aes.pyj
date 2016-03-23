@@ -75,8 +75,15 @@ def convert_to_int32_pad(bytes):
     return ans
 
 if not Uint8Array.prototype.fill:
-    Uint8Array.prototype.fill = Uint32Array.prototype.fill = def(val):
-        for v'var i = 0; i < this.length; i++':
+    Uint8Array.prototype.fill = Uint32Array.prototype.fill = def(val, start, end):
+        start = start or 0
+        if end is undefined:
+            end = this.length
+        if start < 0:
+            start += this.length
+        if end < 0:
+            end += this.length
+        for v'var i = start; i < end; i++':
             this[i] = val
 
 def from_64_to_32(num):
