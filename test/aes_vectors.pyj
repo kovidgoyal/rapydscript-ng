@@ -407,6 +407,4 @@ def run_tests():
     assert.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
     # }}}
 
-a = Uint8Array(1)
-if a.slice:  # node 0.12 does not have TypedArray.slice which the aes module uses
-    run_tests()
+run_tests()
