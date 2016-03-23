@@ -3,55 +3,25 @@
 
 from aes import CBC, CTR, GCM, generate_tag, as_hex, AES, string_to_bytes
 
+def from_hex(text):
+    text = str.replace(text, ' ', '')
+    ans = Uint8Array(text.length // 2)
+    for i in range(ans.length):
+        ans[i] = int(text[2*i:2*i+2], 16)
+    return ans
+
+def from32(ints):
+    ans = Uint8Array(ints.length * 4)
+    for i, num in enumerate(ints):
+        off = i*4
+        ans[off] = (num & 0xff000000) >> 24
+        ans[off+1] = (num & 0x00ff0000) >> 16
+        ans[off+2] = (num & 0x0000ff00) >> 8
+        ans[off+3] = num & 0x000000ff
+    return ans
+
 def run_tests():
-    # Test roundtripping
-
-    text = 'testing a basic roundtrip ø̄ū'
-
-    cbc = CBC()
-    crypted = cbc.encrypt(text)
-    decrypted = cbc.decrypt(crypted)
-    assert.equal(text, decrypted)
-    secret_tag = generate_tag()
-    crypted = cbc.encrypt(text, secret_tag)
-    decrypted = cbc.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
-
-    ctr = CTR()
-    crypted = ctr.encrypt(text)
-    decrypted = ctr.decrypt(crypted)
-    assert.equal(text, decrypted)
-    crypted = ctr.encrypt(text, secret_tag)
-    decrypted = ctr.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
-
-    gcm = GCM()
-    crypted = gcm.encrypt(text)
-    decrypted = gcm.decrypt(crypted)
-    assert.equal(text, decrypted)
-    crypted = gcm.encrypt(text, secret_tag)
-    decrypted = gcm.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
-
-    def from_hex(text):
-        text = str.replace(text, ' ', '')
-        ans = Uint8Array(text.length // 2)
-        for i in range(text.length // 2):
-            ans[i] = int(text[2*i:2*i+2], 16)
-        return ans
-
-    def from32(ints):
-        ans = Uint8Array(ints.length * 4)
-        for i, num in enumerate(ints):
-            off = i*4
-            ans[off] = (num & 0xff000000) >> 24
-            ans[off+1] = (num & 0x00ff0000) >> 16
-            ans[off+2] = (num & 0x0000ff00) >> 8
-            ans[off+3] = num & 0x000000ff
-        return ans
-    assert.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
-
-    # Test basic AES
+    # Test basic AES {{{
     k1 = '000102030405060708090a0b0c0d0e0f'
     k2 = k1 + '1011121314151617'
     k3 = k2 + '18191a1b1c1d1e1f'
@@ -69,7 +39,7 @@ def run_tests():
         aes = AES(from_hex(key))
         output = Uint8Array(block.length * 4)
         aes.decrypt32(block, output, 0) if decrypt else aes.encrypt32(block, output, 0)
-        assert.equal(expected, as_hex(output, ''))
+        assert.equal(expected, as_hex(output))
 
     # Test AES-CBC
     keys = [
@@ -107,11 +77,12 @@ def run_tests():
         outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
         iv = from_hex(ivs[i])
         ans = cbc.encrypt_bytes(inputbytes, [], iv)
-        assert.equal(as_hex(ans.cipherbytes, ''), outputs[i])
+        assert.equal(as_hex(ans.cipherbytes), outputs[i])
         ans = cbc.decrypt_bytes(outputbytes, [], iv)
         assert.equal(as_hex(ans), as_hex(inputbytes))
+    # }}}
 
-    # Test AES-CTR
+    # Test AES-CTR {{{
     keys = [
          '00000000000000000000000000000000',
          '2b7e151628aed2a6abf7158809cf4f3c'
@@ -141,8 +112,111 @@ def run_tests():
         outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
         temp = Uint8Array(inputbytes)
         ctr._crypt(temp)
-        assert.equal(as_hex(temp, ''), outputs[i])
+        assert.equal(as_hex(temp), outputs[i])
+    # }}}
 
+    # Test AES-GCM {{{
+    keys = [
+        '00000000000000000000000000000000',
+        '00000000000000000000000000000000',
+        'feffe9928665731c6d6a8f9467308308',
+        'feffe9928665731c6d6a8f9467308308',
+        'feffe9928665731c6d6a8f9467308308',
+        'feffe9928665731c6d6a8f9467308308',
+        '00000000000000000000000000000000'
+      ]
+
+    ivs = [
+        '000000000000000000000000',
+        '000000000000000000000000',
+        'cafebabefacedbaddecaf888',
+        'cafebabefacedbaddecaf888',
+        'cafebabefacedbad',
+        '9313225df88406e555909c5aff5269aa' + '6a7a9538534f7da1e4c303d2a318a728' + 'c3c0c95156809539fcf0e2429a6b5254' + '16aedbf5a0de6a57a637b39b',
+        '000000000000000000000000'
+      ]
+
+    adatas = [
+        '',
+        '',
+        '',
+        'feedfacedeadbeeffeedfacedeadbeef' + 'abaddad2',
+        'feedfacedeadbeeffeedfacedeadbeef' + 'abaddad2',
+        'feedfacedeadbeeffeedfacedeadbeef' + 'abaddad2',
+        ''
+      ]
+
+    inputs = [
+        '',
+        '00000000000000000000000000000000',
+        'd9313225f88406e5a55909c5aff5269a' + '86a7a9531534f7da2e4c303d8a318a72' + '1c3c0c95956809532fcf0e2449a6b525' + 'b16aedf5aa0de657ba637b391aafd255',
+        'd9313225f88406e5a55909c5aff5269a' + '86a7a9531534f7da2e4c303d8a318a72' + '1c3c0c95956809532fcf0e2449a6b525' + 'b16aedf5aa0de657ba637b39',
+        'd9313225f88406e5a55909c5aff5269a' + '86a7a9531534f7da2e4c303d8a318a72' + '1c3c0c95956809532fcf0e2449a6b525' + 'b16aedf5aa0de657ba637b39',
+        'd9313225f88406e5a55909c5aff5269a' + '86a7a9531534f7da2e4c303d8a318a72' + '1c3c0c95956809532fcf0e2449a6b525' + 'b16aedf5aa0de657ba637b39',
+        '0000'
+      ]
+
+    outputs = [
+        '',
+        '0388dace60b6a392f328c2b971b2fe78',
+        '42831ec2217774244b7221b784d0d49c' + 'e3aa212f2c02a4e035c17e2329aca12e' + '21d514b25466931c7d8f6a5aac84aa05' + '1ba30b396a0aac973d58e091473f5985',
+        '42831ec2217774244b7221b784d0d49c' + 'e3aa212f2c02a4e035c17e2329aca12e' + '21d514b25466931c7d8f6a5aac84aa05' + '1ba30b396a0aac973d58e091',
+        '61353b4c2806934a777ff51fa22a4755' + '699b2a714fcdc6f83766e5f97b6c7423' + '73806900e49f24b22b097544d4896b42' + '4989b5e1ebac0f07c23f4598',
+        '8ce24998625615b603a033aca13fb894' + 'be9112a5c3a211a8ba262a3cca7e2ca7' + '01e4a9a4fba43c90ccdcb281d48c7c6f' + 'd62875d2aca417034c34aee5',
+        '0388'
+      ]
+
+    tags = [
+        '58e2fccefa7e3061367f1d57a4e7455a',
+        'ab6e47d42cec13bdf53a67b21257bddf',
+        '4d5c2af327cd64a62cf35abd2ba6fab4',
+        '5bc94fbc3221a5db94fae95ae7121a47',
+        '3612d2e79e3b0785561be14aaca2fccb',
+        '619cc5aefffe0bfa462af43c1699d050',
+        '93dcdd26f79ec1dd9bff57204d9b33f5'
+    ]
+
+    for i in range(keys.length):
+        iv = from_hex(ivs[i])
+        gcm = GCM(from_hex(keys[i]))
+        inputbytes = from_hex(inputs[i])
+        adata = from_hex(adatas[i])
+        ans = gcm._crypt(iv, inputbytes, adata, False)
+        assert.equal(as_hex(ans.cipherbytes), outputs[i])
+        assert.equal(as_hex(ans.tag), tags[i])
+    # }}}
+
+    # Test roundtripping {{{
+
+    text = 'testing a basic roundtrip ø̄ū'
+
+    cbc = CBC()
+    crypted = cbc.encrypt(text)
+    decrypted = cbc.decrypt(crypted)
+    assert.equal(text, decrypted)
+    secret_tag = generate_tag()
+    crypted = cbc.encrypt(text, secret_tag)
+    decrypted = cbc.decrypt(crypted, secret_tag)
+    assert.equal(text, decrypted)
+
+    ctr = CTR()
+    crypted = ctr.encrypt(text)
+    decrypted = ctr.decrypt(crypted)
+    assert.equal(text, decrypted)
+    crypted = ctr.encrypt(text, secret_tag)
+    decrypted = ctr.decrypt(crypted, secret_tag)
+    assert.equal(text, decrypted)
+
+    gcm = GCM()
+    crypted = gcm.encrypt(text)
+    decrypted = gcm.decrypt(crypted)
+    assert.equal(text, decrypted)
+    crypted = gcm.encrypt(text, secret_tag)
+    decrypted = gcm.decrypt(crypted, secret_tag)
+    assert.equal(text, decrypted)
+
+    assert.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
+    # }}}
 
 a = Uint8Array(1)
 if a.slice:  # node 0.12 does not have TypedArray.slice which the aes module uses
