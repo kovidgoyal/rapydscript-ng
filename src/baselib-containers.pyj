@@ -23,8 +23,8 @@ def _$rapyd$_equals(a, b):
         akeys, bkeys = Object.keys(a), Object.keys(b)
         if akeys.length is not bkeys.length:
             return False
-        for v'var i=0; i < akeys.length; i++':
-            key = akeys[i]
+        for v'var j=0; j < akeys.length; j++':
+            key = akeys[j]
             if not (a[key] == b[key]):
                 return False
         return True
@@ -39,7 +39,7 @@ def _$rapyd$_not_equals(a, b):
         return b.__ne__(a)
     return not _$rapyd$_equals(a, b)
 
-v'var equals = _$rapyd$_equals;'
+v'var equals = _$rapyd$_equals'
 
 # list {{{
 
