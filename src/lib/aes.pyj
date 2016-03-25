@@ -512,6 +512,11 @@ class CTR(ModeOfOperation):  # {{{
 
 class GCM(ModeOfOperation):  # {{{
 
+    # Note that this mode of operation requires the pair of (iv,
+    # secret key) to always be unique, for every message. Therefore, if you are
+    # using it for bi-directional messaging it is best to use a different
+    # secret key for each direction (you could also use random_key,
+    # but that has a non-zero probability of repeating keys).
     # See http://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 
     def __init__(self, key, random_iv=False):
