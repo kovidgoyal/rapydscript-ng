@@ -304,7 +304,7 @@ def _$rapyd$_set(iterable):
         s = ans.jsset
         if _$rapyd$_arraylike(iterable):
             for v'var i = 0; i < iterable.length; i++':
-                s.add(iterable[i])  # noqa:undef
+                s.add(iterable[i])
         elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
             iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
             result = iterator.next()
@@ -313,8 +313,8 @@ def _$rapyd$_set(iterable):
                 result = iterator.next()
         else:
             keys = Object.keys(iterable)
-            for v'var i=0; i < keys.length; i++':
-                s.add(keys[i])  # noqa:undef
+            for v'var j=0; j < keys.length; j++':
+                s.add(keys[j])
         return ans
     else:
         return new _$rapyd$_set(iterable)
@@ -363,8 +363,8 @@ _$rapyd$_set.prototype.difference_update = def():
                 remove.push(x)
                 break
         r = iterator.next()
-    for v'var i = 0; i < remove.length; i++':
-        s.delete(remove[i])  # noqa:undef
+    for v'var j = 0; j < remove.length; j++':
+        s.delete(remove[j])  # noqa:undef
 
 _$rapyd$_set.prototype.intersection = def():
     ans = new _$rapyd$_set()
@@ -395,8 +395,8 @@ _$rapyd$_set.prototype.intersection_update = def():
                 remove.push(x)
                 break
         r = iterator.next()
-    for v'var i = 0; i < remove.length; i++':
-        s.delete(remove[i])  # noqa:undef
+    for v'var j = 0; j < remove.length; j++':
+        s.delete(remove[j])  # noqa:undef
 
 _$rapyd$_set.prototype.isdisjoint = def(other):
     iterator = this.jsset.values()
@@ -652,7 +652,7 @@ _$rapyd$_dict.prototype.update = def ():
     iterable = arguments[0]
     if Array.isArray(iterable):
         for v'var i = 0; i < iterable.length; i++':
-            m.set(iterable[i][0], iterable[i][1])  # noqa:undef
+            m.set(iterable[i][0], iterable[i][1])
     elif isinstance(iterable, _$rapyd$_dict):
         iterator = iterable.items()
         result = iterator.next()
@@ -673,9 +673,9 @@ _$rapyd$_dict.prototype.update = def ():
             result = iterator.next()
     else:
         keys = Object.keys(iterable)
-        for v'var i=0; i < keys.length; i++':
-            if keys[i] is not _$rapyd$_iterator_symbol:
-                m.set(keys[i], iterable[keys[i]])  # noqa:undef
+        for v'var j=0; j < keys.length; j++':
+            if keys[j] is not _$rapyd$_iterator_symbol:
+                m.set(keys[j], iterable[keys[j]])
     if arguments.length > 1:
         _$rapyd$_dict.prototype.update.call(this, arguments[1])
 
