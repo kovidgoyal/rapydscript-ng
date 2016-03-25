@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from aes import CBC, CTR, GCM, generate_tag, as_hex, AES, string_to_bytes
+from aes import CBC, CTR, GCM, generate_tag, as_hex, AES, string_to_bytes, random_bytes
 
 def from_hex(text):
     text = str.replace(text, ' ', '')
@@ -372,6 +372,17 @@ def run_tests():
         'a44a8266ee1c8eb0c8b5d4cf5ae9f19a'
     ]
     rungcm(keys, ivs, inputs, adatas, outputs, tags)
+
+    # Test that IVs do not repeat (they are incrementing)
+    gcm = GCM(random_bytes(16))
+    for i in range(5):
+        iv = gcm.encrypt(str(i)).iv
+        assert.equal(iv[11], i+1)
+        for j in range(10):
+            assert.equal(iv[j], 0)
+    # Test that iv rollover is not allowed
+    gcm.current_iv.fill(255)
+    assert.throws(def(): gcm.encrypt('iv over');)
 
     # }}}
 
