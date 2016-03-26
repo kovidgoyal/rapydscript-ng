@@ -769,7 +769,10 @@ JavaScript are very slow). So using them on containers is useless.
 
 Loops
 -----
-RapydScript's loops work like Python, not JavaScript. You can't, for example use ```for(i=0;i<max;i++)``` syntax. You can, however, loop through arrays using 'for ... in' syntax without worrying about the extra irrelevant attributes regular JavaScript returns.
+RapydScript's loops work like Python, not JavaScript. You can't, for example
+use ```for(i=0;i<max;i++)``` syntax. You can, however, loop through arrays
+using 'for ... in' syntax without worrying about the extra irrelevant
+attributes regular JavaScript returns.
 
 ```py
 animals = ['cat', 'dog', 'mouse', 'horse']
@@ -779,7 +782,7 @@ for animal in animals:
 		
 If you need to use the index in the loop as well, you can do so by using enumerate():
 
-```
+```py
 for index, animal in enumerate(animals):
 	print("index:"+index, "animal:"+animal)
 ```
@@ -791,7 +794,9 @@ for index in range(len(animals)):			# or range(animals.length)
 	print("animal "+index+" is a "+animals[index])
 ```
 
-When possible, RapydScript will automatically optimize the loop for you into JavaScript's basic syntax, so you're not missing much by not being able to call it directly.
+When possible, RapydScript will automatically optimize the loop for you into
+JavaScript's basic syntax, so you're not missing much by not being able to call
+it directly.
 
 
 List/Set/Dict Comprehensions
