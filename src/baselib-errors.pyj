@@ -35,3 +35,7 @@ class ValueError(Error):
     def __init__(self, msg):
         self.message = msg
         self.stack = (new Error()).stack
+
+class UnicodeDecodeError(ValueError):
+
+    name = 'UnicodeDecodeError'

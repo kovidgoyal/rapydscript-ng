@@ -79,6 +79,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                     'console':console,
                     'base_path': base_path,
                     'test_path':test_dir,
+                    'Buffer': Buffer,
                 }, {'filename':jsfile});
             } catch (e) {
                 failures.push(file);
