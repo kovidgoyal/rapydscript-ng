@@ -4,12 +4,17 @@ import subprocess
 import sys
 
 args = sys.argv[1:]
+source = None
 
 cmd = ['bin/rapydscript']
 
 while args:
     if args[0] in ('-m', '-x'):
         cmd.append(args.pop(0))
+    elif args[0] == '-f':
+        args.pop(0)
+        source = args[0]
+        cmd.append(source)
     else:
         break
 
@@ -17,10 +22,14 @@ raw = ' '.join(args)
 
 subprocess.check_call('git checkout lib'.split())
 subprocess.check_call(cmd[:1] + ['self'])
-p = subprocess.Popen(
-    ['node', '--stack-trace-limit=1000'] + cmd, stdin=subprocess.PIPE)
-p.stdin.write(raw.encode('utf-8'))
-p.stdin.close()
+if source:
+    p = subprocess.Popen(
+        ['node', '--stack-trace-limit=1000'] + cmd)
+else:
+    p = subprocess.Popen(
+        ['node', '--stack-trace-limit=1000'] + cmd, stdin=subprocess.PIPE)
+    p.stdin.write(raw.encode('utf-8'))
+    p.stdin.close()
 try:
     raise SystemExit(p.wait())
 except KeyboardInterrupt:
