@@ -824,11 +824,6 @@ myDict = {x:x+1 for x in range(20) if x > 2}
 mySet = {i*i for i in range(1,20) if i*i%3 == 0}
 ```
 
-Note that set comprehensions currently create an ES6 Set object, so they will
-only work if the javascript runtime you use supports ES 6 Sets. At some point
-in the future, I might add a builtin set type to RapydScript that behaves like
-the python set type.
-
 Strings
 ---------
 
@@ -1611,12 +1606,6 @@ below:
   right thing, but ``x = someobj.somethod; x()`` will not. RS could work around
   it, but at significant performance cost. See the section above on method
   binding for details.
-
-- The loop variables in list comprehensions do not leak into the surrounding
-  scope, unlike Python. So if you do ```[x for x in [1]]``` x will not be
-  defined outside the comprehension itself. This is arguably a mis-feature in
-  Python, which RapydScript corrects :) Note that loop variables in ordinary
-  for loops do leak into the surrounding scope, just as in Python.
 
 - Nested comprehensions are not supported. So you cannot do this:
 	[a for a in b for b in c]
