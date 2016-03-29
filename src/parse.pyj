@@ -959,7 +959,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 definition.statements.push(stmt)
         return definition
 
-    def function_(in_class, ctor):
+    def function_(in_class):
         name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
         if in_class and not name:
             unexpected()
@@ -980,8 +980,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         expect("(")
         S.in_parenthesized_expr = True
-        if not ctor:
-            ctor = in_class ? AST_Method : AST_Function
+        ctor = in_class ? AST_Method : AST_Function
 
         is_generator = v'[]'
         definition = new ctor({
