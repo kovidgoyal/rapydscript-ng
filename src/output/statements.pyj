@@ -93,7 +93,7 @@ def display_body(body, is_toplevel, output):
     )
 
 
-def display_complex_body(node, is_toplevel, output):
+def display_complex_body(node, is_toplevel, output, function_preamble):
     offset = 0
     # argument offset
     # this is a method, add 'var self = this'
@@ -108,72 +108,7 @@ def display_complex_body(node, is_toplevel, output):
         offset += 1
 
     if isinstance(node, AST_Scope):
-        # if function takes any arguments
-        if node.argnames:
-            # If this function has optional parameters/*args/**kwargs declare it differently
-            if node.argnames.is_simple_func is not True:
-                a = node.argnames
-                kw = 'arguments[arguments.length-1]'
-                # Define all formal parameters
-                for c, arg in enumerate(a):
-                    i = c - offset
-                    if i >= 0:
-                        output.indent()
-                        output.print("var")
-                        output.space()
-                        output.assign(arg)
-                        if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
-                            output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
-                                            '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                            kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
-                            output.with_parens(def():
-                                a.defaults[arg.name].print(output)
-                            )
-                            output.space()
-                            output.print(':')
-                            output.space()
-                        else:
-                            output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                            kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
-                        output.print('arguments[' + i + ']')
-                        output.end_statement()
-                if a.kwargs or a.has_defaults:
-                    # Look for an options object
-                    kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
-                    output.indent()
-                    output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
-                    output.end_statement()
-                    # Ensure kwargs is the options object
-                    output.indent()
-                    output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[_$rapyd$_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
-                    output.end_statement()
-                    # Read values from the kwargs object for any formal parameters
-                    if a.has_defaults:
-                        for dname in Object.keys(a.defaults):
-                            output.indent()
-                            output.spaced('if', '(Object.prototype.hasOwnProperty.call(' + kw + ',', '"' + dname + '"))')
-                            output.with_block(def():
-                                output.indent()
-                                output.spaced(dname, '=', kw + '.' + dname)
-                                output.end_statement()
-                                if a.kwargs:
-                                    output.indent()
-                                    output.spaced('delete', kw + '.' + dname)
-                                    output.end_statement()
-                            )
-                            output.newline()
-
-                if a.starargs is not undefined:
-                    # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
-                    nargs = a.length - offset
-                    output.indent()
-                    output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs, ')')
-                    output.end_statement()
-                    # Remove the options object, if present
-                    output.indent()
-                    output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name, '.pop()')
-                    output.end_statement()
-
+        function_preamble(node, output, offset)
         # rebind parent's methods and bind own methods
         # for now we'll make a naive assumption that a function
         # named __init__ will only occur inside a class
@@ -203,13 +138,13 @@ def display_complex_body(node, is_toplevel, output):
 
     display_body(node.body, is_toplevel, output)
 
-def print_bracketed(node, output, complex):
+def print_bracketed(node, output, complex, function_preamble):
     if node.body.length > 0:
         output.with_block(def():
             if complex:
-                display_complex_body(node, False, output)
+                display_complex_body(node, False, output, function_preamble)
             else:
-                display_body(node.body, False, output)
+                display_body(node.body, False, output, function_preamble)
         )
     else:
         output.print("{}")

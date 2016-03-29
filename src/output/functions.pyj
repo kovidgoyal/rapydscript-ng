@@ -31,6 +31,74 @@ def function_args(argnames, output, strip_first):
     )
     output.space()
 
+def function_preamble(node, output, offset):
+    # if function takes any arguments
+    if node.argnames:
+        # If this function has optional parameters/*args/**kwargs declare it differently
+        if node.argnames.is_simple_func is not True:
+            a = node.argnames
+            kw = 'arguments[arguments.length-1]'
+            # Define all formal parameters
+            for c, arg in enumerate(a):
+                i = c - offset
+                if i >= 0:
+                    output.indent()
+                    output.print("var")
+                    output.space()
+                    output.assign(arg)
+                    if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
+                        output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
+                                        '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
+                                        kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
+                        output.with_parens(def():
+                            a.defaults[arg.name].print(output)
+                        )
+                        output.space()
+                        output.print(':')
+                        output.space()
+                    else:
+                        output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
+                                        kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
+                    output.print('arguments[' + i + ']')
+                    output.end_statement()
+            if a.kwargs or a.has_defaults:
+                # Look for an options object
+                kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
+                output.indent()
+                output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
+                output.end_statement()
+                # Ensure kwargs is the options object
+                output.indent()
+                output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[_$rapyd$_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
+                output.end_statement()
+                # Read values from the kwargs object for any formal parameters
+                if a.has_defaults:
+                    for dname in Object.keys(a.defaults):
+                        output.indent()
+                        output.spaced('if', '(Object.prototype.hasOwnProperty.call(' + kw + ',', '"' + dname + '"))')
+                        output.with_block(def():
+                            output.indent()
+                            output.spaced(dname, '=', kw + '.' + dname)
+                            output.end_statement()
+                            if a.kwargs:
+                                output.indent()
+                                output.spaced('delete', kw + '.' + dname)
+                                output.end_statement()
+                        )
+                        output.newline()
+
+            if a.starargs is not undefined:
+                # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
+                nargs = a.length - offset
+                output.indent()
+                output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs, ')')
+                output.end_statement()
+                # Remove the options object, if present
+                output.indent()
+                output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name, '.pop()')
+                output.end_statement()
+
+
 def function_definition(self, output, nokeyword, strip_first):
     if not nokeyword:
         output.print("function")
@@ -45,12 +113,12 @@ def function_definition(self, output, nokeyword, strip_first):
                 output.indent()
                 output.print('function* js_generator')
                 function_args(self.argnames, output, strip_first)
-                print_bracketed(self, output, True)
+                print_bracketed(self, output, True, function_preamble)
             else:
                 temp = OutputStream({'beautify':True})
                 temp.print('function* js_generator')
                 function_args(self.argnames, temp, strip_first)
-                print_bracketed(self, temp, True)
+                print_bracketed(self, temp, True, function_preamble)
                 transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
                 if output.options.beautify:
                     ci = output.make_indent(0)
@@ -70,7 +138,7 @@ def function_definition(self, output, nokeyword, strip_first):
         )
     else:
         function_args(self.argnames, output, strip_first)
-        print_bracketed(self, output, True)
+        print_bracketed(self, output, True, function_preamble)
 
 def no_constructor_parens(self, output):
     # self should be AST_New.  decide if we want to show parens or not.
