@@ -439,10 +439,6 @@ AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_gener
         )
 }, AST_Scope)
 
-AST_Accessor = DEFNODE("Accessor", None, {
-    '$documentation': "A setter/getter function"
-}, AST_Lambda)
-
 AST_Function = DEFNODE("Function", None, {
     '$documentation': "A function expression"
 }, AST_Lambda)
@@ -1009,10 +1005,6 @@ AST_Symbol = DEFNODE("Symbol", "scope name thedef", {
 
 AST_SymbolAlias = DEFNODE("SymbolAlias", None, {
     '$documentation': "An alias used in an import statement or with statement"
-}, AST_Symbol)
-
-AST_SymbolAccessor = DEFNODE("SymbolAccessor", None, {
-    '$documentation': "The name of a property accessor (setter/getter function)"
 }, AST_Symbol)
 
 AST_SymbolDeclaration = DEFNODE("SymbolDeclaration", "init", {

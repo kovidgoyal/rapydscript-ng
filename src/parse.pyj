@@ -4,7 +4,7 @@
 from utils import make_predicate, array_to_hash, defaults
 from errors import SyntaxError, ImportError
 from ast import (
-AST_Accessor, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
+AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
 AST_Constant, AST_Continue, AST_DWLoop, AST_Debugger, AST_Decorator,
 AST_Definitions, AST_DictComprehension, AST_Directive, AST_Do, AST_Dot,
@@ -14,7 +14,7 @@ AST_If, AST_Import, AST_ImportedVar, AST_Imports, AST_ListComprehension,
 AST_Method, AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal,
 AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Set,
 AST_SetComprehension, AST_SetItem, AST_Seq, AST_SimpleStatement, AST_Splice,
-AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAccessor, AST_SymbolAlias,
+AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAlias,
 AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
@@ -960,8 +960,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return definition
 
     def function_(in_class, ctor):
-        is_accessor = ctor is AST_Accessor
-        name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : (is_accessor ? AST_SymbolAccessor : AST_SymbolLambda))) : (is_accessor and (is_("string") or is_("num")) ? as_atom_node() : None))
+        name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
         if in_class and not name:
             unexpected()
 
