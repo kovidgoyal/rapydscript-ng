@@ -410,12 +410,11 @@ AST_Decorator = DEFNODE("Decorator", "expression", {
     ,
 })
 
-AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_generator", {
+AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator", {
     '$documentation': "Base class for functions",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this function",
         'argnames': "[AST_SymbolFunarg*] array of function arguments",
-        'uses_arguments': "[boolean/S] tells whether this function accesses the arguments array",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'is_generator': "[bool*] True iff this function is a generator",
     },
