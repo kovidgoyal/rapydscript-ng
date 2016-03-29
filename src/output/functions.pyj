@@ -91,11 +91,12 @@ def function_preamble(node, output, offset):
                 # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
                 nargs = a.length - offset
                 output.indent()
-                output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs, ')')
+                output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs + ')')
                 output.end_statement()
                 # Remove the options object, if present
                 output.indent()
-                output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name, '.pop()')
+                output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name)
+                output.print('.pop()')
                 output.end_statement()
 
 

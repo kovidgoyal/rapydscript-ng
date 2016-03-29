@@ -486,7 +486,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return class_()
             elif tmp_ is "def":
                 start = prev()
-                func = function_(S.in_class[-1])
+                func = function_(S.in_class[-1], False)
                 func.start = start
                 func.end = prev()
                 chain = subscripts(func, True)
@@ -959,7 +959,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 definition.statements.push(stmt)
         return definition
 
-    def function_(in_class):
+    def function_(in_class, is_expression):
         name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
         if in_class and not name:
             unexpected()
@@ -985,6 +985,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         is_generator = v'[]'
         definition = new ctor({
             'name': name,
+            'is_expression': is_expression,
             'argnames': (def(a):
                 defaults = {}
                 first = True
@@ -1333,7 +1334,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if is_("keyword", "def"):
             next()
-            func = function_(False)
+            func = function_(False, True)
             func.start = start
             func.end = prev()
             return subscripts(func, allow_calls)
