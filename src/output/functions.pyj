@@ -76,6 +76,17 @@ def no_constructor_parens(self, output):
     # self should be AST_New.  decide if we want to show parens or not.
     return self.args.length is 0 and not output.option("beautify")
 
+def print_function(output, nokeyword):
+    self = this
+    if self.decorators and self.decorators.length:
+        output.print("var")
+        output.space()
+        output.assign(self.name.name)
+        decorate(self.decorators, output, def():function_definition(self, output, nokeyword, False);)
+        output.semicolon()
+    else:
+        function_definition(self, output, nokeyword, False)
+
 def print_function_call(self, output):
 
     if isinstance(self, AST_ClassCall):
