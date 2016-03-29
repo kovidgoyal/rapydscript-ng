@@ -512,10 +512,18 @@ class CTR(ModeOfOperation):  # {{{
 
 class GCM(ModeOfOperation):  # {{{
 
+    # Note that this mode of operation requires the pair of (iv,
+    # secret key) to always be unique, for every message. Therefore, if you are
+    # using it for bi-directional messaging it is best to use a different
+    # secret key for each direction (you could also use random_key,
+    # but that has a non-zero probability of repeating keys).
     # See http://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 
-    def __init__(self, key):
+    def __init__(self, key, random_iv=False):
         ModeOfOperation.__init__(self, key)
+        self.random_iv = random_iv
+        if not random_iv:
+            self.current_iv = Uint8Array(12)
 
         # Generate the hash subkey
         H = Uint8Array(16)
@@ -526,6 +534,17 @@ class GCM(ModeOfOperation):  # {{{
         self.J0 = Uint32Array(4)
         self.wmem = Uint32Array(4)
         self.byte_block = Uint8Array(16)
+
+    def increment_iv(self):
+        c = self.current_iv
+        for v'var i = 11; i >=0; i--':
+            if c[i] is 255:
+                if i is 0:
+                    raise ValueError('The GCM IV space is exhausted, cannot encrypt anymore messages with this key as doing so would cause the IV to repeat')
+                c[i] = 0
+            else:
+                c[i] += 1
+                break
 
     def _create_j0(self, iv):
         J0 = self.J0
@@ -611,7 +630,11 @@ class GCM(ModeOfOperation):  # {{{
         return self._finish(iv, J0, additional_data.length, S, outbytes)
 
     def encrypt(self, plaintext, tag):
-        iv = random_bytes(12)
+        if self.random_iv:
+            iv = random_bytes(12)
+        else:
+            self.increment_iv()
+            iv = self.current_iv
         return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag), False)
 
     def decrypt(self, output_from_encrypt, tag):

@@ -29,7 +29,7 @@ from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_unary_postfix, print_binary_op, print_assign,
     print_conditional, print_seq, print_new)
-from output.functions import decorate, function_definition, no_constructor_parens, print_function_call
+from output.functions import print_function, no_constructor_parens, print_function_call
 from output.statements import print_bracketed, first_in_statement, force_statement, print_with
 from output.utils import make_block, make_num
 
@@ -278,17 +278,8 @@ def generate_code():
 
     DEFPRINT(AST_With, print_with)
 
-    AST_Lambda.DEFMETHOD("_do_print", def(output, nokeyword):
-        self = this
-        if self.decorators and self.decorators.length:
-            output.print("var")
-            output.space()
-            output.assign(self.name.name)
-            decorate(self.decorators, output, def():function_definition(self, output, nokeyword, False);)
-            output.semicolon()
-        else:
-            function_definition(self, output, nokeyword, False)
-    )
+    AST_Lambda.DEFMETHOD("_do_print", print_function)
+
     DEFPRINT(AST_Lambda, def(self, output):
         self._do_print(output)
     )

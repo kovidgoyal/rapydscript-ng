@@ -2,6 +2,8 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import encodings
+
 # Test literals
 
 assert.equal(r'\n', '\\n')
@@ -137,3 +139,11 @@ for f in (str, repr):
     ae(f({1:'a', 2:'b'}), '{"1":"a", "2":"b"}')
 ae(str('a'), 'a')
 ae(repr('a'), '"a"')
+
+bytes = list(range(255))
+assert.deepEqual(bytes, list(encodings.base64decode(bytes)))
+for k in ['abc', "mūs", '', 's🐱a\u2028']:
+    bytes = encodings.utf8_encode(k)
+    assert.equal(encodings.utf8_decode(bytes), k)
+    assert.equal(encodings.utf8_decode(encodings.utf8_encode_js(k)), k)
+    assert.deepEqual(list(bytes), list(encodings.base64decode(encodings.base64encode(bytes))))

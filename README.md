@@ -769,7 +769,10 @@ JavaScript are very slow). So using them on containers is useless.
 
 Loops
 -----
-RapydScript's loops work like Python, not JavaScript. You can't, for example use ```for(i=0;i<max;i++)``` syntax. You can, however, loop through arrays using 'for ... in' syntax without worrying about the extra irrelevant attributes regular JavaScript returns.
+RapydScript's loops work like Python, not JavaScript. You can't, for example
+use ```for(i=0;i<max;i++)``` syntax. You can, however, loop through arrays
+using 'for ... in' syntax without worrying about the extra irrelevant
+attributes regular JavaScript returns.
 
 ```py
 animals = ['cat', 'dog', 'mouse', 'horse']
@@ -779,7 +782,7 @@ for animal in animals:
 		
 If you need to use the index in the loop as well, you can do so by using enumerate():
 
-```
+```py
 for index, animal in enumerate(animals):
 	print("index:"+index, "animal:"+animal)
 ```
@@ -791,7 +794,9 @@ for index in range(len(animals)):			# or range(animals.length)
 	print("animal "+index+" is a "+animals[index])
 ```
 
-When possible, RapydScript will automatically optimize the loop for you into JavaScript's basic syntax, so you're not missing much by not being able to call it directly.
+When possible, RapydScript will automatically optimize the loop for you into
+JavaScript's basic syntax, so you're not missing much by not being able to call
+it directly.
 
 
 List/Set/Dict Comprehensions
@@ -818,11 +823,6 @@ Similarly for set and dict comprehensions:
 myDict = {x:x+1 for x in range(20) if x > 2}
 mySet = {i*i for i in range(1,20) if i*i%3 == 0}
 ```
-
-Note that set comprehensions currently create an ES6 Set object, so they will
-only work if the javascript runtime you use supports ES 6 Sets. At some point
-in the future, I might add a builtin set type to RapydScript that behaves like
-the python set type.
 
 Strings
 ---------
@@ -1606,12 +1606,6 @@ below:
   right thing, but ``x = someobj.somethod; x()`` will not. RS could work around
   it, but at significant performance cost. See the section above on method
   binding for details.
-
-- The loop variables in list comprehensions do not leak into the surrounding
-  scope, unlike Python. So if you do ```[x for x in [1]]``` x will not be
-  defined outside the comprehension itself. This is arguably a mis-feature in
-  Python, which RapydScript corrects :) Note that loop variables in ordinary
-  for loops do leak into the surrounding scope, just as in Python.
 
 - Nested comprehensions are not supported. So you cannot do this:
 	[a for a in b for b in c]

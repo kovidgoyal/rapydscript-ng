@@ -410,14 +410,14 @@ AST_Decorator = DEFNODE("Decorator", "expression", {
     ,
 })
 
-AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_generator", {
+AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression", {
     '$documentation': "Base class for functions",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this function",
         'argnames': "[AST_SymbolFunarg*] array of function arguments",
-        'uses_arguments': "[boolean/S] tells whether this function accesses the arguments array",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'is_generator': "[bool*] True iff this function is a generator",
+        'is_expression': "[bool*] True iff this function is a function expression",
     },
     '_walk': def(visitor):
         node = this
@@ -438,10 +438,6 @@ AST_Lambda = DEFNODE("Lambda", "name argnames uses_arguments decorators is_gener
             walk_body(node, visitor)
         )
 }, AST_Scope)
-
-AST_Accessor = DEFNODE("Accessor", None, {
-    '$documentation': "A setter/getter function"
-}, AST_Lambda)
 
 AST_Function = DEFNODE("Function", None, {
     '$documentation': "A function expression"
@@ -1009,10 +1005,6 @@ AST_Symbol = DEFNODE("Symbol", "scope name thedef", {
 
 AST_SymbolAlias = DEFNODE("SymbolAlias", None, {
     '$documentation': "An alias used in an import statement or with statement"
-}, AST_Symbol)
-
-AST_SymbolAccessor = DEFNODE("SymbolAccessor", None, {
-    '$documentation': "The name of a property accessor (setter/getter function)"
 }, AST_Symbol)
 
 AST_SymbolDeclaration = DEFNODE("SymbolDeclaration", "init", {

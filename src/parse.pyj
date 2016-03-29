@@ -4,7 +4,7 @@
 from utils import make_predicate, array_to_hash, defaults
 from errors import SyntaxError, ImportError
 from ast import (
-AST_Accessor, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
+AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional, AST_Const,
 AST_Constant, AST_Continue, AST_DWLoop, AST_Debugger, AST_Decorator,
 AST_Definitions, AST_DictComprehension, AST_Directive, AST_Do, AST_Dot,
@@ -14,7 +14,7 @@ AST_If, AST_Import, AST_ImportedVar, AST_Imports, AST_ListComprehension,
 AST_Method, AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal,
 AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Set,
 AST_SetComprehension, AST_SetItem, AST_Seq, AST_SimpleStatement, AST_Splice,
-AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAccessor, AST_SymbolAlias,
+AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAlias,
 AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
@@ -159,50 +159,7 @@ def has_setter_decorator(decorators, name):
     return False
 
 # -----[ Parser ]-----
-def parse($TEXT, options):
-    options = defaults(options, {
-        'filename': None,     # name of the file being parsed
-        'auto_bind': False,   # whether auto-binding of methods to classes is enabled
-        'module_id':'__main__', # The id of the module being parsed
-        'toplevel': None,
-        'for_linting': False, # If True certain actions are not performed, such as importing modules
-        'import_dirs': v'[]',
-        'classes': undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
-    })
-    import_dirs = [x for x in options.import_dirs]
-    for location in v'[options.libdir, options.basedir]':
-        if location:
-            import_dirs.push(location)
-    module_id = options.module_id
-    baselib_items = {}
-    imported_module_ids = []
-    IMPORTED = options.IMPORTED or {}
-    IMPORTING = options.IMPORTING or {}
-    IMPORTING[module_id] = True
-
-    S = {
-        'input': (typeof $TEXT is "string" ? tokenizer($TEXT, options.filename) : $TEXT),
-        'token': None,
-        'prev': None,
-        'peeked': [],
-        'in_function': 0,
-        'in_directives': True,
-        'statement_starting_token': None,
-        'in_comprehension': False,
-        'in_parenthesized_expr': False,
-        'in_loop': 0,
-        'in_class': [ False ],
-        'classes': [ {} ],
-        'functions': [ {} ],
-        'labels': [],
-        'decorators': v'[]',
-        'parsing_decorator': False,
-    }
-
-    if options.classes:
-        for cname in options.classes:
-            obj = options.classes[cname]
-            S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound }
+def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options):
 
     def next():
         S.prev = S.token
@@ -213,8 +170,6 @@ def parse($TEXT, options):
 
         S.in_directives = S.in_directives and (S.token.type is "string" or is_("punc", ";"))
         return S.token
-
-    S.token = next()
 
     def is_(type, value):
         return is_token(S.token, type, value)
@@ -260,7 +215,7 @@ def parse($TEXT, options):
             S.token.nlb = True
 
     def embed_tokens(parser):
-        return def():
+        def with_embedded_tokens():
             start = S.token
             expr = parser()
             if expr is undefined:
@@ -269,6 +224,7 @@ def parse($TEXT, options):
             expr.start = start
             expr.end = end
             return expr
+        return with_embedded_tokens
 
     def scan_for_top_level_callables(body):
         ans = v'[]'
@@ -440,7 +396,8 @@ def parse($TEXT, options):
 
         return vars
 
-    statement = embed_tokens(def():
+    @embed_tokens
+    def statement():
         # From Kovid: The next three lines were a hack to try to support statements
         # starting with a regexp literal. However, it did not work, for example:
         # echo 'f=1\n/asd/.test()' | rs -> parse error
@@ -529,7 +486,7 @@ def parse($TEXT, options):
                 return class_()
             elif tmp_ is "def":
                 start = prev()
-                func = function_(S.in_class[-1])
+                func = function_(S.in_class[-1], False)
                 func.start = start
                 func.end = prev()
                 chain = subscripts(func, True)
@@ -596,7 +553,6 @@ def parse($TEXT, options):
                 return with_()
             else:
                 unexpected()
-    )
 
     def with_():
         clauses = v'[]'
@@ -757,9 +713,9 @@ def parse($TEXT, options):
         raise new ImportError(message, ctx.filename, ctx.tokline, ctx.tokcol, ctx.tokpos)
 
     def do_import(key):
-        if IMPORTED.hasOwnProperty(key):
+        if imported_modules.hasOwnProperty(key):
             return
-        if IMPORTING.hasOwnProperty(key) and IMPORTING[key]:
+        if importing_modules.hasOwnProperty(key) and importing_modules[key]:
             import_error('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
 
         # Ensure that the package containing this module is also imported
@@ -768,10 +724,10 @@ def parse($TEXT, options):
             do_import(package_module_id)
 
         if options.for_linting:
-            IMPORTED[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
+            imported_modules[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
                              'submodules':[], 'nonlocalvars':[], 'baselib':{}, 'outputs':{}}
             if len(package_module_id) > 0:
-                IMPORTED[package_module_id].submodules.push(key)
+                imported_modules[package_module_id].submodules.push(key)
             return
 
         def safe_read(base_path):
@@ -806,8 +762,8 @@ def parse($TEXT, options):
         if cached and cached['version'] is COMPILER_VERSION and cached['signature'] is srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
-            IMPORTED[key] = {
-                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key, 'import_order':Object.keys(IMPORTED).length,
+            imported_modules[key] = {
+                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key, 'import_order':Object.keys(imported_modules).length,
                 'submodules':[], 'nonlocalvars':cached['nonlocalvars'], 'baselib':cached['baselib'], 'exports':cached.exports
             }
         else:
@@ -817,20 +773,20 @@ def parse($TEXT, options):
                 'basedir': options.basedir,
                 'libdir': options.libdir,
                 'module_id': key,
-                'IMPORTED': IMPORTED,
-                'IMPORTING': IMPORTING,
-            })  # This function will add the module to IMPORTED itself
+                'imported_modules': imported_modules,
+                'importing_modules': importing_modules,
+            })  # This function will add the module to imported_modules itself
 
-        IMPORTED[key].srchash = srchash
+        imported_modules[key].srchash = srchash
         if len(package_module_id) > 0:
-            IMPORTED[package_module_id].submodules.push(key)
+            imported_modules[package_module_id].submodules.push(key)
 
-        for bitem in Object.keys(IMPORTED[key].baselib):
+        for bitem in Object.keys(imported_modules[key].baselib):
             baselib_items[bitem] = True
         imported_module_ids.push(key)
 
 
-    import_ = def(from_import):
+    def import_(from_import):
         ans = new AST_Imports({'imports':[]})
         while True:
             tok = tmp = name = last_tok = expression(False)
@@ -849,7 +805,7 @@ def parse($TEXT, options):
                 'alias': alias,
                 'argnames':None,
                 'body':def():
-                    return IMPORTED[key]
+                    return imported_modules[key]
             })
             aimp.start, aimp.end = tok.start, last_tok.end
             ans.imports.push(aimp)
@@ -862,7 +818,7 @@ def parse($TEXT, options):
 
         for imp in ans['imports']:
             do_import(imp.key)
-            classes = IMPORTED[key].classes
+            classes = imported_modules[key].classes
             if from_import:
                 expect_token("keyword", "import")
                 imp.argnames = argnames = []
@@ -870,7 +826,7 @@ def parse($TEXT, options):
                 if bracketed:
                     next()
                 exports = {}
-                for symdef in IMPORTED[key].exports:
+                for symdef in imported_modules[key].exports:
                     exports[symdef.name] = True
                 while True:
                     aname = as_symbol(AST_ImportedVar)
@@ -904,7 +860,7 @@ def parse($TEXT, options):
 
         return ans
 
-    class_ = def():
+    def class_():
         name = as_symbol(AST_SymbolDefun)
         if not name:
             unexpected()
@@ -984,7 +940,7 @@ def parse($TEXT, options):
         # its initialization, the referenced variables' names is correctly
         # mangled.
         def walker():
-            this._visit = def(node, descend):
+            def visit_node(node, descend):
                 if isinstance(node, AST_Method):
                     class_var_names[node.name.name] = True
                     return
@@ -994,6 +950,7 @@ def parse($TEXT, options):
                     node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
                 if descend:
                     descend.call(node)
+            this._visit = visit_node
         visitor = new walker()
 
         for stmt in definition.body:
@@ -1002,9 +959,8 @@ def parse($TEXT, options):
                 definition.statements.push(stmt)
         return definition
 
-    function_ = def(in_class, ctor):
-        is_accessor = ctor is AST_Accessor
-        name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : (is_accessor ? AST_SymbolAccessor : AST_SymbolLambda))) : (is_accessor and (is_("string") or is_("num")) ? as_atom_node() : None))
+    def function_(in_class, is_expression):
+        name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
         if in_class and not name:
             unexpected()
 
@@ -1024,12 +980,12 @@ def parse($TEXT, options):
 
         expect("(")
         S.in_parenthesized_expr = True
-        if not ctor:
-            ctor = in_class ? AST_Method : AST_Function
+        ctor = in_class ? AST_Method : AST_Function
 
         is_generator = v'[]'
         definition = new ctor({
             'name': name,
+            'is_expression': is_expression,
             'argnames': (def(a):
                 defaults = {}
                 first = True
@@ -1240,21 +1196,21 @@ def parse($TEXT, options):
 
         return a
 
-    nonlocal_ = def(no_in):
+    def nonlocal_(no_in):
         return new AST_Var({
             'start': prev(),
             'definitions': vardefs(no_in, False, True),
             'end': prev()
         })
 
-    const_ = def():
+    def const_():
         return new AST_Const({
             'start': prev(),
             'definitions': vardefs(False, True),
             'end': prev()
         })
 
-    new_ = def():
+    def new_():
         start = S.token
         expect_token("operator", "new")
         newexp = expr_atom(False)
@@ -1336,7 +1292,7 @@ def parse($TEXT, options):
         next()
         return ret
 
-    expr_atom = def(allow_calls):
+    def expr_atom(allow_calls):
         if is_("operator", "new"):
             return new_()
 
@@ -1378,7 +1334,7 @@ def parse($TEXT, options):
 
         if is_("keyword", "def"):
             next()
-            func = function_(False)
+            func = function_(False, True)
             func.start = start
             func.end = prev()
             return subscripts(func, allow_calls)
@@ -1477,7 +1433,8 @@ def parse($TEXT, options):
             next()
         return a
 
-    array_ = embed_tokens(def():
+    @embed_tokens
+    def array_():
         expect("[")
         expr = []
         if not is_("punc", "]"):
@@ -1492,9 +1449,9 @@ def parse($TEXT, options):
         return new AST_Array({
             'elements': expr.concat(expr_list("]", True, True))
         })
-    )
 
-    object_ = embed_tokens(def():
+    @embed_tokens
+    def object_():
         expect("{")
         first = True
         has_non_const_keys = False
@@ -1542,7 +1499,6 @@ def parse($TEXT, options):
             'properties': a,
             'is_pydict': is_pydict,
         })
-    )
 
     def set_(start, end, expr):
         ostart = start
@@ -1626,7 +1582,7 @@ def parse($TEXT, options):
         else:
             return False
 
-    subscripts = def(expr, allow_calls):
+    def subscripts(expr, allow_calls):
         start = expr.start
         if is_("punc", "."):
             next()
@@ -1824,7 +1780,7 @@ def parse($TEXT, options):
 
         return expr
 
-    maybe_unary = def(allow_calls):
+    def maybe_unary(allow_calls):
         start = S.token
         if is_('operator', '@'):
             if S.parsing_decorator:
@@ -1856,7 +1812,7 @@ def parse($TEXT, options):
             'expression': expr
         })
 
-    expr_op = def(left, min_prec, no_in):
+    def expr_op(left, min_prec, no_in):
         op = (is_("operator") ? S.token.value : None)
         not_in = False
         if op is "!" and peek().type is "operator" and peek().value is "in":
@@ -1894,7 +1850,7 @@ def parse($TEXT, options):
     def expr_ops(no_in):
         return expr_op(maybe_unary(True), 0, no_in)
 
-    maybe_conditional = def(no_in):
+    def maybe_conditional(no_in):
         start = S.token
         expr = expr_ops(no_in)
         if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token is not S.token and not S.in_comprehension and not S.token.nlb))):
@@ -1930,7 +1886,7 @@ def parse($TEXT, options):
             token_error(data.start, 'Invalid assignment operator for chained assignment: ' + data.operator)
         return new AST_Assign(data)
 
-    maybe_assign = def(no_in, only_plain_assignment):
+    def maybe_assign(no_in, only_plain_assignment):
         start = S.token
         left = maybe_conditional(no_in)
         val = S.token.value
@@ -1947,7 +1903,7 @@ def parse($TEXT, options):
             })
         return left
 
-    expression = def(commas, no_in):
+    def expression(commas, no_in):
         # if there is an assignment, we want the sequences to pivot
         # around it to allow for tuple packing/unpacking
         start = S.token
@@ -2006,8 +1962,8 @@ def parse($TEXT, options):
         S.in_loop -= 1
         return ret
 
-    return (def():
-        start = S.token
+    def run_parser():
+        start = S.token = next()
         body = []
         first_token = True
         while not is_("eof"):
@@ -2052,12 +2008,60 @@ def parse($TEXT, options):
         toplevel.submodules = []
         toplevel.imported_module_ids = imported_module_ids
         toplevel.classes = scan_for_classes(toplevel.body)
-        toplevel.import_order = Object.keys(IMPORTED).length
+        toplevel.import_order = Object.keys(imported_modules).length
         toplevel.module_id = module_id
-        IMPORTED[module_id] = toplevel
-        toplevel.imports = IMPORTED
+        imported_modules[module_id] = toplevel
+        toplevel.imports = imported_modules
         toplevel.baselib = baselib_items
-        IMPORTING[module_id] = False
+        importing_modules[module_id] = False
         return toplevel
-    )()
 
+    return run_parser
+
+def parse(text, options):
+    options = defaults(options, {
+        'filename': None,     # name of the file being parsed
+        'auto_bind': False,   # whether auto-binding of methods to classes is enabled
+        'module_id':'__main__', # The id of the module being parsed
+        'toplevel': None,
+        'for_linting': False, # If True certain actions are not performed, such as importing modules
+        'import_dirs': v'[]',
+        'classes': undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
+    })
+    import_dirs = [x for x in options.import_dirs]
+    for location in v'[options.libdir, options.basedir]':
+        if location:
+            import_dirs.push(location)
+    module_id = options.module_id
+    baselib_items = {}
+    imported_module_ids = []
+    imported_modules = options.imported_modules or {}
+    importing_modules = options.importing_modules or {}
+    importing_modules[module_id] = True
+
+    # The internal state of the parser
+    S = {
+        'input': tokenizer(text, options.filename) if type(text) is 'string' else text,
+        'token': None,
+        'prev': None,
+        'peeked': [],
+        'in_function': 0,
+        'in_directives': True,
+        'statement_starting_token': None,
+        'in_comprehension': False,
+        'in_parenthesized_expr': False,
+        'in_loop': 0,
+        'in_class': [ False ],
+        'classes': [ {} ],
+        'functions': [ {} ],
+        'labels': [],
+        'decorators': v'[]',
+        'parsing_decorator': False,
+    }
+
+    if options.classes:
+        for cname in options.classes:
+            obj = options.classes[cname]
+            S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound }
+
+    return create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)()

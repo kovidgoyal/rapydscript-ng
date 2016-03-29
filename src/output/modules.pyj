@@ -33,13 +33,15 @@ def write_imports(module, output):
 
     # Create the module objects
     for module_ in imports:
-        if module_.module_id is not '__main__':
+        module_id = module_.module_id
+        if module_id is not '__main__':
             output.indent()
-            output.print('_$rapyd$_modules["')
-            output.print(module_.module_id)
-            output.print('"] = {}')
-            output.semicolon()
-            output.newline()
+            if module_id.indexOf('.') is -1:
+                output.print('_$rapyd$_modules.' + module_id)
+            else:
+                output.print('_$rapyd$_modules["' + module_id + '"]')
+            output.space(), output.print('='), output.space(), output.print('{}')
+            output.end_statement()
 
     # Output module code
     for module_ in imports:
@@ -57,14 +59,17 @@ def write_main_name(output):
 
 def declare_exports(module_id, exports, submodules, output):
     seen = {}
+    output.newline()
     for symbol in exports:
         if not Object.prototype.hasOwnProperty.call(seen, symbol.name):
-            output.newline()
             output.indent()
-            output.print('_$rapyd$_modules["' + module_id + '"]["' + symbol.name + '"] = ' + symbol.name)
+            if module_id.indexOf('.') is -1:
+                output.print('_$rapyd$_modules.' + module_id + '.' + symbol.name)
+            else:
+                output.print('_$rapyd$_modules["' + module_id + '"].' + symbol.name)
+            output.space(), output.print('='), output.space(), output.print(symbol.name)
             seen[symbol.name] = True
-            output.semicolon()
-            output.newline()
+            output.end_statement()
 
 def declare_submodules(module_id, submodules, output):
     seen = {}
@@ -181,9 +186,10 @@ def print_imports(container, output):
     def add_aname(aname, key, from_import):
         output.print('var ')
         output.assign(aname)
-        output.print('_$rapyd$_modules["')
-        output.print(key)
-        output.print('"]')
+        if key.indexOf('.') is -1:
+            output.print('_$rapyd$_modules.'), output.print(key)
+        else:
+            output.print('_$rapyd$_modules["'), output.print(key), output.print('"]')
         if from_import:
             output.print('.')
             output.print(from_import)
