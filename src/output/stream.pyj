@@ -260,39 +260,6 @@ class OutputStream:
         self.print(code + '(_$rapyd$_regenerator)')
         self.end_statement()
 
-    # any code that should appear before the main body
-    def prologue(self, module_):
-        if self.options.omit_baselib:
-            return
-        self.indent()
-        v = 'const' if self.options.js_version > 5 else 'var'
-        self.print(v), self.space()
-        self.spaced.apply(self, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
-        self.end_statement()
-        self.indent(), self.print(v), self.space()
-        self.spaced.apply(self, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
-        self.end_statement()
-        self.indent(), self.spaced('var', '_$rapyd$_cond_temp'), self.end_statement()
-        self.indent(), self.spaced('var', '_$rapyd$_object_counter', '=', '0'), self.end_statement()
-        baselib_items = {k:True for k in module_.baselib}
-        baselib_items['errors'] = True
-        baselib_items['containers'] = True
-        baselib_items['builtins'] = True
-        baselib_items['str'] = True
-        deps = self.options.baselib['#dependencies#']
-        # resolve dependencies
-        for lib in baselib_items:
-            if Object.prototype.hasOwnProperty.call(deps, lib):
-                Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
-        # output used items
-        for lib in baselib_items:
-            if self.options.js_version >= 6 and (lib is 'iterable' or lib is 'yield'):
-                continue
-            if lib is 'yield':
-                self.dump_yield()
-            else:
-                self.dump_baselib(lib)
-
     def get(self):
         return self.OUTPUT
 
