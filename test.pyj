@@ -1,0 +1,9 @@
+def func(a:'int', b:'float') -> 'str':
+ print(a, b)
+
+print(func.__annotations__)
+
+
+print(def test():
+ pass
+)
