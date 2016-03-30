@@ -224,3 +224,8 @@ def a2func(*args):
 eq(afunc(None), None)
 eq(a2func(None), None)
 de(Test().forwarded(a=1), {'a':1})
+
+def norm(a, b):
+    return [a, b]
+
+de(norm(b=2, a=1), [1, 2])

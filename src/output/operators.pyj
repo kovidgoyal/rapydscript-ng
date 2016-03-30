@@ -238,7 +238,11 @@ def print_conditional(self, output, condition, consequent, alternative):
     alternative.print(output)
 
 def print_new(self, output):
-    if self.args.starargs:
+    has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
+    has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
+    has_kwargs = has_kwarg_items or has_kwarg_formals
+
+    if self.args.starargs or has_kwargs:
         output.with_parens(def():
             output.print('function()')
             output.with_block(def():

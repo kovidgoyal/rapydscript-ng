@@ -509,28 +509,6 @@ extra arguments will be set to undefined instead of raising a TypeError, as in
 Python. Similarly, when mixing ``*args`` and optional arguments, RapydScript
 will not complain if an optional argument is specified twice.
 
-Another difference is that you cannot use named arguments when calling a
-function that has not been defined with named arguments. So, for example, the
-following works in python but not in RapydScript:
-
-```py
-def f(a):
-    return a
-
-f(a=1)
-```
-
-Instead, in RapydScript you must do:
-
-```py
-def f(a=3):
-    return a
-
-f(a=1)
-```
-
-This is for performance of *normal* JavaScript function calls.
-
 When creating callbacks to pass to other JavaScript libraries, it is often the
 case that the external library expects a function that receives an *options
 object* as its last argument. There is a convenient decorator in the standard
