@@ -1401,6 +1401,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if empty:
             return a
         single_comprehension = False
+        baselib_items['_$rapyd$_interpolate_kwargs'] = True
         while not is_("punc", ')') and not is_('eof'):
             if not first:
                 expect(",")

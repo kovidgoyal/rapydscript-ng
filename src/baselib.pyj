@@ -242,6 +242,16 @@ def _$rapyd$_desugar_kwargs():
                 ans[keys[j]] = arguments[i][keys[j]]
         return ans
 
+def _$rapyd$_interpolate_kwargs(f, fargs):
+    if f.__handles_kwarg_interpolation__ or not f.__argnames__:
+        return f.apply(this, fargs)
+    kwobj = fargs.pop()
+    for v'var i = 0; i < f.__argnames__.length; i++':
+        prop = f.__argnames__[i]
+        if Object.prototype.hasOwnProperty.call(kwobj, prop):
+            fargs[i] = kwobj[prop]
+    return f.apply(this, fargs)
+
 if v"typeof exports === 'object'":
     exports['abs()'] = abs
     exports['max()'] = max
@@ -265,3 +275,4 @@ if v"typeof exports === 'object'":
     exports.setattr = setattr
     exports.hasattr = hasattr
     exports['_$rapyd$_desugar_kwargs()'] = _$rapyd$_desugar_kwargs
+    exports['_$rapyd$_interpolate_kwargs'] = _$rapyd$_interpolate_kwargs

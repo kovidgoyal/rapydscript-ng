@@ -118,6 +118,25 @@ def function_annotation(self, output, strip_first, name):
         )
         output.end_statement()
 
+    # Create __handles_kwarg_interpolation__
+    if not self.argnames.is_simple_func:
+        output.newline(), output.indent()
+        output.assign(fname + '.__handles_kwarg_interpolation__')
+        output.print('true')
+        output.end_statement()
+
+    # Create __argnames__
+    if self.argnames.length:
+        output.newline(), output.indent()
+        output.assign(fname + '.__argnames__')
+        output.print('['), self.argnames.forEach(def (arg, i):
+            output.print(JSON.stringify(arg.name))
+            if i is not self.argnames.length - 1:
+                output.print(','), output.space()
+        )
+        output.print(']')
+        output.end_statement()
+
 def function_definition(self, output, strip_first, as_expression):
     as_expression = as_expression or self.is_expression or self.is_anonymous
     if as_expression:
@@ -164,8 +183,8 @@ def function_definition(self, output, strip_first, as_expression):
         print_bracketed(self, output, True, function_preamble)
 
     if as_expression:
-        function_annotation(self, output, strip_first, anonfunc)
         output.end_statement()
+        function_annotation(self, output, strip_first, anonfunc)
         output.indent(), output.spaced('return', anonfunc), output.end_statement()
         output.set_indentation(orig_indent)
         output.indent(), output.print("})()")
@@ -184,8 +203,8 @@ def print_function(output):
         output.end_statement()
     else:
         function_definition(self, output, False)
-        if not self.is_expression:
-            output.newline()
+        if not self.is_expression and not self.is_anonymous:
+            output.end_statement()
             function_annotation(self, output, False)
 
 def print_function_call(self, output):

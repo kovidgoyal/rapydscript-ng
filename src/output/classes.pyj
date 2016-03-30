@@ -31,11 +31,11 @@ def print_class(output):
         # decorate the method
         if stmt.decorators and stmt.decorators.length:
             decorate(stmt.decorators, output, def():function_definition(stmt, output, strip_first, True);)
-            output.newline()
+            output.end_statement()
         else:
             function_definition(stmt, output, strip_first)
-            output.newline()
             if not is_property:
+                output.end_statement()
                 function_annotation(stmt, output, strip_first, self.name.name + '.prototype.' + name)
 
     def define_default_method(name, body):
