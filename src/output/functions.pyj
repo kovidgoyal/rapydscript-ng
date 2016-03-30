@@ -6,6 +6,8 @@ from ast import AST_ClassCall, AST_New
 from output.stream import OutputStream
 from output.statements import print_bracketed
 
+anonfunc = '_$rapyd$_anonfunc'
+
 def decorate(decorators, output, func):
     pos = 0
     def wrap():
@@ -99,14 +101,22 @@ def function_preamble(node, output, offset):
                 output.print('.pop()')
                 output.end_statement()
 
+def function_annotation(self, output, strip_first, name):
+    name = name or self.name.name
 
-def function_definition(self, output, nokeyword, strip_first):
-    if not nokeyword:
-        output.print("function")
-
+def function_definition(self, output, strip_first):
+    if self.is_expression or self.is_anonymous:
+        output.spaced('(function', '(' + anonfunc + ')')
+        output.with_block(
+            def():
+                function_annotation(self, output, strip_first, anonfunc)
+                output.indent(), output.spaced('return', anonfunc), output.end_statement()
+        )
+        output.print(')(')
+    output.print("function"), output.space()
     if self.name:
-        output.space()
         self.name.print(output)
+
     if self.is_generator:
         output.print('()'), output.space()
         output.with_block(def():
@@ -141,19 +151,23 @@ def function_definition(self, output, nokeyword, strip_first):
         function_args(self.argnames, output, strip_first)
         print_bracketed(self, output, True, function_preamble)
 
+    if self.is_expression or self.is_anonymous:
+        output.print(")")
+
 def no_constructor_parens(self, output):
     # self should be AST_New.  decide if we want to show parens or not.
     return self.args.length is 0 and not output.option("beautify")
 
-def print_function(output, nokeyword):
+def print_function(output):
     self = this
     if self.decorators and self.decorators.length:
         output.print("var")
         output.space()
         output.assign(self.name.name)
-        decorate(self.decorators, output, def():function_definition(self, output, nokeyword, False);)
-        output.semicolon()
+        decorate(self.decorators, output, def():function_definition(self, output, False);)
+        output.end_statement()
     else:
+<<<<<<< HEAD
         function_definition(self, output, nokeyword, False)
     if self.name and has_annotations(self):
         function_annotations(self, output)
@@ -193,6 +207,13 @@ def function_annotations(self, output):
             output.newline()
     )
     output.end_statement()
+=======
+        function_definition(self, output, False)
+        if not self.is_expression:
+            output.newline()
+    if not self.is_expression and not self.is_anonymous:
+        function_annotation(self, output, False)
+>>>>>>> kovidgoyal/master
 
 def print_function_call(self, output):
 

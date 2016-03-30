@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "ast": "dfd921eb947a466503eb26268e610875849d3ac0",
+=======
+    "ast": "757278b293695a298b43a02c9cf857ecc4973f8d",
+>>>>>>> kovidgoyal/master
     "baselib-builtins": "d918ad0c186a195593b2e5b934a5c88d81600154",
     "baselib-containers": "173f372dafbffdefc58ea5e28670c5b6cf1e9cde",
     "baselib-errors": "d89289f661d151bdf13e4c9fbaa190f6a47ef9b4",
@@ -9,21 +13,34 @@
     "compiler": "a8c4f5c83735825d001338b2ac512455df815ea2",
     "errors": "eb15520287db559585bbc9bdb934f9dc7f593f0a",
     "output/__init__": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
-    "output/classes": "f296682749dc3bc21e6a187a2d4823acee28802e",
+    "output/classes": "50b5978ae8d0232863b4e51fe4a99c9ab4f95afc",
     "output/codegen": "69f1f593446af84f5cafab79f7ac4f450c845674",
     "output/exceptions": "01fd24b1988189c262920ef3eed4146116299388",
+<<<<<<< HEAD
     "output/functions": "0825701fa88c927737a54be7e645b9c0f8656c0f",
+=======
+    "output/functions": "99f574f7d054ec6f4fde7d06c2af8e16ee21da5a",
+>>>>>>> kovidgoyal/master
     "output/literals": "676edde0f3bda8cf6859c7153f7f41edf4aaa405",
     "output/loops": "e79ed218f3093848e312471e06b6f4cf71663fab",
-    "output/modules": "80de9092323271bcdf835d03fce068c2ce2baf7a",
+    "output/modules": "d06e62daafdaed610aaea799c6679f4d62edc457",
     "output/operators": "412dadfed9f9a093bc3dc151f55d9f8652dc2317",
-    "output/statements": "05fb80228d7b4f9fb81071e08ef2cffc06dc2ac0",
-    "output/stream": "23e9c52240b3f759e5dc55739ac1c7b63a92da5c",
+    "output/statements": "2d2557786f8b7536f3f0a4b810aa6bc144c7d89a",
+    "output/stream": "20f983ce33d1741076aa7b28a609aeb0272961d6",
     "output/utils": "4b13b86ab7e79d421105e6a75eabfd51c128d059",
+<<<<<<< HEAD
     "parse": "981fb808bc254df69ac9f86fb3c296f47bea9a20",
     "tokenizer": "a521b0b326a6bfa4f3304853d5180a42ac6a1e42",
     "unicode_aliases": "79ac6eaa5e6be44a5397d62c561f854a8fe7528e",
     "utils": "678a59e67a3c3ecebdbb8703407005c978c75097",
     "#compiler#": "04d47ece729349c2ef1751302c0c480417ded69e",
     "#compiled_with#": "04d47ece729349c2ef1751302c0c480417ded69e"
+=======
+    "parse": "6cb777f6e7292239fe877238f769be1a5b6f59cf",
+    "tokenizer": "88533b2ecbb18028d99c1679f1b46bdecb83fdfd",
+    "unicode_aliases": "79ac6eaa5e6be44a5397d62c561f854a8fe7528e",
+    "utils": "678a59e67a3c3ecebdbb8703407005c978c75097",
+    "#compiler#": "a40fecb75e2c9fc24578f5c819cc1b0f33a1a0c0",
+    "#compiled_with#": "a40fecb75e2c9fc24578f5c819cc1b0f33a1a0c0"
+>>>>>>> kovidgoyal/master
 }

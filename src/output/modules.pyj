@@ -81,6 +81,39 @@ def declare_submodules(module_id, submodules, output):
             output.spaced('_$rapyd$_modules["' + module_id + '"]["' + key + '"]', '=', '_$rapyd$_modules["' + sub_module_id + '"]')
             output.end_statement()
 
+def prologue(module, output):
+    # any code that should appear before the main body
+    if output.options.omit_baselib:
+        return
+    output.indent()
+    v = 'const' if output.options.js_version > 5 else 'var'
+    output.print(v), output.space()
+    output.spaced.apply(output, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+    output.end_statement()
+    output.indent(), output.print(v), output.space()
+    output.spaced.apply(output, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+    output.end_statement()
+    output.indent(), output.spaced('var', '_$rapyd$_cond_temp'), output.end_statement()
+    output.indent(), output.spaced('var', '_$rapyd$_object_counter', '=', '0'), output.end_statement()
+    baselib_items = {k:True for k in module.baselib}
+    baselib_items['errors'] = True
+    baselib_items['containers'] = True
+    baselib_items['builtins'] = True
+    baselib_items['str'] = True
+    deps = output.options.baselib['#dependencies#']
+    # resolve dependencies
+    for lib in baselib_items:
+        if Object.prototype.hasOwnProperty.call(deps, lib):
+            Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
+    # output used items
+    for lib in baselib_items:
+        if output.options.js_version >= 6 and (lib is 'iterable' or lib is 'yield'):
+            continue
+        if lib is 'yield':
+            output.dump_yield()
+        else:
+            output.dump_baselib(lib)
+
 def print_top_level(self, output):
     is_main = output.is_main()
 
@@ -94,7 +127,7 @@ def print_top_level(self, output):
                 output.print('"use strict"')
                 output.end_statement()
 
-                output.prologue(self)
+                prologue(self, output)
                 write_imports(self, output)
                 output.newline()
                 output.indent()
@@ -116,7 +149,7 @@ def print_top_level(self, output):
         output.print("")
     else:
         if is_main:
-            output.prologue(self)
+            prologue(self, output)
             write_imports(self, output)
             write_main_name(output)
 
