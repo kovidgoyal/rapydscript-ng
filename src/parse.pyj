@@ -962,7 +962,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def function_(in_class, is_expression):
         name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
         if in_class and not name:
-            unexpected()
+            croak('Cannot use anonymous function as class methods')
+        is_anonymous = not name
 
         staticmethod = property_getter = property_setter = False
         if in_class:
@@ -986,6 +987,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         definition = new ctor({
             'name': name,
             'is_expression': is_expression,
+            'is_anonymous': is_anonymous,
             'argnames': (def(a):
                 defaults = {}
                 first = True

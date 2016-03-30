@@ -30,9 +30,9 @@ def print_class(output):
 
         # decorate the method
         if stmt.decorators and stmt.decorators.length:
-            decorate(stmt.decorators, output, def():function_definition(stmt, output, False, strip_first);)
+            decorate(stmt.decorators, output, def():function_definition(stmt, output, strip_first);)
         else:
-            function_definition(stmt, output, False, strip_first)
+            function_definition(stmt, output, strip_first)
         if not is_property:
             output.semicolon()
             output.newline()

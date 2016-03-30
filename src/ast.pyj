@@ -410,7 +410,7 @@ AST_Decorator = DEFNODE("Decorator", "expression", {
     ,
 })
 
-AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression", {
+AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous", {
     '$documentation': "Base class for functions",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this function",
@@ -418,6 +418,7 @@ AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_express
         'decorators': "[AST_Decorator*] function decorators, if any",
         'is_generator': "[bool*] True iff this function is a generator",
         'is_expression': "[bool*] True iff this function is a function expression",
+        'is_anonymous': "[bool*] True iff this function is an anonymous function",
     },
     '_walk': def(visitor):
         node = this
