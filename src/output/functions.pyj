@@ -36,6 +36,7 @@ def function_args(argnames, output, strip_first):
 def function_preamble(node, output, offset):
     # if function takes any arguments
     if node.argnames:
+        fname = node.name.name if node.name else anonfunc
         # If this function has optional parameters/*args/**kwargs declare it differently
         if node.argnames.is_simple_func is not True:
             a = node.argnames
@@ -52,12 +53,8 @@ def function_preamble(node, output, offset):
                         output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
                                         '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
                                         kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
-                        output.with_parens(def():
-                            a.defaults[arg.name].print(output)
-                        )
-                        output.space()
-                        output.print(':')
-                        output.space()
+                        output.print(fname + '.__defaults__.'), arg.print(output)
+                        output.space(), output.print(':'), output.space()
                     else:
                         output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
                                         kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
@@ -102,17 +99,32 @@ def function_preamble(node, output, offset):
                 output.end_statement()
 
 def function_annotation(self, output, strip_first, name):
-    name = name or self.name.name
+    fname = name or (self.name.name if self.name else anonfunc)
 
-def function_definition(self, output, strip_first):
-    if self.is_expression or self.is_anonymous:
-        output.spaced('(function', '(' + anonfunc + ')')
-        output.with_block(
-            def():
-                function_annotation(self, output, strip_first, anonfunc)
-                output.indent(), output.spaced('return', anonfunc), output.end_statement()
+    # Create __defaults__
+    defaults = self.argnames.defaults
+    dkeys = Object.keys(self.argnames.defaults)
+    if dkeys.length:
+        output.newline(), output.indent()
+        output.assign(fname + '.__defaults__')
+        output.with_block(def():
+            dkeys.forEach(def(k, i):
+                output.indent()
+                output.print(k + ':'), defaults[k].print(output)
+                if i is not dkeys.length - 1:
+                    output.print(','), output.space()
+                output.newline()
+            )
         )
-        output.print(')(')
+        output.end_statement()
+
+def function_definition(self, output, strip_first, as_expression):
+    as_expression = as_expression or self.is_expression or self.is_anonymous
+    if as_expression:
+        orig_indent = output.indentation()
+        output.set_indentation(output.next_indent())
+        output.spaced('(function()', '{'), output.newline()
+        output.indent(), output.spaced('var', anonfunc, '='), output.space()
     output.print("function"), output.space()
     if self.name:
         self.name.print(output)
@@ -151,8 +163,12 @@ def function_definition(self, output, strip_first):
         function_args(self.argnames, output, strip_first)
         print_bracketed(self, output, True, function_preamble)
 
-    if self.is_expression or self.is_anonymous:
-        output.print(")")
+    if as_expression:
+        function_annotation(self, output, strip_first, anonfunc)
+        output.end_statement()
+        output.indent(), output.spaced('return', anonfunc), output.end_statement()
+        output.set_indentation(orig_indent)
+        output.indent(), output.print("})()")
 
 def no_constructor_parens(self, output):
     # self should be AST_New.  decide if we want to show parens or not.
@@ -164,14 +180,13 @@ def print_function(output):
         output.print("var")
         output.space()
         output.assign(self.name.name)
-        decorate(self.decorators, output, def():function_definition(self, output, False);)
+        decorate(self.decorators, output, def():function_definition(self, output, False, True);)
         output.end_statement()
     else:
         function_definition(self, output, False)
         if not self.is_expression:
             output.newline()
-    if not self.is_expression and not self.is_anonymous:
-        function_annotation(self, output, False)
+            function_annotation(self, output, False)
 
 def print_function_call(self, output):
 

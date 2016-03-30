@@ -509,13 +509,7 @@ extra arguments will be set to undefined instead of raising a TypeError, as in
 Python. Similarly, when mixing ``*args`` and optional arguments, RapydScript
 will not complain if an optional argument is specified twice.
 
-Another difference is that that, unlike Python, RapydScript will create a
-separate object for an optional argument specified as an object literal
-each time the function is called.  This makes it slightly less efficient, but
-prevents the common bug in python caused by using a mutable object literal as
-the default value for an optional argument.
-
-The last difference is that you cannot use named arguments when calling a
+Another difference is that you cannot use named arguments when calling a
 function that has not been defined with named arguments. So, for example, the
 following works in python but not in RapydScript:
 

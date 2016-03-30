@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from ast import AST_Class, AST_Method
-from output.functions import decorate, function_definition
+from output.functions import decorate, function_definition, function_annotation
 from output.statements import bind_methods
 
 def print_class(output):
@@ -30,12 +30,13 @@ def print_class(output):
 
         # decorate the method
         if stmt.decorators and stmt.decorators.length:
-            decorate(stmt.decorators, output, def():function_definition(stmt, output, strip_first);)
+            decorate(stmt.decorators, output, def():function_definition(stmt, output, strip_first, True);)
+            output.newline()
         else:
             function_definition(stmt, output, strip_first)
-        if not is_property:
-            output.semicolon()
             output.newline()
+            if not is_property:
+                function_annotation(stmt, output, strip_first, self.name.name + '.prototype.' + name)
 
     def define_default_method(name, body):
         class_def(name)

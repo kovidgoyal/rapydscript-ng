@@ -166,6 +166,30 @@ def f11(a, b, x=1):
 de(f11(x=3), [undefined, undefined, 3])
 # }}}
 
+acc = []
+def mutable_defaults(a=acc):
+    a.append(1)
+
+mutable_defaults(), mutable_defaults()
+de([1, 1], acc)
+
+def identity(f):
+    return def():
+        return f()
+
+@identity
+def wrapped(x=1):
+    return x
+
+eq(wrapped(), 1)
+
+class W:
+    @identity
+    def wrapped(self, x=1):
+        return x
+eq(W().wrapped(), 1)
+eq(1, (def(x=1): return x;)())
+
 class Other:
     def func(self, **kw):
         if self:
