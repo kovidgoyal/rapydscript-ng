@@ -1005,7 +1005,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     if peek().type == 'punc' and peek().value == ':':
                         next()
                         expect(':')
-                        annotation = expression(False, False)
+                        annotation = maybe_conditional()
                         
                         #and now, do as_symbol without the next() at the end
                         #since we are already at the next comma (or end bracket)
@@ -1082,7 +1082,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if is_("punc", "->"):
                     next()
                     nonlocal return_annotation
-                    return_annotation = expression(False, False)                
+                    return_annotation = maybe_conditional()               
                 S.in_parenthesized_expr = False
                 a.defaults = defaults
                 a.is_simple_func = not a.starargs and not a.kwargs and not a.has_defaults
