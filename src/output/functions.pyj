@@ -155,6 +155,44 @@ def print_function(output, nokeyword):
         output.semicolon()
     else:
         function_definition(self, output, nokeyword, False)
+    if self.name and has_annotations(self):
+        function_annotations(self, output)
+
+def has_annotations(self):
+    if self.return_annotation:
+        return True
+    if self.argnames and self.argnames.length:
+        for arg in self.argnames:
+            if arg.annotation:
+                return True
+    return False
+    
+def function_annotations(self, output):
+    if not has_annotations(self):
+        return
+    output.end_statement()
+    output.indent()
+    self.name.print(output)
+    output.print('.__annotations__ = ')
+    output.with_block(def():
+        output.indent()
+        if self.argnames and self.argnames.length:
+            self.argnames.forEach(def(arg, i):
+                if arg.annotation:
+                    arg.print(output)
+                    output.print(': ')
+                    arg.annotation.print(output)
+                    if i < self.argnames.length - 1 or self.return_annotation:
+                        output.print(', ')
+                    output.newline()
+                    output.indent()
+            )
+        if self.return_annotation:
+            output.print('"return": ')
+            self.return_annotation.print(output)
+            output.newline()
+    )
+    output.end_statement()
 
 def print_function_call(self, output):
 
