@@ -292,7 +292,7 @@ def print_function_call(self, output):
     has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
     has_kwargs = has_kwarg_items or has_kwarg_formals
 
-    if is_new and not self.args.length:
+    if is_new and not self.args.length and not has_kwargs and not self.args.starargs:
         output.print('new'), output.space()
         print_function_name()
         return # new A is the same as new A() in javascript

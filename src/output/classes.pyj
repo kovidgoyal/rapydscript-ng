@@ -141,7 +141,13 @@ def print_class(output):
                 return
             define_method(stmt)
             defined_methods[stmt.name.name] = True
-            if stmt.name.name is '__iter__':
+            sname = stmt.name.name
+            if sname is '__init__':
+                # Copy argument handling data so that kwarg interpolation works when calling the constructor
+                for attr in ['.__argnames__', '.__handles_kwarg_interpolation__']:
+                    output.indent(), self.name.print(output), output.assign(attr)
+                    self.name.print(output), output.print('.prototype.__init__' + attr), output.end_statement()
+            if sname is '__iter__':
                 class_def('_$rapyd$_iterator_symbol', True)
                 self.name.print(output)
                 output.print('.prototype.' + stmt.name.name)

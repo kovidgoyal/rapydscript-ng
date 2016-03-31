@@ -190,6 +190,12 @@ class W:
 eq(W().wrapped(), 1)
 eq(1, (def(x=1): return x;)())
 
+class Simple:
+
+    def __init__(self, a, b):
+        self.q = [a, b]
+de(Simple(b=2, a=1).q, [1, 2])
+
 class Other:
     def func(self, **kw):
         if self:
@@ -208,6 +214,7 @@ class Test:
         return [a, b]
 
 de(Test().q, [undefined, 2, [], {}])
+de(Test(a=1).q, [1, 2, [], {}])
 de(Test(1, 3, 4, 5, b=8, c=9).q, [1, 8, [4, 5], {'c':9}])
 args = [1, 2]
 de(Test(*args).q, [1, 2, [], {}])
