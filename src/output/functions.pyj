@@ -8,6 +8,8 @@ from output.statements import print_bracketed
 
 anonfunc = '_$rapyd$_anonfunc'
 
+# Function definition {{{
+
 def decorate(decorators, output, func):
     pos = 0
     def wrap():
@@ -203,6 +205,9 @@ def print_function(output):
         if not self.is_expression and not self.is_anonymous:
             output.end_statement()
             function_annotation(self, output, False)
+# }}}
+
+# Function call {{{
 
 def print_function_call(self, output):
 
@@ -339,3 +344,5 @@ def print_function_call(self, output):
         if self.args.length:
             output.print(')')
     output.print(')')
+# }}}
+
