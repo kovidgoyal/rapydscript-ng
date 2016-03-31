@@ -252,6 +252,13 @@ def _$rapyd$_interpolate_kwargs(f, fargs):
             fargs[i] = kwobj[prop]
     return f.apply(this, fargs)
 
+def _$rapyd$_interpolate_kwargs_constructor(apply, f, fargs):
+    if apply:
+        f.apply(this, fargs)
+    else:
+        _$rapyd$_interpolate_kwargs.call(this, f, fargs)
+    return this
+
 if v"typeof exports === 'object'":
     exports['abs()'] = abs
     exports['max()'] = max
@@ -276,3 +283,4 @@ if v"typeof exports === 'object'":
     exports.hasattr = hasattr
     exports['_$rapyd$_desugar_kwargs()'] = _$rapyd$_desugar_kwargs
     exports['_$rapyd$_interpolate_kwargs'] = _$rapyd$_interpolate_kwargs
+    exports['_$rapyd$_interpolate_kwargs_constructor'] = _$rapyd$_interpolate_kwargs_constructor

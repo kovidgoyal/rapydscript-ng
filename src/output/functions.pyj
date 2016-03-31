@@ -207,6 +207,8 @@ def print_function(output):
 
 def print_function_call(self, output):
 
+    is_new = isinstance(self, AST_New)
+
     def print_function_name():
         if isinstance(self, AST_ClassCall):
             # class methods are called through the prototype unless static
@@ -248,11 +250,15 @@ def print_function_call(self, output):
             output.print('}')
         output.print(')')
 
+    def print_new(apply):
+        output.print('_$rapyd$_interpolate_kwargs_constructor.call(')
+        output.print('Object.create('), self.expression.print(output), output.print(')')
+        output.comma(), output.space()
+        output.print('true' if apply else 'false')
+        output.comma(), output.space()
+
     def print_this():
-        if isinstance(self, AST_New):
-            obj = '_$rapyd$_new_temp'
-        else:
-            obj = self.expression.expression or 'this'
+        obj = self.expression.expression or 'this'
         if type(obj) is 'string':
             output.print(obj)
         else:
@@ -286,11 +292,15 @@ def print_function_call(self, output):
     has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
     has_kwargs = has_kwarg_items or has_kwarg_formals
 
-    if isinstance(self, AST_New) and not self.args.length:
-        return print_function_name()  # new A is the same as new A() in javascript
+    if is_new and not self.args.length:
+        output.print('new'), output.space()
+        print_function_name()
+        return # new A is the same as new A() in javascript
 
     if not has_kwargs and not self.args.starargs:
         # A simple function call, do nothing special
+        if is_new:
+            output.print('new'), output.space()
         print_function_name()
         output.with_parens(def():
             self.args.forEach(def(a, i):
@@ -302,14 +312,22 @@ def print_function_call(self, output):
         return
 
     if has_kwargs:
-        output.print('_$rapyd$_interpolate_kwargs.call(')
-        print_this()
+        if is_new:
+            print_new(False)
+        else:
+            output.print('_$rapyd$_interpolate_kwargs.call(')
+            print_this()
         print_function_name()
         output.comma(), output.space()
     else:
-        print_function_name()
-        output.print('.apply(')
-        print_this()
+        if is_new:
+            print_new(True)
+            print_function_name()
+            output.comma(), output.space()
+        else:
+            print_function_name()
+            output.print('.apply(')
+            print_this()
 
     print_positional_args()
 

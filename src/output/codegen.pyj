@@ -28,7 +28,7 @@ from output.modules import print_top_level, print_imports
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_unary_postfix, print_binary_op, print_assign,
-    print_conditional, print_seq, print_new)
+    print_conditional, print_seq)
 from output.functions import print_function, print_function_call
 from output.statements import print_bracketed, first_in_statement, force_statement, print_with
 from output.utils import make_block, make_num
@@ -437,8 +437,6 @@ def generate_code():
 
     # -----[ other expressions ]-----
     DEFPRINT(AST_BaseCall, print_function_call)
-
-    DEFPRINT(AST_New, print_new)
 
     AST_Seq.DEFMETHOD("_do_print", print_seq)
 

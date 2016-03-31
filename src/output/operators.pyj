@@ -237,32 +237,6 @@ def print_conditional(self, output, condition, consequent, alternative):
     output.colon()
     alternative.print(output)
 
-def print_new(self, output):
-    has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
-    has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
-    has_kwargs = has_kwarg_items or has_kwarg_formals
-
-    if self.args.starargs or has_kwargs:
-        output.with_parens(def():
-            output.print('function()')
-            output.with_block(def():
-                output.indent()
-                output.print('var _$rapyd$_new_temp = Object.create(')
-                self.expression.print(output)
-                output.print(')')
-                output.end_statement(), output.indent()
-                AST_BaseCall.prototype._codegen(self, output)
-                output.end_statement(), output.indent()
-                output.print('return _$rapyd$_new_temp')
-                output.end_statement()
-            )
-        )
-        output.print('()')
-    else:
-        output.print("new")
-        output.space()
-        AST_BaseCall.prototype._codegen(self, output)
-
 def print_seq(output):
     self = this
     p = output.parent()
