@@ -130,6 +130,8 @@ def function_annotation(self, output, strip_first, name):
         output.newline(), output.indent()
         output.assign(fname + '.__argnames__')
         output.print('['), self.argnames.forEach(def (arg, i):
+            if strip_first and i is 0:
+                return
             output.print(JSON.stringify(arg.name))
             if i is not self.argnames.length - 1:
                 output.print(','), output.space()
