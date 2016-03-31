@@ -241,3 +241,34 @@ def norm(a, b):
     return [a, b]
 
 de(norm(b=2, a=1), [1, 2])
+
+call_counter = 0
+
+def cc():
+    nonlocal call_counter
+    call_counter += 1
+    return def():
+        pass
+
+cc()(a=1)
+eq(call_counter, 1)
+cc(o=1)(a=1)
+eq(call_counter, 2)
+call_counter = 0
+
+def cc2():
+    nonlocal call_counter
+    call_counter += 1
+    return {'val':3, 'x':def():return this.val;}
+eq(3, cc2().x(a=1))
+eq(call_counter, 1)
+call_counter = 0
+
+def cc3():
+    nonlocal call_counter
+    call_counter += 1
+    this.num = call_counter
+    this.c = def():
+        return call_counter
+eq(new cc3(a=1).num, 1)
+eq(new cc3(a=1).c(b=9), 2)

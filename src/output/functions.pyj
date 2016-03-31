@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals:regenerate
 
-from ast import AST_ClassCall, AST_New
+from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef
 from output.stream import OutputStream
 from output.statements import print_bracketed
 
@@ -209,9 +209,20 @@ def print_function(output):
 
 # Function call {{{
 
-def print_function_call(self, output):
+def find_this(expression):
+    if isinstance(expression, AST_Dot):
+        return expression.expression
+    if not isinstance(expression, AST_SymbolRef):
+        return expression
 
-    is_new = isinstance(self, AST_New)
+def print_this(expression, output):
+    obj = find_this(expression)
+    if obj:
+        obj.print(output)
+    else:
+        output.print('this')
+
+def print_function_call(self, output):
 
     def print_function_name():
         if isinstance(self, AST_ClassCall):
@@ -226,8 +237,12 @@ def print_function_call(self, output):
                 output.print(self.method)
                 output.print(".call")
         else:
-            # regular function call
-            self.expression.print(output)
+            if not is_repeatable:
+                output.print('_$rapyd$_expr_temp')
+                if isinstance(self.expression, AST_Dot):
+                    self.expression._codegen(self.expression, output, True)
+            else:
+                self.expression.print(output)
 
     def print_kwargs():
         output.print('_$rapyd$_desugar_kwargs(')
@@ -257,17 +272,16 @@ def print_function_call(self, output):
     def print_new(apply):
         output.print('_$rapyd$_interpolate_kwargs_constructor.call(')
         output.print('Object.create('), self.expression.print(output), output.print(')')
-        output.comma(), output.space()
+        output.comma()
         output.print('true' if apply else 'false')
-        output.comma(), output.space()
+        output.comma()
 
-    def print_this():
-        obj = self.expression.expression or 'this'
-        if type(obj) is 'string':
-            output.print(obj)
+    def do_print_this():
+        if not is_repeatable:
+            output.print('_$rapyd$_expr_temp')
         else:
-            obj.print(output)
-        output.comma(), output.space()
+            print_this(self.expression, output)
+        output.comma()
 
     def print_positional_args():
         # basic arguments
@@ -295,6 +309,8 @@ def print_function_call(self, output):
     has_kwarg_items = self.args.kwarg_items and self.args.kwarg_items.length
     has_kwarg_formals = self.args.kwargs and self.args.kwargs.length
     has_kwargs = has_kwarg_items or has_kwarg_formals
+    is_new = isinstance(self, AST_New)
+    is_repeatable = True
 
     if is_new and not self.args.length and not has_kwargs and not self.args.starargs:
         output.print('new'), output.space()
@@ -309,29 +325,33 @@ def print_function_call(self, output):
         output.with_parens(def():
             self.args.forEach(def(a, i):
                 if i:
-                    output.comma(), output.space()
+                    output.comma()
                 a.print(output)
             )
         )
         return
+
+    is_repeatable = is_new or not has_calls(self.expression)
+    if not is_repeatable:
+        output.assign('(_$rapyd$_expr_temp'), print_this(self.expression, output), output.comma()
 
     if has_kwargs:
         if is_new:
             print_new(False)
         else:
             output.print('_$rapyd$_interpolate_kwargs.call(')
-            print_this()
+            do_print_this()
         print_function_name()
-        output.comma(), output.space()
+        output.comma()
     else:
         if is_new:
             print_new(True)
             print_function_name()
-            output.comma(), output.space()
+            output.comma()
         else:
             print_function_name()
             output.print('.apply(')
-            print_this()
+            do_print_this()
 
     print_positional_args()
 
@@ -343,6 +363,9 @@ def print_function_call(self, output):
         output.print(']')
         if self.args.length:
             output.print(')')
+
     output.print(')')
+    if not is_repeatable:
+        output.print(')')
 # }}}
 

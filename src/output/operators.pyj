@@ -8,9 +8,10 @@ from ast import (
 )
 from output.loops import unpack_tuple
 
-def print_getattr(self, output):  # AST_Dot
-    expr = self.expression
-    expr.print(output)
+def print_getattr(self, output, skip_expression):  # AST_Dot
+    if not skip_expression:
+        expr = self.expression
+        expr.print(output)
     if isinstance(expr, AST_Number) and expr.getValue() >= 0:
         if not /[xa-f.]/i.test(output.last()):
             output.print(".")
@@ -18,8 +19,9 @@ def print_getattr(self, output):  # AST_Dot
     # the name after dot would be mapped about here.
     output.print_name(self.property)
 
-def print_getitem(self, output):  # AST_Sub
-    self.expression.print(output)
+def print_getitem(self, output, skip_expression):  # AST_Sub
+    if not skip_expression:
+        self.expression.print(output)
     output.print("[")
     # parse negative constants into len-constant
     if isinstance(self.property, AST_Unary) and self.property.operator is "-"
@@ -37,8 +39,9 @@ def print_getitem(self, output):  # AST_Sub
     self.property.print(output)
     output.print("]")
 
-def print_rich_getitem(self, output):  # AST_ItemAccess
-    self.expression.print(output)
+def print_rich_getitem(self, output, skip_expression):  # AST_ItemAccess
+    if not skip_expression:
+        self.expression.print(output)
     output.print('.__' + (self.assignment ? 'setitem' : 'getitem') + '__')
     output.with_parens(def():
         self.property.print(output)
