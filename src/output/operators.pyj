@@ -4,7 +4,7 @@
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
     AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement
+    AST_Return, AST_SimpleStatement, has_calls
 )
 from output.loops import unpack_tuple
 
@@ -20,24 +20,28 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
     output.print_name(self.property)
 
 def print_getitem(self, output, skip_expression):  # AST_Sub
+    is_repeatable = not has_calls(self.expression)
+    from_end = isinstance(self.property, AST_Unary) and self.property.operator is "-" and isinstance(self.property.expression, AST_Number)
+    enclose = from_end and not is_repeatable and not skip_expression
+    if enclose:
+        output.assign('(_$rapyd$_expr_temp')
     if not skip_expression:
         self.expression.print(output)
+    if enclose:
+        output.comma(), output.print('_$rapyd$_expr_temp')
     output.print("[")
-    # parse negative constants into len-constant
-    if isinstance(self.property, AST_Unary) and self.property.operator is "-"
-    and isinstance(self.property.expression, AST_Number):
-        # TODO: this might parse incorrectly if expression is a
-        # function call that might not return the same result
-        # when called repeatedly. We might eventually want to
-        # save the return to a temporary variable and use that
-        # instead if expression is a function. Or we could just
-        # throw an error if negative indices are used with a
-        # type that's not AST_SymbolVar
-        self.expression.print(output)
+    if from_end:
+        # parse negative constants into len - constant
+        if enclose:
+            output.print('_$rapyd$_expr_temp')
+        else:
+            self.expression.print(output)
         output.print(".length")
 
     self.property.print(output)
     output.print("]")
+    if enclose:
+        output.print(')')
 
 def print_rich_getitem(self, output, skip_expression):  # AST_ItemAccess
     if not skip_expression:
