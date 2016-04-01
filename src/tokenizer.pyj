@@ -68,7 +68,8 @@ OPERATORS = make_predicate([
     "&=",
     "and",
     "or",
-    "@"
+    "@",
+    "->"
 ])
 
 OP_MAP = {
@@ -581,6 +582,10 @@ def tokenizer($TEXT, filename):
         if INVALID_OPERATORS.has(op):
             parse_error("Invalid operator «" + op + "»")
         if op is '!':
+            return token('punc', op)
+        elif op is '->':
+            #pretend that this is an operator as the tokenizer only allows
+            #one character punctuation.
             return token('punc', op)
         return token("operator", op)
 

@@ -440,8 +440,11 @@ AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_express
         )
 }, AST_Scope)
 
-AST_Function = DEFNODE("Function", None, {
-    '$documentation': "A function expression"
+AST_Function = DEFNODE("Function", "return_annotation", {
+    '$documentation': "A function expression",
+    '$propdoc': {
+                "return_annotation": "[AST_Symbol?] The return type annotation provided (if any)",
+    }
 }, AST_Lambda)
 
 AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id statements dynamic_properties", {
@@ -470,12 +473,13 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         )
 }, AST_Scope)
 
-AST_Method = DEFNODE("Method", "static is_getter is_setter", {
+AST_Method = DEFNODE("Method", "static is_getter is_setter return_annotation", {
     '$documentation': "A class method definition",
     '$propdoc': {
         "static": "[boolean] true if method is static",
         "is_getter": "[boolean] true if method is a property getter",
         "is_setter": "[boolean] true if method is a property setter",
+        "return_annotation": "[AST_Symbol?] The return type annotation provided (if any)",
     }
 }, AST_Lambda)
 
@@ -1034,8 +1038,11 @@ AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", None, {
     '$documentation': "A nonlocal declaration"
 }, AST_SymbolDeclaration)
 
-AST_SymbolFunarg = DEFNODE("SymbolFunarg", None, {
-    '$documentation': "Symbol naming a function argument"
+AST_SymbolFunarg = DEFNODE("SymbolFunarg", 'annotation', {
+    '$documentation': "Symbol naming a function argument, possible with an annotation.",
+    '$propdoc': {
+        'annotation': "[AST_Symbol?] The annotation provided for this argument (if any)"
+    }
 }, AST_SymbolVar)
 
 AST_SymbolDefun = DEFNODE("SymbolDefun", None, {
