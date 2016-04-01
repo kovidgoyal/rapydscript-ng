@@ -109,7 +109,7 @@ def has_annotations(self):
 
 def function_annotation(self, output, strip_first, name):
     fname = name or (self.name.name if self.name else anonfunc)
-    
+
     if has_annotations(self):
         output.end_statement()
         output.indent()
@@ -233,11 +233,14 @@ def print_function(output):
         decorate(self.decorators, output, def():function_definition(self, output, False, True);)
         output.end_statement()
     else:
-        if not self.is_expression:
-            output.newline()
-    if not self.is_expression and not self.is_anonymous:
-        function_annotation(self, output, False)
-    
+        function_definition(self, output, False)
+        if not self.is_expression and not self.is_anonymous:
+            output.end_statement()
+            function_annotation(self, output, False)
+# }}}
+
+# Function call {{{
+
 def find_this(expression):
     if isinstance(expression, AST_Dot):
         return expression.expression
@@ -383,20 +386,6 @@ def print_function_call(self, output):
             do_print_this()
 
     print_positional_args()
-
-    if has_kwargs:
-        if self.args.length:
-            output.print('.concat(')
-        output.print('[')
-        print_kwargs()
-        output.print(']')
-        if self.args.length:
-            output.print(')')
-
-    output.print(')')
-    if not is_repeatable:
-        output.print(')')
-# }}}
 
     if has_kwargs:
         if self.args.length:

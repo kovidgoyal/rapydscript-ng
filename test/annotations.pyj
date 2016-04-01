@@ -38,9 +38,6 @@ assert.deepEqual(basic.__annotations__, {
 def kwstarargs(*args:list, **kwargs:dict) -> int:
     pass
 
-assert.equal(kwstarargs.__annotations__['kwargs'], undefined)
-assert.equal(kwstarargs.__annotations__['args'], undefined)
-#** and * args are handled using arguments do they don't show up
 assert.equal(kwstarargs.__annotations__['return'], int)
 
 def nothing():
@@ -54,5 +51,22 @@ assert.throws(def():
 test = def(x: int):
     pass
 
-assert.equal(test.__annotations__, undefined)
-#this should be fixed in the future.
+assert.deepEqual(test.__annotations__, {
+    'x': int
+})
+
+anonreturn = def() -> 'test':
+    pass
+    
+assert.equal(anonreturn.__annotations__['return'], 'test')
+
+assert.equal(def asexpr(a: int):
+    a
+.__annotations__['a'], int)
+
+assert.deepEqual(def(a: int) -> float:
+    a + 10.0
+.__annotations__, {
+    'a': int,
+    'return': float
+})
