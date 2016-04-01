@@ -2,6 +2,8 @@
 
 import subprocess
 import sys
+import os
+import shutil
 
 args = sys.argv[1:]
 source = None
@@ -20,7 +22,9 @@ while args:
 
 raw = ' '.join(args).replace('\\n', '\n')
 
-subprocess.check_call('git checkout lib'.split())
+if os.path.exists('dev'):
+    shutil.rmtree('dev')
+shutil.copytree('release', 'dev')
 subprocess.check_call(cmd[:1] + ['self'])
 if source:
     p = subprocess.Popen(

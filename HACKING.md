@@ -1,12 +1,25 @@
 Hacking the RapydScript compiler
 =================================
 
-Code organization
--------------------
-
 The RapydScript compiler is written in RapydScript itself and uses the
 RapydScript import system to modularize its code. The compiler source code is
-in the `src` directory and the compiled compiler lives in the `lib` directory.
+in the `src` directory. The compiled compiler is by default in the `release`
+directory. 
+
+In order to start hacking on the compiler, run the command
+
+```
+bin/rapydscript self --complete --test
+```
+
+This will generate a build of the compiler in the `dev` directory. Now, the
+rapydscript command will automatically use this build, rather than the one in
+release. If you want to go back to the release build, simply delete the `dev`
+directory.
+
+
+Code organization
+-------------------
 
 The way the compiler works, given some RapydScript source code:
 
@@ -78,7 +91,7 @@ pass in the path to a RapydScript file to compile, like this:
 ./try -f myfile.pyj
 ```
 
-Once you are happy with your changes, you can build the compiler and runt he
+Once you are happy with your changes, you can build the compiler and run the
 test suite, all with a single command:
 
 ```

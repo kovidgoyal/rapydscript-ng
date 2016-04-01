@@ -5,4 +5,5 @@
 *.orig
 *.pyj-cached
 node_modules
+dev
 self.cpuprofile

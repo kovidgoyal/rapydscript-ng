@@ -14,6 +14,16 @@ function ansi(code) {
     return String.fromCharCode(27) + '[' + code + 'm';
 }
 
+function path_exists(path) {
+    var fs = require('fs');
+    try {
+        fs.statSync(path);
+        return true;
+    } catch(e) {
+        if (e.code != 'ENOENT') throw e;
+    }
+}
+
 function colored(string, color, bold) {
     var prefix = [];
     if (bold) prefix.push(ansi(1));
@@ -115,3 +125,4 @@ exports.colored = colored;
 exports.safe_colored = (supports_color()) ? colored : safe_colored;
 exports.generators_available = generators_available;
 exports.get_import_dirs = get_import_dirs;
+exports.path_exists = path_exists;
