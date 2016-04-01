@@ -18,7 +18,7 @@ while args:
     else:
         break
 
-raw = ' '.join(args)
+raw = ' '.join(args).replace('\\n', '\n')
 
 subprocess.check_call('git checkout lib'.split())
 subprocess.check_call(cmd[:1] + ['self'])
