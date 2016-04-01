@@ -63,7 +63,7 @@ RapydScript (pronounced 'RapidScript') is a pre-compiler for JavaScript, similar
 RapydScript allows to write your front-end in Python without the overhead that other similar frameworks introduce (the performance is the same as with pure JavaScript). To those familiar with CoffeeScript, RapydScript is like CoffeeScript, but inspired by Python's readability rather than Ruby's cleverness. To those familiar with Pyjamas, RapydScript brings many of the same features and support for Python syntax without the same overhead. Don't worry if you've never used either of the above-mentioned compilers, if you've ever had to write your code in pure JavaScript you'll appreciate RapydScript. RapydScript combines the best features of Python as well as JavaScript, bringing you features most other Pythonic JavaScript replacements overlook. Here are a few features of RapydScript:
 
 - classes that work and feel similar to Python
-- modules that can be used for logic abstraction and allow more flexibility than Python's modules
+- an import system for modules/packages that works just like Python's
 - optional function arguments that work similar to Python
 - inheritance system that's both, more powerful than Python and cleaner than JavaScript
 - support for object literals with anonymous functions, like in JavaScript
