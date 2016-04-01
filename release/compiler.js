@@ -7634,7 +7634,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     "name": name,
                     "is_expression": is_expression,
                     "is_anonymous": is_anonymous,
-<<<<<<< HEAD:lib/compiler.js
                     "argnames": (function (_$rapyd$_anonfunc){
                         return _$rapyd$_anonfunc;
                     })(function (a) {
@@ -7696,17 +7695,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 expect(",");
                                 if (is_("punc", ")")) {
                                     break;
-=======
-                    "argnames": (function() {
-                        var _$rapyd$_anonfunc = function (a) {
-                            var defaults, first, seen_names, val;
-                            defaults = {};
-                            first = true;
-                            seen_names = {};
-                            function get_arg() {
-                                if (Object.prototype.hasOwnProperty.call(seen_names, S.token.value)) {
-                                    token_error(prev(), "Can't repeat parameter names");
->>>>>>> kovidgoyal/master:release/compiler.js
                                 }
                                 if (S.token.value === "arguments") {
                                     token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript");
@@ -7759,7 +7747,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                     }
                                 }
                             }
-<<<<<<< HEAD:lib/compiler.js
                         }
                         next();
                         if (is_("punc", "->")) {
@@ -7771,18 +7758,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         a.is_simple_func = !a.starargs && !a.kwargs && !a.has_defaults;
                         return a;
                     })([]),
-=======
-                            next();
-                            S.in_parenthesized_expr = false;
-                            a.defaults = defaults;
-                            a.is_simple_func = !a.starargs && !a.kwargs && !a.has_defaults;
-                            return a;
-                        };
-
-                        _$rapyd$_anonfunc.__argnames__ = ["a"];
-                        return _$rapyd$_anonfunc;
-                    })()([]),
->>>>>>> kovidgoyal/master:release/compiler.js
                     "localvars": _$rapyd$_list_decorate([]),
                     "decorators": (function() {
                         var _$rapyd$_anonfunc = function () {
@@ -10348,7 +10323,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (!(expression instanceof AST_SymbolRef)) {
                 return expression;
             }
-<<<<<<< HEAD:lib/compiler.js
             if (self.name && has_annotations(self)) {
                 function_annotations(self, output);
             }
@@ -10401,23 +10375,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             });
             output.end_statement();
         }
-=======
-        };
-
-        find_this.__argnames__ = ["expression"];
-
-        function print_this(expression, output) {
-            var obj;
-            obj = find_this(expression);
-            if (obj) {
-                obj.print(output);
-            } else {
-                output.print("this");
-            }
-        };
-
-        print_this.__argnames__ = ["expression", "output"];
->>>>>>> kovidgoyal/master:release/compiler.js
 
         function print_function_call(self, output) {
             var has_kwarg_items, has_kwarg_formals, has_kwargs, is_new, is_repeatable;
@@ -10619,13 +10576,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         _$rapyd$_modules["output.functions"].function_annotation = function_annotation;
         _$rapyd$_modules["output.functions"].function_definition = function_definition;
         _$rapyd$_modules["output.functions"].print_function = print_function;
-<<<<<<< HEAD:lib/compiler.js
         _$rapyd$_modules["output.functions"].has_annotations = has_annotations;
         _$rapyd$_modules["output.functions"].function_annotations = function_annotations;
-=======
-        _$rapyd$_modules["output.functions"].find_this = find_this;
-        _$rapyd$_modules["output.functions"].print_this = print_this;
->>>>>>> kovidgoyal/master:release/compiler.js
         _$rapyd$_modules["output.functions"].print_function_call = print_function_call;
     })();
 
@@ -11919,7 +11871,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             output.newline();
             output.indent();
-<<<<<<< HEAD:lib/compiler.js
             output.with_parens((function (_$rapyd$_anonfunc){
                 return _$rapyd$_anonfunc;
             })(function () {
@@ -11992,63 +11943,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                             "js_version": js_version,
                                             "private_scope": false,
                                             "write_name": false
-=======
-            output.with_parens((function() {
-                var _$rapyd$_anonfunc = function () {
-                    output.print("function()");
-                    output.with_block((function() {
-                        var _$rapyd$_anonfunc = function () {
-                            var okey, cached, cobj, cname, symdef, co, raw, js_version, auto_bind, beautify;
-                            if (output.option("write_name")) {
-                                output.indent();
-                                output.print("var ");
-                                output.assign("__name__");
-                                output.print("\"" + self.module_id + "\"");
-                                output.semicolon();
-                                output.newline();
-                            }
-                            function output_key(beautify, auto_bind, js_version) {
-                                return "beautify:" + beautify + " auto_bind:" + auto_bind + " js_version:" + js_version;
-                            };
-
-                            output_key.__argnames__ = ["beautify", "auto_bind", "js_version"];
-
-                            okey = output_key(output.option("beautify"), output.option("auto_bind"), output.option("js_version"));
-                            if (self.is_cached && _$rapyd$_in(okey, self.outputs)) {
-                                output.print(self.outputs[okey]);
-                                declare_submodules(self.module_id, self.submodules, output);
-                            } else {
-                                output_module(output);
-                                declare_submodules(self.module_id, self.submodules, output);
-                                if (self.srchash && self.filename) {
-                                    cached = {
-                                        "version": COMPILER_VERSION,
-                                        "signature": self.srchash,
-                                        "classes": {},
-                                        "baselib": self.baselib,
-                                        "nonlocalvars": self.nonlocalvars,
-                                        "imported_module_ids": self.imported_module_ids,
-                                        "exports": _$rapyd$_list_decorate([]),
-                                        "outputs": {}
-                                    };
-                                    var _$rapyd$_Iter70 = _$rapyd$_Iterable(Object.keys(self.classes));
-                                    for (var _$rapyd$_Index70 = 0; _$rapyd$_Index70 < _$rapyd$_Iter70.length; _$rapyd$_Index70++) {
-                                        cname = _$rapyd$_Iter70[_$rapyd$_Index70];
-                                        cobj = self.classes[cname];
-                                        cached.classes[cname] = {
-                                            "name": {
-                                                "name": cobj.name.name
-                                            },
-                                            "static": cobj.static,
-                                            "bound": cobj.bound
-                                        };
-                                    }
-                                    var _$rapyd$_Iter71 = _$rapyd$_Iterable(self.exports);
-                                    for (var _$rapyd$_Index71 = 0; _$rapyd$_Index71 < _$rapyd$_Iter71.length; _$rapyd$_Index71++) {
-                                        symdef = _$rapyd$_Iter71[_$rapyd$_Index71];
-                                        cached.exports.push({
-                                            "name": symdef.name
->>>>>>> kovidgoyal/master:release/compiler.js
                                         });
                                     }
                                     var _$rapyd$_Iter72 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ true, false ]));
@@ -12120,16 +12014,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.semicolon();
                 output.newline();
                 output.indent();
-<<<<<<< HEAD:lib/compiler.js
-            }
-<<<<<<< 3c267226667b79fc1d27e25af36f659484af0c59
-=======
-
->>>>>>> Update annotations to new function system
-            var _$rapyd$_Iter74 = _$rapyd$_Iterable(container.imports);
-            for (var _$rapyd$_Index74 = 0; _$rapyd$_Index74 < _$rapyd$_Iter74.length; _$rapyd$_Index74++) {
-                self = _$rapyd$_Iter74[_$rapyd$_Index74];
-=======
             };
 
             add_aname.__argnames__ = ["aname", "key", "from_import"];
@@ -12137,7 +12021,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var _$rapyd$_Iter75 = _$rapyd$_Iterable(container.imports);
             for (var _$rapyd$_Index75 = 0; _$rapyd$_Index75 < _$rapyd$_Iter75.length; _$rapyd$_Index75++) {
                 self = _$rapyd$_Iter75[_$rapyd$_Index75];
->>>>>>> kovidgoyal/master:release/compiler.js
                 output.import_(self.module);
                 if (self.argnames) {
                     var _$rapyd$_Iter76 = _$rapyd$_Iterable(self.argnames);
