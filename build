@@ -1,2 +1,2 @@
 #!/bin/sh
-mkdir -p dev && exec bin/rapydscript self --complete --test
+exec bin/rapydscript self --complete --test

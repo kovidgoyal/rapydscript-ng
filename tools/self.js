@@ -133,6 +133,11 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
     var pretty_baselib, ugly_baselib;
     var temp = parse_baselib(RapydScript, src_path);
     var out_path = path.join(path.dirname(lib_path), 'dev');
+    try {
+        fs.mkdirSync(out_path);
+    } catch (e) {
+        if (e.code != 'EEXIST') throw e;
+    }
     pretty_baselib = temp[0]; ugly_baselib = temp[1];
     output_options = {'beautify': true, 'baselib': pretty_baselib};
     var raw = sources[file], toplevel;
