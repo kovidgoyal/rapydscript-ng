@@ -8,7 +8,8 @@
 var path = require('path');
 var fs = require('fs');
 var RapydScript = require('./compiler').create_compiler();
-var colored = require('./utils').safe_colored;
+var utils = require('./utils');
+var colored = utils.safe_colored;
 
 module.exports = function(argv, base_path, src_path, lib_path) {
     // run all tests and exit
@@ -16,6 +17,8 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var os = require('os');
     var failures = [];
     var vm = require('vm');
+    var compiler_dir = path.join(base_path, 'dev');
+    if (!utils.path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base_path, 'release');
     var test_dir = path.join(base_path, 'test');
 	var baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
     var files;
@@ -77,7 +80,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                     'fs':fs,
                     'RapydScript':RapydScript, 
                     'console':console,
-                    'base_path': base_path,
+                    'compiler_dir': compiler_dir,
                     'test_path':test_dir,
                     'Buffer': Buffer,
                 }, {'filename':jsfile});

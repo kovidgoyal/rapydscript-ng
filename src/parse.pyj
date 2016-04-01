@@ -1272,6 +1272,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             S.in_parenthesized_expr = False
         else:
             args = func_call_list(True)
+        baselib_items['_$rapyd$_interpolate_kwargs_constructor'] = True
         return subscripts(new AST_New({
             'start': start,
             'expression': newexp,
@@ -1449,6 +1450,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if empty:
             return a
         single_comprehension = False
+        baselib_items['_$rapyd$_interpolate_kwargs'] = True
         while not is_("punc", ')') and not is_('eof'):
             if not first:
                 expect(",")
@@ -1755,6 +1757,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             next()
             if not expr.parens and get_class_in_scope(expr):
                 # this is an object being created using a class
+                baselib_items['_$rapyd$_interpolate_kwargs_constructor'] = True
                 ret = subscripts(new AST_New({
                     'start': start,
                     'expression': expr,

@@ -6,7 +6,7 @@
  */
 "use strict";  /*jshint node:true */
 
-// Thin wrapper around lib/compiler.js to setup some global facilities and
+// Thin wrapper around (release|dev)/compiler.js to setup some global facilities and
 // export the compiler's symbols safely.
 
 var path = require("path");
@@ -20,6 +20,15 @@ function sha1sum(data) {
     var h = crypto.createHash('sha1');
     h.update(data);
     return h.digest('hex');
+}
+
+function path_exists(path) {
+    try {
+        fs.statSync(path);
+        return true;
+    } catch(e) {
+        if (e.code != 'ENOENT') throw e;
+    }
 }
 
 function regenerate(code, beautify) {
@@ -52,9 +61,12 @@ function create_compiler() {
         exports       : compiler_exports,
     });
 
-    var compilerjs = fs.readFileSync(path.join(
-                path.dirname(path.dirname(module.filename)), 'lib', 'compiler.js'), 'utf-8');
-    vm.runInContext(compilerjs, compiler_context, 'lib/compiler.js');
+    var base = path.dirname(path.dirname(module.filename));
+    var compiler_dir = path.join(base, 'dev');
+    if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
+    var compiler_file = path.join(compiler_dir, 'compiler.js');
+    var compilerjs = fs.readFileSync(compiler_file, 'utf-8');
+    vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
     return compiler_exports;
 }
 

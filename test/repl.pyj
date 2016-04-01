@@ -1,4 +1,4 @@
-# globals: base_path
+# globals: compiler_dir
 stdout = []
 def clear():
     stdout.length = 0
@@ -71,7 +71,7 @@ readline = {
         rl.completer = options.completer
         return rl
 }
-repl({'lib_path':base_path + '/lib', 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
+repl({'lib_path':compiler_dir, 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
 eq = assert.equal
 eq('>>> ', stdout[-1])
 clear()

@@ -9,10 +9,12 @@ var path = require('path');
 var base = path.normalize(path.resolve(path.join(path.dirname(__dirname))));
 var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
 var commit_sha = fs.readFileSync(path.join(base, '.git', 'refs', 'heads', 'master'), {'encoding':'utf-8'});
+var compiler_dir = path.join(base, 'dev');
+if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
 
 var manifest = {}, total = 0;
 ['compiler.js', 'baselib-plain-pretty.js'].forEach(function(x) {
-    manifest[x] = fs.readFileSync(path.join(base, 'lib', x), {'encoding':'utf-8'});
+    manifest[x] = fs.readFileSync(path.join(compiler_dir, x), {'encoding':'utf-8'});
     total += manifest[x].length;
     if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
 });
@@ -24,6 +26,15 @@ var manifest = {}, total = 0;
 });
 
 var stdlib = path.join(base, 'src', 'lib');
+
+function path_exists(path) {
+    try {
+        fs.statSync(path);
+        return true;
+    } catch(e) {
+        if (e.code != 'ENOENT') throw e;
+    }
+}
 
 function process_dir(relpath) {
     var fullpath = (relpath) ? path.join(stdlib, relpath) : stdlib;

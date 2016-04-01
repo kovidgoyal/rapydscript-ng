@@ -128,9 +128,9 @@ def _$rapyd$_list_sort_cmp(a, b):
         return 1
     return 0
 
-def _$rapyd$_list_sort(key=None, reverse=False):
+def _$rapyd$_list_sort(key, reverse):
     key = key or _$rapyd$_list_sort_key
-    mult = (reverse) ? -1 : 1
+    mult = -1 if reverse else 1
     keymap = dict()
     for v'var i=0; i < this.length; i++':
         k = this[i]  # noqa:undef

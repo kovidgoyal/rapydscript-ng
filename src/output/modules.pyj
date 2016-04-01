@@ -93,7 +93,7 @@ def prologue(module, output):
     output.indent(), output.print(v), output.space()
     output.spaced.apply(output, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
     output.end_statement()
-    output.indent(), output.spaced('var', '_$rapyd$_cond_temp'), output.end_statement()
+    output.indent(), output.spaced('var', '_$rapyd$_cond_temp,', '_$rapyd$_expr_temp'), output.end_statement()
     output.indent(), output.spaced('var', '_$rapyd$_object_counter', '=', '0'), output.end_statement()
     baselib_items = {k:True for k in module.baselib}
     baselib_items['errors'] = True

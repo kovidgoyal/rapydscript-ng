@@ -98,6 +98,7 @@ def function_preamble(node, output, offset):
         output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name)
         output.print('.pop()')
         output.end_statement()
+<<<<<<< HEAD
 
 def has_annotations(self):
     if self.return_annotation:
@@ -151,6 +152,29 @@ def function_annotation(self, output, strip_first, name):
         )
         output.end_statement()
 
+=======
+
+def function_annotation(self, output, strip_first, name):
+    fname = name or (self.name.name if self.name else anonfunc)
+
+    # Create __defaults__
+    defaults = self.argnames.defaults
+    dkeys = Object.keys(self.argnames.defaults)
+    if dkeys.length:
+        output.newline(), output.indent()
+        output.assign(fname + '.__defaults__')
+        output.with_block(def():
+            dkeys.forEach(def(k, i):
+                output.indent()
+                output.print(k + ':'), defaults[k].print(output)
+                if i is not dkeys.length - 1:
+                    output.print(','), output.space()
+                output.newline()
+            )
+        )
+        output.end_statement()
+
+>>>>>>> kovidgoyal/master
     # Create __handles_kwarg_interpolation__
     if not self.argnames.is_simple_func:
         output.newline(), output.indent()
@@ -234,11 +258,12 @@ def print_function(output):
         output.end_statement()
     else:
         function_definition(self, output, False)
-        if not self.is_expression:
-            output.newline()
-    if not self.is_expression and not self.is_anonymous:
-        function_annotation(self, output, False)
+        if not self.is_expression and not self.is_anonymous:
+            output.end_statement()
+            function_annotation(self, output, False)
+# }}}
 
+<<<<<<< HEAD
 def has_annotations(self):
     if self.return_annotation:
         return True
@@ -277,6 +302,10 @@ def function_annotations(self, output):
 
 # Function call {{{
 
+=======
+# Function call {{{
+
+>>>>>>> kovidgoyal/master
 def find_this(expression):
     if isinstance(expression, AST_Dot):
         return expression.expression
@@ -422,6 +451,23 @@ def print_function_call(self, output):
             do_print_this()
 
     print_positional_args()
+<<<<<<< HEAD
+=======
+
+    if has_kwargs:
+        if self.args.length:
+            output.print('.concat(')
+        output.print('[')
+        print_kwargs()
+        output.print(']')
+        if self.args.length:
+            output.print(')')
+
+    output.print(')')
+    if not is_repeatable:
+        output.print(')')
+# }}}
+>>>>>>> kovidgoyal/master
 
     if has_kwargs:
         if self.args.length:

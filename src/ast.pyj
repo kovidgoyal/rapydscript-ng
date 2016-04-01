@@ -1196,3 +1196,22 @@ TreeWalker.prototype = {
                 return False
             self = p
 }
+
+class Found(Exception):
+    pass
+
+def has_calls(expression):
+    # Technically, in JavaScript property access is also dynamic and can
+    # involve function calls. However, there is no way to determine which
+    # property accesses are dynamic, so we ignore them, as they would lead to
+    # too many false positives.
+    if not expression:
+        return False
+    try:
+        expression.walk(new TreeWalker(def(node):
+            if isinstance(node, (AST_BaseCall, AST_ItemAccess)):
+                raise Found()
+        ))
+    except Found:
+        return True
+    return False

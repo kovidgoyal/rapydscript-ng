@@ -63,7 +63,7 @@ RapydScript (pronounced 'RapidScript') is a pre-compiler for JavaScript, similar
 RapydScript allows to write your front-end in Python without the overhead that other similar frameworks introduce (the performance is the same as with pure JavaScript). To those familiar with CoffeeScript, RapydScript is like CoffeeScript, but inspired by Python's readability rather than Ruby's cleverness. To those familiar with Pyjamas, RapydScript brings many of the same features and support for Python syntax without the same overhead. Don't worry if you've never used either of the above-mentioned compilers, if you've ever had to write your code in pure JavaScript you'll appreciate RapydScript. RapydScript combines the best features of Python as well as JavaScript, bringing you features most other Pythonic JavaScript replacements overlook. Here are a few features of RapydScript:
 
 - classes that work and feel similar to Python
-- modules that can be used for logic abstraction and allow more flexibility than Python's modules
+- an import system for modules/packages that works just like Python's
 - optional function arguments that work similar to Python
 - inheritance system that's both, more powerful than Python and cleaner than JavaScript
 - support for object literals with anonymous functions, like in JavaScript
@@ -508,34 +508,6 @@ libraries. So if you do not pass enough arguments when calling a function, the
 extra arguments will be set to undefined instead of raising a TypeError, as in
 Python. Similarly, when mixing ``*args`` and optional arguments, RapydScript
 will not complain if an optional argument is specified twice.
-
-Another difference is that that, unlike Python, RapydScript will create a
-separate object for an optional argument specified as an object literal
-each time the function is called.  This makes it slightly less efficient, but
-prevents the common bug in python caused by using a mutable object literal as
-the default value for an optional argument.
-
-The last difference is that you cannot use named arguments when calling a
-function that has not been defined with named arguments. So, for example, the
-following works in python but not in RapydScript:
-
-```py
-def f(a):
-    return a
-
-f(a=1)
-```
-
-Instead, in RapydScript you must do:
-
-```py
-def f(a=3):
-    return a
-
-f(a=1)
-```
-
-This is for performance of *normal* JavaScript function calls.
 
 When creating callbacks to pass to other JavaScript libraries, it is often the
 case that the external library expects a function that receives an *options

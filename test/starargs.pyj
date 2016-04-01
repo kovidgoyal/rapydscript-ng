@@ -166,6 +166,36 @@ def f11(a, b, x=1):
 de(f11(x=3), [undefined, undefined, 3])
 # }}}
 
+acc = []
+def mutable_defaults(a=acc):
+    a.append(1)
+
+mutable_defaults(), mutable_defaults()
+de([1, 1], acc)
+
+def identity(f):
+    return def():
+        return f()
+
+@identity
+def wrapped(x=1):
+    return x
+
+eq(wrapped(), 1)
+
+class W:
+    @identity
+    def wrapped(self, x=1):
+        return x
+eq(W().wrapped(), 1)
+eq(1, (def(x=1): return x;)())
+
+class Simple:
+
+    def __init__(self, a, b):
+        self.q = [a, b]
+de(Simple(b=2, a=1).q, [1, 2])
+
 class Other:
     def func(self, **kw):
         if self:
@@ -180,10 +210,16 @@ class Test:
     def forwarded(self, **kw):
         return self.other.func(**kw)
 
+    def simple(self, a, b):
+        return [a, b]
+
 de(Test().q, [undefined, 2, [], {}])
+de(Test(a=1).q, [1, 2, [], {}])
 de(Test(1, 3, 4, 5, b=8, c=9).q, [1, 8, [4, 5], {'c':9}])
 args = [1, 2]
 de(Test(*args).q, [1, 2, [], {}])
+t = Test()
+de(t.simple(b=2, a=1), [1, 2])
 
 @options_object
 def callback(a, b=1, c=2):
@@ -200,3 +236,39 @@ def a2func(*args):
 eq(afunc(None), None)
 eq(a2func(None), None)
 de(Test().forwarded(a=1), {'a':1})
+
+def norm(a, b):
+    return [a, b]
+
+de(norm(b=2, a=1), [1, 2])
+
+call_counter = 0
+
+def cc():
+    nonlocal call_counter
+    call_counter += 1
+    return def():
+        pass
+
+cc()(a=1)
+eq(call_counter, 1)
+cc(o=1)(a=1)
+eq(call_counter, 2)
+call_counter = 0
+
+def cc2():
+    nonlocal call_counter
+    call_counter += 1
+    return {'val':3, 'x':def():return this.val;}
+eq(3, cc2().x(a=1))
+eq(call_counter, 1)
+call_counter = 0
+
+def cc3():
+    nonlocal call_counter
+    call_counter += 1
+    this.num = call_counter
+    this.c = def():
+        return call_counter
+eq(new cc3(a=1).num, 1)
+eq(new cc3(a=1).c(b=9), 2)

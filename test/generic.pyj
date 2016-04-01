@@ -156,3 +156,11 @@ assert.ok({'data':1} == D(1))
 arr = []
 {} == arr.append(2)
 assert.ok(arr.length is 1)
+
+call_count = 0
+def cc():
+    nonlocal call_count
+    call_count += 1
+    return [1]
+cc()[-1]
+assert.equal(call_count, 1)
