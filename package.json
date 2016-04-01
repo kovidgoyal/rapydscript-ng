@@ -10,7 +10,7 @@
   ],
   "main": "tools/compiler.js",
   "scripts": {
-    "test": "build",
+    "test": "./build",
     "start": "bin/rapydscript",
     "build-self": "bin/rapydscript self --complete"
   },
