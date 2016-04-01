@@ -6338,7 +6338,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var is_token = _$rapyd$_modules.tokenizer.is_token;
         var UNARY_POSTFIX = _$rapyd$_modules.tokenizer.UNARY_POSTFIX;
         
-        COMPILER_VERSION = "4ad4c7ca8b2bf36ec8e4ce39382508842db611f7";
+        COMPILER_VERSION = "5a613b9280e3eff4d4fd07d59af645461afc4ed8";
         BASELIB_ITEMS = (function(){
             var s = _$rapyd$_set();
             s.jsset.add("dir");
@@ -10326,6 +10326,57 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (self.name && has_annotations(self)) {
                 function_annotations(self, output);
             }
+            if (self.name && has_annotations(self)) {
+                function_annotations(self, output);
+            }
+        }
+        function has_annotations(self) {
+            var arg;
+            if (self.return_annotation) {
+                return true;
+            }
+            if (self.argnames && self.argnames.length) {
+                var _$rapyd$_Iter61 = _$rapyd$_Iterable(self.argnames);
+                for (var _$rapyd$_Index61 = 0; _$rapyd$_Index61 < _$rapyd$_Iter61.length; _$rapyd$_Index61++) {
+                    arg = _$rapyd$_Iter61[_$rapyd$_Index61];
+                    if (arg.annotation) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        function function_annotations(self, output) {
+            if (!has_annotations(self)) {
+                return;
+            }
+            output.end_statement();
+            output.indent();
+            self.name.print(output);
+            output.print(".__annotations__ = ");
+            output.with_block(function() {
+                output.indent();
+                if (self.argnames && self.argnames.length) {
+                    self.argnames.forEach(function(arg, i) {
+                        if (arg.annotation) {
+                            arg.print(output);
+                            output.print(": ");
+                            arg.annotation.print(output);
+                            if (i < self.argnames.length - 1 || self.return_annotation) {
+                                output.print(", ");
+                            }
+                            output.newline();
+                            output.indent();
+                        }
+                    });
+                }
+                if (self.return_annotation) {
+                    output.print("\"return\": ");
+                    self.return_annotation.print(output);
+                    output.newline();
+                }
+            });
+            output.end_statement();
         }
         function has_annotations(self) {
             var arg;
@@ -10714,36 +10765,35 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (property_names.length) {
                 output.indent();
                 output.print("Object.defineProperties");
-                output.with_parens((function() {
-                    var _$rapyd$_anonfunc = function () {
-                        [self.name.print(output), output.print(".prototype"), output.comma(), output.space(), 
-                        output.with_block((function() {
-                            var _$rapyd$_anonfunc = function () {
-                                var prop, name;
-                                var _$rapyd$_Iter59 = _$rapyd$_Iterable(property_names);
-                                for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
-                                    name = _$rapyd$_Iter59[_$rapyd$_Index59];
-                                    prop = self.dynamic_properties[name];
-                                    [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
-                                    output.with_block((function() {
-                                        var _$rapyd$_anonfunc = function () {
-                                            [output.indent(), output.print("\"enumerable\":"), output.space(), output.print("true"), 
-                                            output.comma(), output.newline()];
-                                            if (prop.getter) {
-                                                [output.indent(), output.print("\"get\":"), output.space()];
-                                                [define_method(prop.getter, true), output.comma(), output.newline()];
-                                            }
-                                            [output.indent(), output.print("\"set\":"), output.space()];
-                                            if (prop.setter) {
-                                                [define_method(prop.setter, true), output.newline()];
-                                            } else {
-                                                [output.spaced("function", "()", "{", "throw new AttributeError(\"can't set attribute\")", "}"), 
-                                                output.newline()];
-                                            }
-                                        };
-                                        return _$rapyd$_anonfunc;
-                                    })());
-                                    [output.comma(), output.newline()];
+
+                output.with_parens((function (_$rapyd$_anonfunc){
+                    return _$rapyd$_anonfunc;
+                })(function () {
+                    [self.name.print(output), output.print(".prototype"), output.comma(), output.space(), 
+                    output.with_block((function (_$rapyd$_anonfunc){
+                        return _$rapyd$_anonfunc;
+                    })(function () {
+                        var prop, name;
+                        var _$rapyd$_Iter59 = _$rapyd$_Iterable(property_names);
+                        for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
+                            name = _$rapyd$_Iter59[_$rapyd$_Index59];
+                            prop = self.dynamic_properties[name];
+                            [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
+                            output.with_block((function (_$rapyd$_anonfunc){
+                                return _$rapyd$_anonfunc;
+                            })(function () {
+                                [output.indent(), output.print("\"enumerable\":"), output.space(), output.print("true"), 
+                                output.comma(), output.newline()];
+                                if (prop.getter) {
+                                    [output.indent(), output.print("\"get\":"), output.space()];
+                                    [define_method(prop.getter, true), output.comma(), output.newline()];
+                                }
+                                [output.indent(), output.print("\"set\":"), output.space()];
+                                if (prop.setter) {
+                                    [define_method(prop.setter, true), output.newline()];
+                                } else {
+                                    [output.spaced("function", "()", "{", "throw new AttributeError(\"can't set attribute\")", "}"), 
+                                    output.newline()];
                                 }
                             };
                             return _$rapyd$_anonfunc;
@@ -11627,9 +11677,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = _$rapyd$_list_decorate([]);
-            var _$rapyd$_Iter61 = _$rapyd$_Iterable(Object.keys(module.imports));
-            for (var _$rapyd$_Index61 = 0; _$rapyd$_Index61 < _$rapyd$_Iter61.length; _$rapyd$_Index61++) {
-                import_id = _$rapyd$_Iter61[_$rapyd$_Index61];
+            var _$rapyd$_Iter60 = _$rapyd$_Iterable(Object.keys(module.imports));
+            for (var _$rapyd$_Index60 = 0; _$rapyd$_Index60 < _$rapyd$_Iter60.length; _$rapyd$_Index60++) {
+                import_id = _$rapyd$_Iter60[_$rapyd$_Index60];
                 imports.push(module.imports[import_id]);
             }
             imports.sort((function() {
@@ -11650,12 +11700,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.newline();
             }
             nonlocalvars = {};
-            var _$rapyd$_Iter62 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index62 = 0; _$rapyd$_Index62 < _$rapyd$_Iter62.length; _$rapyd$_Index62++) {
-                module_ = _$rapyd$_Iter62[_$rapyd$_Index62];
-                var _$rapyd$_Iter63 = _$rapyd$_Iterable(module_.nonlocalvars);
-                for (var _$rapyd$_Index63 = 0; _$rapyd$_Index63 < _$rapyd$_Iter63.length; _$rapyd$_Index63++) {
-                    name = _$rapyd$_Iter63[_$rapyd$_Index63];
+            var _$rapyd$_Iter61 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index61 = 0; _$rapyd$_Index61 < _$rapyd$_Iter61.length; _$rapyd$_Index61++) {
+                module_ = _$rapyd$_Iter61[_$rapyd$_Index61];
+                var _$rapyd$_Iter62 = _$rapyd$_Iterable(module_.nonlocalvars);
+                for (var _$rapyd$_Index62 = 0; _$rapyd$_Index62 < _$rapyd$_Iter62.length; _$rapyd$_Index62++) {
+                    name = _$rapyd$_Iter62[_$rapyd$_Index62];
                     nonlocalvars[name] = true;
                 }
             }
@@ -11666,9 +11716,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.semicolon();
                 output.newline();
             }
-            var _$rapyd$_Iter64 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index64 = 0; _$rapyd$_Index64 < _$rapyd$_Iter64.length; _$rapyd$_Index64++) {
-                module_ = _$rapyd$_Iter64[_$rapyd$_Index64];
+            var _$rapyd$_Iter63 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index63 = 0; _$rapyd$_Index63 < _$rapyd$_Iter63.length; _$rapyd$_Index63++) {
+                module_ = _$rapyd$_Iter63[_$rapyd$_Index63];
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -11681,9 +11731,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     output.end_statement();
                 }
             }
-            var _$rapyd$_Iter65 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index65 = 0; _$rapyd$_Index65 < _$rapyd$_Iter65.length; _$rapyd$_Index65++) {
-                module_ = _$rapyd$_Iter65[_$rapyd$_Index65];
+            var _$rapyd$_Iter64 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index64 = 0; _$rapyd$_Index64 < _$rapyd$_Iter64.length; _$rapyd$_Index64++) {
+                module_ = _$rapyd$_Iter64[_$rapyd$_Index64];
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -11709,9 +11759,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var seen, symbol;
             seen = {};
             output.newline();
-            var _$rapyd$_Iter66 = _$rapyd$_Iterable(exports);
-            for (var _$rapyd$_Index66 = 0; _$rapyd$_Index66 < _$rapyd$_Iter66.length; _$rapyd$_Index66++) {
-                symbol = _$rapyd$_Iter66[_$rapyd$_Index66];
+            var _$rapyd$_Iter65 = _$rapyd$_Iterable(exports);
+            for (var _$rapyd$_Index65 = 0; _$rapyd$_Index65 < _$rapyd$_Iter65.length; _$rapyd$_Index65++) {
+                symbol = _$rapyd$_Iter65[_$rapyd$_Index65];
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -11731,9 +11781,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function declare_submodules(module_id, submodules, output) {
             var seen, key, sub_module_id;
             seen = {};
-            var _$rapyd$_Iter67 = _$rapyd$_Iterable(submodules);
-            for (var _$rapyd$_Index67 = 0; _$rapyd$_Index67 < _$rapyd$_Iter67.length; _$rapyd$_Index67++) {
-                sub_module_id = _$rapyd$_Iter67[_$rapyd$_Index67];
+            var _$rapyd$_Iter66 = _$rapyd$_Iterable(submodules);
+            for (var _$rapyd$_Index66 = 0; _$rapyd$_Index66 < _$rapyd$_Iter66.length; _$rapyd$_Index66++) {
+                sub_module_id = _$rapyd$_Iter66[_$rapyd$_Index66];
                 if (!Object.prototype.hasOwnProperty.call(seen, sub_module_id)) {
                     seen[sub_module_id] = true;
                     key = (_$rapyd$_expr_temp = sub_module_id.split("."), _$rapyd$_expr_temp[_$rapyd$_expr_temp.length-1]);
@@ -12014,13 +12064,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.semicolon();
                 output.newline();
                 output.indent();
-            };
+            }
 
-            add_aname.__argnames__ = ["aname", "key", "from_import"];
-
-            var _$rapyd$_Iter75 = _$rapyd$_Iterable(container.imports);
-            for (var _$rapyd$_Index75 = 0; _$rapyd$_Index75 < _$rapyd$_Iter75.length; _$rapyd$_Index75++) {
-                self = _$rapyd$_Iter75[_$rapyd$_Index75];
+            var _$rapyd$_Iter74 = _$rapyd$_Iterable(container.imports);
+            for (var _$rapyd$_Index74 = 0; _$rapyd$_Index74 < _$rapyd$_Iter74.length; _$rapyd$_Index74++) {
+                self = _$rapyd$_Iter74[_$rapyd$_Index74];
                 output.import_(self.module);
                 if (self.argnames) {
                     var _$rapyd$_Iter76 = _$rapyd$_Iterable(self.argnames);
