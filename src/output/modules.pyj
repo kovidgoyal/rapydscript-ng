@@ -95,24 +95,14 @@ def prologue(module, output):
     output.end_statement()
     output.indent(), output.spaced('var', '_$rapyd$_cond_temp,', '_$rapyd$_expr_temp'), output.end_statement()
     output.indent(), output.spaced('var', '_$rapyd$_object_counter', '=', '0'), output.end_statement()
-    baselib_items = {k:True for k in module.baselib}
-    baselib_items['errors'] = True
-    baselib_items['containers'] = True
-    baselib_items['builtins'] = True
-    baselib_items['str'] = True
-    deps = output.options.baselib['#dependencies#']
-    # resolve dependencies
-    for lib in baselib_items:
-        if Object.prototype.hasOwnProperty.call(deps, lib):
-            Object.keys(deps[lib]).forEach(def(k): baselib_items[k] = True;)
-    # output used items
-    for lib in baselib_items:
-        if output.options.js_version >= 6 and (lib is 'iterable' or lib is 'yield'):
-            continue
-        if lib is 'yield':
-            output.dump_yield()
-        else:
-            output.dump_baselib(lib)
+    needs_yield = output.options.js_version < 6 and module.baselib['yield']
+    if needs_yield:
+        output.dump_yield()
+    # output the baselib
+    if not output.options.baselib_plain:
+        raise ValueError('The baselib is missing! Remember to set the baselib_plain field on the options for OutputStream')
+    output.print(output.options.baselib_plain)
+    output.end_statement()
 
 def print_top_level(self, output):
     is_main = output.is_main()

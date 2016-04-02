@@ -4,349 +4,493 @@
     var _$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256";
     var _$rapyd$_cond_temp, _$rapyd$_expr_temp;
     var _$rapyd$_object_counter = 0;
-    function _$rapyd$_interpolate_kwargs(f, supplied_args) {
-            var has_prop, kwobj, args, prop;
-            if (!f.__argnames__) {
-                return f.apply(this, supplied_args);
-            }
-            has_prop = Object.prototype.hasOwnProperty;
-            kwobj = supplied_args.pop();
-            if (f.__handles_kwarg_interpolation__) {
-                args = new Array(Math.max(supplied_args.length, f.__argnames__.length) + 1);
-                args[args.length-1] = kwobj;
-                for (var i = 0; i < args.length - 1; i++) {
-                    if (i < f.__argnames__.length) {
-                        prop = f.__argnames__[i];
-                        if (has_prop.call(kwobj, prop)) {
-                            args[i] = kwobj[prop];
-                            delete kwobj[prop];
-                        } else if (i < supplied_args.length) {
-                            args[i] = supplied_args[i];
-                        }
-                    } else {
-                        args[i] = supplied_args[i];
-                    }
-                }
-                return f.apply(this, args);
-            }
-            for (var i = 0; i < f.__argnames__.length; i++) {
-                prop = f.__argnames__[i];
-                if (has_prop.call(kwobj, prop)) {
-                    supplied_args[i] = kwobj[prop];
-                }
-            }
-            return f.apply(this, supplied_args);
+var _$rapyd$_len;
+function _$rapyd$_bool(val) {
+    return !!val;
+};
+
+_$rapyd$_bool.__argnames__ = ["val"];
+
+function _$rapyd$_bind(fn, thisArg) {
+    var ret;
+    if (fn.orig) {
+        fn = fn.orig;
+    }
+    if (thisArg === false) {
+        return fn;
+    }
+    ret = (function() {
+        var _$rapyd$_anonfunc = function () {
+            return fn.apply(thisArg, arguments);
         };
-    function range(start, stop, step) {
-            var length;
-            if (arguments.length <= 1) {
-                stop = start || 0;
-                start = 0;
+        return _$rapyd$_anonfunc;
+    })();
+    ret.orig = fn;
+    return ret;
+};
+
+_$rapyd$_bind.__argnames__ = ["fn", "thisArg"];
+
+function _$rapyd$_rebind_all(thisArg, rebind) {
+    if (typeof rebind === "undefined") {
+        rebind = true;
+    }
+    for (var p in thisArg) {
+        if (thisArg[p] && thisArg[p].orig) {
+            if (rebind) {
+                thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
+            } else {
+                thisArg[p] = thisArg[p].orig;
             }
-            step = arguments[2] || 1;
-            length = Math.max(Math.ceil((stop - start) / step), 0);
-            return (function(){
-                var _$rapyd$_d = {};
-                _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                    var _$rapyd$_anonfunc = function () {
-                        return this;
-                    };
-                    return _$rapyd$_anonfunc;
-                })();
-                _$rapyd$_d["_i"] = start - step;
-                _$rapyd$_d["_idx"] = -1;
-                _$rapyd$_d["next"] = (function() {
-                    var _$rapyd$_anonfunc = function () {
-                        this._i += step;
-                        this._idx += 1;
-                        if (this._idx >= length) {
-                            return {
-                                "done": true
-                            };
-                        }
+        }
+    }
+};
+
+_$rapyd$_rebind_all.__argnames__ = ["thisArg", "rebind"];
+
+function _$rapyd$_eslice(arr, step, start, end) {
+    var isString;
+    arr = arr.slice(0);
+    if (typeof arr === "string" || arr instanceof String) {
+        isString = true;
+        arr = arr.split("");
+    }
+    if (step < 0) {
+        step = -step;
+        arr.reverse();
+        if (typeof start !== "undefined") {
+            start = arr.length - start - 1;
+        }
+        if (typeof end !== "undefined") {
+            end = arr.length - end - 1;
+        }
+    }
+    if (typeof start === "undefined") {
+        start = 0;
+    }
+    if (typeof end === "undefined") {
+        end = arr.length;
+    }
+    arr = arr.slice(start, end).filter((function() {
+        var _$rapyd$_anonfunc = function (e, i) {
+            return i % step === 0;
+        };
+
+        _$rapyd$_anonfunc.__argnames__ = ["e", "i"];
+        return _$rapyd$_anonfunc;
+    })());
+    return (isString) ? arr.join("") : arr;
+};
+
+_$rapyd$_eslice.__argnames__ = ["arr", "step", "start", "end"];
+
+function _$rapyd$_mixin(target, source, overwrite) {
+    for (var i in source) {
+        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
+            target[i] = source[i];
+        }
+    }
+};
+
+_$rapyd$_mixin.__argnames__ = ["target", "source", "overwrite"];
+
+function _$rapyd$_print() {
+    var parts;
+    if (typeof console === "object") {
+        parts = [];
+        for (var i = 0; i < arguments.length; i++) {
+            parts.push(_$rapyd$_str(arguments[i]));
+        }
+        console.log(parts.join(" "));
+    }
+};
+
+function _$rapyd$_int(val, base) {
+    var ans;
+    ans = parseInt(val, base || 10);
+    if (isNaN(ans)) {
+        throw new ValueError("Invalid literal for int with base " + (base || 10) + ": " + val);
+    }
+    return ans;
+};
+
+_$rapyd$_int.__argnames__ = ["val", "base"];
+
+function _$rapyd$_float() {
+    var ans;
+    ans = parseFloat.apply(null, arguments);
+    if (isNaN(ans)) {
+        throw new ValueError("Could not convert string to float: " + arguments[0]);
+    }
+    return ans;
+};
+
+function _$rapyd$_arraylike_creator() {
+    var names;
+    names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
+    if (typeof HTMLCollection === "function") {
+        names = names.concat("HTMLCollection NodeList NamedNodeMap".split(" "));
+    }
+    return (function() {
+        var _$rapyd$_anonfunc = function (x) {
+            if (Array.isArray(x) || typeof x === "string" || names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1) {
+                return true;
+            }
+            return false;
+        };
+
+        _$rapyd$_anonfunc.__argnames__ = ["x"];
+        return _$rapyd$_anonfunc;
+    })();
+};
+
+function options_object(f) {
+    return (function() {
+        var _$rapyd$_anonfunc = function () {
+            if (typeof arguments[arguments.length - 1] === "object") {
+                arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = true;
+            }
+            return f.apply(this, arguments);
+        };
+        return _$rapyd$_anonfunc;
+    })();
+};
+
+options_object.__argnames__ = ["f"];
+
+function _$rapyd$_id(x) {
+    return x._$rapyd$_object_id;
+};
+
+_$rapyd$_id.__argnames__ = ["x"];
+
+function _$rapyd$_dir(item) {
+    var arr;
+    arr = _$rapyd$_list_decorate([]);
+    for (var i in item) {
+        arr.push(i);
+    }
+    return arr;
+};
+
+_$rapyd$_dir.__argnames__ = ["item"];
+
+function _$rapyd$_ord(x) {
+    var ans, second;
+    ans = x.charCodeAt(0);
+    if (55296 <= ans && ans <= 56319) {
+        second = x.charCodeAt(1);
+        if (56320 <= second && second <= 57343) {
+            return (ans - 55296) * 1024 + second - 56320 + 65536;
+        }
+        throw new TypeError("string is missing the low surrogate char");
+    }
+    return ans;
+};
+
+_$rapyd$_ord.__argnames__ = ["x"];
+
+function _$rapyd$_chr(code) {
+    if (code <= 65535) {
+        return String.fromCharCode(code);
+    }
+    code -= 65536;
+    return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
+};
+
+_$rapyd$_chr.__argnames__ = ["code"];
+
+function _$rapyd$_callable(x) {
+    return typeof x === "function";
+};
+
+_$rapyd$_callable.__argnames__ = ["x"];
+
+function _$rapyd$_bin(x) {
+    var ans;
+    if (typeof x !== "number" || x % 1 !== 0) {
+        throw new TypeError("integer required");
+    }
+    ans = x.toString(2);
+    if (ans[0] === "-") {
+        ans = "-" + "0b" + ans.slice(1);
+    } else {
+        ans = "0b" + ans;
+    }
+    return ans;
+};
+
+_$rapyd$_bin.__argnames__ = ["x"];
+
+function _$rapyd$_hex(x) {
+    var ans;
+    if (typeof x !== "number" || x % 1 !== 0) {
+        throw new TypeError("integer required");
+    }
+    ans = x.toString(16);
+    if (ans[0] === "-") {
+        ans = "-" + "0x" + ans.slice(1);
+    } else {
+        ans = "0x" + ans;
+    }
+    return ans;
+};
+
+_$rapyd$_hex.__argnames__ = ["x"];
+
+function _$rapyd$_enumerate(iterable) {
+    var ans, iterator;
+    if (_$rapyd$_arraylike(iterable)) {
+        ans = {
+            "_i": -1,
+            "next": (function() {
+                var _$rapyd$_anonfunc = function () {
+                    this._i += 1;
+                    if (this._i < iterable.length) {
                         return {
                             "done": false,
-                            "value": this._i
+                            "value": _$rapyd$_list_decorate([ this._i, iterable[this._i] ])
                         };
-                    };
-                    return _$rapyd$_anonfunc;
-                })();
-                return _$rapyd$_d;
-            })();
-        };
-    var len = (function _$rapyd$_len() {
-            if (typeof Set === "function" && typeof Map === "function") {
-                return (function() {
-                    var _$rapyd$_anonfunc = function (obj) {
-                        if (_$rapyd$_arraylike(obj)) {
-                            return obj.length;
-                        }
-                        if (obj instanceof Set || obj instanceof Map) {
-                            return obj.size;
-                        }
-                        if (typeof obj.__len__ === "function") {
-                            return obj.__len__();
-                        }
-                        return Object.keys(obj).length;
-                    };
-
-                    _$rapyd$_anonfunc.__argnames__ = ["obj"];
-                    return _$rapyd$_anonfunc;
-                })();
-            }
-            return (function() {
-                var _$rapyd$_anonfunc = function (obj) {
-                    if (_$rapyd$_arraylike(obj)) {
-                        return obj.length;
                     }
-                    if (typeof obj.__len__ === "function") {
-                        return obj.__len__();
-                    }
-                    return Object.keys(obj).length;
+                    return {
+                        "done": true
+                    };
                 };
-
-                _$rapyd$_anonfunc.__argnames__ = ["obj"];
                 return _$rapyd$_anonfunc;
-            })();
+            })()
+        };
+        ans[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
         })();
-    function _$rapyd$_Iterable(iterable) {
-            var iterator, ans, result;
-            if (_$rapyd$_arraylike(iterable)) {
-                return iterable;
-            }
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-                ans = _$rapyd$_list_decorate([]);
-                result = iterator.next();
-                while (!result.done) {
-                    ans.push(result.value);
-                    result = iterator.next();
+        return ans;
+    }
+    if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        ans = {
+            "_iterator": iterator,
+            "_i": -1,
+            "next": (function() {
+                var _$rapyd$_anonfunc = function () {
+                    var r;
+                    r = this._iterator.next();
+                    if (r.done) {
+                        return {
+                            "done": true
+                        };
+                    }
+                    this._i += 1;
+                    return {
+                        "done": false,
+                        "value": _$rapyd$_list_decorate([ this._i, r.value ])
+                    };
+                };
+                return _$rapyd$_anonfunc;
+            })()
+        };
+        ans[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return ans;
+    }
+    return _$rapyd$_enumerate(Object.keys(iterable));
+};
+
+_$rapyd$_enumerate.__argnames__ = ["iterable"];
+
+function _$rapyd$_reversed(iterable) {
+    var ans;
+    if (_$rapyd$_arraylike(iterable)) {
+        ans = {
+            "_i": iterable.length,
+            "next": (function() {
+                var _$rapyd$_anonfunc = function () {
+                    this._i -= 1;
+                    if (this._i > -1) {
+                        return {
+                            "done": false,
+                            "value": iterable[this._i]
+                        };
+                    }
+                    return {
+                        "done": true
+                    };
+                };
+                return _$rapyd$_anonfunc;
+            })()
+        };
+        ans[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return ans;
+    }
+    throw new TypeError("reversed() can only be called on arrays or strings");
+};
+
+_$rapyd$_reversed.__argnames__ = ["iterable"];
+
+function _$rapyd$_iter(iterable) {
+    var ans;
+    if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+        return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+    }
+    if (_$rapyd$_arraylike(iterable)) {
+        ans = {
+            "_i": -1,
+            "next": (function() {
+                var _$rapyd$_anonfunc = function () {
+                    this._i += 1;
+                    if (this._i < iterable.length) {
+                        return {
+                            "done": false,
+                            "value": iterable[this._i]
+                        };
+                    }
+                    return {
+                        "done": true
+                    };
+                };
+                return _$rapyd$_anonfunc;
+            })()
+        };
+        ans[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return ans;
+    }
+    return _$rapyd$_iter(Object.keys(iterable));
+};
+
+_$rapyd$_iter.__argnames__ = ["iterable"];
+
+function _$rapyd$_range(start, stop, step) {
+    var length;
+    if (arguments.length <= 1) {
+        stop = start || 0;
+        start = 0;
+    }
+    step = arguments[2] || 1;
+    length = Math.max(Math.ceil((stop - start) / step), 0);
+    return (function(){
+        var _$rapyd$_d = {};
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        _$rapyd$_d["_i"] = start - step;
+        _$rapyd$_d["_idx"] = -1;
+        _$rapyd$_d["next"] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                this._i += step;
+                this._idx += 1;
+                if (this._idx >= length) {
+                    return {
+                        "done": true
+                    };
                 }
-                return ans;
-            }
-            return Object.keys(iterable);
-        };
-    function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
-            if (apply) {
-                f.apply(this, supplied_args);
-            } else {
-                _$rapyd$_interpolate_kwargs.call(this, f, supplied_args);
-            }
-            return this;
-        };
-    function _$rapyd$_extends(child, parent) {
-            child.prototype = Object.create(parent.prototype);
-            child.prototype.constructor = child;
-        };
-    var _$rapyd$_in = (function _$rapyd$_in() {
-            if (typeof Map === "function" && typeof Set === "function") {
-                return (function() {
-                    var _$rapyd$_anonfunc = function (val, arr) {
-                        if (typeof arr === "string") {
-                            return arr.indexOf(val) !== -1;
-                        }
-                        if (typeof arr.__contains__ === "function") {
-                            return arr.__contains__(val);
-                        }
-                        if ((arr instanceof Map || arr instanceof Set)) {
-                            return arr.has(val);
-                        }
-                        if (_$rapyd$_arraylike(arr)) {
-                            return _$rapyd$_list_contains.call(arr, val);
-                        }
-                        return Object.prototype.hasOwnProperty.call(arr, val);
-                    };
-
-                    _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
-                    return _$rapyd$_anonfunc;
-                })();
-            }
-            return (function() {
-                var _$rapyd$_anonfunc = function (val, arr) {
-                    if (typeof arr === "string") {
-                        return arr.indexOf(val) !== -1;
-                    }
-                    if (typeof arr.__contains__ === "function") {
-                        return arr.__contains__(val);
-                    }
-                    if (_$rapyd$_arraylike(arr)) {
-                        return _$rapyd$_list_contains.call(arr, val);
-                    }
-                    return Object.prototype.hasOwnProperty.call(arr, val);
+                return {
+                    "done": false,
+                    "value": this._i
                 };
-
-                _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
-                return _$rapyd$_anonfunc;
-            })();
+            };
+            return _$rapyd$_anonfunc;
         })();
-    function enumerate(iterable) {
-            var ans, iterator;
-            if (_$rapyd$_arraylike(iterable)) {
-                ans = {
-                    "_i": -1,
-                    "next": (function() {
-                        var _$rapyd$_anonfunc = function () {
-                            this._i += 1;
-                            if (this._i < iterable.length) {
-                                return {
-                                    "done": false,
-                                    "value": _$rapyd$_list_decorate([ this._i, iterable[this._i] ])
-                                };
-                            }
-                            return {
-                                "done": true
-                            };
-                        };
-                        return _$rapyd$_anonfunc;
-                    })()
-                };
-                ans[_$rapyd$_iterator_symbol] = (function() {
-                    var _$rapyd$_anonfunc = function () {
-                        return this;
-                    };
-                    return _$rapyd$_anonfunc;
-                })();
-                return ans;
+        return _$rapyd$_d;
+    })();
+};
+
+_$rapyd$_range.__argnames__ = ["start", "stop", "step"];
+
+function _$rapyd$_getattr(obj, name, defval) {
+    var ret;
+    try {
+        ret = obj[name];
+    } catch (_$rapyd$_Exception) {
+        if (_$rapyd$_Exception instanceof TypeError) {
+            if (defval === undefined) {
+                throw new AttributeError("The attribute " + name + " is not present");
             }
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-                ans = {
-                    "_iterator": iterator,
-                    "_i": -1,
-                    "next": (function() {
-                        var _$rapyd$_anonfunc = function () {
-                            var r;
-                            r = this._iterator.next();
-                            if (r.done) {
-                                return {
-                                    "done": true
-                                };
-                            }
-                            this._i += 1;
-                            return {
-                                "done": false,
-                                "value": _$rapyd$_list_decorate([ this._i, r.value ])
-                            };
-                        };
-                        return _$rapyd$_anonfunc;
-                    })()
-                };
-                ans[_$rapyd$_iterator_symbol] = (function() {
-                    var _$rapyd$_anonfunc = function () {
-                        return this;
-                    };
-                    return _$rapyd$_anonfunc;
-                })();
-                return ans;
+            return defval;
+        } else {
+            throw _$rapyd$_Exception;
+        }
+    }
+    if (ret === undefined && !(name in obj)) {
+        if (defval === undefined) {
+            throw new AttributeError("The attribute " + name + " is not present");
+        }
+        ret = defval;
+    }
+    return ret;
+};
+
+_$rapyd$_getattr.__argnames__ = ["obj", "name", "defval"];
+
+function _$rapyd$_setattr(obj, name, value) {
+    obj[name] = value;
+};
+
+_$rapyd$_setattr.__argnames__ = ["obj", "name", "value"];
+
+function _$rapyd$_hasattr(obj, name) {
+    return name in obj;
+};
+
+_$rapyd$_hasattr.__argnames__ = ["obj", "name"];
+
+_$rapyd$_len = (function() {
+    var _$rapyd$_anonfunc = function () {
+        function len(obj) {
+            if (_$rapyd$_arraylike(obj)) {
+                return obj.length;
             }
-            return enumerate(Object.keys(iterable));
+            if (typeof obj.__len__ === "function") {
+                return obj.__len__();
+            }
+            if (obj instanceof Set || obj instanceof Map) {
+                return obj.size;
+            }
+            return Object.keys(obj).length;
         };
-    var Exception = Error;
-function AttributeError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    AttributeError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(AttributeError, Error);
-AttributeError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
-};
 
-AttributeError.prototype.__init__.__argnames__ = ["msg"];
-AttributeError.__argnames__ = AttributeError.prototype.__init__.__argnames__;
-AttributeError.__handles_kwarg_interpolation__ = AttributeError.prototype.__init__.__handles_kwarg_interpolation__;
-AttributeError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "AttributeError" + " #" + this._$rapyd$_object_id + ">";
-};
-AttributeError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-AttributeError.prototype.name = "AttributeError";
+        len.__argnames__ = ["obj"];
 
-function IndexError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    IndexError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(IndexError, Error);
-IndexError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
-};
+        function len5(obj) {
+            if (_$rapyd$_arraylike(obj)) {
+                return obj.length;
+            }
+            if (typeof obj.__len__ === "function") {
+                return obj.__len__();
+            }
+            return Object.keys(obj).length;
+        };
 
-IndexError.prototype.__init__.__argnames__ = ["msg"];
-IndexError.__argnames__ = IndexError.prototype.__init__.__argnames__;
-IndexError.__handles_kwarg_interpolation__ = IndexError.prototype.__init__.__handles_kwarg_interpolation__;
-IndexError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "IndexError" + " #" + this._$rapyd$_object_id + ">";
-};
-IndexError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-IndexError.prototype.name = "IndexError";
+        len5.__argnames__ = ["obj"];
 
-function KeyError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    KeyError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(KeyError, Error);
-KeyError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
-};
-
-KeyError.prototype.__init__.__argnames__ = ["msg"];
-KeyError.__argnames__ = KeyError.prototype.__init__.__argnames__;
-KeyError.__handles_kwarg_interpolation__ = KeyError.prototype.__init__.__handles_kwarg_interpolation__;
-KeyError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "KeyError" + " #" + this._$rapyd$_object_id + ">";
-};
-KeyError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-KeyError.prototype.name = "KeyError";
-
-function ValueError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    ValueError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(ValueError, Error);
-ValueError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
-};
-
-ValueError.prototype.__init__.__argnames__ = ["msg"];
-ValueError.__argnames__ = ValueError.prototype.__init__.__argnames__;
-ValueError.__handles_kwarg_interpolation__ = ValueError.prototype.__init__.__handles_kwarg_interpolation__;
-ValueError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "ValueError" + " #" + this._$rapyd$_object_id + ">";
-};
-ValueError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-ValueError.prototype.name = "ValueError";
-
-function UnicodeDecodeError() {
-    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
-    UnicodeDecodeError.prototype.__init__.apply(this, arguments);
-}
-_$rapyd$_extends(UnicodeDecodeError, ValueError);
-UnicodeDecodeError.prototype.__init__ = function __init__ () {
-    ValueError.prototype.__init__ && ValueError.prototype.__init__.apply(this, arguments);
-};
-UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "UnicodeDecodeError" + " #" + this._$rapyd$_object_id + ">";
-};
-UnicodeDecodeError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
-};
-UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
-;
-    var _$rapyd$_chain_assign_temp;
+        return (typeof Set === "function" && typeof Map === "function") ? len : len5;
+    };
+    return _$rapyd$_anonfunc;
+})()();
+var abs = Math.abs, max = Math.max, min = Math.min;
+var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
+var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
+var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
+var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable;
+var enumerate = _$rapyd$_enumerate, iter = _$rapyd$_iter, reversed = _$rapyd$_reversed, len = _$rapyd$_len;
+var range = _$rapyd$_range, getattr = _$rapyd$_getattr, setattr = _$rapyd$_setattr, hasattr = _$rapyd$_hasattr;var _$rapyd$_chain_assign_temp;
 function _$rapyd$_equals(a, b) {
     var _$rapyd$_unpack, akeys, bkeys, key;
     if (a === b) {
@@ -1711,170 +1855,416 @@ function _$rapyd$_dict_wrap(x) {
 
 _$rapyd$_dict_wrap.__argnames__ = ["x"];
 
-var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;;
-    function _$rapyd$_bool(val) {
-    return !!val;
+var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;var Exception = Error;
+function AttributeError() {
+    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+    AttributeError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(AttributeError, Error);
+AttributeError.prototype.__init__ = function __init__(msg) {
+    var self = this;
+    self.message = msg;
+    self.stack = (new Error).stack;
 };
 
-_$rapyd$_bool.__argnames__ = ["val"];
+AttributeError.prototype.__init__.__argnames__ = ["msg"];
+AttributeError.__argnames__ = AttributeError.prototype.__init__.__argnames__;
+AttributeError.__handles_kwarg_interpolation__ = AttributeError.prototype.__init__.__handles_kwarg_interpolation__;
+AttributeError.prototype.__repr__ = function __repr__ () {
+    return "<" + __name__ + "." + "AttributeError" + " #" + this._$rapyd$_object_id + ">";
+};
+AttributeError.prototype.__str__ = function __str__ () {
+    return this.__repr__();
+};
+AttributeError.prototype.name = "AttributeError";
 
-function _$rapyd$_bind(fn, thisArg) {
-    var ret;
-    if (fn.orig) {
-        fn = fn.orig;
-    }
-    if (thisArg === false) {
-        return fn;
-    }
-    ret = (function() {
-        var _$rapyd$_anonfunc = function () {
-            return fn.apply(thisArg, arguments);
-        };
-        return _$rapyd$_anonfunc;
-    })();
-    ret.orig = fn;
-    return ret;
+function IndexError() {
+    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+    IndexError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(IndexError, Error);
+IndexError.prototype.__init__ = function __init__(msg) {
+    var self = this;
+    self.message = msg;
+    self.stack = (new Error).stack;
 };
 
-_$rapyd$_bind.__argnames__ = ["fn", "thisArg"];
+IndexError.prototype.__init__.__argnames__ = ["msg"];
+IndexError.__argnames__ = IndexError.prototype.__init__.__argnames__;
+IndexError.__handles_kwarg_interpolation__ = IndexError.prototype.__init__.__handles_kwarg_interpolation__;
+IndexError.prototype.__repr__ = function __repr__ () {
+    return "<" + __name__ + "." + "IndexError" + " #" + this._$rapyd$_object_id + ">";
+};
+IndexError.prototype.__str__ = function __str__ () {
+    return this.__repr__();
+};
+IndexError.prototype.name = "IndexError";
 
-function _$rapyd$_rebind_all(thisArg, rebind) {
-    if (typeof rebind === "undefined") {
-        rebind = true;
+function KeyError() {
+    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+    KeyError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(KeyError, Error);
+KeyError.prototype.__init__ = function __init__(msg) {
+    var self = this;
+    self.message = msg;
+    self.stack = (new Error).stack;
+};
+
+KeyError.prototype.__init__.__argnames__ = ["msg"];
+KeyError.__argnames__ = KeyError.prototype.__init__.__argnames__;
+KeyError.__handles_kwarg_interpolation__ = KeyError.prototype.__init__.__handles_kwarg_interpolation__;
+KeyError.prototype.__repr__ = function __repr__ () {
+    return "<" + __name__ + "." + "KeyError" + " #" + this._$rapyd$_object_id + ">";
+};
+KeyError.prototype.__str__ = function __str__ () {
+    return this.__repr__();
+};
+KeyError.prototype.name = "KeyError";
+
+function ValueError() {
+    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+    ValueError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(ValueError, Error);
+ValueError.prototype.__init__ = function __init__(msg) {
+    var self = this;
+    self.message = msg;
+    self.stack = (new Error).stack;
+};
+
+ValueError.prototype.__init__.__argnames__ = ["msg"];
+ValueError.__argnames__ = ValueError.prototype.__init__.__argnames__;
+ValueError.__handles_kwarg_interpolation__ = ValueError.prototype.__init__.__handles_kwarg_interpolation__;
+ValueError.prototype.__repr__ = function __repr__ () {
+    return "<" + __name__ + "." + "ValueError" + " #" + this._$rapyd$_object_id + ">";
+};
+ValueError.prototype.__str__ = function __str__ () {
+    return this.__repr__();
+};
+ValueError.prototype.name = "ValueError";
+
+function UnicodeDecodeError() {
+    if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+    UnicodeDecodeError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(UnicodeDecodeError, ValueError);
+UnicodeDecodeError.prototype.__init__ = function __init__ () {
+    ValueError.prototype.__init__ && ValueError.prototype.__init__.apply(this, arguments);
+};
+UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
+    return "<" + __name__ + "." + "UnicodeDecodeError" + " #" + this._$rapyd$_object_id + ">";
+};
+UnicodeDecodeError.prototype.__str__ = function __str__ () {
+    return this.__repr__();
+};
+UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
+var _$rapyd$_in, _$rapyd$_desugar_kwargs;
+function _$rapyd$_flatten(arr) {
+    var ans, value;
+    ans = _$rapyd$_list_decorate([]);
+    for (var i=0; i<arr.length; i++) {
+        value = arr[i];
+        if (Array.isArray(value)) {
+            ans = ans.concat(_$rapyd$_flatten(value));
+        } else {
+            ans.push(value);
+        }
     }
-    for (var p in thisArg) {
-        if (thisArg[p] && thisArg[p].orig) {
-            if (rebind) {
-                thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
+    return ans;
+};
+
+_$rapyd$_flatten.__argnames__ = ["arr"];
+
+function _$rapyd$_extends(child, parent) {
+    child.prototype = Object.create(parent.prototype);
+    child.prototype.constructor = child;
+};
+
+_$rapyd$_extends.__argnames__ = ["child", "parent"];
+
+_$rapyd$_in = (function() {
+    var _$rapyd$_anonfunc = function () {
+        if (typeof Map === "function" && typeof Set === "function") {
+            return (function() {
+                var _$rapyd$_anonfunc = function (val, arr) {
+                    if (typeof arr === "string") {
+                        return arr.indexOf(val) !== -1;
+                    }
+                    if (typeof arr.__contains__ === "function") {
+                        return arr.__contains__(val);
+                    }
+                    if ((arr instanceof Map || arr instanceof Set)) {
+                        return arr.has(val);
+                    }
+                    if (_$rapyd$_arraylike(arr)) {
+                        return _$rapyd$_list_contains.call(arr, val);
+                    }
+                    return Object.prototype.hasOwnProperty.call(arr, val);
+                };
+
+                _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
+                return _$rapyd$_anonfunc;
+            })();
+        }
+        return (function() {
+            var _$rapyd$_anonfunc = function (val, arr) {
+                if (typeof arr === "string") {
+                    return arr.indexOf(val) !== -1;
+                }
+                if (typeof arr.__contains__ === "function") {
+                    return arr.__contains__(val);
+                }
+                if (_$rapyd$_arraylike(arr)) {
+                    return _$rapyd$_list_contains.call(arr, val);
+                }
+                return Object.prototype.hasOwnProperty.call(arr, val);
+            };
+
+            _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
+            return _$rapyd$_anonfunc;
+        })();
+    };
+    return _$rapyd$_anonfunc;
+})()();
+function _$rapyd$_Iterable(iterable) {
+    var iterator, ans, result;
+    if (_$rapyd$_arraylike(iterable)) {
+        return iterable;
+    }
+    if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        ans = _$rapyd$_list_decorate([]);
+        result = iterator.next();
+        while (!result.done) {
+            ans.push(result.value);
+            result = iterator.next();
+        }
+        return ans;
+    }
+    return Object.keys(iterable);
+};
+
+_$rapyd$_Iterable.__argnames__ = ["iterable"];
+
+_$rapyd$_desugar_kwargs = (function() {
+    var _$rapyd$_anonfunc = function () {
+        if (typeof Object.assign === "function") {
+            return (function() {
+                var _$rapyd$_anonfunc = function () {
+                    var ans;
+                    ans = {};
+                    ans[_$rapyd$_kwargs_symbol] = true;
+                    for (var i = 0; i < arguments.length; i++) {
+                        Object.assign(ans, arguments[i]);
+                    }
+                    return ans;
+                };
+                return _$rapyd$_anonfunc;
+            })();
+        }
+        return (function() {
+            var _$rapyd$_anonfunc = function () {
+                var ans, keys;
+                ans = {};
+                ans[_$rapyd$_kwargs_symbol] = true;
+                for (var i = 0; i < arguments.length; i++) {
+                    keys = Object.keys(arguments[i]);
+                    for (var j = 0; j < keys.length; j++) {
+                        ans[keys[j]] = arguments[i][keys[j]];
+                    }
+                }
+                return ans;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+    };
+    return _$rapyd$_anonfunc;
+})()();
+function _$rapyd$_interpolate_kwargs(f, supplied_args) {
+    var has_prop, kwobj, args, prop;
+    if (!f.__argnames__) {
+        return f.apply(this, supplied_args);
+    }
+    has_prop = Object.prototype.hasOwnProperty;
+    kwobj = supplied_args.pop();
+    if (f.__handles_kwarg_interpolation__) {
+        args = new Array(Math.max(supplied_args.length, f.__argnames__.length) + 1);
+        args[args.length-1] = kwobj;
+        for (var i = 0; i < args.length - 1; i++) {
+            if (i < f.__argnames__.length) {
+                prop = f.__argnames__[i];
+                if (has_prop.call(kwobj, prop)) {
+                    args[i] = kwobj[prop];
+                    delete kwobj[prop];
+                } else if (i < supplied_args.length) {
+                    args[i] = supplied_args[i];
+                }
             } else {
-                thisArg[p] = thisArg[p].orig;
+                args[i] = supplied_args[i];
             }
         }
+        return f.apply(this, args);
     }
-};
-
-_$rapyd$_rebind_all.__argnames__ = ["thisArg", "rebind"];
-
-function _$rapyd$_eslice(arr, step, start, end) {
-    var isString;
-    arr = arr.slice(0);
-    if (typeof arr === "string" || arr instanceof String) {
-        isString = true;
-        arr = arr.split("");
-    }
-    if (step < 0) {
-        step = -step;
-        arr.reverse();
-        if (typeof start !== "undefined") {
-            start = arr.length - start - 1;
-        }
-        if (typeof end !== "undefined") {
-            end = arr.length - end - 1;
+    for (var i = 0; i < f.__argnames__.length; i++) {
+        prop = f.__argnames__[i];
+        if (has_prop.call(kwobj, prop)) {
+            supplied_args[i] = kwobj[prop];
         }
     }
-    if (typeof start === "undefined") {
-        start = 0;
-    }
-    if (typeof end === "undefined") {
-        end = arr.length;
-    }
-    arr = arr.slice(start, end).filter((function() {
-        var _$rapyd$_anonfunc = function (e, i) {
-            return i % step === 0;
-        };
-
-        _$rapyd$_anonfunc.__argnames__ = ["e", "i"];
-        return _$rapyd$_anonfunc;
-    })());
-    return (isString) ? arr.join("") : arr;
+    return f.apply(this, supplied_args);
 };
 
-_$rapyd$_eslice.__argnames__ = ["arr", "step", "start", "end"];
+_$rapyd$_interpolate_kwargs.__argnames__ = ["f", "supplied_args"];
 
-function _$rapyd$_mixin(target, source, overwrite) {
-    for (var i in source) {
-        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
-            target[i] = source[i];
-        }
+function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
+    if (apply) {
+        f.apply(this, supplied_args);
+    } else {
+        _$rapyd$_interpolate_kwargs.call(this, f, supplied_args);
     }
+    return this;
 };
 
-_$rapyd$_mixin.__argnames__ = ["target", "source", "overwrite"];
+_$rapyd$_interpolate_kwargs_constructor.__argnames__ = ["apply", "f", "supplied_args"];
+function sum(iterable, start) {
+    var ans, iterator, r;
+    if (Array.isArray(iterable)) {
+        return iterable.reduce((function() {
+            var _$rapyd$_anonfunc = function (prev, cur) {
+                return prev + cur;
+            };
 
-function _$rapyd$_print() {
-    var parts;
-    if (typeof console === "object") {
-        parts = [];
-        for (var i = 0; i < arguments.length; i++) {
-            parts.push(_$rapyd$_str(arguments[i]));
-        }
-        console.log(parts.join(" "));
+            _$rapyd$_anonfunc.__argnames__ = ["prev", "cur"];
+            return _$rapyd$_anonfunc;
+        })(), start || 0);
     }
-};
-
-function _$rapyd$_int(val, base) {
-    var ans;
-    ans = parseInt(val, base || 10);
-    if (isNaN(ans)) {
-        throw new ValueError("Invalid literal for int with base " + (base || 10) + ": " + val);
+    ans = start || 0;
+    iterator = iter(iterable);
+    r = iterator.next();
+    while (!r.done) {
+        ans += r.value;
+        r = iterator.next();
     }
     return ans;
 };
 
-_$rapyd$_int.__argnames__ = ["val", "base"];
+sum.__argnames__ = ["iterable", "start"];
 
-function _$rapyd$_float() {
-    var ans;
-    ans = parseFloat.apply(null, arguments);
-    if (isNaN(ans)) {
-        throw new ValueError("Could not convert string to float: " + arguments[0]);
+function map() {
+    var func, iterators, args;
+    func = arguments[0];
+    iterators = new Array(arguments.length - 1);
+    args = new Array(arguments.length - 1);
+    for (var i = 1; i < arguments.length; i++) {
+        iterators[i - 1] = iter(arguments[i]);
     }
-    return ans;
-};
-
-function _$rapyd$_arraylike_creator() {
-    var names;
-    names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
-    if (typeof HTMLCollection === "function") {
-        names = names.concat("HTMLCollection NodeList NamedNodeMap".split(" "));
-    }
-    return (function() {
-        var _$rapyd$_anonfunc = function (x) {
-            if (Array.isArray(x) || typeof x === "string" || names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1) {
-                return true;
-            }
-            return false;
-        };
-
-        _$rapyd$_anonfunc.__argnames__ = ["x"];
-        return _$rapyd$_anonfunc;
+    return (function(){
+        var _$rapyd$_d = {};
+        _$rapyd$_d["_func"] = func;
+        _$rapyd$_d["_iterators"] = iterators;
+        _$rapyd$_d["_args"] = args;
+        _$rapyd$_d["next"] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                var r;
+                for (var i = 0; i < this._iterators.length; i++) {
+                    r = this._iterators[i].next();
+                    if (r.done) {
+                        return {
+                            "done": true
+                        };
+                    }
+                    this._args[i] = r.value;
+                }
+                return {
+                    "done": false,
+                    "value": this._func.apply(undefined, this._args)
+                };
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return _$rapyd$_d;
     })();
 };
 
-function options_object(f) {
-    return (function() {
-        var _$rapyd$_anonfunc = function () {
-            if (typeof arguments[arguments.length - 1] === "object") {
-                arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = true;
-            }
-            return f.apply(this, arguments);
-        };
-        return _$rapyd$_anonfunc;
+function filter(func_or_none, iterable) {
+    return (function(){
+        var _$rapyd$_d = {};
+        _$rapyd$_d["_iterator"] = iter(iterable);
+        _$rapyd$_d["_func"] = (func_or_none === null) ? bool : func_or_none;
+        _$rapyd$_d["next"] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                var r;
+                r = this._iterator.next();
+                while (!r.done) {
+                    if (this._func(r.value)) {
+                        return r;
+                    }
+                    r = this._iterator.next();
+                }
+                return {
+                    "done": true
+                };
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return _$rapyd$_d;
     })();
 };
 
-options_object.__argnames__ = ["f"];
+filter.__argnames__ = ["func_or_none", "iterable"];
 
-function _$rapyd$_id(x) {
-    return x._$rapyd$_object_id;
+function zip() {
+    var iterators;
+    iterators = new Array(arguments.length);
+    for (var i = 0; i < arguments.length; i++) {
+        iterators[i] = iter(arguments[i]);
+    }
+    return (function(){
+        var _$rapyd$_d = {};
+        _$rapyd$_d["_iterators"] = iterators;
+        _$rapyd$_d["next"] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                var args, r;
+                args = new Array(this._iterators.length);
+                for (var i = 0; i < this._iterators.length; i++) {
+                    r = this._iterators[i].next();
+                    if (r.done) {
+                        return {
+                            "done": true
+                        };
+                    }
+                    args[i] = r.value;
+                }
+                return {
+                    "done": false,
+                    "value": args
+                };
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
+            var _$rapyd$_anonfunc = function () {
+                return this;
+            };
+            return _$rapyd$_anonfunc;
+        })();
+        return _$rapyd$_d;
+    })();
 };
-
-_$rapyd$_id.__argnames__ = ["x"];
-
-var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
-var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
-var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;;
-    function _$rapyd$_repr_js_builtin(x, as_array) {
+function _$rapyd$_repr_js_builtin(x, as_array) {
     var ans, b, keys, key;
     ans = [];
     b = "{}";
@@ -2915,68 +3305,6 @@ _$rapyd$_str.punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 _$rapyd$_str.printable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
 _$rapyd$_str.whitespace = " \t\n\r\u000b\f";
 var str = _$rapyd$_str, repr = _$rapyd$_repr;;
-    var min = (function min() {
-            return Math.min;
-        })();
-    var max = (function max() {
-            return Math.max;
-        })();
-    function iter(iterable) {
-            var ans;
-            if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-                return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
-            }
-            if (_$rapyd$_arraylike(iterable)) {
-                ans = {
-                    "_i": -1,
-                    "next": (function() {
-                        var _$rapyd$_anonfunc = function () {
-                            this._i += 1;
-                            if (this._i < iterable.length) {
-                                return {
-                                    "done": false,
-                                    "value": iterable[this._i]
-                                };
-                            }
-                            return {
-                                "done": true
-                            };
-                        };
-                        return _$rapyd$_anonfunc;
-                    })()
-                };
-                ans[_$rapyd$_iterator_symbol] = (function() {
-                    var _$rapyd$_anonfunc = function () {
-                        return this;
-                    };
-                    return _$rapyd$_anonfunc;
-                })();
-                return ans;
-            }
-            return iter(Object.keys(iterable));
-        };
-    function getattr(obj, name, defval) {
-            var ret;
-            try {
-                ret = obj[name];
-            } catch (_$rapyd$_Exception) {
-                if (_$rapyd$_Exception instanceof TypeError) {
-                    if (defval === undefined) {
-                        throw new AttributeError("The attribute " + name + " is not present");
-                    }
-                    return defval;
-                } else {
-                    throw _$rapyd$_Exception;
-                }
-            }
-            if (ret === undefined && !(name in obj)) {
-                if (defval === undefined) {
-                    throw new AttributeError("The attribute " + name + " is not present");
-                }
-                ret = defval;
-            }
-            return ret;
-        };
     var _$rapyd$_modules = {};
     _$rapyd$_modules.utils = {};
     _$rapyd$_modules.errors = {};
@@ -3055,12 +3383,25 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         repeat_string.__argnames__ = ["str_", "i"];
 
-        function DefaultsError(msg, defs) {
-            this.msg = msg;
-            this.defs = defs;
+        function DefaultsError() {
+            if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
+            DefaultsError.prototype.__init__.apply(this, arguments);
+        }
+        _$rapyd$_extends(DefaultsError, ValueError);
+        DefaultsError.prototype.__init__ = function __init__(name, defs) {
+            var self = this;
+            ValueError.prototype.constructor.call(self, name + " is not a supported option. Supported options are: " + str(Object.keys(defs)));
         };
 
-        DefaultsError.__argnames__ = ["msg", "defs"];
+        DefaultsError.prototype.__init__.__argnames__ = ["name", "defs"];
+        DefaultsError.__argnames__ = DefaultsError.prototype.__init__.__argnames__;
+        DefaultsError.__handles_kwarg_interpolation__ = DefaultsError.prototype.__init__.__handles_kwarg_interpolation__;
+        DefaultsError.prototype.__repr__ = function __repr__ () {
+            return "<" + __name__ + "." + "DefaultsError" + " #" + this._$rapyd$_object_id + ">";
+        };
+        DefaultsError.prototype.__str__ = function __str__ () {
+            return this.__repr__();
+        };
 
         function defaults(args, defs, croak) {
             var ret, i;
@@ -3073,7 +3414,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
                     i = _$rapyd$_Iter2[_$rapyd$_Index2];
                     if (!defs.hasOwnProperty(i)) {
-                        throw new DefaultsError("`" + i + "` is not a supported option", defs);
+                        throw new DefaultsError(i, defs);
                     }
                 }
             }
@@ -4118,7 +4459,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 return _$rapyd$_anonfunc;
             })()
         });
-        AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous", {
+        AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous return_annotation", {
             "$documentation": "Base class for functions",
             "$propdoc": {
                 "name": "[AST_SymbolDeclaration?] the name of this function",
@@ -4126,7 +4467,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "decorators": "[AST_Decorator*] function decorators, if any",
                 "is_generator": "[bool*] True iff this function is a generator",
                 "is_expression": "[bool*] True iff this function is a function expression",
-                "is_anonymous": "[bool*] True iff this function is an anonymous function"
+                "is_anonymous": "[bool*] True iff this function is an anonymous function",
+                "return_annotation": "[AST_Node?] The return type annotation provided (if any)"
             },
             "_walk": (function() {
                 var _$rapyd$_anonfunc = function (visitor) {
@@ -5044,8 +5386,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", null, {
             "$documentation": "A nonlocal declaration"
         }, AST_SymbolDeclaration);
-        AST_SymbolFunarg = DEFNODE("SymbolFunarg", null, {
-            "$documentation": "Symbol naming a function argument"
+        AST_SymbolFunarg = DEFNODE("SymbolFunarg", "annotation", {
+            "$documentation": "Symbol naming a function argument, possibly with an annotation.",
+            "$propdoc": {
+                "annotation": "[AST_Node?] The annotation provided for this argument (if any)"
+            }
         }, AST_SymbolVar);
         AST_SymbolDefun = DEFNODE("SymbolDefun", null, {
             "$documentation": "Symbol defining a function"
@@ -5415,7 +5760,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         };
         HEX_PAT = /[a-fA-F0-9]/;
         NAME_PAT = /[a-zA-Z ]/;
-        OPERATORS = make_predicate(_$rapyd$_list_decorate([ "in", "instanceof", "typeof", "new", "void", "del", "++", "--", "+", "-", "not", "~", "&", "|", "^", "**", "*", "//", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "===", "is", "!=", "!==", "?", "=", "+=", "-=", "//=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "and", "or", "@" ]));
+        OPERATORS = make_predicate(_$rapyd$_list_decorate([ "in", "instanceof", "typeof", "new", "void", "del", "++", "--", "+", "-", "not", "~", "&", "|", "^", "**", "*", "//", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "===", "is", "!=", "!==", "?", "=", "+=", "-=", "//=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "and", "or", "@", "->" ]));
         OP_MAP = {
             "or": "||",
             "and": "&&",
@@ -6103,6 +6448,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
                 if (op === "!") {
                     return token("punc", op);
+                } else if (op === "->") {
+                    return token("punc", op);
                 }
                 return token("operator", op);
             };
@@ -6237,7 +6584,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
     (function(){
         var __name__ = "parse";
-        var COMPILER_VERSION, BASELIB_ITEMS, BASELIB_FUNCS, BASELIB_ITERTOOLS, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
+        var COMPILER_VERSION, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
         var make_predicate = _$rapyd$_modules.utils.make_predicate;
         var array_to_hash = _$rapyd$_modules.utils.array_to_hash;
         var defaults = _$rapyd$_modules.utils.defaults;
@@ -6329,48 +6676,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var is_token = _$rapyd$_modules.tokenizer.is_token;
         var UNARY_POSTFIX = _$rapyd$_modules.tokenizer.UNARY_POSTFIX;
         
-        COMPILER_VERSION = "4ad4c7ca8b2bf36ec8e4ce39382508842db611f7";
-        BASELIB_ITEMS = (function(){
-            var s = _$rapyd$_set();
-            s.jsset.add("dir");
-            s.jsset.add("enumerate");
-            s.jsset.add("range");
-            s.jsset.add("reversed");
-            s.jsset.add("getattr");
-            s.jsset.add("setattr");
-            s.jsset.add("hasattr");
-            s.jsset.add("iter");
-            s.jsset.add("len");
-            s.jsset.add("abs");
-            s.jsset.add("max");
-            s.jsset.add("min");
-            s.jsset.add("sum");
-            s.jsset.add("map");
-            s.jsset.add("zip");
-            s.jsset.add("filter");
-            s.jsset.add("ord");
-            s.jsset.add("chr");
-            s.jsset.add("callable");
-            s.jsset.add("bin");
-            s.jsset.add("hex");
-            return s;
-        })();
-        BASELIB_FUNCS = (function(){
-            var s = _$rapyd$_set();
-            s.jsset.add("len");
-            s.jsset.add("abs");
-            s.jsset.add("max");
-            s.jsset.add("min");
-            return s;
-        })();
-        BASELIB_ITERTOOLS = (function(){
-            var s = _$rapyd$_set();
-            s.jsset.add("sum");
-            s.jsset.add("map");
-            s.jsset.add("zip");
-            s.jsset.add("filter");
-            return s;
-        })();
+        COMPILER_VERSION = "512880f24201f6d00f354504a5871394d451cad1";
         NATIVE_CLASSES = {
             "Image": {},
             "RegExp": {},
@@ -6678,10 +6984,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         x = _$rapyd$_Iter31[_$rapyd$_Index31];
                         if (x instanceof AST_Seq) {
                             x = x.to_array();
-                            baselib_items["_$rapyd$_flatten"] = true;
                         } else if (x instanceof AST_Array) {
                             x = x.elements;
-                            baselib_items["_$rapyd$_flatten"] = true;
                         }
                         if (Array.isArray(x)) {
                             scan_in_array(x);
@@ -6919,10 +7223,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         } else if (tmp_ === "import") {
                             return import_(false);
                         } else if (tmp_ === "class") {
-                            baselib_items["extends"] = true;
-                            if (options.auto_bind) {
-                                baselib_items["rebind_all"] = true;
-                            }
                             return class_();
                         } else if (tmp_ === "def") {
                             start = prev();
@@ -7132,7 +7432,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var lhs, obj;
                 lhs = (init instanceof AST_Var) ? init.definitions[0].name : null;
                 obj = expression(true);
-                baselib_items["iterable"] = true;
                 if (list_comp) {
                     return {
                         "init": init,
@@ -7309,6 +7608,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         "toplevel": null,
                         "basedir": options.basedir,
                         "libdir": options.libdir,
+                        "import_dirs": options.import_dirs,
                         "module_id": key,
                         "imported_modules": imported_modules,
                         "importing_modules": importing_modules
@@ -7590,7 +7890,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             };
 
             function function_(in_class, is_expression) {
-                var name, is_anonymous, staticmethod, property_getter, property_setter, _$rapyd$_chain_assign_temp, staticloc, ctor, is_generator, definition, assignments, j, i, nonlocals;
+                var name, is_anonymous, staticmethod, property_getter, property_setter, _$rapyd$_chain_assign_temp, staticloc, ctor, return_annotation, is_generator, definition, assignments, j, i, nonlocals;
                 name = (is_("name")) ? as_symbol((in_class) ? AST_SymbolDefun : AST_SymbolLambda) : null;
                 if (in_class && !name) {
                     croak("Cannot use anonymous function as class methods");
@@ -7612,13 +7912,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         S.classes[S.classes.length - 2][in_class].static.push(name.name);
                         staticmethod = true;
                     } else if (name.name !== "__init__" && options.auto_bind) {
-                        baselib_items["bind"] = true;
                         S.classes[S.classes.length - 2][in_class].bound[name.name] = true;
                     }
                 }
                 expect("(");
                 S.in_parenthesized_expr = true;
                 ctor = (in_class) ? AST_Method : AST_Function;
+                return_annotation = null;
                 is_generator = [];
                 definition = new ctor({
                     "name": name,
@@ -7626,11 +7926,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     "is_anonymous": is_anonymous,
                     "argnames": (function() {
                         var _$rapyd$_anonfunc = function (a) {
-                            var defaults, first, seen_names, val;
+                            var defaults, first, seen_names, def_line, val;
                             defaults = {};
                             first = true;
                             seen_names = {};
+                            def_line = S.input.context().tokline;
                             function get_arg() {
+                                var name_token, name_ctx, ntok, annotation, sym;
                                 if (Object.prototype.hasOwnProperty.call(seen_names, S.token.value)) {
                                     token_error(prev(), "Can't repeat parameter names");
                                 }
@@ -7638,7 +7940,42 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                     token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript");
                                 }
                                 seen_names[S.token.value] = true;
-                                return as_symbol(AST_SymbolFunarg);
+                                name_token = S.token;
+                                name_ctx = S.input.context();
+                                ntok = peek();
+                                if (ntok.type === "punc" && ntok.value === ":") {
+                                    next();
+                                    expect(":");
+                                    annotation = maybe_conditional();
+                                    if (!is_token(name_token, "name")) {
+                                        croak("Name expected", name_ctx.tokline);
+                                        return null;
+                                    }
+                                    sym = new AST_SymbolFunarg({
+                                        "name": name_token.value,
+                                        "start": S.token,
+                                        "end": S.token,
+                                        "annotation": annotation
+                                    });
+                                    return sym;
+                                } else {
+                                    if (!is_("name")) {
+                                        if ((S.input.context().tokline !== def_line && (typeof S.input.context().tokline !== "object" || _$rapyd$_not_equals(S.input.context().tokline, def_line)))) {
+                                            croak("Name expected", def_line);
+                                        } else {
+                                            croak("Name expected");
+                                        }
+                                        return null;
+                                    }
+                                    sym = new AST_SymbolFunarg({
+                                        "name": S.token.value,
+                                        "start": S.token,
+                                        "end": S.token,
+                                        "annotation": null
+                                    });
+                                    next();
+                                    return sym;
+                                }
                             };
 
                             while (!is_("punc", ")")) {
@@ -7686,6 +8023,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 }
                             }
                             next();
+                            if (is_("punc", "->")) {
+                                next();
+                                return_annotation = maybe_conditional();
+                            }
                             S.in_parenthesized_expr = false;
                             a.defaults = defaults;
                             a.is_simple_func = !a.starargs && !a.kwargs && !a.has_defaults;
@@ -7739,6 +8080,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         return _$rapyd$_anonfunc;
                     })()(S.in_loop, S.labels)
                 });
+                definition.return_annotation = return_annotation;
                 definition.is_generator = is_generator[0];
                 if (definition instanceof AST_Method) {
                     definition.static = staticmethod;
@@ -7937,7 +8279,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 } else {
                     args = func_call_list(true);
                 }
-                baselib_items["_$rapyd$_interpolate_kwargs_constructor"] = true;
                 return subscripts(new AST_New({
                     "start": start,
                     "expression": newexp,
@@ -8151,7 +8492,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     return a;
                 }
                 single_comprehension = false;
-                baselib_items["_$rapyd$_interpolate_kwargs"] = true;
                 while (!is_("punc", ")") && !is_("eof")) {
                     if (!first) {
                         expect(",");
@@ -8188,9 +8528,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         }
                     }
                     first = false;
-                }
-                if (a.kwargs.length) {
-                    baselib_items["_$rapyd$_desugar_kwargs()"] = true;
                 }
                 if (!single_comprehension) {
                     next();
@@ -8325,7 +8662,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 S.in_parenthesized_expr = false;
                 expect_token("keyword", "for");
                 forloop = for_(true);
-                baselib_items["iterable"] = true;
                 obj.init = forloop.init;
                 obj.name = forloop.name;
                 obj.object = forloop.object;
@@ -8554,7 +8890,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     S.in_parenthesized_expr = true;
                     next();
                     if (!expr.parens && get_class_in_scope(expr)) {
-                        baselib_items["_$rapyd$_interpolate_kwargs_constructor"] = true;
                         ret = subscripts(new AST_New({
                             "start": start,
                             "expression": expr,
@@ -8584,15 +8919,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             return ret;
                         } else if (expr instanceof AST_SymbolRef) {
                             tmp_ = expr.name;
-                            if (BASELIB_ITEMS.has(tmp_)) {
-                                if (BASELIB_FUNCS.has(tmp_)) {
-                                    baselib_items[tmp_ + "()"] = true;
-                                } else if (BASELIB_ITERTOOLS.has(tmp_)) {
-                                    baselib_items["itertools"] = true;
-                                } else {
-                                    baselib_items[tmp_] = true;
-                                }
-                            } else if (tmp_ === "type") {
+                            if (tmp_ === "type") {
                                 ret = new AST_UnaryPrefix({
                                     "start": start,
                                     "operator": "typeof",
@@ -8690,8 +9017,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 if (op === "in") {
                     if (no_in) {
                         op = null;
-                    } else {
-                        baselib_items["_$rapyd$_in()"] = true;
                     }
                 }
                 prec = (op !== null) ? PRECEDENCE[op] : null;
@@ -9014,9 +9339,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         parse.__argnames__ = ["text", "options"];
 
         _$rapyd$_modules.parse.COMPILER_VERSION = COMPILER_VERSION;
-        _$rapyd$_modules.parse.BASELIB_ITEMS = BASELIB_ITEMS;
-        _$rapyd$_modules.parse.BASELIB_FUNCS = BASELIB_FUNCS;
-        _$rapyd$_modules.parse.BASELIB_ITERTOOLS = BASELIB_ITERTOOLS;
         _$rapyd$_modules.parse.NATIVE_CLASSES = NATIVE_CLASSES;
         _$rapyd$_modules.parse.ERROR_CLASSES = ERROR_CLASSES;
         _$rapyd$_modules.parse.COMMON_STATIC = COMMON_STATIC;
@@ -9119,7 +9441,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "comments": false,
                 "preserve_line": false,
                 "omit_baselib": false,
-                "baselib": null,
+                "baselib_plain": null,
                 "private_scope": true,
                 "auto_bind": false,
                 "js_version": 5,
@@ -9392,24 +9714,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         };
 
         OutputStream.prototype.colon.__argnames__ = [];
-        OutputStream.prototype.dump_baselib = function dump_baselib(key) {
-            var self = this;
-            var is_func, v, ckey;
-            self.indent();
-            is_func = key.substr(key.length - 2) === "()";
-            v = (self.options.js_version > 5) ? "const" : "var";
-            if (is_func) {
-                ckey = key.substr(0, key.length - 2);
-                self.spaced(v, ckey, "=", "(");
-            }
-            self.print(self.options.baselib[key]);
-            if (is_func) {
-                self.print(")()");
-            }
-            self.end_statement();
-        };
-
-        OutputStream.prototype.dump_baselib.__argnames__ = ["key"];
         OutputStream.prototype.dump_yield = function dump_yield() {
             var self = this;
             var code, ci;
@@ -10096,9 +10400,62 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         function_preamble.__argnames__ = ["node", "output", "offset"];
 
+        function has_annotations(self) {
+            var arg;
+            if (self.return_annotation) {
+                return true;
+            }
+            var _$rapyd$_Iter59 = _$rapyd$_Iterable(self.argnames);
+            for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
+                arg = _$rapyd$_Iter59[_$rapyd$_Index59];
+                if (arg.annotation) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        has_annotations.__argnames__ = ["self"];
+
         function function_annotation(self, output, strip_first, name) {
             var fname, defaults, dkeys;
             fname = name || ((self.name) ? self.name.name : anonfunc);
+            if (has_annotations(self)) {
+                output.end_statement();
+                output.indent();
+                output.assign(fname + ".__annotations__");
+                output.with_block((function() {
+                    var _$rapyd$_anonfunc = function () {
+                        output.indent();
+                        if (self.argnames && self.argnames.length) {
+                            self.argnames.forEach((function() {
+                                var _$rapyd$_anonfunc = function (arg, i) {
+                                    if (arg.annotation) {
+                                        arg.print(output);
+                                        [output.print(":"), output.space()];
+                                        arg.annotation.print(output);
+                                        if (i < self.argnames.length - 1 || self.return_annotation) {
+                                            output.comma();
+                                        }
+                                        output.newline();
+                                        output.indent();
+                                    }
+                                };
+
+                                _$rapyd$_anonfunc.__argnames__ = ["arg", "i"];
+                                return _$rapyd$_anonfunc;
+                            })());
+                        }
+                        if (self.return_annotation) {
+                            [output.print("return:"), output.space()];
+                            self.return_annotation.print(output);
+                            output.newline();
+                        }
+                    };
+                    return _$rapyd$_anonfunc;
+                })());
+                output.end_statement();
+            }
             defaults = self.argnames.defaults;
             dkeys = Object.keys(self.argnames.defaults);
             if (dkeys.length) {
@@ -10472,6 +10829,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         _$rapyd$_modules["output.functions"].decorate = decorate;
         _$rapyd$_modules["output.functions"].function_args = function_args;
         _$rapyd$_modules["output.functions"].function_preamble = function_preamble;
+        _$rapyd$_modules["output.functions"].has_annotations = has_annotations;
         _$rapyd$_modules["output.functions"].function_annotation = function_annotation;
         _$rapyd$_modules["output.functions"].function_definition = function_definition;
         _$rapyd$_modules["output.functions"].print_function = print_function;
@@ -10619,9 +10977,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         output.with_block((function() {
                             var _$rapyd$_anonfunc = function () {
                                 var prop, name;
-                                var _$rapyd$_Iter59 = _$rapyd$_Iterable(property_names);
-                                for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
-                                    name = _$rapyd$_Iter59[_$rapyd$_Index59];
+                                var _$rapyd$_Iter60 = _$rapyd$_Iterable(property_names);
+                                for (var _$rapyd$_Index60 = 0; _$rapyd$_Index60 < _$rapyd$_Iter60.length; _$rapyd$_Index60++) {
+                                    name = _$rapyd$_Iter60[_$rapyd$_Index60];
                                     prop = self.dynamic_properties[name];
                                     [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
                                     output.with_block((function() {
@@ -10686,9 +11044,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         defined_methods[stmt.name.name] = true;
                         sname = stmt.name.name;
                         if (sname === "__init__") {
-                            var _$rapyd$_Iter60 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
-                            for (var _$rapyd$_Index60 = 0; _$rapyd$_Index60 < _$rapyd$_Iter60.length; _$rapyd$_Index60++) {
-                                attr = _$rapyd$_Iter60[_$rapyd$_Index60];
+                            var _$rapyd$_Iter61 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
+                            for (var _$rapyd$_Index61 = 0; _$rapyd$_Index61 < _$rapyd$_Iter61.length; _$rapyd$_Index61++) {
+                                attr = _$rapyd$_Iter61[_$rapyd$_Index61];
                                 [output.indent(), self.name.print(output), output.assign(attr)];
                                 [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
                             }
@@ -11526,9 +11884,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = _$rapyd$_list_decorate([]);
-            var _$rapyd$_Iter61 = _$rapyd$_Iterable(Object.keys(module.imports));
-            for (var _$rapyd$_Index61 = 0; _$rapyd$_Index61 < _$rapyd$_Iter61.length; _$rapyd$_Index61++) {
-                import_id = _$rapyd$_Iter61[_$rapyd$_Index61];
+            var _$rapyd$_Iter62 = _$rapyd$_Iterable(Object.keys(module.imports));
+            for (var _$rapyd$_Index62 = 0; _$rapyd$_Index62 < _$rapyd$_Iter62.length; _$rapyd$_Index62++) {
+                import_id = _$rapyd$_Iter62[_$rapyd$_Index62];
                 imports.push(module.imports[import_id]);
             }
             imports.sort((function() {
@@ -11549,12 +11907,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.newline();
             }
             nonlocalvars = {};
-            var _$rapyd$_Iter62 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index62 = 0; _$rapyd$_Index62 < _$rapyd$_Iter62.length; _$rapyd$_Index62++) {
-                module_ = _$rapyd$_Iter62[_$rapyd$_Index62];
-                var _$rapyd$_Iter63 = _$rapyd$_Iterable(module_.nonlocalvars);
-                for (var _$rapyd$_Index63 = 0; _$rapyd$_Index63 < _$rapyd$_Iter63.length; _$rapyd$_Index63++) {
-                    name = _$rapyd$_Iter63[_$rapyd$_Index63];
+            var _$rapyd$_Iter63 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index63 = 0; _$rapyd$_Index63 < _$rapyd$_Iter63.length; _$rapyd$_Index63++) {
+                module_ = _$rapyd$_Iter63[_$rapyd$_Index63];
+                var _$rapyd$_Iter64 = _$rapyd$_Iterable(module_.nonlocalvars);
+                for (var _$rapyd$_Index64 = 0; _$rapyd$_Index64 < _$rapyd$_Iter64.length; _$rapyd$_Index64++) {
+                    name = _$rapyd$_Iter64[_$rapyd$_Index64];
                     nonlocalvars[name] = true;
                 }
             }
@@ -11565,9 +11923,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.semicolon();
                 output.newline();
             }
-            var _$rapyd$_Iter64 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index64 = 0; _$rapyd$_Index64 < _$rapyd$_Iter64.length; _$rapyd$_Index64++) {
-                module_ = _$rapyd$_Iter64[_$rapyd$_Index64];
+            var _$rapyd$_Iter65 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index65 = 0; _$rapyd$_Index65 < _$rapyd$_Iter65.length; _$rapyd$_Index65++) {
+                module_ = _$rapyd$_Iter65[_$rapyd$_Index65];
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -11580,9 +11938,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     output.end_statement();
                 }
             }
-            var _$rapyd$_Iter65 = _$rapyd$_Iterable(imports);
-            for (var _$rapyd$_Index65 = 0; _$rapyd$_Index65 < _$rapyd$_Iter65.length; _$rapyd$_Index65++) {
-                module_ = _$rapyd$_Iter65[_$rapyd$_Index65];
+            var _$rapyd$_Iter66 = _$rapyd$_Iterable(imports);
+            for (var _$rapyd$_Index66 = 0; _$rapyd$_Index66 < _$rapyd$_Iter66.length; _$rapyd$_Index66++) {
+                module_ = _$rapyd$_Iter66[_$rapyd$_Index66];
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -11608,9 +11966,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var seen, symbol;
             seen = {};
             output.newline();
-            var _$rapyd$_Iter66 = _$rapyd$_Iterable(exports);
-            for (var _$rapyd$_Index66 = 0; _$rapyd$_Index66 < _$rapyd$_Iter66.length; _$rapyd$_Index66++) {
-                symbol = _$rapyd$_Iter66[_$rapyd$_Index66];
+            var _$rapyd$_Iter67 = _$rapyd$_Iterable(exports);
+            for (var _$rapyd$_Index67 = 0; _$rapyd$_Index67 < _$rapyd$_Iter67.length; _$rapyd$_Index67++) {
+                symbol = _$rapyd$_Iter67[_$rapyd$_Index67];
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -11630,9 +11988,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function declare_submodules(module_id, submodules, output) {
             var seen, key, sub_module_id;
             seen = {};
-            var _$rapyd$_Iter67 = _$rapyd$_Iterable(submodules);
-            for (var _$rapyd$_Index67 = 0; _$rapyd$_Index67 < _$rapyd$_Iter67.length; _$rapyd$_Index67++) {
-                sub_module_id = _$rapyd$_Iter67[_$rapyd$_Index67];
+            var _$rapyd$_Iter68 = _$rapyd$_Iterable(submodules);
+            for (var _$rapyd$_Index68 = 0; _$rapyd$_Index68 < _$rapyd$_Iter68.length; _$rapyd$_Index68++) {
+                sub_module_id = _$rapyd$_Iter68[_$rapyd$_Index68];
                 if (!Object.prototype.hasOwnProperty.call(seen, sub_module_id)) {
                     seen[sub_module_id] = true;
                     key = (_$rapyd$_expr_temp = sub_module_id.split("."), _$rapyd$_expr_temp[_$rapyd$_expr_temp.length-1]);
@@ -11646,7 +12004,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         declare_submodules.__argnames__ = ["module_id", "submodules", "output"];
 
         function prologue(module, output) {
-            var v, baselib_items, k, deps, lib;
+            var v, needs_yield;
             if (output.options.omit_baselib) {
                 return;
             }
@@ -11661,45 +12019,15 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             [output.indent(), output.spaced("var", "_$rapyd$_cond_temp,", "_$rapyd$_expr_temp"), 
             output.end_statement()];
             [output.indent(), output.spaced("var", "_$rapyd$_object_counter", "=", "0"), output.end_statement()];
-            baselib_items = (function() {
-                var _$rapyd$_Iter = _$rapyd$_Iterable(module.baselib), _$rapyd$_Result = {}, k;
-                for (var _$rapyd$_Index = 0; _$rapyd$_Index < _$rapyd$_Iter.length; _$rapyd$_Index++) {
-                    k = _$rapyd$_Iter[_$rapyd$_Index];
-                    _$rapyd$_Result[k] = (true);
-                }
-                return _$rapyd$_Result;
-            })();
-            baselib_items["errors"] = true;
-            baselib_items["containers"] = true;
-            baselib_items["builtins"] = true;
-            baselib_items["str"] = true;
-            deps = output.options.baselib["#dependencies#"];
-            var _$rapyd$_Iter68 = _$rapyd$_Iterable(baselib_items);
-            for (var _$rapyd$_Index68 = 0; _$rapyd$_Index68 < _$rapyd$_Iter68.length; _$rapyd$_Index68++) {
-                lib = _$rapyd$_Iter68[_$rapyd$_Index68];
-                if (Object.prototype.hasOwnProperty.call(deps, lib)) {
-                    Object.keys(deps[lib]).forEach((function() {
-                        var _$rapyd$_anonfunc = function (k) {
-                            baselib_items[k] = true;
-                        };
-
-                        _$rapyd$_anonfunc.__argnames__ = ["k"];
-                        return _$rapyd$_anonfunc;
-                    })());
-                }
+            needs_yield = output.options.js_version < 6 && module.baselib["yield"];
+            if (needs_yield) {
+                output.dump_yield();
             }
-            var _$rapyd$_Iter69 = _$rapyd$_Iterable(baselib_items);
-            for (var _$rapyd$_Index69 = 0; _$rapyd$_Index69 < _$rapyd$_Iter69.length; _$rapyd$_Index69++) {
-                lib = _$rapyd$_Iter69[_$rapyd$_Index69];
-                if (output.options.js_version >= 6 && (lib === "iterable" || lib === "yield")) {
-                    continue;
-                }
-                if (lib === "yield") {
-                    output.dump_yield();
-                } else {
-                    output.dump_baselib(lib);
-                }
+            if (!output.options.baselib_plain) {
+                throw new ValueError("The baselib is missing! Remember to set the baselib_plain field on the options for OutputStream");
             }
+            output.print(output.options.baselib_plain);
+            output.end_statement();
         };
 
         prologue.__argnames__ = ["module", "output"];
@@ -11808,9 +12136,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                         "exports": _$rapyd$_list_decorate([]),
                                         "outputs": {}
                                     };
-                                    var _$rapyd$_Iter70 = _$rapyd$_Iterable(Object.keys(self.classes));
-                                    for (var _$rapyd$_Index70 = 0; _$rapyd$_Index70 < _$rapyd$_Iter70.length; _$rapyd$_Index70++) {
-                                        cname = _$rapyd$_Iter70[_$rapyd$_Index70];
+                                    var _$rapyd$_Iter69 = _$rapyd$_Iterable(Object.keys(self.classes));
+                                    for (var _$rapyd$_Index69 = 0; _$rapyd$_Index69 < _$rapyd$_Iter69.length; _$rapyd$_Index69++) {
+                                        cname = _$rapyd$_Iter69[_$rapyd$_Index69];
                                         cobj = self.classes[cname];
                                         cached.classes[cname] = {
                                             "name": {
@@ -11820,22 +12148,22 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                             "bound": cobj.bound
                                         };
                                     }
-                                    var _$rapyd$_Iter71 = _$rapyd$_Iterable(self.exports);
-                                    for (var _$rapyd$_Index71 = 0; _$rapyd$_Index71 < _$rapyd$_Iter71.length; _$rapyd$_Index71++) {
-                                        symdef = _$rapyd$_Iter71[_$rapyd$_Index71];
+                                    var _$rapyd$_Iter70 = _$rapyd$_Iterable(self.exports);
+                                    for (var _$rapyd$_Index70 = 0; _$rapyd$_Index70 < _$rapyd$_Iter70.length; _$rapyd$_Index70++) {
+                                        symdef = _$rapyd$_Iter70[_$rapyd$_Index70];
                                         cached.exports.push({
                                             "name": symdef.name
                                         });
                                     }
-                                    var _$rapyd$_Iter72 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ true, false ]));
-                                    for (var _$rapyd$_Index72 = 0; _$rapyd$_Index72 < _$rapyd$_Iter72.length; _$rapyd$_Index72++) {
-                                        beautify = _$rapyd$_Iter72[_$rapyd$_Index72];
-                                        var _$rapyd$_Iter73 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ true, false ]));
-                                        for (var _$rapyd$_Index73 = 0; _$rapyd$_Index73 < _$rapyd$_Iter73.length; _$rapyd$_Index73++) {
-                                            auto_bind = _$rapyd$_Iter73[_$rapyd$_Index73];
-                                            var _$rapyd$_Iter74 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ 5, 6 ]));
-                                            for (var _$rapyd$_Index74 = 0; _$rapyd$_Index74 < _$rapyd$_Iter74.length; _$rapyd$_Index74++) {
-                                                js_version = _$rapyd$_Iter74[_$rapyd$_Index74];
+                                    var _$rapyd$_Iter71 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ true, false ]));
+                                    for (var _$rapyd$_Index71 = 0; _$rapyd$_Index71 < _$rapyd$_Iter71.length; _$rapyd$_Index71++) {
+                                        beautify = _$rapyd$_Iter71[_$rapyd$_Index71];
+                                        var _$rapyd$_Iter72 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ true, false ]));
+                                        for (var _$rapyd$_Index72 = 0; _$rapyd$_Index72 < _$rapyd$_Iter72.length; _$rapyd$_Index72++) {
+                                            auto_bind = _$rapyd$_Iter72[_$rapyd$_Index72];
+                                            var _$rapyd$_Iter73 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ 5, 6 ]));
+                                            for (var _$rapyd$_Index73 = 0; _$rapyd$_Index73 < _$rapyd$_Iter73.length; _$rapyd$_Index73++) {
+                                                js_version = _$rapyd$_Iter73[_$rapyd$_Index73];
                                                 co = new OutputStream({
                                                     "beautify": beautify,
                                                     "auto_bind": auto_bind,
@@ -11900,14 +12228,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             add_aname.__argnames__ = ["aname", "key", "from_import"];
 
-            var _$rapyd$_Iter75 = _$rapyd$_Iterable(container.imports);
-            for (var _$rapyd$_Index75 = 0; _$rapyd$_Index75 < _$rapyd$_Iter75.length; _$rapyd$_Index75++) {
-                self = _$rapyd$_Iter75[_$rapyd$_Index75];
+            var _$rapyd$_Iter74 = _$rapyd$_Iterable(container.imports);
+            for (var _$rapyd$_Index74 = 0; _$rapyd$_Index74 < _$rapyd$_Iter74.length; _$rapyd$_Index74++) {
+                self = _$rapyd$_Iter74[_$rapyd$_Index74];
                 output.import_(self.module);
                 if (self.argnames) {
-                    var _$rapyd$_Iter76 = _$rapyd$_Iterable(self.argnames);
-                    for (var _$rapyd$_Index76 = 0; _$rapyd$_Index76 < _$rapyd$_Iter76.length; _$rapyd$_Index76++) {
-                        argname = _$rapyd$_Iter76[_$rapyd$_Index76];
+                    var _$rapyd$_Iter75 = _$rapyd$_Iterable(self.argnames);
+                    for (var _$rapyd$_Index75 = 0; _$rapyd$_Index75 < _$rapyd$_Iter75.length; _$rapyd$_Index75++) {
+                        argname = _$rapyd$_Iter75[_$rapyd$_Index75];
                         akey = (argname.alias) ? argname.alias.name : argname.name;
                         add_aname(akey, self.key, argname.name);
                     }
@@ -12160,7 +12488,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "in": "_$rapyd$_in",
                 "**": "Math.pow"
             };
-            if (_$rapyd$_in(self.operator, function_ops)) {
+            if (function_ops[self.operator]) {
                 output.print(function_ops[self.operator]);
                 output.with_parens((function() {
                     var _$rapyd$_anonfunc = function () {
@@ -12288,9 +12616,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     "right": rhs
                 }), output);
                 [output.end_statement(), output.indent()];
-                var _$rapyd$_Iter77 = _$rapyd$_Iterable(left_hand_sides);
-                for (var _$rapyd$_Index77 = 0; _$rapyd$_Index77 < _$rapyd$_Iter77.length; _$rapyd$_Index77++) {
-                    lhs = _$rapyd$_Iter77[_$rapyd$_Index77];
+                var _$rapyd$_Iter76 = _$rapyd$_Iterable(left_hand_sides);
+                for (var _$rapyd$_Index76 = 0; _$rapyd$_Index76 < _$rapyd$_Iter76.length; _$rapyd$_Index76++) {
+                    lhs = _$rapyd$_Iter76[_$rapyd$_Index76];
                     print_assignment(new AST_Assign({
                         "left": lhs,
                         "right": temp_rhs,
@@ -12381,8 +12709,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var best, len_, i;
             best = a[0];
             len_ = best.length;
-            for (var _$rapyd$_Index78 = 1; _$rapyd$_Index78 < a.length; _$rapyd$_Index78++) {
-                i = _$rapyd$_Index78;
+            for (var _$rapyd$_Index77 = 1; _$rapyd$_Index77 < a.length; _$rapyd$_Index77++) {
+                i = _$rapyd$_Index77;
                 if (a[i].length < len_) {
                     best = a[i];
                     len_ = best.length;
@@ -13330,9 +13658,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             exports.SyntaxError = SyntaxError;
             exports.tokenizer = tokenizer;
             ast = _$rapyd$_modules["ast"];
-            var _$rapyd$_Iter79 = _$rapyd$_Iterable(ast);
-            for (var _$rapyd$_Index79 = 0; _$rapyd$_Index79 < _$rapyd$_Iter79.length; _$rapyd$_Index79++) {
-                ast_node = _$rapyd$_Iter79[_$rapyd$_Index79];
+            var _$rapyd$_Iter78 = _$rapyd$_Iterable(ast);
+            for (var _$rapyd$_Index78 = 0; _$rapyd$_Index78 < _$rapyd$_Iter78.length; _$rapyd$_Index78++) {
+                ast_node = _$rapyd$_Iter78[_$rapyd$_Index78];
                 if (ast_node.substr(0, 4) === "AST_") {
                     exports[ast_node] = ast[ast_node];
                 }

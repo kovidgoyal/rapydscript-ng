@@ -134,7 +134,7 @@ def print_binary_op(self, output):
         "**": "Math.pow"
     }
 
-    if self.operator in function_ops:
+    if function_ops[self.operator]:
         output.print(function_ops[self.operator])
         output.with_parens(def():
             self.left.print(output)

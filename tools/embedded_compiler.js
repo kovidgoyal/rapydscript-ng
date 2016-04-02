@@ -8,12 +8,19 @@
 
 
 module.exports = function(compiler, baselib, runjs, name) {
-	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true, 'js_version': 6};
     compiler.AST_Node.warn_function = function() {};
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
-    runjs(baselib);
+    runjs(print_ast(compiler.parse(''), true));
     runjs('var __name__ = "' + (name || '__embedded__') + '";');
+
+    function print_ast(ast, keep_baselib) {
+        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, js_version: 6};
+        if (keep_baselib) output_options.baselib_plain = baselib;
+        var output = new compiler.OutputStream(output_options);
+        ast.print(output);
+        return output.get();
+    }
 
     return {
         'toplevel': null,
@@ -25,8 +32,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'basedir': '__stdlib__',
                 'classes': classes,
             });
-            var out = new compiler.OutputStream(output_options);
-            this.toplevel.print(out);
+            var ans = print_ast(this.toplevel);
             if (classes) {
                 var exports = {};
                 var self = this;
@@ -37,7 +43,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 });
             }
     
-            return out.toString();
+            return ans;
         },
 
     };

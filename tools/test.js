@@ -20,7 +20,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
     var compiler_dir = path.join(base_path, 'dev');
     if (!utils.path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base_path, 'release');
     var test_dir = path.join(base_path, 'test');
-	var baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-pretty.js'), 'utf-8'));
+	var baselib = fs.readFileSync(path.join(lib_path, 'baselib-plain-pretty.js'), 'utf-8');
     var files;
     var deep_eq = assert.deepEqual;
     assert.deepEqual = function(a, b, message) {
@@ -64,7 +64,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         while (js_version < 7) {
             // generate output
             var output = new RapydScript.OutputStream({
-                baselib: baselib,
+                baselib_plain: baselib,
                 beautify: true,
                 js_version: js_version,
             });

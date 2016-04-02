@@ -12,65 +12,31 @@ var fs = require('fs');
 var vm = require('vm');
 var zlib = require('zlib');
 
-function read_baselib_modules(RapydScript, src_path) {
+function compile_baselib(RapydScript, src_path) {
     var items = fs.readdirSync(src_path).filter(function(name) {
         return name.slice(0, 'baselib-'.length) === 'baselib-' && name.slice(-4) == '.pyj';
     });
-    var ans = {};
+    var ans = {'pretty': '', 'ugly': ''};
+
     items.forEach(function(fname) {
         var name = fname.slice('baselib-'.length, -4), ast;
-        ans[name] = {'code':{}};
         var raw = fs.readFileSync(path.join(src_path, fname), 'utf-8');
         try {
-            ast = RapydScript.parse(raw, {'filename':fname, basedir:src_path});
+            ast = RapydScript.parse(raw, {filename:fname, basedir:src_path});
         } catch (e) {
             if (!(e instanceof RapydScript.SyntaxError)) throw e;
             console.error(e.toString());
             process.exit(1);
         }
-        ans[name].baselib_items = ast.baselib;
         [true, false].forEach(function (beautify) {
             var output = new RapydScript.OutputStream({
                 beautify: beautify, write_name: false, private_scope:false, omit_baselib: true,  
             });
             ast.print(output);
-            ans[name].code[beautify] = output.get();
+            ans[(beautify) ? 'pretty' : 'ugly'] += output.get();
         });
     });
     return ans;
-}
-
-function generate_baselib(ast, beautify, RapydScript, baselib_modules) {
-    var output = new RapydScript.OutputStream({
-        beautify: beautify, write_name: false,
-        omit_baselib: true,  // We are generating baselib here, cannot depend on it
-    });
-    ast.print(output);
-    var code = output.get();
-    var exports = {};
-    var ctx = vm.createContext({'console':console, 'exports':exports, '_$rapyd$_modules':{}});
-    vm.runInContext(code, ctx, {filename:'baselib.pyj'});
-    var ans = {};
-    Object.keys(exports).forEach(function(key) { ans[key] = exports[key].toString(); });
-    ans['#dependencies#'] = {};
-    Object.keys(baselib_modules).forEach(function(key) {
-        ans[key] = baselib_modules[key].code[beautify];
-        ans['#dependencies#'][key] = baselib_modules[key].baselib_items;
-    });
-    return ans;
-}
-
-function parse_baselib(RapydScript, src_path) {
-    var baselib_modules = read_baselib_modules(RapydScript, src_path);
-    var baselib_path = path.join(src_path, 'baselib.pyj');
-    try {
-        var ast = RapydScript.parse(fs.readFileSync(baselib_path, "utf-8"), {'filename':baselib_path, 'module_id':'baselib', basedir:src_path});
-        return [generate_baselib(ast, true, RapydScript, baselib_modules), generate_baselib(ast, false, RapydScript, baselib_modules)];
-    } catch (e) {
-        if (!(e instanceof RapydScript.SyntaxError)) throw e;
-        console.error(e.toString());
-        process.exit(1);
-    }
 }
 
 function check_for_changes(base_path, src_path, signatures) {
@@ -130,16 +96,15 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
     var t1 = new Date().getTime();
     var RapydScript = require('./compiler').create_compiler();
     var output_options, profiler, cpu_profile;
-    var pretty_baselib, ugly_baselib;
-    var temp = parse_baselib(RapydScript, src_path);
+    var compiled_baselib = compile_baselib(RapydScript, src_path);
     var out_path = path.join(path.dirname(lib_path), 'dev');
     try {
         fs.mkdirSync(out_path);
     } catch (e) {
         if (e.code != 'EEXIST') throw e;
     }
-    pretty_baselib = temp[0]; ugly_baselib = temp[1];
-    output_options = {'beautify': true, 'baselib': pretty_baselib};
+    output_options = {'beautify': true, 'baselib_plain': compiled_baselib.pretty};
+
     var raw = sources[file], toplevel;
 
 	function parse_file(code, file) {
@@ -149,22 +114,6 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
 			libdir: path.join(src_path, 'lib'),
 		});
 	}
-
-    function write_baselib(which) {
-        var baselib = (which === 'pretty') ? pretty_baselib : ugly_baselib;
-        var text = JSON.stringify(baselib, null, 2);
-        fs.writeFileSync(path.join(out_path, 'baselib-' + which + '.js'), text, 'utf-8');
-
-        var ast = RapydScript.parse('');
-        Object.keys(baselib).forEach(function(k) { if (k.indexOf('#') == -1) ast.baselib[k] = true; });
-        ast.baselib['yield'] = true;
-        var output = new RapydScript.OutputStream({'private_scope':false, 'write_name':false, 'baselib':baselib,
-            'beautify':which === 'pretty'});
-        ast.print(output);
-        var raw = output.get();
-        console.log('Entire baselib ('+which+') is: ' + zlib.deflateSync(raw).length + ' bytes gzipped and: ' + raw.length + ' bytes uncompressed');
-        fs.writeFileSync(path.join(out_path, 'baselib-plain-' + which + '.js'), raw, 'utf-8');
-    }
 
     try {
         if (profile) {
@@ -185,7 +134,8 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
     toplevel.print(output);
     output = output.get().replace('__COMPILER_VERSION__', source_hash);
     fs.writeFileSync(path.join(out_path, 'compiler.js'), output, "utf8");
-    write_baselib('pretty'); write_baselib('ugly');
+    fs.writeFileSync(path.join(out_path, 'baselib-plain-pretty.js'), compiled_baselib.pretty, 'utf-8');
+    fs.writeFileSync(path.join(out_path, 'baselib-plain-ugly.js'), compiled_baselib.ugly, 'utf-8');
     console.log('Compiler built in', (new Date().getTime() - t1)/1000, 'seconds\n');
     return output;
 }

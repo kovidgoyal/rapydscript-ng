@@ -1,0 +1,107 @@
+# vim:fileencoding=utf-8
+# License: BSD
+
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains
+
+def _$rapyd$_flatten(arr):
+    ans = []
+    for v'var i=0; i<arr.length; i++':
+        value = arr[i]  # noqa:undef
+        if Array.isArray(value):
+            ans = ans.concat(_$rapyd$_flatten(value))
+        else:
+            ans.push(value)
+    return ans
+
+def _$rapyd$_extends(child, parent):
+    child.prototype = Object.create(parent.prototype)
+    child.prototype.constructor = child
+
+_$rapyd$_in = (def ():
+    if type(Map) is 'function' and type(Set) is 'function':
+        return def(val, arr):
+            if type(arr) is 'string':
+                return arr.indexOf(val) is not -1
+            if type(arr.__contains__) is 'function':
+                return arr.__contains__(val)
+            if isinstance(arr, (Map, Set)):
+                return arr.has(val)
+            if _$rapyd$_arraylike(arr):
+                return _$rapyd$_list_contains.call(arr, val)
+            return Object.prototype.hasOwnProperty.call(arr, val)
+    return def(val, arr):
+        if type(arr) is 'string':
+            return arr.indexOf(val) is not -1
+        if type(arr.__contains__) is 'function':
+            return arr.__contains__(val)
+        if _$rapyd$_arraylike(arr):
+            return _$rapyd$_list_contains.call(arr, val)
+        return Object.prototype.hasOwnProperty.call(arr, val)
+)()
+
+def _$rapyd$_Iterable(iterable):
+    # Once ES6 is mature, change AST_ForIn to use the iterator protocol and get
+    # rid of this function entirely
+    if _$rapyd$_arraylike(iterable):
+        return iterable
+    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        ans = []
+        result = iterator.next()
+        while not result.done:
+            ans.push(result.value)
+            result = iterator.next()
+        return ans
+    # so we can use 'for ... in' syntax with objects, as we would with dicts in python
+    return Object.keys(iterable)
+
+_$rapyd$_desugar_kwargs = (def ():
+    if type(Object.assign) is 'function':
+        return def():
+            ans = {}
+            ans[_$rapyd$_kwargs_symbol] = True
+            for v'var i = 0; i < arguments.length; i++':
+                Object.assign(ans, arguments[i])
+            return ans
+    return def():
+        ans = {}
+        ans[_$rapyd$_kwargs_symbol] = True
+        for v'var i = 0; i < arguments.length; i++':
+            keys = Object.keys(arguments[i])
+            for v'var j = 0; j < keys.length; j++':
+                ans[keys[j]] = arguments[i][keys[j]]
+        return ans
+)()
+
+def _$rapyd$_interpolate_kwargs(f, supplied_args):
+    if not f.__argnames__:
+        return f.apply(this, supplied_args)
+    has_prop = Object.prototype.hasOwnProperty
+    kwobj = supplied_args.pop()
+    if f.__handles_kwarg_interpolation__:
+        args = Array(Math.max(supplied_args.length, f.__argnames__.length) + 1)
+        args[-1] = kwobj
+        for v'var i = 0; i < args.length - 1; i++':
+            if i < f.__argnames__.length:
+                prop = f.__argnames__[i]
+                if has_prop.call(kwobj, prop):
+                    args[i] = kwobj[prop]
+                    v'delete kwobj[prop]'
+                elif i < supplied_args.length:
+                    args[i] = supplied_args[i]
+            else:
+                args[i] = supplied_args[i]
+        return f.apply(this, args)
+
+    for v'var i = 0; i < f.__argnames__.length; i++':
+        prop = f.__argnames__[i]
+        if has_prop.call(kwobj, prop):
+            supplied_args[i] = kwobj[prop]
+    return f.apply(this, supplied_args)
+
+def _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args):
+    if apply:
+        f.apply(this, supplied_args)
+    else:
+        _$rapyd$_interpolate_kwargs.call(this, f, supplied_args)
+    return this

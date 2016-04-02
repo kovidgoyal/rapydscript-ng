@@ -96,9 +96,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             output = new RapydScript.OutputStream(OUTPUT_OPTIONS);
         } catch(ex) {
             if (ex instanceof RapydScript.DefaultsError) {
-                console.error(ex.msg);
-                console.error("Supported options:");
-                console.error(ex.defs);
+                console.error(ex.message);
                 process.exit(1);
             }
             throw ex;
@@ -150,7 +148,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
 
     if (!argv.omit_baselib) {
         var which = (OUTPUT_OPTIONS.beautify) ? 'pretty' : 'ugly';
-        OUTPUT_OPTIONS.baselib = JSON.parse(fs.readFileSync(path.join(lib_path, 'baselib-' + which + '.js'), 'utf-8'));
+        OUTPUT_OPTIONS.baselib_plain = fs.readFileSync(path.join(lib_path, 'baselib-plain-' + which + '.js'), 'utf-8');
     }
 
     if (files.filter(function(el){ return el == "-"; }).length > 1) {

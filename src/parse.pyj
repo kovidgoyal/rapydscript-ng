@@ -25,11 +25,6 @@ from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
-BASELIB_ITEMS = {'dir', 'enumerate', 'range', 'reversed', 'getattr', 'setattr', 'hasattr', 'iter',
-                 'len', 'abs', 'max', 'min', 'sum', 'map', 'zip', 'filter', 'ord', 'chr', 'callable',
-                 'bin', 'hex'}
-BASELIB_FUNCS = {'len', 'abs', 'max', 'min'}
-BASELIB_ITERTOOLS = {'sum', 'map', 'zip', 'filter'}
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -287,10 +282,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             for x in arr:
                 if isinstance(x, AST_Seq):
                     x = x.to_array()
-                    baselib_items['_$rapyd$_flatten'] = True
                 elif isinstance(x, AST_Array):
                     x = x.elements
-                    baselib_items['_$rapyd$_flatten'] = True
                 if Array.isArray(x):
                     scan_in_array(x)
                 else:
@@ -480,9 +473,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             elif tmp_ is "import":
                 return import_(False)
             elif tmp_ is "class":
-                baselib_items["extends"] = True
-                if options.auto_bind:
-                    baselib_items["rebind_all"] = True
                 return class_()
             elif tmp_ is "def":
                 start = prev()
@@ -649,7 +639,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def for_in(init, list_comp):
         lhs = (isinstance(init, AST_Var) ? init.definitions[0].name : None)
         obj = expression(True)
-        baselib_items["iterable"] = True
         #        expect(")")
         if list_comp:
             return {
@@ -977,7 +966,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.classes[S.classes.length - 2][in_class].static.push(name.name)
                 staticmethod = True
             elif name.name is not "__init__" and options.auto_bind:
-                baselib_items["bind"] = True
                 S.classes[S.classes.length - 2][in_class].bound[name.name] = True
 
         expect("(")
@@ -1274,7 +1262,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             S.in_parenthesized_expr = False
         else:
             args = func_call_list(True)
-        baselib_items['_$rapyd$_interpolate_kwargs_constructor'] = True
         return subscripts(new AST_New({
             'start': start,
             'expression': newexp,
@@ -1452,7 +1439,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if empty:
             return a
         single_comprehension = False
-        baselib_items['_$rapyd$_interpolate_kwargs'] = True
         while not is_("punc", ')') and not is_('eof'):
             if not first:
                 expect(",")
@@ -1481,8 +1467,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         break
                     a.push(arg)
             first = False
-        if a.kwargs.length:
-            baselib_items['_$rapyd$_desugar_kwargs()'] = True
         if not single_comprehension:
             next()
         return a
@@ -1574,7 +1558,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         S.in_parenthesized_expr = False  # in case we are already in a parenthesized expression
         expect_token('keyword', 'for')
         forloop = for_(True)
-        baselib_items["iterable"] = True
         obj.init = forloop.init
         obj.name = forloop.name
         obj.object = forloop.object
@@ -1759,7 +1742,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             next()
             if not expr.parens and get_class_in_scope(expr):
                 # this is an object being created using a class
-                baselib_items['_$rapyd$_interpolate_kwargs_constructor'] = True
                 ret = subscripts(new AST_New({
                     'start': start,
                     'expression': expr,
@@ -1790,17 +1772,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return ret
                 elif isinstance(expr, AST_SymbolRef):
                     tmp_ = expr.name
-                    # special functions that trigger addition of extra logic to generated JavaScript
-                    if BASELIB_ITEMS.has(tmp_):
-                        # NOTE: there is intentionally no return here, we want these functions to go through regular logic
-                        # after they trigger the appropriate baselib flag
-                        if BASELIB_FUNCS.has(tmp_):
-                            baselib_items[tmp_ + '()'] = True
-                        elif BASELIB_ITERTOOLS.has(tmp_):
-                            baselib_items['itertools'] = True
-                        else:
-                            baselib_items[tmp_] = True
-                    elif tmp_ is "type":
+                    if tmp_ is "type":
                         ret = new AST_UnaryPrefix({
                             'start': start,
                             'operator': "typeof",
@@ -1878,8 +1850,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if op is "in":
             if no_in:
                 op = None
-            else:
-                baselib_items['_$rapyd$_in()'] = True
 
         prec = (op is not None ? PRECEDENCE[op] : None)
         if prec is not None and prec > min_prec:

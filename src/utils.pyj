@@ -30,9 +30,10 @@ def repeat_string(str_, i):
         d += str_
     return d
 
-def DefaultsError(msg, defs):
-    this.msg = msg
-    this.defs = defs
+class DefaultsError(ValueError):
+
+    def __init__(self, name, defs):
+        ValueError.__init__(self, name + ' is not a supported option. Supported options are: ' + str(Object.keys(defs)))
 
 def defaults(args, defs, croak):
     if args is True:
@@ -41,7 +42,7 @@ def defaults(args, defs, croak):
     if croak:
         for i in ret:
             if not defs.hasOwnProperty(i):
-                raise new DefaultsError("`" + i + "` is not a supported option", defs)
+                raise DefaultsError(i, defs)
 
     for i in defs:
         ret[i] = args and args.hasOwnProperty(i) ? args[i] : defs[i]

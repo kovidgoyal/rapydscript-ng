@@ -48,7 +48,7 @@ class OutputStream:
             'comments': False,
             'preserve_line': False,
             'omit_baselib': False,
-            'baselib': None,
+            'baselib_plain': None,
             'private_scope': True,
             'auto_bind': False,
             'js_version':5,
@@ -234,19 +234,6 @@ class OutputStream:
         self.print(":")
         if self.options.space_colon:
             self.space()
-
-    # retrieve baselib function based on requested key
-    def dump_baselib(self, key):
-        self.indent()
-        is_func = key.substr(key.length - 2) is '()'
-        v = 'const' if self.options.js_version > 5 else 'var'
-        if is_func:
-            ckey = key.substr(0, key.length - 2)
-            self.spaced(v, ckey, '=', '(')
-        self.print(self.options.baselib[key])
-        if is_func:
-            self.print(')()')
-        self.end_statement()
 
     def dump_yield(self):
         self.indent()

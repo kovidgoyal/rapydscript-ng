@@ -34,10 +34,6 @@ function expanduser(x) {
   return path.join(homedir, x.slice(2));
 }
 
-function read_baselib(lib_path) {
-    return fs.readFileSync(path.join(lib_path, 'baselib-plain-pretty.js'), 'utf-8');
-}
-
 function repl_defaults(options) {
     options = options || {};
     if (!options.input) options.input = process.stdin;
@@ -49,7 +45,6 @@ function repl_defaults(options) {
     if (!options.readline) options.readline = require('readline');
     if (options.terminal === undefined) options.terminal = options.output.isTTY;
     if (options.histfile === undefined) options.histfile = path.join(cachedir, 'rapydscript-repl.history');
-    if (options.baselib === undefined) options.baselib = read_baselib(options.lib_path);
         
     options.colored = (options.terminal) ? colored : (function (string) { return string; });
     options.historySize = options.history_size || 1000;
@@ -75,13 +70,12 @@ function write_history(options, history) {
 
 
 module.exports = function(options) {
-	var output_options = {'omit_baselib':true, 'write_name':false, 'private_scope':false, 'beautify':true};
     options = repl_defaults(options);
     options.completer = completer;
     var rl = options.readline.createInterface(options);
 	var ps1 = options.colored(options.ps1, 'green');
 	var ps2 = options.colored(options.ps2, 'yellow');
-	var ctx = create_ctx(options.baselib, options.show_js, options.console);
+	var ctx = create_ctx(print_ast(RapydScript.parse('(def ():\n yield 1\n)'), true), options.show_js, options.console);
     var buffer = [];
     var more = false;
     var LINE_CONTINUATION_CHARS = ':\\';
@@ -95,6 +89,15 @@ module.exports = function(options) {
     else
         options.console.log(options.colored('Use show_js=True to have the REPL show the compiled JavaScript before executing it.', 'green', true));
     options.console.log();
+
+    function print_ast(ast, keep_baselib) {
+        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true};
+        if (keep_baselib) output_options.baselib_plain = fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
+        var output = new RapydScript.OutputStream(output_options);
+        ast.print(output);
+        return output.get();
+    }
+
 
     function resetbuffer() { buffer = []; }
 
@@ -139,7 +142,7 @@ module.exports = function(options) {
         }
     }
 
-    function compile_source(source, output_options) {
+    function compile_source(source) {
         var classes = (toplevel) ? toplevel.classes : undefined;
         try {
             toplevel = RapydScript.parse(source, {
@@ -155,9 +158,7 @@ module.exports = function(options) {
             else options.console.log(e.stack || e.toString());
             return false;
         }
-        var output = new RapydScript.OutputStream(output_options);
-        toplevel.print(output);
-        output = output.toString();
+        var output = print_ast(toplevel);
         if (classes) {
             var exports = {};
             toplevel.exports.forEach(function (name) { exports[name] = true; });
@@ -177,7 +178,7 @@ module.exports = function(options) {
             return true;
         var source = buffer.join('\n');
         if (!source.trim()) { resetbuffer(); return false; }
-        var incomplete = compile_source(source, output_options);
+        var incomplete = compile_source(source);
         if (!incomplete) resetbuffer();
         return incomplete;
     }

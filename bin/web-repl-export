@@ -16,7 +16,6 @@ var manifest = {}, total = 0;
 ['compiler.js', 'baselib-plain-pretty.js'].forEach(function(x) {
     manifest[x] = fs.readFileSync(path.join(compiler_dir, x), {'encoding':'utf-8'});
     total += manifest[x].length;
-    if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
 });
 
 ['web_repl.js', 'embedded_compiler.js', 'utils.js', 'completer.js'].forEach(function(x) {

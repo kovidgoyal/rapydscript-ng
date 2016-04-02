@@ -13,10 +13,9 @@ var compiler_dir = path.join(base, 'dev');
 if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
 
 var manifest = {}, total = 0;
-['compiler.js', 'baselib-pretty.js', 'baselib-ugly.js', 'baselib-plain-pretty.js'].forEach(function(x) {
+['compiler.js', 'baselib-plain-pretty.js', 'baselib-plain-ugly.js'].forEach(function(x) {
     manifest[x] = fs.readFileSync(path.join(compiler_dir, x), {'encoding':'utf-8'});
     total += manifest[x].length;
-    if (x.indexOf('baselib') != -1 && x.indexOf('-plain') == -1) manifest[x] = JSON.parse(manifest[x]);
 });
 
 ['web_repl.js', 'repl.js', 'completer.js', 'utils.js', 'gettext.js', 'msgfmt.js'].forEach(function(x) {
