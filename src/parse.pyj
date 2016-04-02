@@ -163,7 +163,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         else:
             S.token = S.input()
 
-        S.in_directives = S.in_directives and (S.token.type is "string" or is_("punc", ";"))
         return S.token
 
     def is_(type, value):
@@ -403,15 +402,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         S.statement_starting_token = S.token
         tmp_ = S.token.type
         if tmp_ is "string":
-            dir = S.in_directives
-            stat = simple_statement()
-            # XXXv2: decide how to fix directives
-            if dir and isinstance(stat.body, AST_String) and not is_("punc", ","):
-                return new AST_Directive({
-                    'value': stat.body.value
-                })
-
-            return stat
+            return simple_statement()
         elif tmp_ is "shebang":
             tmp_ = S.token.value
             next()
@@ -902,7 +893,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.classes[S.classes.length - 1][name.name] = class_details
                 S.classes.push({})
                 S.in_function += 1
-                S.in_directives = True
                 S.in_loop = 0
                 S.labels = []
                 a = block_()
@@ -1096,7 +1086,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.classes.push({})
                 S.in_function += 1
                 S.functions.push({})
-                S.in_directives = True
                 S.in_loop = 0
                 S.labels = []
                 a = block_()
@@ -2071,7 +2060,6 @@ def parse(text, options):
         'prev': None,
         'peeked': [],
         'in_function': 0,
-        'in_directives': True,
         'statement_starting_token': None,
         'in_comprehension': False,
         'in_parenthesized_expr': False,
