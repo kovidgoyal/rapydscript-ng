@@ -99,8 +99,41 @@ def function_preamble(node, output, offset):
         output.print('.pop()')
         output.end_statement()
 
+def has_annotations(self):
+    if self.return_annotation:
+        return True
+    for arg in self.argnames:
+        if arg.annotation:
+            return True
+    return False
+
 def function_annotation(self, output, strip_first, name):
     fname = name or (self.name.name if self.name else anonfunc)
+
+    # Create __annotations__
+    if has_annotations(self):
+        output.end_statement()
+        output.indent()
+        output.assign(fname + '.__annotations__')
+        output.with_block(def():
+            output.indent()
+            if self.argnames and self.argnames.length:
+                self.argnames.forEach(def(arg, i):
+                    if arg.annotation:
+                        arg.print(output)
+                        output.print(':'), output.space()
+                        arg.annotation.print(output)
+                        if i < self.argnames.length - 1 or self.return_annotation:
+                            output.comma()
+                        output.newline()
+                        output.indent()
+                )
+            if self.return_annotation:
+                output.print('return:'), output.space()
+                self.return_annotation.print(output)
+                output.newline()
+        )
+        output.end_statement()
 
     # Create __defaults__
     defaults = self.argnames.defaults
@@ -368,4 +401,3 @@ def print_function_call(self, output):
     if not is_repeatable:
         output.print(')')
 # }}}
-

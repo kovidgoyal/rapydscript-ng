@@ -410,7 +410,7 @@ AST_Decorator = DEFNODE("Decorator", "expression", {
     ,
 })
 
-AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous", {
+AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous return_annotation", {
     '$documentation': "Base class for functions",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this function",
@@ -419,6 +419,7 @@ AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_express
         'is_generator': "[bool*] True iff this function is a generator",
         'is_expression': "[bool*] True iff this function is a function expression",
         'is_anonymous': "[bool*] True iff this function is an anonymous function",
+        "return_annotation": "[AST_Node?] The return type annotation provided (if any)",
     },
     '_walk': def(visitor):
         node = this
@@ -1034,8 +1035,11 @@ AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", None, {
     '$documentation': "A nonlocal declaration"
 }, AST_SymbolDeclaration)
 
-AST_SymbolFunarg = DEFNODE("SymbolFunarg", None, {
-    '$documentation': "Symbol naming a function argument"
+AST_SymbolFunarg = DEFNODE("SymbolFunarg", 'annotation', {
+    '$documentation': "Symbol naming a function argument, possibly with an annotation.",
+    '$propdoc': {
+        'annotation': "[AST_Node?] The annotation provided for this argument (if any)"
+    }
 }, AST_SymbolVar)
 
 AST_SymbolDefun = DEFNODE("SymbolDefun", None, {

@@ -1,0 +1,79 @@
+def add(a: int, b: float):
+    return a + b
+
+assert.ok(not (add.__annotations__ == undefined))
+assert.equal(add.__annotations__['a'], int)
+assert.equal(add.__annotations__['b'], float)
+assert.equal(add.__annotations__['return'], undefined)
+
+def sum(ls: list) -> int:
+    pass
+
+assert.ok(not (sum.__annotations__ == undefined))
+assert.deepEqual(sum.__annotations__, {
+    'ls': list,
+    'return': int
+})
+
+def optional(a:int=10):
+    return a
+
+assert.ok(not (optional.__annotations__ == undefined))
+assert.equal(optional.__annotations__['a'], int)
+
+def otherexpr(a:3+4) -> [1, 2]:
+    pass
+
+assert.ok(not (otherexpr.__annotations__ == undefined))
+assert.equal(otherexpr.__annotations__['a'], 7)
+assert.deepEqual(otherexpr.__annotations__['return'], [1, 2])
+
+def basic(x:float):
+    pass
+
+assert.deepEqual(basic.__annotations__, {
+    'x': float
+})
+
+def kwstarargs(*args:list, **kwargs:dict) -> int:
+    pass
+
+assert.equal(kwstarargs.__annotations__['return'], int)
+
+def nothing():
+    pass
+
+assert.ok(nothing.__annotations__ == undefined)
+assert.throws(def():
+    nothing.__annotations__['return']
+)
+
+test = def(x: int):
+    pass
+
+assert.deepEqual(test.__annotations__, {
+    'x': int
+})
+
+anonreturn = def() -> 'test':
+    pass
+
+assert.equal(anonreturn.__annotations__['return'], 'test')
+
+assert.equal(def asexpr(a: int):
+    a
+.__annotations__['a'], int)
+
+assert.deepEqual(def(a: int) -> float:
+    a + 10.0
+.__annotations__, {
+    'a': int,
+    'return': float
+})
+
+class A:
+
+    def f(self, a : int, b: 'x') -> float:
+        pass
+
+assert.deepEqual(A.prototype.f.__annotations__, {'a':int, 'b':'x', 'return': float})
