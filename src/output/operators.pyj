@@ -43,16 +43,13 @@ def print_getitem(self, output, skip_expression):  # AST_Sub
     if enclose:
         output.print(')')
 
-def print_rich_getitem(self, output, skip_expression):  # AST_ItemAccess
-    if not skip_expression:
-        self.expression.print(output)
-    output.print('.__' + (self.assignment ? 'setitem' : 'getitem') + '__')
-    output.with_parens(def():
-        self.property.print(output)
-        if self.assignment:
-            output.comma()
-            self.assignment.print(output)
-    )
+def print_rich_getitem(self, output):  # AST_ItemAccess
+    func = '_$rapyd$_' + ('setitem' if self.assignment else 'getitem')
+    output.print(func + '(')
+    self.expression.print(output), output.comma(), self.property.print(output)
+    if self.assignment:
+        output.comma(), self.assignment.print(output)
+    output.print(')')
 
 def print_splice_assignment(self, output):
     # splice assignment via pythonic array[start:end]

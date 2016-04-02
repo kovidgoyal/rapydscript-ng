@@ -105,3 +105,12 @@ def _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args):
     else:
         _$rapyd$_interpolate_kwargs.call(this, f, supplied_args)
     return this
+
+def _$rapyd$_getitem(obj, key):
+    return obj.__getitem__(key) if obj.__getitem__ else obj[key]
+
+def _$rapyd$_setitem(obj, key, val):
+    if obj.__setitem__:
+        obj.__setitem__(key, val)
+    else:
+        obj[key] = val

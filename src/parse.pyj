@@ -1655,7 +1655,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if is_("punc", "[") and not S.token.nlb:
             next()
-            is_py_sub = False
+            is_py_sub = S.scoped_flags.get('overload_getitem', False)
             if is_('punc', '!'):
                 next()
                 is_py_sub = True

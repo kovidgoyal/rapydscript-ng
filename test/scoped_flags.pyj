@@ -4,10 +4,14 @@
 a = {1:1}
 assert.ok(not isinstance(a, dict))
 
-from __python__ import dict_literals
+from __python__ import dict_literals, overload_getitem
 a = {1:1}
 assert.ok(isinstance(a, dict))
-from __python__ import no_dict_literals
+assert.equal(a[1], 1)
+a[2] = 2
+assert.equal(a[2], 2)
+assert.deepEqual(list(a.keys()), [1, 2])
+from __python__ import no_dict_literals, no_overload_getitem
 
 
 a = {1:1}
