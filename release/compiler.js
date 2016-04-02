@@ -6690,7 +6690,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var UNARY_POSTFIX = _$rapyd$_modules.tokenizer.UNARY_POSTFIX;
         
         has_prop = Object.prototype.hasOwnProperty;
-        COMPILER_VERSION = "486ddd9bd8213f389e886c70f2939884b91337c5";
+        COMPILER_VERSION = "bfd0a66b612e3364d08d6a46427330e05ae7071d";
         PYTHON_FLAGS = {
             "dict_literals": true,
             "overload_getitem": true
@@ -10723,7 +10723,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         function print_function_call(self, output) {
             var has_kwarg_items, has_kwarg_formals, has_kwargs, is_new, is_repeatable;
-            function print_function_name() {
+            function print_function_name(no_call) {
                 if (self instanceof AST_ClassCall) {
                     if (self.static) {
                         self.class.print(output);
@@ -10733,7 +10733,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         self.class.print(output);
                         output.print(".prototype.");
                         output.print(self.method);
-                        output.print(".call");
+                        if (!no_call) {
+                            output.print(".call");
+                        }
                     }
                 } else {
                     if (!is_repeatable) {
@@ -10746,6 +10748,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     }
                 }
             };
+
+            print_function_name.__argnames__ = ["no_call"];
 
             function print_kwargs() {
                 output.print("_$rapyd$_desugar_kwargs(");
@@ -10790,7 +10794,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             function print_new(apply) {
                 output.print("_$rapyd$_interpolate_kwargs_constructor.call(");
-                [output.print("Object.create("), self.expression.print(output), output.print(")")];
+                [output.print("Object.create("), self.expression.print(output), output.print(".prototype)")];
                 output.comma();
                 output.print((apply) ? "true" : "false");
                 output.comma();
@@ -10881,15 +10885,15 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     output.print("_$rapyd$_interpolate_kwargs.call(");
                     do_print_this();
                 }
-                print_function_name();
+                print_function_name(true);
                 output.comma();
             } else {
                 if (is_new) {
                     print_new(true);
-                    print_function_name();
+                    print_function_name(true);
                     output.comma();
                 } else {
-                    print_function_name();
+                    print_function_name(true);
                     output.print(".apply(");
                     do_print_this();
                 }
