@@ -1,3 +1,11 @@
+version 0.6.1
+==============
+
+Bug fix release, fixing a couple of regressions in 0.6.0
+
+ * Fix a regression caused by the new kwargs code that caused incorrect construction of classes when called with kwargs
+ * Fix a regression when calling super class methods with kwargs
+
 version 0.6.0
 ==============
 
