@@ -1,3 +1,48 @@
+version 0.6.0
+==============
+
+New features
+--------------------
+
+ * Support for function type annotations, just like in Python 3. You can now
+   create optional type annotation in RapydScript, exactly as you would in
+   Python 3.
+
+ * Support for *scoped flags* -- a mechanism to change the behavior of the
+   compiler in sections of code using simple statements in the code. These work
+   like compiler pragmas in C/C++ but have the additional feature that they are
+   local to a scope -- i.e. they are automatically reset when leaving the scope
+   they are defined in, which could be a function or a module or even a class.
+
+ * Support for python style dicts using the exact same syntax as in python. The
+   default syntax still creates JavaScript objects, but you can switch to
+   python dicts using a scoped flag:
+   ```py
+   from __python__ import dict_literals, overload_getitem
+   ```
+   This will cause the default syntax to generate python dicts.
+
+ * Add an **encodings.pyj** module to the stdlib which is very useful to convert
+   between utf-8 bytearrays, base64 encoded strings, and native strings.
+
+ * Implement repeating of string literals with the * operator
+   `'a' * 3 == 'aaa'`
+
+
+Bugfixes
+----------
+
+ * Enable use of keyword arguments/values when calling all functions, even if
+   they have not been defined with keyword arguments.
+
+ * Fix use of `*args/**kw` when calling functions that are the result of a
+   complex expression, causing the expression to be evaluated twice.
+ 
+ * Fix negative const index on expression containing a function call causing
+   the function call to be executed twice
+
+ * Fix --import-dirs not being used when recursively processing imports
+
 version 0.5.2
 ==============
 
