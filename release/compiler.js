@@ -2127,6 +2127,22 @@ function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
 };
 
 _$rapyd$_interpolate_kwargs_constructor.__argnames__ = ["apply", "f", "supplied_args"];
+
+function _$rapyd$_getitem(obj, key) {
+    return (obj.__getitem__) ? obj.__getitem__(key) : obj[key];
+};
+
+_$rapyd$_getitem.__argnames__ = ["obj", "key"];
+
+function _$rapyd$_setitem(obj, key, val) {
+    if (obj.__setitem__) {
+        obj.__setitem__(key, val);
+    } else {
+        obj[key] = val;
+    }
+};
+
+_$rapyd$_setitem.__argnames__ = ["obj", "key", "val"];
 function sum(iterable, start) {
     var ans, iterator, r;
     if (Array.isArray(iterable)) {
@@ -6445,9 +6461,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 op = grow(prefix || next());
                 if (INVALID_OPERATORS.has(op)) {
                     parse_error("Invalid operator «" + op + "»");
-                }
-                if (op === "!") {
-                    return token("punc", op);
                 } else if (op === "->") {
                     return token("punc", op);
                 }
@@ -6584,7 +6597,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
     (function(){
         var __name__ = "parse";
-        var COMPILER_VERSION, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
+        var has_prop, COMPILER_VERSION, PYTHON_FLAGS, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
         var make_predicate = _$rapyd$_modules.utils.make_predicate;
         var array_to_hash = _$rapyd$_modules.utils.array_to_hash;
         var defaults = _$rapyd$_modules.utils.defaults;
@@ -6676,7 +6689,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var is_token = _$rapyd$_modules.tokenizer.is_token;
         var UNARY_POSTFIX = _$rapyd$_modules.tokenizer.UNARY_POSTFIX;
         
-        COMPILER_VERSION = "512880f24201f6d00f354504a5871394d451cad1";
+        has_prop = Object.prototype.hasOwnProperty;
+        COMPILER_VERSION = "486ddd9bd8213f389e886c70f2939884b91337c5";
+        PYTHON_FLAGS = {
+            "dict_literals": true,
+            "overload_getitem": true
+        };
         NATIVE_CLASSES = {
             "Image": {},
             "RegExp": {},
@@ -6804,7 +6822,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 } else {
                     S.token = S.input();
                 }
-                S.in_directives = S.in_directives && (S.token.type === "string" || is_("punc", ";"));
                 return S.token;
             };
 
@@ -6957,7 +6974,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 localvars = [];
                 seen = {};
                 function push(x) {
-                    if (Object.prototype.hasOwnProperty.call(seen, x)) {
+                    if (has_prop.call(seen, x)) {
                         return;
                     }
                     seen[x] = true;
@@ -7137,21 +7154,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             
             var statement = embed_tokens((function() {
                 var _$rapyd$_anonfunc = function statement() {
-                    var tmp_, dir, stat, start, func, chain, tmp;
+                    var tmp_, start, func, chain, tmp;
                     if (S.token.type === "operator" && S.token.value.substr(0, 1) === "/") {
                         token_error(S.token, "RapydScript does not support statements starting with regexp literals");
                     }
                     S.statement_starting_token = S.token;
                     tmp_ = S.token.type;
                     if (tmp_ === "string") {
-                        dir = S.in_directives;
-                        stat = simple_statement();
-                        if (dir && stat.body instanceof AST_String && !is_("punc", ",")) {
-                            return new AST_Directive({
-                                "value": stat.body.value
-                            });
-                        }
-                        return stat;
+                        return simple_statement();
                     } else if (tmp_ === "shebang") {
                         tmp_ = S.token.value;
                         next();
@@ -7628,6 +7638,47 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             do_import.__argnames__ = ["key"];
 
+            function read_python_flags() {
+                var bracketed, name, val;
+                expect_token("keyword", "import");
+                bracketed = is_("punc", "(");
+                if (bracketed) {
+                    next();
+                }
+                while (true) {
+                    if (!is_("name")) {
+                        croak("Name expected");
+                    }
+                    name = S.token.value;
+                    val = (name.startsWith("no_")) ? false : true;
+                    if (!val) {
+                        name = name.slice(3);
+                    }
+                    if (!has_prop.call(PYTHON_FLAGS, name)) {
+                        croak("Unknown __python__ flag: " + name);
+                    }
+                    S.scoped_flags.set(name, val);
+                    next();
+                    if (is_("punc", ",")) {
+                        next();
+                    } else {
+                        if (bracketed) {
+                            if (is_("punc", ")")) {
+                                next();
+                            } else {
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+                }
+                return new AST_EmptyStatement({
+                    "stype": "scoped_flags",
+                    "start": prev(),
+                    "end": prev()
+                });
+            };
+
             function import_(from_import) {
                 var ans, tok, tmp, name, last_tok, _$rapyd$_chain_assign_temp, key, alias, aimp, _$rapyd$_unpack, classes, argnames, bracketed, exports, symdef, aname, obj, argvar, cname, imp;
                 ans = new AST_Imports({
@@ -7649,6 +7700,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 ;
                     }
                     key = tmp.name + key;
+                    if (from_import && key === "__python__") {
+                        return read_python_flags();
+                    }
                     alias = null;
                     if (!from_import && is_("keyword", "as")) {
                         next();
@@ -7819,12 +7873,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             S.in_class.push(name.name);
                             S.classes[S.classes.length - 1][name.name] = class_details;
                             S.classes.push({});
+                            S.scoped_flags.push();
                             S.in_function += 1;
-                            S.in_directives = true;
                             S.in_loop = 0;
                             S.labels = _$rapyd$_list_decorate([]);
                             a = block_();
                             S.in_function -= 1;
+                            S.scoped_flags.pop();
                             S.classes.pop();
                             S.in_class.pop();
                             S.in_loop = loop;
@@ -7862,7 +7917,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             return;
                         } else if (node instanceof AST_Assign && node.left instanceof AST_SymbolRef) {
                             class_var_names[node.left.name] = true;
-                        } else if (node instanceof AST_SymbolRef && Object.prototype.hasOwnProperty.call(class_var_names, node.name)) {
+                        } else if (node instanceof AST_SymbolRef && has_prop.call(class_var_names, node.name)) {
                             node.thedef = new AST_SymbolDefun({
                                 "name": name.name + ".prototype." + node.name
                             });
@@ -7933,7 +7988,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             def_line = S.input.context().tokline;
                             function get_arg() {
                                 var name_token, name_ctx, ntok, annotation, sym;
-                                if (Object.prototype.hasOwnProperty.call(seen_names, S.token.value)) {
+                                if (has_prop.call(seen_names, S.token.value)) {
                                     token_error(prev(), "Can't repeat parameter names");
                                 }
                                 if (S.token.value === "arguments") {
@@ -7960,7 +8015,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                     return sym;
                                 } else {
                                     if (!is_("name")) {
-                                        if ((S.input.context().tokline !== def_line && (typeof S.input.context().tokline !== "object" || _$rapyd$_not_equals(S.input.context().tokline, def_line)))) {
+                                        if (S.input.context().tokline !== def_line) {
                                             croak("Name expected", def_line);
                                         } else {
                                             croak("Name expected");
@@ -8061,13 +8116,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             var a;
                             S.in_class.push(false);
                             S.classes.push({});
+                            S.scoped_flags.push();
                             S.in_function += 1;
                             S.functions.push({});
-                            S.in_directives = true;
                             S.in_loop = 0;
                             S.labels = _$rapyd$_list_decorate([]);
                             a = block_();
                             S.in_function -= 1;
+                            S.scoped_flags.pop();
                             is_generator.push(bool(S.functions.pop().is_generator));
                             S.classes.pop();
                             S.in_class.pop();
@@ -8568,12 +8624,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     expect("{");
                     first = true;
                     has_non_const_keys = false;
-                    is_pydict = false;
+                    is_pydict = S.scoped_flags.get("dict_literals", false);
                     a = _$rapyd$_list_decorate([]);
-                    if (is_("punc", "!")) {
-                        next();
-                        is_pydict = true;
-                    }
                     while (!is_("punc", "}")) {
                         if (!first) {
                             expect(",");
@@ -8774,11 +8826,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 }
                 if (is_("punc", "[") && !S.token.nlb) {
                     next();
-                    is_py_sub = false;
-                    if (is_("punc", "!")) {
-                        next();
-                        is_py_sub = true;
-                    }
+                    is_py_sub = S.scoped_flags.get("overload_getitem", false);
                     slice_bounds = _$rapyd$_list_decorate([]);
                     is_slice = false;
                     if (is_("punc", ":")) {
@@ -9228,7 +9276,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         if (isvar) {
                             toplevel.localvars.push(symbol);
                         }
-                        if (!Object.prototype.hasOwnProperty.call(seen_exports, item)) {
+                        if (!has_prop.call(seen_exports, item)) {
                             toplevel.exports.push(symbol);
                             seen_exports[item] = true;
                         }
@@ -9262,6 +9310,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 imported_modules[module_id] = toplevel;
                 toplevel.imports = imported_modules;
                 toplevel.baselib = baselib_items;
+                toplevel.scoped_flags = S.scoped_flags.stack[0];
                 importing_modules[module_id] = false;
                 return toplevel;
             };
@@ -9280,7 +9329,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "toplevel": null,
                 "for_linting": false,
                 "import_dirs": [],
-                "classes": undefined
+                "classes": undefined,
+                "scoped_flags": {}
             });
             import_dirs = (function() {
                 var _$rapyd$_Iter = _$rapyd$_Iterable(options.import_dirs), _$rapyd$_Result = [], x;
@@ -9310,7 +9360,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "prev": null,
                 "peeked": _$rapyd$_list_decorate([]),
                 "in_function": 0,
-                "in_directives": true,
                 "statement_starting_token": null,
                 "in_comprehension": false,
                 "in_parenthesized_expr": false,
@@ -9320,7 +9369,45 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 "functions": _$rapyd$_list_decorate([ {} ]),
                 "labels": _$rapyd$_list_decorate([]),
                 "decorators": [],
-                "parsing_decorator": false
+                "parsing_decorator": false,
+                "scoped_flags": {
+                    "stack": [options.scoped_flags || {}],
+                    "push": (function() {
+                        var _$rapyd$_anonfunc = function () {
+                            this.stack.push({});
+                        };
+                        return _$rapyd$_anonfunc;
+                    })(),
+                    "pop": (function() {
+                        var _$rapyd$_anonfunc = function () {
+                            this.stack.pop();
+                        };
+                        return _$rapyd$_anonfunc;
+                    })(),
+                    "get": (function() {
+                        var _$rapyd$_anonfunc = function (name, defval) {
+                            var d;
+                            for (var i = this.stack.length - 1; i >= 0; i--) {
+                                d = this.stack[i];
+                                if (has_prop.call(d, name)) {
+                                    return d[name];
+                                }
+                            }
+                            return defval;
+                        };
+
+                        _$rapyd$_anonfunc.__argnames__ = ["name", "defval"];
+                        return _$rapyd$_anonfunc;
+                    })(),
+                    "set": (function() {
+                        var _$rapyd$_anonfunc = function (name, val) {
+                            this.stack[this.stack.length-1][name] = val;
+                        };
+
+                        _$rapyd$_anonfunc.__argnames__ = ["name", "val"];
+                        return _$rapyd$_anonfunc;
+                    })()
+                }
             };
             if (options.classes) {
                 var _$rapyd$_Iter52 = _$rapyd$_Iterable(options.classes);
@@ -9338,7 +9425,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         parse.__argnames__ = ["text", "options"];
 
+        _$rapyd$_modules.parse.has_prop = has_prop;
         _$rapyd$_modules.parse.COMPILER_VERSION = COMPILER_VERSION;
+        _$rapyd$_modules.parse.PYTHON_FLAGS = PYTHON_FLAGS;
         _$rapyd$_modules.parse.NATIVE_CLASSES = NATIVE_CLASSES;
         _$rapyd$_modules.parse.ERROR_CLASSES = ERROR_CLASSES;
         _$rapyd$_modules.parse.COMMON_STATIC = COMMON_STATIC;
@@ -12280,6 +12369,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var AST_Return = _$rapyd$_modules.ast.AST_Return;
         var AST_SimpleStatement = _$rapyd$_modules.ast.AST_SimpleStatement;
         var has_calls = _$rapyd$_modules.ast.has_calls;
+        var AST_String = _$rapyd$_modules.ast.AST_String;
         
         var unpack_tuple = _$rapyd$_modules["output.loops"].unpack_tuple;
         
@@ -12332,24 +12422,18 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         print_getitem.__argnames__ = ["self", "output", "skip_expression"];
 
-        function print_rich_getitem(self, output, skip_expression) {
-            if (!skip_expression) {
-                self.expression.print(output);
+        function print_rich_getitem(self, output) {
+            var func;
+            func = "_$rapyd$_" + ((self.assignment) ? "setitem" : "getitem");
+            output.print(func + "(");
+            [self.expression.print(output), output.comma(), self.property.print(output)];
+            if (self.assignment) {
+                [output.comma(), self.assignment.print(output)];
             }
-            output.print(".__" + ((self.assignment) ? "setitem" : "getitem") + "__");
-            output.with_parens((function() {
-                var _$rapyd$_anonfunc = function () {
-                    self.property.print(output);
-                    if (self.assignment) {
-                        output.comma();
-                        self.assignment.print(output);
-                    }
-                };
-                return _$rapyd$_anonfunc;
-            })());
+            output.print(")");
         };
 
-        print_rich_getitem.__argnames__ = ["self", "output", "skip_expression"];
+        print_rich_getitem.__argnames__ = ["self", "output"];
 
         function print_splice_assignment(self, output) {
             output.print("[].splice.apply");
@@ -12540,6 +12624,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 write_smart_equality(self, output);
             } else if (self.operator === "instanceof") {
                 write_instanceof(self.left, self.right, output);
+            } else if (self.operator === "*" && self.left instanceof AST_String) {
+                [self.left.print(output), output.print(".repeat("), self.right.print(output), output.print(")")];
             } else {
                 output.spaced(self.left, self.operator, self.right);
             }

@@ -2121,6 +2121,22 @@ function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
 };
 
 _$rapyd$_interpolate_kwargs_constructor.__argnames__ = ["apply", "f", "supplied_args"];
+
+function _$rapyd$_getitem(obj, key) {
+    return (obj.__getitem__) ? obj.__getitem__(key) : obj[key];
+};
+
+_$rapyd$_getitem.__argnames__ = ["obj", "key"];
+
+function _$rapyd$_setitem(obj, key, val) {
+    if (obj.__setitem__) {
+        obj.__setitem__(key, val);
+    } else {
+        obj[key] = val;
+    }
+};
+
+_$rapyd$_setitem.__argnames__ = ["obj", "key", "val"];
 function sum(iterable, start) {
     var ans, iterator, r;
     if (Array.isArray(iterable)) {
