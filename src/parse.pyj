@@ -772,6 +772,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'toplevel': None,
                 'basedir': options.basedir,
                 'libdir': options.libdir,
+                'import_dirs': options.import_dirs,
                 'module_id': key,
                 'imported_modules': imported_modules,
                 'importing_modules': importing_modules,
