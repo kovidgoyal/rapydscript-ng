@@ -272,3 +272,14 @@ def cc3():
         return call_counter
 eq(new cc3(a=1).num, 1)
 eq(new cc3(a=1).c(b=9), 2)
+
+class Pr:
+    def __init__(self, a=1):
+        self.a = a
+
+    def add(self, val=0):
+        self.a += val
+
+p = Pr(a=2)
+p.add(val=3)
+eq(p.a, 5)

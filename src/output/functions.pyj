@@ -304,7 +304,7 @@ def print_function_call(self, output):
 
     def print_new(apply):
         output.print('_$rapyd$_interpolate_kwargs_constructor.call(')
-        output.print('Object.create('), self.expression.print(output), output.print(')')
+        output.print('Object.create('), self.expression.print(output), output.print('.prototype)')
         output.comma()
         output.print('true' if apply else 'false')
         output.comma()
