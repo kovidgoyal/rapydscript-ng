@@ -697,9 +697,9 @@ operator, not hashes.
 ### Dicts
 
 dicts are the most different in RapydScript, from Python. This is because
-RapydScript uses the JavaScript Object as a dict, for compatibility with 
-external JavaScript libraries. This means there are several differences
-between RapydScript dicts and Python dicts.
+RapydScript uses the JavaScript Object as a dict, for compatibility with
+external JavaScript libraries and performance. This means there are several
+differences between RapydScript dicts and Python dicts.
 
     - You can only use primitive types (strings/numbers) as keys in the dict
     - If you use numbers as keys, they are auto-converted to strings
@@ -711,21 +711,35 @@ between RapydScript dicts and Python dicts.
       RapydScript dict objects in ```for..in``` loops.
 
 Fortunately, there is a builtin ```dict``` type that behaves just like Python's
-```dict``` with all the same methods. The only caveat is that you cannot use
-the regular syntax for dict literals or getting and setting items, instead you
-have to use a slightly modified, syntax, with the ```!``` operator, as show
-below:
+```dict``` with all the same methods. The only caveat is that you have to add
+a special line to your RapydScript code to use these dicts, as shown below:
 
 ```py
-a = {!1:1, 2:2}
-a[!1]  # == 1
-a[!3] = 3
+from __python__ import dict_literals, overload_getitem
+a = {1:1, 2:2}
+a[1]  # == 1
+a[3] = 3
+list(a.keys()) == [1, 2, 3]
+a['3'] # raises a KeyError as this is a proper python dict, not a JavaScript object
 ```
 
-The ```!``` operator is needed to let the compiler know that you want to use
-python dicts not javascript objects. This is necessary to avoid a big
-performance hit when using the standard ```[]``` notation on native JavaScript
-arrays and objects.
+The special line, called a *scoped flag* above tells the compiler that from
+that point on, you want it to treat dict literals and the getitem operator `[]`
+as they are treated in python, not JavaScript. 
+
+The scoped flags are local to each scope, that means that if you use it in a
+module, it will only affect code in that module, it you use it in a function,
+it will only affect code in that function. In fact, you can even use it to
+surround a few lines of code, like this:
+
+```py
+from __python__ import dict_literals, overload_getitem
+a = {1:1, 2:2}
+isinstance(a, dict) == True
+from __python__ import no_dict_literals, no_overload_getitem
+a = {1:1, 2:2}
+isinstance(a, dict) == False # a is a normal JavaScript object
+```
 
 
 ### Container comparisons

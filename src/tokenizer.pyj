@@ -581,8 +581,6 @@ def tokenizer($TEXT, filename):
         op = grow(prefix or next())
         if INVALID_OPERATORS.has(op):
             parse_error("Invalid operator «" + op + "»")
-        if op is '!':
-            return token('punc', op)
         elif op is '->':
             # pretend that this is an operator as the tokenizer only allows
             # one character punctuation.

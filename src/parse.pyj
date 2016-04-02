@@ -1040,7 +1040,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         if not is_("name"):
                             # there is no name, which is an error we should report on the
                             # same line as the definition, so move to that is we're not already there.
-                            if S.input.context().tokline != def_line:
+                            if S.input.context().tokline is not def_line:
                                 croak("Name expected", def_line)
                             else:
                                 croak("Name expected")
@@ -1518,9 +1518,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         has_non_const_keys = False
         is_pydict = S.scoped_flags.get('dict_literals', False)
         a = []
-        if is_('punc', '!'):
-            next()
-            is_pydict = True
         while not is_("punc", "}"):
             if not first:
                 expect(",")
@@ -1656,9 +1653,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if is_("punc", "[") and not S.token.nlb:
             next()
             is_py_sub = S.scoped_flags.get('overload_getitem', False)
-            if is_('punc', '!'):
-                next()
-                is_py_sub = True
             slice_bounds = []
             is_slice = False
             if is_("punc", ":"):
