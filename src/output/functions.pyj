@@ -257,7 +257,7 @@ def print_this(expression, output):
 
 def print_function_call(self, output):
 
-    def print_function_name():
+    def print_function_name(no_call):
         if isinstance(self, AST_ClassCall):
             # class methods are called through the prototype unless static
             if self.static:
@@ -268,7 +268,8 @@ def print_function_call(self, output):
                 self.class.print(output)
                 output.print(".prototype.")
                 output.print(self.method)
-                output.print(".call")
+                if not no_call:
+                    output.print(".call")
         else:
             if not is_repeatable:
                 output.print('_$rapyd$_expr_temp')
@@ -374,15 +375,15 @@ def print_function_call(self, output):
         else:
             output.print('_$rapyd$_interpolate_kwargs.call(')
             do_print_this()
-        print_function_name()
+        print_function_name(True)
         output.comma()
     else:
         if is_new:
             print_new(True)
-            print_function_name()
+            print_function_name(True)
             output.comma()
         else:
-            print_function_name()
+            print_function_name(True)
             output.print('.apply(')
             do_print_this()
 

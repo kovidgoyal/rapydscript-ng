@@ -280,6 +280,17 @@ class Pr:
     def add(self, val=0):
         self.a += val
 
+class Pr2(Pr):
+
+    def __init__(self):
+        Pr.__init__(self, a=2)
+
+    def add(self):
+        Pr.add(self, val=1)
+
 p = Pr(a=2)
 p.add(val=3)
 eq(p.a, 5)
+p = Pr2()
+p.add()
+eq(p.a, 3)
