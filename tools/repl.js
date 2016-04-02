@@ -144,13 +144,15 @@ module.exports = function(options) {
 
     function compile_source(source) {
         var classes = (toplevel) ? toplevel.classes : undefined;
+        var scoped_flags = (toplevel) ? toplevel.scoped_flags: undefined;
         try {
             toplevel = RapydScript.parse(source, {
                 'filename':'<repl>',
                 'basedir': process.cwd(),
                 'libdir': options.imp_path,
                 'import_dirs': import_dirs,
-                'classes': classes
+                'classes': classes,
+                'scoped_flags': scoped_flags,
             });
         } catch(e) {
             if (e.is_eof && e.line == buffer.length && e.col > 0) return true;
@@ -167,6 +169,7 @@ module.exports = function(options) {
                     toplevel.classes[name] = classes[name];
             });
         }
+        scoped_flags = toplevel.scoped_flags;
         runjs(output);
         return false;
     }

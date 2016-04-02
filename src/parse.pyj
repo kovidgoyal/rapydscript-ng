@@ -26,6 +26,7 @@ from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 has_prop = Object.prototype.hasOwnProperty
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
+PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True}
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -767,6 +768,31 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             baselib_items[bitem] = True
         imported_module_ids.push(key)
 
+    def read_python_flags():
+        expect_token("keyword", "import")
+        bracketed = is_('punc', '(')
+        if bracketed:
+            next()
+        while True:
+            if not is_('name'):
+                croak('Name expected')
+            name = S.token.value
+            val = False if name.startsWith('no_') else True
+            if not val:
+                name = name.slice(3)
+            if not has_prop.call(PYTHON_FLAGS, name):
+                croak('Unknown __python__ flag: ' + name)
+            S.scoped_flags.set(name, val)
+            next()
+            if is_('punc', ','):
+                next()
+            else:
+                if bracketed:
+                    if is_('punc', ')'):
+                        next()
+                    else:
+                        continue
+                break
 
     def import_(from_import):
         ans = new AST_Imports({'imports':[]})
@@ -777,6 +803,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 key = "." + tmp.property + key
                 tmp = last_tok = tmp.expression
             key = tmp.name + key
+            if from_import and key is '__python__':
+                return read_python_flags()
             alias = None
             if not from_import and is_('keyword', 'as'):
                 next()
@@ -893,11 +921,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.in_class.push(name.name)
                 S.classes[S.classes.length - 1][name.name] = class_details
                 S.classes.push({})
+                S.scoped_flags.push()
                 S.in_function += 1
                 S.in_loop = 0
                 S.labels = []
                 a = block_()
                 S.in_function -= 1
+                S.scoped_flags.pop()
                 S.classes.pop()
                 S.in_class.pop()
                 S.in_loop = loop
@@ -1085,12 +1115,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'body': (def(loop, labels):
                 S.in_class.push(False)
                 S.classes.push({})
+                S.scoped_flags.push()
                 S.in_function += 1
                 S.functions.push({})
                 S.in_loop = 0
                 S.labels = []
                 a = block_()
                 S.in_function -= 1
+                S.scoped_flags.pop()
                 is_generator.push(bool(S.functions.pop().is_generator))
                 S.classes.pop()
                 S.in_class.pop()
@@ -2028,6 +2060,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         imported_modules[module_id] = toplevel
         toplevel.imports = imported_modules
         toplevel.baselib = baselib_items
+        toplevel.scoped_flags = S.scoped_flags.stack[0]
         importing_modules[module_id] = False
         return toplevel
 
@@ -2041,7 +2074,8 @@ def parse(text, options):
         'toplevel': None,
         'for_linting': False, # If True certain actions are not performed, such as importing modules
         'import_dirs': v'[]',
-        'classes': undefined  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
+        'classes': undefined, # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
+        'scoped_flags': {},   # Global scoped flags (used by the REPL)
     })
     import_dirs = [x for x in options.import_dirs]
     for location in v'[options.libdir, options.basedir]':
@@ -2071,6 +2105,19 @@ def parse(text, options):
         'labels': [],
         'decorators': v'[]',
         'parsing_decorator': False,
+        'scoped_flags': {
+            'stack': v'[options.scoped_flags]',
+            'push': def (): this.stack.push({});,
+            'pop': def (): this.stack.pop();,
+            'get': def (name, defval):
+                for v'var i = this.stack.length - 1; i >= 0; i--':
+                    d = this.stack[i]
+                    if has_prop.call(d, name):
+                        return d[name]
+                return defval
+            ,
+            'set': def (name, val): this.stack[-1][name] = val;,
+        },
     }
 
     if options.classes:

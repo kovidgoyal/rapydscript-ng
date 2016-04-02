@@ -27,6 +27,7 @@ module.exports = function(compiler, baselib, runjs, name) {
 
         'compile': function web_repl_compile(code, filename) {
             var classes = (this.toplevel) ? this.toplevel.classes : undefined;
+            var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;
             this.toplevel = compiler.parse(code, {
                 'filename': filename || '<embedded>',
                 'basedir': '__stdlib__',
@@ -42,6 +43,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                         self.toplevel.classes[name] = classes[name];
                 });
             }
+            scoped_flags = this.toplevel.scoped_flags;
     
             return ans;
         },
