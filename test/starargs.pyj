@@ -294,3 +294,7 @@ eq(p.a, 5)
 p = Pr2()
 p.add()
 eq(p.a, 3)
+p1, p2 = Pr(), Pr(a=1)
+eq(p1.prototype, p2.prototype)
+de(dir(p1), dir(p2))
+
