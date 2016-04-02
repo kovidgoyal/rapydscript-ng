@@ -92,7 +92,10 @@ class A:
 clear()
 check_in('b = A(1)\nb.a', '1')
 check_in('c = A(2)\nc.a', '2')
-
+send_text('from __python__ import dict_literals\nd={1:1}')
+check_in('isinstance(d, dict)', 'true')
+send_text('from __python__ import no_dict_literals\nd={1:1}')
+check_in('isinstance(d, dict)', 'false')
 # Test completions
 def completions(line):
     return rl.completer(line)[0]

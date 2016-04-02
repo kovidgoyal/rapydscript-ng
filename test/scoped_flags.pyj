@@ -1,0 +1,22 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+a = {1:1}
+assert.ok(not isinstance(a, dict))
+
+from __python__ import dict_literals
+a = {1:1}
+assert.ok(isinstance(a, dict))
+from __python__ import no_dict_literals
+
+
+a = {1:1}
+assert.ok(not isinstance(a, dict))
+
+def f():
+    from __python__ import dict_literals
+    a = {1:1}
+    assert.ok(isinstance(a, dict))
+
+a = {1:1}
+assert.ok(not isinstance(a, dict))

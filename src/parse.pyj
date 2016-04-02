@@ -793,6 +793,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     else:
                         continue
                 break
+        return new AST_EmptyStatement({'stype':'scoped_flags', 'start':prev(), 'end':prev()})
 
     def import_(from_import):
         ans = new AST_Imports({'imports':[]})
@@ -1515,7 +1516,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         expect("{")
         first = True
         has_non_const_keys = False
-        is_pydict = False
+        is_pydict = S.scoped_flags.get('dict_literals', False)
         a = []
         if is_('punc', '!'):
             next()
@@ -2106,7 +2107,7 @@ def parse(text, options):
         'decorators': v'[]',
         'parsing_decorator': False,
         'scoped_flags': {
-            'stack': v'[options.scoped_flags]',
+            'stack': v'[options.scoped_flags || {}]',
             'push': def (): this.stack.push({});,
             'pop': def (): this.stack.pop();,
             'get': def (name, defval):
