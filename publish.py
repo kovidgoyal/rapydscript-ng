@@ -15,11 +15,11 @@ version = m['version']
 shutil.rmtree(os.path.join(base, 'release'))
 shutil.copytree(os.path.join(base, 'dev'), os.path.join(base, 'release'))
 subprocess.check_call(['git', 'add', os.path.join(base, 'release')])
-if not subprocess.check_output(
-        'git status --porcelain --untracked-files'.split()).strip():
+if subprocess.check_output(
+        'git status --porcelain --untracked-files release'.split()).strip():
     subprocess.check_call([
         'git', 'commit', '-m', 'Updating release build of compiler'])
-subprocess.check_call('git tag -s v{0} -m version-{0}'.split())
+subprocess.check_call('git tag -s v{0} -m version-{0}'.format(version).split())
 subprocess.check_call(['git', 'push'])
 
 
