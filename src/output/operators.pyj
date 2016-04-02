@@ -4,7 +4,7 @@
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
     AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement, has_calls
+    AST_Return, AST_SimpleStatement, has_calls, AST_String
 )
 from output.loops import unpack_tuple
 
@@ -181,6 +181,8 @@ def print_binary_op(self, output):
         write_smart_equality(self, output)
     elif self.operator is 'instanceof':
         write_instanceof(self.left, self.right, output)
+    elif self.operator is '*' and isinstance(self.left, AST_String):
+        self.left.print(output), output.print('.repeat('), self.right.print(output), output.print(')')
     else:
         output.spaced(self.left, self.operator, self.right)
 
