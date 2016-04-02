@@ -23,6 +23,7 @@ AST_Yield
 )
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
+has_prop = Object.prototype.hasOwnProperty
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 
@@ -268,7 +269,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         seen = {}
 
         def push(x):
-            if Object.prototype.hasOwnProperty.call(seen, x):
+            if has_prop.call(seen, x):
                 return
             seen[x] = True
             localvars.push(x)
@@ -926,7 +927,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return
                 elif isinstance(node, AST_Assign) and isinstance(node.left, AST_SymbolRef):
                     class_var_names[node.left.name] = True
-                elif isinstance(node, AST_SymbolRef) and Object.prototype.hasOwnProperty.call(class_var_names, node.name):
+                elif isinstance(node, AST_SymbolRef) and has_prop.call(class_var_names, node.name):
                     node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
                 if descend:
                     descend.call(node)
@@ -974,7 +975,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 def_line = S.input.context().tokline
 
                 def get_arg():
-                    if Object.prototype.hasOwnProperty.call(seen_names, S.token.value):
+                    if has_prop.call(seen_names, S.token.value):
                         token_error(prev(), "Can't repeat parameter names")
                     if S.token.value is 'arguments':
                         token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript")
@@ -2011,7 +2012,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 symbol = new_symbol(AST_SymbolVar, item)
                 if isvar:
                     toplevel.localvars.push(symbol)
-                if not Object.prototype.hasOwnProperty.call(seen_exports, item):
+                if not has_prop.call(seen_exports, item):
                     toplevel.exports.push(symbol)
                     seen_exports[item] = True
 
