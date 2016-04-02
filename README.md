@@ -723,7 +723,7 @@ list(a.keys()) == [1, 2, 3]
 a['3'] # raises a KeyError as this is a proper python dict, not a JavaScript object
 ```
 
-The special line, called a *scoped flag* above tells the compiler that from
+The special line, called a *scoped flag* tells the compiler that from
 that point on, you want it to treat dict literals and the getitem operator `[]`
 as they are treated in python, not JavaScript. 
 
