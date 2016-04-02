@@ -32,6 +32,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'filename': filename || '<embedded>',
                 'basedir': '__stdlib__',
                 'classes': classes,
+                'scoped_flags': scoped_flags,
             });
             var ans = print_ast(this.toplevel);
             if (classes) {
