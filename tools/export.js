@@ -216,7 +216,7 @@ function compile(code, filename, options) {
         omit_baselib: !!options.omit_baselib,
         js_version: options.js_version || 5,
     };
-    if (!out_ops.omit_baselib) out_ops.baselib = data['baselib-' + (out_ops.beautify ? 'pretty' : 'ugly') + '.js'];
+    if (!out_ops.omit_baselib) out_ops.baselib_plain = data['baselib-plain-' + (out_ops.beautify ? 'pretty' : 'ugly') + '.js'];
     var out = new RapydScript.OutputStream(out_ops);
     ast.print(out);
     return out.get();
