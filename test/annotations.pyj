@@ -1,7 +1,7 @@
 def add(a: int, b: float):
     return a + b
 
-assert.ok(not (add.__annotations__ == undefined))
+assert.ok(add.__annotations__)
 assert.equal(add.__annotations__['a'], int)
 assert.equal(add.__annotations__['b'], float)
 assert.equal(add.__annotations__['return'], undefined)
@@ -19,7 +19,8 @@ def optional(a:int=10):
     return a
 
 assert.ok(not (optional.__annotations__ == undefined))
-assert.equal(optional.__annotations__['a'], int)
+assert.equal(optional.__annotations__.a, int)
+assert.equal(optional.__defaults__.a, 10)
 
 def otherexpr(a:3+4) -> [1, 2]:
     pass

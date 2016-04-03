@@ -9,7 +9,7 @@ def print_class(output):
     if self.external:
         return
 
-    class_def = def(method, is_var):
+    def class_def(method, is_var):
         output.indent()
         self.name.print(output)
         if not is_var and method and self.static.indexOf(method) is not -1:
@@ -20,7 +20,7 @@ def print_class(output):
             else:
                 output.assign(".prototype" + ((method ? "." + method : "")))
 
-    define_method = def(stmt, is_property):
+    def define_method(stmt, is_property):
         name = stmt.name.name
         if not is_property:
             class_def(name)
@@ -42,6 +42,11 @@ def print_class(output):
         output.spaced('function', name, '()', '')
         output.with_block(def(): output.indent(), body();)
         output.end_statement()
+
+    def add_hidden_property(name, proceed):
+        output.indent(), output.print('Object.defineProperty(')
+        self.name.print(output), output.print('.prototype'), output.comma(), output.print(JSON.stringify(name)), output.comma()
+        output.spaced('{value:', ''), proceed(), output.print('})'), output.end_statement()
 
     # generate constructor
     def write_constructor():
@@ -89,23 +94,24 @@ def print_class(output):
     # method binding
     if self.bound.length:
         seen_methods = Object.create(None)
-        output.indent(), self.name.print(output), output.assign('.prototype.__bind_methods__'), output.spaced('function', '()', '')
-        output.with_block(def():
-            if self.bases.length:
-                for v'var i = self.bases.length - 1; i >= 0; i--':
-                    base = self.bases[i]
-                    output.indent(), base.print(output), output.spaced('.prototype.__bind_methods__', '&&', '')
-                    base.print(output), output.print('.prototype.__bind_methods__.call(this)')
+        add_hidden_property('__bind_methods__', def():
+            output.spaced('function', '()', '')
+            output.with_block(def():
+                if self.bases.length:
+                    for v'var i = self.bases.length - 1; i >= 0; i--':
+                        base = self.bases[i]
+                        output.indent(), base.print(output), output.spaced('.prototype.__bind_methods__', '&&', '')
+                        base.print(output), output.print('.prototype.__bind_methods__.call(this)')
+                        output.end_statement()
+                for bname in self.bound:
+                    if seen_methods[bname] or self.dynamic_properties[bname]:
+                        continue
+                    seen_methods[bname] = True
+                    output.indent(), output.assign('this.' + bname)
+                    self.name.print(output), output.print('.prototype.' + bname + '.bind(this)')
                     output.end_statement()
-            for bname in self.bound:
-                if seen_methods[bname] or self.dynamic_properties[bname]:
-                    continue
-                seen_methods[bname] = True
-                output.indent(), output.assign('this.' + bname)
-                self.name.print(output), output.print('.prototype.' + bname + '.bind(this)')
-                output.end_statement()
+            )
         )
-        output.end_statement()
 
     # dynamic properties
     property_names = Object.keys(self.dynamic_properties)
@@ -189,13 +195,14 @@ def print_class(output):
         )
 
     # Multiple inheritance
-    output.indent()
-    self.name.print(output), output.assign('.prototype.__bases__'), output.print('[')
-    for v'var i = 0; i < self.bases.length; i++':
-        self.bases[i].print(output)
-        if i < self.bases.length - 1:
-            output.comma()
-    output.print(']'), output.end_statement()
+    add_hidden_property('__bases__', def():
+        output.print('[')
+        for v'var i = 0; i < self.bases.length; i++':
+            self.bases[i].print(output)
+            if i < self.bases.length - 1:
+                output.comma()
+        output.print(']')
+    )
 
     if self.bases.length > 1:
         output.indent()

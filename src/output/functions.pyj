@@ -109,14 +109,12 @@ def has_annotations(self):
 
 def function_annotation(self, output, strip_first, name):
     fname = name or (self.name.name if self.name else anonfunc)
+    props = Object.create(None)
 
     # Create __annotations__
     if has_annotations(self):
-        output.end_statement()
-        output.indent()
-        output.assign(fname + '.__annotations__')
-        output.with_block(def():
-            output.indent()
+        props.__annotations__ = def():
+            output.print('{')
             if self.argnames and self.argnames.length:
                 self.argnames.forEach(def(arg, i):
                     if arg.annotation:
@@ -125,53 +123,55 @@ def function_annotation(self, output, strip_first, name):
                         arg.annotation.print(output)
                         if i < self.argnames.length - 1 or self.return_annotation:
                             output.comma()
-                        output.newline()
-                        output.indent()
                 )
             if self.return_annotation:
                 output.print('return:'), output.space()
                 self.return_annotation.print(output)
-                output.newline()
-        )
-        output.end_statement()
+            output.print('}')
 
     # Create __defaults__
     defaults = self.argnames.defaults
     dkeys = Object.keys(self.argnames.defaults)
     if dkeys.length:
-        output.newline(), output.indent()
-        output.assign(fname + '.__defaults__')
-        output.with_block(def():
+        props.__defaults__ = def():
+            output.print('{')
             dkeys.forEach(def(k, i):
-                output.indent()
                 output.print(k + ':'), defaults[k].print(output)
                 if i is not dkeys.length - 1:
-                    output.print(','), output.space()
-                output.newline()
+                    output.comma()
             )
-        )
-        output.end_statement()
+            output.print('}')
 
     # Create __handles_kwarg_interpolation__
     if not self.argnames.is_simple_func:
-        output.newline(), output.indent()
-        output.assign(fname + '.__handles_kwarg_interpolation__')
-        output.print('true')
-        output.end_statement()
+        props.__handles_kwarg_interpolation__ = def():
+            output.print('true')
 
     # Create __argnames__
     if self.argnames.length:
-        output.newline(), output.indent()
-        output.assign(fname + '.__argnames__')
-        output.print('['), self.argnames.forEach(def (arg, i):
-            if strip_first and i is 0:
-                return
-            output.print(JSON.stringify(arg.name))
-            if i is not self.argnames.length - 1:
-                output.print(','), output.space()
+        props.__argnames__ = def():
+            output.print('['), self.argnames.forEach(def (arg, i):
+                if strip_first and i is 0:
+                    return
+                output.print(JSON.stringify(arg.name))
+                if i is not self.argnames.length - 1:
+                    output.comma()
+            )
+            output.print(']')
+
+    names = Object.keys(props)
+    if names.length:
+        output.indent(), output.print('Object.defineProperties(' + fname), output.comma()
+        output.with_block(def():
+            for v'var i = 0; i < names.length; i++':
+                name = names[i]
+                output.indent(), output.spaced(name, ':', '{value:', ''), props[name](), output.print('}')
+                if i < names.length - 1:
+                    output.print(',')
+                output.newline()
         )
-        output.print(']')
-        output.end_statement()
+        output.print(')'), output.end_statement()
+
 
 def function_definition(self, output, strip_first, as_expression):
     as_expression = as_expression or self.is_expression or self.is_anonymous

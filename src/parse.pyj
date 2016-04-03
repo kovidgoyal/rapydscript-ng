@@ -1011,13 +1011,16 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 first = True
                 seen_names = {}
                 def_line = S.input.context().tokline
+                current_arg_name = None
 
                 def get_arg():
-                    if has_prop.call(seen_names, S.token.value):
+                    nonlocal current_arg_name
+                    current_arg_name = S.token.value
+                    if has_prop.call(seen_names, current_arg_name):
                         token_error(prev(), "Can't repeat parameter names")
-                    if S.token.value is 'arguments':
+                    if current_arg_name is 'arguments':
                         token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript")
-                    seen_names[S.token.value] = True
+                    seen_names[current_arg_name] = True
                     # save these in order to move back if we have an annotation
                     name_token = S.token
                     name_ctx = S.input.context()
@@ -1054,7 +1057,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                             return None
 
                         sym = new AST_SymbolFunarg({
-                            'name': S.token.value,
+                            'name': current_arg_name,
                             'start': S.token,
                             'end': S.token,
                             'annotation': None
@@ -1090,9 +1093,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         if is_("operator", "="):
                             if a.kwargs:
                                 token_error(prev(), "Can't define an optional formal parameter after **kwargs")
-                            val = prev().value
                             next()
-                            defaults[val] = expression(False)
+                            defaults[current_arg_name] = expression(False)
                             a.has_defaults = True
                         else:
                             if a.has_defaults:

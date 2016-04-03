@@ -57,7 +57,6 @@ assert.equal(bound(), angela.how_long())
 
 # function methods
 assert.deepEqual(dir(angela).sort(), [
-    '__bases__',
     "__init__",
     '__repr__',
     '__str__',
