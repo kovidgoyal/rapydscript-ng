@@ -1,3 +1,9 @@
+version 0.6.2
+==============
+
+ * Support multiple inheritance, just as in python
+ * Support method auto-binding for classes, just as in python, via an optional scoped flag. See the Method binding section in the README for details
+
 version 0.6.1
 ==============
 
