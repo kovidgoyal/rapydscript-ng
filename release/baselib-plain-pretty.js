@@ -2,8 +2,9 @@ var _$rapyd$_len;
 function _$rapyd$_bool(val) {
     return !!val;
 };
-
-_$rapyd$_bool.__argnames__ = ["val"];
+Object.defineProperties(_$rapyd$_bool, {
+    __argnames__ : {value: ["val"]}
+});
 
 function _$rapyd$_eslice(arr, step, start, end) {
     var isString;
@@ -32,14 +33,16 @@ function _$rapyd$_eslice(arr, step, start, end) {
         var _$rapyd$_anonfunc = function (e, i) {
             return i % step === 0;
         };
-
-        _$rapyd$_anonfunc.__argnames__ = ["e", "i"];
+        Object.defineProperties(_$rapyd$_anonfunc, {
+            __argnames__ : {value: ["e", "i"]}
+        });
         return _$rapyd$_anonfunc;
     })());
     return (isString) ? arr.join("") : arr;
 };
-
-_$rapyd$_eslice.__argnames__ = ["arr", "step", "start", "end"];
+Object.defineProperties(_$rapyd$_eslice, {
+    __argnames__ : {value: ["arr", "step", "start", "end"]}
+});
 
 function _$rapyd$_print() {
     var parts;
@@ -60,8 +63,9 @@ function _$rapyd$_int(val, base) {
     }
     return ans;
 };
-
-_$rapyd$_int.__argnames__ = ["val", "base"];
+Object.defineProperties(_$rapyd$_int, {
+    __argnames__ : {value: ["val", "base"]}
+});
 
 function _$rapyd$_float() {
     var ans;
@@ -85,31 +89,31 @@ function _$rapyd$_arraylike_creator() {
             }
             return false;
         };
-
-        _$rapyd$_anonfunc.__argnames__ = ["x"];
+        Object.defineProperties(_$rapyd$_anonfunc, {
+            __argnames__ : {value: ["x"]}
+        });
         return _$rapyd$_anonfunc;
     })();
 };
 
 function options_object(f) {
-    return (function() {
-        var _$rapyd$_anonfunc = function () {
-            if (typeof arguments[arguments.length - 1] === "object") {
-                arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = true;
-            }
-            return f.apply(this, arguments);
-        };
-        return _$rapyd$_anonfunc;
-    })();
+    return function () {
+        if (typeof arguments[arguments.length - 1] === "object") {
+            arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = true;
+        }
+        return f.apply(this, arguments);
+    };
 };
-
-options_object.__argnames__ = ["f"];
+Object.defineProperties(options_object, {
+    __argnames__ : {value: ["f"]}
+});
 
 function _$rapyd$_id(x) {
     return x._$rapyd$_object_id;
 };
-
-_$rapyd$_id.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_id, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_dir(item) {
     var arr;
@@ -119,8 +123,9 @@ function _$rapyd$_dir(item) {
     }
     return arr;
 };
-
-_$rapyd$_dir.__argnames__ = ["item"];
+Object.defineProperties(_$rapyd$_dir, {
+    __argnames__ : {value: ["item"]}
+});
 
 function _$rapyd$_ord(x) {
     var ans, second;
@@ -134,8 +139,9 @@ function _$rapyd$_ord(x) {
     }
     return ans;
 };
-
-_$rapyd$_ord.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_ord, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_chr(code) {
     if (code <= 65535) {
@@ -144,14 +150,16 @@ function _$rapyd$_chr(code) {
     code -= 65536;
     return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
 };
-
-_$rapyd$_chr.__argnames__ = ["code"];
+Object.defineProperties(_$rapyd$_chr, {
+    __argnames__ : {value: ["code"]}
+});
 
 function _$rapyd$_callable(x) {
     return typeof x === "function";
 };
-
-_$rapyd$_callable.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_callable, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_bin(x) {
     var ans;
@@ -166,8 +174,9 @@ function _$rapyd$_bin(x) {
     }
     return ans;
 };
-
-_$rapyd$_bin.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_bin, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_hex(x) {
     var ans;
@@ -182,36 +191,31 @@ function _$rapyd$_hex(x) {
     }
     return ans;
 };
-
-_$rapyd$_hex.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_hex, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_enumerate(iterable) {
     var ans, iterator;
     if (_$rapyd$_arraylike(iterable)) {
         ans = {
             "_i": -1,
-            "next": (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i < iterable.length) {
-                        return {
-                            "done": false,
-                            "value": _$rapyd$_list_decorate([ this._i, iterable[this._i] ])
-                        };
-                    }
+            "next": function () {
+                this._i += 1;
+                if (this._i < iterable.length) {
                     return {
-                        "done": true
+                        "done": false,
+                        "value": _$rapyd$_list_decorate([ this._i, iterable[this._i] ])
                     };
+                }
+                return {
+                    "done": true
                 };
-                return _$rapyd$_anonfunc;
-            })()
+            }
         };
-        ans[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        ans[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return ans;
     }
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
@@ -219,70 +223,60 @@ function _$rapyd$_enumerate(iterable) {
         ans = {
             "_iterator": iterator,
             "_i": -1,
-            "next": (function() {
-                var _$rapyd$_anonfunc = function () {
-                    var r;
-                    r = this._iterator.next();
-                    if (r.done) {
-                        return {
-                            "done": true
-                        };
-                    }
-                    this._i += 1;
+            "next": function () {
+                var r;
+                r = this._iterator.next();
+                if (r.done) {
                     return {
-                        "done": false,
-                        "value": _$rapyd$_list_decorate([ this._i, r.value ])
+                        "done": true
                     };
+                }
+                this._i += 1;
+                return {
+                    "done": false,
+                    "value": _$rapyd$_list_decorate([ this._i, r.value ])
                 };
-                return _$rapyd$_anonfunc;
-            })()
+            }
         };
-        ans[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        ans[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return ans;
     }
     return _$rapyd$_enumerate(Object.keys(iterable));
 };
-
-_$rapyd$_enumerate.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_enumerate, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 function _$rapyd$_reversed(iterable) {
     var ans;
     if (_$rapyd$_arraylike(iterable)) {
         ans = {
             "_i": iterable.length,
-            "next": (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i -= 1;
-                    if (this._i > -1) {
-                        return {
-                            "done": false,
-                            "value": iterable[this._i]
-                        };
-                    }
+            "next": function () {
+                this._i -= 1;
+                if (this._i > -1) {
                     return {
-                        "done": true
+                        "done": false,
+                        "value": iterable[this._i]
                     };
+                }
+                return {
+                    "done": true
                 };
-                return _$rapyd$_anonfunc;
-            })()
+            }
         };
-        ans[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        ans[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return ans;
     }
     throw new TypeError("reversed() can only be called on arrays or strings");
 };
-
-_$rapyd$_reversed.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_reversed, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 function _$rapyd$_iter(iterable) {
     var ans;
@@ -292,34 +286,29 @@ function _$rapyd$_iter(iterable) {
     if (_$rapyd$_arraylike(iterable)) {
         ans = {
             "_i": -1,
-            "next": (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i < iterable.length) {
-                        return {
-                            "done": false,
-                            "value": iterable[this._i]
-                        };
-                    }
+            "next": function () {
+                this._i += 1;
+                if (this._i < iterable.length) {
                     return {
-                        "done": true
+                        "done": false,
+                        "value": iterable[this._i]
                     };
+                }
+                return {
+                    "done": true
                 };
-                return _$rapyd$_anonfunc;
-            })()
+            }
         };
-        ans[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        ans[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return ans;
     }
     return _$rapyd$_iter(Object.keys(iterable));
 };
-
-_$rapyd$_iter.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_iter, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 function _$rapyd$_range(start, stop, step) {
     var length;
@@ -331,35 +320,30 @@ function _$rapyd$_range(start, stop, step) {
     length = Math.max(Math.ceil((stop - start) / step), 0);
     return (function(){
         var _$rapyd$_d = {};
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         _$rapyd$_d["_i"] = start - step;
         _$rapyd$_d["_idx"] = -1;
-        _$rapyd$_d["next"] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                this._i += step;
-                this._idx += 1;
-                if (this._idx >= length) {
-                    return {
-                        "done": true
-                    };
-                }
+        _$rapyd$_d["next"] = function () {
+            this._i += step;
+            this._idx += 1;
+            if (this._idx >= length) {
                 return {
-                    "done": false,
-                    "value": this._i
+                    "done": true
                 };
+            }
+            return {
+                "done": false,
+                "value": this._i
             };
-            return _$rapyd$_anonfunc;
-        })();
+        };
         return _$rapyd$_d;
     })();
 };
-
-_$rapyd$_range.__argnames__ = ["start", "stop", "step"];
+Object.defineProperties(_$rapyd$_range, {
+    __argnames__ : {value: ["start", "stop", "step"]}
+});
 
 function _$rapyd$_getattr(obj, name, defval) {
     var ret;
@@ -383,54 +367,56 @@ function _$rapyd$_getattr(obj, name, defval) {
     }
     return ret;
 };
-
-_$rapyd$_getattr.__argnames__ = ["obj", "name", "defval"];
+Object.defineProperties(_$rapyd$_getattr, {
+    __argnames__ : {value: ["obj", "name", "defval"]}
+});
 
 function _$rapyd$_setattr(obj, name, value) {
     obj[name] = value;
 };
-
-_$rapyd$_setattr.__argnames__ = ["obj", "name", "value"];
+Object.defineProperties(_$rapyd$_setattr, {
+    __argnames__ : {value: ["obj", "name", "value"]}
+});
 
 function _$rapyd$_hasattr(obj, name) {
     return name in obj;
 };
+Object.defineProperties(_$rapyd$_hasattr, {
+    __argnames__ : {value: ["obj", "name"]}
+});
 
-_$rapyd$_hasattr.__argnames__ = ["obj", "name"];
-
-_$rapyd$_len = (function() {
-    var _$rapyd$_anonfunc = function () {
-        function len(obj) {
-            if (_$rapyd$_arraylike(obj)) {
-                return obj.length;
-            }
-            if (typeof obj.__len__ === "function") {
-                return obj.__len__();
-            }
-            if (obj instanceof Set || obj instanceof Map) {
-                return obj.size;
-            }
-            return Object.keys(obj).length;
-        };
-
-        len.__argnames__ = ["obj"];
-
-        function len5(obj) {
-            if (_$rapyd$_arraylike(obj)) {
-                return obj.length;
-            }
-            if (typeof obj.__len__ === "function") {
-                return obj.__len__();
-            }
-            return Object.keys(obj).length;
-        };
-
-        len5.__argnames__ = ["obj"];
-
-        return (typeof Set === "function" && typeof Map === "function") ? len : len5;
+_$rapyd$_len = function () {
+    function len(obj) {
+        if (_$rapyd$_arraylike(obj)) {
+            return obj.length;
+        }
+        if (typeof obj.__len__ === "function") {
+            return obj.__len__();
+        }
+        if (obj instanceof Set || obj instanceof Map) {
+            return obj.size;
+        }
+        return Object.keys(obj).length;
     };
-    return _$rapyd$_anonfunc;
-})()();
+    Object.defineProperties(len, {
+        __argnames__ : {value: ["obj"]}
+    });
+
+    function len5(obj) {
+        if (_$rapyd$_arraylike(obj)) {
+            return obj.length;
+        }
+        if (typeof obj.__len__ === "function") {
+            return obj.__len__();
+        }
+        return Object.keys(obj).length;
+    };
+    Object.defineProperties(len5, {
+        __argnames__ : {value: ["obj"]}
+    });
+
+    return (typeof Set === "function" && typeof Map === "function") ? len : len5;
+}();
 var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool;
 var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
 var print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
@@ -476,8 +462,9 @@ function _$rapyd$_equals(a, b) {
     }
     return false;
 };
-
-_$rapyd$_equals.__argnames__ = ["a", "b"];
+Object.defineProperties(_$rapyd$_equals, {
+    __argnames__ : {value: ["a", "b"]}
+});
 
 function _$rapyd$_not_equals(a, b) {
     if (a === b) {
@@ -491,8 +478,9 @@ function _$rapyd$_not_equals(a, b) {
     }
     return !_$rapyd$_equals(a, b);
 };
-
-_$rapyd$_not_equals.__argnames__ = ["a", "b"];
+Object.defineProperties(_$rapyd$_not_equals, {
+    __argnames__ : {value: ["a", "b"]}
+});
 
 var equals = _$rapyd$_equals;
 function _$rapyd$_list_extend(iterable) {
@@ -512,8 +500,9 @@ function _$rapyd$_list_extend(iterable) {
         }
     }
 };
-
-_$rapyd$_list_extend.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_list_extend, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 function _$rapyd$_list_index(val, start, stop) {
     var idx;
@@ -541,8 +530,9 @@ function _$rapyd$_list_index(val, start, stop) {
     }
     throw new ValueError(val + " is not in list");
 };
-
-_$rapyd$_list_index.__argnames__ = ["val", "start", "stop"];
+Object.defineProperties(_$rapyd$_list_index, {
+    __argnames__ : {value: ["val", "start", "stop"]}
+});
 
 function _$rapyd$_list_pop(index) {
     var ans;
@@ -555,8 +545,9 @@ function _$rapyd$_list_pop(index) {
     }
     return ans[0];
 };
-
-_$rapyd$_list_pop.__argnames__ = ["index"];
+Object.defineProperties(_$rapyd$_list_pop, {
+    __argnames__ : {value: ["index"]}
+});
 
 function _$rapyd$_list_remove(value) {
     var idx;
@@ -566,8 +557,9 @@ function _$rapyd$_list_remove(value) {
     }
     this.splice(idx, 1);
 };
-
-_$rapyd$_list_remove.__argnames__ = ["value"];
+Object.defineProperties(_$rapyd$_list_remove, {
+    __argnames__ : {value: ["value"]}
+});
 
 function _$rapyd$_list_to_string() {
     return "[" + this.join(", ") + "]";
@@ -587,8 +579,9 @@ function _$rapyd$_list_insert(index, val) {
     }
     this[index] = val;
 };
-
-_$rapyd$_list_insert.__argnames__ = ["index", "val"];
+Object.defineProperties(_$rapyd$_list_insert, {
+    __argnames__ : {value: ["index", "val"]}
+});
 
 function _$rapyd$_list_copy() {
     return _$rapyd$_list_constructor(this);
@@ -607,13 +600,15 @@ function _$rapyd$_list_count(value) {
         var _$rapyd$_anonfunc = function (n, val) {
             return n + (val === value);
         };
-
-        _$rapyd$_anonfunc.__argnames__ = ["n", "val"];
+        Object.defineProperties(_$rapyd$_anonfunc, {
+            __argnames__ : {value: ["n", "val"]}
+        });
         return _$rapyd$_anonfunc;
     })(), 0);
 };
-
-_$rapyd$_list_count.__argnames__ = ["value"];
+Object.defineProperties(_$rapyd$_list_count, {
+    __argnames__ : {value: ["value"]}
+});
 
 function _$rapyd$_list_sort_key(value) {
     var t;
@@ -623,8 +618,9 @@ function _$rapyd$_list_sort_key(value) {
     }
     return value.toString();
 };
-
-_$rapyd$_list_sort_key.__argnames__ = ["value"];
+Object.defineProperties(_$rapyd$_list_sort_key, {
+    __argnames__ : {value: ["value"]}
+});
 
 function _$rapyd$_list_sort_cmp(a, b) {
     if (a < b) {
@@ -635,8 +631,9 @@ function _$rapyd$_list_sort_cmp(a, b) {
     }
     return 0;
 };
-
-_$rapyd$_list_sort_cmp.__argnames__ = ["a", "b"];
+Object.defineProperties(_$rapyd$_list_sort_cmp, {
+    __argnames__ : {value: ["a", "b"]}
+});
 
 function _$rapyd$_list_sort(key, reverse) {
     var mult, keymap, k;
@@ -651,13 +648,15 @@ function _$rapyd$_list_sort(key, reverse) {
         var _$rapyd$_anonfunc = function (a, b) {
             return mult * _$rapyd$_list_sort_cmp(keymap.get(a), keymap.get(b));
         };
-
-        _$rapyd$_anonfunc.__argnames__ = ["a", "b"];
+        Object.defineProperties(_$rapyd$_anonfunc, {
+            __argnames__ : {value: ["a", "b"]}
+        });
         return _$rapyd$_anonfunc;
     })());
 };
-
-_$rapyd$_list_sort.__argnames__ = ["key", "reverse"];
+Object.defineProperties(_$rapyd$_list_sort, {
+    __argnames__ : {value: ["key", "reverse"]}
+});
 
 function _$rapyd$_list_concat() {
     var ans;
@@ -679,25 +678,23 @@ function _$rapyd$_list_iterator(value) {
     return {
         "_i": -1,
         "_list": self,
-        "next": (function() {
-            var _$rapyd$_anonfunc = function () {
-                this._i += 1;
-                if (this._i >= this._list.length) {
-                    return {
-                        "done": true
-                    };
-                }
+        "next": function () {
+            this._i += 1;
+            if (this._i >= this._list.length) {
                 return {
-                    "done": false,
-                    "value": this._list[this._i]
+                    "done": true
                 };
+            }
+            return {
+                "done": false,
+                "value": this._list[this._i]
             };
-            return _$rapyd$_anonfunc;
-        })()
+        }
     };
 };
-
-_$rapyd$_list_iterator.__argnames__ = ["value"];
+Object.defineProperties(_$rapyd$_list_iterator, {
+    __argnames__ : {value: ["value"]}
+});
 
 function _$rapyd$_list_len() {
     return this.length;
@@ -711,8 +708,9 @@ function _$rapyd$_list_contains(val) {
     }
     return false;
 };
-
-_$rapyd$_list_contains.__argnames__ = ["val"];
+Object.defineProperties(_$rapyd$_list_contains, {
+    __argnames__ : {value: ["val"]}
+});
 
 function _$rapyd$_list_eq(other) {
     if (!_$rapyd$_arraylike(other)) {
@@ -728,8 +726,9 @@ function _$rapyd$_list_eq(other) {
     }
     return true;
 };
-
-_$rapyd$_list_eq.__argnames__ = ["other"];
+Object.defineProperties(_$rapyd$_list_eq, {
+    __argnames__ : {value: ["other"]}
+});
 
 function _$rapyd$_list_decorate(ans) {
     ans.append = Array.prototype.push;
@@ -756,8 +755,9 @@ function _$rapyd$_list_decorate(ans) {
     }
     return ans;
 };
-
-_$rapyd$_list_decorate.__argnames__ = ["ans"];
+Object.defineProperties(_$rapyd$_list_decorate, {
+    __argnames__ : {value: ["ans"]}
+});
 
 function _$rapyd$_list_constructor(iterable) {
     var ans, iterator, result;
@@ -783,8 +783,9 @@ function _$rapyd$_list_constructor(iterable) {
     }
     return _$rapyd$_list_decorate(ans);
 };
-
-_$rapyd$_list_constructor.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_list_constructor, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 _$rapyd$_list_constructor.__name__ = "list";
 var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate;
@@ -805,15 +806,11 @@ function sorted() {
     ans.pysort(key, reverse);
     return ans;
 };
-
-sorted.__defaults__ = {
-    key:null, 
-    reverse:false
-};
-
-sorted.__handles_kwarg_interpolation__ = true;
-
-sorted.__argnames__ = ["iterable", "key", "reverse"];
+Object.defineProperties(sorted, {
+    __defaults__ : {value: {key:null, reverse:false}},
+    __handles_kwarg_interpolation__ : {value: true},
+    __argnames__ : {value: ["iterable", "key", "reverse"]}
+});
 
 var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation;
 function _$rapyd$_set_keyfor(x) {
@@ -834,8 +831,9 @@ function _$rapyd$_set_keyfor(x) {
     }
     return ans;
 };
-
-_$rapyd$_set_keyfor.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_set_keyfor, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_set_polyfill() {
     this._store = {};
@@ -852,8 +850,9 @@ _$rapyd$_set_polyfill.prototype.add = (function() {
         }
         return this;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set_polyfill.prototype.clear = (function() {
@@ -861,8 +860,9 @@ _$rapyd$_set_polyfill.prototype.clear = (function() {
         this._store = {};
         this.size = 0;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set_polyfill.prototype.delete = (function() {
@@ -876,16 +876,18 @@ _$rapyd$_set_polyfill.prototype.delete = (function() {
         }
         return false;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set_polyfill.prototype.has = (function() {
     var _$rapyd$_anonfunc = function (x) {
         return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x));
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set_polyfill.prototype.values = (function() {
@@ -898,32 +900,27 @@ _$rapyd$_set_polyfill.prototype.values = (function() {
             _$rapyd$_d["_keys"] = keys;
             _$rapyd$_d["_i"] = -1;
             _$rapyd$_d["_s"] = s;
-            _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    return this;
-                };
-                return _$rapyd$_anonfunc;
-            })();
-            _$rapyd$_d["next"] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i >= this._keys.length) {
-                        return {
-                            "done": true
-                        };
-                    }
+            _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+                return this;
+            };
+            _$rapyd$_d["next"] = function () {
+                this._i += 1;
+                if (this._i >= this._keys.length) {
                     return {
-                        "done": false,
-                        "value": s[this._keys[this._i]]
+                        "done": true
                     };
+                }
+                return {
+                    "done": false,
+                    "value": s[this._keys[this._i]]
                 };
-                return _$rapyd$_anonfunc;
-            })();
+            };
             return _$rapyd$_d;
         })();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 if (typeof Set !== "function" || typeof Set.prototype.delete !== "function") {
@@ -962,40 +959,33 @@ function _$rapyd$_set(iterable) {
         return new _$rapyd$_set(iterable);
     }
 };
-
-_$rapyd$_set.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_set, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 _$rapyd$_set.prototype.__name__ = "set";
 Object.defineProperties(_$rapyd$_set.prototype, {
     "length": {
-        "get": (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this.jsset.size;
-            };
-            return _$rapyd$_anonfunc;
-        })()
+        "get": function () {
+            return this.jsset.size;
+        }
     },
     "size": {
-        "get": (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this.jsset.size;
-            };
-            return _$rapyd$_anonfunc;
-        })()
+        "get": function () {
+            return this.jsset.size;
+        }
     }
 });
-_$rapyd$_set.prototype.__len__ = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsset.size;
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_set.prototype.__len__ = function () {
+    return this.jsset.size;
+};
 _$rapyd$_chain_assign_temp = (function() {
     var _$rapyd$_anonfunc = function (x) {
         return this.jsset.has(x);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set.prototype.has = _$rapyd$_chain_assign_temp;
@@ -1005,132 +995,113 @@ _$rapyd$_set.prototype.add = (function() {
     var _$rapyd$_anonfunc = function (x) {
         this.jsset.add(x);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
-_$rapyd$_set.prototype.clear = (function() {
-    var _$rapyd$_anonfunc = function () {
-        this.jsset.clear();
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.copy = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return _$rapyd$_set(this);
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_set.prototype.clear = function () {
+    this.jsset.clear();
+};
+_$rapyd$_set.prototype.copy = function () {
+    return _$rapyd$_set(this);
+};
 _$rapyd$_set.prototype.discard = (function() {
     var _$rapyd$_anonfunc = function (x) {
         this.jsset.delete(x);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
-_$rapyd$_set.prototype[_$rapyd$_iterator_symbol] = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsset.values();
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.difference = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var ans, s, iterator, r, x, has;
-        ans = new _$rapyd$_set;
-        s = ans.jsset;
-        iterator = this.jsset.values();
+_$rapyd$_set.prototype[_$rapyd$_iterator_symbol] = function () {
+    return this.jsset.values();
+};
+_$rapyd$_set.prototype.difference = function () {
+    var ans, s, iterator, r, x, has;
+    ans = new _$rapyd$_set;
+    s = ans.jsset;
+    iterator = this.jsset.values();
+    r = iterator.next();
+    while (!r.done) {
+        x = r.value;
+        has = false;
+        for (var i = 0; i < arguments.length; i++) {
+            if (arguments[i].has(x)) {
+                has = true;
+                break;
+            }
+        }
+        if (!has) {
+            s.add(x);
+        }
         r = iterator.next();
-        while (!r.done) {
-            x = r.value;
-            has = false;
-            for (var i = 0; i < arguments.length; i++) {
-                if (arguments[i].has(x)) {
-                    has = true;
-                    break;
-                }
+    }
+    return ans;
+};
+_$rapyd$_set.prototype.difference_update = function () {
+    var s, remove, iterator, r, x;
+    s = this.jsset;
+    remove = [];
+    iterator = s.values();
+    r = iterator.next();
+    while (!r.done) {
+        x = r.value;
+        for (var i = 0; i < arguments.length; i++) {
+            if (arguments[i].has(x)) {
+                remove.push(x);
+                break;
             }
-            if (!has) {
-                s.add(x);
-            }
-            r = iterator.next();
         }
-        return ans;
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.difference_update = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var s, remove, iterator, r, x;
-        s = this.jsset;
-        remove = [];
-        iterator = s.values();
         r = iterator.next();
-        while (!r.done) {
-            x = r.value;
-            for (var i = 0; i < arguments.length; i++) {
-                if (arguments[i].has(x)) {
-                    remove.push(x);
-                    break;
-                }
+    }
+    for (var j = 0; j < remove.length; j++) {
+        s.delete(remove[j]);
+    }
+};
+_$rapyd$_set.prototype.intersection = function () {
+    var ans, s, iterator, r, x, has;
+    ans = new _$rapyd$_set;
+    s = ans.jsset;
+    iterator = this.jsset.values();
+    r = iterator.next();
+    while (!r.done) {
+        x = r.value;
+        has = true;
+        for (var i = 0; i < arguments.length; i++) {
+            if (!arguments[i].has(x)) {
+                has = false;
+                break;
             }
-            r = iterator.next();
         }
-        for (var j = 0; j < remove.length; j++) {
-            s.delete(remove[j]);
+        if (has) {
+            s.add(x);
         }
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.intersection = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var ans, s, iterator, r, x, has;
-        ans = new _$rapyd$_set;
-        s = ans.jsset;
-        iterator = this.jsset.values();
         r = iterator.next();
-        while (!r.done) {
-            x = r.value;
-            has = true;
-            for (var i = 0; i < arguments.length; i++) {
-                if (!arguments[i].has(x)) {
-                    has = false;
-                    break;
-                }
+    }
+    return ans;
+};
+_$rapyd$_set.prototype.intersection_update = function () {
+    var s, remove, iterator, r, x;
+    s = this.jsset;
+    remove = [];
+    iterator = s.values();
+    r = iterator.next();
+    while (!r.done) {
+        x = r.value;
+        for (var i = 0; i < arguments.length; i++) {
+            if (!arguments[i].has(x)) {
+                remove.push(x);
+                break;
             }
-            if (has) {
-                s.add(x);
-            }
-            r = iterator.next();
         }
-        return ans;
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.intersection_update = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var s, remove, iterator, r, x;
-        s = this.jsset;
-        remove = [];
-        iterator = s.values();
         r = iterator.next();
-        while (!r.done) {
-            x = r.value;
-            for (var i = 0; i < arguments.length; i++) {
-                if (!arguments[i].has(x)) {
-                    remove.push(x);
-                    break;
-                }
-            }
-            r = iterator.next();
-        }
-        for (var j = 0; j < remove.length; j++) {
-            s.delete(remove[j]);
-        }
-    };
-    return _$rapyd$_anonfunc;
-})();
+    }
+    for (var j = 0; j < remove.length; j++) {
+        s.delete(remove[j]);
+    }
+};
 _$rapyd$_set.prototype.isdisjoint = (function() {
     var _$rapyd$_anonfunc = function (other) {
         var iterator, r, x;
@@ -1145,8 +1116,9 @@ _$rapyd$_set.prototype.isdisjoint = (function() {
         }
         return true;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set.prototype.issubset = (function() {
@@ -1163,8 +1135,9 @@ _$rapyd$_set.prototype.issubset = (function() {
         }
         return true;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set.prototype.issuperset = (function() {
@@ -1182,39 +1155,39 @@ _$rapyd$_set.prototype.issuperset = (function() {
         }
         return true;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
-_$rapyd$_set.prototype.pop = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var iterator, r;
-        iterator = this.jsset.values();
-        r = iterator.next();
-        if (r.done) {
-            throw new KeyError("pop from an empty set");
-        }
-        this.jsset.delete(r.value);
-        return r.value;
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_set.prototype.pop = function () {
+    var iterator, r;
+    iterator = this.jsset.values();
+    r = iterator.next();
+    if (r.done) {
+        throw new KeyError("pop from an empty set");
+    }
+    this.jsset.delete(r.value);
+    return r.value;
+};
 _$rapyd$_set.prototype.remove = (function() {
     var _$rapyd$_anonfunc = function (x) {
         if (!this.jsset.delete(x)) {
             throw new KeyError(x.toString());
         }
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set.prototype.symmetric_difference = (function() {
     var _$rapyd$_anonfunc = function (other) {
         return this.union(other).difference(this.intersection(other));
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_set.prototype.symmetric_difference_update = (function() {
@@ -1224,40 +1197,32 @@ _$rapyd$_set.prototype.symmetric_difference_update = (function() {
         this.update(other);
         this.difference_update(common);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
-_$rapyd$_set.prototype.union = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var ans;
-        ans = _$rapyd$_set(this);
-        ans.update.apply(ans, arguments);
-        return ans;
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_set.prototype.update = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var s, iterator, r;
-        s = this.jsset;
-        for (var i=0; i < arguments.length; i++) {
-            iterator = arguments[i][_$rapyd$_iterator_symbol]();
+_$rapyd$_set.prototype.union = function () {
+    var ans;
+    ans = _$rapyd$_set(this);
+    ans.update.apply(ans, arguments);
+    return ans;
+};
+_$rapyd$_set.prototype.update = function () {
+    var s, iterator, r;
+    s = this.jsset;
+    for (var i=0; i < arguments.length; i++) {
+        iterator = arguments[i][_$rapyd$_iterator_symbol]();
+        r = iterator.next();
+        while (!r.done) {
+            s.add(r.value);
             r = iterator.next();
-            while (!r.done) {
-                s.add(r.value);
-                r = iterator.next();
-            }
         }
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_chain_assign_temp = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return "{" + list(this).join(", ") + "}";
-    };
-    return _$rapyd$_anonfunc;
-})();
+    }
+};
+_$rapyd$_chain_assign_temp = function () {
+    return "{" + list(this).join(", ") + "}";
+};
 _$rapyd$_set.prototype.toString = _$rapyd$_chain_assign_temp;
 _$rapyd$_set.prototype.inspect = _$rapyd$_chain_assign_temp;
 ;
@@ -1283,8 +1248,9 @@ _$rapyd$_set.prototype.__eq__ = (function() {
         }
         return true;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 function _$rapyd$_set_wrap(x) {
@@ -1293,8 +1259,9 @@ function _$rapyd$_set_wrap(x) {
     ans.jsset = x;
     return ans;
 };
-
-_$rapyd$_set_wrap.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_set_wrap, {
+    __argnames__ : {value: ["x"]}
+});
 
 var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap;
 var _$rapyd$_dict_implementation;
@@ -1313,8 +1280,9 @@ _$rapyd$_dict_polyfill.prototype.set = (function() {
         this._store[key] = [x, value];
         return this;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x", "value"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x", "value"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.clear = (function() {
@@ -1322,8 +1290,9 @@ _$rapyd$_dict_polyfill.prototype.clear = (function() {
         this._store = {};
         this.size = 0;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.delete = (function() {
@@ -1337,16 +1306,18 @@ _$rapyd$_dict_polyfill.prototype.delete = (function() {
         }
         return false;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.has = (function() {
     var _$rapyd$_anonfunc = function (x) {
         return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x));
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.get = (function() {
@@ -1361,8 +1332,9 @@ _$rapyd$_dict_polyfill.prototype.get = (function() {
             }
         }
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.values = (function() {
@@ -1375,32 +1347,27 @@ _$rapyd$_dict_polyfill.prototype.values = (function() {
             _$rapyd$_d["_keys"] = keys;
             _$rapyd$_d["_i"] = -1;
             _$rapyd$_d["_s"] = s;
-            _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    return this;
-                };
-                return _$rapyd$_anonfunc;
-            })();
-            _$rapyd$_d["next"] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i >= this._keys.length) {
-                        return {
-                            "done": true
-                        };
-                    }
+            _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+                return this;
+            };
+            _$rapyd$_d["next"] = function () {
+                this._i += 1;
+                if (this._i >= this._keys.length) {
                     return {
-                        "done": false,
-                        "value": s[this._keys[this._i]][1]
+                        "done": true
                     };
+                }
+                return {
+                    "done": false,
+                    "value": s[this._keys[this._i]][1]
                 };
-                return _$rapyd$_anonfunc;
-            })();
+            };
             return _$rapyd$_d;
         })();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.keys = (function() {
@@ -1413,32 +1380,27 @@ _$rapyd$_dict_polyfill.prototype.keys = (function() {
             _$rapyd$_d["_keys"] = keys;
             _$rapyd$_d["_i"] = -1;
             _$rapyd$_d["_s"] = s;
-            _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    return this;
-                };
-                return _$rapyd$_anonfunc;
-            })();
-            _$rapyd$_d["next"] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i >= this._keys.length) {
-                        return {
-                            "done": true
-                        };
-                    }
+            _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+                return this;
+            };
+            _$rapyd$_d["next"] = function () {
+                this._i += 1;
+                if (this._i >= this._keys.length) {
                     return {
-                        "done": false,
-                        "value": s[this._keys[this._i]][0]
+                        "done": true
                     };
+                }
+                return {
+                    "done": false,
+                    "value": s[this._keys[this._i]][0]
                 };
-                return _$rapyd$_anonfunc;
-            })();
+            };
             return _$rapyd$_d;
         })();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict_polyfill.prototype.entries = (function() {
@@ -1451,32 +1413,27 @@ _$rapyd$_dict_polyfill.prototype.entries = (function() {
             _$rapyd$_d["_keys"] = keys;
             _$rapyd$_d["_i"] = -1;
             _$rapyd$_d["_s"] = s;
-            _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    return this;
-                };
-                return _$rapyd$_anonfunc;
-            })();
-            _$rapyd$_d["next"] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    this._i += 1;
-                    if (this._i >= this._keys.length) {
-                        return {
-                            "done": true
-                        };
-                    }
+            _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+                return this;
+            };
+            _$rapyd$_d["next"] = function () {
+                this._i += 1;
+                if (this._i >= this._keys.length) {
                     return {
-                        "done": false,
-                        "value": s[this._keys[this._i]]
+                        "done": true
                     };
+                }
+                return {
+                    "done": false,
+                    "value": s[this._keys[this._i]]
                 };
-                return _$rapyd$_anonfunc;
-            })();
+            };
             return _$rapyd$_d;
         })();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
@@ -1495,40 +1452,33 @@ function _$rapyd$_dict(iterable) {
         return new _$rapyd$_dict(iterable);
     }
 };
-
-_$rapyd$_dict.__argnames__ = ["iterable"];
+Object.defineProperties(_$rapyd$_dict, {
+    __argnames__ : {value: ["iterable"]}
+});
 
 _$rapyd$_dict.prototype.__name__ = "dict";
 Object.defineProperties(_$rapyd$_dict.prototype, {
     "length": {
-        "get": (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this.jsmap.size;
-            };
-            return _$rapyd$_anonfunc;
-        })()
+        "get": function () {
+            return this.jsmap.size;
+        }
     },
     "size": {
-        "get": (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this.jsmap.size;
-            };
-            return _$rapyd$_anonfunc;
-        })()
+        "get": function () {
+            return this.jsmap.size;
+        }
     }
 });
-_$rapyd$_dict.prototype.__len__ = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsmap.size;
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_dict.prototype.__len__ = function () {
+    return this.jsmap.size;
+};
 _$rapyd$_chain_assign_temp = (function() {
     var _$rapyd$_anonfunc = function (x) {
         return this.jsmap.has(x);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["x"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["x"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.prototype.has = _$rapyd$_chain_assign_temp;
@@ -1538,52 +1488,35 @@ _$rapyd$_chain_assign_temp = (function() {
     var _$rapyd$_anonfunc = function (key, value) {
         this.jsmap.set(key, value);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["key", "value"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["key", "value"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.prototype.set = _$rapyd$_chain_assign_temp;
 _$rapyd$_dict.prototype.__setitem__ = _$rapyd$_chain_assign_temp;
 ;
-_$rapyd$_dict.prototype.clear = (function() {
-    var _$rapyd$_anonfunc = function () {
-        this.jsmap.clear();
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_dict.prototype.copy = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return _$rapyd$_dict(this);
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_dict.prototype.keys = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsmap.keys();
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_dict.prototype.values = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsmap.values();
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_chain_assign_temp = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsmap.entries();
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_dict.prototype.clear = function () {
+    this.jsmap.clear();
+};
+_$rapyd$_dict.prototype.copy = function () {
+    return _$rapyd$_dict(this);
+};
+_$rapyd$_dict.prototype.keys = function () {
+    return this.jsmap.keys();
+};
+_$rapyd$_dict.prototype.values = function () {
+    return this.jsmap.values();
+};
+_$rapyd$_chain_assign_temp = function () {
+    return this.jsmap.entries();
+};
 _$rapyd$_dict.prototype.items = _$rapyd$_chain_assign_temp;
 _$rapyd$_dict.prototype.entries = _$rapyd$_chain_assign_temp;
 ;
-_$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = (function() {
-    var _$rapyd$_anonfunc = function () {
-        return this.jsmap.keys();
-    };
-    return _$rapyd$_anonfunc;
-})();
+_$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = function () {
+    return this.jsmap.keys();
+};
 _$rapyd$_dict.prototype.__getitem__ = (function() {
     var _$rapyd$_anonfunc = function (key) {
         var ans;
@@ -1593,8 +1526,9 @@ _$rapyd$_dict.prototype.__getitem__ = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["key"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["key"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.prototype.get = (function() {
@@ -1606,8 +1540,9 @@ _$rapyd$_dict.prototype.get = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["key", "defval"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.prototype.set_default = (function() {
@@ -1620,8 +1555,9 @@ _$rapyd$_dict.prototype.set_default = (function() {
         }
         return j.get(key);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["key", "defval"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_chain_assign_temp = (function() {
@@ -1643,14 +1579,11 @@ _$rapyd$_chain_assign_temp = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__defaults__ = {
-        value:null
-    };
-
-    _$rapyd$_anonfunc.__handles_kwarg_interpolation__ = true;
-
-    _$rapyd$_anonfunc.__argnames__ = ["iterable", "value"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __defaults__ : {value: {value:null}},
+        __handles_kwarg_interpolation__ : {value: true},
+        __argnames__ : {value: ["iterable", "value"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.fromkeys = _$rapyd$_chain_assign_temp;
@@ -1669,83 +1602,75 @@ _$rapyd$_dict.prototype.pop = (function() {
         this.jsmap.delete(key);
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["key", "defval"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["key", "defval"]}
+    });
     return _$rapyd$_anonfunc;
 })();
-_$rapyd$_dict.prototype.popitem = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var r;
-        r = this.jsmap.entries().next();
-        if (r.done) {
-            throw new KeyError("dict is empty");
+_$rapyd$_dict.prototype.popitem = function () {
+    var r;
+    r = this.jsmap.entries().next();
+    if (r.done) {
+        throw new KeyError("dict is empty");
+    }
+    this.jsmap.delete(r.value[0]);
+    return r.value;
+};
+_$rapyd$_dict.prototype.update = function () {
+    var m, iterable, iterator, result, keys;
+    if (arguments.length === 0) {
+        return;
+    }
+    m = this.jsmap;
+    iterable = arguments[0];
+    if (Array.isArray(iterable)) {
+        for (var i = 0; i < iterable.length; i++) {
+            m.set(iterable[i][0], iterable[i][1]);
         }
-        this.jsmap.delete(r.value[0]);
-        return r.value;
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_dict.prototype.update = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var m, iterable, iterator, result, keys;
-        if (arguments.length === 0) {
-            return;
-        }
-        m = this.jsmap;
-        iterable = arguments[0];
-        if (Array.isArray(iterable)) {
-            for (var i = 0; i < iterable.length; i++) {
-                m.set(iterable[i][0], iterable[i][1]);
-            }
-        } else if (_$rapyd$_instanceof(iterable, _$rapyd$_dict)) {
-            iterator = iterable.items();
+    } else if (_$rapyd$_instanceof(iterable, _$rapyd$_dict)) {
+        iterator = iterable.items();
+        result = iterator.next();
+        while (!result.done) {
+            m.set(result.value[0], result.value[1]);
             result = iterator.next();
-            while (!result.done) {
-                m.set(result.value[0], result.value[1]);
-                result = iterator.next();
-            }
-        } else if (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) {
-            iterator = iterable.entries();
+        }
+    } else if (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) {
+        iterator = iterable.entries();
+        result = iterator.next();
+        while (!result.done) {
+            m.set(result.value[0], result.value[1]);
             result = iterator.next();
-            while (!result.done) {
-                m.set(result.value[0], result.value[1]);
-                result = iterator.next();
-            }
-        } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-            iterator = iterable[_$rapyd$_iterator_symbol]();
+        }
+    } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
+        iterator = iterable[_$rapyd$_iterator_symbol]();
+        result = iterator.next();
+        while (!result.done) {
+            m.set(result.value[0], result.value[1]);
             result = iterator.next();
-            while (!result.done) {
-                m.set(result.value[0], result.value[1]);
-                result = iterator.next();
-            }
-        } else {
-            keys = Object.keys(iterable);
-            for (var j=0; j < keys.length; j++) {
-                if (keys[j] !== _$rapyd$_iterator_symbol) {
-                    m.set(keys[j], iterable[keys[j]]);
-                }
+        }
+    } else {
+        keys = Object.keys(iterable);
+        for (var j=0; j < keys.length; j++) {
+            if (keys[j] !== _$rapyd$_iterator_symbol) {
+                m.set(keys[j], iterable[keys[j]]);
             }
         }
-        if (arguments.length > 1) {
-            _$rapyd$_dict.prototype.update.call(this, arguments[1]);
-        }
-    };
-    return _$rapyd$_anonfunc;
-})();
-_$rapyd$_chain_assign_temp = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var entries, iterator, r;
-        entries = [];
-        iterator = this.jsmap.entries();
+    }
+    if (arguments.length > 1) {
+        _$rapyd$_dict.prototype.update.call(this, arguments[1]);
+    }
+};
+_$rapyd$_chain_assign_temp = function () {
+    var entries, iterator, r;
+    entries = [];
+    iterator = this.jsmap.entries();
+    r = iterator.next();
+    while (!r.done) {
+        entries.push(r.value[0] + ": " + r.value[1]);
         r = iterator.next();
-        while (!r.done) {
-            entries.push(r.value[0] + ": " + r.value[1]);
-            r = iterator.next();
-        }
-        return "{" + entries.join(", ") + "}";
-    };
-    return _$rapyd$_anonfunc;
-})();
+    }
+    return "{" + entries.join(", ") + "}";
+};
 _$rapyd$_dict.prototype.toString = _$rapyd$_chain_assign_temp;
 _$rapyd$_dict.prototype.inspect = _$rapyd$_chain_assign_temp;
 ;
@@ -1772,8 +1697,9 @@ _$rapyd$_dict.prototype.__eq__ = (function() {
         }
         return true;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_dict.prototype.as_object = (function() {
@@ -1788,8 +1714,9 @@ _$rapyd$_dict.prototype.as_object = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["other"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["other"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 function _$rapyd$_dict_wrap(x) {
@@ -1798,8 +1725,9 @@ function _$rapyd$_dict_wrap(x) {
     ans.jsmap = x;
     return ans;
 };
-
-_$rapyd$_dict_wrap.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_dict_wrap, {
+    __argnames__ : {value: ["x"]}
+});
 
 var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap;var Exception = Error;
 function AttributeError() {
@@ -1812,8 +1740,9 @@ AttributeError.prototype.__init__ = function __init__(msg) {
     self.message = msg;
     self.stack = (new Error).stack;
 };
-
-AttributeError.prototype.__init__.__argnames__ = ["msg"];
+Object.defineProperties(AttributeError.prototype.__init__, {
+    __argnames__ : {value: ["msg"]}
+});
 AttributeError.__argnames__ = AttributeError.prototype.__init__.__argnames__;
 AttributeError.__handles_kwarg_interpolation__ = AttributeError.prototype.__init__.__handles_kwarg_interpolation__;
 AttributeError.prototype.__repr__ = function __repr__ () {
@@ -1822,7 +1751,7 @@ AttributeError.prototype.__repr__ = function __repr__ () {
 AttributeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
-AttributeError.prototype.__bases__ = [Error];
+Object.defineProperty(AttributeError.prototype, "__bases__", {value: [Error]});
 AttributeError.prototype.name = "AttributeError";
 
 function IndexError() {
@@ -1835,8 +1764,9 @@ IndexError.prototype.__init__ = function __init__(msg) {
     self.message = msg;
     self.stack = (new Error).stack;
 };
-
-IndexError.prototype.__init__.__argnames__ = ["msg"];
+Object.defineProperties(IndexError.prototype.__init__, {
+    __argnames__ : {value: ["msg"]}
+});
 IndexError.__argnames__ = IndexError.prototype.__init__.__argnames__;
 IndexError.__handles_kwarg_interpolation__ = IndexError.prototype.__init__.__handles_kwarg_interpolation__;
 IndexError.prototype.__repr__ = function __repr__ () {
@@ -1845,7 +1775,7 @@ IndexError.prototype.__repr__ = function __repr__ () {
 IndexError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
-IndexError.prototype.__bases__ = [Error];
+Object.defineProperty(IndexError.prototype, "__bases__", {value: [Error]});
 IndexError.prototype.name = "IndexError";
 
 function KeyError() {
@@ -1858,8 +1788,9 @@ KeyError.prototype.__init__ = function __init__(msg) {
     self.message = msg;
     self.stack = (new Error).stack;
 };
-
-KeyError.prototype.__init__.__argnames__ = ["msg"];
+Object.defineProperties(KeyError.prototype.__init__, {
+    __argnames__ : {value: ["msg"]}
+});
 KeyError.__argnames__ = KeyError.prototype.__init__.__argnames__;
 KeyError.__handles_kwarg_interpolation__ = KeyError.prototype.__init__.__handles_kwarg_interpolation__;
 KeyError.prototype.__repr__ = function __repr__ () {
@@ -1868,7 +1799,7 @@ KeyError.prototype.__repr__ = function __repr__ () {
 KeyError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
-KeyError.prototype.__bases__ = [Error];
+Object.defineProperty(KeyError.prototype, "__bases__", {value: [Error]});
 KeyError.prototype.name = "KeyError";
 
 function ValueError() {
@@ -1881,8 +1812,9 @@ ValueError.prototype.__init__ = function __init__(msg) {
     self.message = msg;
     self.stack = (new Error).stack;
 };
-
-ValueError.prototype.__init__.__argnames__ = ["msg"];
+Object.defineProperties(ValueError.prototype.__init__, {
+    __argnames__ : {value: ["msg"]}
+});
 ValueError.__argnames__ = ValueError.prototype.__init__.__argnames__;
 ValueError.__handles_kwarg_interpolation__ = ValueError.prototype.__init__.__handles_kwarg_interpolation__;
 ValueError.prototype.__repr__ = function __repr__ () {
@@ -1891,7 +1823,7 @@ ValueError.prototype.__repr__ = function __repr__ () {
 ValueError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
-ValueError.prototype.__bases__ = [Error];
+Object.defineProperty(ValueError.prototype, "__bases__", {value: [Error]});
 ValueError.prototype.name = "ValueError";
 
 function UnicodeDecodeError() {
@@ -1908,7 +1840,7 @@ UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
 UnicodeDecodeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
-UnicodeDecodeError.prototype.__bases__ = [ValueError];
+Object.defineProperty(UnicodeDecodeError.prototype, "__bases__", {value: [ValueError]});
 UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
 var _$rapyd$_in, _$rapyd$_desugar_kwargs;
 function _$rapyd$_flatten(arr) {
@@ -1924,40 +1856,20 @@ function _$rapyd$_flatten(arr) {
     }
     return ans;
 };
-
-_$rapyd$_flatten.__argnames__ = ["arr"];
+Object.defineProperties(_$rapyd$_flatten, {
+    __argnames__ : {value: ["arr"]}
+});
 
 function _$rapyd$_extends(child, parent) {
     child.prototype = Object.create(parent.prototype);
     child.prototype.constructor = child;
 };
+Object.defineProperties(_$rapyd$_extends, {
+    __argnames__ : {value: ["child", "parent"]}
+});
 
-_$rapyd$_extends.__argnames__ = ["child", "parent"];
-
-_$rapyd$_in = (function() {
-    var _$rapyd$_anonfunc = function () {
-        if (typeof Map === "function" && typeof Set === "function") {
-            return (function() {
-                var _$rapyd$_anonfunc = function (val, arr) {
-                    if (typeof arr === "string") {
-                        return arr.indexOf(val) !== -1;
-                    }
-                    if (typeof arr.__contains__ === "function") {
-                        return arr.__contains__(val);
-                    }
-                    if (_$rapyd$_instanceof.apply(null, [arr, Map, Set])) {
-                        return arr.has(val);
-                    }
-                    if (_$rapyd$_arraylike(arr)) {
-                        return _$rapyd$_list_contains.call(arr, val);
-                    }
-                    return Object.prototype.hasOwnProperty.call(arr, val);
-                };
-
-                _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
-                return _$rapyd$_anonfunc;
-            })();
-        }
+_$rapyd$_in = function () {
+    if (typeof Map === "function" && typeof Set === "function") {
         return (function() {
             var _$rapyd$_anonfunc = function (val, arr) {
                 if (typeof arr === "string") {
@@ -1966,18 +1878,39 @@ _$rapyd$_in = (function() {
                 if (typeof arr.__contains__ === "function") {
                     return arr.__contains__(val);
                 }
+                if (_$rapyd$_instanceof.apply(null, [arr, Map, Set])) {
+                    return arr.has(val);
+                }
                 if (_$rapyd$_arraylike(arr)) {
                     return _$rapyd$_list_contains.call(arr, val);
                 }
                 return Object.prototype.hasOwnProperty.call(arr, val);
             };
-
-            _$rapyd$_anonfunc.__argnames__ = ["val", "arr"];
+            Object.defineProperties(_$rapyd$_anonfunc, {
+                __argnames__ : {value: ["val", "arr"]}
+            });
             return _$rapyd$_anonfunc;
         })();
-    };
-    return _$rapyd$_anonfunc;
-})()();
+    }
+    return (function() {
+        var _$rapyd$_anonfunc = function (val, arr) {
+            if (typeof arr === "string") {
+                return arr.indexOf(val) !== -1;
+            }
+            if (typeof arr.__contains__ === "function") {
+                return arr.__contains__(val);
+            }
+            if (_$rapyd$_arraylike(arr)) {
+                return _$rapyd$_list_contains.call(arr, val);
+            }
+            return Object.prototype.hasOwnProperty.call(arr, val);
+        };
+        Object.defineProperties(_$rapyd$_anonfunc, {
+            __argnames__ : {value: ["val", "arr"]}
+        });
+        return _$rapyd$_anonfunc;
+    })();
+}();
 function _$rapyd$_Iterable(iterable) {
     var iterator, ans, result;
     if (_$rapyd$_arraylike(iterable)) {
@@ -1995,43 +1928,35 @@ function _$rapyd$_Iterable(iterable) {
     }
     return Object.keys(iterable);
 };
+Object.defineProperties(_$rapyd$_Iterable, {
+    __argnames__ : {value: ["iterable"]}
+});
 
-_$rapyd$_Iterable.__argnames__ = ["iterable"];
-
-_$rapyd$_desugar_kwargs = (function() {
-    var _$rapyd$_anonfunc = function () {
-        if (typeof Object.assign === "function") {
-            return (function() {
-                var _$rapyd$_anonfunc = function () {
-                    var ans;
-                    ans = {};
-                    ans[_$rapyd$_kwargs_symbol] = true;
-                    for (var i = 0; i < arguments.length; i++) {
-                        Object.assign(ans, arguments[i]);
-                    }
-                    return ans;
-                };
-                return _$rapyd$_anonfunc;
-            })();
+_$rapyd$_desugar_kwargs = function () {
+    if (typeof Object.assign === "function") {
+        return function () {
+            var ans;
+            ans = {};
+            ans[_$rapyd$_kwargs_symbol] = true;
+            for (var i = 0; i < arguments.length; i++) {
+                Object.assign(ans, arguments[i]);
+            }
+            return ans;
+        };
+    }
+    return function () {
+        var ans, keys;
+        ans = {};
+        ans[_$rapyd$_kwargs_symbol] = true;
+        for (var i = 0; i < arguments.length; i++) {
+            keys = Object.keys(arguments[i]);
+            for (var j = 0; j < keys.length; j++) {
+                ans[keys[j]] = arguments[i][keys[j]];
+            }
         }
-        return (function() {
-            var _$rapyd$_anonfunc = function () {
-                var ans, keys;
-                ans = {};
-                ans[_$rapyd$_kwargs_symbol] = true;
-                for (var i = 0; i < arguments.length; i++) {
-                    keys = Object.keys(arguments[i]);
-                    for (var j = 0; j < keys.length; j++) {
-                        ans[keys[j]] = arguments[i][keys[j]];
-                    }
-                }
-                return ans;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        return ans;
     };
-    return _$rapyd$_anonfunc;
-})()();
+}();
 function _$rapyd$_interpolate_kwargs(f, supplied_args) {
     var has_prop, kwobj, args, prop;
     if (!f.__argnames__) {
@@ -2065,8 +1990,9 @@ function _$rapyd$_interpolate_kwargs(f, supplied_args) {
     }
     return f.apply(this, supplied_args);
 };
-
-_$rapyd$_interpolate_kwargs.__argnames__ = ["f", "supplied_args"];
+Object.defineProperties(_$rapyd$_interpolate_kwargs, {
+    __argnames__ : {value: ["f", "supplied_args"]}
+});
 
 function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
     if (apply) {
@@ -2076,14 +2002,16 @@ function _$rapyd$_interpolate_kwargs_constructor(apply, f, supplied_args) {
     }
     return this;
 };
-
-_$rapyd$_interpolate_kwargs_constructor.__argnames__ = ["apply", "f", "supplied_args"];
+Object.defineProperties(_$rapyd$_interpolate_kwargs_constructor, {
+    __argnames__ : {value: ["apply", "f", "supplied_args"]}
+});
 
 function _$rapyd$_getitem(obj, key) {
     return (obj.__getitem__) ? obj.__getitem__(key) : obj[key];
 };
-
-_$rapyd$_getitem.__argnames__ = ["obj", "key"];
+Object.defineProperties(_$rapyd$_getitem, {
+    __argnames__ : {value: ["obj", "key"]}
+});
 
 function _$rapyd$_setitem(obj, key, val) {
     if (obj.__setitem__) {
@@ -2092,8 +2020,9 @@ function _$rapyd$_setitem(obj, key, val) {
         obj[key] = val;
     }
 };
-
-_$rapyd$_setitem.__argnames__ = ["obj", "key", "val"];
+Object.defineProperties(_$rapyd$_setitem, {
+    __argnames__ : {value: ["obj", "key", "val"]}
+});
 
 function _$rapyd$_mixin() {
     var seen, _$rapyd$_chain_assign_temp, resolved_props, p, target, props, name;
@@ -2184,8 +2113,9 @@ function sum(iterable, start) {
             var _$rapyd$_anonfunc = function (prev, cur) {
                 return prev + cur;
             };
-
-            _$rapyd$_anonfunc.__argnames__ = ["prev", "cur"];
+            Object.defineProperties(_$rapyd$_anonfunc, {
+                __argnames__ : {value: ["prev", "cur"]}
+            });
             return _$rapyd$_anonfunc;
         })(), start || 0);
     }
@@ -2198,8 +2128,9 @@ function sum(iterable, start) {
     }
     return ans;
 };
-
-sum.__argnames__ = ["iterable", "start"];
+Object.defineProperties(sum, {
+    __argnames__ : {value: ["iterable", "start"]}
+});
 
 function map() {
     var func, iterators, args;
@@ -2214,31 +2145,25 @@ function map() {
         _$rapyd$_d["_func"] = func;
         _$rapyd$_d["_iterators"] = iterators;
         _$rapyd$_d["_args"] = args;
-        _$rapyd$_d["next"] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                var r;
-                for (var i = 0; i < this._iterators.length; i++) {
-                    r = this._iterators[i].next();
-                    if (r.done) {
-                        return {
-                            "done": true
-                        };
-                    }
-                    this._args[i] = r.value;
+        _$rapyd$_d["next"] = function () {
+            var r;
+            for (var i = 0; i < this._iterators.length; i++) {
+                r = this._iterators[i].next();
+                if (r.done) {
+                    return {
+                        "done": true
+                    };
                 }
-                return {
-                    "done": false,
-                    "value": this._func.apply(undefined, this._args)
-                };
+                this._args[i] = r.value;
+            }
+            return {
+                "done": false,
+                "value": this._func.apply(undefined, this._args)
             };
-            return _$rapyd$_anonfunc;
-        })();
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        };
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return _$rapyd$_d;
     })();
 };
@@ -2248,33 +2173,28 @@ function filter(func_or_none, iterable) {
         var _$rapyd$_d = {};
         _$rapyd$_d["_iterator"] = iter(iterable);
         _$rapyd$_d["_func"] = (func_or_none === null) ? bool : func_or_none;
-        _$rapyd$_d["next"] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                var r;
-                r = this._iterator.next();
-                while (!r.done) {
-                    if (this._func(r.value)) {
-                        return r;
-                    }
-                    r = this._iterator.next();
+        _$rapyd$_d["next"] = function () {
+            var r;
+            r = this._iterator.next();
+            while (!r.done) {
+                if (this._func(r.value)) {
+                    return r;
                 }
-                return {
-                    "done": true
-                };
+                r = this._iterator.next();
+            }
+            return {
+                "done": true
             };
-            return _$rapyd$_anonfunc;
-        })();
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        };
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return _$rapyd$_d;
     })();
 };
-
-filter.__argnames__ = ["func_or_none", "iterable"];
+Object.defineProperties(filter, {
+    __argnames__ : {value: ["func_or_none", "iterable"]}
+});
 
 function zip() {
     var iterators;
@@ -2285,32 +2205,26 @@ function zip() {
     return (function(){
         var _$rapyd$_d = {};
         _$rapyd$_d["_iterators"] = iterators;
-        _$rapyd$_d["next"] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                var args, r;
-                args = new Array(this._iterators.length);
-                for (var i = 0; i < this._iterators.length; i++) {
-                    r = this._iterators[i].next();
-                    if (r.done) {
-                        return {
-                            "done": true
-                        };
-                    }
-                    args[i] = r.value;
+        _$rapyd$_d["next"] = function () {
+            var args, r;
+            args = new Array(this._iterators.length);
+            for (var i = 0; i < this._iterators.length; i++) {
+                r = this._iterators[i].next();
+                if (r.done) {
+                    return {
+                        "done": true
+                    };
                 }
-                return {
-                    "done": false,
-                    "value": args
-                };
+                args[i] = r.value;
+            }
+            return {
+                "done": false,
+                "value": args
             };
-            return _$rapyd$_anonfunc;
-        })();
-        _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-            var _$rapyd$_anonfunc = function () {
-                return this;
-            };
-            return _$rapyd$_anonfunc;
-        })();
+        };
+        _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+            return this;
+        };
         return _$rapyd$_d;
     })();
 };
@@ -2332,8 +2246,9 @@ function _$rapyd$_repr_js_builtin(x, as_array) {
     }
     return b[0] + ans.join(", ") + b[1];
 };
-
-_$rapyd$_repr_js_builtin.__argnames__ = ["x", "as_array"];
+Object.defineProperties(_$rapyd$_repr_js_builtin, {
+    __argnames__ : {value: ["x", "as_array"]}
+});
 
 function _$rapyd$_repr(x) {
     var ans, name;
@@ -2359,8 +2274,9 @@ function _$rapyd$_repr(x) {
                 var _$rapyd$_anonfunc = function (i) {
                     return str.format("0x{:02x}", i);
                 };
-
-                _$rapyd$_anonfunc.__argnames__ = ["i"];
+                Object.defineProperties(_$rapyd$_anonfunc, {
+                    __argnames__ : {value: ["i"]}
+                });
                 return _$rapyd$_anonfunc;
             })()).join(", ") + "])";
         }
@@ -2375,8 +2291,9 @@ function _$rapyd$_repr(x) {
     }
     return ans + "";
 };
-
-_$rapyd$_repr.__argnames__ = ["x"];
+Object.defineProperties(_$rapyd$_repr, {
+    __argnames__ : {value: ["x"]}
+});
 
 function _$rapyd$_str(x) {
     var ans, name;
@@ -2402,8 +2319,9 @@ function _$rapyd$_str(x) {
                 var _$rapyd$_anonfunc = function (i) {
                     return str.format("0x{:02x}", i);
                 };
-
-                _$rapyd$_anonfunc.__argnames__ = ["i"];
+                Object.defineProperties(_$rapyd$_anonfunc, {
+                    __argnames__ : {value: ["i"]}
+                });
                 return _$rapyd$_anonfunc;
             })()).join(", ") + "])";
         }
@@ -2414,359 +2332,364 @@ function _$rapyd$_str(x) {
     }
     return ans + "";
 };
+Object.defineProperties(_$rapyd$_str, {
+    __argnames__ : {value: ["x"]}
+});
 
-_$rapyd$_str.__argnames__ = ["x"];
-
-_$rapyd$_str.format = (function() {
-    var _$rapyd$_anonfunc = function () {
-        var template, args, kwargs, explicit, implicit, _$rapyd$_chain_assign_temp, idx, ans, pos, in_brace, markup, ch;
-        template = arguments[0];
-        if (template === undefined) {
-            throw new TypeError("Template is required");
-        }
-        args = Array.prototype.slice.call(arguments, 1);
-        kwargs = {};
-        if (args.length && args[args.length-1][_$rapyd$_kwargs_symbol] !== undefined) {
-            kwargs = args[args.length-1];
-            args = args.slice(0, -1);
-        }
-        _$rapyd$_chain_assign_temp = false;
-        explicit = _$rapyd$_chain_assign_temp;
-        implicit = _$rapyd$_chain_assign_temp;
+_$rapyd$_str.format = function () {
+    var template, args, kwargs, explicit, implicit, _$rapyd$_chain_assign_temp, idx, ans, pos, in_brace, markup, ch;
+    template = arguments[0];
+    if (template === undefined) {
+        throw new TypeError("Template is required");
+    }
+    args = Array.prototype.slice.call(arguments, 1);
+    kwargs = {};
+    if (args.length && args[args.length-1][_$rapyd$_kwargs_symbol] !== undefined) {
+        kwargs = args[args.length-1];
+        args = args.slice(0, -1);
+    }
+    _$rapyd$_chain_assign_temp = false;
+    explicit = _$rapyd$_chain_assign_temp;
+    implicit = _$rapyd$_chain_assign_temp;
 ;
-        idx = 0;
-        if (_$rapyd$_str.format._template_resolve_pat === undefined) {
-            _$rapyd$_str.format._template_resolve_pat = /[.\[]/;
+    idx = 0;
+    if (_$rapyd$_str.format._template_resolve_pat === undefined) {
+        _$rapyd$_str.format._template_resolve_pat = /[.\[]/;
+    }
+    function resolve(arg, object) {
+        var _$rapyd$_unpack, first, key, rest, ans;
+        if (!arg) {
+            return object;
         }
-        function resolve(arg, object) {
-            var _$rapyd$_unpack, first, key, rest, ans;
-            if (!arg) {
-                return object;
-            }
-            _$rapyd$_unpack = [arg[0], arg.slice(1)];
-            first = _$rapyd$_unpack[0];
-            arg = _$rapyd$_unpack[1];
-            key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0];
-            rest = arg.slice(key.length);
-            ans = (first === "[") ? object[key.slice(0, -1)] : getattr(object, key);
-            if (ans === undefined) {
-                throw new KeyError((first === "[") ? key.slice(0, -1) : key);
-            }
-            return resolve(rest, ans);
-        };
+        _$rapyd$_unpack = [arg[0], arg.slice(1)];
+        first = _$rapyd$_unpack[0];
+        arg = _$rapyd$_unpack[1];
+        key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0];
+        rest = arg.slice(key.length);
+        ans = (first === "[") ? object[key.slice(0, -1)] : getattr(object, key);
+        if (ans === undefined) {
+            throw new KeyError((first === "[") ? key.slice(0, -1) : key);
+        }
+        return resolve(rest, ans);
+    };
+    Object.defineProperties(resolve, {
+        __argnames__ : {value: ["arg", "object"]}
+    });
 
-        resolve.__argnames__ = ["arg", "object"];
-
-        function resolve_format_spec(format_spec) {
-            if (_$rapyd$_str.format._template_resolve_fs_pat === undefined) {
-                _$rapyd$_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g;
-            }
-            return format_spec.replace(_$rapyd$_str.format._template_resolve_fs_pat, (function() {
-                var _$rapyd$_anonfunc = function (match, key) {
-                    if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
-                        return "";
-                    }
-                    return "" + kwargs[key];
-                };
-
-                _$rapyd$_anonfunc.__argnames__ = ["match", "key"];
-                return _$rapyd$_anonfunc;
-            })());
-        };
-
-        resolve_format_spec.__argnames__ = ["format_spec"];
-
-        function apply_formatting(value, format_spec) {
-            var _$rapyd$_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
-            if (format_spec.indexOf("{") !== -1) {
-                format_spec = resolve_format_spec(format_spec);
-            }
-            if (_$rapyd$_str.format._template_format_pat === undefined) {
-                _$rapyd$_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
-            }
-            try {
-                _$rapyd$_unpack = format_spec.match(_$rapyd$_str.format._template_format_pat).slice(1);
-                fill = _$rapyd$_unpack[0];
-                align = _$rapyd$_unpack[1];
-                sign = _$rapyd$_unpack[2];
-                fhash = _$rapyd$_unpack[3];
-                zeropad = _$rapyd$_unpack[4];
-                width = _$rapyd$_unpack[5];
-                comma = _$rapyd$_unpack[6];
-                precision = _$rapyd$_unpack[7];
-                ftype = _$rapyd$_unpack[8];
-            } catch (_$rapyd$_Exception) {
-                if (_$rapyd$_Exception instanceof TypeError) {
-                    return value;
-                } else {
-                    throw _$rapyd$_Exception;
+    function resolve_format_spec(format_spec) {
+        if (_$rapyd$_str.format._template_resolve_fs_pat === undefined) {
+            _$rapyd$_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g;
+        }
+        return format_spec.replace(_$rapyd$_str.format._template_resolve_fs_pat, (function() {
+            var _$rapyd$_anonfunc = function (match, key) {
+                if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
+                    return "";
                 }
-            }
-            if (zeropad) {
-                fill = fill || "0";
-                align = align || "=";
-            } else {
-                fill = fill || " ";
-                align = align || ">";
-            }
-            is_numeric = Number(value) === value;
-            is_int = is_numeric && value % 1 === 0;
-            precision = parseInt(precision, 10);
-            lftype = (ftype || "").toLowerCase();
-            if (ftype === "n") {
-                is_numeric = true;
-                if (is_int) {
-                    if (comma) {
-                        throw new ValueError("Cannot specify ',' with 'n'");
-                    }
-                    value = parseInt(value, 10).toLocaleString();
-                } else {
-                    value = parseFloat(value).toLocaleString();
-                }
-            } else if (['b', 'c', 'd', 'o', 'x'].indexOf(lftype) !== -1) {
-                value = parseInt(value, 10);
-                is_numeric = true;
-                if (!isNaN(value)) {
-                    if (ftype === "b") {
-                        value = (value >>> 0).toString(2);
-                        if (fhash) {
-                            value = "0b" + value;
-                        }
-                    } else if (ftype === "c") {
-                        if (value > 65535) {
-                            code = value - 65536;
-                            value = String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
-                        } else {
-                            value = String.fromCharCode(value);
-                        }
-                    } else if (ftype === "d") {
-                        if (comma) {
-                            value = value.toLocaleString("en-US");
-                        } else {
-                            value = value.toString(10);
-                        }
-                    } else if (ftype === "o") {
-                        value = value.toString(8);
-                        if (fhash) {
-                            value = "0o" + value;
-                        }
-                    } else if (lftype === "x") {
-                        value = value.toString(16);
-                        value = (ftype === "x") ? value.toLowerCase() : value.toUpperCase();
-                        if (fhash) {
-                            value = "0x" + value;
-                        }
-                    }
-                }
-            } else if (['e','f','g','%'].indexOf(lftype) !== -1) {
-                is_numeric = true;
-                value = parseFloat(value);
-                if (lftype === "e") {
-                    value = value.toExponential((isNaN(precision)) ? 6 : precision);
-                    value = (ftype === "E") ? value.toUpperCase() : value.toLowerCase();
-                } else if (lftype === "f") {
-                    value = value.toFixed((isNaN(precision)) ? 6 : precision);
-                    value = (ftype === "F") ? value.toUpperCase() : value.toLowerCase();
-                } else if (ftype === "%") {
-                    value *= 100;
-                    value = value.toFixed((isNaN(precision)) ? 6 : precision) + "%";
-                } else if (lftype === "g") {
-                    if (isNaN(precision)) {
-                        precision = 6;
-                    }
-                    precision = max(1, precision);
-                    exp = parseInt(value.toExponential(precision - 1).toLowerCase().split("e")[1], 10);
-                    if (-4 <= exp && exp < precision) {
-                        value = value.toFixed(precision - 1 - exp);
-                    } else {
-                        value = value.toExponential(precision - 1);
-                    }
-                    value = value.replace(/0+$/g, "");
-                    if (value[value.length-1] === ".") {
-                        value = value.slice(0, -1);
-                    }
-                    if (ftype === "G") {
-                        value = value.toUpperCase();
-                    }
-                }
-            } else {
-                value += "";
-                if (!isNaN(precision)) {
-                    value = value.slice(0, precision);
-                }
-            }
-            value += "";
-            if (is_numeric && sign) {
-                nval = Number(value);
-                is_positive = !isNaN(nval) && nval >= 0;
-                if (is_positive && (sign === " " || sign === "+")) {
-                    value = sign + value;
-                }
-            }
-            function repeat(char, num) {
-                return (new Array(num+1)).join(char);
+                return "" + kwargs[key];
             };
+            Object.defineProperties(_$rapyd$_anonfunc, {
+                __argnames__ : {value: ["match", "key"]}
+            });
+            return _$rapyd$_anonfunc;
+        })());
+    };
+    Object.defineProperties(resolve_format_spec, {
+        __argnames__ : {value: ["format_spec"]}
+    });
 
-            repeat.__argnames__ = ["char", "num"];
+    function apply_formatting(value, format_spec) {
+        var _$rapyd$_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
+        if (format_spec.indexOf("{") !== -1) {
+            format_spec = resolve_format_spec(format_spec);
+        }
+        if (_$rapyd$_str.format._template_format_pat === undefined) {
+            _$rapyd$_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
+        }
+        try {
+            _$rapyd$_unpack = format_spec.match(_$rapyd$_str.format._template_format_pat).slice(1);
+            fill = _$rapyd$_unpack[0];
+            align = _$rapyd$_unpack[1];
+            sign = _$rapyd$_unpack[2];
+            fhash = _$rapyd$_unpack[3];
+            zeropad = _$rapyd$_unpack[4];
+            width = _$rapyd$_unpack[5];
+            comma = _$rapyd$_unpack[6];
+            precision = _$rapyd$_unpack[7];
+            ftype = _$rapyd$_unpack[8];
+        } catch (_$rapyd$_Exception) {
+            if (_$rapyd$_Exception instanceof TypeError) {
+                return value;
+            } else {
+                throw _$rapyd$_Exception;
+            }
+        }
+        if (zeropad) {
+            fill = fill || "0";
+            align = align || "=";
+        } else {
+            fill = fill || " ";
+            align = align || ">";
+        }
+        is_numeric = Number(value) === value;
+        is_int = is_numeric && value % 1 === 0;
+        precision = parseInt(precision, 10);
+        lftype = (ftype || "").toLowerCase();
+        if (ftype === "n") {
+            is_numeric = true;
+            if (is_int) {
+                if (comma) {
+                    throw new ValueError("Cannot specify ',' with 'n'");
+                }
+                value = parseInt(value, 10).toLocaleString();
+            } else {
+                value = parseFloat(value).toLocaleString();
+            }
+        } else if (['b', 'c', 'd', 'o', 'x'].indexOf(lftype) !== -1) {
+            value = parseInt(value, 10);
+            is_numeric = true;
+            if (!isNaN(value)) {
+                if (ftype === "b") {
+                    value = (value >>> 0).toString(2);
+                    if (fhash) {
+                        value = "0b" + value;
+                    }
+                } else if (ftype === "c") {
+                    if (value > 65535) {
+                        code = value - 65536;
+                        value = String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
+                    } else {
+                        value = String.fromCharCode(value);
+                    }
+                } else if (ftype === "d") {
+                    if (comma) {
+                        value = value.toLocaleString("en-US");
+                    } else {
+                        value = value.toString(10);
+                    }
+                } else if (ftype === "o") {
+                    value = value.toString(8);
+                    if (fhash) {
+                        value = "0o" + value;
+                    }
+                } else if (lftype === "x") {
+                    value = value.toString(16);
+                    value = (ftype === "x") ? value.toLowerCase() : value.toUpperCase();
+                    if (fhash) {
+                        value = "0x" + value;
+                    }
+                }
+            }
+        } else if (['e','f','g','%'].indexOf(lftype) !== -1) {
+            is_numeric = true;
+            value = parseFloat(value);
+            if (lftype === "e") {
+                value = value.toExponential((isNaN(precision)) ? 6 : precision);
+                value = (ftype === "E") ? value.toUpperCase() : value.toLowerCase();
+            } else if (lftype === "f") {
+                value = value.toFixed((isNaN(precision)) ? 6 : precision);
+                value = (ftype === "F") ? value.toUpperCase() : value.toLowerCase();
+            } else if (ftype === "%") {
+                value *= 100;
+                value = value.toFixed((isNaN(precision)) ? 6 : precision) + "%";
+            } else if (lftype === "g") {
+                if (isNaN(precision)) {
+                    precision = 6;
+                }
+                precision = max(1, precision);
+                exp = parseInt(value.toExponential(precision - 1).toLowerCase().split("e")[1], 10);
+                if (-4 <= exp && exp < precision) {
+                    value = value.toFixed(precision - 1 - exp);
+                } else {
+                    value = value.toExponential(precision - 1);
+                }
+                value = value.replace(/0+$/g, "");
+                if (value[value.length-1] === ".") {
+                    value = value.slice(0, -1);
+                }
+                if (ftype === "G") {
+                    value = value.toUpperCase();
+                }
+            }
+        } else {
+            value += "";
+            if (!isNaN(precision)) {
+                value = value.slice(0, precision);
+            }
+        }
+        value += "";
+        if (is_numeric && sign) {
+            nval = Number(value);
+            is_positive = !isNaN(nval) && nval >= 0;
+            if (is_positive && (sign === " " || sign === "+")) {
+                value = sign + value;
+            }
+        }
+        function repeat(char, num) {
+            return (new Array(num+1)).join(char);
+        };
+        Object.defineProperties(repeat, {
+            __argnames__ : {value: ["char", "num"]}
+        });
 
-            if (is_numeric && width && width[0] === "0") {
-                width = width.slice(1);
-                _$rapyd$_unpack = ["0", "="];
-                fill = _$rapyd$_unpack[0];
-                align = _$rapyd$_unpack[1];
-            }
-            width = parseInt(width || "-1", 10);
-            if (isNaN(width)) {
-                throw new ValueError("Invalid width specification: " + width);
-            }
-            if (fill && value.length < width) {
-                if (align === "<") {
-                    value = value + repeat(fill, width - value.length);
-                } else if (align === ">") {
+        if (is_numeric && width && width[0] === "0") {
+            width = width.slice(1);
+            _$rapyd$_unpack = ["0", "="];
+            fill = _$rapyd$_unpack[0];
+            align = _$rapyd$_unpack[1];
+        }
+        width = parseInt(width || "-1", 10);
+        if (isNaN(width)) {
+            throw new ValueError("Invalid width specification: " + width);
+        }
+        if (fill && value.length < width) {
+            if (align === "<") {
+                value = value + repeat(fill, width - value.length);
+            } else if (align === ">") {
+                value = repeat(fill, width - value.length) + value;
+            } else if (align === "^") {
+                left = Math.floor((width - value.length) / 2);
+                right = width - left - value.length;
+                value = repeat(fill, left) + value + repeat(fill, right);
+            } else if (align === "=") {
+                if (_$rapyd$_in(value[0], "+- ")) {
+                    value = value[0] + repeat(fill, width - value.length) + value.slice(1);
+                } else {
                     value = repeat(fill, width - value.length) + value;
-                } else if (align === "^") {
-                    left = Math.floor((width - value.length) / 2);
-                    right = width - left - value.length;
-                    value = repeat(fill, left) + value + repeat(fill, right);
-                } else if (align === "=") {
-                    if (_$rapyd$_in(value[0], "+- ")) {
-                        value = value[0] + repeat(fill, width - value.length) + value.slice(1);
-                    } else {
-                        value = repeat(fill, width - value.length) + value;
-                    }
-                } else {
-                    throw new ValueError("Unrecognized alignment: " + align);
                 }
+            } else {
+                throw new ValueError("Unrecognized alignment: " + align);
             }
-            return value;
-        };
+        }
+        return value;
+    };
+    Object.defineProperties(apply_formatting, {
+        __argnames__ : {value: ["value", "format_spec"]}
+    });
 
-        apply_formatting.__argnames__ = ["value", "format_spec"];
-
-        function parse_markup(markup) {
-            var key, transformer, format_spec, _$rapyd$_chain_assign_temp, pos, state, ch;
-            _$rapyd$_chain_assign_temp = "";
-            key = _$rapyd$_chain_assign_temp;
-            transformer = _$rapyd$_chain_assign_temp;
-            format_spec = _$rapyd$_chain_assign_temp;
+    function parse_markup(markup) {
+        var key, transformer, format_spec, _$rapyd$_chain_assign_temp, pos, state, ch;
+        _$rapyd$_chain_assign_temp = "";
+        key = _$rapyd$_chain_assign_temp;
+        transformer = _$rapyd$_chain_assign_temp;
+        format_spec = _$rapyd$_chain_assign_temp;
 ;
-            pos = 0;
-            state = 0;
-            while (pos < markup.length) {
-                ch = markup[pos];
-                if (state === 0) {
-                    if (ch === "!") {
-                        state = 1;
-                    } else if (ch === ":") {
-                        state = 2;
-                    } else {
-                        key += ch;
-                    }
-                } else if (state === 1) {
-                    if (ch === ":") {
-                        state = 2;
-                    } else {
-                        transformer += ch;
-                    }
-                } else {
-                    format_spec += ch;
-                }
-                pos += 1;
-            }
-            return [key, transformer, format_spec];
-        };
-
-        parse_markup.__argnames__ = ["markup"];
-
-        function render_markup(markup) {
-            var _$rapyd$_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
-            _$rapyd$_unpack = parse_markup(markup);
-            key = _$rapyd$_unpack[0];
-            transformer = _$rapyd$_unpack[1];
-            format_spec = _$rapyd$_unpack[2];
-            if (transformer && ['a', 'r', 's'].indexOf(transformer) === -1) {
-                throw new ValueError("Unknown conversion specifier: " + transformer);
-            }
-            lkey = key.length && key.split(/[.\[]/, 1)[0];
-            if (lkey) {
-                explicit = true;
-                if (implicit) {
-                    throw new ValueError("cannot switch from automatic field numbering to manual field specification");
-                }
-                nvalue = parseInt(lkey);
-                object = (isNaN(nvalue)) ? kwargs[lkey] : args[nvalue];
-                if (object === undefined) {
-                    if (isNaN(nvalue)) {
-                        throw new KeyError(lkey);
-                    }
-                    throw new IndexError(lkey);
-                }
-                object = resolve(key.slice(lkey.length), object);
-            } else {
-                implicit = true;
-                if (explicit) {
-                    throw new ValueError("cannot switch from manual field specification to automatic field numbering");
-                }
-                if (idx >= args.length) {
-                    throw new IndexError("Not enough arguments to match template: " + template);
-                }
-                object = args[idx];
-                idx += 1;
-            }
-            if (typeof object === "function") {
-                object = object();
-            }
-            ans = "" + object;
-            if (format_spec) {
-                ans = apply_formatting(ans, format_spec);
-            }
-            return ans;
-        };
-
-        render_markup.__argnames__ = ["markup"];
-
-        ans = "";
         pos = 0;
-        in_brace = 0;
-        markup = "";
-        while (pos < template.length) {
-            ch = template[pos];
-            if (in_brace) {
-                if (ch === "{") {
-                    in_brace += 1;
-                    markup += "{";
-                } else if (ch === "}") {
-                    in_brace -= 1;
-                    if (in_brace > 0) {
-                        markup += "}";
-                    } else {
-                        ans += render_markup(markup);
-                    }
+        state = 0;
+        while (pos < markup.length) {
+            ch = markup[pos];
+            if (state === 0) {
+                if (ch === "!") {
+                    state = 1;
+                } else if (ch === ":") {
+                    state = 2;
                 } else {
-                    markup += ch;
+                    key += ch;
+                }
+            } else if (state === 1) {
+                if (ch === ":") {
+                    state = 2;
+                } else {
+                    transformer += ch;
                 }
             } else {
-                if (ch === "{") {
-                    if (template[pos + 1] === "{") {
-                        pos += 1;
-                        ans += "{";
-                    } else {
-                        in_brace = 1;
-                        markup = "";
-                    }
-                } else {
-                    ans += ch;
-                }
+                format_spec += ch;
             }
             pos += 1;
         }
-        if (in_brace) {
-            throw new ValueError("expected '}' before end of string");
+        return [key, transformer, format_spec];
+    };
+    Object.defineProperties(parse_markup, {
+        __argnames__ : {value: ["markup"]}
+    });
+
+    function render_markup(markup) {
+        var _$rapyd$_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
+        _$rapyd$_unpack = parse_markup(markup);
+        key = _$rapyd$_unpack[0];
+        transformer = _$rapyd$_unpack[1];
+        format_spec = _$rapyd$_unpack[2];
+        if (transformer && ['a', 'r', 's'].indexOf(transformer) === -1) {
+            throw new ValueError("Unknown conversion specifier: " + transformer);
+        }
+        lkey = key.length && key.split(/[.\[]/, 1)[0];
+        if (lkey) {
+            explicit = true;
+            if (implicit) {
+                throw new ValueError("cannot switch from automatic field numbering to manual field specification");
+            }
+            nvalue = parseInt(lkey);
+            object = (isNaN(nvalue)) ? kwargs[lkey] : args[nvalue];
+            if (object === undefined) {
+                if (isNaN(nvalue)) {
+                    throw new KeyError(lkey);
+                }
+                throw new IndexError(lkey);
+            }
+            object = resolve(key.slice(lkey.length), object);
+        } else {
+            implicit = true;
+            if (explicit) {
+                throw new ValueError("cannot switch from manual field specification to automatic field numbering");
+            }
+            if (idx >= args.length) {
+                throw new IndexError("Not enough arguments to match template: " + template);
+            }
+            object = args[idx];
+            idx += 1;
+        }
+        if (typeof object === "function") {
+            object = object();
+        }
+        ans = "" + object;
+        if (format_spec) {
+            ans = apply_formatting(ans, format_spec);
         }
         return ans;
     };
-    return _$rapyd$_anonfunc;
-})();
+    Object.defineProperties(render_markup, {
+        __argnames__ : {value: ["markup"]}
+    });
+
+    ans = "";
+    pos = 0;
+    in_brace = 0;
+    markup = "";
+    while (pos < template.length) {
+        ch = template[pos];
+        if (in_brace) {
+            if (ch === "{") {
+                in_brace += 1;
+                markup += "{";
+            } else if (ch === "}") {
+                in_brace -= 1;
+                if (in_brace > 0) {
+                    markup += "}";
+                } else {
+                    ans += render_markup(markup);
+                }
+            } else {
+                markup += ch;
+            }
+        } else {
+            if (ch === "{") {
+                if (template[pos + 1] === "{") {
+                    pos += 1;
+                    ans += "{";
+                } else {
+                    in_brace = 1;
+                    markup = "";
+                }
+            } else {
+                ans += ch;
+            }
+        }
+        pos += 1;
+    }
+    if (in_brace) {
+        throw new ValueError("expected '}' before end of string");
+    }
+    return ans;
+};
 _$rapyd$_str.capitalize = (function() {
     var _$rapyd$_anonfunc = function (string) {
         if (string) {
@@ -2774,8 +2697,9 @@ _$rapyd$_str.capitalize = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.center = (function() {
@@ -2786,8 +2710,9 @@ _$rapyd$_str.center = (function() {
         fill = fill || " ";
         return new Array(left+1).join(fill) + string + new Array(right+1).join(fill);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "width", "fill"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "width", "fill"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.count = (function() {
@@ -2813,8 +2738,9 @@ _$rapyd$_str.count = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "needle", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "needle", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.endswith = (function() {
@@ -2835,8 +2761,9 @@ _$rapyd$_str.endswith = (function() {
         }
         return false;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "suffixes", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "suffixes", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.startswith = (function() {
@@ -2855,8 +2782,9 @@ _$rapyd$_str.startswith = (function() {
         }
         return false;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "prefixes", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "prefixes", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.find = (function() {
@@ -2876,8 +2804,9 @@ _$rapyd$_str.find = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "needle", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "needle", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rfind = (function() {
@@ -2897,8 +2826,9 @@ _$rapyd$_str.rfind = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "needle", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "needle", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.index = (function() {
@@ -2910,8 +2840,9 @@ _$rapyd$_str.index = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "needle", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "needle", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rindex = (function() {
@@ -2923,32 +2854,36 @@ _$rapyd$_str.rindex = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "needle", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "needle", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.islower = (function() {
     var _$rapyd$_anonfunc = function (string) {
         return string.length > 0 && string.toUpperCase() !== string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.isupper = (function() {
     var _$rapyd$_anonfunc = function (string) {
         return string.length > 0 && string.toLowerCase() !== string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.isspace = (function() {
     var _$rapyd$_anonfunc = function (string) {
         return string.length > 0 && /^\s+$/.test(string);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.join = (function() {
@@ -2968,8 +2903,9 @@ _$rapyd$_str.join = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "iterable"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "iterable"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.ljust = (function() {
@@ -2980,8 +2916,9 @@ _$rapyd$_str.ljust = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "width", "fill"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "width", "fill"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rjust = (function() {
@@ -2992,24 +2929,27 @@ _$rapyd$_str.rjust = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "width", "fill"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "width", "fill"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.lower = (function() {
     var _$rapyd$_anonfunc = function (string) {
         return string.toLowerCase();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.upper = (function() {
     var _$rapyd$_anonfunc = function (string) {
         return string.toUpperCase();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.lstrip = (function() {
@@ -3025,8 +2965,9 @@ _$rapyd$_str.lstrip = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "chars"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "chars"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rstrip = (function() {
@@ -3042,16 +2983,18 @@ _$rapyd$_str.rstrip = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "chars"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "chars"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.strip = (function() {
     var _$rapyd$_anonfunc = function (string, chars) {
         return _$rapyd$_str.lstrip(_$rapyd$_str.rstrip(string, chars), chars);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "chars"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "chars"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.partition = (function() {
@@ -3063,8 +3006,9 @@ _$rapyd$_str.partition = (function() {
         }
         return [string.slice(0, idx), sep, string.slice(idx + sep.length)];
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "sep"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "sep"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rpartition = (function() {
@@ -3076,8 +3020,9 @@ _$rapyd$_str.rpartition = (function() {
         }
         return [string.slice(0, idx), sep, string.slice(idx + sep.length)];
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "sep"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "sep"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.replace = (function() {
@@ -3102,8 +3047,9 @@ _$rapyd$_str.replace = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "old", "repl", "count"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "old", "repl", "count"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.split = (function() {
@@ -3142,8 +3088,9 @@ _$rapyd$_str.split = (function() {
         }
         return _$rapyd$_list_decorate(ans);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "sep", "maxsplit"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "sep", "maxsplit"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.rsplit = (function() {
@@ -3205,8 +3152,9 @@ _$rapyd$_str.rsplit = (function() {
         }
         return _$rapyd$_list_decorate(ans);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "sep", "maxsplit"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "sep", "maxsplit"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.splitlines = (function() {
@@ -3227,8 +3175,9 @@ _$rapyd$_str.splitlines = (function() {
         }
         return _$rapyd$_list_decorate(ans);
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "keepends"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "keepends"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.swapcase = (function() {
@@ -3245,8 +3194,9 @@ _$rapyd$_str.swapcase = (function() {
         }
         return ans.join("");
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.zfill = (function() {
@@ -3256,8 +3206,9 @@ _$rapyd$_str.zfill = (function() {
         }
         return string;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "width"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "width"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.uchrs = (function() {
@@ -3266,53 +3217,48 @@ _$rapyd$_str.uchrs = (function() {
             var _$rapyd$_d = {};
             _$rapyd$_d["_string"] = string;
             _$rapyd$_d["_pos"] = 0;
-            _$rapyd$_d[_$rapyd$_iterator_symbol] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    return this;
-                };
-                return _$rapyd$_anonfunc;
-            })();
-            _$rapyd$_d["next"] = (function() {
-                var _$rapyd$_anonfunc = function () {
-                    var length, pos, value, ans, extra;
-                    length = this._string.length;
-                    if (this._pos >= length) {
-                        return {
-                            "done": true
-                        };
-                    }
-                    pos = this._pos;
-                    value = this._string.charCodeAt(this._pos++);
-                    ans = "\ufffd";
-                    if (55296 <= value && value <= 56319) {
-                        if (this._pos < length) {
-                            extra = this._string.charCodeAt(this._pos++);
-                            if ((extra & 56320) === 56320) {
-                                ans = String.fromCharCode(value, extra);
-                            }
+            _$rapyd$_d[_$rapyd$_iterator_symbol] = function () {
+                return this;
+            };
+            _$rapyd$_d["next"] = function () {
+                var length, pos, value, ans, extra;
+                length = this._string.length;
+                if (this._pos >= length) {
+                    return {
+                        "done": true
+                    };
+                }
+                pos = this._pos;
+                value = this._string.charCodeAt(this._pos++);
+                ans = "\ufffd";
+                if (55296 <= value && value <= 56319) {
+                    if (this._pos < length) {
+                        extra = this._string.charCodeAt(this._pos++);
+                        if ((extra & 56320) === 56320) {
+                            ans = String.fromCharCode(value, extra);
                         }
-                    } else if ((value & 56320) !== 56320) {
-                        ans = String.fromCharCode(value);
                     }
-                    if (with_positions) {
-                        return {
-                            "done": false,
-                            "value": _$rapyd$_list_decorate([ pos, ans ])
-                        };
-                    } else {
-                        return {
-                            "done": false,
-                            "value": ans
-                        };
-                    }
-                };
-                return _$rapyd$_anonfunc;
-            })();
+                } else if ((value & 56320) !== 56320) {
+                    ans = String.fromCharCode(value);
+                }
+                if (with_positions) {
+                    return {
+                        "done": false,
+                        "value": _$rapyd$_list_decorate([ pos, ans ])
+                    };
+                } else {
+                    return {
+                        "done": false,
+                        "value": ans
+                    };
+                }
+            };
             return _$rapyd$_d;
         })();
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "with_positions"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "with_positions"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.uslice = (function() {
@@ -3327,8 +3273,9 @@ _$rapyd$_str.uslice = (function() {
         }
         return items.slice(start || 0, (end === undefined) ? items.length : end).join("");
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string", "start", "end"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string", "start", "end"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.ulen = (function() {
@@ -3343,8 +3290,9 @@ _$rapyd$_str.ulen = (function() {
         }
         return ans;
     };
-
-    _$rapyd$_anonfunc.__argnames__ = ["string"];
+    Object.defineProperties(_$rapyd$_anonfunc, {
+        __argnames__ : {value: ["string"]}
+    });
     return _$rapyd$_anonfunc;
 })();
 _$rapyd$_str.ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
