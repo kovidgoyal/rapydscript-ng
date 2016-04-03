@@ -11,47 +11,10 @@ function _$rapyd$_bool(val) {
 
 _$rapyd$_bool.__argnames__ = ["val"];
 
-function _$rapyd$_bind(fn, thisArg) {
-    var ret;
-    if (fn.orig) {
-        fn = fn.orig;
-    }
-    if (thisArg === false) {
-        return fn;
-    }
-    ret = (function() {
-        var _$rapyd$_anonfunc = function () {
-            return fn.apply(thisArg, arguments);
-        };
-        return _$rapyd$_anonfunc;
-    })();
-    ret.orig = fn;
-    return ret;
-};
-
-_$rapyd$_bind.__argnames__ = ["fn", "thisArg"];
-
-function _$rapyd$_rebind_all(thisArg, rebind) {
-    if (typeof rebind === "undefined") {
-        rebind = true;
-    }
-    for (var p in thisArg) {
-        if (thisArg[p] && thisArg[p].orig) {
-            if (rebind) {
-                thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
-            } else {
-                thisArg[p] = thisArg[p].orig;
-            }
-        }
-    }
-};
-
-_$rapyd$_rebind_all.__argnames__ = ["thisArg", "rebind"];
-
 function _$rapyd$_eslice(arr, step, start, end) {
     var isString;
     arr = arr.slice(0);
-    if (typeof arr === "string" || arr instanceof String) {
+    if (typeof arr === "string" || _$rapyd$_instanceof(arr, String)) {
         isString = true;
         arr = arr.split("");
     }
@@ -83,16 +46,6 @@ function _$rapyd$_eslice(arr, step, start, end) {
 };
 
 _$rapyd$_eslice.__argnames__ = ["arr", "step", "start", "end"];
-
-function _$rapyd$_mixin(target, source, overwrite) {
-    for (var i in source) {
-        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
-            target[i] = source[i];
-        }
-    }
-};
-
-_$rapyd$_mixin.__argnames__ = ["target", "source", "overwrite"];
 
 function _$rapyd$_print() {
     var parts;
@@ -268,7 +221,7 @@ function _$rapyd$_enumerate(iterable) {
         return ans;
     }
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = {
             "_iterator": iterator,
             "_i": -1,
@@ -340,7 +293,7 @@ _$rapyd$_reversed.__argnames__ = ["iterable"];
 function _$rapyd$_iter(iterable) {
     var ans;
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        return (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
     }
     if (_$rapyd$_arraylike(iterable)) {
         ans = {
@@ -484,10 +437,9 @@ _$rapyd$_len = (function() {
     };
     return _$rapyd$_anonfunc;
 })()();
-var abs = Math.abs, max = Math.max, min = Math.min;
-var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
+var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool;
 var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
-var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
+var print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
 var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable;
 var enumerate = _$rapyd$_enumerate, iter = _$rapyd$_iter, reversed = _$rapyd$_reversed, len = _$rapyd$_len;
 var range = _$rapyd$_range, getattr = _$rapyd$_getattr, setattr = _$rapyd$_setattr, hasattr = _$rapyd$_hasattr;var _$rapyd$_chain_assign_temp;
@@ -558,7 +510,7 @@ function _$rapyd$_list_extend(iterable) {
             this[start + i] = iterable[i];
         }
     } else {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         result = iterator.next();
         while (!result.done) {
             this.push(result.value);
@@ -823,7 +775,7 @@ function _$rapyd$_list_constructor(iterable) {
             ans[i] = iterable[i];
         }
     } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = _$rapyd$_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
@@ -987,7 +939,7 @@ if (typeof Set !== "function" || typeof Set.prototype.delete !== "function") {
 }
 function _$rapyd$_set(iterable) {
     var ans, s, iterator, result, keys;
-    if (this instanceof _$rapyd$_set) {
+    if (_$rapyd$_instanceof(this, _$rapyd$_set)) {
         this.jsset = new _$rapyd$_set_implementation;
         ans = this;
         if (iterable === undefined) {
@@ -999,7 +951,7 @@ function _$rapyd$_set(iterable) {
                 s.add(iterable[i]);
             }
         } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-            iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+            iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
             result = iterator.next();
             while (!result.done) {
                 s.add(result.value);
@@ -1318,7 +1270,7 @@ _$rapyd$_set.prototype.inspect = _$rapyd$_chain_assign_temp;
 _$rapyd$_set.prototype.__eq__ = (function() {
     var _$rapyd$_anonfunc = function (other) {
         var iterator, r;
-        if (!(other instanceof this.constructor)) {
+        if (!(_$rapyd$_instanceof(other, this.constructor))) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1539,7 +1491,7 @@ if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
     _$rapyd$_dict_implementation = Map;
 }
 function _$rapyd$_dict(iterable) {
-    if (this instanceof _$rapyd$_dict) {
+    if (_$rapyd$_instanceof(this, _$rapyd$_dict)) {
         this.jsmap = new _$rapyd$_dict_implementation;
         if (iterable !== undefined) {
             this.update(iterable);
@@ -1751,14 +1703,14 @@ _$rapyd$_dict.prototype.update = (function() {
             for (var i = 0; i < iterable.length; i++) {
                 m.set(iterable[i][0], iterable[i][1]);
             }
-        } else if (iterable instanceof _$rapyd$_dict) {
+        } else if (_$rapyd$_instanceof(iterable, _$rapyd$_dict)) {
             iterator = iterable.items();
             result = iterator.next();
             while (!result.done) {
                 m.set(result.value[0], result.value[1]);
                 result = iterator.next();
             }
-        } else if (typeof Map === "function" && iterable instanceof Map) {
+        } else if (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) {
             iterator = iterable.entries();
             result = iterator.next();
             while (!result.done) {
@@ -1806,7 +1758,7 @@ _$rapyd$_dict.prototype.inspect = _$rapyd$_chain_assign_temp;
 _$rapyd$_dict.prototype.__eq__ = (function() {
     var _$rapyd$_anonfunc = function (other) {
         var iterator, r, x;
-        if (!(other instanceof this.constructor)) {
+        if (!(_$rapyd$_instanceof(other, this.constructor))) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1876,6 +1828,7 @@ AttributeError.prototype.__repr__ = function __repr__ () {
 AttributeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+AttributeError.prototype.__bases__ = [Error];
 AttributeError.prototype.name = "AttributeError";
 
 function IndexError() {
@@ -1898,6 +1851,7 @@ IndexError.prototype.__repr__ = function __repr__ () {
 IndexError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+IndexError.prototype.__bases__ = [Error];
 IndexError.prototype.name = "IndexError";
 
 function KeyError() {
@@ -1920,6 +1874,7 @@ KeyError.prototype.__repr__ = function __repr__ () {
 KeyError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+KeyError.prototype.__bases__ = [Error];
 KeyError.prototype.name = "KeyError";
 
 function ValueError() {
@@ -1942,6 +1897,7 @@ ValueError.prototype.__repr__ = function __repr__ () {
 ValueError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+ValueError.prototype.__bases__ = [Error];
 ValueError.prototype.name = "ValueError";
 
 function UnicodeDecodeError() {
@@ -1958,6 +1914,7 @@ UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
 UnicodeDecodeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+UnicodeDecodeError.prototype.__bases__ = [ValueError];
 UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
 var _$rapyd$_in, _$rapyd$_desugar_kwargs;
 function _$rapyd$_flatten(arr) {
@@ -1994,7 +1951,7 @@ _$rapyd$_in = (function() {
                     if (typeof arr.__contains__ === "function") {
                         return arr.__contains__(val);
                     }
-                    if ((arr instanceof Map || arr instanceof Set)) {
+                    if (_$rapyd$_instanceof.apply(null, [arr, Map, Set])) {
                         return arr.has(val);
                     }
                     if (_$rapyd$_arraylike(arr)) {
@@ -2033,7 +1990,7 @@ function _$rapyd$_Iterable(iterable) {
         return iterable;
     }
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = _$rapyd$_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
@@ -2143,6 +2100,89 @@ function _$rapyd$_setitem(obj, key, val) {
 };
 
 _$rapyd$_setitem.__argnames__ = ["obj", "key", "val"];
+
+function _$rapyd$_mixin() {
+    var seen, _$rapyd$_chain_assign_temp, resolved_props, p, target, props, name;
+    seen = Object.create(null);
+    _$rapyd$_chain_assign_temp = true;
+    seen.__argnames__ = _$rapyd$_chain_assign_temp;
+    seen.__handles_kwarg_interpolation__ = _$rapyd$_chain_assign_temp;
+    seen.__init__ = _$rapyd$_chain_assign_temp;
+    seen.__annotations__ = _$rapyd$_chain_assign_temp;
+    seen.__doc__ = _$rapyd$_chain_assign_temp;
+    seen.__bind_methods__ = _$rapyd$_chain_assign_temp;
+    seen.__bases__ = _$rapyd$_chain_assign_temp;
+    seen.constructor = _$rapyd$_chain_assign_temp;
+    seen.__class__ = _$rapyd$_chain_assign_temp;
+;
+    resolved_props = {};
+    _$rapyd$_chain_assign_temp = arguments[0].prototype;
+    p = _$rapyd$_chain_assign_temp;
+    target = _$rapyd$_chain_assign_temp;
+;
+    while (p && p !== Object.prototype) {
+        props = Object.getOwnPropertyNames(p);
+        for (var i = 0; i < props.length; i++) {
+            seen[props[i]] = true;
+        }
+        p = Object.getPrototypeOf(p);
+    }
+    for (var c = 1; c < arguments.length; c++) {
+        p = arguments[c].prototype;
+        while (p && p !== Object.prototype) {
+            props = Object.getOwnPropertyNames(p);
+            for (var i = 0; i < props.length; i++) {
+                name = props[i];
+                if (seen[name]) {
+                    continue;
+                }
+                seen[name] = true;
+                resolved_props[name] = Object.getOwnPropertyDescriptor(p, name);
+            }
+            p = Object.getPrototypeOf(p);
+        }
+    }
+    Object.defineProperties(target, resolved_props);
+};
+
+function _$rapyd$_instanceof() {
+    var obj, bases, q, cls, p;
+    obj = arguments[0];
+    try {
+        bases = obj.constructor.prototype.__bases__ || "";
+    } catch (_$rapyd$_Exception) {
+        if (_$rapyd$_Exception instanceof Exception) {
+            bases = "";
+        } else {
+            throw _$rapyd$_Exception;
+        }
+    }
+    for (var i = 1; i < arguments.length; i++) {
+        q = arguments[i];
+        if (obj instanceof q) {
+            return true;
+        }
+        if ((q === Array || q === _$rapyd$_list_constructor) && Array.isArray(obj)) {
+            return true;
+        }
+        if (bases.length > 1) {
+            for (var c = 1; c < bases.length; c++) {
+                cls = bases[c];
+                while (cls) {
+                    if (q === cls) {
+                        return true;
+                    }
+                    p = Object.getPrototypeOf(cls.prototype);
+                    if (!p) {
+                        break;
+                    }
+                    cls = p.constructor;
+                }
+            }
+        }
+    }
+    return false;
+};
 function sum(iterable, start) {
     var ans, iterator, r;
     if (Array.isArray(iterable)) {
@@ -3418,6 +3458,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         DefaultsError.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        DefaultsError.prototype.__bases__ = [ValueError];
 
         function defaults(args, defs, croak) {
             var ret, i;
@@ -3469,19 +3510,19 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     function doit() {
                         var val, is_last;
                         val = f(a[i], i);
-                        is_last = val instanceof Last;
+                        is_last = _$rapyd$_instanceof(val, Last);
                         if (is_last) {
                             val = val.v;
                         }
-                        if (val instanceof AtTop) {
+                        if (_$rapyd$_instanceof(val, AtTop)) {
                             val = val.v;
-                            if (val instanceof Splice) {
+                            if (_$rapyd$_instanceof(val, Splice)) {
                                 top.push.apply(top, (backwards) ? val.v.slice().reverse() : val.v);
                             } else {
                                 top.push(val);
                             }
                         } else if (val !== skip) {
-                            if (val instanceof Splice) {
+                            if (_$rapyd$_instanceof(val, Splice)) {
                                 ret.push.apply(ret, (backwards) ? val.v.slice().reverse() : val.v);
                             } else {
                                 ret.push(val);
@@ -3779,6 +3820,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         SyntaxError.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        SyntaxError.prototype.__bases__ = [Error];
 
         function ImportError() {
             if (this._$rapyd$_object_id === undefined) Object.defineProperty(this, "_$rapyd$_object_id", {"value":++_$rapyd$_object_counter});
@@ -3794,6 +3836,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         ImportError.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        ImportError.prototype.__bases__ = [SyntaxError];
         
 
         _$rapyd$_modules.errors.SyntaxError = SyntaxError;
@@ -4107,7 +4150,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             })()
         }, AST_Statement);
         function walk_body(node, visitor) {
-            if (node.body instanceof AST_Statement) {
+            if (_$rapyd$_instanceof(node.body, AST_Statement)) {
                 node.body._walk(visitor);
             } else if (node.body) {
                 node.body.forEach((function() {
@@ -4530,15 +4573,16 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         AST_Function = DEFNODE("Function", null, {
             "$documentation": "A function expression"
         }, AST_Lambda);
-        AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id statements dynamic_properties", {
+        AST_Class = DEFNODE("Class", "init name parent bases static external bound decorators module_id statements dynamic_properties", {
             "$documentation": "A class declaration",
             "$propdoc": {
                 "name": "[AST_SymbolDeclaration?] the name of this class",
                 "init": "[AST_Function] constructor for the class",
                 "parent": "[AST_Symbol?] parent class this class inherits from",
+                "bases": "[AST_Symbol*] list of base classes this class inherits from",
                 "static": "[string*] list of static methods",
                 "external": "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
-                "bound": "[string*] list of methods that need to be bound to behave correctly (function pointers)",
+                "bound": "[string*] list of methods that need to be bound to self",
                 "decorators": "[AST_Decorator*] function decorators, if any",
                 "module_id": "[string] The id of the module this class is defined in",
                 "statements": "[AST_Node*] list of statements in the class scope (excluding method definitions)",
@@ -4934,7 +4978,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     a = _$rapyd$_list_decorate([]);
                     while (p) {
                         a.push(p.car);
-                        if (p.cdr && !(p.cdr instanceof AST_Seq)) {
+                        if (p.cdr && !(_$rapyd$_instanceof(p.cdr, AST_Seq))) {
                             a.push(p.cdr);
                             break;
                         }
@@ -4949,7 +4993,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var p, cell;
                     p = this;
                     while (p) {
-                        if (!(p.cdr instanceof AST_Seq)) {
+                        if (!(_$rapyd$_instanceof(p.cdr, AST_Seq))) {
                             cell = AST_Seq.cons(p.cdr, node);
                             return p.cdr = cell;
                         }
@@ -5153,7 +5197,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             "$documentation": "An assignment expression — `a = b + 5`",
             "is_chained": (function() {
                 var _$rapyd$_anonfunc = function () {
-                    return this.right instanceof AST_Assign || this.right instanceof AST_Seq && (this.right.car instanceof AST_Assign || this.right.cdr instanceof AST_Assign);
+                    return _$rapyd$_instanceof(this.right, AST_Assign) || _$rapyd$_instanceof(this.right, AST_Seq) && (_$rapyd$_instanceof(this.right.car, AST_Assign) || _$rapyd$_instanceof(this.right.cdr, AST_Assign));
                 };
                 return _$rapyd$_anonfunc;
             })(),
@@ -5162,19 +5206,19 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var right, left_hand_sides, next, assign;
                     right = this.right;
                     while (true) {
-                        if (right instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(right, AST_Assign)) {
                             right = right.right;
                             continue;
                         }
-                        if (right instanceof AST_Seq) {
-                            if (right.car instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(right, AST_Seq)) {
+                            if (_$rapyd$_instanceof(right.car, AST_Assign)) {
                                 right = new AST_Seq({
                                     "car": right.car.right,
                                     "cdr": right.cdr
                                 });
                                 continue;
                             }
-                            if (right.cdr instanceof AST_Assign) {
+                            if (_$rapyd$_instanceof(right.cdr, AST_Assign)) {
                                 right = right.cdr.right;
                                 continue;
                             }
@@ -5184,13 +5228,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     left_hand_sides = [this.left];
                     next = this.right;
                     while (true) {
-                        if (next instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(next, AST_Assign)) {
                             left_hand_sides.push(next.left);
                             next = next.right;
                             continue;
                         }
-                        if (next instanceof AST_Seq) {
-                            if (next.cdr instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(next, AST_Seq)) {
+                            if (_$rapyd$_instanceof(next.cdr, AST_Assign)) {
                                 assign = next.cdr;
                                 left_hand_sides.push(new AST_Seq({
                                     "car": next.car,
@@ -5242,9 +5286,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         var _$rapyd$_Iter21 = _$rapyd$_Iterable(arr);
                         for (var _$rapyd$_Index21 = 0; _$rapyd$_Index21 < _$rapyd$_Iter21.length; _$rapyd$_Index21++) {
                             value = _$rapyd$_Iter21[_$rapyd$_Index21];
-                            if (value instanceof AST_Seq) {
+                            if (_$rapyd$_instanceof(value, AST_Seq)) {
                                 value = value.to_array();
-                            } else if (value instanceof AST_Array) {
+                            } else if (_$rapyd$_instanceof(value, AST_Array)) {
                                 value = value.elements;
                             }
                             if (Array.isArray(value)) {
@@ -5564,7 +5608,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     for (var _$rapyd$_Index22 = stack.length - 1; _$rapyd$_Index22 > -1; _$rapyd$_Index22-=1) {
                         i = _$rapyd$_Index22;
                         x = stack[i];
-                        if (x instanceof type) {
+                        if (_$rapyd$_instanceof(x, type)) {
                             return x;
                         }
                     }
@@ -5581,10 +5625,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     self = stack[i -= 1];
                     while (i > 0) {
                         p = stack[i -= 1];
-                        if (p instanceof AST_If && p.condition === self || p instanceof AST_Conditional && p.condition === self || p instanceof AST_DWLoop && p.condition === self || p instanceof AST_UnaryPrefix && p.operator === "!" && p.expression === self) {
+                        if (_$rapyd$_instanceof(p, AST_If) && p.condition === self || _$rapyd$_instanceof(p, AST_Conditional) && p.condition === self || _$rapyd$_instanceof(p, AST_DWLoop) && p.condition === self || _$rapyd$_instanceof(p, AST_UnaryPrefix) && p.operator === "!" && p.expression === self) {
                             return true;
                         }
-                        if (!(p instanceof AST_Binary && (p.operator === "&&" || p.operator === "||"))) {
+                        if (!(_$rapyd$_instanceof(p, AST_Binary) && (p.operator === "&&" || p.operator === "||"))) {
                             return false;
                         }
                         self = p;
@@ -5607,6 +5651,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         Found.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        Found.prototype.__bases__ = [Exception];
         
 
         function has_calls(expression) {
@@ -5616,7 +5661,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             try {
                 expression.walk(new TreeWalker((function() {
                     var _$rapyd$_anonfunc = function (node) {
-                        if ((node instanceof AST_BaseCall || node instanceof AST_ItemAccess)) {
+                        if (_$rapyd$_instanceof.apply(null, [node, AST_BaseCall, AST_ItemAccess])) {
                             throw new Found;
                         }
                     };
@@ -6690,10 +6735,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var UNARY_POSTFIX = _$rapyd$_modules.tokenizer.UNARY_POSTFIX;
         
         has_prop = Object.prototype.hasOwnProperty;
-        COMPILER_VERSION = "bfd0a66b612e3364d08d6a46427330e05ae7071d";
+        COMPILER_VERSION = "295519cd08a89c81261f117662d1d73a9a9d480f";
         PYTHON_FLAGS = {
             "dict_literals": true,
-            "overload_getitem": true
+            "overload_getitem": true,
+            "bound_methods": true
         };
         NATIVE_CLASSES = {
             "Image": {},
@@ -6707,7 +6753,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             "TypeError": {},
             "URIError": {},
             "Object": {
-                "static": _$rapyd$_list_decorate([ "getOwnPropertyNames", "keys", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ])
+                "static": _$rapyd$_list_decorate([ "getOwnPropertyNames", "getOwnPropertyDescriptor", "getOwnPropertySymbols", "keys", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ])
             },
             "String": {
                 "static": _$rapyd$_list_decorate([ "fromCharCode" ])
@@ -6777,7 +6823,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             remove = [];
             for (var i = 0; i < decorators.length; i++) {
                 s = decorators[i];
-                if (s instanceof AST_SymbolRef && !s.parens && s.name === name) {
+                if (_$rapyd$_instanceof(s, AST_SymbolRef) && !s.parens && s.name === name) {
                     remove.push(i);
                 }
             }
@@ -6798,7 +6844,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             remove = [];
             for (var i = 0; i < decorators.length; i++) {
                 s = decorators[i];
-                if (s instanceof AST_Dot && s.expression instanceof AST_SymbolRef && s.expression.name === name && s.property === "setter") {
+                if (_$rapyd$_instanceof(s, AST_Dot) && _$rapyd$_instanceof(s.expression, AST_SymbolRef) && s.expression.name === name && s.property === "setter") {
                     remove.push(i);
                 }
             }
@@ -6919,14 +6965,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var _$rapyd$_Iter27 = _$rapyd$_Iterable(body);
                     for (var _$rapyd$_Index27 = 0; _$rapyd$_Index27 < _$rapyd$_Iter27.length; _$rapyd$_Index27++) {
                         obj = _$rapyd$_Iter27[_$rapyd$_Index27];
-                        if (obj instanceof AST_Function || obj instanceof AST_Class) {
+                        if (_$rapyd$_instanceof(obj, AST_Function) || _$rapyd$_instanceof(obj, AST_Class)) {
                             if (obj.name) {
                                 ans.push(obj.name.name);
                             } else {
                                 token_error(obj.start, "Top-level functions must have names");
                             }
                         } else {
-                            if (obj instanceof AST_Scope) {
+                            if (_$rapyd$_instanceof(obj, AST_Scope)) {
                                 continue;
                             }
                             var _$rapyd$_Iter28 = _$rapyd$_Iterable(_$rapyd$_list_decorate([ "body", "alternative" ]));
@@ -6936,7 +6982,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 if (opt) {
                                     ans = ans.concat(scan_for_top_level_callables(opt));
                                 }
-                                if (opt instanceof AST_Assign && !(opt.right instanceof AST_Scope)) {
+                                if (_$rapyd$_instanceof(opt, AST_Assign) && !(_$rapyd$_instanceof(opt.right, AST_Scope))) {
                                     ans = ans.concat(scan_for_top_level_callables(opt.right));
                                 }
                             }
@@ -6959,7 +7005,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_Iter29 = _$rapyd$_Iterable(body);
                 for (var _$rapyd$_Index29 = 0; _$rapyd$_Index29 < _$rapyd$_Iter29.length; _$rapyd$_Index29++) {
                     obj = _$rapyd$_Iter29[_$rapyd$_Index29];
-                    if (obj instanceof AST_Class) {
+                    if (_$rapyd$_instanceof(obj, AST_Class)) {
                         ans[obj.name.name] = obj;
                     }
                 }
@@ -6999,15 +7045,15 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var _$rapyd$_Iter31 = _$rapyd$_Iterable(arr);
                     for (var _$rapyd$_Index31 = 0; _$rapyd$_Index31 < _$rapyd$_Iter31.length; _$rapyd$_Index31++) {
                         x = _$rapyd$_Iter31[_$rapyd$_Index31];
-                        if (x instanceof AST_Seq) {
+                        if (_$rapyd$_instanceof(x, AST_Seq)) {
                             x = x.to_array();
-                        } else if (x instanceof AST_Array) {
+                        } else if (_$rapyd$_instanceof(x, AST_Array)) {
                             x = x.elements;
                         }
                         if (Array.isArray(x)) {
                             scan_in_array(x);
                         } else {
-                            if (!(x instanceof AST_PropAccess)) {
+                            if (!(_$rapyd$_instanceof(x, AST_PropAccess))) {
                                 push(x.name);
                             }
                         }
@@ -7017,12 +7063,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 scan_in_array.__argnames__ = ["arr"];
 
                 function add_assign_lhs(lhs) {
-                    if (lhs instanceof AST_Seq) {
+                    if (_$rapyd$_instanceof(lhs, AST_Seq)) {
                         lhs = new AST_Array({
                             "elements": lhs.to_array()
                         });
                     }
-                    if (lhs instanceof AST_Array) {
+                    if (_$rapyd$_instanceof(lhs, AST_Array)) {
                         push("_$rapyd$_unpack");
                         scan_in_array(lhs.elements);
                     } else if (lhs.name) {
@@ -7033,7 +7079,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 add_assign_lhs.__argnames__ = ["lhs"];
 
                 function add_for_in(stmt) {
-                    if (stmt.init instanceof AST_Array) {
+                    if (_$rapyd$_instanceof(stmt.init, AST_Array)) {
                         push("_$rapyd$_unpack");
                         scan_in_array(stmt.init.elements);
                     } else {
@@ -7047,7 +7093,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var _$rapyd$_Iter32 = _$rapyd$_Iterable(body);
                     for (var _$rapyd$_Index32 = 0; _$rapyd$_Index32 < _$rapyd$_Iter32.length; _$rapyd$_Index32++) {
                         stmt = _$rapyd$_Iter32[_$rapyd$_Index32];
-                        if (stmt instanceof AST_Scope) {
+                        if (_$rapyd$_instanceof(stmt, AST_Scope)) {
                             continue;
                         }
                         [ "body", "alternative" ].forEach((function() {
@@ -7057,7 +7103,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 if (opt) {
                                     extend(scan_for_local_vars(opt));
                                 }
-                                if (opt instanceof AST_Assign && !(opt.right instanceof AST_Scope)) {
+                                if (_$rapyd$_instanceof(opt, AST_Assign) && !(_$rapyd$_instanceof(opt.right, AST_Scope))) {
                                     extend(scan_for_local_vars(opt.right));
                                 }
                             };
@@ -7065,11 +7111,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             _$rapyd$_anonfunc.__argnames__ = ["option"];
                             return _$rapyd$_anonfunc;
                         })());
-                        if (stmt instanceof AST_ForIn) {
+                        if (_$rapyd$_instanceof(stmt, AST_ForIn)) {
                             add_for_in(stmt);
-                        } else if (stmt instanceof AST_DWLoop) {
+                        } else if (_$rapyd$_instanceof(stmt, AST_DWLoop)) {
                             extend(scan_for_local_vars(stmt));
-                        } else if (stmt instanceof AST_With) {
+                        } else if (_$rapyd$_instanceof(stmt, AST_With)) {
                             [push("_$rapyd$_with_exception"), push("_$rapyd$_with_suppress")];
                             var _$rapyd$_Iter33 = _$rapyd$_Iterable(stmt.clauses);
                             for (var _$rapyd$_Index33 = 0; _$rapyd$_Index33 < _$rapyd$_Iter33.length; _$rapyd$_Index33++) {
@@ -7085,7 +7131,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     if (body.alternative) {
                         extend(scan_for_local_vars(body.alternative));
                     }
-                } else if (body instanceof AST_Assign) {
+                } else if (_$rapyd$_instanceof(body, AST_Assign)) {
                     if (body.is_chained()) {
                         var _$rapyd$_Iter34 = _$rapyd$_Iterable(body.traverse_chain()[0]);
                         for (var _$rapyd$_Index34 = 0; _$rapyd$_Index34 < _$rapyd$_Iter34.length; _$rapyd$_Index34++) {
@@ -7096,10 +7142,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     } else {
                         add_assign_lhs(body.left);
                     }
-                    if (!(body.right instanceof AST_Scope)) {
+                    if (!(_$rapyd$_instanceof(body.right, AST_Scope))) {
                         extend(scan_for_local_vars(body.right));
                     }
-                } else if (body instanceof AST_ForIn) {
+                } else if (_$rapyd$_instanceof(body, AST_ForIn)) {
                     add_for_in(body);
                 }
                 return localvars;
@@ -7114,10 +7160,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var _$rapyd$_Iter35 = _$rapyd$_Iterable(body);
                     for (var _$rapyd$_Index35 = 0; _$rapyd$_Index35 < _$rapyd$_Iter35.length; _$rapyd$_Index35++) {
                         stmt = _$rapyd$_Iter35[_$rapyd$_Index35];
-                        if (stmt instanceof AST_Scope) {
+                        if (_$rapyd$_instanceof(stmt, AST_Scope)) {
                             continue;
                         }
-                        if (stmt instanceof AST_Definitions) {
+                        if (_$rapyd$_instanceof(stmt, AST_Definitions)) {
                             stmt.definitions.forEach((function() {
                                 var _$rapyd$_anonfunc = function (vardef) {
                                     vars.push(vardef.name.name);
@@ -7413,8 +7459,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 init = null;
                 if (!is_("punc", ";")) {
                     init = expression(true, true);
-                    if (init instanceof AST_Seq) {
-                        if (init.car instanceof AST_SymbolRef && init.cdr instanceof AST_SymbolRef) {
+                    if (_$rapyd$_instanceof(init, AST_Seq)) {
+                        if (_$rapyd$_instanceof(init.car, AST_SymbolRef) && _$rapyd$_instanceof(init.cdr, AST_SymbolRef)) {
                             tmp = init.to_array();
                         } else {
                             tmp = _$rapyd$_list_decorate([ init ]);
@@ -7426,7 +7472,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         });
                     }
                     if (is_("operator", "in")) {
-                        if (init instanceof AST_Var && init.definitions.length > 1) {
+                        if (_$rapyd$_instanceof(init, AST_Var) && init.definitions.length > 1) {
                             croak("Only one variable declaration allowed in for..in loop");
                         }
                         next();
@@ -7440,7 +7486,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             function for_in(init, list_comp) {
                 var lhs, obj;
-                lhs = (init instanceof AST_Var) ? init.definitions[0].name : null;
+                lhs = (_$rapyd$_instanceof(init, AST_Var)) ? init.definitions[0].name : null;
                 obj = expression(true);
                 if (list_comp) {
                     return {
@@ -7470,7 +7516,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             function get_class_in_scope(expr) {
                 var s, referenced_path, class_name;
-                if (expr instanceof AST_SymbolRef) {
+                if (_$rapyd$_instanceof(expr, AST_SymbolRef)) {
                     if (NATIVE_CLASSES.hasOwnProperty(expr.name)) {
                         return NATIVE_CLASSES[expr.name];
                     }
@@ -7483,13 +7529,13 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             return S.classes[s][expr.name];
                         }
                     }
-                } else if (expr instanceof AST_Dot) {
+                } else if (_$rapyd$_instanceof(expr, AST_Dot)) {
                     referenced_path = _$rapyd$_list_decorate([]);
-                    while (expr instanceof AST_Dot) {
+                    while (_$rapyd$_instanceof(expr, AST_Dot)) {
                         referenced_path.unshift(expr.property);
                         expr = expr.expression;
                     }
-                    if (expr instanceof AST_SymbolRef) {
+                    if (_$rapyd$_instanceof(expr, AST_SymbolRef)) {
                         referenced_path.unshift(expr.name);
                         if (len(referenced_path) > 1) {
                             class_name = referenced_path.join(".");
@@ -7692,7 +7738,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     last_tok = _$rapyd$_chain_assign_temp;
 ;
                     key = "";
-                    while (tmp instanceof AST_Dot) {
+                    while (_$rapyd$_instanceof(tmp, AST_Dot)) {
                         key = "." + tmp.property + key;
                         _$rapyd$_chain_assign_temp = tmp.expression;
                         tmp = _$rapyd$_chain_assign_temp;
@@ -7808,7 +7854,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             import_.__argnames__ = ["from_import"];
 
             function class_() {
-                var name, externaldecorator, class_details, definition, descriptor, _$rapyd$_chain_assign_temp, stmt, class_var_names, visitor;
+                var name, externaldecorator, class_details, bases, class_parent, a, definition, descriptor, _$rapyd$_chain_assign_temp, stmt, class_var_names, visitor;
                 name = as_symbol(AST_SymbolDefun);
                 if (!name) {
                     unexpected();
@@ -7816,33 +7862,36 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 externaldecorator = has_simple_decorator(S.decorators, "external");
                 class_details = {
                     "static": _$rapyd$_list_decorate([]),
-                    "bound": {}
+                    "bound": []
                 };
+                bases = [];
+                class_parent = null;
+                if (is_("punc", "(")) {
+                    S.in_parenthesized_expr = true;
+                    next();
+                    while (true) {
+                        if (is_("punc", ")")) {
+                            S.in_parenthesized_expr = false;
+                            next();
+                            break;
+                        }
+                        a = expr_atom(false);
+                        if (class_parent === null) {
+                            class_parent = a;
+                        }
+                        bases.push(a);
+                        if (is_("punc", ",")) {
+                            next();
+                            continue;
+                        }
+                    }
+                }
                 definition = new AST_Class({
                     "name": name,
                     "module_id": module_id,
-                    "dynamic_properties": {},
-                    "parent": (function() {
-                        var _$rapyd$_anonfunc = function () {
-                            var a;
-                            if (is_("punc", "(")) {
-                                S.in_parenthesized_expr = true;
-                                next();
-                                if (is_("punc", ")")) {
-                                    S.in_parenthesized_expr = false;
-                                    next();
-                                    return null;
-                                }
-                                a = expr_atom(false);
-                                expect(")");
-                                S.in_parenthesized_expr = false;
-                                return a;
-                            } else {
-                                return null;
-                            }
-                        };
-                        return _$rapyd$_anonfunc;
-                    })()(),
+                    "dynamic_properties": Object.create(null),
+                    "parent": class_parent,
+                    "bases": bases,
                     "localvars": _$rapyd$_list_decorate([]),
                     "static": class_details.static,
                     "external": externaldecorator,
@@ -7894,7 +7943,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_Iter46 = _$rapyd$_Iterable(definition.body);
                 for (var _$rapyd$_Index46 = 0; _$rapyd$_Index46 < _$rapyd$_Iter46.length; _$rapyd$_Index46++) {
                     stmt = _$rapyd$_Iter46[_$rapyd$_Index46];
-                    if (stmt instanceof AST_Method) {
+                    if (_$rapyd$_instanceof(stmt, AST_Method)) {
                         if (stmt.is_getter || stmt.is_setter) {
                             descriptor = definition.dynamic_properties[stmt.name.name];
                             if (!descriptor) {
@@ -7912,12 +7961,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 class_var_names = {};
                 function walker() {
                     function visit_node(node, descend) {
-                        if (node instanceof AST_Method) {
+                        if (_$rapyd$_instanceof(node, AST_Method)) {
                             class_var_names[node.name.name] = true;
                             return;
-                        } else if (node instanceof AST_Assign && node.left instanceof AST_SymbolRef) {
+                        } else if (_$rapyd$_instanceof(node, AST_Assign) && _$rapyd$_instanceof(node.left, AST_SymbolRef)) {
                             class_var_names[node.left.name] = true;
-                        } else if (node instanceof AST_SymbolRef && has_prop.call(class_var_names, node.name)) {
+                        } else if (_$rapyd$_instanceof(node, AST_SymbolRef) && has_prop.call(class_var_names, node.name)) {
                             node.thedef = new AST_SymbolDefun({
                                 "name": name.name + ".prototype." + node.name
                             });
@@ -7936,7 +7985,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_Iter47 = _$rapyd$_Iterable(definition.body);
                 for (var _$rapyd$_Index47 = 0; _$rapyd$_Index47 < _$rapyd$_Iter47.length; _$rapyd$_Index47++) {
                     stmt = _$rapyd$_Iter47[_$rapyd$_Index47];
-                    if (!(stmt instanceof AST_Class)) {
+                    if (!(_$rapyd$_instanceof(stmt, AST_Class))) {
                         stmt.walk(visitor);
                         definition.statements.push(stmt);
                     }
@@ -7966,8 +8015,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         }
                         S.classes[S.classes.length - 2][in_class].static.push(name.name);
                         staticmethod = true;
-                    } else if (name.name !== "__init__" && options.auto_bind) {
-                        S.classes[S.classes.length - 2][in_class].bound[name.name] = true;
+                    } else if (name.name !== "__init__" && S.scoped_flags.get("bound_methods")) {
+                        S.classes[S.classes.length - 2][in_class].bound.push(name.name);
                     }
                 }
                 expect("(");
@@ -8138,7 +8187,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 });
                 definition.return_annotation = return_annotation;
                 definition.is_generator = is_generator[0];
-                if (definition instanceof AST_Method) {
+                if (_$rapyd$_instanceof(definition, AST_Method)) {
                     definition.static = staticmethod;
                     definition.is_getter = property_getter;
                     definition.is_setter = property_setter;
@@ -8443,10 +8492,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         }
                         ex.start = start;
                         ex.end = S.token;
-                        if (ex instanceof AST_SymbolRef) {
+                        if (_$rapyd$_instanceof(ex, AST_SymbolRef)) {
                             ex.parens = true;
                         }
-                        if (!(ex instanceof AST_GeneratorComprehension)) {
+                        if (!(_$rapyd$_instanceof(ex, AST_GeneratorComprehension))) {
                             expect(")");
                         }
                         S.in_parenthesized_expr = false;
@@ -8520,7 +8569,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var _$rapyd$_Iter50 = _$rapyd$_Iterable(a);
                     for (var _$rapyd$_Index50 = 0; _$rapyd$_Index50 < _$rapyd$_Iter50.length; _$rapyd$_Index50++) {
                         arg = _$rapyd$_Iter50[_$rapyd$_Index50];
-                        if (arg instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(arg, AST_Assign)) {
                             tmp.kwargs.push(_$rapyd$_list_decorate([ arg.left, arg.right ]));
                         } else {
                             tmp.push(arg);
@@ -8567,7 +8616,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         a.starargs = true;
                     } else {
                         arg = expression(false);
-                        if (arg instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(arg, AST_Assign)) {
                             a.kwargs.push(_$rapyd$_list_decorate([ arg.left, arg.right ]));
                         } else {
                             if (is_("keyword", "for")) {
@@ -8652,7 +8701,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             end = prev();
                             return set_(start, end, left);
                         }
-                        if (!(left instanceof AST_Constant)) {
+                        if (!(_$rapyd$_instanceof(left, AST_Constant))) {
                             has_non_const_keys = true;
                         }
                         expect(":");
@@ -8707,7 +8756,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
             function read_comprehension(obj, terminator) {
                 var forloop;
-                if (obj instanceof AST_GeneratorComprehension) {
+                if (_$rapyd$_instanceof(obj, AST_GeneratorComprehension)) {
                     baselib_items["yield"] = true;
                 }
                 S.in_comprehension = true;
@@ -8947,7 +8996,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         S.in_parenthesized_expr = false;
                         return ret;
                     } else {
-                        if (expr instanceof AST_Dot) {
+                        if (_$rapyd$_instanceof(expr, AST_Dot)) {
                             c = get_class_in_scope(expr.expression);
                         }
                         if (c) {
@@ -8965,7 +9014,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             }), true);
                             S.in_parenthesized_expr = false;
                             return ret;
-                        } else if (expr instanceof AST_SymbolRef) {
+                        } else if (_$rapyd$_instanceof(expr, AST_SymbolRef)) {
                             tmp_ = expr.name;
                             if (tmp_ === "type") {
                                 ret = new AST_UnaryPrefix({
@@ -9135,7 +9184,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             maybe_conditional.__argnames__ = ["no_in"];
 
             function create_assign(data) {
-                if (data.right && data.right instanceof AST_Seq && (data.right.car instanceof AST_Assign || data.right.cdr instanceof AST_Assign) && data.operator !== "=") {
+                if (data.right && _$rapyd$_instanceof(data.right, AST_Seq) && (_$rapyd$_instanceof(data.right.car, AST_Assign) || _$rapyd$_instanceof(data.right.cdr, AST_Assign)) && data.operator !== "=") {
                     token_error(data.start, "Invalid assignment operator for chained assignment: " + data.operator);
                 }
                 return new AST_Assign(data);
@@ -9188,7 +9237,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     left = [ expr ];
                     while (is_("punc", ",") && !peek().nlb) {
                         next();
-                        if (expr instanceof AST_Assign) {
+                        if (_$rapyd$_instanceof(expr, AST_Assign)) {
                             left[left.length-1] = left[left.length-1].left;
                             return create_assign({
                                 "start": start,
@@ -9206,7 +9255,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         expr = maybe_assign(no_in);
                         left.push(expr);
                     }
-                    if (left.length > 1 && left[left.length-1] instanceof AST_Assign) {
+                    if (left.length > 1 && _$rapyd$_instanceof(left[left.length-1], AST_Assign)) {
                         left[left.length-1] = left[left.length-1].left;
                         return create_assign({
                             "start": start,
@@ -9245,7 +9294,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 first_token = true;
                 while (!is_("eof")) {
                     element = statement();
-                    if (first_token && element instanceof AST_Directive && element.value.indexOf("#!") === 0) {
+                    if (first_token && _$rapyd$_instanceof(element, AST_Directive) && element.value.indexOf("#!") === 0) {
                         shebang = element.value;
                     } else {
                         body.push(element);
@@ -9324,7 +9373,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var import_dirs, x, location, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, S, obj, cname;
             options = defaults(options, {
                 "filename": null,
-                "auto_bind": false,
                 "module_id": "__main__",
                 "toplevel": null,
                 "for_linting": false,
@@ -9945,6 +9993,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         OutputStream.prototype.__str__ = function __str__ () {
             return this.__repr__();
         };
+        OutputStream.prototype.__bases__ = [];
 
         _$rapyd$_modules["output.stream"].DANGEROUS = DANGEROUS;
         _$rapyd$_modules["output.stream"].require_semi_colon_chars = require_semi_colon_chars;
@@ -9973,9 +10022,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         
         function force_statement(stat, output) {
             if (output.option("bracketize")) {
-                if (!stat || stat instanceof AST_EmptyStatement) {
+                if (!stat || _$rapyd$_instanceof(stat, AST_EmptyStatement)) {
                     output.print("{}");
-                } else if (stat instanceof AST_BlockStatement) {
+                } else if (_$rapyd$_instanceof(stat, AST_BlockStatement)) {
                     stat.print(output);
                 } else {
                     output.with_block((function() {
@@ -9988,7 +10037,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     })());
                 }
             } else {
-                if (!stat || stat instanceof AST_EmptyStatement) {
+                if (!stat || _$rapyd$_instanceof(stat, AST_EmptyStatement)) {
                     output.force_semicolon();
                 } else {
                     stat.print(output);
@@ -10005,10 +10054,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             node = a[i -= 1];
             p = a[i -= 1];
             while (i > 0) {
-                if (p instanceof AST_Statement && p.body === node) {
+                if (_$rapyd$_instanceof(p, AST_Statement) && p.body === node) {
                     return true;
                 }
-                if (p instanceof AST_Seq && p.car === node || p instanceof AST_BaseCall && p.expression === node || p instanceof AST_Dot && p.expression === node || p instanceof AST_Sub && p.expression === node || p instanceof AST_ItemAccess && p.expression === node || p instanceof AST_Conditional && p.condition === node || p instanceof AST_Binary && p.left === node || p instanceof AST_UnaryPostfix && p.expression === node) {
+                if (_$rapyd$_instanceof(p, AST_Seq) && p.car === node || _$rapyd$_instanceof(p, AST_BaseCall) && p.expression === node || _$rapyd$_instanceof(p, AST_Dot) && p.expression === node || _$rapyd$_instanceof(p, AST_Sub) && p.expression === node || _$rapyd$_instanceof(p, AST_ItemAccess) && p.expression === node || _$rapyd$_instanceof(p, AST_Conditional) && p.condition === node || _$rapyd$_instanceof(p, AST_Binary) && p.left === node || _$rapyd$_instanceof(p, AST_UnaryPostfix) && p.expression === node) {
                     node = p;
                     p = a[i -= 1];
                 } else {
@@ -10018,33 +10067,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         };
 
         first_in_statement.__argnames__ = ["output"];
-
-        function bind_methods(methods, output) {
-            var arg;
-            if (methods) {
-                var _$rapyd$_Iter53 = _$rapyd$_Iterable(methods);
-                for (var _$rapyd$_Index53 = 0; _$rapyd$_Index53 < _$rapyd$_Iter53.length; _$rapyd$_Index53++) {
-                    arg = _$rapyd$_Iter53[_$rapyd$_Index53];
-                    output.indent();
-                    output.print("this.");
-                    output.assign(arg);
-                    output.print("_$rapyd$_bind");
-                    output.with_parens((function() {
-                        var _$rapyd$_anonfunc = function () {
-                            output.print("this.");
-                            output.print(arg);
-                            output.comma();
-                            output.print("this");
-                        };
-                        return _$rapyd$_anonfunc;
-                    })());
-                    output.semicolon();
-                    output.newline();
-                }
-            }
-        };
-
-        bind_methods.__argnames__ = ["methods", "output"];
 
         function declare_vars(vars, output) {
             if (vars.length) {
@@ -10074,7 +10096,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             last = body.length - 1;
             body.forEach((function() {
                 var _$rapyd$_anonfunc = function (stmt, i) {
-                    if (!(stmt instanceof AST_EmptyStatement) && !(stmt instanceof AST_Definitions)) {
+                    if (!(_$rapyd$_instanceof(stmt, AST_EmptyStatement)) && !(_$rapyd$_instanceof(stmt, AST_Definitions))) {
                         output.indent();
                         stmt.print(output);
                         if (!(i === last && is_toplevel)) {
@@ -10093,7 +10115,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function display_complex_body(node, is_toplevel, output, function_preamble) {
             var offset;
             offset = 0;
-            if (node instanceof AST_Method && !node.static) {
+            if (_$rapyd$_instanceof(node, AST_Method) && !node.static) {
                 output.indent();
                 output.print("var");
                 output.space();
@@ -10103,25 +10125,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.newline();
                 offset += 1;
             }
-            if (node instanceof AST_Scope) {
+            if (_$rapyd$_instanceof(node, AST_Scope)) {
                 function_preamble(node, output, offset);
-                if (output.option("auto_bind") && node instanceof AST_Method && node.name && node.name.name === "__init__") {
-                    output.indent();
-                    output.print("_$rapyd$_rebind_all");
-                    output.with_parens((function() {
-                        var _$rapyd$_anonfunc = function () {
-                            output.print("this");
-                            output.comma();
-                            output.print("true");
-                        };
-                        return _$rapyd$_anonfunc;
-                    })());
-                    output.semicolon();
-                    output.newline();
-                    bind_methods(node.bound, output);
-                }
                 declare_vars(node.localvars, output);
-            } else if (node instanceof AST_Except) {
+            } else if (_$rapyd$_instanceof(node, AST_Except)) {
                 if (node.argname) {
                     output.indent();
                     output.print("var");
@@ -10160,9 +10167,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var exits, clause_name, clause;
             exits = [];
             [output.assign("_$rapyd$_with_exception"), output.print("undefined"), output.end_statement()];
-            var _$rapyd$_Iter54 = _$rapyd$_Iterable(self.clauses);
-            for (var _$rapyd$_Index54 = 0; _$rapyd$_Index54 < _$rapyd$_Iter54.length; _$rapyd$_Index54++) {
-                clause = _$rapyd$_Iter54[_$rapyd$_Index54];
+            var _$rapyd$_Iter53 = _$rapyd$_Iterable(self.clauses);
+            for (var _$rapyd$_Index53 = 0; _$rapyd$_Index53 < _$rapyd$_Iter53.length; _$rapyd$_Index53++) {
+                clause = _$rapyd$_Iter53[_$rapyd$_Index53];
                 output.with_counter += 1;
                 clause_name = "_$rapyd$_with_clause_" + output.with_counter;
                 exits.push(clause_name);
@@ -10196,9 +10203,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             output.with_block((function() {
                 var _$rapyd$_anonfunc = function () {
                     var clause;
-                    var _$rapyd$_Iter55 = _$rapyd$_Iterable(exits);
-                    for (var _$rapyd$_Index55 = 0; _$rapyd$_Index55 < _$rapyd$_Iter55.length; _$rapyd$_Index55++) {
-                        clause = _$rapyd$_Iter55[_$rapyd$_Index55];
+                    var _$rapyd$_Iter54 = _$rapyd$_Iterable(exits);
+                    for (var _$rapyd$_Index54 = 0; _$rapyd$_Index54 < _$rapyd$_Iter54.length; _$rapyd$_Index54++) {
+                        clause = _$rapyd$_Iter54[_$rapyd$_Index54];
                         [output.indent(), output.print(clause + ".__exit__()"), output.end_statement()];
                     }
                 };
@@ -10210,9 +10217,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     var clause;
                     [output.indent(), output.assign("_$rapyd$_with_suppress"), output.print("false"), 
                     output.end_statement()];
-                    var _$rapyd$_Iter56 = _$rapyd$_Iterable(exits);
-                    for (var _$rapyd$_Index56 = 0; _$rapyd$_Index56 < _$rapyd$_Iter56.length; _$rapyd$_Index56++) {
-                        clause = _$rapyd$_Iter56[_$rapyd$_Index56];
+                    var _$rapyd$_Iter55 = _$rapyd$_Iterable(exits);
+                    for (var _$rapyd$_Index55 = 0; _$rapyd$_Index55 < _$rapyd$_Iter55.length; _$rapyd$_Index55++) {
+                        clause = _$rapyd$_Iter55[_$rapyd$_Index55];
                         output.indent();
                         output.spaced("_$rapyd$_with_suppress", "|=", "_$rapyd$_bool(" + clause + ".__exit__(_$rapyd$_with_exception.constructor,", "_$rapyd$_with_exception,", "_$rapyd$_with_exception.stack))");
                         output.end_statement();
@@ -10228,7 +10235,6 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         _$rapyd$_modules["output.statements"].force_statement = force_statement;
         _$rapyd$_modules["output.statements"].first_in_statement = first_in_statement;
-        _$rapyd$_modules["output.statements"].bind_methods = bind_methods;
         _$rapyd$_modules["output.statements"].declare_vars = declare_vars;
         _$rapyd$_modules["output.statements"].display_body = display_body;
         _$rapyd$_modules["output.statements"].display_complex_body = display_complex_body;
@@ -10422,9 +10428,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             fname = (node.name) ? node.name.name : anonfunc;
             kw = "arguments[arguments.length-1]";
-            var _$rapyd$_Iter57 = _$rapyd$_Iterable(enumerate(a));
-            for (var _$rapyd$_Index57 = 0; _$rapyd$_Index57 < _$rapyd$_Iter57.length; _$rapyd$_Index57++) {
-                _$rapyd$_unpack = _$rapyd$_Iter57[_$rapyd$_Index57];
+            var _$rapyd$_Iter56 = _$rapyd$_Iterable(enumerate(a));
+            for (var _$rapyd$_Index56 = 0; _$rapyd$_Index56 < _$rapyd$_Iter56.length; _$rapyd$_Index56++) {
+                _$rapyd$_unpack = _$rapyd$_Iter56[_$rapyd$_Index56];
                 c = _$rapyd$_unpack[0];
                 arg = _$rapyd$_unpack[1];
                 i = c - offset;
@@ -10453,9 +10459,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.spaced("if", "(" + kw, "===", "null", "||", "typeof", kw, "!==", "\"object\"", "||", kw, "[_$rapyd$_kwargs_symbol]", "!==", "true)", kw, "=", "{}");
                 output.end_statement();
                 if (a.has_defaults) {
-                    var _$rapyd$_Iter58 = _$rapyd$_Iterable(Object.keys(a.defaults));
-                    for (var _$rapyd$_Index58 = 0; _$rapyd$_Index58 < _$rapyd$_Iter58.length; _$rapyd$_Index58++) {
-                        dname = _$rapyd$_Iter58[_$rapyd$_Index58];
+                    var _$rapyd$_Iter57 = _$rapyd$_Iterable(Object.keys(a.defaults));
+                    for (var _$rapyd$_Index57 = 0; _$rapyd$_Index57 < _$rapyd$_Iter57.length; _$rapyd$_Index57++) {
+                        dname = _$rapyd$_Iter57[_$rapyd$_Index57];
                         output.indent();
                         output.spaced("if", "(Object.prototype.hasOwnProperty.call(" + kw + ",", "\"" + dname + "\"))");
                         output.with_block((function() {
@@ -10494,9 +10500,9 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             if (self.return_annotation) {
                 return true;
             }
-            var _$rapyd$_Iter59 = _$rapyd$_Iterable(self.argnames);
-            for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
-                arg = _$rapyd$_Iter59[_$rapyd$_Index59];
+            var _$rapyd$_Iter58 = _$rapyd$_Iterable(self.argnames);
+            for (var _$rapyd$_Index58 = 0; _$rapyd$_Index58 < _$rapyd$_Iter58.length; _$rapyd$_Index58++) {
+                arg = _$rapyd$_Iter58[_$rapyd$_Index58];
                 if (arg.annotation) {
                     return true;
                 }
@@ -10699,10 +10705,10 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         print_function.__argnames__ = ["output"];
 
         function find_this(expression) {
-            if (expression instanceof AST_Dot) {
+            if (_$rapyd$_instanceof(expression, AST_Dot)) {
                 return expression.expression;
             }
-            if (!(expression instanceof AST_SymbolRef)) {
+            if (!(_$rapyd$_instanceof(expression, AST_SymbolRef))) {
                 return expression;
             }
         };
@@ -10724,7 +10730,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function print_function_call(self, output) {
             var has_kwarg_items, has_kwarg_formals, has_kwargs, is_new, is_repeatable;
             function print_function_name(no_call) {
-                if (self instanceof AST_ClassCall) {
+                if (_$rapyd$_instanceof(self, AST_ClassCall)) {
                     if (self.static) {
                         self.class.print(output);
                         output.print(".");
@@ -10740,7 +10746,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 } else {
                     if (!is_repeatable) {
                         output.print("_$rapyd$_expr_temp");
-                        if (self.expression instanceof AST_Dot) {
+                        if (_$rapyd$_instanceof(self.expression, AST_Dot)) {
                             self.expression._codegen(self.expression, output, true);
                         }
                     } else {
@@ -10844,7 +10850,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             has_kwarg_items = self.args.kwarg_items && self.args.kwarg_items.length;
             has_kwarg_formals = self.args.kwargs && self.args.kwargs.length;
             has_kwargs = has_kwarg_items || has_kwarg_formals;
-            is_new = self instanceof AST_New;
+            is_new = _$rapyd$_instanceof(self, AST_New);
             is_repeatable = true;
             if (is_new && !self.args.length && !has_kwargs && !self.args.starargs) {
                 [output.print("new"), output.space()];
@@ -10940,10 +10946,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         var function_definition = _$rapyd$_modules["output.functions"].function_definition;
         var function_annotation = _$rapyd$_modules["output.functions"].function_annotation;
         
-        var bind_methods = _$rapyd$_modules["output.statements"].bind_methods;
-        
         function print_class(output) {
-            var self, class_def, define_method, property_names, defined_methods;
+            var self, class_def, define_method, seen_methods, property_names, defined_methods;
             self = this;
             if (self.external) {
                 return;
@@ -11016,21 +11020,17 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 output.space();
                 output.with_block((function() {
                     var _$rapyd$_anonfunc = function () {
-                        bind_methods(self.bound, output);
                         output.indent();
                         output.spaced("if", "(this._$rapyd$_object_id", "===", "undefined)", "Object.defineProperty(this,", "\"_$rapyd$_object_id\",", "{\"value\":++_$rapyd$_object_counter})");
                         output.end_statement();
+                        if (self.bound.length) {
+                            output.indent();
+                            [self.name.print(output), output.print(".prototype.__bind_methods__.call(this)")];
+                            output.end_statement();
+                        }
                         output.indent();
                         self.name.print(output);
-                        output.print(".prototype.__init__.apply");
-                        output.with_parens((function() {
-                            var _$rapyd$_anonfunc = function () {
-                                output.print("this");
-                                output.comma();
-                                output.print("arguments");
-                            };
-                            return _$rapyd$_anonfunc;
-                        })());
+                        [output.print(".prototype.__init__.apply(this"), output.comma(), output.print("arguments)")];
                         output.end_statement();
                     };
                     return _$rapyd$_anonfunc;
@@ -11057,8 +11057,38 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     };
                     return _$rapyd$_anonfunc;
                 })());
-                output.semicolon();
-                output.newline();
+                output.end_statement();
+            }
+            if (self.bound.length) {
+                seen_methods = Object.create(null);
+                [output.indent(), self.name.print(output), output.assign(".prototype.__bind_methods__"), 
+                output.spaced("function", "()", "")];
+                output.with_block((function() {
+                    var _$rapyd$_anonfunc = function () {
+                        var base, bname;
+                        if (self.bases.length) {
+                            for (var i = self.bases.length - 1; i >= 0; i--) {
+                                base = self.bases[i];
+                                [output.indent(), base.print(output), output.spaced(".prototype.__bind_methods__", "&&", "")];
+                                [base.print(output), output.print(".prototype.__bind_methods__.call(this)")];
+                                output.end_statement();
+                            }
+                        }
+                        var _$rapyd$_Iter59 = _$rapyd$_Iterable(self.bound);
+                        for (var _$rapyd$_Index59 = 0; _$rapyd$_Index59 < _$rapyd$_Iter59.length; _$rapyd$_Index59++) {
+                            bname = _$rapyd$_Iter59[_$rapyd$_Index59];
+                            if (seen_methods[bname] || self.dynamic_properties[bname]) {
+                                continue;
+                            }
+                            seen_methods[bname] = true;
+                            [output.indent(), output.assign("this." + bname)];
+                            [self.name.print(output), output.print(".prototype." + bname + ".bind(this)")];
+                            output.end_statement();
+                        }
+                    };
+                    return _$rapyd$_anonfunc;
+                })());
+                output.end_statement();
             }
             property_names = Object.keys(self.dynamic_properties);
             if (property_names.length) {
@@ -11129,7 +11159,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             self.body.forEach((function() {
                 var _$rapyd$_anonfunc = function (stmt, i) {
                     var sname, attr;
-                    if (stmt instanceof AST_Method) {
+                    if (_$rapyd$_instanceof(stmt, AST_Method)) {
                         if (stmt.is_getter || stmt.is_setter) {
                             return;
                         }
@@ -11150,7 +11180,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                             output.print(".prototype." + stmt.name.name);
                             output.end_statement();
                         }
-                    } else if (stmt instanceof AST_Class) {
+                    } else if (_$rapyd$_instanceof(stmt, AST_Class)) {
                         console.error("Nested classes aren't supported yet");
                     }
                 };
@@ -11178,9 +11208,28 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     return _$rapyd$_anonfunc;
                 })());
             }
+            output.indent();
+            [self.name.print(output), output.assign(".prototype.__bases__"), output.print("[")];
+            for (var i = 0; i < self.bases.length; i++) {
+                self.bases[i].print(output);
+                if (i < self.bases.length - 1) {
+                    output.comma();
+                }
+            }
+            [output.print("]"), output.end_statement()];
+            if (self.bases.length > 1) {
+                output.indent();
+                output.print("_$rapyd$_mixin(");
+                self.name.print(output);
+                for (var i = 1; i < self.bases.length; i++) {
+                    output.comma();
+                    self.bases[i].print(output);
+                }
+                [output.print(")"), output.end_statement()];
+            }
             self.statements.forEach((function() {
                 var _$rapyd$_anonfunc = function (stmt) {
-                    if (!(stmt instanceof AST_Method)) {
+                    if (!(_$rapyd$_instanceof(stmt, AST_Method))) {
                         output.indent();
                         stmt.print(output);
                         output.newline();
@@ -11381,7 +11430,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             }
             output.print(str_);
             p = output.parent();
-            if (p instanceof AST_Binary && /^in/.test(p.operator) && p.left === self) {
+            if (_$rapyd$_instanceof(p, AST_Binary) && /^in/.test(p.operator) && p.left === self) {
                 output.print(" ");
             }
         };
@@ -11464,7 +11513,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         print_while_loop.__argnames__ = ["self", "output"];
 
         function is_simple_for_in(self) {
-            if (self.object instanceof AST_BaseCall && self.object.expression instanceof AST_SymbolRef && self.object.expression.name === "dir" && self.object.args.length === 1) {
+            if (_$rapyd$_instanceof(self.object, AST_BaseCall) && _$rapyd$_instanceof(self.object.expression, AST_SymbolRef) && self.object.expression.name === "dir" && self.object.args.length === 1) {
                 return true;
             }
             return false;
@@ -11473,7 +11522,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         is_simple_for_in.__argnames__ = ["self"];
 
         function is_simple_for(self) {
-            if (self.object instanceof AST_BaseCall && self.object.expression instanceof AST_SymbolRef && self.object.expression.name === "range" && !(self.init instanceof AST_Array) && (self.object.args.length < 3 || self.object.args.slice(-1)[0] instanceof AST_Number || self.object.args.slice(-1)[0] instanceof AST_Unary && self.object.args.slice(-1)[0].operator === "-" && self.object.args.slice(-1)[0].expression instanceof AST_Number)) {
+            if (_$rapyd$_instanceof(self.object, AST_BaseCall) && _$rapyd$_instanceof(self.object.expression, AST_SymbolRef) && self.object.expression.name === "range" && !(_$rapyd$_instanceof(self.init, AST_Array)) && (self.object.args.length < 3 || _$rapyd$_instanceof(self.object.args.slice(-1)[0], AST_Number) || _$rapyd$_instanceof(self.object.args.slice(-1)[0], AST_Unary) && self.object.args.slice(-1)[0].operator === "-" && _$rapyd$_instanceof(self.object.args.slice(-1)[0].expression, AST_Number))) {
                 return true;
             }
             return false;
@@ -11494,7 +11543,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         } else {
                             itervar = "_$rapyd$_Index" + output.index_counter;
                         }
-                        if (self.init instanceof AST_Array) {
+                        if (_$rapyd$_instanceof(self.init, AST_Array)) {
                             flat = self.init.flatten();
                             output.assign("_$rapyd$_unpack");
                             if (flat.length > self.init.elements.length) {
@@ -11584,14 +11633,14 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         output.space();
                         output.print(idx);
                         output.space();
-                        (increment instanceof AST_Unary) ? output.print(">") : output.print("<");
+                        (_$rapyd$_instanceof(increment, AST_Unary)) ? output.print(">") : output.print("<");
                         output.space();
                         end.print(output);
                         output.semicolon();
                         output.space();
                         output.print(idx);
-                        if (increment && (!(increment instanceof AST_Unary) || increment.expression.value !== "1")) {
-                            if (increment instanceof AST_Unary) {
+                        if (increment && (!(_$rapyd$_instanceof(increment, AST_Unary)) || increment.expression.value !== "1")) {
+                            if (_$rapyd$_instanceof(increment, AST_Unary)) {
                                 output.print("-=");
                                 increment.expression.print(output);
                             } else {
@@ -11599,7 +11648,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 increment.print(output);
                             }
                         } else {
-                            if (increment instanceof AST_Unary) {
+                            if (_$rapyd$_instanceof(increment, AST_Unary)) {
                                 output.print("--");
                             } else {
                                 output.print("++");
@@ -11814,7 +11863,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                 body_out.assign("_$rapyd$_Result");
                                 body_out.print(result_obj);
                             }
-                            if (self.init instanceof AST_Array) {
+                            if (_$rapyd$_instanceof(self.init, AST_Array)) {
                                 self.init.elements.forEach((function() {
                                     var _$rapyd$_anonfunc = function (i) {
                                         body_out.comma();
@@ -11864,7 +11913,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                                     var itervar, flat;
                                     body_out.indent();
                                     itervar = (es5) ? "_$rapyd$_Iter[_$rapyd$_Index]" : "_$rapyd$_Index";
-                                    if (self.init instanceof AST_Array) {
+                                    if (_$rapyd$_instanceof(self.init, AST_Array)) {
                                         flat = self.init.flatten();
                                         body_out.assign("_$rapyd$_unpack");
                                         if (flat.length > self.init.elements.length) {
@@ -12383,7 +12432,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 expr = self.expression;
                 expr.print(output);
             }
-            if (expr instanceof AST_Number && expr.getValue() >= 0) {
+            if (_$rapyd$_instanceof(expr, AST_Number) && expr.getValue() >= 0) {
                 if (!/[xa-f.]/i.test(output.last())) {
                     output.print(".");
                 }
@@ -12397,7 +12446,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         function print_getitem(self, output, skip_expression) {
             var is_repeatable, from_end, enclose;
             is_repeatable = !has_calls(self.expression);
-            from_end = self.property instanceof AST_Unary && self.property.operator === "-" && self.property.expression instanceof AST_Number;
+            from_end = _$rapyd$_instanceof(self.property, AST_Unary) && self.property.operator === "-" && _$rapyd$_instanceof(self.property.expression, AST_Number);
             enclose = from_end && !is_repeatable && !skip_expression;
             if (enclose) {
                 output.assign("(_$rapyd$_expr_temp");
@@ -12489,46 +12538,27 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         print_unary_postfix.__argnames__ = ["self", "output"];
 
         function write_instanceof(left, right, output) {
-            function single(left, right) {
-                if (right.name === "Array" || right.name === "list") {
-                    output.print("Array.isArray");
-                    output.with_parens((function() {
-                        var _$rapyd$_anonfunc = function () {
-                            left.print(output);
-                        };
-                        return _$rapyd$_anonfunc;
-                    })());
-                } else {
-                    output.spaced(left, "instanceof", right);
+            function do_many(vals) {
+                [output.print("_$rapyd$_instanceof.apply(null,"), output.space()];
+                [output.print("["), left.print(output), output.comma()];
+                for (var i = 0; i < vals.length; i++) {
+                    vals[i].print(output);
+                    if (i !== vals.length - 1) {
+                        output.comma();
+                    }
                 }
+                output.print("])");
             };
 
-            single.__argnames__ = ["left", "right"];
+            do_many.__argnames__ = ["vals"];
 
-            if (right instanceof AST_Seq) {
-                right = new AST_Array({
-                    "elements": right.to_array()
-                });
-            }
-            if (right instanceof AST_Array) {
-                output.with_parens((function() {
-                    var _$rapyd$_anonfunc = function () {
-                        right.elements.forEach((function() {
-                            var _$rapyd$_anonfunc = function (right, i, arr) {
-                                single(left, right);
-                                if (arr.length > 1 && i < arr.length - 1) {
-                                    [output.space(), output.print("||"), output.space()];
-                                }
-                            };
-
-                            _$rapyd$_anonfunc.__argnames__ = ["right", "i", "arr"];
-                            return _$rapyd$_anonfunc;
-                        })());
-                    };
-                    return _$rapyd$_anonfunc;
-                })());
+            if (_$rapyd$_instanceof(right, AST_Seq)) {
+                do_many(right.to_array());
+            } else if (_$rapyd$_instanceof(right, AST_Array)) {
+                do_many(right.elements);
             } else {
-                single(left, right);
+                output.print("_$rapyd$_instanceof(");
+                [left.print(output), output.comma(), right.print(output), output.print(")")];
             }
         };
 
@@ -12536,7 +12566,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
 
         function write_smart_equality(self, output) {
             function is_ok(x) {
-                return !((x instanceof AST_Array || x instanceof AST_Set || x instanceof AST_Object || x instanceof AST_Statement || x instanceof AST_Binary || x instanceof AST_Conditional || x instanceof AST_BaseCall));
+                return !(_$rapyd$_instanceof.apply(null, [x, AST_Array, AST_Set, AST_Object, AST_Statement, AST_Binary, AST_Conditional, AST_BaseCall]));
             };
 
             is_ok.__argnames__ = ["x"];
@@ -12586,8 +12616,8 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     };
                     return _$rapyd$_anonfunc;
                 })());
-            } else if (comparators[self.operator] && self.left instanceof AST_Binary && comparators[self.left.operator]) {
-                if (self.left.right instanceof AST_Symbol) {
+            } else if (comparators[self.operator] && _$rapyd$_instanceof(self.left, AST_Binary) && comparators[self.left.operator]) {
+                if (_$rapyd$_instanceof(self.left.right, AST_Symbol)) {
                     self.left.print(output);
                     leftvar = self.left.right.name;
                 } else {
@@ -12628,7 +12658,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 write_smart_equality(self, output);
             } else if (self.operator === "instanceof") {
                 write_instanceof(self.left, self.right, output);
-            } else if (self.operator === "*" && self.left instanceof AST_String) {
+            } else if (self.operator === "*" && _$rapyd$_instanceof(self.left, AST_String)) {
                 [self.left.print(output), output.print(".repeat("), self.right.print(output), output.print(")")];
             } else {
                 output.spaced(self.left, self.operator, self.right);
@@ -12641,12 +12671,12 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             var flattened, left, flat;
             flattened = false;
             left = self.left;
-            if (left instanceof AST_Seq) {
+            if (_$rapyd$_instanceof(left, AST_Seq)) {
                 left = new AST_Array({
                     "elements": [left.car, left.cdr]
                 });
             }
-            if (left instanceof AST_Array) {
+            if (_$rapyd$_instanceof(left, AST_Array)) {
                 flat = left.flatten();
                 flattened = flat.length > left.elements.length;
                 output.print("_$rapyd$_unpack");
@@ -12667,7 +12697,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             } else {
                 self.right.print(output);
             }
-            if (left instanceof AST_Array) {
+            if (_$rapyd$_instanceof(left, AST_Array)) {
                 output.semicolon();
                 output.newline();
                 unpack_tuple(flat, output, true);
@@ -12767,7 +12797,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 };
                 return _$rapyd$_anonfunc;
             })();
-            if (p instanceof AST_Binary || p instanceof AST_Return || p instanceof AST_Array || p instanceof AST_BaseCall || p instanceof AST_SimpleStatement) {
+            if (_$rapyd$_instanceof(p, AST_Binary) || _$rapyd$_instanceof(p, AST_Return) || _$rapyd$_instanceof(p, AST_Array) || _$rapyd$_instanceof(p, AST_BaseCall) || _$rapyd$_instanceof(p, AST_SimpleStatement)) {
                 output.with_square(print_seq);
             } else {
                 print_seq();
@@ -12834,7 +12864,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
         make_num.__argnames__ = ["num"];
 
         function make_block(stmt, output) {
-            if (stmt instanceof AST_BlockStatement) {
+            if (_$rapyd$_instanceof(stmt, AST_BlockStatement)) {
                 stmt.print(output);
                 return;
             }
@@ -13025,7 +13055,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         if (start && !start._comments_dumped) {
                             start._comments_dumped = true;
                             comments = start.comments_before;
-                            if (self instanceof AST_Exit && self.value && self.value.start.comments_before.length > 0) {
+                            if (_$rapyd$_instanceof(self, AST_Exit) && self.value && self.value.start.comments_before.length > 0) {
                                 comments = (comments || _$rapyd$_list_decorate([])).concat(self.value.start.comments_before);
                                 self.value.start.comments_before = _$rapyd$_list_decorate([]);
                             }
@@ -13106,7 +13136,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    return p instanceof AST_PropAccess && p.expression === this;
+                    return _$rapyd$_instanceof(p, AST_PropAccess) && p.expression === this;
                 };
 
                 _$rapyd$_anonfunc.__argnames__ = ["output"];
@@ -13116,7 +13146,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    return p instanceof AST_Unary || p instanceof AST_VarDef || p instanceof AST_Dot || p instanceof AST_ObjectProperty || p instanceof AST_Conditional;
+                    return _$rapyd$_instanceof(p, AST_Unary) || _$rapyd$_instanceof(p, AST_VarDef) || _$rapyd$_instanceof(p, AST_Dot) || _$rapyd$_instanceof(p, AST_ObjectProperty) || _$rapyd$_instanceof(p, AST_Conditional);
                 };
 
                 _$rapyd$_anonfunc.__argnames__ = ["output"];
@@ -13126,16 +13156,16 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p, po, pp, so, sp;
                     p = output.parent();
-                    if (p instanceof AST_BaseCall && p.expression === this) {
+                    if (_$rapyd$_instanceof(p, AST_BaseCall) && p.expression === this) {
                         return true;
                     }
-                    if (p instanceof AST_Unary) {
+                    if (_$rapyd$_instanceof(p, AST_Unary)) {
                         return true;
                     }
-                    if (p instanceof AST_PropAccess && p.expression === this) {
+                    if (_$rapyd$_instanceof(p, AST_PropAccess) && p.expression === this) {
                         return true;
                     }
-                    if (p instanceof AST_Binary) {
+                    if (_$rapyd$_instanceof(p, AST_Binary)) {
                         po = p.operator;
                         pp = PRECEDENCE[po];
                         so = this.operator;
@@ -13153,11 +13183,11 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    if (p instanceof AST_New && p.expression === this) {
+                    if (_$rapyd$_instanceof(p, AST_New) && p.expression === this) {
                         try {
                             this.walk(new TreeWalker((function() {
                                 var _$rapyd$_anonfunc = function (node) {
-                                    if (node instanceof AST_BaseCall) {
+                                    if (_$rapyd$_instanceof(node, AST_BaseCall)) {
                                         throw p;
                                     }
                                 };
@@ -13182,7 +13212,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    return p instanceof AST_New && p.expression === this;
+                    return _$rapyd$_instanceof(p, AST_New) && p.expression === this;
                 };
 
                 _$rapyd$_anonfunc.__argnames__ = ["output"];
@@ -13192,7 +13222,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    if (this.args.length === 0 && (p instanceof AST_PropAccess || p instanceof AST_BaseCall && p.expression === this)) {
+                    if (this.args.length === 0 && (_$rapyd$_instanceof(p, AST_PropAccess) || _$rapyd$_instanceof(p, AST_BaseCall) && p.expression === this)) {
                         return true;
                     }
                 };
@@ -13204,7 +13234,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    if (this.getValue() < 0 && p instanceof AST_PropAccess && p.expression === this) {
+                    if (this.getValue() < 0 && _$rapyd$_instanceof(p, AST_PropAccess) && p.expression === this) {
                         return true;
                     }
                 };
@@ -13216,7 +13246,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 var _$rapyd$_anonfunc = function (output) {
                     var p;
                     p = output.parent();
-                    if (p instanceof AST_PropAccess && p.expression === this) {
+                    if (_$rapyd$_instanceof(p, AST_PropAccess) && p.expression === this) {
                         return true;
                     }
                 };
@@ -13227,19 +13257,19 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             function assign_and_conditional_paren_rules(output) {
                 var p;
                 p = output.parent();
-                if (p instanceof AST_Unary) {
+                if (_$rapyd$_instanceof(p, AST_Unary)) {
                     return true;
                 }
-                if (p instanceof AST_Binary && !(p instanceof AST_Assign)) {
+                if (_$rapyd$_instanceof(p, AST_Binary) && !(_$rapyd$_instanceof(p, AST_Assign))) {
                     return true;
                 }
-                if (p instanceof AST_BaseCall && p.expression === this) {
+                if (_$rapyd$_instanceof(p, AST_BaseCall) && p.expression === this) {
                     return true;
                 }
-                if (p instanceof AST_Conditional && p.condition === this) {
+                if (_$rapyd$_instanceof(p, AST_Conditional) && p.condition === this) {
                     return true;
                 }
-                if (p instanceof AST_PropAccess && p.expression === this) {
+                if (_$rapyd$_instanceof(p, AST_PropAccess) && p.expression === this) {
                     return true;
                 }
             };
@@ -13287,7 +13317,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
             DEFPRINT(AST_Imports, print_imports);
             DEFPRINT(AST_SimpleStatement, (function() {
                 var _$rapyd$_anonfunc = function (self, output) {
-                    if (!(self.body instanceof AST_EmptyStatement)) {
+                    if (!(_$rapyd$_instanceof(self.body, AST_EmptyStatement))) {
                         self.body.print(output);
                         output.semicolon();
                     }
@@ -13453,19 +13483,19 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                 if (!self.body) {
                     return output.force_semicolon();
                 }
-                if (self.body instanceof AST_Do && output.option("ie_proof")) {
+                if (_$rapyd$_instanceof(self.body, AST_Do) && output.option("ie_proof")) {
                     make_block(self.body, output);
                     return;
                 }
                 b = self.body;
                 while (true) {
-                    if (b instanceof AST_If) {
+                    if (_$rapyd$_instanceof(b, AST_If)) {
                         if (!b.alternative) {
                             make_block(self.body, output);
                             return;
                         }
                         b = b.alternative;
-                    } else if (b instanceof AST_StatementWithBody) {
+                    } else if (_$rapyd$_instanceof(b, AST_StatementWithBody)) {
                         b = b.body;
                     } else {
                         break;
@@ -13521,7 +13551,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                         return _$rapyd$_anonfunc;
                     })());
                     p = output.parent();
-                    in_for = p instanceof AST_ForIn;
+                    in_for = _$rapyd$_instanceof(p, AST_ForIn);
                     avoid_semicolon = in_for && p.init === this;
                     if (!avoid_semicolon) {
                         output.semicolon();
@@ -13554,7 +13584,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     try {
                         node.walk(new TreeWalker((function() {
                             var _$rapyd$_anonfunc = function (node) {
-                                if (node instanceof AST_Binary && node.operator === "in") {
+                                if (_$rapyd$_instanceof(node, AST_Binary) && node.operator === "in") {
                                     throw output;
                                 }
                             };
@@ -13582,7 +13612,7 @@ var str = _$rapyd$_str, repr = _$rapyd$_repr;;
                     if (self.value) {
                         output.assign("");
                         p = output.parent(1);
-                        noin = p instanceof AST_ForIn;
+                        noin = _$rapyd$_instanceof(p, AST_ForIn);
                         parenthesize_for_noin(self.value, output, noin);
                     }
                 };

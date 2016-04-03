@@ -5,47 +5,10 @@ function _$rapyd$_bool(val) {
 
 _$rapyd$_bool.__argnames__ = ["val"];
 
-function _$rapyd$_bind(fn, thisArg) {
-    var ret;
-    if (fn.orig) {
-        fn = fn.orig;
-    }
-    if (thisArg === false) {
-        return fn;
-    }
-    ret = (function() {
-        var _$rapyd$_anonfunc = function () {
-            return fn.apply(thisArg, arguments);
-        };
-        return _$rapyd$_anonfunc;
-    })();
-    ret.orig = fn;
-    return ret;
-};
-
-_$rapyd$_bind.__argnames__ = ["fn", "thisArg"];
-
-function _$rapyd$_rebind_all(thisArg, rebind) {
-    if (typeof rebind === "undefined") {
-        rebind = true;
-    }
-    for (var p in thisArg) {
-        if (thisArg[p] && thisArg[p].orig) {
-            if (rebind) {
-                thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
-            } else {
-                thisArg[p] = thisArg[p].orig;
-            }
-        }
-    }
-};
-
-_$rapyd$_rebind_all.__argnames__ = ["thisArg", "rebind"];
-
 function _$rapyd$_eslice(arr, step, start, end) {
     var isString;
     arr = arr.slice(0);
-    if (typeof arr === "string" || arr instanceof String) {
+    if (typeof arr === "string" || _$rapyd$_instanceof(arr, String)) {
         isString = true;
         arr = arr.split("");
     }
@@ -77,16 +40,6 @@ function _$rapyd$_eslice(arr, step, start, end) {
 };
 
 _$rapyd$_eslice.__argnames__ = ["arr", "step", "start", "end"];
-
-function _$rapyd$_mixin(target, source, overwrite) {
-    for (var i in source) {
-        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
-            target[i] = source[i];
-        }
-    }
-};
-
-_$rapyd$_mixin.__argnames__ = ["target", "source", "overwrite"];
 
 function _$rapyd$_print() {
     var parts;
@@ -262,7 +215,7 @@ function _$rapyd$_enumerate(iterable) {
         return ans;
     }
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = {
             "_iterator": iterator,
             "_i": -1,
@@ -334,7 +287,7 @@ _$rapyd$_reversed.__argnames__ = ["iterable"];
 function _$rapyd$_iter(iterable) {
     var ans;
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        return (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
     }
     if (_$rapyd$_arraylike(iterable)) {
         ans = {
@@ -478,10 +431,9 @@ _$rapyd$_len = (function() {
     };
     return _$rapyd$_anonfunc;
 })()();
-var abs = Math.abs, max = Math.max, min = Math.min;
-var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all;
+var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool;
 var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike;
-var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
+var print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id;
 var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable;
 var enumerate = _$rapyd$_enumerate, iter = _$rapyd$_iter, reversed = _$rapyd$_reversed, len = _$rapyd$_len;
 var range = _$rapyd$_range, getattr = _$rapyd$_getattr, setattr = _$rapyd$_setattr, hasattr = _$rapyd$_hasattr;var _$rapyd$_chain_assign_temp;
@@ -552,7 +504,7 @@ function _$rapyd$_list_extend(iterable) {
             this[start + i] = iterable[i];
         }
     } else {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         result = iterator.next();
         while (!result.done) {
             this.push(result.value);
@@ -817,7 +769,7 @@ function _$rapyd$_list_constructor(iterable) {
             ans[i] = iterable[i];
         }
     } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = _$rapyd$_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
@@ -981,7 +933,7 @@ if (typeof Set !== "function" || typeof Set.prototype.delete !== "function") {
 }
 function _$rapyd$_set(iterable) {
     var ans, s, iterator, result, keys;
-    if (this instanceof _$rapyd$_set) {
+    if (_$rapyd$_instanceof(this, _$rapyd$_set)) {
         this.jsset = new _$rapyd$_set_implementation;
         ans = this;
         if (iterable === undefined) {
@@ -993,7 +945,7 @@ function _$rapyd$_set(iterable) {
                 s.add(iterable[i]);
             }
         } else if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-            iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+            iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
             result = iterator.next();
             while (!result.done) {
                 s.add(result.value);
@@ -1312,7 +1264,7 @@ _$rapyd$_set.prototype.inspect = _$rapyd$_chain_assign_temp;
 _$rapyd$_set.prototype.__eq__ = (function() {
     var _$rapyd$_anonfunc = function (other) {
         var iterator, r;
-        if (!(other instanceof this.constructor)) {
+        if (!(_$rapyd$_instanceof(other, this.constructor))) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1533,7 +1485,7 @@ if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
     _$rapyd$_dict_implementation = Map;
 }
 function _$rapyd$_dict(iterable) {
-    if (this instanceof _$rapyd$_dict) {
+    if (_$rapyd$_instanceof(this, _$rapyd$_dict)) {
         this.jsmap = new _$rapyd$_dict_implementation;
         if (iterable !== undefined) {
             this.update(iterable);
@@ -1745,14 +1697,14 @@ _$rapyd$_dict.prototype.update = (function() {
             for (var i = 0; i < iterable.length; i++) {
                 m.set(iterable[i][0], iterable[i][1]);
             }
-        } else if (iterable instanceof _$rapyd$_dict) {
+        } else if (_$rapyd$_instanceof(iterable, _$rapyd$_dict)) {
             iterator = iterable.items();
             result = iterator.next();
             while (!result.done) {
                 m.set(result.value[0], result.value[1]);
                 result = iterator.next();
             }
-        } else if (typeof Map === "function" && iterable instanceof Map) {
+        } else if (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) {
             iterator = iterable.entries();
             result = iterator.next();
             while (!result.done) {
@@ -1800,7 +1752,7 @@ _$rapyd$_dict.prototype.inspect = _$rapyd$_chain_assign_temp;
 _$rapyd$_dict.prototype.__eq__ = (function() {
     var _$rapyd$_anonfunc = function (other) {
         var iterator, r, x;
-        if (!(other instanceof this.constructor)) {
+        if (!(_$rapyd$_instanceof(other, this.constructor))) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1870,6 +1822,7 @@ AttributeError.prototype.__repr__ = function __repr__ () {
 AttributeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+AttributeError.prototype.__bases__ = [Error];
 AttributeError.prototype.name = "AttributeError";
 
 function IndexError() {
@@ -1892,6 +1845,7 @@ IndexError.prototype.__repr__ = function __repr__ () {
 IndexError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+IndexError.prototype.__bases__ = [Error];
 IndexError.prototype.name = "IndexError";
 
 function KeyError() {
@@ -1914,6 +1868,7 @@ KeyError.prototype.__repr__ = function __repr__ () {
 KeyError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+KeyError.prototype.__bases__ = [Error];
 KeyError.prototype.name = "KeyError";
 
 function ValueError() {
@@ -1936,6 +1891,7 @@ ValueError.prototype.__repr__ = function __repr__ () {
 ValueError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+ValueError.prototype.__bases__ = [Error];
 ValueError.prototype.name = "ValueError";
 
 function UnicodeDecodeError() {
@@ -1952,6 +1908,7 @@ UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
 UnicodeDecodeError.prototype.__str__ = function __str__ () {
     return this.__repr__();
 };
+UnicodeDecodeError.prototype.__bases__ = [ValueError];
 UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
 var _$rapyd$_in, _$rapyd$_desugar_kwargs;
 function _$rapyd$_flatten(arr) {
@@ -1988,7 +1945,7 @@ _$rapyd$_in = (function() {
                     if (typeof arr.__contains__ === "function") {
                         return arr.__contains__(val);
                     }
-                    if ((arr instanceof Map || arr instanceof Set)) {
+                    if (_$rapyd$_instanceof.apply(null, [arr, Map, Set])) {
                         return arr.has(val);
                     }
                     if (_$rapyd$_arraylike(arr)) {
@@ -2027,7 +1984,7 @@ function _$rapyd$_Iterable(iterable) {
         return iterable;
     }
     if (typeof iterable[_$rapyd$_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
+        iterator = (typeof Map === "function" && _$rapyd$_instanceof(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]();
         ans = _$rapyd$_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
@@ -2137,6 +2094,89 @@ function _$rapyd$_setitem(obj, key, val) {
 };
 
 _$rapyd$_setitem.__argnames__ = ["obj", "key", "val"];
+
+function _$rapyd$_mixin() {
+    var seen, _$rapyd$_chain_assign_temp, resolved_props, p, target, props, name;
+    seen = Object.create(null);
+    _$rapyd$_chain_assign_temp = true;
+    seen.__argnames__ = _$rapyd$_chain_assign_temp;
+    seen.__handles_kwarg_interpolation__ = _$rapyd$_chain_assign_temp;
+    seen.__init__ = _$rapyd$_chain_assign_temp;
+    seen.__annotations__ = _$rapyd$_chain_assign_temp;
+    seen.__doc__ = _$rapyd$_chain_assign_temp;
+    seen.__bind_methods__ = _$rapyd$_chain_assign_temp;
+    seen.__bases__ = _$rapyd$_chain_assign_temp;
+    seen.constructor = _$rapyd$_chain_assign_temp;
+    seen.__class__ = _$rapyd$_chain_assign_temp;
+;
+    resolved_props = {};
+    _$rapyd$_chain_assign_temp = arguments[0].prototype;
+    p = _$rapyd$_chain_assign_temp;
+    target = _$rapyd$_chain_assign_temp;
+;
+    while (p && p !== Object.prototype) {
+        props = Object.getOwnPropertyNames(p);
+        for (var i = 0; i < props.length; i++) {
+            seen[props[i]] = true;
+        }
+        p = Object.getPrototypeOf(p);
+    }
+    for (var c = 1; c < arguments.length; c++) {
+        p = arguments[c].prototype;
+        while (p && p !== Object.prototype) {
+            props = Object.getOwnPropertyNames(p);
+            for (var i = 0; i < props.length; i++) {
+                name = props[i];
+                if (seen[name]) {
+                    continue;
+                }
+                seen[name] = true;
+                resolved_props[name] = Object.getOwnPropertyDescriptor(p, name);
+            }
+            p = Object.getPrototypeOf(p);
+        }
+    }
+    Object.defineProperties(target, resolved_props);
+};
+
+function _$rapyd$_instanceof() {
+    var obj, bases, q, cls, p;
+    obj = arguments[0];
+    try {
+        bases = obj.constructor.prototype.__bases__ || "";
+    } catch (_$rapyd$_Exception) {
+        if (_$rapyd$_Exception instanceof Exception) {
+            bases = "";
+        } else {
+            throw _$rapyd$_Exception;
+        }
+    }
+    for (var i = 1; i < arguments.length; i++) {
+        q = arguments[i];
+        if (obj instanceof q) {
+            return true;
+        }
+        if ((q === Array || q === _$rapyd$_list_constructor) && Array.isArray(obj)) {
+            return true;
+        }
+        if (bases.length > 1) {
+            for (var c = 1; c < bases.length; c++) {
+                cls = bases[c];
+                while (cls) {
+                    if (q === cls) {
+                        return true;
+                    }
+                    p = Object.getPrototypeOf(cls.prototype);
+                    if (!p) {
+                        break;
+                    }
+                    cls = p.constructor;
+                }
+            }
+        }
+    }
+    return false;
+};
 function sum(iterable, start) {
     var ans, iterator, r;
     if (Array.isArray(iterable)) {
