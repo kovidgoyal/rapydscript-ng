@@ -157,5 +157,6 @@ module.exports = function compile_self(base_path, src_path, lib_path, complete, 
     var changed;
     do {
         changed = run_single_compile(base_path, src_path, lib_path, profile);
+        lib_path = path.join(path.dirname(lib_path), 'dev');
     } while (changed && complete);
 };
