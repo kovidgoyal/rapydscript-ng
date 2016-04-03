@@ -1012,9 +1012,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 seen_names = {}
                 def_line = S.input.context().tokline
                 current_arg_name = None
+                name_token = None
 
                 def get_arg():
-                    nonlocal current_arg_name
+                    nonlocal current_arg_name, name_token
                     current_arg_name = S.token.value
                     if has_prop.call(seen_names, current_arg_name):
                         token_error(prev(), "Can't repeat parameter names")
@@ -1076,29 +1077,29 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         # **kwargs
                         next()
                         if a.kwargs:
-                            token_error(prev(), "Can't define multiple **kwargs in function definition")
+                            token_error(name_token, "Can't define multiple **kwargs in function definition")
                         a.kwargs = get_arg()
                     elif is_('operator', '*'):
                         # *args
                         next()
                         if a.starargs:
-                            token_error(prev(), "Can't define multiple *args in function definition")
+                            token_error(name_token, "Can't define multiple *args in function definition")
                         if a.kwargs:
-                            token_error(prev(), "Can't define *args after **kwargs in function definition")
+                            token_error(name_token, "Can't define *args after **kwargs in function definition")
                         a.starargs = get_arg()
                     else:
                         if a.starargs or a.kwargs:
-                            token_error(prev(), "Can't define a formal parameter after *args or **kwargs")
+                            token_error(name_token, "Can't define a formal parameter after *args or **kwargs")
                         a.push(get_arg())
                         if is_("operator", "="):
                             if a.kwargs:
-                                token_error(prev(), "Can't define an optional formal parameter after **kwargs")
+                                token_error(name_token, "Can't define an optional formal parameter after **kwargs")
                             next()
                             defaults[current_arg_name] = expression(False)
                             a.has_defaults = True
                         else:
                             if a.has_defaults:
-                                token_error(prev(), "Can't define required formal parameters after optional formal parameters")
+                                token_error(name_token, "Can't define required formal parameters after optional formal parameters")
 
                 next()
                 # check if we have a return type annotation
