@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains, _$rapyd$_list_constructor
 
 def _$rapyd$_flatten(arr):
     ans = []
@@ -114,3 +114,55 @@ def _$rapyd$_setitem(obj, key, val):
         obj.__setitem__(key, val)
     else:
         obj[key] = val
+
+def _$rapyd$_mixin():
+    # Implement a depth-first left-to-right method resolution order This is not
+    # the same as python's MRO, but I really dont feel like implementing the C3
+    # linearization right now, if that is even possible with prototypical
+    # inheritance.
+    seen = Object.create(None)
+    # Ensure the following special properties are never copied
+    seen.__argnames__ = seen.__handles_kwarg_interpolation__ = seen.__init__ = seen.__annotations__ = seen.__doc__ = seen.__bind_methods__ = seen.__bases__ = seen.constructor = seen.__class__ = True
+    resolved_props = {}
+    p = target = arguments[0].prototype
+    while p and p is not Object.prototype:
+        props = Object.getOwnPropertyNames(p)
+        for v'var i = 0; i < props.length; i++':
+            seen[props[i]] = True
+        p = Object.getPrototypeOf(p)
+    for v'var c = 1; c < arguments.length; c++':
+        p = arguments[c].prototype
+        while p and p is not Object.prototype:
+            props = Object.getOwnPropertyNames(p)
+            for v'var i = 0; i < props.length; i++':
+                name = props[i]
+                if seen[name]:
+                    continue
+                seen[name] = True
+                resolved_props[name] = Object.getOwnPropertyDescriptor(p, name)
+            p = Object.getPrototypeOf(p)
+    Object.defineProperties(target, resolved_props)
+
+def _$rapyd$_instanceof():
+    obj = arguments[0]
+    try:
+        bases = obj.constructor.prototype.__bases__ or ''
+    except Exception:
+        bases = ''
+    for v'var i = 1; i < arguments.length; i++':
+        q = arguments[i]
+        if v'obj instanceof q':
+            return True
+        if (q is Array or q is _$rapyd$_list_constructor) and Array.isArray(obj):
+            return True
+        if bases.length > 1:
+            for v'var c = 1; c < bases.length; c++':
+                cls = bases[c]
+                while cls:
+                    if q is cls:
+                        return True
+                    p = Object.getPrototypeOf(cls.prototype)
+                    if not p:
+                        break
+                    cls = p.constructor
+    return False

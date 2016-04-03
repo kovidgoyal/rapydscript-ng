@@ -445,12 +445,13 @@ AST_Function = DEFNODE("Function", None, {
     '$documentation': "A function expression"
 }, AST_Lambda)
 
-AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id statements dynamic_properties", {
+AST_Class = DEFNODE("Class", "init name parent bases static external bound decorators module_id statements dynamic_properties", {
     '$documentation': "A class declaration",
     '$propdoc': {
         'name': "[AST_SymbolDeclaration?] the name of this class",
         'init': "[AST_Function] constructor for the class",
         'parent': "[AST_Symbol?] parent class this class inherits from",
+        'bases': "[AST_Symbol*] list of base classes this class inherits from",
         "static": "[string*] list of static methods",
         'external': "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
         'bound': "[string*] list of methods that need to be bound to self",

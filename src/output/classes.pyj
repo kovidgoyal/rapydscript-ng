@@ -91,12 +91,14 @@ def print_class(output):
         seen_methods = Object.create(None)
         output.indent(), self.name.print(output), output.assign('.prototype.__bind_methods__'), output.spaced('function', '()', '')
         output.with_block(def():
-            if self.parent:
-                output.indent(), self.parent.print(output), output.spaced('.prototype.__bind_methods__', '&&', '')
-                self.parent.print(output), output.print('.prototype.__bind_methods__.call(this)')
-                output.end_statement()
+            if self.bases.length:
+                for v'var i = self.bases.length - 1; i >= 0; i--':
+                    base = self.bases[i]
+                    output.indent(), base.print(output), output.spaced('.prototype.__bind_methods__', '&&', '')
+                    base.print(output), output.print('.prototype.__bind_methods__.call(this)')
+                    output.end_statement()
             for bname in self.bound:
-                if seen_methods[bname]:
+                if seen_methods[bname] or self.dynamic_properties[bname]:
                     continue
                 seen_methods[bname] = True
                 output.indent(), output.assign('this.' + bname)
@@ -185,6 +187,24 @@ def print_class(output):
             output.spaced('return', 'this.__repr__()')
             output.end_statement()
         )
+
+    # Multiple inheritance
+    output.indent()
+    self.name.print(output), output.assign('.prototype.__bases__'), output.print('[')
+    for v'var i = 0; i < self.bases.length; i++':
+        self.bases[i].print(output)
+        if i < self.bases.length - 1:
+            output.comma()
+    output.print(']'), output.end_statement()
+
+    if self.bases.length > 1:
+        output.indent()
+        output.print("_$rapyd$_mixin(")
+        self.name.print(output)
+        for v'var i = 1; i < self.bases.length; i++':
+            output.comma()
+            self.bases[i].print(output)
+        output.print(')'), output.end_statement()
 
     # Other statements in the class context
     self.statements.forEach(def(stmt):

@@ -883,27 +883,34 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             "static": [],
             'bound': v'[]',
         }
+        bases = v'[]'
+        class_parent = None
+
+        # read the bases of the class, if any
+        if is_("punc", "("):
+            S.in_parenthesized_expr = True
+            next()
+            while True:
+                if is_('punc', ')'):
+                    S.in_parenthesized_expr = False
+                    next()
+                    break
+                a = expr_atom(False)
+                if class_parent is None:
+                    class_parent = a
+                bases.push(a)
+                if is_('punc', ','):
+                    next()
+                    continue
+
         definition = new AST_Class({
             'name': name,
             'module_id':module_id,
-            'dynamic_properties': {},
-            'parent': (def():
-                if is_("punc", "("):
-                    S.in_parenthesized_expr = True
-                    next()
-                    if is_('punc', ')'):
-                        S.in_parenthesized_expr = False
-                        next()
-                        return None
-                    a = expr_atom(False)
-                    expect(")")
-                    S.in_parenthesized_expr = False
-                    return a
-                else:
-                    return None
-            )(),
+            'dynamic_properties': Object.create(None),
+            'parent': class_parent,
+            'bases': bases,
             'localvars': [],
-            "static": class_details.static,
+            'static': class_details.static,
             'external': externaldecorator,
             'bound': class_details.bound,
             'statements': [],

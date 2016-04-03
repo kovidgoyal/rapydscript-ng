@@ -82,24 +82,23 @@ def print_unary_postfix(self, output):
     output.print(self.operator)
 
 def write_instanceof(left, right, output):
-    def single(left, right):
-        if right.name is 'Array' or right.name is 'list':
-            output.print('Array.isArray')
-            output.with_parens(def():left.print(output);)
-        else:
-            output.spaced(left, 'instanceof', right)
+
+    def do_many(vals):
+        output.print('_$rapyd$_instanceof.apply(null,'), output.space()
+        output.print('['), left.print(output), output.comma()
+        for v'var i = 0; i < vals.length; i++':
+            vals[i].print(output)
+            if i is not vals.length - 1:
+                output.comma()
+        output.print('])')
+
     if isinstance(right, AST_Seq):
-        right = new AST_Array({'elements':right.to_array()})
-    if isinstance(right, AST_Array):
-        output.with_parens(def():
-            right.elements.forEach(def (right, i, arr):
-                single(left, right)
-                if arr.length > 1 and i < arr.length - 1:
-                    output.space(), output.print('||'), output.space()
-            )
-        )
+        do_many(right.to_array())
+    elif isinstance(right, AST_Array):
+        do_many(right.elements)
     else:
-        single(left, right)
+        output.print('_$rapyd$_instanceof(')
+        left.print(output), output.comma(), right.print(output), output.print(')')
 
 def write_smart_equality(self, output):
     def is_ok(x):

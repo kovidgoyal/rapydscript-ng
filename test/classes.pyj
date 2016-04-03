@@ -57,6 +57,7 @@ assert.equal(bound(), angela.how_long())
 
 # function methods
 assert.deepEqual(dir(angela).sort(), [
+    '__bases__',
     "__init__",
     '__repr__',
     '__str__',
@@ -317,3 +318,53 @@ class U2(U):
 u = U2(3)
 f = u.val
 assert.equal(f(), 6)
+
+class M1:
+
+    def f1(self):
+        return 'M1-f1'
+
+    def f3(self):
+        return 'M1-f3'
+
+class M0:
+
+    def f0(self):
+        return 'M0-f0'
+
+class M2(M0):
+
+    @property
+    def prop(self):
+        return self._p or 'prop'
+
+    @prop.setter
+    def prop(self, val):
+        self._p = val
+
+    def f1(self):
+        return 'M2-f1'
+
+    def f2(self):
+        return 'M2-f2'
+
+    def f3(self):
+        return 'M2-f3'
+
+class Child(M1, M2):
+
+    def f3(self):
+        return 'Child-f3'
+
+c = Child()
+assert.equal(c.f0(), 'M0-f0')
+assert.equal(c.f1(), 'M1-f1')
+assert.equal(c.f2(), 'M2-f2')
+assert.equal(c.f3(), 'Child-f3')
+assert.equal(c.prop, 'prop')
+c.prop = 1
+assert.equal(c.prop, 1)
+assert.ok(isinstance(c, Child))
+assert.ok(isinstance(c, M1))
+assert.ok(isinstance(c, M2))
+assert.ok(isinstance(c, M0))

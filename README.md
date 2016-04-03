@@ -980,71 +980,24 @@ class TextFieldAffectingOthers(ColorfulTextField):
 			.append(submit)
 ```
 
-A couple things to note here. We can invoke methods from the parent class the same way we would in Python, by using `Parent.method(self, ...)` syntax. This allows us to control when and how (assuming it requires additional arguments) the parent method gets executed. Also note the use of `\` operator to break up a line. This is something Python allows for keeping each line short and legible. Likewise, RapydScript, being indentation-based, allows the same.
+A couple of things to note here. We can invoke methods from the parent class
+the same way we would in Python, by using `Parent.method(self, ...)` syntax.
+This allows us to control when and how (assuming it requires additional
+arguments) the parent method gets executed. Also note the use of `\` operator
+to break up a line. This is something Python allows for keeping each line short
+and legible. Likewise, RapydScript, being indentation-based, allows the same.
 
-An important distinction between Python and RapydScript is that RapydScript does not allow multiple inheritance. This might seem like a big deal at first, but in actuality it barely matters. When using multiple inheritance, we usually only care about a few methods from the alternative classes. Leveraging JavaScript prototypical inheritance, RapydScript allows us to reuse methods from another class without even inheriting from it:
+Like Python, RapydScript allows multiple inheritance. The only caveat is that 
+the internal semantics of how it works are pretty different from python, since
+it is built on JavaScript's prototypical inheritance. For the most part you
+wont notice any differences from python, except, if you have a very complex
+inheritance hierarchy, especially, one with cycles. In this (rare) case you may
+find that the method-resolution-order in RapydScript is different from Python.
 
-```py
-class Something(Parent):
-	def method(self, var):
-		Parent.method(self, var)
-		SomethingElse.method(self, var)
-		SomethingElse.anotherMethod(self)
-```
-
-Notice that `Something` class has no `__init__` method. Like in Python, this method is optional for classes. If you omit it, an empty constructor will automatically get created for you by RapydScript (or when inheriting, the parent's constructor will be used). Also notice that we never inherited from SomethingElse class, yet we can invoke its methods. This brings us to the next point, the only real advantage of inheriting from another class (which you can't gain by calling the other classes method as shown above) is that the omitted methods are automatically copied from the parent. Admittedly, we might also care about `isinstance()` method, to have it work with the non-main parent, which is equivalent to JavaScript's `instanceof` operator.
-
-There is also a convenience function in RapydScript called `mixin` that lets you assign all methods of a given class to another, like Python's multiple inheritance:
-
-```py
-mixin(Snake, Animal, false)     # add Animal's methods to Snake, don't overwrite ones already declared in Snake
-mixin(Snake, Animal, true)      # add Animal's methods to Snake, overwriting ones already declared in Snake
-```
-
-To summarize classes, assume they work the same way as in Python, plus a few bonus cases. The following, for example, are equivalent:
-
-```py
-class Aclass:
-	def __init__(self):
-		pass
-
-	def method(self):
-		doSomething(self)
-
-class Aclass:
-	def __init__(self):
-		self.method = def():
-			doSomething(self)
-```
-
-The variable `self` in the above example is not a keyword. Like in Python, it can be replaced with any other variable name. Also, like in Python, this variable will be tied to the class, unlike `this` keyword of JavaScript. RapydScript still treats `this` keyword the same way JavaScript does:
-
-```py
-class Main:
-	def __init__(s):
-		main = this
-		method = def():
-			main.doSomething()
-		$('#element').click(method)
-	
-	def doSomething(s):
-		...
-```
-
-Or, leveraging Pythonic binding to first argument, the same can be shortened to:
-
-```
-class Main:
-	def __init__(s):
-		method = def():
-			s.doSomething()
-		$('#element').click(method)
-	
-	def doSomething(s):
-		...
-```
-
-Like Python, RapydScript allows static methods. Marking the method static with `@staticmethod` decorator will compile that method such that it's not bound to the object instance, and ensure all calls to this method compile into static method calls:
+Like Python, RapydScript allows static methods. Marking the method static with
+`@staticmethod` decorator will compile that method such that it's not bound to
+the object instance, and ensure all calls to this method compile into static
+method calls:
 
 ```py
 class Test:
@@ -1056,10 +1009,8 @@ class Test:
 		return a+1
 ```
 
-Some methods in the native JavaScript classes, such as `String.fromCharCode()` have also been marked as static to make things easier for the developer.
-
-
 ### External Classes
+
 RapydScript will automatically detect classes declared within the same scope (as long as the declaration occurs before use), as well as classes properly imported into the module (each module making use of a certain class should explicitly import the module containing that class). RapydScript will also properly detect native JavaScript classes (String, Array, Date, etc.). Unfortunately, RapydScript has no way of detecting classes from third-party libraries. In those cases, you could use the `new` keyword every time you create an object from such class. Alternatively, you could mark the class as external.
 
 Marking a class as external is done via `external` decorator. You do not need to fill in the contents of the class, a simple `pass` statement will do:

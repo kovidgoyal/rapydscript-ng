@@ -24,11 +24,6 @@ def _$rapyd$_eslice(arr, step, start, end):
     arr = arr.slice(start, end).filter(def(e, i): return i % step is 0;)
     return isString ? arr.join('') : arr
 
-def _$rapyd$_mixin(target, source, overwrite):
-    for v'var i in source':
-        if source.hasOwnProperty(i) and overwrite or v'typeof target[i]' is 'undefined':  # noqa:undef
-            target[i] = source[i]  # noqa:undef
-
 def _$rapyd$_print():
     if v'typeof console' is 'object':
         parts = v'[]'
@@ -232,7 +227,7 @@ _$rapyd$_len = (def ():
 
 v'var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool'
 v'var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike'
-v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id'
+v'var print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id'
 v'var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable'
 v'var enumerate = _$rapyd$_enumerate, iter = _$rapyd$_iter, reversed = _$rapyd$_reversed, len = _$rapyd$_len'
 v'var range = _$rapyd$_range, getattr = _$rapyd$_getattr, setattr = _$rapyd$_setattr, hasattr = _$rapyd$_hasattr'
