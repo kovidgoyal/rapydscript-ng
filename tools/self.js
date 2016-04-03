@@ -18,7 +18,7 @@ function compile_baselib(RapydScript, src_path) {
     });
     var ans = {'pretty': '', 'ugly': ''};
 
-    items.forEach(function(fname) {
+    items.sort().forEach(function(fname) {
         var name = fname.slice('baselib-'.length, -4), ast;
         var raw = fs.readFileSync(path.join(src_path, fname), 'utf-8');
         try {
