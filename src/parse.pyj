@@ -40,7 +40,7 @@ NATIVE_CLASSES = {
     'TypeError': {},
     'URIError': {},
     'Object': {
-        'static': [ "getOwnPropertyNames", "keys", "create", 'defineProperty', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign' ]
+        'static': [ "getOwnPropertyNames", 'getOwnPropertyDescriptor', 'getOwnPropertySymbols', "keys", "create", 'defineProperty', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign' ]
     },
     'String': {
         'static': [ "fromCharCode" ]
