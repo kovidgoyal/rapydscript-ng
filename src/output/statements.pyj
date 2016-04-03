@@ -50,23 +50,6 @@ def first_in_statement(output):
             return False
 
 
-def bind_methods(methods, output):
-    # bind the methods
-    if methods:
-        for arg in methods:
-            output.indent()
-            output.print("this.")
-            output.assign(arg)
-            output.print("_$rapyd$_bind")
-            output.with_parens(def():
-                output.print("this.")
-                output.print(arg)
-                output.comma()
-                output.print("this")
-            )
-            output.semicolon()
-            output.newline()
-
 def declare_vars(vars, output):
     # declare all variables as local, unless explictly set otherwise
     if vars.length:
@@ -109,19 +92,6 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
 
     if isinstance(node, AST_Scope):
         function_preamble(node, output, offset)
-        # rebind parent's methods and bind own methods
-        if output.option("auto_bind") and isinstance(node, AST_Method) and node.name and node.name.name is "__init__":
-            output.indent()
-            output.print("_$rapyd$_rebind_all")
-            output.with_parens(def():
-                output.print("this")
-                output.comma()
-                output.print("true")
-            )
-            output.semicolon()
-            output.newline()
-            bind_methods(node.bound, output)
-
         declare_vars(node.localvars, output)
 
     elif isinstance(node, AST_Except):

@@ -7,21 +7,6 @@
 def _$rapyd$_bool(val):
     return v'!!val'
 
-def _$rapyd$_bind(fn, thisArg):
-    if fn.orig: fn = fn.orig
-    if thisArg is False: return fn
-    ret = def():
-        return fn.apply(thisArg, arguments)
-    ret.orig = fn
-    return ret
-
-def _$rapyd$_rebind_all(thisArg, rebind):
-    if v'typeof rebind' is "undefined": rebind = True
-    for v'var p in thisArg':
-        if thisArg[p] and thisArg[p].orig:
-            if rebind: thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg)  # noqa:undef
-            else: thisArg[p] = thisArg[p].orig  # noqa:undef
-
 def _$rapyd$_eslice(arr, step, start, end):
     arr = arr[:]
     if type(arr) is 'string' or isinstance(arr, String):
@@ -245,8 +230,7 @@ _$rapyd$_len = (def ():
 )()
 
 
-v'var abs = Math.abs, max = Math.max, min = Math.min'
-v'var bool = _$rapyd$_bool, bind = _$rapyd$_bind, rebind_all = _$rapyd$_rebind_all'
+v'var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool'
 v'var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike'
 v'var mixin = _$rapyd$_mixin, print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id'
 v'var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable'

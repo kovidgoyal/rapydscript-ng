@@ -3,7 +3,6 @@
 
 from ast import AST_Class, AST_Method
 from output.functions import decorate, function_definition, function_annotation
-from output.statements import bind_methods
 
 def print_class(output):
     self = this
@@ -53,18 +52,16 @@ def print_class(output):
         output.space()
 
         output.with_block(def():
-            bind_methods(self.bound, output)
             output.indent()
             output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
             output.end_statement()
+            if self.bound.length:
+                output.indent()
+                self.name.print(output), output.print(".prototype.__bind_methods__.call(this)")
+                output.end_statement()
             output.indent()
             self.name.print(output)
-            output.print(".prototype.__init__.apply")
-            output.with_parens(def():
-                output.print("this")
-                output.comma()
-                output.print("arguments")
-            )
+            output.print(".prototype.__init__.apply(this"), output.comma(), output.print('arguments)')
             output.end_statement()
         )
 
@@ -76,8 +73,8 @@ def print_class(output):
         output.semicolon()
     else:
         write_constructor()
-
     output.newline()
+
     # inheritance
     if self.parent:
         output.indent()
@@ -87,8 +84,26 @@ def print_class(output):
             output.comma()
             self.parent.print(output)
         )
-        output.semicolon()
-        output.newline()
+        output.end_statement()
+
+    # method binding
+    if self.bound.length:
+        seen_methods = Object.create(None)
+        output.indent(), self.name.print(output), output.assign('.prototype.__bind_methods__'), output.spaced('function', '()', '')
+        output.with_block(def():
+            if self.parent:
+                output.indent(), self.parent.print(output), output.spaced('.prototype.__bind_methods__', '&&', '')
+                self.parent.print(output), output.print('.prototype.__bind_methods__.call(this)')
+                output.end_statement()
+            for bname in self.bound:
+                if seen_methods[bname]:
+                    continue
+                seen_methods[bname] = True
+                output.indent(), output.assign('this.' + bname)
+                self.name.print(output), output.print('.prototype.' + bname + '.bind(this)')
+                output.end_statement()
+        )
+        output.end_statement()
 
     # dynamic properties
     property_names = Object.keys(self.dynamic_properties)

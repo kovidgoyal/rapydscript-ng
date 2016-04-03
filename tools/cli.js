@@ -250,12 +250,6 @@ Remove the module wrapper that prevents RapydScript
 scope from bleeding into other JavaScript logic 
 */});
 
-opt("auto_bind", 'i', 'bool', false, function(){/*
-Automatically bind function methods to functions 
-themselves instead of using @bound decorator 
-[experimental].
-*/});
-
 opt("uglify", 'u', 'bool', false, function(){/*
 Minify the output instead of pretty printing it.
 */});

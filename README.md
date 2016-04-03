@@ -1058,9 +1058,6 @@ class Test:
 
 Some methods in the native JavaScript classes, such as `String.fromCharCode()` have also been marked as static to make things easier for the developer.
 
-Note that currently classes do not support class level variables, unlike
-Python.
-
 
 ### External Classes
 RapydScript will automatically detect classes declared within the same scope (as long as the declaration occurs before use), as well as classes properly imported into the module (each module making use of a certain class should explicitly import the module containing that class). RapydScript will also properly detect native JavaScript classes (String, Array, Date, etc.). Unfortunately, RapydScript has no way of detecting classes from third-party libraries. In those cases, you could use the `new` keyword every time you create an object from such class. Alternatively, you could mark the class as external.
@@ -1101,6 +1098,7 @@ You could also use `external` decorator to bypass improperly imported RapydScrip
 
 
 ### Method Binding
+
 By default, RapydScript does not bind methods to the classes they're declared under. This behavior is unlike Python, but very much like the rest of JavaScript. For example, consider this code:
 
 ```py
@@ -1109,56 +1107,60 @@ class Boy:
 		self.name = name
 
 	def greet(self):
-		print('My name is' + self.name)
+		if self:
+			print('My name is' + self.name)
 
 tod = Boy('Tod')
 tod.greet()                 # Hello, my name is Tod
-getattr(tod, 'greet')()     # Hello, my name is undefined
+getattr(tod, 'greet')()     # prints nothing
 ```
 
-In some cases, however, you may wish for the functions to remain bound to the object they were retrieved from. For those cases, RapydScript has `bind` function. Unlike regular JavaScript `Function.prototype.bind`, RapydScript's `bind` can rebind methods that have already been bound. The binding we wanted to see in the above example can be achieved as follows:
+In some cases, however, you may wish for the functions in the class to be
+automatically bound when the objects of that class are instantiated. In order
+to do that, use a *scoped flag*, which is a simple instruction to the compiler
+telling it to auto-bind methods, as shown below:
 
 ```py
-bound = bind(getattr(tod, 'greet'), tod)
-bound()                     # Hello, my name is Tod
-```
 
-To unbind a bound method, you can call pass `false` as a second argument instead of an object you wish to bind to. You can also auto-bind all methods of the class by calling `rebind_all`:
+class AutoBound:
+	from __python__ import bound_methods
 
-```py
-class Boy:
-	def __init__(self, name):
-		self.name = name
-		rebind_all(self)
-
-	def greet(self):
-		print('My name is' + self.name)
-
-tod = Boy('Tod')
-tod.greet()                 # Hello, my name is Tod
-getattr(tod, 'greet')()     # Hello, my name is Tod
-```
-
-Likewise, ``rebind_all(self, false)`` will unbind all methods. It's not recommended to auto-bind classes that inherit from 3rd party libraries. For example, `casperjs` has `Casper` class, which RapydScript can easily inherit and extend:
-
-```py
-@external
-class Casper:
-	pass
-
-class Scraper(Casper):
 	def __init__(self):
-		Casper.__init__(self)
-		self.start()
+		self.a = 3
 
-s = Scraper()
-s.thenOpen('http://casperjs.org',
-	def(): this.echo(this.getTitle())
-)
-s.run()
+	def val(self):
+		return self.a
+
+getattr(AutoBound(), 'val')() == 3
 ```
 
-Including `rebind_all` call in the constructor, however, will break `Casper`. It is for that reason that `rebind_all` isn't added to the constructor by default by RapydScript. You could, however use `--auto-bind` compile flag to have RapydScript rebind automatically for you. There is a bit more that this flag does behind the scenes, which ensures that class binding behaves identical to Python, at the expense of some performance and compatibility with libraries like `casperjs`.
+If you want all classes in a module to be auto-bound simply put the scoped flag
+at the top of the module. You can even choose to have only a few methods of the
+class auto-bound, like this:
+
+```py
+class C:
+
+	def unbound1(self):
+		pass # this method will not be auto-bound
+
+	from __python__ import bound_methods
+	# Methods below this line will be auto-bound
+
+	def bound(self):
+	   pass # This method will be auto-bound
+
+	from __python__ import no_bound_methods
+	# Methods below this line will not be auto-bound
+
+	def unbound2(self):
+		pass  # this method will be unbound
+```
+
+Scoped flags apply only to the scope they are defined in, so if you define them
+inside a class declaration, they only apply to that class. If you define it at
+the module level, it will only apply to all classes in the module that occur
+below that line, and so on.
 
 Iterators
 ----------

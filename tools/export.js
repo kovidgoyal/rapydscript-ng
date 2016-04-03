@@ -205,14 +205,12 @@ function compile(code, filename, options) {
     options = options || {};
     var ast = RapydScript.parse(code, {
         filename: filename || '<eval>',
-        auto_bind: !!options.auto_bind,
         basedir: options.basedir || dirname(filename || ''),
         libdir: options.libdir,
     });
     var out_ops = {
         beautify: (options.beautify === undefined ? true : options.beautify),
         private_scope: !options.bare,
-        auto_bind: !!options.auto_bind,
         omit_baselib: !!options.omit_baselib,
         js_version: options.js_version || 5,
     };

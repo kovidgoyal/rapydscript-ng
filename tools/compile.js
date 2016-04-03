@@ -32,7 +32,6 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     var OUTPUT_OPTIONS = {
         beautify: !argv.uglify,
         private_scope: !argv.bare,
-        auto_bind: argv.auto_bind,
         omit_baselib: argv.omit_baselib,
         js_version: parseInt(argv.js_version),
     };
@@ -45,7 +44,6 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             filename: file,
             toplevel: toplevel,
             basedir: path.dirname(file),
-            auto_bind: argv.auto_bind,
             libdir: path.join(src_path, 'lib'),
             import_dirs: utils.get_import_dirs(argv.import_path),
         });

@@ -24,3 +24,51 @@ def f():
 
 a = {1:1}
 assert.ok(not isinstance(a, dict))
+
+class S:
+    from __python__ import bound_methods
+
+    def __init__(self):
+        self.a = 3
+
+    def val(self):
+        return self.a if self else None
+
+f = S().val
+assert.equal(f(), S().val())
+
+class U:
+
+    def __init__(self):
+        self.a = 3
+
+    def val(self):
+        return self.a if self else None
+
+f = U().val
+assert.equal(f(), None)
+
+class C:
+
+    def __init__(self):
+        self.a = 3
+
+    def uval1(self):
+        return self.a if self else None
+
+    from __python__ import bound_methods
+
+    def bval(self):
+        return self.a
+
+    from __python__ import no_bound_methods
+
+    def uval2(self):
+        return self.a if self else None
+
+c = C()
+u1, u2 = c.uval1, c.uval2
+f = c.bval
+assert.equal(u1(), None)
+assert.equal(u2(), None)
+assert.equal(f(), 3)

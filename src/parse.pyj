@@ -26,7 +26,7 @@ from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 has_prop = Object.prototype.hasOwnProperty
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
-PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True}
+PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True}
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -881,7 +881,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         class_details = {
             "static": [],
-            'bound': {}
+            'bound': v'[]',
         }
         definition = new AST_Class({
             'name': name,
@@ -987,8 +987,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     croak('A method cannot be both static and a property getter/setter')
                 S.classes[S.classes.length - 2][in_class].static.push(name.name)
                 staticmethod = True
-            elif name.name is not "__init__" and options.auto_bind:
-                S.classes[S.classes.length - 2][in_class].bound[name.name] = True
+            elif name.name is not "__init__" and S.scoped_flags.get('bound_methods'):
+                S.classes[S.classes.length - 2][in_class].bound.push(name.name)
 
         expect("(")
         S.in_parenthesized_expr = True
@@ -2064,7 +2064,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 def parse(text, options):
     options = defaults(options, {
         'filename': None,     # name of the file being parsed
-        'auto_bind': False,   # whether auto-binding of methods to classes is enabled
         'module_id':'__main__', # The id of the module being parsed
         'toplevel': None,
         'for_linting': False, # If True certain actions are not performed, such as importing modules

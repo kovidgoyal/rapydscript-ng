@@ -45,7 +45,7 @@ class FakeReadline:
 repl = require('./repl')
 rl = FakeReadline()
 
-send_line = bind(rl.send_line, rl)
+send_line = rl.send_line.bind(rl)
 
 def send_text(text):
     for line in text.split('\n'):

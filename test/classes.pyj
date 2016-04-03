@@ -32,7 +32,7 @@ class OldFriend(Friend):
     def how_long(self):
         return "I've known you for " + self.duration + " years"
     def get_bound_method(self):
-        return bind(self.how_long, self)
+        return self.how_long.bind(self)
     def __init__(self, name, duration):
         self.duration = duration
         Friend.__init__(self, name)
@@ -95,7 +95,7 @@ assert.throws(
 
 # attributes
 assert.ok(hasattr(dude, "greet"))
-assert.equal(bind(getattr(dude, "greet"), dude)(), "Yo, it's me, some guy") # function stays bound after binding
+assert.equal(getattr(dude, "greet").bind(dude)(), "Yo, it's me, some guy") # function stays bound after binding
 assert.equal(hasattr(dude, "stuff"), False)
 setattr(dude, "stuff", True)
 assert.ok(hasattr(dude, "stuff"))
@@ -294,3 +294,26 @@ class Z(Y):
 assert.equal(Z().a, X().a)
 assert.ok(repr(Z()).indexOf('<__main__.Z') == 0)
 assert.ok(str(Z()).indexOf('<__main__.Z') == 0)
+
+from __python__ import bound_methods
+
+class U:
+
+    def __init__(self, a):
+        self.a = a
+
+    def val(self):
+        return self.a
+
+u = U(3)
+f = u.val
+assert.equal(f(), u.val())
+
+class U2(U):
+
+    def val(self):
+        return self.a * 2
+
+u = U2(3)
+f = u.val
+assert.equal(f(), 6)

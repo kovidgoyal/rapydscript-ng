@@ -453,7 +453,7 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         'parent': "[AST_Symbol?] parent class this class inherits from",
         "static": "[string*] list of static methods",
         'external': "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
-        'bound': "[string*] list of methods that need to be bound to behave correctly (function pointers)",
+        'bound': "[string*] list of methods that need to be bound to self",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'module_id': "[string] The id of the module this class is defined in",
         'statements': "[AST_Node*] list of statements in the class scope (excluding method definitions)",
