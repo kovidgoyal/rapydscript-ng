@@ -1,3 +1,12 @@
+version 0.6.3
+==============
+
+ * Add a module to the standard library to easily add python string methods to the JavaScript String object, if needed.
+ * Fix isinstance('a', str) not working
+ * Prevent an infinite loop in str.count() when needle is an empty string
+ * Fix default values for function args not working when combined with annotations
+ * Change the prefix used internally for RapydScript private symbols from `_$rapyd$_` to `ρσ_` as it makes the output JavaScript easier to read
+
 version 0.6.2
 ==============
 
