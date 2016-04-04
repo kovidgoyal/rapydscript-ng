@@ -125,6 +125,7 @@ assert.equal('1'
              '2' '3', '123')
 assert.equal(u'a', 'a')
 assert.equal('a' * 5, 'aaaaa')
+assert.ok(isinstance('a', str))
 
 # Various bits of miscellaneous code that caused parser infinite loops and other breakage
 throw_test('for a in b:\\n 1+1')

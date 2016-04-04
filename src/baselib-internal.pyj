@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains, _$rapyd$_list_constructor
+# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains, _$rapyd$_list_constructor, _$rapyd$_str
 
 def _$rapyd$_flatten(arr):
     ans = []
@@ -154,6 +154,8 @@ def _$rapyd$_instanceof():
         if v'obj instanceof q':
             return True
         if (q is Array or q is _$rapyd$_list_constructor) and Array.isArray(obj):
+            return True
+        if q is _$rapyd$_str and (type(obj) is 'string' or v'obj instanceof String'):
             return True
         if bases.length > 1:
             for v'var c = 1; c < bases.length; c++':
