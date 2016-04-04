@@ -2,23 +2,23 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: _$rapyd$_kwargs_symbol, _$rapyd$_list_decorate, _$rapyd$_iterator_symbol
+# globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol
 
-def _$rapyd$_repr_js_builtin(x, as_array):
+def ρσ_repr_js_builtin(x, as_array):
     ans = v'[]'
     b = '{}'
     if as_array:
         b = '[]'
         for v'var i = 0; i < x.length; i++':
-            ans.push(_$rapyd$_repr(x[i]))
+            ans.push(ρσ_repr(x[i]))
     else:
         keys = Object.keys(x)
         for v'var k = 0; k < keys.length; k++':
             key = keys[k]
-            ans.push(JSON.stringify(key) + ':' + _$rapyd$_repr(x[key]))
+            ans.push(JSON.stringify(key) + ':' + ρσ_repr(x[key]))
     return b[0] + ans.join(', ') + b[1]
 
-def _$rapyd$_repr(x):
+def ρσ_repr(x):
     if x is None:
         return 'None'
     if x is undefined:
@@ -29,7 +29,7 @@ def _$rapyd$_repr(x):
     elif x is True or x is False:
         ans = 'True' if x else 'False'
     elif Array.isArray(x):
-        ans = _$rapyd$_repr_js_builtin(x, True)
+        ans = ρσ_repr_js_builtin(x, True)
     elif type(x) is 'function':
         ans = x.toString()
     else:
@@ -39,14 +39,14 @@ def _$rapyd$_repr(x):
         ans = x.toString() if v'typeof x.toString === "function"' else x
         if ans is '[object Object]':
             # Assume this is a dictionary
-            return _$rapyd$_repr_js_builtin(x)
+            return ρσ_repr_js_builtin(x)
         try:
             ans = JSON.stringify(x)
         except:
             pass
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
-def _$rapyd$_str(x):
+def ρσ_str(x):
     if x is None:
         return 'None'
     if x is undefined:
@@ -59,7 +59,7 @@ def _$rapyd$_str(x):
     elif x is True or x is False:
         ans = 'True' if x else 'False'
     elif Array.isArray(x):
-        ans = _$rapyd$_repr_js_builtin(x, True)
+        ans = ρσ_repr_js_builtin(x, True)
     elif v'typeof x.toString === "function"':
         name = Object.prototype.toString.call(x).slice(8, -1)
         if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
@@ -67,16 +67,16 @@ def _$rapyd$_str(x):
         ans = x.toString()
         if ans is '[object Object]':
             # Assume this is a dictionary
-            ans = _$rapyd$_repr_js_builtin(x)
+            ans = ρσ_repr_js_builtin(x)
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
 define_str_func = def(name, func):
-    _$rapyd$_str.prototype[name] = func
-    _$rapyd$_str[name] = f = func.call.bind(func)
+    ρσ_str.prototype[name] = func
+    ρσ_str[name] = f = func.call.bind(func)
     if func.__argnames__:
         Object.defineProperty(f, '__argnames__', {'value':v"['string']".concat(func.__argnames__)})
 
-_$rapyd$_orig_split, _$rapyd$_orig_replace = String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)
+ρσ_orig_split, ρσ_orig_replace = String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)
 
 # format()  {{{
 define_str_func('format', def ():
@@ -85,22 +85,22 @@ define_str_func('format', def ():
         raise TypeError("Template is required")
     args = Array.prototype.slice.call(arguments)
     kwargs = {}
-    if args.length and args[-1][_$rapyd$_kwargs_symbol] is not undefined:
+    if args.length and args[-1][ρσ_kwargs_symbol] is not undefined:
         kwargs = args[-1]
         args = args[:-1]
 
     explicit = implicit = False
     idx = 0
-    split = _$rapyd$_orig_split
+    split = ρσ_orig_split
 
-    if _$rapyd$_str.format._template_resolve_pat is undefined:
-        _$rapyd$_str.format._template_resolve_pat = /[.\[]/
+    if ρσ_str.format._template_resolve_pat is undefined:
+        ρσ_str.format._template_resolve_pat = /[.\[]/
 
     def resolve(arg, object):
         if not arg:
             return object
         first, arg = arg[0], arg[1:]
-        key = split(arg, _$rapyd$_str.format._template_resolve_pat, 1)[0]
+        key = split(arg, ρσ_str.format._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
         ans = (first is '[') ? object[key[:-1]] : getattr(object, key)
         if ans is undefined:
@@ -108,9 +108,9 @@ define_str_func('format', def ():
         return resolve(rest, ans)
 
     def resolve_format_spec(format_spec):
-        if _$rapyd$_str.format._template_resolve_fs_pat is undefined:
-            _$rapyd$_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
-        return format_spec.replace(_$rapyd$_str.format._template_resolve_fs_pat, def (match, key):
+        if ρσ_str.format._template_resolve_fs_pat is undefined:
+            ρσ_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
+        return format_spec.replace(ρσ_str.format._template_resolve_fs_pat, def (match, key):
             if not Object.prototype.hasOwnProperty.call(kwargs, key):
                 return ''
             return '' + kwargs[key]
@@ -119,8 +119,8 @@ define_str_func('format', def ():
     def apply_formatting(value, format_spec):
         if format_spec.indexOf('{') is not -1:
             format_spec = resolve_format_spec(format_spec)
-        if _$rapyd$_str.format._template_format_pat is undefined:
-            _$rapyd$_str.format._template_format_pat = ///
+        if ρσ_str.format._template_format_pat is undefined:
+            ρσ_str.format._template_format_pat = ///
                 ([^{}](?=[<>=^]))?([<>=^])? # fill & align
                 ([-+\x20])? # sign
                 (\#)? # integer base specifier
@@ -132,7 +132,7 @@ define_str_func('format', def ():
             ///
 
         try:
-            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(_$rapyd$_str.format._template_format_pat)[1:]
+            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(ρσ_str.format._template_format_pat)[1:]
         except TypeError:
             return value
         if zeropad:
@@ -433,14 +433,14 @@ define_str_func('rfind', def(needle, start, end):
 )
 
 define_str_func('index', def(needle, start, end):
-    ans = _$rapyd$_str.prototype.find.apply(this, arguments)
+    ans = ρσ_str.prototype.find.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
 )
 
 define_str_func('rindex', def(needle, start, end):
-    ans = _$rapyd$_str.prototype.rfind.apply(this, arguments)
+    ans = ρσ_str.prototype.rfind.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
@@ -498,7 +498,7 @@ define_str_func('upper', def():
 define_str_func('lstrip', def(chars):
     string = this
     pos = 0
-    chars = chars or _$rapyd$_str.whitespace
+    chars = chars or ρσ_str.whitespace
     while chars.indexOf(string[pos]) is not -1:
         pos += 1
     if pos:
@@ -509,7 +509,7 @@ define_str_func('lstrip', def(chars):
 define_str_func('rstrip', def(chars):
     string = this
     pos = string.length - 1
-    chars = chars or _$rapyd$_str.whitespace
+    chars = chars or ρσ_str.whitespace
     while chars.indexOf(string[pos]) is not -1:
         pos -= 1
     if pos < string.length - 1:
@@ -518,7 +518,7 @@ define_str_func('rstrip', def(chars):
 )
 
 define_str_func('strip', def(chars):
-    return _$rapyd$_str.prototype.lstrip.call(_$rapyd$_str.prototype.rstrip.call(this, chars), chars)
+    return ρσ_str.prototype.lstrip.call(ρσ_str.prototype.rstrip.call(this, chars), chars)
 )
 
 define_str_func('partition', def(sep):
@@ -538,7 +538,7 @@ define_str_func('rpartition', def(sep):
 define_str_func('replace', def(old, repl, count):
     string = this
     if count is 1:
-        return _$rapyd$_orig_replace(string, old, repl)
+        return ρσ_orig_replace(string, old, repl)
     if count < 1:
         return string
     count = count or Number.MAX_VALUE
@@ -556,7 +556,7 @@ define_str_func('replace', def(old, repl, count):
 define_str_func('split', def(sep, maxsplit):
     if maxsplit is 0:
         return [this]
-    split = _$rapyd$_orig_split
+    split = ρσ_orig_split
     if sep is undefined or sep is None:
         if maxsplit > 0:
             ans = split(this, /(\s+)/)
@@ -579,13 +579,13 @@ define_str_func('split', def(sep, maxsplit):
             extra = ans[maxsplit:].join(sep)
             ans = ans[:maxsplit]
             ans.push(extra)
-    return _$rapyd$_list_decorate(ans)
+    return ρσ_list_decorate(ans)
 )
 
 define_str_func('rsplit', def(sep, maxsplit):
     if not maxsplit:
-        return _$rapyd$_str.prototype.split.call(this, sep)
-    split = _$rapyd$_orig_split
+        return ρσ_str.prototype.split.call(this, sep)
+    split = ρσ_orig_split
     if sep is undefined or sep is None:
         if maxsplit > 0:
             ans = v'[]'
@@ -625,11 +625,11 @@ define_str_func('rsplit', def(sep, maxsplit):
             end = idx
         ans.push(this[:end])
         ans.reverse()
-    return _$rapyd$_list_decorate(ans)
+    return ρσ_list_decorate(ans)
 )
 
 define_str_func('splitlines', def(keepends):
-    split = _$rapyd$_orig_split
+    split = ρσ_orig_split
     if keepends:
         parts = split(this, /((?:\r?\n)|\r)/)
         ans = v'[]'
@@ -640,7 +640,7 @@ define_str_func('splitlines', def(keepends):
                 ans[-1] += parts[i]  # noqa:undef
     else:
         ans = split(this, /(?:\r?\n)|\r/)
-    return _$rapyd$_list_decorate(ans)
+    return ρσ_list_decorate(ans)
 )
 
 define_str_func('swapcase', def():
@@ -662,13 +662,13 @@ define_str_func('zfill', def(width):
     return string
 )
 
-_$rapyd$_str.uchrs = def(string, with_positions):
+ρσ_str.uchrs = def(string, with_positions):
     # Return iterator over unicode chars in string. Will yield the unicode
     # replacement char U+FFFD for broken surrogate pairs
     return {
         '_string': string,
         '_pos': 0,
-        _$rapyd$_iterator_symbol: def(): return this;,
+        ρσ_iterator_symbol: def(): return this;,
         'next' : def():
             length = this._string.length
             if this._pos >= length:
@@ -690,17 +690,17 @@ _$rapyd$_str.uchrs = def(string, with_positions):
                 return {'done':False, 'value':ans}
     }
 
-_$rapyd$_str.uslice = def(string, start, end):
+ρσ_str.uslice = def(string, start, end):
     items = v'[]'
-    iterator = _$rapyd$_str.uchrs(string)
+    iterator = ρσ_str.uchrs(string)
     r = iterator.next()
     while not r.done:
         items.push(r.value)
         r = iterator.next()
     return items[start or 0:items.length if end is undefined else end].join('')
 
-_$rapyd$_str.ulen = def(string):
-    iterator = _$rapyd$_str.uchrs(string)
+ρσ_str.ulen = def(string):
+    iterator = ρσ_str.uchrs(string)
     r = iterator.next()
     ans = 0
     while not r.done:
@@ -708,13 +708,13 @@ _$rapyd$_str.ulen = def(string):
         ans += 1
     return ans
 
-_$rapyd$_str.ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
-_$rapyd$_str.ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-_$rapyd$_str.ascii_letters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-_$rapyd$_str.digits   = '0123456789'
-_$rapyd$_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
-_$rapyd$_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
-_$rapyd$_str.whitespace   = ' \t\n\r\x0b\x0c'
+ρσ_str.ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
+ρσ_str.ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ρσ_str.ascii_letters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ρσ_str.digits   = '0123456789'
+ρσ_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+ρσ_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
+ρσ_str.whitespace   = ' \t\n\r\x0b\x0c'
 
 v'define_str_func = undefined'
-v'var str = _$rapyd$_str, repr = _$rapyd$_repr'
+v'var str = ρσ_str, repr = ρσ_repr'

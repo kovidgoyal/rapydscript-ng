@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: _$rapyd$_iterator_symbol
+# globals: ρσ_iterator_symbol
 
 def sum(iterable, start):
     if Array.isArray(iterable):
@@ -37,7 +37,7 @@ def map():
                 this._args[i] = r.value  # noqa:undef
             return {'done':False, 'value':this._func.apply(undefined, this._args)}
         ,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
     }
 
 def filter(func_or_none, iterable):
@@ -52,7 +52,7 @@ def filter(func_or_none, iterable):
                 r = this._iterator.next()
             return {'done':True}
         ,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
     }
 
 def zip():
@@ -70,5 +70,5 @@ def zip():
                 args[i] = r.value  # noqa:undef
             return {'done':False, 'value':args}
         ,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
     }

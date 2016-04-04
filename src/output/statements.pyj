@@ -100,7 +100,7 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
             output.print("var")
             output.space()
             output.assign(node.argname)
-            output.print("_$rapyd$_Exception")
+            output.print("ρσ_Exception")
             output.semicolon()
             output.newline()
 
@@ -119,10 +119,10 @@ def print_bracketed(node, output, complex, function_preamble):
 
 def print_with(self, output):
     exits = v'[]'
-    output.assign('_$rapyd$_with_exception'), output.print('undefined'), output.end_statement()
+    output.assign('ρσ_with_exception'), output.print('undefined'), output.end_statement()
     for clause in self.clauses:
         output.with_counter += 1
-        clause_name = '_$rapyd$_with_clause_' + output.with_counter
+        clause_name = 'ρσ_with_clause_' + output.with_counter
         exits.push(clause_name)
         output.indent(), output.print('var '), output.assign(clause_name)
         clause.expression.print(output)
@@ -140,22 +140,22 @@ def print_with(self, output):
     )
     output.space(), output.print('catch(e)')
     output.with_block(def():
-        output.indent(), output.assign('_$rapyd$_with_exception'), output.print('e'), output.end_statement()
+        output.indent(), output.assign('ρσ_with_exception'), output.print('e'), output.end_statement()
     )
-    output.newline(), output.indent(), output.spaced('if', '(_$rapyd$_with_exception', '===', 'undefined)')
+    output.newline(), output.indent(), output.spaced('if', '(ρσ_with_exception', '===', 'undefined)')
     output.with_block(def():
         for clause in exits:
             output.indent(), output.print(clause + '.__exit__()'), output.end_statement()
     )
     output.space(), output.print('else'), output.space()
     output.with_block(def():
-        output.indent(), output.assign('_$rapyd$_with_suppress'), output.print('false'), output.end_statement()
+        output.indent(), output.assign('ρσ_with_suppress'), output.print('false'), output.end_statement()
         for clause in exits:
             output.indent()
-            output.spaced('_$rapyd$_with_suppress', '|=', '_$rapyd$_bool(' + clause + '.__exit__(_$rapyd$_with_exception.constructor,',
-                            '_$rapyd$_with_exception,', '_$rapyd$_with_exception.stack))')
+            output.spaced('ρσ_with_suppress', '|=', 'ρσ_bool(' + clause + '.__exit__(ρσ_with_exception.constructor,',
+                            'ρσ_with_exception,', 'ρσ_with_exception.stack))')
             output.end_statement()
-        output.indent(), output.spaced('if', '(!_$rapyd$_with_suppress)', 'throw _$rapyd$_with_exception'), output.end_statement()
+        output.indent(), output.spaced('if', '(!ρσ_with_suppress)', 'throw ρσ_with_exception'), output.end_statement()
     )
 
 

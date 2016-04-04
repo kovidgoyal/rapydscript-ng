@@ -21,7 +21,7 @@ module.exports = function(compiler, baselib) {
             ctx.print = function() {
                 var parts = [];
                 for (var i = 0; i < arguments.length; i++) 
-                    parts.push(ctx._$rapyd$_str(arguments[i]));
+                    parts.push(ctx.ρσ_str(arguments[i]));
                 write_line_func(parts.join(' '));
             };
         },
@@ -64,8 +64,8 @@ module.exports = function(compiler, baselib) {
         'runjs': function runjs(code) {
             var ans = vm.runInContext(code, ctx);
             if (ans !== undefined || ans === null) {
-                ctx._$rapyd$_repl_val = ans;
-                var q = vm.runInContext('_$rapyd$_repr(_$rapyd$_repl_val)', ctx);
+                ctx.ρσ_repl_val = ans;
+                var q = vm.runInContext('ρσ_repr(ρσ_repl_val)', ctx);
                 ans = (q === 'undefined') ? ans.toString() : q;
             }
             return ans;

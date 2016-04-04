@@ -16,7 +16,7 @@ def write_imports(module, output):
     )
     if imports.length > 1:
         output.indent()
-        output.print('var _$rapyd$_modules = {};')
+        output.print('var ρσ_modules = {};')
         output.newline()
 
     # Declare all variable names exported from the modules as global symbols
@@ -37,9 +37,9 @@ def write_imports(module, output):
         if module_id is not '__main__':
             output.indent()
             if module_id.indexOf('.') is -1:
-                output.print('_$rapyd$_modules.' + module_id)
+                output.print('ρσ_modules.' + module_id)
             else:
-                output.print('_$rapyd$_modules["' + module_id + '"]')
+                output.print('ρσ_modules["' + module_id + '"]')
             output.space(), output.print('='), output.space(), output.print('{}')
             output.end_statement()
 
@@ -64,9 +64,9 @@ def declare_exports(module_id, exports, submodules, output):
         if not Object.prototype.hasOwnProperty.call(seen, symbol.name):
             output.indent()
             if module_id.indexOf('.') is -1:
-                output.print('_$rapyd$_modules.' + module_id + '.' + symbol.name)
+                output.print('ρσ_modules.' + module_id + '.' + symbol.name)
             else:
-                output.print('_$rapyd$_modules["' + module_id + '"].' + symbol.name)
+                output.print('ρσ_modules["' + module_id + '"].' + symbol.name)
             output.space(), output.print('='), output.space(), output.print(symbol.name)
             seen[symbol.name] = True
             output.end_statement()
@@ -78,7 +78,7 @@ def declare_submodules(module_id, submodules, output):
             seen[sub_module_id] = True
             key = sub_module_id.split('.')[-1]
             output.indent()
-            output.spaced('_$rapyd$_modules["' + module_id + '"]["' + key + '"]', '=', '_$rapyd$_modules["' + sub_module_id + '"]')
+            output.spaced('ρσ_modules["' + module_id + '"]["' + key + '"]', '=', 'ρσ_modules["' + sub_module_id + '"]')
             output.end_statement()
 
 def prologue(module, output):
@@ -88,13 +88,13 @@ def prologue(module, output):
     output.indent()
     v = 'const' if output.options.js_version > 5 else 'var'
     output.print(v), output.space()
-    output.spaced.apply(output, (('_$rapyd$_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+    output.spaced.apply(output, (('ρσ_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
     output.end_statement()
     output.indent(), output.print(v), output.space()
-    output.spaced.apply(output, (('_$rapyd$_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
+    output.spaced.apply(output, (('ρσ_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
     output.end_statement()
-    output.indent(), output.spaced('var', '_$rapyd$_cond_temp,', '_$rapyd$_expr_temp'), output.end_statement()
-    output.indent(), output.spaced('var', '_$rapyd$_object_counter', '=', '0'), output.end_statement()
+    output.indent(), output.spaced('var', 'ρσ_cond_temp,', 'ρσ_expr_temp'), output.end_statement()
+    output.indent(), output.spaced('var', 'ρσ_object_counter', '=', '0'), output.end_statement()
     needs_yield = output.options.js_version < 6 and module.baselib['yield']
     if needs_yield:
         output.dump_yield()
@@ -210,9 +210,9 @@ def print_imports(container, output):
         output.print('var ')
         output.assign(aname)
         if key.indexOf('.') is -1:
-            output.print('_$rapyd$_modules.'), output.print(key)
+            output.print('ρσ_modules.'), output.print(key)
         else:
-            output.print('_$rapyd$_modules["'), output.print(key), output.print('"]')
+            output.print('ρσ_modules["'), output.print(key), output.print('"]')
         if from_import:
             output.print('.')
             output.print(from_import)

@@ -4,7 +4,7 @@
 from ast import AST_Binary
 
 def print_array(self, output):
-    output.print('_$rapyd$_list_decorate')
+    output.print('ρσ_list_decorate')
     output.with_parens(def():
         output.with_square(def():
             a = self.elements
@@ -28,28 +28,28 @@ def print_obj_literal(self, output):
         output.with_block(def():
             output.indent()
             if self.is_pydict:
-                output.spaced.apply(output, 'var _$rapyd$_d = _$rapyd$_dict()'.split(' '))
+                output.spaced.apply(output, 'var ρσ_d = ρσ_dict()'.split(' '))
             else:
-                output.spaced.apply(output, 'var _$rapyd$_d = {}'.split(' '))
+                output.spaced.apply(output, 'var ρσ_d = {}'.split(' '))
             output.end_statement()
             self.properties.forEach(def(prop, i):
                 output.indent()
                 if self.is_pydict:
-                    output.print('_$rapyd$_d.set')
+                    output.print('ρσ_d.set')
                     output.with_parens(def():
                         prop.key.print(output)
                         output.print(','), output.space()
                         prop.value.print(output)
                     )
                 else:
-                    output.print('_$rapyd$_d')
+                    output.print('ρσ_d')
                     output.with_square(def():prop.key.print(output);)
                     output.space(), output.print('='), output.space()
                     prop.value.print(output)
                 output.end_statement()
             )
             output.indent()
-            output.spaced('return', '_$rapyd$_d')
+            output.spaced('return', 'ρσ_d')
             output.end_statement()
         )
     )
@@ -60,7 +60,7 @@ def print_object(self, output):
         if self.properties.length > 0:
             print_obj_literal(self, output)
         else:
-            output.print('_$rapyd$_dict()')
+            output.print('ρσ_dict()')
     else:
         if self.properties.length > 0:
             output.with_block(def():
@@ -78,13 +78,13 @@ def print_object(self, output):
 
 def print_set(self, output):
     if self.items.length is 0:
-        output.print('_$rapyd$_set()')
+        output.print('ρσ_set()')
         return
     output.with_parens(def():
         output.print('function()')
         output.with_block(def():
             output.indent()
-            output.spaced.apply(output, 'var s = _$rapyd$_set()'.split(' '))
+            output.spaced.apply(output, 'var s = ρσ_set()'.split(' '))
             output.end_statement()
             self.items.forEach(def(item, i):
                 output.indent()

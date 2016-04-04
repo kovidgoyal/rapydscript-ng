@@ -24,16 +24,16 @@ def print_getitem(self, output, skip_expression):  # AST_Sub
     from_end = isinstance(self.property, AST_Unary) and self.property.operator is "-" and isinstance(self.property.expression, AST_Number)
     enclose = from_end and not is_repeatable and not skip_expression
     if enclose:
-        output.assign('(_$rapyd$_expr_temp')
+        output.assign('(ρσ_expr_temp')
     if not skip_expression:
         self.expression.print(output)
     if enclose:
-        output.comma(), output.print('_$rapyd$_expr_temp')
+        output.comma(), output.print('ρσ_expr_temp')
     output.print("[")
     if from_end:
         # parse negative constants into len - constant
         if enclose:
-            output.print('_$rapyd$_expr_temp')
+            output.print('ρσ_expr_temp')
         else:
             self.expression.print(output)
         output.print(".length")
@@ -44,7 +44,7 @@ def print_getitem(self, output, skip_expression):  # AST_Sub
         output.print(')')
 
 def print_rich_getitem(self, output):  # AST_ItemAccess
-    func = '_$rapyd$_' + ('setitem' if self.assignment else 'getitem')
+    func = 'ρσ_' + ('setitem' if self.assignment else 'getitem')
     output.print(func + '(')
     self.expression.print(output), output.comma(), self.property.print(output)
     if self.assignment:
@@ -84,7 +84,7 @@ def print_unary_postfix(self, output):
 def write_instanceof(left, right, output):
 
     def do_many(vals):
-        output.print('_$rapyd$_instanceof.apply(null,'), output.space()
+        output.print('ρσ_instanceof.apply(null,'), output.space()
         output.print('['), left.print(output), output.comma()
         for v'var i = 0; i < vals.length; i++':
             vals[i].print(output)
@@ -97,7 +97,7 @@ def write_instanceof(left, right, output):
     elif isinstance(right, AST_Array):
         do_many(right.elements)
     else:
-        output.print('_$rapyd$_instanceof(')
+        output.print('ρσ_instanceof(')
         left.print(output), output.comma(), right.print(output), output.print(')')
 
 def write_smart_equality(self, output):
@@ -106,14 +106,14 @@ def write_smart_equality(self, output):
     if is_ok(self.left) and is_ok(self.right):
         if self.operator is '==':
             output.print('(')
-            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', '_$rapyd$_equals(')
+            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', 'ρσ_equals(')
             self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
         else:
             output.print('(')
-            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', '_$rapyd$_not_equals(')
+            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', 'ρσ_not_equals(')
             self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
     else:
-        output.print('_$rapyd$_' + ('equals(' if self.operator is '==' else 'not_equals('))
+        output.print('ρσ_' + ('equals(' if self.operator is '==' else 'not_equals('))
         self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')')
 
 def print_binary_op(self, output):
@@ -126,7 +126,7 @@ def print_binary_op(self, output):
         "!=": True
     }
     function_ops = {
-        "in": "_$rapyd$_in",
+        "in": "ρσ_in",
         "**": "Math.pow"
     }
 
@@ -151,9 +151,9 @@ def print_binary_op(self, output):
             output.space()
             output.with_parens(def():
                 nonlocal leftvar
-                output.assign("_$rapyd$_cond_temp")
+                output.assign("ρσ_cond_temp")
                 self.left.right.print(output)
-                leftvar = "_$rapyd$_cond_temp"
+                leftvar = "ρσ_cond_temp"
             )
 
         output.space()
@@ -190,14 +190,14 @@ def print_assignment(self, output):
     if isinstance(left, AST_Array):
         flat = left.flatten()
         flattened = flat.length > left.elements.length
-        output.print("_$rapyd$_unpack")
+        output.print("ρσ_unpack")
     else:
         left.print(output)
     output.space()
     output.print(self.operator)
     output.space()
     if flattened:
-        output.print('_$rapyd$_flatten')
+        output.print('ρσ_flatten')
         output.with_parens(def():self.right.print(output);)
     else:
         self.right.print(output)
@@ -220,7 +220,7 @@ def print_assign(self, output):
         return
     if self.operator is '=' and self.is_chained():
         left_hand_sides, rhs = self.traverse_chain()
-        temp_rhs = new AST_SymbolRef({'name':'_$rapyd$_chain_assign_temp'})
+        temp_rhs = new AST_SymbolRef({'name':'ρσ_chain_assign_temp'})
         print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
         output.end_statement(), output.indent()
         for lhs in left_hand_sides:

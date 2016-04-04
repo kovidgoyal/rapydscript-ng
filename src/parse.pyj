@@ -296,7 +296,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 lhs = new AST_Array({'elements':lhs.to_array()})
             if isinstance(lhs, AST_Array):
                 # assignment to an implicit tuple
-                push("_$rapyd$_unpack")
+                push("ρσ_unpack")
                 scan_in_array(lhs.elements)
             elif lhs.name:
                 # assignment to a single variable
@@ -305,7 +305,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         def add_for_in(stmt):
             if isinstance(stmt.init, AST_Array):
                 # iteration via implicit tuple
-                push("_$rapyd$_unpack")
+                push("ρσ_unpack")
                 scan_in_array(stmt.init.elements)
             else:
                 # iteration via a single variable
@@ -334,7 +334,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 elif isinstance(stmt, AST_DWLoop):
                     extend(scan_for_local_vars(stmt))
                 elif isinstance(stmt, AST_With):
-                    push('_$rapyd$_with_exception'), push('_$rapyd$_with_suppress')
+                    push('ρσ_with_exception'), push('ρσ_with_suppress')
                     for clause in stmt.clauses:
                         if clause.alias:
                             push(clause.alias.name)
@@ -350,7 +350,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if body.is_chained():
                 for lhs in body.traverse_chain()[0]:
                     add_assign_lhs(lhs)
-                push('_$rapyd$_chain_assign_temp')
+                push('ρσ_chain_assign_temp')
             else:
                 add_assign_lhs(body.left)
             if not isinstance(body.right, AST_Scope):
@@ -513,7 +513,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if S.token.nlb:
                     return new AST_Throw({
                         'value': new AST_SymbolCatch({
-                            'name': "_$rapyd$_Exception"
+                            'name': "ρσ_Exception"
                         })
                     })
 
@@ -611,7 +611,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             # standardize AST_Seq into array now for consistency
             if isinstance(init, AST_Seq):
                 if isinstance(init.car, AST_SymbolRef) and isinstance(init.cdr, AST_SymbolRef):
-                    # Optimization to prevent runtime call to _$rapyd$_flatten when init is simply (a, b)
+                    # Optimization to prevent runtime call to ρσ_flatten when init is simply (a, b)
                     tmp = init.to_array()
                 else:
                     tmp = [init]
@@ -1717,7 +1717,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return subscripts(new AST_Call({
                         'start': start,
                         'expression': new AST_SymbolRef({
-                            'name': "_$rapyd$_eslice"
+                            'name': "ρσ_eslice"
                         }),
                         'args': [expr].concat(slice_bounds),
                         'end': prev()

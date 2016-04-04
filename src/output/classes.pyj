@@ -58,7 +58,7 @@ def print_class(output):
 
         output.with_block(def():
             output.indent()
-            output.spaced('if', '(this._$rapyd$_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"_$rapyd$_object_id",', '{"value":++_$rapyd$_object_counter})')
+            output.spaced('if', '(this.ρσ_object_id', '===', 'undefined)', 'Object.defineProperty(this,', '"ρσ_object_id",', '{"value":++ρσ_object_counter})')
             output.end_statement()
             if self.bound.length:
                 output.indent()
@@ -83,7 +83,7 @@ def print_class(output):
     # inheritance
     if self.parent:
         output.indent()
-        output.print("_$rapyd$_extends")
+        output.print("ρσ_extends")
         output.with_parens(def():
             self.name.print(output)
             output.comma()
@@ -171,7 +171,7 @@ def print_class(output):
                     output.indent(), self.name.print(output), output.assign(attr)
                     self.name.print(output), output.print('.prototype.__init__' + attr), output.end_statement()
             if sname is '__iter__':
-                class_def('_$rapyd$_iterator_symbol', True)
+                class_def('ρσ_iterator_symbol', True)
                 self.name.print(output)
                 output.print('.prototype.' + stmt.name.name)
                 output.end_statement()
@@ -184,7 +184,7 @@ def print_class(output):
         define_default_method('__repr__', def():
             output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', '"')
             self.name.print(output)
-            output.spaced('"', '+', '" #"', '+', 'this._$rapyd$_object_id', '+', '">"')
+            output.spaced('"', '+', '" #"', '+', 'this.ρσ_object_id', '+', '">"')
             output.end_statement()
         )
 
@@ -206,7 +206,7 @@ def print_class(output):
 
     if self.bases.length > 1:
         output.indent()
-        output.print("_$rapyd$_mixin(")
+        output.print("ρσ_mixin(")
         self.name.print(output)
         for v'var i = 1; i < self.bases.length; i++':
             output.comma()

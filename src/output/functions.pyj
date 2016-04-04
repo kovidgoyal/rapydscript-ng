@@ -6,7 +6,7 @@ from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef
 from output.stream import OutputStream
 from output.statements import print_bracketed
 
-anonfunc = '_$rapyd$_anonfunc'
+anonfunc = 'ρσ_anonfunc'
 
 # Function definition {{{
 
@@ -53,23 +53,23 @@ def function_preamble(node, output, offset):
             if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
                 output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
                                 '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                kw, '[_$rapyd$_kwargs_symbol]', '===', 'true))', '?', '')
+                                kw, '[ρσ_kwargs_symbol]', '===', 'true))', '?', '')
                 output.print(fname + '.__defaults__.'), arg.print(output)
                 output.space(), output.print(':'), output.space()
             else:
                 output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
+                                kw, '[ρσ_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
             output.print('arguments[' + i + ']')
             output.end_statement()
     if a.kwargs or a.has_defaults:
         # Look for an options object
-        kw = (a.kwargs) ? a.kwargs.name : '_$rapyd$_kwargs_obj'
+        kw = (a.kwargs) ? a.kwargs.name : 'ρσ_kwargs_obj'
         output.indent()
         output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
         output.end_statement()
         # Ensure kwargs is the options object
         output.indent()
-        output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[_$rapyd$_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
+        output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[ρσ_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
         output.end_statement()
         # Read values from the kwargs object for any formal parameters
         if a.has_defaults:
@@ -95,7 +95,7 @@ def function_preamble(node, output, offset):
         output.end_statement()
         # Remove the options object, if present
         output.indent()
-        output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[_$rapyd$_kwargs_symbol]', '===', 'true)', a.starargs.name)
+        output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[ρσ_kwargs_symbol]', '===', 'true)', a.starargs.name)
         output.print('.pop()')
         output.end_statement()
 
@@ -200,7 +200,7 @@ def function_definition(self, output, strip_first, as_expression):
                 temp.print('function* js_generator')
                 function_args(self.argnames, temp, strip_first)
                 print_bracketed(self, temp, True, function_preamble)
-                transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, '_$rapyd$_regenerator.regeneratorRuntime.$1')
+                transpiled = regenerate(temp.get(), output.options.beautify).replace(/regeneratorRuntime.(wrap|mark)/g, 'ρσ_regenerator.regeneratorRuntime.$1')
                 if output.options.beautify:
                     ci = output.make_indent(0)
                     transpiled = [ci + x for x in transpiled.split('\n')].join('\n')
@@ -275,14 +275,14 @@ def print_function_call(self, output):
                     output.print(".call")
         else:
             if not is_repeatable:
-                output.print('_$rapyd$_expr_temp')
+                output.print('ρσ_expr_temp')
                 if isinstance(self.expression, AST_Dot):
                     self.expression._codegen(self.expression, output, True)
             else:
                 self.expression.print(output)
 
     def print_kwargs():
-        output.print('_$rapyd$_desugar_kwargs(')
+        output.print('ρσ_desugar_kwargs(')
         if has_kwarg_items:
             self.args.kwarg_items.forEach(def(kwname, i):
                 if i > 0:
@@ -307,7 +307,7 @@ def print_function_call(self, output):
         output.print(')')
 
     def print_new(apply):
-        output.print('_$rapyd$_interpolate_kwargs_constructor.call(')
+        output.print('ρσ_interpolate_kwargs_constructor.call(')
         output.print('Object.create('), self.expression.print(output), output.print('.prototype)')
         output.comma()
         output.print('true' if apply else 'false')
@@ -315,7 +315,7 @@ def print_function_call(self, output):
 
     def do_print_this():
         if not is_repeatable:
-            output.print('_$rapyd$_expr_temp')
+            output.print('ρσ_expr_temp')
         else:
             print_this(self.expression, output)
         output.comma()
@@ -370,13 +370,13 @@ def print_function_call(self, output):
 
     is_repeatable = is_new or not has_calls(self.expression)
     if not is_repeatable:
-        output.assign('(_$rapyd$_expr_temp'), print_this(self.expression, output), output.comma()
+        output.assign('(ρσ_expr_temp'), print_this(self.expression, output), output.comma()
 
     if has_kwargs:
         if is_new:
             print_new(False)
         else:
-            output.print('_$rapyd$_interpolate_kwargs.call(')
+            output.print('ρσ_interpolate_kwargs.call(')
             do_print_this()
         print_function_name(True)
         output.comma()

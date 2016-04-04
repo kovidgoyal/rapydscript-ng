@@ -2,12 +2,12 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: exports, console, _$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike, _$rapyd$_list_contains
+# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains
 
-def _$rapyd$_bool(val):
+def ρσ_bool(val):
     return v'!!val'
 
-def _$rapyd$_eslice(arr, step, start, end):
+def ρσ_eslice(arr, step, start, end):
     arr = arr[:]
     if type(arr) is 'string' or isinstance(arr, String):
         isString = True
@@ -24,26 +24,26 @@ def _$rapyd$_eslice(arr, step, start, end):
     arr = arr.slice(start, end).filter(def(e, i): return i % step is 0;)
     return isString ? arr.join('') : arr
 
-def _$rapyd$_print():
+def ρσ_print():
     if v'typeof console' is 'object':
         parts = v'[]'
         for v'var i = 0; i < arguments.length; i++':
-            parts.push(_$rapyd$_str(arguments[i]))  # noqa: undef
+            parts.push(ρσ_str(arguments[i]))  # noqa: undef
         console.log(parts.join(' '))
 
-def _$rapyd$_int(val, base):
+def ρσ_int(val, base):
     ans = parseInt(val, base or 10)
     if isNaN(ans):
         raise ValueError('Invalid literal for int with base ' + (base or 10) + ': ' + val)
     return ans
 
-def _$rapyd$_float():
+def ρσ_float():
     ans = parseFloat.apply(None, arguments)
     if isNaN(ans):
         raise ValueError('Could not convert string to float: ' + arguments[0])
     return ans
 
-def _$rapyd$_arraylike_creator():
+def ρσ_arraylike_creator():
     names = 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.split(' ')
     if type(HTMLCollection) is 'function':
         names = names.concat('HTMLCollection NodeList NamedNodeMap'.split(' '))
@@ -55,13 +55,13 @@ def _$rapyd$_arraylike_creator():
 def options_object(f):
     return def():
         if v'typeof arguments[arguments.length - 1] === "object"':
-            arguments[arguments.length - 1][_$rapyd$_kwargs_symbol] = True
+            arguments[arguments.length - 1][ρσ_kwargs_symbol] = True
         return f.apply(this, arguments)
 
-def _$rapyd$_id(x):
-    return x._$rapyd$_object_id
+def ρσ_id(x):
+    return x.ρσ_object_id
 
-def _$rapyd$_dir(item):
+def ρσ_dir(item):
     # TODO: this isn't really representative of real Python's dir(), nor is it
     # an intuitive replacement for "for ... in" loop, need to update this logic
     # and introduce a different way of achieving "for ... in"
@@ -69,7 +69,7 @@ def _$rapyd$_dir(item):
     for v'var i in item': arr.push(i)  # noqa:undef
     return arr
 
-def _$rapyd$_ord(x):
+def ρσ_ord(x):
     ans = x.charCodeAt(0)
     if 0xD800 <= ans <= 0xDBFF:
         second = x.charCodeAt(1)
@@ -78,16 +78,16 @@ def _$rapyd$_ord(x):
         raise TypeError('string is missing the low surrogate char')
     return ans
 
-def _$rapyd$_chr(code):
+def ρσ_chr(code):
     if code <= 0xFFFF:
         return String.fromCharCode(code)
     code -= 0x10000
     return String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
 
-def _$rapyd$_callable(x):
+def ρσ_callable(x):
     return v'typeof x === "function"'
 
-def _$rapyd$_bin(x):
+def ρσ_bin(x):
     if type(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(2)
@@ -97,7 +97,7 @@ def _$rapyd$_bin(x):
         ans = '0b' + ans
     return ans
 
-def _$rapyd$_hex(x):
+def ρσ_hex(x):
     if type(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(16)
@@ -107,8 +107,8 @@ def _$rapyd$_hex(x):
         ans = '0x' + ans
     return ans
 
-def _$rapyd$_enumerate(iterable):
-    if _$rapyd$_arraylike(iterable):
+def ρσ_enumerate(iterable):
+    if ρσ_arraylike(iterable):
         ans = {
             '_i': -1,
             'next':def():
@@ -117,11 +117,11 @@ def _$rapyd$_enumerate(iterable):
                     return {'done':False, 'value':[this._i, iterable[this._i]]}
                 return {'done':True}
         }
-        ans[_$rapyd$_iterator_symbol] = def():
+        ans[ρσ_iterator_symbol] = def():
             return this
         return ans
-    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
-        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    if type(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
         ans = {
             '_iterator':iterator,
             '_i': -1,
@@ -132,13 +132,13 @@ def _$rapyd$_enumerate(iterable):
                 this._i += 1
                 return {'done':False, 'value':[this._i, r.value]}
         }
-        ans[_$rapyd$_iterator_symbol] = def():
+        ans[ρσ_iterator_symbol] = def():
             return this
         return ans
-    return _$rapyd$_enumerate(Object.keys(iterable))
+    return ρσ_enumerate(Object.keys(iterable))
 
-def _$rapyd$_reversed(iterable):
-    if _$rapyd$_arraylike(iterable):
+def ρσ_reversed(iterable):
+    if ρσ_arraylike(iterable):
         ans = {
             '_i': iterable.length,
             'next':def():
@@ -147,16 +147,16 @@ def _$rapyd$_reversed(iterable):
                     return {'done':False, 'value':iterable[this._i]}
                 return {'done':True}
         }
-        ans[_$rapyd$_iterator_symbol] = def():
+        ans[ρσ_iterator_symbol] = def():
             return this
         return ans
     raise TypeError('reversed() can only be called on arrays or strings')
 
-def _$rapyd$_iter(iterable):
+def ρσ_iter(iterable):
     # Generate a JavaScript iterator object from iterable
-    if type(iterable[_$rapyd$_iterator_symbol]) is 'function':
-        return (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
-    if _$rapyd$_arraylike(iterable):
+    if type(iterable[ρσ_iterator_symbol]) is 'function':
+        return (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
+    if ρσ_arraylike(iterable):
         ans = {
             '_i': -1,
             'next':def():
@@ -165,19 +165,19 @@ def _$rapyd$_iter(iterable):
                     return {'done':False, 'value':iterable[this._i]}
                 return {'done':True}
         }
-        ans[_$rapyd$_iterator_symbol] = def():
+        ans[ρσ_iterator_symbol] = def():
             return this
         return ans
-    return _$rapyd$_iter(Object.keys(iterable))
+    return ρσ_iter(Object.keys(iterable))
 
-def _$rapyd$_range(start, stop, step):
+def ρσ_range(start, stop, step):
     if arguments.length <= 1:
         stop = start or 0
         start = 0
     step = arguments[2] or 1
     length = Math.max(Math.ceil((stop - start) / step), 0)
     return {
-        _$rapyd$_iterator_symbol: def(): return this;,
+        ρσ_iterator_symbol: def(): return this;,
         '_i': start - step,
         '_idx': -1,
         'next': def():
@@ -189,7 +189,7 @@ def _$rapyd$_range(start, stop, step):
         ,
     }
 
-def _$rapyd$_getattr(obj, name, defval):
+def ρσ_getattr(obj, name, defval):
     try:
         ret = obj[name]
     except TypeError:
@@ -202,22 +202,22 @@ def _$rapyd$_getattr(obj, name, defval):
         ret = defval
     return ret
 
-def _$rapyd$_setattr(obj, name, value):
+def ρσ_setattr(obj, name, value):
     obj[name] = value
 
-def _$rapyd$_hasattr(obj, name):
+def ρσ_hasattr(obj, name):
     return v'name in obj'
 
-_$rapyd$_len = (def ():
+ρσ_len = (def ():
 
     def len(obj):
-        if _$rapyd$_arraylike(obj): return obj.length
+        if ρσ_arraylike(obj): return obj.length
         if type(obj.__len__) is 'function': return obj.__len__()
         if v'obj instanceof Set' or v'obj instanceof Map': return obj.size
         return Object.keys(obj).length
 
     def len5(obj):
-        if _$rapyd$_arraylike(obj): return obj.length
+        if ρσ_arraylike(obj): return obj.length
         if type(obj.__len__) is 'function': return obj.__len__()
         return Object.keys(obj).length
 
@@ -225,9 +225,9 @@ _$rapyd$_len = (def ():
 )()
 
 
-v'var abs = Math.abs, max = Math.max, min = Math.min, bool = _$rapyd$_bool'
-v'var float = _$rapyd$_float, int = _$rapyd$_int, arraylike = _$rapyd$_arraylike_creator(), _$rapyd$_arraylike = arraylike'
-v'var print = _$rapyd$_print, eslice = _$rapyd$_eslice, id = _$rapyd$_id'
-v'var dir = _$rapyd$_dir, ord = _$rapyd$_ord, chr = _$rapyd$_chr, bin = _$rapyd$_bin, hex = _$rapyd$_hex, callable = _$rapyd$_callable'
-v'var enumerate = _$rapyd$_enumerate, iter = _$rapyd$_iter, reversed = _$rapyd$_reversed, len = _$rapyd$_len'
-v'var range = _$rapyd$_range, getattr = _$rapyd$_getattr, setattr = _$rapyd$_setattr, hasattr = _$rapyd$_hasattr'
+v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool'
+v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
+v'var print = ρσ_print, eslice = ρσ_eslice, id = ρσ_id'
+v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'
+v'var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len'
+v'var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr'

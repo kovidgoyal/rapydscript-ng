@@ -2,16 +2,16 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals:_$rapyd$_iterator_symbol, _$rapyd$_kwargs_symbol, _$rapyd$_arraylike
+# globals:ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike
 
-def _$rapyd$_equals(a, b):
+def ρσ_equals(a, b):
     if a is b:
         return True
     if a and type(a.__eq__) is 'function':
         return a.__eq__(b)
     if b and type(b.__eq__) is 'function':
         return b.__eq__(a)
-    if _$rapyd$_arraylike(a) and _$rapyd$_arraylike(b):
+    if ρσ_arraylike(a) and ρσ_arraylike(b):
         if a.length != b.length:
             return False
         for v'var i=0; i < a.length; i++':
@@ -30,20 +30,20 @@ def _$rapyd$_equals(a, b):
         return True
     return False
 
-def _$rapyd$_not_equals(a, b):
+def ρσ_not_equals(a, b):
     if a is b:
         return False
     if a and type(a.__ne__) is 'function':
         return a.__ne__(b)
     if b and type(b.__ne__) is 'function':
         return b.__ne__(a)
-    return not _$rapyd$_equals(a, b)
+    return not ρσ_equals(a, b)
 
-v'var equals = _$rapyd$_equals'
+v'var equals = ρσ_equals'
 
 # list {{{
 
-def _$rapyd$_list_extend(iterable):
+def ρσ_list_extend(iterable):
     if Array.isArray(iterable) or type(iterable) is 'string':
         # Allocate all new memory in one operation
         start = this.length
@@ -51,13 +51,13 @@ def _$rapyd$_list_extend(iterable):
         for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
-        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             this.push(result.value)
             result = iterator.next()
 
-def _$rapyd$_list_index(val, start, stop):
+def ρσ_list_index(val, start, stop):
     start = start or 0
     if start < 0:
         start = this.length + start
@@ -75,7 +75,7 @@ def _$rapyd$_list_index(val, start, stop):
             return i  # noqa:undef
     raise ValueError(val + ' is not in list')
 
-def _$rapyd$_list_pop(index):
+def ρσ_list_pop(index):
     if this.length is 0:
         raise IndexError('list is empty')
     ans = this.splice(index, 1)
@@ -83,16 +83,16 @@ def _$rapyd$_list_pop(index):
         raise IndexError('pop index out of range')
     return ans[0]
 
-def _$rapyd$_list_remove(value):
+def ρσ_list_remove(value):
     idx = this.indexOf(value)
     if idx is -1:
         raise ValueError(value + ' not in list')
     this.splice(idx, 1)
 
-def _$rapyd$_list_to_string():
+def ρσ_list_to_string():
     return '[' + this.join(', ') + ']'
 
-def _$rapyd$_list_insert(index, val):
+def ρσ_list_insert(index, val):
     if index < 0:
         index += this.length
     index = min(this.length, max(index, 0))
@@ -103,51 +103,51 @@ def _$rapyd$_list_insert(index, val):
         this[i] = this[i - 1]  # noqa:undef
     this[index] = val
 
-def _$rapyd$_list_copy():
-    return _$rapyd$_list_constructor(this)
+def ρσ_list_copy():
+    return ρσ_list_constructor(this)
 
-def _$rapyd$_list_clear():
+def ρσ_list_clear():
     this.length = 0
 
-def _$rapyd$_list_as_array():
+def ρσ_list_as_array():
     return Array.prototype.slice.call(this)
 
-def _$rapyd$_list_count(value):
+def ρσ_list_count(value):
     return this.reduce(def(n, val): return n + (val is value);, 0)
 
-def _$rapyd$_list_sort_key(value):
+def ρσ_list_sort_key(value):
     t = type(value)
     if t is 'string' or t is 'number':
         return value
     return value.toString()
 
-def _$rapyd$_list_sort_cmp(a, b):
+def ρσ_list_sort_cmp(a, b):
     if a < b:
         return -1
     if a > b:
         return 1
     return 0
 
-def _$rapyd$_list_sort(key, reverse):
-    key = key or _$rapyd$_list_sort_key
+def ρσ_list_sort(key, reverse):
+    key = key or ρσ_list_sort_key
     mult = -1 if reverse else 1
     keymap = dict()
     for v'var i=0; i < this.length; i++':
         k = this[i]  # noqa:undef
         keymap.set(k, key(k))
-    this.sort(def (a, b): return mult * _$rapyd$_list_sort_cmp(keymap.get(a), keymap.get(b));)
+    this.sort(def (a, b): return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b));)
 
-def _$rapyd$_list_concat():  # ensure concat() returns an object of type list
+def ρσ_list_concat():  # ensure concat() returns an object of type list
     ans = Array.prototype.concat.apply(this, arguments)
-    _$rapyd$_list_decorate(ans)
+    ρσ_list_decorate(ans)
     return ans
 
-def _$rapyd$_list_slice():  # ensure slice() returns an object of type list
+def ρσ_list_slice():  # ensure slice() returns an object of type list
     ans = Array.prototype.slice.apply(this, arguments)
-    _$rapyd$_list_decorate(ans)
+    ρσ_list_decorate(ans)
     return ans
 
-def _$rapyd$_list_iterator(value):
+def ρσ_list_iterator(value):
     self = this
     return {
         '_i':-1,
@@ -160,17 +160,17 @@ def _$rapyd$_list_iterator(value):
         ,
     }
 
-def _$rapyd$_list_len():
+def ρσ_list_len():
     return this.length
 
-def _$rapyd$_list_contains(val):
+def ρσ_list_contains(val):
     for v'var i = 0; i < this.length; i++':
         if this[i] == val:
             return True
     return False
 
-def _$rapyd$_list_eq(other):
-    if not _$rapyd$_arraylike(other):
+def ρσ_list_eq(other):
+    if not ρσ_arraylike(other):
         return False
     if this.length != other.length:
         return False
@@ -179,40 +179,40 @@ def _$rapyd$_list_eq(other):
             return False
     return True
 
-def _$rapyd$_list_decorate(ans):
+def ρσ_list_decorate(ans):
     ans.append = Array.prototype.push
-    ans.toString = _$rapyd$_list_to_string
-    ans.inspect = _$rapyd$_list_to_string
-    ans.extend = _$rapyd$_list_extend
-    ans.index = _$rapyd$_list_index
-    ans.pypop = _$rapyd$_list_pop
-    ans.remove = _$rapyd$_list_remove
-    ans.insert = _$rapyd$_list_insert
-    ans.copy = _$rapyd$_list_copy
-    ans.clear = _$rapyd$_list_clear
-    ans.count = _$rapyd$_list_count
-    ans.concat = _$rapyd$_list_concat
-    ans.pysort = _$rapyd$_list_sort
-    ans.slice = _$rapyd$_list_slice
-    ans.as_array = _$rapyd$_list_as_array
-    ans.__len__ = _$rapyd$_list_len
-    ans.__contains__ = _$rapyd$_list_contains
-    ans.__eq__ = _$rapyd$_list_eq
-    ans.constructor = _$rapyd$_list_constructor
-    if type(ans[_$rapyd$_iterator_symbol]) is not 'function':
+    ans.toString = ρσ_list_to_string
+    ans.inspect = ρσ_list_to_string
+    ans.extend = ρσ_list_extend
+    ans.index = ρσ_list_index
+    ans.pypop = ρσ_list_pop
+    ans.remove = ρσ_list_remove
+    ans.insert = ρσ_list_insert
+    ans.copy = ρσ_list_copy
+    ans.clear = ρσ_list_clear
+    ans.count = ρσ_list_count
+    ans.concat = ρσ_list_concat
+    ans.pysort = ρσ_list_sort
+    ans.slice = ρσ_list_slice
+    ans.as_array = ρσ_list_as_array
+    ans.__len__ = ρσ_list_len
+    ans.__contains__ = ρσ_list_contains
+    ans.__eq__ = ρσ_list_eq
+    ans.constructor = ρσ_list_constructor
+    if type(ans[ρσ_iterator_symbol]) is not 'function':
         # Happens on ES 5 runtimes
-        ans[_$rapyd$_iterator_symbol] = _$rapyd$_list_iterator
+        ans[ρσ_iterator_symbol] = ρσ_list_iterator
     return ans
 
-def _$rapyd$_list_constructor(iterable):
+def ρσ_list_constructor(iterable):
     if iterable is undefined:
         ans = v'[]'
-    elif _$rapyd$_arraylike(iterable):
+    elif ρσ_arraylike(iterable):
         ans = new Array(iterable.length)
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
-    elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
-        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+    elif type(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
@@ -223,66 +223,66 @@ def _$rapyd$_list_constructor(iterable):
         ans = new Array(iterable)
     else:
         ans = Object.keys(iterable)
-    return _$rapyd$_list_decorate(ans)
-_$rapyd$_list_constructor.__name__ = 'list'
+    return ρσ_list_decorate(ans)
+ρσ_list_constructor.__name__ = 'list'
 
-v'var list = _$rapyd$_list_constructor, list_wrap = _$rapyd$_list_decorate'
+v'var list = ρσ_list_constructor, list_wrap = ρσ_list_decorate'
 
 def sorted(iterable, key=None, reverse=False):
-    ans = _$rapyd$_list_constructor(iterable)
+    ans = ρσ_list_constructor(iterable)
     ans.pysort(key, reverse)
     return ans
 # }}}
 
 # set {{{
-v'var _$rapyd$_global_object_id = 0, _$rapyd$_set_implementation'
+v'var ρσ_global_object_id = 0, ρσ_set_implementation'
 
-def _$rapyd$_set_keyfor(x):
+def ρσ_set_keyfor(x):
     t = type(x)
     if t is 'string' or t is 'number' or t is 'boolean':
         return '_' + t[0] + x
     if v'x === null': # also matches undefined
         return "__!@#$0"
-    ans = x._$rapyd$_hash_key_prop
+    ans = x.ρσ_hash_key_prop
     if ans is undefined:
-        v'ans = "_!@#$" + (++_$rapyd$_global_object_id)'
-        Object.defineProperty(x, '_$rapyd$_hash_key_prop', { 'value': ans })
+        v'ans = "_!@#$" + (++ρσ_global_object_id)'
+        Object.defineProperty(x, 'ρσ_hash_key_prop', { 'value': ans })
     return ans
 
-def _$rapyd$_set_polyfill():
+def ρσ_set_polyfill():
     this._store = {}
     this.size = 0
 
-_$rapyd$_set_polyfill.prototype.add = def(x):
-    key = _$rapyd$_set_keyfor(x)
+ρσ_set_polyfill.prototype.add = def(x):
+    key = ρσ_set_keyfor(x)
     if not Object.hasOwnProperty.call(this._store, key):
         this.size += 1
         this._store[key] = x
     return this
 
-_$rapyd$_set_polyfill.prototype.clear = def(x):
+ρσ_set_polyfill.prototype.clear = def(x):
     this._store = {}
     this.size = 0
 
-_$rapyd$_set_polyfill.prototype.delete = def(x):
-    key = _$rapyd$_set_keyfor(x)
+ρσ_set_polyfill.prototype.delete = def(x):
+    key = ρσ_set_keyfor(x)
     if Object.hasOwnProperty.call(this._store, key):
         this.size -= 1
         v'delete this._store[key]'
         return True
     return False
 
-_$rapyd$_set_polyfill.prototype.has = def(x):
-    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x))
+ρσ_set_polyfill.prototype.has = def(x):
+    return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
-_$rapyd$_set_polyfill.prototype.values = def(x):
+ρσ_set_polyfill.prototype.values = def(x):
     keys = Object.keys(this._store)
     s = this._store
     return {
         '_keys': keys,
         '_i': -1,
         '_s':s,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
         'next':def():
             this._i += 1
             if this._i >= this._keys.length:
@@ -291,22 +291,22 @@ _$rapyd$_set_polyfill.prototype.values = def(x):
     }
 
 if type(Set) is not 'function' or type(Set.prototype.delete) is not 'function':
-    v'_$rapyd$_set_implementation = _$rapyd$_set_polyfill'
+    v'ρσ_set_implementation = ρσ_set_polyfill'
 else:
-    v'_$rapyd$_set_implementation = Set'
+    v'ρσ_set_implementation = Set'
 
-def _$rapyd$_set(iterable):
-    if isinstance(this, _$rapyd$_set):
-        this.jsset = new _$rapyd$_set_implementation()  # noqa:undef
+def ρσ_set(iterable):
+    if isinstance(this, ρσ_set):
+        this.jsset = new ρσ_set_implementation()  # noqa:undef
         ans = this
         if iterable is undefined:
             return ans
         s = ans.jsset
-        if _$rapyd$_arraylike(iterable):
+        if ρσ_arraylike(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])
-        elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
-            iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[_$rapyd$_iterator_symbol]()
+        elif type(iterable[ρσ_iterator_symbol]) is 'function':
+            iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -317,25 +317,25 @@ def _$rapyd$_set(iterable):
                 s.add(keys[j])
         return ans
     else:
-        return new _$rapyd$_set(iterable)
-_$rapyd$_set.prototype.__name__ = 'set'
+        return new ρσ_set(iterable)
+ρσ_set.prototype.__name__ = 'set'
 
 # These are for JavaScript users' convenience
-Object.defineProperties(_$rapyd$_set.prototype, {
+Object.defineProperties(ρσ_set.prototype, {
     'length': { 'get': def(): return this.jsset.size; },
     'size': { 'get': def(): return this.jsset.size; },
 })
 
-_$rapyd$_set.prototype.__len__ = def(): return this.jsset.size
-_$rapyd$_set.prototype.has = _$rapyd$_set.prototype.__contains__ = def(x): return this.jsset.has(x)
-_$rapyd$_set.prototype.add = def(x): this.jsset.add(x)
-_$rapyd$_set.prototype.clear = def(): this.jsset.clear()
-_$rapyd$_set.prototype.copy = def(): return _$rapyd$_set(this)
-_$rapyd$_set.prototype.discard = def(x): this.jsset.delete(x)
-_$rapyd$_set.prototype[_$rapyd$_iterator_symbol] = def(): return this.jsset.values()
+ρσ_set.prototype.__len__ = def(): return this.jsset.size
+ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = def(x): return this.jsset.has(x)
+ρσ_set.prototype.add = def(x): this.jsset.add(x)
+ρσ_set.prototype.clear = def(): this.jsset.clear()
+ρσ_set.prototype.copy = def(): return ρσ_set(this)
+ρσ_set.prototype.discard = def(x): this.jsset.delete(x)
+ρσ_set.prototype[ρσ_iterator_symbol] = def(): return this.jsset.values()
 
-_$rapyd$_set.prototype.difference = def():
-    ans = new _$rapyd$_set()
+ρσ_set.prototype.difference = def():
+    ans = new ρσ_set()
     s = ans.jsset
     iterator = this.jsset.values()
     r = iterator.next()
@@ -351,7 +351,7 @@ _$rapyd$_set.prototype.difference = def():
         r = iterator.next()
     return ans
 
-_$rapyd$_set.prototype.difference_update = def():
+ρσ_set.prototype.difference_update = def():
     s = this.jsset
     remove = v'[]'
     iterator = s.values()
@@ -366,8 +366,8 @@ _$rapyd$_set.prototype.difference_update = def():
     for v'var j = 0; j < remove.length; j++':
         s.delete(remove[j])  # noqa:undef
 
-_$rapyd$_set.prototype.intersection = def():
-    ans = new _$rapyd$_set()
+ρσ_set.prototype.intersection = def():
+    ans = new ρσ_set()
     s = ans.jsset
     iterator = this.jsset.values()
     r = iterator.next()
@@ -383,7 +383,7 @@ _$rapyd$_set.prototype.intersection = def():
         r = iterator.next()
     return ans
 
-_$rapyd$_set.prototype.intersection_update = def():
+ρσ_set.prototype.intersection_update = def():
     s = this.jsset
     remove = v'[]'
     iterator = s.values()
@@ -398,7 +398,7 @@ _$rapyd$_set.prototype.intersection_update = def():
     for v'var j = 0; j < remove.length; j++':
         s.delete(remove[j])  # noqa:undef
 
-_$rapyd$_set.prototype.isdisjoint = def(other):
+ρσ_set.prototype.isdisjoint = def(other):
     iterator = this.jsset.values()
     r = iterator.next()
     while not r.done:
@@ -408,7 +408,7 @@ _$rapyd$_set.prototype.isdisjoint = def(other):
         r = iterator.next()
     return True
 
-_$rapyd$_set.prototype.issubset = def(other):
+ρσ_set.prototype.issubset = def(other):
     iterator = this.jsset.values()
     r = iterator.next()
     while not r.done:
@@ -418,7 +418,7 @@ _$rapyd$_set.prototype.issubset = def(other):
         r = iterator.next()
     return True
 
-_$rapyd$_set.prototype.issuperset = def(other):
+ρσ_set.prototype.issuperset = def(other):
     s = this.jsset
     iterator = other.jsset.values()
     r = iterator.next()
@@ -429,7 +429,7 @@ _$rapyd$_set.prototype.issuperset = def(other):
         r = iterator.next()
     return True
 
-_$rapyd$_set.prototype.pop = def():
+ρσ_set.prototype.pop = def():
     iterator = this.jsset.values()
     r = iterator.next()
     if r.done:
@@ -437,43 +437,43 @@ _$rapyd$_set.prototype.pop = def():
     this.jsset.delete(r.value)
     return r.value
 
-_$rapyd$_set.prototype.remove = def(x):
+ρσ_set.prototype.remove = def(x):
     if not this.jsset.delete(x):
         raise KeyError(x.toString())
 
-_$rapyd$_set.prototype.symmetric_difference = def(other):
+ρσ_set.prototype.symmetric_difference = def(other):
     return this.union(other).difference(this.intersection(other))
 
-_$rapyd$_set.prototype.symmetric_difference_update = def(other):
+ρσ_set.prototype.symmetric_difference_update = def(other):
     common = this.intersection(other)
     this.update(other)
     this.difference_update(common)
 
-_$rapyd$_set.prototype.union = def():
-    ans = _$rapyd$_set(this)
+ρσ_set.prototype.union = def():
+    ans = ρσ_set(this)
     ans.update.apply(ans, arguments)
     return ans
 
-_$rapyd$_set.prototype.update = def():
+ρσ_set.prototype.update = def():
     s = this.jsset
     for v'var i=0; i < arguments.length; i++':
-        iterator = arguments[i][_$rapyd$_iterator_symbol]()  # noqa:undef
+        iterator = arguments[i][ρσ_iterator_symbol]()  # noqa:undef
         r = iterator.next()
         while not r.done:
             s.add(r.value)
             r = iterator.next()
 
-_$rapyd$_set.prototype.toString = _$rapyd$_set.prototype.inspect = def():
+ρσ_set.prototype.toString = ρσ_set.prototype.inspect = def():
     return '{' + list(this).join(', ') + '}'
 
-_$rapyd$_set.prototype.__eq__ = def(other):
+ρσ_set.prototype.__eq__ = def(other):
     if not isinstance(other, this.constructor):
         return False
     if other.size is not this.size:
         return False
     if other.size is 0:
         return True
-    iterator = other[_$rapyd$_iterator_symbol]()
+    iterator = other[ρσ_iterator_symbol]()
     r = iterator.next()
     while not r.done:
         if not this.has(r.value):
@@ -481,57 +481,57 @@ _$rapyd$_set.prototype.__eq__ = def(other):
         r = iterator.next()
     return True
 
-def _$rapyd$_set_wrap(x):
-    ans = new _$rapyd$_set()
+def ρσ_set_wrap(x):
+    ans = new ρσ_set()
     ans.jsset = x
     return ans
 
-v'var set = _$rapyd$_set, set_wrap = _$rapyd$_set_wrap'
+v'var set = ρσ_set, set_wrap = ρσ_set_wrap'
 # }}}
 
 # dict {{{
-v'var _$rapyd$_dict_implementation'
+v'var ρσ_dict_implementation'
 
-def _$rapyd$_dict_polyfill():
+def ρσ_dict_polyfill():
     this._store = {}
     this.size = 0
 
-_$rapyd$_dict_polyfill.prototype.set = def(x, value):
-    key = _$rapyd$_set_keyfor(x)
+ρσ_dict_polyfill.prototype.set = def(x, value):
+    key = ρσ_set_keyfor(x)
     if not Object.hasOwnProperty.call(this._store, key):
         this.size += 1
     this._store[key] = v'[x, value]'
     return this
 
-_$rapyd$_dict_polyfill.prototype.clear = def(x):
+ρσ_dict_polyfill.prototype.clear = def(x):
     this._store = {}
     this.size = 0
 
-_$rapyd$_dict_polyfill.prototype.delete = def(x):
-    key = _$rapyd$_set_keyfor(x)
+ρσ_dict_polyfill.prototype.delete = def(x):
+    key = ρσ_set_keyfor(x)
     if Object.hasOwnProperty.call(this._store, key):
         this.size -= 1
         v'delete this._store[key]'
         return True
     return False
 
-_$rapyd$_dict_polyfill.prototype.has = def(x):
-    return Object.hasOwnProperty.call(this._store, _$rapyd$_set_keyfor(x))
+ρσ_dict_polyfill.prototype.has = def(x):
+    return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
-_$rapyd$_dict_polyfill.prototype.get = def(x):
+ρσ_dict_polyfill.prototype.get = def(x):
     try:
-        return this._store[_$rapyd$_set_keyfor(x)][1]
+        return this._store[ρσ_set_keyfor(x)][1]
     except TypeError:  # Key is not present
         return undefined
 
-_$rapyd$_dict_polyfill.prototype.values = def(x):
+ρσ_dict_polyfill.prototype.values = def(x):
     keys = Object.keys(this._store)
     s = this._store
     return {
         '_keys': keys,
         '_i': -1,
         '_s':s,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
         'next':def():
             this._i += 1
             if this._i >= this._keys.length:
@@ -539,14 +539,14 @@ _$rapyd$_dict_polyfill.prototype.values = def(x):
             return {'done':False, 'value':s[this._keys[this._i]][1]}
     }
 
-_$rapyd$_dict_polyfill.prototype.keys = def(x):
+ρσ_dict_polyfill.prototype.keys = def(x):
     keys = Object.keys(this._store)
     s = this._store
     return {
         '_keys': keys,
         '_i': -1,
         '_s':s,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
         'next':def():
             this._i += 1
             if this._i >= this._keys.length:
@@ -554,14 +554,14 @@ _$rapyd$_dict_polyfill.prototype.keys = def(x):
             return {'done':False, 'value':s[this._keys[this._i]][0]}
     }
 
-_$rapyd$_dict_polyfill.prototype.entries = def(x):
+ρσ_dict_polyfill.prototype.entries = def(x):
     keys = Object.keys(this._store)
     s = this._store
     return {
         '_keys': keys,
         '_i': -1,
         '_s':s,
-        _$rapyd$_iterator_symbol: def (): return this;,
+        ρσ_iterator_symbol: def (): return this;,
         'next':def():
             this._i += 1
             if this._i >= this._keys.length:
@@ -570,58 +570,58 @@ _$rapyd$_dict_polyfill.prototype.entries = def(x):
     }
 
 if type(Map) is not 'function' or type(Map.prototype.delete) is not 'function':
-    v'_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill'
+    v'ρσ_dict_implementation = ρσ_dict_polyfill'
 else:
-    v'_$rapyd$_dict_implementation = Map'
+    v'ρσ_dict_implementation = Map'
 
-def _$rapyd$_dict(iterable):
-    if isinstance(this, _$rapyd$_dict):
-        this.jsmap = new _$rapyd$_dict_implementation()  # noqa:undef
+def ρσ_dict(iterable):
+    if isinstance(this, ρσ_dict):
+        this.jsmap = new ρσ_dict_implementation()  # noqa:undef
         if iterable is not undefined:
             this.update(iterable)
         return this
     else:
-        return new _$rapyd$_dict(iterable)
-_$rapyd$_dict.prototype.__name__ = 'dict'
+        return new ρσ_dict(iterable)
+ρσ_dict.prototype.__name__ = 'dict'
 
 
 # These are for JavaScript users' convenience
-Object.defineProperties(_$rapyd$_dict.prototype, {
+Object.defineProperties(ρσ_dict.prototype, {
     'length': { 'get': def(): return this.jsmap.size; },
     'size': { 'get': def(): return this.jsmap.size; },
 })
 
-_$rapyd$_dict.prototype.__len__ = def(): return this.jsmap.size
-_$rapyd$_dict.prototype.has = _$rapyd$_dict.prototype.__contains__ = def(x): return this.jsmap.has(x)
-_$rapyd$_dict.prototype.set = _$rapyd$_dict.prototype.__setitem__ = def(key, value): this.jsmap.set(key, value)
-_$rapyd$_dict.prototype.clear = def(): this.jsmap.clear()
-_$rapyd$_dict.prototype.copy = def(): return _$rapyd$_dict(this)
-_$rapyd$_dict.prototype.keys = def(): return this.jsmap.keys()
-_$rapyd$_dict.prototype.values = def(): return this.jsmap.values()
-_$rapyd$_dict.prototype.items = _$rapyd$_dict.prototype.entries = def(): return this.jsmap.entries()
-_$rapyd$_dict.prototype[_$rapyd$_iterator_symbol] = def(): return this.jsmap.keys()
+ρσ_dict.prototype.__len__ = def(): return this.jsmap.size
+ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def(x): return this.jsmap.has(x)
+ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def(key, value): this.jsmap.set(key, value)
+ρσ_dict.prototype.clear = def(): this.jsmap.clear()
+ρσ_dict.prototype.copy = def(): return ρσ_dict(this)
+ρσ_dict.prototype.keys = def(): return this.jsmap.keys()
+ρσ_dict.prototype.values = def(): return this.jsmap.values()
+ρσ_dict.prototype.items = ρσ_dict.prototype.entries = def(): return this.jsmap.entries()
+ρσ_dict.prototype[ρσ_iterator_symbol] = def(): return this.jsmap.keys()
 
-_$rapyd$_dict.prototype.__getitem__ = def (key):
+ρσ_dict.prototype.__getitem__ = def (key):
     ans = this.jsmap.get(key)
     if ans is undefined and not this.jsmap.has(key):
         raise KeyError(key + '')
     return ans
 
-_$rapyd$_dict.prototype.get = def (key, defval):
+ρσ_dict.prototype.get = def (key, defval):
     ans = this.jsmap.get(key)
     if ans is undefined and not this.jsmap.has(key):
         return (defval is undefined) ? None : defval
     return ans
 
-_$rapyd$_dict.prototype.set_default = def (key, defval):
+ρσ_dict.prototype.set_default = def (key, defval):
     j = this.jsmap
     if not j.has(key):
         j.set(key, defval)
         return defval
     return j.get(key)
 
-_$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = def (iterable, value=None):
-    ans = _$rapyd$_dict()
+ρσ_dict.fromkeys = ρσ_dict.prototype.fromkeys = def (iterable, value=None):
+    ans = ρσ_dict()
     iterator = iter(iterable)
     r = iterator.next()
     while not r.done:
@@ -629,7 +629,7 @@ _$rapyd$_dict.fromkeys = _$rapyd$_dict.prototype.fromkeys = def (iterable, value
         r = iterator.next()
     return ans
 
-_$rapyd$_dict.prototype.pop = def (key, defval):
+ρσ_dict.prototype.pop = def (key, defval):
     ans = this.jsmap.get(key)
     if ans is undefined and not this.jsmap.has(key):
         if defval is undefined:
@@ -638,14 +638,14 @@ _$rapyd$_dict.prototype.pop = def (key, defval):
     this.jsmap.delete(key)
     return ans
 
-_$rapyd$_dict.prototype.popitem = def ():
+ρσ_dict.prototype.popitem = def ():
     r = this.jsmap.entries().next()
     if r.done:
         raise KeyError('dict is empty')
     this.jsmap.delete(r.value[0])
     return r.value
 
-_$rapyd$_dict.prototype.update = def ():
+ρσ_dict.prototype.update = def ():
     if arguments.length is 0:
         return
     m = this.jsmap
@@ -653,7 +653,7 @@ _$rapyd$_dict.prototype.update = def ():
     if Array.isArray(iterable):
         for v'var i = 0; i < iterable.length; i++':
             m.set(iterable[i][0], iterable[i][1])
-    elif isinstance(iterable, _$rapyd$_dict):
+    elif isinstance(iterable, ρσ_dict):
         iterator = iterable.items()
         result = iterator.next()
         while not result.done:
@@ -665,8 +665,8 @@ _$rapyd$_dict.prototype.update = def ():
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(iterable[_$rapyd$_iterator_symbol]) is 'function':
-        iterator = iterable[_$rapyd$_iterator_symbol]()
+    elif type(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             m.set(result.value[0], result.value[1])
@@ -674,12 +674,12 @@ _$rapyd$_dict.prototype.update = def ():
     else:
         keys = Object.keys(iterable)
         for v'var j=0; j < keys.length; j++':
-            if keys[j] is not _$rapyd$_iterator_symbol:
+            if keys[j] is not ρσ_iterator_symbol:
                 m.set(keys[j], iterable[keys[j]])
     if arguments.length > 1:
-        _$rapyd$_dict.prototype.update.call(this, arguments[1])
+        ρσ_dict.prototype.update.call(this, arguments[1])
 
-_$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = def():
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = def():
     entries = v'[]'
     iterator = this.jsmap.entries()
     r = iterator.next()
@@ -688,7 +688,7 @@ _$rapyd$_dict.prototype.toString = _$rapyd$_dict.prototype.inspect = def():
         r = iterator.next()
     return '{' + entries.join(', ') + '}'
 
-_$rapyd$_dict.prototype.__eq__ = def(other):
+ρσ_dict.prototype.__eq__ = def(other):
     if not isinstance(other, this.constructor):
         return False
     if other.size is not this.size:
@@ -704,7 +704,7 @@ _$rapyd$_dict.prototype.__eq__ = def(other):
         r = iterator.next()
     return True
 
-_$rapyd$_dict.prototype.as_object = def(other):
+ρσ_dict.prototype.as_object = def(other):
     ans = {}
     iterator = this.jsmap.entries()
     r = iterator.next()
@@ -713,11 +713,11 @@ _$rapyd$_dict.prototype.as_object = def(other):
         r = iterator.next()
     return ans
 
-def _$rapyd$_dict_wrap(x):
-    ans = new _$rapyd$_dict()
+def ρσ_dict_wrap(x):
+    ans = new ρσ_dict()
     ans.jsmap = x
     return ans
 
-v'var dict = _$rapyd$_dict, dict_wrap = _$rapyd$_dict_wrap'
+v'var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap'
 
 # }}}

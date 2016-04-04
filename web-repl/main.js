@@ -208,6 +208,16 @@
         else if (code === 27 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {  // Esc
             hide_completions();
         }
+        else if (code === 115) {  // F4
+            input = document.getElementById('input');
+            source = input.value;
+            var ss = input.selectionStart;
+            if (ss === undefined) return;
+            ev.preventDefault();
+            var before = source.substr(0, ss);
+            input.value = before + 'ρσ_' + source.substr(ss);
+        }
+
     }
 
     function on_load() {

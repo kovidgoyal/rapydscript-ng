@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
-# globals: _$rapyd$_iterator_symbol, _$rapyd$_set_polyfill, _$rapyd$_dict_polyfill
-nonlocal _$rapyd$_set_implementation, _$rapyd$_dict_implementation
+# globals: ρσ_iterator_symbol, ρσ_set_polyfill, ρσ_dict_polyfill
+nonlocal ρσ_set_implementation, ρσ_dict_implementation
 
 class CustomIterable:
 
@@ -135,7 +135,7 @@ assert.ok(a.slice().extend is not undefined)
 assert.deepEqual(a, a.concat())
 assert.ok(a is not a.concat())
 assert.ok(a.concat().extend is not undefined)
-assert.deepEqual(list(a[_$rapyd$_iterator_symbol]()), a)
+assert.deepEqual(list(a[ρσ_iterator_symbol]()), a)
 assert.equal(a.length, a.__len__())
 assert.equal(a.length, len(a))
 assert.ok(a.__contains__(a[0]))
@@ -205,9 +205,9 @@ def test_sets():
     assert.deepEqual(a, {1, 2})
 
 test_sets()
-_$rapyd$_set_implementation = _$rapyd$_set_polyfill  # noqa:undef
+ρσ_set_implementation = ρσ_set_polyfill  # noqa:undef
 test_sets()
-_$rapyd$_set_implementation = Set
+ρσ_set_implementation = Set
 
 def test_dicts():
     from __python__ import dict_literals, overload_getitem
@@ -246,6 +246,6 @@ def test_dicts():
     assert.deepEqual(a, {1:3, 2:2})
 
 test_dicts()
-_$rapyd$_dict_implementation = _$rapyd$_dict_polyfill  # noqa:undef
+ρσ_dict_implementation = ρσ_dict_polyfill  # noqa:undef
 test_dicts()
-_$rapyd$_dict_implementation = Map
+ρσ_dict_implementation = Map

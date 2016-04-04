@@ -237,14 +237,14 @@ class OutputStream:
 
     def dump_yield(self):
         self.indent()
-        self.spaced('var', '_$rapyd$_regenerator', '=', '{}')
+        self.spaced('var', 'ρσ_regenerator', '=', '{}')
         self.end_statement()
         code = regenerate(False, self.options.beautify)
         if self.options.beautify:
             code = code.replace(/\/\/.*$/mg, '\n').replace(/^\s*$/gm, '')  # strip comments
             ci = self.make_indent(0)
             code = [ci + x for x in code.split('\n')].join('\n')
-        self.print(code + '(_$rapyd$_regenerator)')
+        self.print(code + '(ρσ_regenerator)')
         self.end_statement()
 
     def get(self):

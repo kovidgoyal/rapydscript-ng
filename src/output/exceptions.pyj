@@ -19,7 +19,7 @@ def print_catch(self, output):
     output.print("catch")
     output.space()
     output.with_parens(def():
-        output.print("_$rapyd$_Exception")
+        output.print("ρσ_Exception")
     )
     output.space()
     #        print_bracketed(self, output)
@@ -43,7 +43,7 @@ def print_catch(self, output):
                                 output.print("||")
                                 output.space()
 
-                            output.print("_$rapyd$_Exception")
+                            output.print("ρσ_Exception")
                             output.space()
                             output.print("instanceof")
                             output.space()
@@ -63,7 +63,7 @@ def print_catch(self, output):
                     output.indent()
                     output.print("throw")
                     output.space()
-                    output.print("_$rapyd$_Exception")
+                    output.print("ρσ_Exception")
                     output.semicolon()
                     output.newline()
                 )
