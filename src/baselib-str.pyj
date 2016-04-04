@@ -358,6 +358,8 @@ _$rapyd$_str.count = def(string, needle, start, end):
         start, end = 0, string.length
     pos = start
     step = needle.length
+    if not step:
+        return 0
     ans = 0
     while pos is not -1:
         pos = string.indexOf(needle, pos)
