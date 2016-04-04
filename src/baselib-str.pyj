@@ -70,12 +70,20 @@ def _$rapyd$_str(x):
             ans = _$rapyd$_repr_js_builtin(x)
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
+define_str_func = def(name, func):
+    _$rapyd$_str.prototype[name] = func
+    _$rapyd$_str[name] = f = func.call.bind(func)
+    if func.__argnames__:
+        Object.defineProperty(f, '__argnames__', {'value':v"['string']".concat(func.__argnames__)})
+
+_$rapyd$_orig_split, _$rapyd$_orig_replace = String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)
+
 # format()  {{{
-_$rapyd$_str.format = def ():
-    template = arguments[0]
+define_str_func('format', def ():
+    template = this
     if template is undefined:
         raise TypeError("Template is required")
-    args = Array.prototype.slice.call(arguments, 1)
+    args = Array.prototype.slice.call(arguments)
     kwargs = {}
     if args.length and args[-1][_$rapyd$_kwargs_symbol] is not undefined:
         kwargs = args[-1]
@@ -83,6 +91,7 @@ _$rapyd$_str.format = def ():
 
     explicit = implicit = False
     idx = 0
+    split = _$rapyd$_orig_split
 
     if _$rapyd$_str.format._template_resolve_pat is undefined:
         _$rapyd$_str.format._template_resolve_pat = /[.\[]/
@@ -91,7 +100,7 @@ _$rapyd$_str.format = def ():
         if not arg:
             return object
         first, arg = arg[0], arg[1:]
-        key = arg.split(_$rapyd$_str.format._template_resolve_pat, 1)[0]
+        key = split(arg, _$rapyd$_str.format._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
         ans = (first is '[') ? object[key[:-1]] : getattr(object, key)
         if ans is undefined:
@@ -191,7 +200,7 @@ _$rapyd$_str.format = def ():
                 if isNaN(precision):
                     precision = 6
                 precision = max(1, precision)
-                exp = parseInt(value.toExponential(precision - 1).toLowerCase().split('e')[1], 10)
+                exp = parseInt(split(value.toExponential(precision - 1).toLowerCase(), 'e')[1], 10)
                 if -4 <= exp < precision:
                     value = value.toFixed(precision - 1 - exp)
                 else:
@@ -273,7 +282,7 @@ _$rapyd$_str.format = def ():
         key, transformer, format_spec = parse_markup(markup)
         if transformer and v"['a', 'r', 's']".indexOf(transformer) is -1:
             raise ValueError('Unknown conversion specifier: ' + transformer)
-        lkey = key.length and key.split(/[.\[]/, 1)[0]
+        lkey = key.length and split(key, /[.\[]/, 1)[0]
         if lkey:
             explicit = True
             if implicit:
@@ -336,21 +345,25 @@ _$rapyd$_str.format = def ():
         raise ValueError("expected '}' before end of string")
 
     return ans
-
+)
 # }}}
 
-_$rapyd$_str.capitalize = def (string):
+define_str_func('capitalize', def ():
+    string = this
     if string:
         string = string[0].toUpperCase() + string[1:].toLowerCase()
     return string
+)
 
-_$rapyd$_str.center = def(string, width, fill):
-    left = (width - string.length) // 2
-    right = width - left - string.length  # noqa:unused-local
+define_str_func('center', def(width, fill):
+    left = (width - this.length) // 2
+    right = width - left - this.length  # noqa:unused-local
     fill = fill or ' '
-    return v'new Array(left+1).join(fill)' + string + v'new Array(right+1).join(fill)'
+    return v'new Array(left+1).join(fill)' + this + v'new Array(right+1).join(fill)'
+)
 
-_$rapyd$_str.count = def(string, needle, start, end):
+define_str_func('count', def(needle, start, end):
+    string = this
     start = start or 0
     end = end or string.length
     if start < 0 or end < 0:
@@ -367,8 +380,10 @@ _$rapyd$_str.count = def(string, needle, start, end):
             ans += 1
             pos += step
     return ans
+)
 
-_$rapyd$_str.endswith = def(string, suffixes, start, end):
+define_str_func('endswith', def(suffixes, start, end):
+    string = this
     start = start or 0
     if type(suffixes) is 'string':
         suffixes = v'[suffixes]'
@@ -379,92 +394,109 @@ _$rapyd$_str.endswith = def(string, suffixes, start, end):
         if string.indexOf(q, Math.max(start, string.length - q.length)) is not -1:
             return True
     return False
+)
 
-_$rapyd$_str.startswith = def(string, prefixes, start, end):
+define_str_func('startswith', def(prefixes, start, end):
     start = start or 0
     if type(prefixes) is 'string':
         prefixes = v'[prefixes]'
     for v'var i = 0; i < prefixes.length; i++':
         prefix = prefixes[i]  # noqa:undef
-        end = string.length if end is undefined else end
-        if end - start >= prefix.length and prefix is string[start:start + prefix.length]:
+        end = this.length if end is undefined else end
+        if end - start >= prefix.length and prefix is this[start:start + prefix.length]:
             return True
     return False
+)
 
-_$rapyd$_str.find = def(string, needle, start, end):
+define_str_func('find', def(needle, start, end):
     while start < 0:
-        start += string.length
-    ans = string.indexOf(needle, start)
+        start += this.length
+    ans = this.indexOf(needle, start)
     if end is not undefined and ans is not -1:
         while end < 0:
-            end += string.length
+            end += this.length
         if ans >= end - needle.length:
             return -1
     return ans
+)
 
-_$rapyd$_str.rfind = def(string, needle, start, end):
+define_str_func('rfind', def(needle, start, end):
     while end < 0:
-        end += string.length
-    ans = string.lastIndexOf(needle, end - 1)
+        end += this.length
+    ans = this.lastIndexOf(needle, end - 1)
     if start is not undefined and ans is not -1:
         while start < 0:
-            start += string.length
+            start += this.length
         if ans < start:
             return -1
     return ans
+)
 
-_$rapyd$_str.index = def(string, needle, start, end):
-    ans = _$rapyd$_str.find.apply(None, arguments)
+define_str_func('index', def(needle, start, end):
+    ans = _$rapyd$_str.prototype.find.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
+)
 
-_$rapyd$_str.rindex = def(string, needle, start, end):
-    ans = _$rapyd$_str.rfind.apply(None, arguments)
+define_str_func('rindex', def(needle, start, end):
+    ans = _$rapyd$_str.prototype.rfind.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
+)
 
-_$rapyd$_str.islower = def(string):
-    return string.length > 0 and string.toUpperCase() is not string
+define_str_func('islower', def():
+    return this.length > 0 and this.toUpperCase() is not this
+)
 
-_$rapyd$_str.isupper = def(string):
-    return string.length > 0 and string.toLowerCase() is not string
+define_str_func('isupper', def():
+    return this.length > 0 and this.toLowerCase() is not this
+)
 
-_$rapyd$_str.isspace = def(string):
-    return string.length > 0 and /^\s+$/.test(string)
+define_str_func('isspace', def():
+    return this.length > 0 and /^\s+$/.test(this)
+)
 
-_$rapyd$_str.join = def(string, iterable):
+define_str_func('join', def(iterable):
     if Array.isArray(iterable):
-        return iterable.join(string)
+        return iterable.join(this)
     ans = ''
     r = iterable.next()
     while not r.done:
         if ans:
-            ans += string
+            ans += this
         ans += r.value
         r = iterable.next()
     return ans
+)
 
-_$rapyd$_str.ljust = def(string, width, fill):
+define_str_func('ljust', def(width, fill):
+    string = this
     if width > string.length:
         fill = fill or ' '
         string += v'new Array(width - string.length + 1).join(fill)'
     return string
+)
 
-_$rapyd$_str.rjust = def(string, width, fill):
+define_str_func('rjust', def(width, fill):
+    string = this
     if width > string.length:
         fill = fill or ' '
         string = v'new Array(width - string.length + 1).join(fill)' + string
     return string
+)
 
-_$rapyd$_str.lower = def(string):
-    return string.toLowerCase()
+define_str_func('lower', def():
+    return this.toLowerCase()
+)
 
-_$rapyd$_str.upper = def(string):
-    return string.toUpperCase()
+define_str_func('upper', def():
+    return this.toUpperCase()
+)
 
-_$rapyd$_str.lstrip = def(string, chars):
+define_str_func('lstrip', def(chars):
+    string = this
     pos = 0
     chars = chars or _$rapyd$_str.whitespace
     while chars.indexOf(string[pos]) is not -1:
@@ -472,8 +504,10 @@ _$rapyd$_str.lstrip = def(string, chars):
     if pos:
         string = string[pos:]
     return string
+)
 
-_$rapyd$_str.rstrip = def(string, chars):
+define_str_func('rstrip', def(chars):
+    string = this
     pos = string.length - 1
     chars = chars or _$rapyd$_str.whitespace
     while chars.indexOf(string[pos]) is not -1:
@@ -481,25 +515,30 @@ _$rapyd$_str.rstrip = def(string, chars):
     if pos < string.length - 1:
         string = string[:pos + 1]
     return string
+)
 
-_$rapyd$_str.strip = def(string, chars):
-    return _$rapyd$_str.lstrip(_$rapyd$_str.rstrip(string, chars), chars)
+define_str_func('strip', def(chars):
+    return _$rapyd$_str.prototype.lstrip.call(_$rapyd$_str.prototype.rstrip.call(this, chars), chars)
+)
 
-_$rapyd$_str.partition = def(string, sep):
-    idx = string.indexOf(sep)
+define_str_func('partition', def(sep):
+    idx = this.indexOf(sep)
     if idx is -1:
-        return string, '', ''
-    return string[:idx], sep, string[idx + sep.length:]
+        return this, '', ''
+    return this[:idx], sep, this[idx + sep.length:]
+)
 
-_$rapyd$_str.rpartition = def(string, sep):
-    idx = string.lastIndexOf(sep)
+define_str_func('rpartition', def(sep):
+    idx = this.lastIndexOf(sep)
     if idx is -1:
-        return '', '', string
-    return string[:idx], sep, string[idx + sep.length:]
+        return '', '', this
+    return this[:idx], sep, this[idx + sep.length:]
+)
 
-_$rapyd$_str.replace = def(string, old, repl, count):
+define_str_func('replace', def(old, repl, count):
+    string = this
     if count is 1:
-        return string.replace(old, repl)
+        return _$rapyd$_orig_replace(string, old, repl)
     if count < 1:
         return string
     count = count or Number.MAX_VALUE
@@ -512,13 +551,15 @@ _$rapyd$_str.replace = def(string, old, repl, count):
         pos = idx + repl.length
         string = string[:idx] + repl + string[idx + old.length:]
     return string
+)
 
-_$rapyd$_str.split = def(string, sep, maxsplit):
+define_str_func('split', def(sep, maxsplit):
     if maxsplit is 0:
-        return [string]
+        return [this]
+    split = _$rapyd$_orig_split
     if sep is undefined or sep is None:
         if maxsplit > 0:
-            ans = string.split(/(\s+)/)
+            ans = split(this, /(\s+)/)
             extra = ''
             parts = v'[]'
             for v'var i = 0; i < ans.length; i++':
@@ -529,32 +570,34 @@ _$rapyd$_str.split = def(string, sep, maxsplit):
             parts[-1] += extra
             ans = parts
         else:
-            ans = string.split(/\s+/)
+            ans = split(this, /\s+/)
     else:
         if sep is '':
             raise ValueError('empty separator')
-        ans = string.split(sep)
+        ans = split(this, sep)
         if maxsplit > 0 and ans.length > maxsplit:
             extra = ans[maxsplit:].join(sep)
             ans = ans[:maxsplit]
             ans.push(extra)
     return _$rapyd$_list_decorate(ans)
+)
 
-_$rapyd$_str.rsplit = def(string, sep, maxsplit):
+define_str_func('rsplit', def(sep, maxsplit):
     if not maxsplit:
-        return _$rapyd$_str.split.call(None, string, sep, maxsplit)
+        return _$rapyd$_str.prototype.split.call(this, sep)
+    split = _$rapyd$_orig_split
     if sep is undefined or sep is None:
         if maxsplit > 0:
             ans = v'[]'
             is_space = /\s/
-            pos = string.length - 1
+            pos = this.length - 1
             current = ''
             while pos > -1 and maxsplit > 0:
                 spc = False
-                ch = string[pos]
+                ch = this[pos]
                 while pos > -1 and is_space.test(ch):
                     spc = True
-                    ch = v'string[--pos]'
+                    ch = v'this[--pos]'
                 if spc:
                     if current:
                         ans.push(current)
@@ -563,30 +606,32 @@ _$rapyd$_str.rsplit = def(string, sep, maxsplit):
                 else:
                     current += ch
                 pos -= 1
-            ans.push(string[:pos + 1] + current)
+            ans.push(this[:pos + 1] + current)
             ans.reverse()
         else:
-            ans = string.split(/\s+/)
+            ans = split(this, /\s+/)
     else:
         if sep is '':
             raise ValueError('empty separator')
         ans = v'[]'
-        pos = end = string.length
+        pos = end = this.length
         while pos > -1 and maxsplit > 0:
             maxsplit -= 1
-            idx = string.lastIndexOf(sep, pos)
+            idx = this.lastIndexOf(sep, pos)
             if idx is -1:
                 break
-            ans.push(string[idx + sep.length:end])
+            ans.push(this[idx + sep.length:end])
             pos = idx - 1
             end = idx
-        ans.push(string[:end])
+        ans.push(this[:end])
         ans.reverse()
     return _$rapyd$_list_decorate(ans)
+)
 
-_$rapyd$_str.splitlines = def(string, keepends):
+define_str_func('splitlines', def(keepends):
+    split = _$rapyd$_orig_split
     if keepends:
-        parts = string.split(/((?:\r?\n)|\r)/)
+        parts = split(this, /((?:\r?\n)|\r)/)
         ans = v'[]'
         for v'var i = 0; i < parts.length; i++':
             if i % 2 is 0:
@@ -594,24 +639,28 @@ _$rapyd$_str.splitlines = def(string, keepends):
             else:
                 ans[-1] += parts[i]  # noqa:undef
     else:
-        ans = string.split(/(?:\r?\n)|\r/)
+        ans = split(this, /(?:\r?\n)|\r/)
     return _$rapyd$_list_decorate(ans)
+)
 
-_$rapyd$_str.swapcase = def(string):
-    ans = v'new Array(string.length)'
+define_str_func('swapcase', def():
+    ans = v'new Array(this.length)'
     for v'var i = 0; i < ans.length; i++':
-        a = string[i]
+        a = this[i]
         # We dont care about non-BMP chars as they are not cased anyway
         b = a.toLowerCase()
         if a is b:
             b = a.toUpperCase()
         ans[i] = b  # noqa:undef
     return ans.join('')
+)
 
-_$rapyd$_str.zfill = def(string, width):
+define_str_func('zfill', def(width):
+    string = this
     if width > string.length:
         string = v'new Array(width - string.length + 1).join("0")' + string
     return string
+)
 
 _$rapyd$_str.uchrs = def(string, with_positions):
     # Return iterator over unicode chars in string. Will yield the unicode
@@ -667,4 +716,5 @@ _$rapyd$_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 _$rapyd$_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
 _$rapyd$_str.whitespace   = ' \t\n\r\x0b\x0c'
 
+v'define_str_func = undefined'
 v'var str = _$rapyd$_str, repr = _$rapyd$_repr'

@@ -31,7 +31,7 @@ backwards compatible) features. For a list of changes, [see the bottom of this f
 - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
 - [Strings](#strings)
 - [Regular Expressions](#regular-expressions)
-- [Creating DOM tree's efficiently](#creating-dom-trees-efficiently)
+- [Creating DOM trees easily](#creating-dom-trees-easily)
 - [Classes](#classes)
   - [External Classes](#external-classes)
   - [Method Binding](#method-binding)
@@ -826,6 +826,28 @@ str.format('{0:02d} {n}', 1, n=2) == '01 2'
 ...
 ```
 
+However, if you want to make the python string methods available on string
+objects, there is a convenience method in the standard library to do so. Use
+the following code:
+
+```py
+from pythonize import strings
+strings()
+```
+
+After you call the `strings()` function, all python string methods will be
+available on string objects, just as in python. The only caveat is that two
+methods: `split()` and `replace()` are left as the native JavaScript versions,
+as their behavior is not compatible with that of the python versions. You can
+control which methods are not copied to the JavaScript String object by passing
+their names to the `strings()` function, like this:
+
+```py
+strings('split', 'replace', 'find', ...)
+# or
+strings(None)  # no methods are excluded
+```
+
 One thing to keep in mind is that in JavaScript string are UTF-16, so they
 behave like strings in narrow builds of Python 2.x. This means that non-BMP
 unicode characters are represented as surrogate pairs. RapydScript includes
@@ -885,7 +907,7 @@ re.match(///
   ///, 'ab')
 ```
 
-Creating DOM tree's efficiently
+Creating DOM trees easily
 ---------------------------------
 
 RapydScript includes a small module in its standard library to create DOM tress
@@ -921,6 +943,14 @@ so ```data-*``` attributes can be created. Finally, if you need a non-standard
 tag, you simply use the ```E()``` function by itself with the first argument
 being the tag name.
 
+Another great feature is that you can pass functions as event handlers
+directly, so for example:
+
+```py
+E.a(onclick=def():
+	pass  # do something on the click event
+)
+```
 
 Classes
 -------

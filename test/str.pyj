@@ -147,3 +147,10 @@ for k in ['abc', "mūs", '', 's🐱a\u2028']:
     assert.equal(encodings.utf8_decode(bytes), k)
     assert.equal(encodings.utf8_decode(encodings.utf8_encode_js(k)), k)
     assert.deepEqual(list(bytes), list(encodings.base64decode(encodings.base64encode(bytes))))
+
+from pythonize import strings
+strings()
+assert.equal('{0} {a}'.format(1, a=2), str.format('{0} {a}', 1, a=2))
+assert.equal(' x '.strip(), str.strip(' x '))
+assert.equal(','.join([1,2,3]), str.join(',', [1,2,3]))
+assert.equal('11111'.count('1', start=1, end=1), str.count('11111', '1', start=1, end=1))
