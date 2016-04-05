@@ -140,8 +140,9 @@ for f in (str, repr):
 ae(str('a'), 'a')
 ae(repr('a'), '"a"')
 
-bytes = list(range(255))
-assert.deepEqual(bytes, list(encodings.base64decode(bytes)))
+bytes = list(range(256))
+assert.deepEqual(bytes, list(encodings.base64decode(encodings.base64encode(bytes))))
+assert.deepEqual(bytes, list(encodings.unhexlify(encodings.hexlify(bytes))))
 for k in ['abc', "mūs", '', 's🐱a\u2028']:
     bytes = encodings.utf8_encode(k)
     assert.equal(encodings.utf8_decode(bytes), k)
