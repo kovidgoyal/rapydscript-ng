@@ -58,13 +58,13 @@ def ρσ_Iterable(iterable):
 ρσ_desugar_kwargs = (def ():
     if type(Object.assign) is 'function':
         return def():
-            ans = {}
+            ans = Object.create(None)
             ans[ρσ_kwargs_symbol] = True
             for v'var i = 0; i < arguments.length; i++':
                 Object.assign(ans, arguments[i])
             return ans
     return def():
-        ans = {}
+        ans = Object.create(None)
         ans[ρσ_kwargs_symbol] = True
         for v'var i = 0; i < arguments.length; i++':
             keys = Object.keys(arguments[i])
