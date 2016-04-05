@@ -91,7 +91,7 @@ when the arguments are expressions, such as function calls, generators, object
 literals, etc.
 
 version 0.5.0
-===============
+==============
 
 Below are listed all the major new features and backwards incompatible changes
 since the creation of the rapydscript-ng fork, up to version 0.5.0
@@ -110,8 +110,9 @@ Backwards incompatible changes:
 
 * Change syntax for embedded JavaScript literals. Now one uses a normal string
   literal, with the **v** prefix, for example:
-  ```
+  ```py
   for v'i = 0; i < 10; i++':
+    pass
   ```
   The old compile time magic function `JS()` used for JavaScript literals has been removed.
 
@@ -120,7 +121,8 @@ Backwards incompatible changes:
 
 * Dict literals now do not treat identifiers as strings, so you can use arbitrary expressions as keys.
 
-* Remove the ``@kwargs`` decorator. Keyword arguments now work seamlessly.
+* Remove the ``@kwargs`` decorator. Keyword arguments now work seamlessly, just
+  as in python.
 
 Major new features:
 --------------------
@@ -153,6 +155,8 @@ Major new features:
   ```py
   str.format('{:02d} {}', 1, "wow") == '01 wow'
   ```
+  There is a convenience module in the stdlib to add these functions to the
+  JavaScript String object, if needed.
 
 * Support dict and set comprehensions
 

@@ -4,7 +4,7 @@ RapydScript
 [![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.png)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
 
 This is a fork of the original RapydScript that adds many new (not always
-backwards compatible) features. For a list of changes, [see the bottom of this file](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+backwards compatible) features. For more on the forking, [see the bottom of this file](#reasons-for-the-fork)
 
 [Try RapydScript-ng live via an in-browser REPL!](http://kovidgoyal.github.io/rapydscript/repl/)
 
@@ -46,13 +46,11 @@ backwards compatible) features. For a list of changes, [see the bottom of this f
 - [Advanced Usage Topics](#advanced-usage-topics)
     - [Browser Compatibility](#browser-compatibility)
     - [Tabs vs Spaces](#tabs-vs-spaces)
-    - [Semi-Colons](#semi-colons)
-    - [jQuery-wrapped Elements](#jquery-wrapped-elements)
     - [External Libraries and Classes](#external-libraries-and-classes)
     - [Embedding the RapydScript compiler in your webpage](#embedding-the-rapydscript-compiler-in-your-webpage)
 - [Internationalization](#internationalization)
 - [Gotchas](#gotchas)
-- [Changes in this fork compared to atsepkov/RapydScript](#changes-in-this-fork-compared-to-atsepkovrapydscript)
+- [Reasons for the fork](#reasons-for-the-fork)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -1585,114 +1583,21 @@ below:
   should use the {!"a":b} syntax. This is done to ease interop with external
   javascript libraries, most of which use javascript objects as dictionaries.
 
-Changes in this fork compared to atsepkov/RapydScript
-----------------------------------------------------------
 
-Some of these changes might have been merged back into the original repository.
-This list below records all the work I have done on RapydScript so far.
+Reasons for the fork
+----------------------
 
-1. There is now a REPL (Run ```rapydscript``` with no arguments to start it).
-   You can also try the REPL [live in your browser](https://kovidgoyal.github.io/rapydscript/repl/)
+The fork was initially created because the original developer of RapydScript
+did not have the time to keep up with the pace of development. Since then, 
+development on the original RapydScript seems to have stalled completely.
+Also, there are certain disagreements on the future direction of RapydScript.
 
-1. There is now a ``linter`` that checks for various problems in your code. Most of
-   the checks are for unused/undefined names, like ``pyflakes``. But, there are
-   also many other checks for invalid or problematic code. To use it:
-   ``rapydscript lint file.pyj``
+Regardless, this fork is not a hostile fork, if development on the original
+ever resumes, they are welcome to use the code from this fork. I have kept all
+new code under the same license, to make that possible.
 
-1. The import/module system has been completely changed. It now works just like
-   python, with modules being per file and packages being a directory with
-   ```__init__.pyj```. The ```module:``` keyword has been removed.
+See the [Changelog](https://github.com/kovidgoyal/rapydscript-ng/blob/master/CHANGELOG.md)
+for a list of changes to rapydscript-ng since the fork.
 
-1. There is support for internationalization, using the standard gettext file
-   formats and API. See the section on Internationalization above.
-
-1. RapydScript now supports the full python syntax for defining functions with
-   optional arguments, variable numbers of arguments, variable optional
-   arguments, etc. There is no longer any kwargs decorator, as it is not
-   needed.
-
-1. Added list, set and dict types that behave like python's corresponding types.
-
-1. RapydScript now supports generators (yield keyword). 
-
-1. Made dict literals behave like python, not javascript. In particular, you
-   can now use arbitrary expressions as keys, not just constants. And if you
-   use a name without quotes, it is not automatically treated as a string. This
-   change is backwards incompatible, but the linter should help you easily find
-   all places in your code that need to be changed.
-
-1. Added support for dict, set and generator comprehensions, not just list comprehensions
-
-1. Added support for iterators that work seamlessly with JavaScript code. And
-   a builtin ``iter()`` function to easily create them from
-   arrays/strings/objects.
-
-1. Added support for arbitrary expressions as decorators
-
-1. Added support for property getter/setters using the same syntax as python
-   (@property decorator)
-
-1. Added support for the `with` statement (context managers)
-
-1. RapydScript now supports the Python integer (floor) division operator. 
-   ``100 // 3 = 33``
-
-1. RapydScript now supports the Python conditional operator syntax:
-   ``a = 1 if b else 2``
-
-1. RapydScript now supports class level variables. The original compiler used
-   to simply throw away all non-method code in the class context. It doesn't do
-   that any more :)
-
-1. RapydScript now supports recursive de-structuring assignment, so you can do:
-   ```py
-   for a, (b, c) in enumerate([ [1,2], [3,4] ]):
-      ...
-   ```
-
-1. Re-wrote the re.pyj module to more closely support the python regular
-   expression semantics, including named groups, finditer(), regex flags,
-   the python syntax for replacement strings, etc.
-
-1. Created an elementmaker module to the stdlib to efficiently build DOM trees
-   in pure RapydScript
-
-1. Changed the syntax for embedded JavaScript to use verbatim string literals
-   instead of a magic compile time function.
-
-1. Add an ES 6 output mode ```--js-version 6``` that outputs ES 6 only code.
-   This code is cleaner and faster by making use of some ES 6 facilities.
-   Mainly for iterators and generators.
-
-1. Add a builtin list type that functions like Python's list type, except that
-   it create JavaScript Array object. You can pass any iterable to list and use
-   it in isinstance() just as you would in python. Furthermore, all
-   arrays/lists in RapydScript behave just like pythons lists, with all the
-   same methods and properties. This applies both to list literals as well as
-   the return value of the ``list()`` function.
-
-1. Support set literals
-
-1. Remove the to/til operators. They are not particularly useful and break
-   compatibility with python code that might use to and til as variable names.
-
-1. Implement automatic concatenation of neighboring string literals: `'12' == '1' '2'`
-
-1. Support python style string literals, with full unicode escapes and the raw
-   literal syntax.
-
-1. The command line interface has been cleaned up with many new options and
-   improved modularization/robustness. The test suite is now run automatically
-   on Travis for continuous integration. I also took the opportunity to get rid
-   of the dependencies on ```async``` and ```optimist```.
-
-1. Countless other fixes and improvements, too numerous to list here --
-   read the commit log.
-
-Note: this is in no way a hostile fork, and I remain grateful to Alexander
-Tspekov for his great work on the original RapydScript. The reason for the fork
-is simply that the maintainers of the original project do not currently have
-the free time to keep up with the pace of development in this fork. I hope that
-someday most of the changes in this fork will be merged back into the original
-project. All changes in this fork are licensed under the same license as the
-original project, to make that possible.
+For some discussion surrounding the fork, see 
+[this bug report](https://github.com/kovidgoyal/rapydscript-ng/issues/15)
