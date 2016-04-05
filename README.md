@@ -1431,9 +1431,9 @@ as well, described in the section on strings in this document.
 
 Advanced Usage Topics
 ---------------------
-This section contains various topics which might be of interest to the programmer writing large projects using RapydScript, but might not be relevant to a programmer who is just getting started with RapydScript. The topics in this section focus on coding conventions to keep your code clean, optimizations, and additional libraries that come with RapydScript, as well as suggestions for writing your own libraries.
 
 #### Browser Compatibility
+
 RapydScript compiles your code such that it will work on browsers that are
 compatible with the ES 5 JavaScript standard. The compiler has a 
 ``--js-version`` option that can also be used to output ES 6 only code. This
@@ -1441,37 +1441,23 @@ code is smaller and faster than the ES 5 version, but is not as widely
 compatible.
 
 #### Tabs vs Spaces
-This seems to be a very old debate. Python code conventions suggest 4-space indent. The old version of RapydScript relied on tabs, new one uses spaces since that seems to be more consistent in both Python and JavaScript communities. Use whichever one you prefer, as long as you stay consistent. If you intend to submit your code to RapydScript, it must use spaces to be consistent with the rest of the code int he repository.
 
-#### Semi-Colons
-Don't abuse semi-colons. They're meant as a way to group related logic together, not to fit your entire web-app on one line. The following is fine:
-
-```py
-X = 0; Y = 1
-```
-
-Anything that requires more than a couple semi-colons, however, or involves long mathematical computations, is better off on its own line. Use your discretion, if the logic requires more than one visual pass-through from the programmer to understand the flow, you probably shouldn't use semi-colons. A Fibonacci function, as shown below, would probably be the upper limit of the kind of logic you could sanely represent with semi-colons:
-
-```js
-fib = def(x): if x<=1: return 1; return fib(x-1)+fib(x-2)
-```
-
-Even for this example, however, I'd personally prefer to use multiple lines.
-
-#### jQuery-wrapped Elements
-If you use jQuery with your app, you will probably be storing these into variables a lot. If you've written a decently sized app, you've probably mistaken a bare element with wrapped element at least once. This is especially true of objects like `canvas`, where you need to access object's attributes and methods directly. My solution for these is simple, prepend jQuery-wrapped elements with `$`:
-
-```js
-$canvas = ('<canvas></canvas>')
-canvas = $canvas.get(0)
-ctx = canvas.getContext('2d')
-$canvas.appendTo(document)
-```
-
-This is especially useful with function definitions, since you will immediately know what kind of object the function takes in just by skimming its signature.
+This seems to be a very old debate. Python code conventions suggest 4-space
+indent. The old version of RapydScript relied on tabs, new one uses spaces
+since that seems to be more consistent in both Python and JavaScript
+communities. Use whichever one you prefer, as long as you stay consistent. If
+you intend to submit your code to RapydScript, it must use spaces to be
+consistent with the rest of the code in the repository.
 
 #### External Libraries and Classes
-RapydScript will pick up any classes you declare yourself as well as native JavaScript classes. It will not, however, pick up class-like objects created by outside frameworks. There are two approaches for dealing with those. One is via `@external` decorator, the other is via `new` operator when declaring such object. To keep code legible and consistent, I strongly prefer the use of `@external` decorator over the `new` operator for several reasons, even if it may be more verbose:
+
+RapydScript will pick up any classes you declare yourself as well as native
+JavaScript classes. It will not, however, pick up class-like objects created by
+outside frameworks. There are two approaches for dealing with those. One is via
+`@external` decorator, the other is via `new` operator when declaring such
+object. To keep code legible and consistent, I strongly prefer the use of
+`@external` decorator over the `new` operator for several reasons, even if it
+may be more verbose:
 
 - `@external` decorator makes classes declared externally obvious to anyone looking at your code
 - class declaration that uses `@external` decorator can be exported into a reusable module
