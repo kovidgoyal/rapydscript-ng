@@ -59,9 +59,25 @@ backwards compatible) features. For a list of changes, [see the bottom of this f
 
 What is RapydScript?
 --------------------
-RapydScript (pronounced 'RapidScript') is a pre-compiler for JavaScript, similar to CoffeeScript, but with cleaner, more readable syntax. The syntax is very similar to Python, but allows JavaScript as well. This project was written as an alternative to Pyjamas for those wishing Python-like JavaScript without the extra overhead and complexity Pyjamas introduces.
 
-RapydScript allows to write your front-end in Python without the overhead that other similar frameworks introduce (the performance is the same as with pure JavaScript). To those familiar with CoffeeScript, RapydScript is like CoffeeScript, but inspired by Python's readability rather than Ruby's cleverness. To those familiar with Pyjamas, RapydScript brings many of the same features and support for Python syntax without the same overhead. Don't worry if you've never used either of the above-mentioned compilers, if you've ever had to write your code in pure JavaScript you'll appreciate RapydScript. RapydScript combines the best features of Python as well as JavaScript, bringing you features most other Pythonic JavaScript replacements overlook. Here are a few features of RapydScript:
+RapydScript (pronounced 'RapidScript') is a pre-compiler for JavaScript,
+similar to CoffeeScript, but with cleaner, more readable syntax. The syntax is
+almost identical to Python, but RapydScript has a focus on performance and
+interoperability with external JavaScript libraries. This means that the
+JavaScript that RapydScript generates is performant and quite close to hand
+written JavaScript.
+
+RapydScript allows to write your front-end in Python without the overhead that
+other similar frameworks introduce (the performance is the same as with pure
+JavaScript). To those familiar with CoffeeScript, RapydScript is like
+CoffeeScript, but inspired by Python's readability rather than Ruby's
+cleverness. To those familiar with Pyjamas, RapydScript brings many of the same
+features and support for Python syntax without the same overhead. Don't worry
+if you've never used either of the above-mentioned compilers, if you've ever
+had to write your code in pure JavaScript you'll appreciate RapydScript.
+RapydScript combines the best features of Python as well as JavaScript,
+bringing you features most other Pythonic JavaScript replacements overlook.
+Here are a few features of RapydScript:
 
 - classes that work and feel similar to Python
 - an import system for modules/packages that works just like Python's
@@ -74,7 +90,8 @@ RapydScript allows to write your front-end in Python without the overhead that o
 - similar to above, ability to use both, Python's and JavaScript's tutorials (as well as widgets)
 - it's self-hosting, that means the compiler is itself written in RapydScript and compiles into JavaScript
 
-Let's not waste any more time with the introductions, however. The best way to learn a new language/framework is to dive in.
+Let's not waste any more time with the introductions, however. The best way to
+learn a new language/framework is to dive in.
 
 
 Installation
@@ -1224,57 +1241,34 @@ to the RapydScript compiler. See the documentation of the option for details.
 
 Exception Handling
 ------------------
-Like Python and JavaScript, RapydScript has exception handling logic. The following, for example, will warn the user if variable `foo` is not defined:
+
+Exception handling in RapydScript works just like it does in python. The only
+differences are:
+
+	- There is no traceback module. To get tracebacks for exception, just use
+	  the `.stack` property on the exception object
+
+	- There is no support for an `else:` clause. There is no fundamental reason
+	  for this, it's just something I haven't got around to.
+
+An example:
 
 ```py
 try:
-	print(foo)
-except:
-	print("Foo wasn't declared yet")
+	somefunc()
+except Exception as e:
+	print(e.stack)  # Equivalent to traceback.print_exc()
+finally:
+    cleanup()
 ```
 
-It's a good practice, however, to only catch exceptions we expect. Imagine, for example, if `foo` was defined, but as a circular structure (with one of its attributes referencing itself):
+You can create your own Exception classes by inheriting from `Exception`, which
+is the JavaScript Error class, for more details on this, see (the MDN documentation)[https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Error]. 
 
 ```py
-foo = {}
-foo.bar = foo
-```
-
-We would still trigger an exception, but for a completely different reason. A better way to rewrite our `try/except` block would be:
-
-```py
-try:
-	print(foo)
-except ReferenceError:
-	print("Foo wasn't declared yet")
-```
-
-We could also handle circular structure exception, if we needed to:
-
-```py
-try:
-	JSON.stringify(foo)
-except ReferenceError:
-	print("Foo wasn't declared yet")
-except TypeError:
-	print("One of foo's attributes references foo")
-```
-
-Or we could just dump the error back to the user:
-
-```py
-try:
-	print(foo)
-except as err:
-	print(err.name + ':' + err.message)
-```
-
-In this example, `err` is a JavaScript error object, it has `name` and `message` attributes, more information can be found at <https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Error>. You can inherit from this object as if it was a class to create custom errors, just like you would in Python:		
-
-```py
-class MyError(Error):
+class MyError(Exception):
 	def __init__(self, message):
-		self.name = Error
+		self.name = 'MyError'
 		self.message = message
 
 raise MyError('This is a custom error!')
@@ -1287,28 +1281,14 @@ try:
 	print(foo)
 except ReferenceError, TypeError as e:
 	print(e.name + ':' + e.message)
+	raise # re-raise the exception
 ```
 
-Basically, `try/except/finally` in RapydScript works very similar to the way it does in Python 3, lacking only the `else` directive (it didn't seem useful enough to implement). Like in Python and JavaScript, you can nest multiple exceptions inside each other, and use `raise` to throw the error back at the user:
-
-```py
-try:
-	print(foo)
-except ReferenceError as e:
-	if e.message == 'foo is not defined':
-		print('undefined')
-	else:
-		raise e
-finally:
-	# reset foo
-	foo = 'bar'
-```
-
-Like in Python (but unlike in regular JavaScript), you can use `raise` keyword by itself from within `except` block to reraise last-caught error.
-
+Basically, `try/except/finally` in RapydScript works very similar to the way it does in Python 3. 
 
 Scope Control
 -------------
+
 Scope refers to the context of a variable. For example, a variable declared inside a function is not seen by the code outside the function. This variable's scope is local to the function. JavaScript controls scope via `var` keyword. Any variable that you start using without declaring with a `var` first will try to reference inner-most variable with the same name, if one doesn't exist, it will create a global variable with that name. For example, the following JavaScript code will not only return `a` incremented by 1, but also overwrite the global variable `a` with `a+1`:
 
 ```py
@@ -1357,7 +1337,8 @@ Shadowing is preferred in most cases, since it can't accidently damage outside l
 
 Available Libraries
 -------------------
-One of Python's main strengths is the number of libraries available to the developer. This is something very few other `Python-in-a-browser` frameworks understand. In the browser JavaScript is king, and no matter how many libraries the community for the given project will write, the readily-available JavaScript libraries will always outnumber them. This is why RapydScript was designed with JavaScript and DOM integration in mind from the beginning. Indeed, plugging `underscore.js` in place of RapydScript's `stdlib` will work just as well, and some developers may choose to do so, after all, `underscore.js` is very Pythonic and very complete. Likewise, `sprintf.js` (<https://npmjs.org/package/sprintf-js>) can be used with RapydScript to replicate Python's string interpolation.
+
+One of Python's main strengths is the number of libraries available to the developer. This is something very few other `Python-in-a-browser` frameworks understand. In the browser JavaScript is king, and no matter how many libraries the community for the given project will write, the readily-available JavaScript libraries will always outnumber them. This is why RapydScript was designed with JavaScript and DOM integration in mind from the beginning. Indeed, plugging `underscore.js` in place of RapydScript's `stdlib` will work just as well, and some developers may choose to do so, after all, `underscore.js` is very Pythonic and very complete. 
 
 It is for that reason that I try to keep RapydScript bells and whistles to a minimum. RapydScript's main strength is easy integration with JavaScript and DOM, which allows me to stay sane and not rewrite my own versions of the libraries that are already available. That doesn't mean, however, that pythonic libraries can't be written for RapydScript. To prove that, I have implemented lightweight clones of several popular Python libraries and bundled them into RapydScript, you can find them in `src` directory. The following libraries are included:
 
