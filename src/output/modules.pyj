@@ -5,6 +5,7 @@
 from parse import COMPILER_VERSION
 from output.statements import declare_vars, display_body
 from output.stream import OutputStream
+from output.utils import create_doctring
 
 def write_imports(module, output):
     imports = []
@@ -57,8 +58,14 @@ def write_main_name(output):
         output.newline()
         output.newline()
 
-def declare_exports(module_id, exports, submodules, output):
+def declare_exports(module_id, exports, submodules, output, docstrings):
     seen = {}
+    if output.option('keep_docstrings') and docstrings and docstrings.length:
+        exports.push({'name':'__doc__', 'refname': 'ρσ_module_doc__'})
+        output.newline(), output.indent()
+        v = 'const' if output.js_version > 5 else 'var'
+        output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(docstrings)))
+        output.end_statement()
     output.newline()
     for symbol in exports:
         if not Object.prototype.hasOwnProperty.call(seen, symbol.name):
@@ -67,7 +74,7 @@ def declare_exports(module_id, exports, submodules, output):
                 output.print('ρσ_modules.' + module_id + '.' + symbol.name)
             else:
                 output.print('ρσ_modules["' + module_id + '"].' + symbol.name)
-            output.space(), output.print('='), output.space(), output.print(symbol.name)
+            output.space(), output.print('='), output.space(), output.print(symbol.refname or symbol.name)
             seen[symbol.name] = True
             output.end_statement()
 
@@ -104,8 +111,16 @@ def prologue(module, output):
     output.print(output.options.baselib_plain)
     output.end_statement()
 
+
 def print_top_level(self, output):
     is_main = output.is_main()
+
+    def write_docstrings():
+        if is_main and output.option('keep_docstrings') and self.docstrings and self.docstrings.length:
+            output.newline(), output.indent()
+            v = 'const' if output.js_version > 5 else 'var'
+            output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(self.docstrings)))
+            output.end_statement()
 
     if output.option("private_scope") and is_main:
         output.with_parens(def():
@@ -129,6 +144,7 @@ def print_top_level(self, output):
                         declare_vars(self.localvars, output)
                         display_body(self.body, True, output)
                         output.newline()
+                        write_docstrings()
                     )
                 )
                 output.print("();")
@@ -151,7 +167,7 @@ def print_module(self, output):
     def output_module(output):
         declare_vars(self.localvars, output)
         display_body(self.body, True, output)
-        declare_exports(self.module_id, self.exports, self.submodules, output)
+        declare_exports(self.module_id, self.exports, self.submodules, output, self.docstrings)
 
     output.newline()
     output.indent()
@@ -166,9 +182,9 @@ def print_module(self, output):
                 output.print('"' + self.module_id + '"')
                 output.semicolon()
                 output.newline()
-            def output_key(beautify, auto_bind, js_version):
-                return 'beautify:' + beautify + ' auto_bind:' + auto_bind + ' js_version:' + js_version
-            okey = output_key(output.option('beautify'), output.option('auto_bind'), output.option('js_version'))
+            def output_key(beautify, keep_docstrings, js_version):
+                return 'beautify:' + beautify + ' keep_docstrings:' + keep_docstrings + ' js_version:' + js_version
+            okey = output_key(output.option('beautify'), output.option('keep_docstrings'), output.option('js_version'))
             if self.is_cached and okey in self.outputs:
                 output.print(self.outputs[okey])
                 declare_submodules(self.module_id, self.submodules, output)
@@ -187,14 +203,14 @@ def print_module(self, output):
                     for symdef in self.exports:
                         cached.exports.push({'name':symdef.name})
                     for beautify in [True, False]:
-                        for auto_bind in [True, False]:
+                        for keep_docstrings in [True, False]:
                             for js_version in [5, 6]:
-                                co = OutputStream({'beautify':beautify, 'auto_bind':auto_bind, 'js_version':js_version, 'private_scope':False, 'write_name':False})
+                                co = OutputStream({'beautify':beautify, 'keep_docstrings':keep_docstrings, 'js_version':js_version, 'private_scope':False, 'write_name':False})
                                 co.with_indent(output.indentation(), def():
                                     output_module(co)
                                 )
-                                raw = co.toString()
-                                cached.outputs[output_key(beautify, auto_bind, js_version)] = raw
+                                raw = co.get()
+                                cached.outputs[output_key(beautify, keep_docstrings, js_version)] = raw
                     try:
                         writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))
                     except Error as e:

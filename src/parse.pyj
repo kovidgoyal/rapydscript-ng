@@ -903,8 +903,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     next()
                     continue
 
+        docstrings = v'[]'
         definition = new AST_Class({
             'name': name,
+            'docstrings': docstrings,
             'module_id':module_id,
             'dynamic_properties': Object.create(None),
             'parent': class_parent,
@@ -933,7 +935,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.in_function += 1
                 S.in_loop = 0
                 S.labels = []
-                a = block_()
+                a = block_(docstrings)
                 S.in_function -= 1
                 S.scoped_flags.pop()
                 S.classes.pop()
@@ -1002,6 +1004,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         ctor = in_class ? AST_Method : AST_Function
         return_annotation = None
         is_generator = v'[]'
+        docstrings = v'[]'
         definition = new ctor({
             'name': name,
             'is_expression': is_expression,
@@ -1123,6 +1126,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.decorators = v'[]'
                 return d
             )(),
+            'docstrings': docstrings,
             'body': (def(loop, labels):
                 S.in_class.push(False)
                 S.classes.push({})
@@ -1131,7 +1135,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.functions.push({})
                 S.in_loop = 0
                 S.labels = []
-                a = block_()
+                a = block_(docstrings)
                 S.in_function -= 1
                 S.scoped_flags.pop()
                 is_generator.push(bool(S.functions.pop().is_generator))
@@ -1190,20 +1194,38 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'alternative': belse
         })
 
-    def block_():
+    def is_docstring(stmt):
+        if isinstance(stmt, AST_SimpleStatement):
+            if isinstance(stmt.body, AST_String):
+                return stmt.body
+        return False
+
+    def block_(docstrings):
         expect(":")
         a = v'[]'
         if not S.token.nlb:
             while not S.token.nlb:
                 if is_("eof"):
                     unexpected()
-                a.push(statement())
+                stmt = statement()
+                if docstrings:
+                    ds = is_docstring(stmt)
+                    if ds:
+                        docstrings.push(ds)
+                        continue
+                a.push(stmt)
         else:
             while not is_("punc", "}"):
                 if is_("eof"):
                     # end of file, terminate block automatically
                     return a
-                a.push(statement())
+                stmt = statement()
+                if docstrings:
+                    ds = is_docstring(stmt)
+                    if ds:
+                        docstrings.push(ds)
+                        continue
+                a.push(stmt)
             next()
         return a
 
@@ -2016,27 +2038,34 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def run_parser():
         start = S.token = next()
-        body = []
+        body = v'[]'
+        docstrings = v'[]'
         first_token = True
+        toplevel = options.toplevel
         while not is_("eof"):
             element = statement()
             if first_token and isinstance(element, AST_Directive) and element.value.indexOf('#!') is 0:
                 shebang = element.value
             else:
-                body.push(element)
+                ds = not toplevel and is_docstring(element)  # do not process strings as docstrings if we are concatenating toplevels
+                if ds:
+                    docstrings.push(ds)
+                else:
+                    body.push(element)
             first_token = False
 
         end = prev()
-        toplevel = options.toplevel
         if toplevel:
             toplevel.body = toplevel.body.concat(body)
             toplevel.end = end
+            toplevel.docstrings
         else:
             toplevel = new AST_Toplevel({
                 'start': start,
                 'body': body,
                 'shebang': shebang,
-                'end': end
+                'end': end,
+                'docstrings': docstrings,
             })
 
         toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body)

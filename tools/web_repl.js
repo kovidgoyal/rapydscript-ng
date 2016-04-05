@@ -58,7 +58,7 @@ module.exports = function(compiler, baselib) {
         },
 
         'compile': function web_repl_compile(code, filename) {
-            return streaming_compiler.compile(code, filename);
+            return streaming_compiler.compile(code, filename, true);
         },
 
         'runjs': function runjs(code) {

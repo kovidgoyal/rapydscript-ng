@@ -5,6 +5,7 @@
 from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef
 from output.stream import OutputStream
 from output.statements import print_bracketed
+from output.utils import create_doctring
 
 anonfunc = 'ρσ_anonfunc'
 
@@ -159,6 +160,11 @@ def function_annotation(self, output, strip_first, name):
             )
             output.print(']')
 
+    # Create __doc__
+    if output.options.keep_docstrings and self.docstrings and self.docstrings.length:
+        props.__doc__ = def():
+            output.print(JSON.stringify(create_doctring(self.docstrings)))
+
     names = Object.keys(props)
     if names.length:
         output.indent(), output.print('Object.defineProperties(' + fname), output.comma()
@@ -175,7 +181,7 @@ def function_annotation(self, output, strip_first, name):
 
 def function_definition(self, output, strip_first, as_expression):
     as_expression = as_expression or self.is_expression or self.is_anonymous
-    if not self.argnames.length and not self.return_annotation:
+    if not self.argnames.length and not self.return_annotation and (not output.options.keep_docstrings or not self.docstrings or not self.docstrings.length):
         # This function has no annotations so dont wrap it needlessly
         as_expression = False
     if as_expression:

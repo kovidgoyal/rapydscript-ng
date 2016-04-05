@@ -34,6 +34,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         private_scope: !argv.bare,
         omit_baselib: argv.omit_baselib,
         js_version: parseInt(argv.js_version),
+        keep_docstrings: argv.keep_docstrings,
     };
     var files = argv.files.slice();
     var STATS = {}, TOPLEVEL;

@@ -91,7 +91,7 @@ module.exports = function(options) {
     options.console.log();
 
     function print_ast(ast, keep_baselib) {
-        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true};
+        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, keep_docstrings:true};
         if (keep_baselib) output_options.baselib_plain = fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
         var output = new RapydScript.OutputStream(output_options);
         ast.print(output);

@@ -3,6 +3,7 @@
 
 from ast import AST_Class, AST_Method
 from output.functions import decorate, function_definition, function_annotation
+from output.utils import create_doctring
 
 def print_class(output):
     self = this
@@ -212,6 +213,12 @@ def print_class(output):
             output.comma()
             self.bases[i].print(output)
         output.print(')'), output.end_statement()
+
+    # Docstring
+    if self.docstrings and self.docstrings.length and output.options.keep_docstrings:
+        add_hidden_property('__doc__', def():
+            output.print(JSON.stringify(create_doctring(self.docstrings)))
+        )
 
     # Other statements in the class context
     self.statements.forEach(def(stmt):

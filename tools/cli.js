@@ -250,6 +250,12 @@ Remove the module wrapper that prevents RapydScript
 scope from bleeding into other JavaScript logic 
 */});
 
+opt("keep_docstrings", 'd', 'bool', false, function(){/*
+Keep the docstrings in the generated JavaScript as __doc__
+attributes on functions, classes and modules. Normally,
+the docstring are deleted to reduce download size.
+*/});
+
 opt("uglify", 'u', 'bool', false, function(){/*
 Minify the output instead of pretty printing it.
 */});

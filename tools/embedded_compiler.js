@@ -14,8 +14,8 @@ module.exports = function(compiler, baselib, runjs, name) {
     runjs(print_ast(compiler.parse(''), true));
     runjs('var __name__ = "' + (name || '__embedded__') + '";');
 
-    function print_ast(ast, keep_baselib) {
-        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, js_version: 6};
+    function print_ast(ast, keep_baselib, keep_docstrings) {
+        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, js_version: 6, keep_docstrings:keep_docstrings};
         if (keep_baselib) output_options.baselib_plain = baselib;
         var output = new compiler.OutputStream(output_options);
         ast.print(output);
@@ -25,7 +25,7 @@ module.exports = function(compiler, baselib, runjs, name) {
     return {
         'toplevel': null,
 
-        'compile': function web_repl_compile(code, filename) {
+        'compile': function web_repl_compile(code, filename, keep_docstrings) {
             var classes = (this.toplevel) ? this.toplevel.classes : undefined;
             var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;
             this.toplevel = compiler.parse(code, {
@@ -34,7 +34,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'classes': classes,
                 'scoped_flags': scoped_flags,
             });
-            var ans = print_ast(this.toplevel);
+            var ans = print_ast(this.toplevel, false, keep_docstrings);
             if (classes) {
                 var exports = {};
                 var self = this;

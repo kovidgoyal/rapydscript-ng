@@ -67,6 +67,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 baselib_plain: baselib,
                 beautify: true,
                 js_version: js_version,
+                keep_docstrings: true,
             });
             ast.print(output);
 

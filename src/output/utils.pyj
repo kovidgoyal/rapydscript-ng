@@ -43,3 +43,29 @@ def make_block(stmt, output):
         stmt.print(output)
         output.newline()
     )
+
+def create_doctring(docstrings):
+    ans = v'[]'
+    for ds in docstrings:
+        ds = str.rstrip(ds.value)
+        lines = v'[]'
+        min_leading_whitespace = ''
+        for line in ds.split(/$/gm):
+            r = /^\s+/.exec(line)
+            leading_whitespace = ''
+            if r:
+                leading_whitespace = r[0].replace(/[\n\r]/g, '') if r else ''
+                line = line[r[0].length:]
+            if not str.strip(line):
+                lines.push(v'["", ""]')
+            else:
+                leading_whitespace = leading_whitespace.replace(/\t/g, '    ')
+                if leading_whitespace and (not min_leading_whitespace or leading_whitespace.length < min_leading_whitespace.length):
+                    min_leading_whitespace = leading_whitespace
+                lines.push(v'[leading_whitespace, line]')
+        for lw, l in lines:
+            if min_leading_whitespace:
+                lw = lw[min_leading_whitespace.length:]
+            ans.push(lw + l)
+        ans.push('')
+    return str.rstrip(ans.join('\n'))

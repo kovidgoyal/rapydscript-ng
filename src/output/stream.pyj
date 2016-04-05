@@ -50,9 +50,9 @@ class OutputStream:
             'omit_baselib': False,
             'baselib_plain': None,
             'private_scope': True,
-            'auto_bind': False,
+            'keep_docstrings': False,
             'js_version':5,
-            'write_name': True
+            'write_name': True,
         }, True)
         self._indentation = 0
         self.current_col = 0
