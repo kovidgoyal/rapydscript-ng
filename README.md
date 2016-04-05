@@ -42,6 +42,7 @@ backwards compatible) features. For a list of changes, [see the bottom of this f
 - [Scope Control](#scope-control)
 - [Available Libraries](#available-libraries)
 - [Linter](#linter)
+- [Making RapydScript even more pythonic](#making-rapydscript-even-more-pythonic)
 - [Advanced Usage Topics](#advanced-usage-topics)
     - [Browser Compatibility](#browser-compatibility)
     - [Tabs vs Spaces](#tabs-vs-spaces)
@@ -1360,14 +1361,16 @@ One of Python's main strengths is the number of libraries available to the devel
 
 It is for that reason that I try to keep RapydScript bells and whistles to a minimum. RapydScript's main strength is easy integration with JavaScript and DOM, which allows me to stay sane and not rewrite my own versions of the libraries that are already available. That doesn't mean, however, that pythonic libraries can't be written for RapydScript. To prove that, I have implemented lightweight clones of several popular Python libraries and bundled them into RapydScript, you can find them in `src` directory. The following libraries are included:
 
-	stdlib/stdlib2		# see stdlib section
 	math				# replicates almost all of the functionality from Python's math library
 	re					# replicates almost all of the functionality from Python's re library
-	unittest			# replicates almost all of the functionality from Python's unittest library
 	random				# replicates most of the functionality from Python's random library
-	yql					# lightweight library for performing Yahoo Query Language requests
+	elementmaker        # easily construct DOM trees
+	aes                 # Implement AES symmetric encryption
+	encodings           # Convert to/from UTF-8 bytearrays, base64 strings and native strings
+	gettext             # Support for internationalization of your RapydScript app
+	operator            # a subset of python;s operator module
 
-For the most part, the logic implemented in these libraries functions identically to the Python versions. One notable exception is that unittest library requires that classes be bound to the `global` (nodejs) or `window` (browser) object to be picked up by `unittest.main()`. An example in `unitetest.pyj` shows this usage. I'd be happy to include more libraries, if other members of the community want to implement them (it's fun to do, `re.pyj` is a good example), but I want to reemphasize that unlike most other Python-to-JavaScript compilers, RapydScript doesn't need them to be complete since there are already tons of available JavaScript libraries that it can use natively.
+For the most part, the logic implemented in these libraries functions identically to the Python versions.  I'd be happy to include more libraries, if other members of the community want to implement them (it's fun to do, `re.pyj` is a good example), but I want to reemphasize that unlike most other Python-to-JavaScript compilers, RapydScript doesn't need them to be complete since there are already tons of available JavaScript libraries that it can use natively.
 
 Linter
 ---------
@@ -1403,6 +1406,28 @@ The linter is highly configurable, you can add to the list of built-in names
 that the linter will not raise undefined errors for. You can turn off
 individual checks that you do not find useful. See ``rapydscript lint -h`` for
 details.
+
+Making RapydScript even more pythonic
+---------------------------------------
+
+RapydScript has three main goals: To be as fast as possible, to be as close to
+python as possible, to interoperate with external javascript libraries.
+Sometimes these goals conflict and RapydScript chooses to be less pythonic in
+service to the other two goals. Fortunately, there are many optionals flags you
+can use to reverse these compromises. The most important of these are called
+*scoped flags*. 
+
+The scoped flags are local to each scope, that means that if you use it in a
+module, it will only affect code in that module, it you use it in a function,
+it will only affect code in that function. In fact, you can even use it to
+surround a few lines of code. There are many scoped flags, described else where
+in this document, see the sections on Method Auto-binding and the section on Dicts
+in this document.
+
+Another common complaint is that in RapydScript strings dont have all the
+string methods that python strings do. Fortunately, there is solution for that
+as well, described in the section on strings in this document.
+
 
 Advanced Usage Topics
 ---------------------
