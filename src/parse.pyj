@@ -2110,14 +2110,15 @@ def parse(text, options):
         'decorators': v'[]',
         'parsing_decorator': False,
         'scoped_flags': {
-            'stack': v'[options.scoped_flags || {}]',
-            'push': def (): this.stack.push({});,
+            'stack': v'[options.scoped_flags || Object.create(null)]',
+            'push': def (): this.stack.push(Object.create(None));,
             'pop': def (): this.stack.pop();,
             'get': def (name, defval):
                 for v'var i = this.stack.length - 1; i >= 0; i--':
                     d = this.stack[i]
-                    if has_prop.call(d, name):
-                        return d[name]
+                    q = d[name]
+                    if q:
+                        return q
                 return defval
             ,
             'set': def (name, val): this.stack[-1][name] = val;,
