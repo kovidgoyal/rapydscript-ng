@@ -118,7 +118,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             console.error(RapydScript.string_template("Timing information (compressed {count} files):", {
                 count: num_of_files
             }));
-            for (var i in STATS) if (STATS.hasOwnProperty(i)) {
+            for (var i in STATS) if (Object.prototype.hasOwnProperty.call(STATS, i)) {
                 console.error(RapydScript.string_template("- {name}: {time}s", {
                     name: i,
                     time: (STATS[i] / 1000).toFixed(3)

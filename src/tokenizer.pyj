@@ -393,7 +393,7 @@ def tokenizer($TEXT, filename):
             return q
         if '"\''.indexOf(q) is not -1:
             return q
-        if ASCII_CONTROL_CHARS.hasOwnProperty(q):
+        if ASCII_CONTROL_CHARS[q]:
             return String.fromCharCode(ASCII_CONTROL_CHARS[q])
         if '0' <= q <= '7':
             octal = q

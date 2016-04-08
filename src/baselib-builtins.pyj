@@ -108,45 +108,36 @@ def ρσ_hex(x):
     return ans
 
 def ρσ_enumerate(iterable):
+    ans = v'{"_i":-1}'
+    ans[ρσ_iterator_symbol] = def():
+        return this
     if ρσ_arraylike(iterable):
-        ans = {
-            '_i': -1,
-            'next':def():
+        ans['next'] = def():
                 this._i += 1
                 if this._i < iterable.length:
-                    return {'done':False, 'value':[this._i, iterable[this._i]]}
-                return {'done':True}
-        }
-        ans[ρσ_iterator_symbol] = def():
-            return this
+                    return v"{'done':false, 'value':[this._i, iterable[this._i]]}"
+                return v"{'done':true}"
         return ans
     if type(iterable[ρσ_iterator_symbol]) is 'function':
         iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
-        ans = {
-            '_iterator':iterator,
-            '_i': -1,
-            'next':def():
-                r = this._iterator.next()
-                if r.done:
-                    return {'done':True}
-                this._i += 1
-                return {'done':False, 'value':[this._i, r.value]}
-        }
-        ans[ρσ_iterator_symbol] = def():
-            return this
+        ans['_iterator'] = iterator
+        ans['next'] = def():
+            r = this._iterator.next()
+            if r.done:
+                return v"{'done':true}"
+            this._i += 1
+            return v"{'done':false, 'value':[this._i, r.value]}"
         return ans
     return ρσ_enumerate(Object.keys(iterable))
 
 def ρσ_reversed(iterable):
     if ρσ_arraylike(iterable):
-        ans = {
-            '_i': iterable.length,
-            'next':def():
-                this._i -= 1
-                if this._i > -1:
-                    return {'done':False, 'value':iterable[this._i]}
-                return {'done':True}
-        }
+        ans = v'{"_i": iterable.length}'
+        ans['next'] = def():
+            this._i -= 1
+            if this._i > -1:
+                return v"{'done':false, 'value':iterable[this._i]}"
+            return v"{'done':true}"
         ans[ρσ_iterator_symbol] = def():
             return this
         return ans
@@ -157,16 +148,14 @@ def ρσ_iter(iterable):
     if type(iterable[ρσ_iterator_symbol]) is 'function':
         return (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
     if ρσ_arraylike(iterable):
-        ans = {
-            '_i': -1,
-            'next':def():
-                this._i += 1
-                if this._i < iterable.length:
-                    return {'done':False, 'value':iterable[this._i]}
-                return {'done':True}
-        }
+        ans = v'{"_i":-1}'
         ans[ρσ_iterator_symbol] = def():
             return this
+        ans['next'] = def():
+            this._i += 1
+            if this._i < iterable.length:
+                return v"{'done':false, 'value':iterable[this._i]}"
+            return v"{'done':true}"
         return ans
     return ρσ_iter(Object.keys(iterable))
 
@@ -176,18 +165,16 @@ def ρσ_range(start, stop, step):
         start = 0
     step = arguments[2] or 1
     length = Math.max(Math.ceil((stop - start) / step), 0)
-    return {
-        ρσ_iterator_symbol: def(): return this;,
-        '_i': start - step,
-        '_idx': -1,
-        'next': def():
-            this._i += step
-            this._idx += 1
-            if this._idx >= length:
-                return {'done':True}
-            return {'done':False, 'value':this._i}
-        ,
-    }
+    ans = v"{'_i': start - step, '_idx': -1}"
+    ans[ρσ_iterator_symbol] = def():
+        return this
+    ans['next'] = def():
+        this._i += step
+        this._idx += 1
+        if this._idx >= length:
+            return v"{'done':true}"
+        return v"{'done':false, 'value':this._i}"
+    return ans
 
 def ρσ_getattr(obj, name, defval):
     try:

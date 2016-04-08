@@ -18,16 +18,19 @@ def ρσ_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
-    if a and b and a.constructor is b.constructor and a.constructor is Object:
-        # Do a dict like comparison
-        akeys, bkeys = Object.keys(a), Object.keys(b)
-        if akeys.length is not bkeys.length:
-            return False
-        for v'var j=0; j < akeys.length; j++':
-            key = akeys[j]
-            if not (a[key] == b[key]):
+    if type(a) is 'object' and type(b) is 'object' and (
+        (a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)
+    ):
+            # Do a dict like comparison as this is most likely either a JS has
+            # (Object.create(null) or a JS object used as a hash (v"{}"))
+            akeys, bkeys = Object.keys(a), Object.keys(b)
+            if akeys.length is not bkeys.length:
                 return False
-        return True
+            for v'var j=0; j < akeys.length; j++':
+                key = akeys[j]
+                if not (a[key] == b[key]):
+                    return False
+            return True
     return False
 
 def ρσ_not_equals(a, b):
@@ -255,7 +258,7 @@ def ρσ_set_polyfill():
 
 ρσ_set_polyfill.prototype.add = def(x):
     key = ρσ_set_keyfor(x)
-    if not Object.hasOwnProperty.call(this._store, key):
+    if not Object.prototype.hasOwnProperty.call(this._store, key):
         this.size += 1
         this._store[key] = x
     return this
@@ -266,29 +269,25 @@ def ρσ_set_polyfill():
 
 ρσ_set_polyfill.prototype.delete = def(x):
     key = ρσ_set_keyfor(x)
-    if Object.hasOwnProperty.call(this._store, key):
+    if Object.prototype.hasOwnProperty.call(this._store, key):
         this.size -= 1
         v'delete this._store[key]'
         return True
     return False
 
 ρσ_set_polyfill.prototype.has = def(x):
-    return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
+    return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
 ρσ_set_polyfill.prototype.values = def(x):
-    keys = Object.keys(this._store)
-    s = this._store
-    return {
-        '_keys': keys,
-        '_i': -1,
-        '_s':s,
-        ρσ_iterator_symbol: def (): return this;,
-        'next':def():
-            this._i += 1
-            if this._i >= this._keys.length:
-                return {'done': True}
-            return {'done':False, 'value':s[this._keys[this._i]]}
-    }
+    ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
+    ans[ρσ_iterator_symbol] = def():
+        return this
+    ans['next'] = def():
+        this._i += 1
+        if this._i >= this._keys.length:
+            return v"{'done': true}"
+        return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
+    return ans
 
 if type(Set) is not 'function' or type(Set.prototype.delete) is not 'function':
     v'ρσ_set_implementation = ρσ_set_polyfill'
@@ -498,7 +497,7 @@ def ρσ_dict_polyfill():
 
 ρσ_dict_polyfill.prototype.set = def(x, value):
     key = ρσ_set_keyfor(x)
-    if not Object.hasOwnProperty.call(this._store, key):
+    if not Object.prototype.hasOwnProperty.call(this._store, key):
         this.size += 1
     this._store[key] = v'[x, value]'
     return this
@@ -509,14 +508,14 @@ def ρσ_dict_polyfill():
 
 ρσ_dict_polyfill.prototype.delete = def(x):
     key = ρσ_set_keyfor(x)
-    if Object.hasOwnProperty.call(this._store, key):
+    if Object.prototype.hasOwnProperty.call(this._store, key):
         this.size -= 1
         v'delete this._store[key]'
         return True
     return False
 
 ρσ_dict_polyfill.prototype.has = def(x):
-    return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
+    return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
 ρσ_dict_polyfill.prototype.get = def(x):
     try:
@@ -525,49 +524,37 @@ def ρσ_dict_polyfill():
         return undefined
 
 ρσ_dict_polyfill.prototype.values = def(x):
-    keys = Object.keys(this._store)
-    s = this._store
-    return {
-        '_keys': keys,
-        '_i': -1,
-        '_s':s,
-        ρσ_iterator_symbol: def (): return this;,
-        'next':def():
-            this._i += 1
-            if this._i >= this._keys.length:
-                return {'done': True}
-            return {'done':False, 'value':s[this._keys[this._i]][1]}
-    }
+    ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
+    ans[ρσ_iterator_symbol] = def():
+        return this
+    ans['next'] = def():
+        this._i += 1
+        if this._i >= this._keys.length:
+            return v"{'done': true}"
+        return v"{'done':false, 'value':this._s[this._keys[this._i]][1]}"
+    return ans
 
 ρσ_dict_polyfill.prototype.keys = def(x):
-    keys = Object.keys(this._store)
-    s = this._store
-    return {
-        '_keys': keys,
-        '_i': -1,
-        '_s':s,
-        ρσ_iterator_symbol: def (): return this;,
-        'next':def():
-            this._i += 1
-            if this._i >= this._keys.length:
-                return {'done': True}
-            return {'done':False, 'value':s[this._keys[this._i]][0]}
-    }
+    ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
+    ans[ρσ_iterator_symbol] = def():
+        return this
+    ans['next'] = def():
+        this._i += 1
+        if this._i >= this._keys.length:
+            return v"{'done': true}"
+        return v"{'done':false, 'value':this._s[this._keys[this._i]][0]}"
+    return ans
 
 ρσ_dict_polyfill.prototype.entries = def(x):
-    keys = Object.keys(this._store)
-    s = this._store
-    return {
-        '_keys': keys,
-        '_i': -1,
-        '_s':s,
-        ρσ_iterator_symbol: def (): return this;,
-        'next':def():
-            this._i += 1
-            if this._i >= this._keys.length:
-                return {'done': True}
-            return {'done':False, 'value':s[this._keys[this._i]]}
-    }
+    ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
+    ans[ρσ_iterator_symbol] = def():
+        return this
+    ans['next'] = def():
+        this._i += 1
+        if this._i >= this._keys.length:
+            return v"{'done': true}"
+        return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
+    return ans
 
 if type(Map) is not 'function' or type(Map.prototype.delete) is not 'function':
     v'ρσ_dict_implementation = ρσ_dict_polyfill'

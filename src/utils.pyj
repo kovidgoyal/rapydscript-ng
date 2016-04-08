@@ -1,6 +1,8 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
+has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
+
 def array_to_hash(a):
     ret = Object.create(None)
     for i in range(len(a)):
@@ -41,11 +43,11 @@ def defaults(args, defs, croak):
     ret = args or {}
     if croak:
         for i in ret:
-            if not defs.hasOwnProperty(i):
+            if not has_prop(defs, i):
                 raise DefaultsError(i, defs)
 
     for i in defs:
-        ret[i] = args and args.hasOwnProperty(i) ? args[i] : defs[i]
+        ret[i] = args and has_prop(args, i) ? args[i] : defs[i]
     return ret
 
 def merge(obj, ext):
@@ -179,11 +181,9 @@ def make_predicate(words):
         words = words.split(" ")
     if type(Set) is 'function':
         a = Set(words)
-        return def(x):
-            return a.has(x)
+        return a.has.bind(a)
     else:
         a = {}
         for k in words:
             a[k] = True
-        return def(x):
-            return a.hasOwnProperty(x)
+        return Object.prototype.hasOwnProperty.bind(a)

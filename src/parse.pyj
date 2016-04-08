@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-from utils import make_predicate, array_to_hash, defaults
+from utils import make_predicate, array_to_hash, defaults, has_prop
 from errors import SyntaxError, ImportError
 from ast import (
 AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
@@ -23,7 +23,6 @@ AST_Yield
 )
 from tokenizer import tokenizer, is_token, UNARY_POSTFIX
 
-has_prop = Object.prototype.hasOwnProperty
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True}
@@ -270,7 +269,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         seen = {}
 
         def push(x):
-            if has_prop.call(seen, x):
+            if has_prop(seen, x):
                 return
             seen[x] = True
             localvars.push(x)
@@ -664,14 +663,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         # an easy way to walk the ast tree upwards.
         if isinstance(expr, AST_SymbolRef):
             # check Native JS classes
-            if NATIVE_CLASSES.hasOwnProperty(expr.name):
+            if has_prop(NATIVE_CLASSES, expr.name):
                 return NATIVE_CLASSES[expr.name]
-            if ERROR_CLASSES.hasOwnProperty(expr.name):
+            if has_prop(ERROR_CLASSES, expr.name):
                 return ERROR_CLASSES[expr.name]
 
             # traverse in reverse to check local variables first
             for s in range(S.classes.length-1, -1, -1):
-                if S.classes[s].hasOwnProperty(expr.name):
+                if has_prop(S.classes[s], expr.name):
                     return S.classes[s][expr.name]
 
         elif isinstance(expr, AST_Dot):
@@ -686,7 +685,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if len(referenced_path) > 1:
                     class_name = referenced_path.join('.')
                     for s in range(S.classes.length-1, -1, -1):
-                        if S.classes[s].hasOwnProperty(class_name):
+                        if has_prop(S.classes[s], class_name):
                             return S.classes[s][class_name]
         return False
 
@@ -695,9 +694,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         raise new ImportError(message, ctx.filename, ctx.tokline, ctx.tokcol, ctx.tokpos)
 
     def do_import(key):
-        if imported_modules.hasOwnProperty(key):
+        if has_prop(imported_modules, key):
             return
-        if importing_modules.hasOwnProperty(key) and importing_modules[key]:
+        if has_prop(importing_modules, key) and importing_modules[key]:
             import_error('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
 
         # Ensure that the package containing this module is also imported
@@ -780,7 +779,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             val = False if name.startsWith('no_') else True
             if not val:
                 name = name.slice(3)
-            if not has_prop.call(PYTHON_FLAGS, name):
+            if not has_prop(PYTHON_FLAGS, name):
                 croak('Unknown __python__ flag: ' + name)
             S.scoped_flags.set(name, val)
             next()
@@ -841,7 +840,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     exports[symdef.name] = True
                 while True:
                     aname = as_symbol(AST_ImportedVar)
-                    if not options.for_linting and not exports.hasOwnProperty(aname.name):
+                    if not options.for_linting and not has_prop(exports, aname.name):
                         import_error('The symbol "' + aname.name + '" is not exported from the module: ' + key)
                     if is_('keyword', 'as'):
                         next()
@@ -967,7 +966,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return
                 elif isinstance(node, AST_Assign) and isinstance(node.left, AST_SymbolRef):
                     class_var_names[node.left.name] = True
-                elif isinstance(node, AST_SymbolRef) and has_prop.call(class_var_names, node.name):
+                elif isinstance(node, AST_SymbolRef) and has_prop(class_var_names, node.name):
                     node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
                 if descend:
                     descend.call(node)
@@ -1020,7 +1019,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 def get_arg():
                     nonlocal current_arg_name, name_token
                     current_arg_name = S.token.value
-                    if has_prop.call(seen_names, current_arg_name):
+                    if has_prop(seen_names, current_arg_name):
                         token_error(prev(), "Can't repeat parameter names")
                     if current_arg_name is 'arguments':
                         token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript")
@@ -2078,7 +2077,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 symbol = new_symbol(AST_SymbolVar, item)
                 if isvar:
                     toplevel.localvars.push(symbol)
-                if not has_prop.call(seen_exports, item):
+                if not has_prop(seen_exports, item):
                     toplevel.exports.push(symbol)
                     seen_exports[item] = True
 

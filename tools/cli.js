@@ -9,6 +9,7 @@
 var path = require('path');
 var utils = require('./utils');
 var colored = utils.safe_colored;
+var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 function OptionGroup(name) {
     this.name = name;
@@ -133,13 +134,13 @@ function opt(name, aliases, type, default_val, help_text, choices) {
 
 	if (aliases && aliases.length) {
 		aliases.split(',').forEach(function(alias) {
-			if (seen.hasOwnProperty(alias)) throw "The option name:" + alias + " has already been used.";
+			if (has_prop(seen, alias)) throw "The option name:" + alias + " has already been used.";
 			seen[alias] = true;
 		});
 		options.alias[name] = aliases.split(',');
 	} else options.alias[name] = [];
 
-	if (seen.hasOwnProperty(name)) throw "The option name:" + name + " has already been used.";
+	if (has_prop(seen, name)) throw "The option name:" + name + " has already been used.";
 	seen[name] = true;
 
 	help[name] = help_text;
@@ -180,7 +181,7 @@ function parse_args() {  // {{{
 			console.error('\nThe option:', colored('-' + oarg, 'red'), 'is not recognized');
 			process.exit(1);
 		}
-		if (options.boolean.hasOwnProperty(name)) {
+		if (has_prop(options.boolean, name)) {
 			if (!val) val = 'true';
 			if (val === 'true' || val === '1') val = true;
 			else if (val === 'false' || val === '0') val = false;
@@ -194,7 +195,7 @@ function parse_args() {  // {{{
 
     var all_args = process.argv.slice(2);
     ans.auto_mode = false;
-    if (groups.hasOwnProperty(all_args[0])) {
+    if (has_prop(groups, all_args[0])) {
         ans.mode = all_args[0];
         all_args = all_args.slice(1);
     } else {

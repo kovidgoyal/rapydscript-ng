@@ -6,6 +6,7 @@
  */
 "use strict";  /*jshint node:true */
 
+var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 module.exports = function(compiler, baselib, runjs, name) {
     compiler.AST_Node.warn_function = function() {};
@@ -40,7 +41,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 var self = this;
                 this.toplevel.exports.forEach(function (name) { exports[name] = true; });
                 Object.getOwnPropertyNames(classes).forEach(function (name) {
-                    if (!exports.hasOwnProperty(name) && !self.toplevel.classes.hasOwnProperty(name))
+                    if (!has_prop(exports, name) && !has_prop(self.toplevel.classes, name))
                         self.toplevel.classes[name] = classes[name];
                 });
             }

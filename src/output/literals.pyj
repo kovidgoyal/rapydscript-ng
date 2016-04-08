@@ -30,7 +30,7 @@ def print_obj_literal(self, output):
             if self.is_pydict:
                 output.spaced.apply(output, 'var ρσ_d = ρσ_dict()'.split(' '))
             else:
-                output.spaced.apply(output, 'var ρσ_d = {}'.split(' '))
+                output.spaced.apply(output, 'var ρσ_d = Object.create(null)'.split(' '))
             output.end_statement()
             self.properties.forEach(def(prop, i):
                 output.indent()
@@ -53,7 +53,7 @@ def print_obj_literal(self, output):
             output.end_statement()
         )
     )
-    output.print('()')
+    output.print('.call(this)')
 
 def print_object(self, output):
     if self.is_pydict:
@@ -63,18 +63,9 @@ def print_object(self, output):
             output.print('ρσ_dict()')
     else:
         if self.properties.length > 0:
-            output.with_block(def():
-                self.properties.forEach(def(prop, i):
-                    if i:
-                        output.print(",")
-                        output.newline()
-                    output.indent()
-                    prop.print(output)
-                )
-                output.newline()
-            )
+            print_obj_literal(self, output)
         else:
-            output.print("{}")
+            output.print("Object.create(null)")
 
 def print_set(self, output):
     if self.items.length is 0:

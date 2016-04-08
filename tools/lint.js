@@ -51,6 +51,7 @@ var BUILTINS = {
     'sorted':true, '__name__':true, 'equals': true,
 };
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
+var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 if (!String.prototype.startsWith) {
   String.prototype.startsWith = function(searchString, position) {
@@ -120,7 +121,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
     this.methods = {};
 
     this.add_binding = function(name, node, options) {
-        var already_bound = this.bindings.hasOwnProperty(name);
+        var already_bound = has_prop(this.bindings, name);
         var b = new Binding(name, node, options);
         if (already_bound) {
             if (this.bindings[name].used) b.used = true;
@@ -135,7 +136,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
     };
 
     this.register_use = function(name, node) {
-        if (this.bindings.hasOwnProperty(name)) {
+        if (has_prop(this.bindings, name)) {
             this.bindings[name].used = true;
         } else {
             this.undefined_references[name] = node;
@@ -145,15 +146,15 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
     this.finalize = function() {
         // Find defined after use
         Object.keys(this.undefined_references).forEach(function (name) {
-            if (this.bindings.hasOwnProperty(name) && !this.nonlocals.hasOwnProperty(name)) {
+            if (has_prop(this.bindings, name) && !has_prop(this.nonlocals, name)) {
                 var b = this.bindings[name];
                 b.used = true;
-                if (!this.defined_after_use.hasOwnProperty(name)) {
+                if (!has_prop(this.defined_after_use, name)) {
                     this.defined_after_use[name] = [this.undefined_references[name], b];
                 }
                 delete this.undefined_references[name];
             }
-            if (Object.hasOwnProperty.call(this.methods, name)) delete this.undefined_references[name];
+            if (has_prop(this.methods, name)) delete this.undefined_references[name];
         }, this);
 
         // Find unused bindings
@@ -162,11 +163,11 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
             // Check if it is used in a descendant scope
             var found = false;
             this.for_descendants(function (scope) {
-                if (scope.undefined_references.hasOwnProperty(name)) {
+                if (has_prop(scope.undefined_references, name)) {
                     found = true;
                     // Remove from childs' undefined references 
                     delete scope.undefined_references[name];
-                } else if (scope.nonlocals.hasOwnProperty(name) && scope.bindings.hasOwnProperty(name)) found = true;
+                } else if (has_prop(scope.nonlocals, name) && has_prop(scope.bindings, name)) found = true;
             });
             if (!found && !b.used && !b.is_loop)
                 // We deliberately ignore unused loop variables so as not to complain for the
@@ -187,7 +188,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
         var ans = [];
 
         Object.keys(this.undefined_references).forEach(function (name) {
-            if (!(this.is_toplevel && this.nonlocals.hasOwnProperty(name))) {
+            if (!(this.is_toplevel && has_prop(this.nonlocals, name))) {
                 var node = this.undefined_references[name];
                 ans.push(msg_from_node(filename, 'undef', name, node));
             }
@@ -197,7 +198,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
             var b = this.unused_bindings[name];
             if (b.is_import) {
                 ans.push(msg_from_node(filename, 'unused-import', name, b.node));
-            } else if (!this.is_toplevel && !this.is_class && !b.is_func_arg && !b.is_method && !this.nonlocals.hasOwnProperty(name)) {
+            } else if (!this.is_toplevel && !this.is_class && !b.is_func_arg && !b.is_method && !has_prop(this.nonlocals, name)) {
                 ans.push(msg_from_node(filename, 'unused-local', name, b.node));
             }
         }, this);
@@ -277,7 +278,7 @@ function Linter(toplevel, filename, code, options) {
         if (name) {
             if (node instanceof RapydScript.AST_Method) {
                 scope.methods[name] = true;
-                if (Object.prototype.hasOwnProperty.call(scope.seen_method_names, name)) {
+                if (has_prop(scope.seen_method_names, name)) {
                     if (!node.is_setter) this.messages.push(msg_from_node(filename, 'dup-method', node.name, node, WARN, scope.seen_method_names[name]));
                 } else scope.seen_method_names[name] = node.start.line;
             } else this.add_binding(name);
@@ -419,7 +420,7 @@ function Linter(toplevel, filename, code, options) {
         (node.properties || []).forEach(function (prop) {
             if (prop.key instanceof RapydScript.AST_Constant) {
                 var val = prop.key.getValue();
-                if (Object.prototype.hasOwnProperty.call(seen, val)) 
+                if (has_prop(seen, val)) 
                     this.messages.push(msg_from_node(filename, 'dup-key', val, prop));
                 seen[val] = true;
             }
@@ -527,9 +528,9 @@ function Linter(toplevel, filename, code, options) {
         });
         var noqa = options.noqa || {};
         messages = messages.filter(function(msg) {
-            var ignore = (msg.start_line !== undefined && line_filters.hasOwnProperty(msg.start_line) && line_filters[msg.start_line].hasOwnProperty(msg.ident));
-            var filter = noqa.hasOwnProperty(msg.ident);
-            return !ignore && !filter && (msg.ident != 'undef' || !this.builtins.hasOwnProperty(msg.name));
+            var ignore = (msg.start_line !== undefined && has_prop(line_filters, msg.start_line) && has_prop(line_filters[msg.start_line], msg.ident));
+            var filter = has_prop(noqa, msg.ident);
+            return !ignore && !filter && (msg.ident != 'undef' || !has_prop(this.builtins, msg.name));
         }, this);
         messages.sort(function (a, b) { return cmp(a.start_line, b.start_line) || cmp(a.start_col, b.start_col_); });
         return messages;
@@ -623,7 +624,7 @@ function cli_vim_report(r) {
 var ini_cache = {};
 
 function get_ini(toplevel_dir) {
-    if (ini_cache.hasOwnProperty(toplevel_dir)) return ini_cache[toplevel_dir];
+    if (has_prop(ini_cache, toplevel_dir)) return ini_cache[toplevel_dir];
     var rl = require('./ini').read_config(toplevel_dir).rapydscript || {};
     ini_cache[toplevel_dir] = rl;
     return rl;

@@ -14,6 +14,7 @@ var utils = require('./utils');
 var completelib = require('./completer');
 var colored = utils.safe_colored;
 var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
+var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 function create_ctx(baselib, show_js, console) {
     var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
@@ -165,7 +166,7 @@ module.exports = function(options) {
             var exports = {};
             toplevel.exports.forEach(function (name) { exports[name] = true; });
             Object.getOwnPropertyNames(classes).forEach(function (name) {
-                if (!exports.hasOwnProperty(name) && !toplevel.classes.hasOwnProperty(name))
+                if (!has_prop(exports, name) && !has_prop(toplevel.classes, name))
                     toplevel.classes[name] = classes[name];
             });
         }

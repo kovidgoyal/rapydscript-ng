@@ -107,6 +107,7 @@ b = a
 assert.ok(a == b)
 b = {1:2}
 assert.ok(a == b)
+assert.ok(v'{1:2}' == v'{1:2}')
 
 # iterating over TypedArrays
 assert.deepEqual(list(Uint8Array(2)), [0, 0])
