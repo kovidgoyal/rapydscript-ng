@@ -208,7 +208,7 @@ def print_for_in(self, output):
     self._do_print_body(output)
 
 def print_list_comprehension(self, output):
-    result_obj = {'ListComprehension':'[]', 'DictComprehension':'{}', 'SetComprehension':'ρσ_set()'}[self.TYPE]
+    result_obj = {'ListComprehension':'[]', 'DictComprehension':'Object.create(null)', 'SetComprehension':'ρσ_set()'}[self.TYPE]
     is_generator = self.TYPE is 'GeneratorComprehension'
     es5 = output.option('js_version') is 5
     if self.TYPE is 'DictComprehension':
