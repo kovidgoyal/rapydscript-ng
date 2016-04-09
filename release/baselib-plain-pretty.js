@@ -197,49 +197,31 @@ Object.defineProperties(ρσ_hex, {
 
 function ρσ_enumerate(iterable) {
     var ans, iterator;
+    ans = {"_i":-1};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": -1,
-            "next": function () {
-                this._i += 1;
-                if (this._i < iterable.length) {
-                    return {
-                        "done": false,
-                        "value": ρσ_list_decorate([ this._i, iterable[this._i] ])
-                    };
-                }
-                return {
-                    "done": true
-                };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':[this._i, iterable[this._i]]};
             }
-        };
-        ans[ρσ_iterator_symbol] = function () {
-            return this;
+            return {'done':true};
         };
         return ans;
     }
     if (typeof iterable[ρσ_iterator_symbol] === "function") {
         iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
-        ans = {
-            "_iterator": iterator,
-            "_i": -1,
-            "next": function () {
-                var r;
-                r = this._iterator.next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                this._i += 1;
-                return {
-                    "done": false,
-                    "value": ρσ_list_decorate([ this._i, r.value ])
-                };
+        ans["_iterator"] = iterator;
+        ans["next"] = function () {
+            var r;
+            r = this._iterator.next();
+            if (r.done) {
+                return {'done':true};
             }
-        };
-        ans[ρσ_iterator_symbol] = function () {
-            return this;
+            this._i += 1;
+            return {'done':false, 'value':[this._i, r.value]};
         };
         return ans;
     }
@@ -252,20 +234,13 @@ Object.defineProperties(ρσ_enumerate, {
 function ρσ_reversed(iterable) {
     var ans;
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": iterable.length,
-            "next": function () {
-                this._i -= 1;
-                if (this._i > -1) {
-                    return {
-                        "done": false,
-                        "value": iterable[this._i]
-                    };
-                }
-                return {
-                    "done": true
-                };
+        ans = {"_i": iterable.length};
+        ans["next"] = function () {
+            this._i -= 1;
+            if (this._i > -1) {
+                return {'done':false, 'value':iterable[this._i]};
             }
+            return {'done':true};
         };
         ans[ρσ_iterator_symbol] = function () {
             return this;
@@ -284,23 +259,16 @@ function ρσ_iter(iterable) {
         return (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
     }
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": -1,
-            "next": function () {
-                this._i += 1;
-                if (this._i < iterable.length) {
-                    return {
-                        "done": false,
-                        "value": iterable[this._i]
-                    };
-                }
-                return {
-                    "done": true
-                };
-            }
-        };
+        ans = {"_i":-1};
         ans[ρσ_iterator_symbol] = function () {
             return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':iterable[this._i]};
+            }
+            return {'done':true};
         };
         return ans;
     }
@@ -311,35 +279,26 @@ Object.defineProperties(ρσ_iter, {
 });
 
 function ρσ_range(start, stop, step) {
-    var length;
+    var length, ans;
     if (arguments.length <= 1) {
         stop = start || 0;
         start = 0;
     }
     step = arguments[2] || 1;
     length = Math.max(Math.ceil((stop - start) / step), 0);
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        ρσ_d["_i"] = start - step;
-        ρσ_d["_idx"] = -1;
-        ρσ_d["next"] = function () {
-            this._i += step;
-            this._idx += 1;
-            if (this._idx >= length) {
-                return {
-                    "done": true
-                };
-            }
-            return {
-                "done": false,
-                "value": this._i
-            };
-        };
-        return ρσ_d;
-    })();
+    ans = {'_i': start - step, '_idx': -1};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        this._i += step;
+        this._idx += 1;
+        if (this._idx >= length) {
+            return {'done':true};
+        }
+        return {'done':false, 'value':this._i};
+    };
+    return ans;
 };
 Object.defineProperties(ρσ_range, {
     __argnames__ : {value: ["start", "stop", "step"]}
@@ -445,7 +404,7 @@ function ρσ_equals(a, b) {
         }
         return true;
     }
-    if (a && b && a.constructor === b.constructor && a.constructor === Object) {
+    if (typeof a === "object" && typeof b === "object" && (a.constructor === Object && b.constructor === Object || Object.getPrototypeOf(a) === null && Object.getPrototypeOf(b) === null)) {
         ρσ_unpack = [Object.keys(a), Object.keys(b)];
         akeys = ρσ_unpack[0];
         bkeys = ρσ_unpack[1];
@@ -675,22 +634,28 @@ function ρσ_list_slice() {
 function ρσ_list_iterator(value) {
     var self;
     self = this;
-    return {
-        "_i": -1,
-        "_list": self,
-        "next": function () {
+    return (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["_i"] = -1;
+        ρσ_d["_list"] = self;
+        ρσ_d["next"] = function () {
             this._i += 1;
             if (this._i >= this._list.length) {
-                return {
-                    "done": true
-                };
+                return (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["done"] = true;
+                    return ρσ_d;
+                }).call(this);
             }
-            return {
-                "done": false,
-                "value": this._list[this._i]
-            };
-        }
-    };
+            return (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["done"] = false;
+                ρσ_d["value"] = this._list[this._i];
+                return ρσ_d;
+            }).call(this);
+        };
+        return ρσ_d;
+    }).call(this);
 };
 Object.defineProperties(ρσ_list_iterator, {
     __argnames__ : {value: ["value"]}
@@ -825,9 +790,11 @@ function ρσ_set_keyfor(x) {
     ans = x.ρσ_hash_key_prop;
     if (ans === undefined) {
         ans = "_!@#$" + (++ρσ_global_object_id);
-        Object.defineProperty(x, "ρσ_hash_key_prop", {
-            "value": ans
-        });
+        Object.defineProperty(x, "ρσ_hash_key_prop", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["value"] = ans;
+            return ρσ_d;
+        }).call(this));
     }
     return ans;
 };
@@ -836,7 +803,7 @@ Object.defineProperties(ρσ_set_keyfor, {
 });
 
 function ρσ_set_polyfill() {
-    this._store = {};
+    this._store = Object.create(null);
     this.size = 0;
 };
 
@@ -844,7 +811,7 @@ function ρσ_set_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (!Object.hasOwnProperty.call(this._store, key)) {
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
             this._store[key] = x;
         }
@@ -857,7 +824,7 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = {};
+        this._store = Object.create(null);
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -869,7 +836,7 @@ function ρσ_set_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (Object.hasOwnProperty.call(this._store, key)) {
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size -= 1;
             delete this._store[key];
             return true;
@@ -883,7 +850,7 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.has = (function() {
     var ρσ_anonfunc = function (x) {
-        return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -892,31 +859,19 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.values = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -964,18 +919,24 @@ Object.defineProperties(ρσ_set, {
 });
 
 ρσ_set.prototype.__name__ = "set";
-Object.defineProperties(ρσ_set.prototype, {
-    "length": {
-        "get": function () {
+Object.defineProperties(ρσ_set.prototype, (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["length"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsset.size;
-        }
-    },
-    "size": {
-        "get": function () {
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsset.size;
-        }
-    }
-});
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
 ρσ_set.prototype.__len__ = function () {
     return this.jsset.size;
 };
@@ -1266,7 +1227,7 @@ Object.defineProperties(ρσ_set_wrap, {
 var set = ρσ_set, set_wrap = ρσ_set_wrap;
 var ρσ_dict_implementation;
 function ρσ_dict_polyfill() {
-    this._store = {};
+    this._store = Object.create(null);
     this.size = 0;
 };
 
@@ -1274,7 +1235,7 @@ function ρσ_dict_polyfill() {
     var ρσ_anonfunc = function (x, value) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (!Object.hasOwnProperty.call(this._store, key)) {
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
         }
         this._store[key] = [x, value];
@@ -1287,7 +1248,7 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = {};
+        this._store = Object.create(null);
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -1299,7 +1260,7 @@ function ρσ_dict_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (Object.hasOwnProperty.call(this._store, key)) {
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size -= 1;
             delete this._store[key];
             return true;
@@ -1313,7 +1274,7 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.has = (function() {
     var ρσ_anonfunc = function (x) {
-        return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1339,31 +1300,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.values = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]][1]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]][1]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1372,31 +1321,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.keys = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]][0]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]][0]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1405,31 +1342,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.entries = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1457,18 +1382,24 @@ Object.defineProperties(ρσ_dict, {
 });
 
 ρσ_dict.prototype.__name__ = "dict";
-Object.defineProperties(ρσ_dict.prototype, {
-    "length": {
-        "get": function () {
+Object.defineProperties(ρσ_dict.prototype, (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["length"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsmap.size;
-        }
-    },
-    "size": {
-        "get": function () {
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsmap.size;
-        }
-    }
-});
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
 ρσ_dict.prototype.__len__ = function () {
     return this.jsmap.size;
 };
@@ -1705,7 +1636,7 @@ Object.defineProperties(ρσ_dict.prototype, {
 ρσ_dict.prototype.as_object = (function() {
     var ρσ_anonfunc = function (other) {
         var ans, iterator, r;
-        ans = {};
+        ans = Object.create(null);
         iterator = this.jsmap.entries();
         r = iterator.next();
         while (!r.done) {
@@ -1936,7 +1867,7 @@ Object.defineProperties(ρσ_Iterable, {
     if (typeof Object.assign === "function") {
         return function () {
             var ans;
-            ans = {};
+            ans = Object.create(null);
             ans[ρσ_kwargs_symbol] = true;
             for (var i = 0; i < arguments.length; i++) {
                 Object.assign(ans, arguments[i]);
@@ -1946,7 +1877,7 @@ Object.defineProperties(ρσ_Iterable, {
     }
     return function () {
         var ans, keys;
-        ans = {};
+        ans = Object.create(null);
         ans[ρσ_kwargs_symbol] = true;
         for (var i = 0; i < arguments.length; i++) {
             keys = Object.keys(arguments[i]);
@@ -2038,7 +1969,7 @@ function ρσ_mixin() {
     seen.constructor = ρσ_chain_assign_temp;
     seen.__class__ = ρσ_chain_assign_temp;
 ;
-    resolved_props = {};
+    resolved_props = Object.create(null);
     ρσ_chain_assign_temp = arguments[0].prototype;
     p = ρσ_chain_assign_temp;
     target = ρσ_chain_assign_temp;
@@ -2136,100 +2067,78 @@ Object.defineProperties(sum, {
 });
 
 function map() {
-    var func, iterators, args;
-    func = arguments[0];
+    var iterators, func, args, ans;
     iterators = new Array(arguments.length - 1);
+    func = arguments[0];
     args = new Array(arguments.length - 1);
     for (var i = 1; i < arguments.length; i++) {
         iterators[i - 1] = iter(arguments[i]);
     }
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_func"] = func;
-        ρσ_d["_iterators"] = iterators;
-        ρσ_d["_args"] = args;
-        ρσ_d["next"] = function () {
-            var r;
-            for (var i = 0; i < this._iterators.length; i++) {
-                r = this._iterators[i].next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                this._args[i] = r.value;
+    ans = {'_func':func, '_iterators':iterators, '_args':args};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var r;
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = this._iterators[i].next();
+            if (r.done) {
+                return {'done':true};
             }
-            return {
-                "done": false,
-                "value": this._func.apply(undefined, this._args)
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            this._args[i] = r.value;
+        }
+        return {'done':false, 'value':this._func.apply(undefined, this._args)};
+    };
+    return ans;
 };
 
 function filter(func_or_none, iterable) {
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_iterator"] = iter(iterable);
-        ρσ_d["_func"] = (func_or_none === null) ? bool : func_or_none;
-        ρσ_d["next"] = function () {
-            var r;
-            r = this._iterator.next();
-            while (!r.done) {
-                if (this._func(r.value)) {
-                    return r;
-                }
-                r = this._iterator.next();
+    var func, ans;
+    func = (func_or_none === null) ? ρσ_bool : func_or_none;
+    ans = {'_func':func, '_iterator':ρσ_iter(iterable)};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var r;
+        r = this._iterator.next();
+        while (!r.done) {
+            if (this._func(r.value)) {
+                return r;
             }
-            return {
-                "done": true
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            r = this._iterator.next();
+        }
+        return {'done':true};
+    };
+    return ans;
 };
 Object.defineProperties(filter, {
     __argnames__ : {value: ["func_or_none", "iterable"]}
 });
 
 function zip() {
-    var iterators;
+    var iterators, ans;
     iterators = new Array(arguments.length);
     for (var i = 0; i < arguments.length; i++) {
         iterators[i] = iter(arguments[i]);
     }
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_iterators"] = iterators;
-        ρσ_d["next"] = function () {
-            var args, r;
-            args = new Array(this._iterators.length);
-            for (var i = 0; i < this._iterators.length; i++) {
-                r = this._iterators[i].next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                args[i] = r.value;
+    ans = {'_iterators':iterators};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var args, r;
+        args = new Array(this._iterators.length);
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = this._iterators[i].next();
+            if (r.done) {
+                return {'done':true};
             }
-            return {
-                "done": false,
-                "value": args
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            args[i] = r.value;
+        }
+        return {'done':false, 'value':args};
+    };
+    return ans;
 };
 var define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
 function ρσ_repr_js_builtin(x, as_array) {
@@ -2271,6 +2180,8 @@ function ρσ_repr(x) {
         ans = ρσ_repr_js_builtin(x, true);
     } else if (typeof x === "function") {
         ans = x.toString();
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     } else {
         name = Object.prototype.toString.call(x).slice(8, -1);
         if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
@@ -2333,6 +2244,8 @@ function ρσ_str(x) {
         if (ans === "[object Object]") {
             ans = ρσ_repr_js_builtin(x);
         }
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     }
     return ans + "";
 };
@@ -2349,9 +2262,11 @@ define_str_func = (function() {
         f = ρσ_chain_assign_temp;
 ;
         if (func.__argnames__) {
-            Object.defineProperty(f, "__argnames__", {
-                "value": ['string'].concat(func.__argnames__)
-            });
+            Object.defineProperty(f, "__argnames__", (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = ['string'].concat(func.__argnames__);
+                return ρσ_d;
+            }).call(this));
         }
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -2369,7 +2284,7 @@ define_str_func("format", function () {
         throw new TypeError("Template is required");
     }
     args = Array.prototype.slice.call(arguments);
-    kwargs = {};
+    kwargs = Object.create(null);
     if (args.length && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
@@ -3218,7 +3133,7 @@ define_str_func("zfill", (function() {
 ρσ_str.uchrs = (function() {
     var ρσ_anonfunc = function (string, with_positions) {
         return (function(){
-            var ρσ_d = {};
+            var ρσ_d = Object.create(null);
             ρσ_d["_string"] = string;
             ρσ_d["_pos"] = 0;
             ρσ_d[ρσ_iterator_symbol] = function () {
@@ -3228,9 +3143,11 @@ define_str_func("zfill", (function() {
                 var length, pos, value, ans, extra;
                 length = this._string.length;
                 if (this._pos >= length) {
-                    return {
-                        "done": true
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = true;
+                        return ρσ_d;
+                    }).call(this);
                 }
                 pos = this._pos;
                 value = this._string.charCodeAt(this._pos++);
@@ -3246,19 +3163,23 @@ define_str_func("zfill", (function() {
                     ans = String.fromCharCode(value);
                 }
                 if (with_positions) {
-                    return {
-                        "done": false,
-                        "value": ρσ_list_decorate([ pos, ans ])
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ρσ_list_decorate([ pos, ans ]);
+                        return ρσ_d;
+                    }).call(this);
                 } else {
-                    return {
-                        "done": false,
-                        "value": ans
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ans;
+                        return ρσ_d;
+                    }).call(this);
                 }
             };
             return ρσ_d;
-        })();
+        }).call(this);
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["string", "with_positions"]}

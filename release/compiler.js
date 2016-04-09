@@ -203,49 +203,31 @@ Object.defineProperties(ρσ_hex, {
 
 function ρσ_enumerate(iterable) {
     var ans, iterator;
+    ans = {"_i":-1};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": -1,
-            "next": function () {
-                this._i += 1;
-                if (this._i < iterable.length) {
-                    return {
-                        "done": false,
-                        "value": ρσ_list_decorate([ this._i, iterable[this._i] ])
-                    };
-                }
-                return {
-                    "done": true
-                };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':[this._i, iterable[this._i]]};
             }
-        };
-        ans[ρσ_iterator_symbol] = function () {
-            return this;
+            return {'done':true};
         };
         return ans;
     }
     if (typeof iterable[ρσ_iterator_symbol] === "function") {
         iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
-        ans = {
-            "_iterator": iterator,
-            "_i": -1,
-            "next": function () {
-                var r;
-                r = this._iterator.next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                this._i += 1;
-                return {
-                    "done": false,
-                    "value": ρσ_list_decorate([ this._i, r.value ])
-                };
+        ans["_iterator"] = iterator;
+        ans["next"] = function () {
+            var r;
+            r = this._iterator.next();
+            if (r.done) {
+                return {'done':true};
             }
-        };
-        ans[ρσ_iterator_symbol] = function () {
-            return this;
+            this._i += 1;
+            return {'done':false, 'value':[this._i, r.value]};
         };
         return ans;
     }
@@ -258,20 +240,13 @@ Object.defineProperties(ρσ_enumerate, {
 function ρσ_reversed(iterable) {
     var ans;
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": iterable.length,
-            "next": function () {
-                this._i -= 1;
-                if (this._i > -1) {
-                    return {
-                        "done": false,
-                        "value": iterable[this._i]
-                    };
-                }
-                return {
-                    "done": true
-                };
+        ans = {"_i": iterable.length};
+        ans["next"] = function () {
+            this._i -= 1;
+            if (this._i > -1) {
+                return {'done':false, 'value':iterable[this._i]};
             }
+            return {'done':true};
         };
         ans[ρσ_iterator_symbol] = function () {
             return this;
@@ -290,23 +265,16 @@ function ρσ_iter(iterable) {
         return (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
     }
     if (ρσ_arraylike(iterable)) {
-        ans = {
-            "_i": -1,
-            "next": function () {
-                this._i += 1;
-                if (this._i < iterable.length) {
-                    return {
-                        "done": false,
-                        "value": iterable[this._i]
-                    };
-                }
-                return {
-                    "done": true
-                };
-            }
-        };
+        ans = {"_i":-1};
         ans[ρσ_iterator_symbol] = function () {
             return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i < iterable.length) {
+                return {'done':false, 'value':iterable[this._i]};
+            }
+            return {'done':true};
         };
         return ans;
     }
@@ -317,35 +285,26 @@ Object.defineProperties(ρσ_iter, {
 });
 
 function ρσ_range(start, stop, step) {
-    var length;
+    var length, ans;
     if (arguments.length <= 1) {
         stop = start || 0;
         start = 0;
     }
     step = arguments[2] || 1;
     length = Math.max(Math.ceil((stop - start) / step), 0);
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        ρσ_d["_i"] = start - step;
-        ρσ_d["_idx"] = -1;
-        ρσ_d["next"] = function () {
-            this._i += step;
-            this._idx += 1;
-            if (this._idx >= length) {
-                return {
-                    "done": true
-                };
-            }
-            return {
-                "done": false,
-                "value": this._i
-            };
-        };
-        return ρσ_d;
-    })();
+    ans = {'_i': start - step, '_idx': -1};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        this._i += step;
+        this._idx += 1;
+        if (this._idx >= length) {
+            return {'done':true};
+        }
+        return {'done':false, 'value':this._i};
+    };
+    return ans;
 };
 Object.defineProperties(ρσ_range, {
     __argnames__ : {value: ["start", "stop", "step"]}
@@ -451,7 +410,7 @@ function ρσ_equals(a, b) {
         }
         return true;
     }
-    if (a && b && a.constructor === b.constructor && a.constructor === Object) {
+    if (typeof a === "object" && typeof b === "object" && (a.constructor === Object && b.constructor === Object || Object.getPrototypeOf(a) === null && Object.getPrototypeOf(b) === null)) {
         ρσ_unpack = [Object.keys(a), Object.keys(b)];
         akeys = ρσ_unpack[0];
         bkeys = ρσ_unpack[1];
@@ -681,22 +640,28 @@ function ρσ_list_slice() {
 function ρσ_list_iterator(value) {
     var self;
     self = this;
-    return {
-        "_i": -1,
-        "_list": self,
-        "next": function () {
+    return (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["_i"] = -1;
+        ρσ_d["_list"] = self;
+        ρσ_d["next"] = function () {
             this._i += 1;
             if (this._i >= this._list.length) {
-                return {
-                    "done": true
-                };
+                return (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["done"] = true;
+                    return ρσ_d;
+                }).call(this);
             }
-            return {
-                "done": false,
-                "value": this._list[this._i]
-            };
-        }
-    };
+            return (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["done"] = false;
+                ρσ_d["value"] = this._list[this._i];
+                return ρσ_d;
+            }).call(this);
+        };
+        return ρσ_d;
+    }).call(this);
 };
 Object.defineProperties(ρσ_list_iterator, {
     __argnames__ : {value: ["value"]}
@@ -831,9 +796,11 @@ function ρσ_set_keyfor(x) {
     ans = x.ρσ_hash_key_prop;
     if (ans === undefined) {
         ans = "_!@#$" + (++ρσ_global_object_id);
-        Object.defineProperty(x, "ρσ_hash_key_prop", {
-            "value": ans
-        });
+        Object.defineProperty(x, "ρσ_hash_key_prop", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["value"] = ans;
+            return ρσ_d;
+        }).call(this));
     }
     return ans;
 };
@@ -842,7 +809,7 @@ Object.defineProperties(ρσ_set_keyfor, {
 });
 
 function ρσ_set_polyfill() {
-    this._store = {};
+    this._store = Object.create(null);
     this.size = 0;
 };
 
@@ -850,7 +817,7 @@ function ρσ_set_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (!Object.hasOwnProperty.call(this._store, key)) {
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
             this._store[key] = x;
         }
@@ -863,7 +830,7 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = {};
+        this._store = Object.create(null);
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -875,7 +842,7 @@ function ρσ_set_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (Object.hasOwnProperty.call(this._store, key)) {
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size -= 1;
             delete this._store[key];
             return true;
@@ -889,7 +856,7 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.has = (function() {
     var ρσ_anonfunc = function (x) {
-        return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -898,31 +865,19 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.values = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -970,18 +925,24 @@ Object.defineProperties(ρσ_set, {
 });
 
 ρσ_set.prototype.__name__ = "set";
-Object.defineProperties(ρσ_set.prototype, {
-    "length": {
-        "get": function () {
+Object.defineProperties(ρσ_set.prototype, (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["length"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsset.size;
-        }
-    },
-    "size": {
-        "get": function () {
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsset.size;
-        }
-    }
-});
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
 ρσ_set.prototype.__len__ = function () {
     return this.jsset.size;
 };
@@ -1272,7 +1233,7 @@ Object.defineProperties(ρσ_set_wrap, {
 var set = ρσ_set, set_wrap = ρσ_set_wrap;
 var ρσ_dict_implementation;
 function ρσ_dict_polyfill() {
-    this._store = {};
+    this._store = Object.create(null);
     this.size = 0;
 };
 
@@ -1280,7 +1241,7 @@ function ρσ_dict_polyfill() {
     var ρσ_anonfunc = function (x, value) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (!Object.hasOwnProperty.call(this._store, key)) {
+        if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
         }
         this._store[key] = [x, value];
@@ -1293,7 +1254,7 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = {};
+        this._store = Object.create(null);
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -1305,7 +1266,7 @@ function ρσ_dict_polyfill() {
     var ρσ_anonfunc = function (x) {
         var key;
         key = ρσ_set_keyfor(x);
-        if (Object.hasOwnProperty.call(this._store, key)) {
+        if (Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size -= 1;
             delete this._store[key];
             return true;
@@ -1319,7 +1280,7 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.has = (function() {
     var ρσ_anonfunc = function (x) {
-        return Object.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
+        return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x));
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1345,31 +1306,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.values = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]][1]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]][1]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1378,31 +1327,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.keys = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]][0]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]][0]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1411,31 +1348,19 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.entries = (function() {
     var ρσ_anonfunc = function (x) {
-        var keys, s;
-        keys = Object.keys(this._store);
-        s = this._store;
-        return (function(){
-            var ρσ_d = {};
-            ρσ_d["_keys"] = keys;
-            ρσ_d["_i"] = -1;
-            ρσ_d["_s"] = s;
-            ρσ_d[ρσ_iterator_symbol] = function () {
-                return this;
-            };
-            ρσ_d["next"] = function () {
-                this._i += 1;
-                if (this._i >= this._keys.length) {
-                    return {
-                        "done": true
-                    };
-                }
-                return {
-                    "done": false,
-                    "value": s[this._keys[this._i]]
-                };
-            };
-            return ρσ_d;
-        })();
+        var ans;
+        ans = {'_keys': Object.keys(this._store), '_i':-1, '_s':this._store};
+        ans[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        ans["next"] = function () {
+            this._i += 1;
+            if (this._i >= this._keys.length) {
+                return {'done': true};
+            }
+            return {'done':false, 'value':this._s[this._keys[this._i]]};
+        };
+        return ans;
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["x"]}
@@ -1463,18 +1388,24 @@ Object.defineProperties(ρσ_dict, {
 });
 
 ρσ_dict.prototype.__name__ = "dict";
-Object.defineProperties(ρσ_dict.prototype, {
-    "length": {
-        "get": function () {
+Object.defineProperties(ρσ_dict.prototype, (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["length"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsmap.size;
-        }
-    },
-    "size": {
-        "get": function () {
+        };
+        return ρσ_d;
+    }).call(this);
+    ρσ_d["size"] = (function(){
+        var ρσ_d = Object.create(null);
+        ρσ_d["get"] = function () {
             return this.jsmap.size;
-        }
-    }
-});
+        };
+        return ρσ_d;
+    }).call(this);
+    return ρσ_d;
+}).call(this));
 ρσ_dict.prototype.__len__ = function () {
     return this.jsmap.size;
 };
@@ -1711,7 +1642,7 @@ Object.defineProperties(ρσ_dict.prototype, {
 ρσ_dict.prototype.as_object = (function() {
     var ρσ_anonfunc = function (other) {
         var ans, iterator, r;
-        ans = {};
+        ans = Object.create(null);
         iterator = this.jsmap.entries();
         r = iterator.next();
         while (!r.done) {
@@ -1942,7 +1873,7 @@ Object.defineProperties(ρσ_Iterable, {
     if (typeof Object.assign === "function") {
         return function () {
             var ans;
-            ans = {};
+            ans = Object.create(null);
             ans[ρσ_kwargs_symbol] = true;
             for (var i = 0; i < arguments.length; i++) {
                 Object.assign(ans, arguments[i]);
@@ -1952,7 +1883,7 @@ Object.defineProperties(ρσ_Iterable, {
     }
     return function () {
         var ans, keys;
-        ans = {};
+        ans = Object.create(null);
         ans[ρσ_kwargs_symbol] = true;
         for (var i = 0; i < arguments.length; i++) {
             keys = Object.keys(arguments[i]);
@@ -2044,7 +1975,7 @@ function ρσ_mixin() {
     seen.constructor = ρσ_chain_assign_temp;
     seen.__class__ = ρσ_chain_assign_temp;
 ;
-    resolved_props = {};
+    resolved_props = Object.create(null);
     ρσ_chain_assign_temp = arguments[0].prototype;
     p = ρσ_chain_assign_temp;
     target = ρσ_chain_assign_temp;
@@ -2142,100 +2073,78 @@ Object.defineProperties(sum, {
 });
 
 function map() {
-    var func, iterators, args;
-    func = arguments[0];
+    var iterators, func, args, ans;
     iterators = new Array(arguments.length - 1);
+    func = arguments[0];
     args = new Array(arguments.length - 1);
     for (var i = 1; i < arguments.length; i++) {
         iterators[i - 1] = iter(arguments[i]);
     }
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_func"] = func;
-        ρσ_d["_iterators"] = iterators;
-        ρσ_d["_args"] = args;
-        ρσ_d["next"] = function () {
-            var r;
-            for (var i = 0; i < this._iterators.length; i++) {
-                r = this._iterators[i].next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                this._args[i] = r.value;
+    ans = {'_func':func, '_iterators':iterators, '_args':args};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var r;
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = this._iterators[i].next();
+            if (r.done) {
+                return {'done':true};
             }
-            return {
-                "done": false,
-                "value": this._func.apply(undefined, this._args)
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            this._args[i] = r.value;
+        }
+        return {'done':false, 'value':this._func.apply(undefined, this._args)};
+    };
+    return ans;
 };
 
 function filter(func_or_none, iterable) {
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_iterator"] = iter(iterable);
-        ρσ_d["_func"] = (func_or_none === null) ? bool : func_or_none;
-        ρσ_d["next"] = function () {
-            var r;
-            r = this._iterator.next();
-            while (!r.done) {
-                if (this._func(r.value)) {
-                    return r;
-                }
-                r = this._iterator.next();
+    var func, ans;
+    func = (func_or_none === null) ? ρσ_bool : func_or_none;
+    ans = {'_func':func, '_iterator':ρσ_iter(iterable)};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var r;
+        r = this._iterator.next();
+        while (!r.done) {
+            if (this._func(r.value)) {
+                return r;
             }
-            return {
-                "done": true
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            r = this._iterator.next();
+        }
+        return {'done':true};
+    };
+    return ans;
 };
 Object.defineProperties(filter, {
     __argnames__ : {value: ["func_or_none", "iterable"]}
 });
 
 function zip() {
-    var iterators;
+    var iterators, ans;
     iterators = new Array(arguments.length);
     for (var i = 0; i < arguments.length; i++) {
         iterators[i] = iter(arguments[i]);
     }
-    return (function(){
-        var ρσ_d = {};
-        ρσ_d["_iterators"] = iterators;
-        ρσ_d["next"] = function () {
-            var args, r;
-            args = new Array(this._iterators.length);
-            for (var i = 0; i < this._iterators.length; i++) {
-                r = this._iterators[i].next();
-                if (r.done) {
-                    return {
-                        "done": true
-                    };
-                }
-                args[i] = r.value;
+    ans = {'_iterators':iterators};
+    ans[ρσ_iterator_symbol] = function () {
+        return this;
+    };
+    ans["next"] = function () {
+        var args, r;
+        args = new Array(this._iterators.length);
+        for (var i = 0; i < this._iterators.length; i++) {
+            r = this._iterators[i].next();
+            if (r.done) {
+                return {'done':true};
             }
-            return {
-                "done": false,
-                "value": args
-            };
-        };
-        ρσ_d[ρσ_iterator_symbol] = function () {
-            return this;
-        };
-        return ρσ_d;
-    })();
+            args[i] = r.value;
+        }
+        return {'done':false, 'value':args};
+    };
+    return ans;
 };
 var define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
 function ρσ_repr_js_builtin(x, as_array) {
@@ -2277,6 +2186,8 @@ function ρσ_repr(x) {
         ans = ρσ_repr_js_builtin(x, true);
     } else if (typeof x === "function") {
         ans = x.toString();
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     } else {
         name = Object.prototype.toString.call(x).slice(8, -1);
         if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
@@ -2339,6 +2250,8 @@ function ρσ_str(x) {
         if (ans === "[object Object]") {
             ans = ρσ_repr_js_builtin(x);
         }
+    } else if (typeof x === "object" && !x.toString) {
+        ans = ρσ_repr_js_builtin(x);
     }
     return ans + "";
 };
@@ -2355,9 +2268,11 @@ define_str_func = (function() {
         f = ρσ_chain_assign_temp;
 ;
         if (func.__argnames__) {
-            Object.defineProperty(f, "__argnames__", {
-                "value": ['string'].concat(func.__argnames__)
-            });
+            Object.defineProperty(f, "__argnames__", (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = ['string'].concat(func.__argnames__);
+                return ρσ_d;
+            }).call(this));
         }
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -2375,7 +2290,7 @@ define_str_func("format", function () {
         throw new TypeError("Template is required");
     }
     args = Array.prototype.slice.call(arguments);
-    kwargs = {};
+    kwargs = Object.create(null);
     if (args.length && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
@@ -3224,7 +3139,7 @@ define_str_func("zfill", (function() {
 ρσ_str.uchrs = (function() {
     var ρσ_anonfunc = function (string, with_positions) {
         return (function(){
-            var ρσ_d = {};
+            var ρσ_d = Object.create(null);
             ρσ_d["_string"] = string;
             ρσ_d["_pos"] = 0;
             ρσ_d[ρσ_iterator_symbol] = function () {
@@ -3234,9 +3149,11 @@ define_str_func("zfill", (function() {
                 var length, pos, value, ans, extra;
                 length = this._string.length;
                 if (this._pos >= length) {
-                    return {
-                        "done": true
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = true;
+                        return ρσ_d;
+                    }).call(this);
                 }
                 pos = this._pos;
                 value = this._string.charCodeAt(this._pos++);
@@ -3252,19 +3169,23 @@ define_str_func("zfill", (function() {
                     ans = String.fromCharCode(value);
                 }
                 if (with_positions) {
-                    return {
-                        "done": false,
-                        "value": ρσ_list_decorate([ pos, ans ])
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ρσ_list_decorate([ pos, ans ]);
+                        return ρσ_d;
+                    }).call(this);
                 } else {
-                    return {
-                        "done": false,
-                        "value": ans
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["done"] = false;
+                        ρσ_d["value"] = ans;
+                        return ρσ_d;
+                    }).call(this);
                 }
             };
             return ρσ_d;
-        })();
+        }).call(this);
     };
     Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["string", "with_positions"]}
@@ -3325,18 +3246,19 @@ var str = ρσ_str, repr = ρσ_repr;;
     ρσ_modules["output.stream"] = {};
     ρσ_modules["output.statements"] = {};
     ρσ_modules["output.exceptions"] = {};
+    ρσ_modules["output.utils"] = {};
     ρσ_modules["output.functions"] = {};
     ρσ_modules["output.classes"] = {};
     ρσ_modules["output.literals"] = {};
     ρσ_modules["output.loops"] = {};
     ρσ_modules["output.modules"] = {};
     ρσ_modules["output.operators"] = {};
-    ρσ_modules["output.utils"] = {};
     ρσ_modules["output.codegen"] = {};
 
     (function(){
         var __name__ = "utils";
-        var MAP;
+        var has_prop, MAP;
+        has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
         function array_to_hash(a) {
             var ret, i;
             ret = Object.create(null);
@@ -3422,14 +3344,14 @@ var str = ρσ_str, repr = ρσ_repr;;
         function defaults(args, defs, croak) {
             var ret, i;
             if (args === true) {
-                args = {};
+                args = Object.create(null);
             }
-            ret = args || {};
+            ret = args || Object.create(null);
             if (croak) {
                 var ρσ_Iter2 = ρσ_Iterable(ret);
                 for (var ρσ_Index2 = 0; ρσ_Index2 < ρσ_Iter2.length; ρσ_Index2++) {
                     i = ρσ_Iter2[ρσ_Index2];
-                    if (!defs.hasOwnProperty(i)) {
+                    if (!has_prop(defs, i)) {
                         throw new DefaultsError(i, defs);
                     }
                 }
@@ -3437,7 +3359,7 @@ var str = ρσ_str, repr = ρσ_repr;;
             var ρσ_Iter3 = ρσ_Iterable(defs);
             for (var ρσ_Index3 = 0; ρσ_Index3 < ρσ_Iter3.length; ρσ_Index3++) {
                 i = ρσ_Iter3[ρσ_Index3];
-                ret[i] = (args && args.hasOwnProperty(i)) ? args[i] : defs[i];
+                ret[i] = (args && has_prop(args, i)) ? args[i] : defs[i];
             }
             return ret;
         };
@@ -3551,7 +3473,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                 });
                 return ρσ_anonfunc;
             })();
-            ρσ_chain_assign_temp = {};
+            ρσ_chain_assign_temp = Object.create(null);
             skip = ρσ_chain_assign_temp;
             MAP.skip = ρσ_chain_assign_temp;
 ;
@@ -3706,37 +3628,22 @@ var str = ρσ_str, repr = ρσ_repr;;
             }
             if (typeof Set === "function") {
                 a = new Set(words);
-                return (function() {
-                    var ρσ_anonfunc = function (x) {
-                        return a.has(x);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["x"]}
-                    });
-                    return ρσ_anonfunc;
-                })();
+                return a.has.bind(a);
             } else {
-                a = {};
+                a = Object.create(null);
                 var ρσ_Iter9 = ρσ_Iterable(words);
                 for (var ρσ_Index9 = 0; ρσ_Index9 < ρσ_Iter9.length; ρσ_Index9++) {
                     k = ρσ_Iter9[ρσ_Index9];
                     a[k] = true;
                 }
-                return (function() {
-                    var ρσ_anonfunc = function (x) {
-                        return a.hasOwnProperty(x);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["x"]}
-                    });
-                    return ρσ_anonfunc;
-                })();
+                return Object.prototype.hasOwnProperty.bind(a);
             }
         };
         Object.defineProperties(make_predicate, {
             __argnames__ : {value: ["words"]}
         });
 
+        ρσ_modules.utils.has_prop = has_prop;
         ρσ_modules.utils.MAP = MAP;
         ρσ_modules.utils.array_to_hash = array_to_hash;
         ρσ_modules.utils.slice = slice;
@@ -3830,7 +3737,7 @@ var str = ρσ_str, repr = ρσ_repr;;
         DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
         ALIAS_MAP = function () {
             var ans, line, parts, code_point;
-            ans = {};
+            ans = Object.create(null);
             var ρσ_Iter10 = ρσ_Iterable(DB.split("\n"));
             for (var ρσ_Index10 = 0; ρσ_Index10 < ρσ_Iter10.length; ρσ_Index10++) {
                 line = ρσ_Iter10[ρσ_Index10];
@@ -3926,17 +3833,20 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["type", "props", "methods", "base"]}
         });
 
-        AST_Token = DEFNODE("Token", "type value line col pos endpos nlb comments_before file", {}, null);
-        AST_Node = DEFNODE("Node", "start end", {
-            "clone": function () {
+        AST_Token = DEFNODE("Token", "type value line col pos endpos nlb comments_before file", Object.create(null), null);
+        AST_Node = DEFNODE("Node", "start end", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["clone"] = function () {
                 return new this.CTOR(this);
-            },
-            "$documentation": "Base class of all AST nodes",
-            "$propdoc": {
-                "start": "[AST_Token] The first token of this node",
-                "end": "[AST_Token] The last token of this node"
-            },
-            "_walk": (function() {
+            };
+            ρσ_d["$documentation"] = "Base class of all AST nodes";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["start"] = "[AST_Token] The first token of this node";
+                ρσ_d["end"] = "[AST_Token] The last token of this node";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     return visitor._visit(this);
                 };
@@ -3944,8 +3854,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "walk": (function() {
+            })();
+            ρσ_d["walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     return this._walk(visitor);
                 };
@@ -3953,8 +3863,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "_dump": (function() {
+            })();
+            ρσ_d["_dump"] = (function() {
                 var ρσ_anonfunc = function () {
                     var depth = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_anonfunc.__defaults__.depth : arguments[0];
                     var omit = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_anonfunc.__defaults__.omit : arguments[1];
@@ -4050,8 +3960,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["depth", "omit", "offset", "include_name"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "dump": (function() {
+            })();
+            ρσ_d["dump"] = (function() {
                 var ρσ_anonfunc = function () {
                     var depth = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_anonfunc.__defaults__.depth : arguments[0];
                     var omit = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_anonfunc.__defaults__.omit : arguments[1];
@@ -4071,8 +3981,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["depth", "omit"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, null);
+            })();
+            return ρσ_d;
+        }).call(this), null);
         AST_Node.warn_function = null;
         AST_Node.warn = (function() {
             var ρσ_anonfunc = function (txt, props) {
@@ -4085,25 +3996,36 @@ var str = ρσ_str, repr = ρσ_repr;;
             });
             return ρσ_anonfunc;
         })();
-        AST_Statement = DEFNODE("Statement", null, {
-            "$documentation": "Base class of all statements"
-        });
-        AST_Debugger = DEFNODE("Debugger", null, {
-            "$documentation": "Represents a debugger statement"
-        }, AST_Statement);
-        AST_Directive = DEFNODE("Directive", "value scope", {
-            "$documentation": "Represents a directive, like \"use strict\";",
-            "$propdoc": {
-                "value": "[string] The value of this directive as a plain string (it's not an AST_String!)",
-                "scope": "[AST_Scope/S] The scope that this directive affects"
-            }
-        }, AST_Statement);
-        AST_SimpleStatement = DEFNODE("SimpleStatement", "body", {
-            "$documentation": "A statement consisting of an expression, i.e. a = 1 + 2",
-            "$propdoc": {
-                "body": "[AST_Node] an expression node (should not be instanceof AST_Statement)"
-            },
-            "_walk": (function() {
+        AST_Statement = DEFNODE("Statement", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class of all statements";
+            return ρσ_d;
+        }).call(this));
+        AST_Debugger = DEFNODE("Debugger", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Represents a debugger statement";
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_Directive = DEFNODE("Directive", "value scope", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Represents a directive, like \"use strict\";";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[string] The value of this directive as a plain string (it's not an AST_String!)";
+                ρσ_d["scope"] = "[AST_Scope/S] The scope that this directive affects";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_SimpleStatement = DEFNODE("SimpleStatement", "body", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A statement consisting of an expression, i.e. a = 1 + 2";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["body"] = "[AST_Node] an expression node (should not be instanceof AST_Statement)";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4115,8 +4037,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
         function walk_body(node, visitor) {
             if (ρσ_instanceof(node.body, AST_Statement)) {
                 node.body._walk(visitor);
@@ -4136,12 +4059,15 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["node", "visitor"]}
         });
 
-        AST_Block = DEFNODE("Block", "body", {
-            "$documentation": "A body of statements (usually bracketed)",
-            "$propdoc": {
-                "body": "[AST_Statement*] an array of statements"
-            },
-            "_walk": (function() {
+        AST_Block = DEFNODE("Block", "body", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A body of statements (usually bracketed)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["body"] = "[AST_Statement*] an array of statements";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4153,17 +4079,23 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_BlockStatement = DEFNODE("BlockStatement", null, {
-            "$documentation": "A block statement"
-        }, AST_Block);
-        AST_EmptyStatement = DEFNODE("EmptyStatement", "stype", {
-            "$documentation": "The empty statement (empty block or simply a semicolon)",
-            "$propdoc": {
-                "stype": "[string] the type of empty statement. Is ; for semicolons"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_BlockStatement = DEFNODE("BlockStatement", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A block statement";
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_EmptyStatement = DEFNODE("EmptyStatement", "stype", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The empty statement (empty block or simply a semicolon)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["stype"] = "[string] the type of empty statement. Is ; for semicolons";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     return visitor._visit(this);
                 };
@@ -4171,14 +4103,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_StatementWithBody = DEFNODE("StatementWithBody", "body", {
-            "$documentation": "Base class for all statements that contain one nested body: `For`, `ForIn`, `Do`, `While`, `With`",
-            "$propdoc": {
-                "body": "[AST_Statement] the body; this should always be present, even if it's an AST_EmptyStatement"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_StatementWithBody = DEFNODE("StatementWithBody", "body", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for all statements that contain one nested body: `For`, `ForIn`, `Do`, `While`, `With`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["body"] = "[AST_Statement] the body; this should always be present, even if it's an AST_EmptyStatement";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4190,14 +4126,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_DWLoop = DEFNODE("DWLoop", "condition", {
-            "$documentation": "Base class for do/while statements",
-            "$propdoc": {
-                "condition": "[AST_Node] the loop condition.  Should not be instanceof AST_Statement"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_DWLoop = DEFNODE("DWLoop", "condition", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for do/while statements";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["condition"] = "[AST_Node] the loop condition.  Should not be instanceof AST_Statement";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4210,22 +4150,30 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_StatementWithBody);
-        AST_Do = DEFNODE("Do", null, {
-            "$documentation": "A `do` statement"
-        }, AST_DWLoop);
-        AST_While = DEFNODE("While", null, {
-            "$documentation": "A `while` statement"
-        }, AST_DWLoop);
-        AST_ForIn = DEFNODE("ForIn", "init name object", {
-            "$documentation": "A `for ... in` statement",
-            "$propdoc": {
-                "init": "[AST_Node] the `for/in` initialization code",
-                "name": "[AST_SymbolRef?] the loop variable, only if `init` is AST_Var",
-                "object": "[AST_Node] the object that we're looping through"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_StatementWithBody);
+        AST_Do = DEFNODE("Do", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `do` statement";
+            return ρσ_d;
+        }).call(this), AST_DWLoop);
+        AST_While = DEFNODE("While", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `while` statement";
+            return ρσ_d;
+        }).call(this), AST_DWLoop);
+        AST_ForIn = DEFNODE("ForIn", "init name object", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `for ... in` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["init"] = "[AST_Node] the `for/in` initialization code";
+                ρσ_d["name"] = "[AST_SymbolRef?] the loop variable, only if `init` is AST_Var";
+                ρσ_d["object"] = "[AST_Node] the object that we're looping through";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4242,21 +4190,29 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_StatementWithBody);
-        AST_ForJS = DEFNODE("ForJS", "condition", {
-            "$documentation": "A `for ... in` statement",
-            "$propdoc": {
-                "condition": "[AST_Verbatim] raw JavaScript conditional"
-            }
-        }, AST_StatementWithBody);
-        AST_ListComprehension = DEFNODE("ListComprehension", "condition statement", {
-            "$documentation": "A list comprehension expression",
-            "$propdoc": {
-                "condition": "[AST_Node] the `if` condition",
-                "statement": "[AST_Node] statement to perform on each element before returning it"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_StatementWithBody);
+        AST_ForJS = DEFNODE("ForJS", "condition", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `for ... in` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["condition"] = "[AST_Verbatim] raw JavaScript conditional";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_StatementWithBody);
+        AST_ListComprehension = DEFNODE("ListComprehension", "condition statement", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A list comprehension expression";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["condition"] = "[AST_Node] the `if` condition";
+                ρσ_d["statement"] = "[AST_Node] statement to perform on each element before returning it";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4271,18 +4227,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_ForIn);
-        AST_SetComprehension = DEFNODE("SetComprehension", null, {
-            "$documentation": "A set comprehension"
-        }, AST_ListComprehension);
-        AST_DictComprehension = DEFNODE("DictComprehension", "value_statement is_pydict", {
-            "$documentation": "A set comprehension",
-            "$propdoc": {
-                "value_statement": "[AST_Node] statement to perform on each value before returning it",
-                "is_pydict": "[bool] True if this comprehension is for a python dict"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_ForIn);
+        AST_SetComprehension = DEFNODE("SetComprehension", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A set comprehension";
+            return ρσ_d;
+        }).call(this), AST_ListComprehension);
+        AST_DictComprehension = DEFNODE("DictComprehension", "value_statement is_pydict", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A set comprehension";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value_statement"] = "[AST_Node] statement to perform on each value before returning it";
+                ρσ_d["is_pydict"] = "[bool] True if this comprehension is for a python dict";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4298,17 +4260,23 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_ListComprehension);
-        AST_GeneratorComprehension = DEFNODE("GeneratorComprehension", null, {
-            "$documentation": "A generator comprehension"
-        }, AST_ListComprehension);
-        AST_With = DEFNODE("With", "clauses", {
-            "$documentation": "A `with` statement",
-            "$propdoc": {
-                "clauses": "[AST_WithClause*] the `with` clauses (comma separated)"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_ListComprehension);
+        AST_GeneratorComprehension = DEFNODE("GeneratorComprehension", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A generator comprehension";
+            return ρσ_d;
+        }).call(this), AST_ListComprehension);
+        AST_With = DEFNODE("With", "clauses", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `with` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["clauses"] = "[AST_WithClause*] the `with` clauses (comma separated)";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4329,15 +4297,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_StatementWithBody);
-        AST_WithClause = DEFNODE("WithClause", "expression alias", {
-            "$documentation": "A clause in a with statement",
-            "$propdoc": {
-                "expression": "[AST_Node] the expression",
-                "alias": "[AST_SymbolAlias?] optional alias for this expression"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_StatementWithBody);
+        AST_WithClause = DEFNODE("WithClause", "expression alias", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A clause in a with statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["expression"] = "[AST_Node] the expression";
+                ρσ_d["alias"] = "[AST_SymbolAlias?] optional alias for this expression";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4352,50 +4324,63 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Node);
-        AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with uses_eval parent_scope enclosed cname", {
-            "$documentation": "Base class for all statements introducing a lexical scope",
-            "$propdoc": {
-                "directives": "[string*/S] an array of directives declared in this scope",
-                "variables": "[Object/S] a map of name -> SymbolDef for all variables/functions defined in this scope",
-                "localvars": "[SymbolDef*] list of variables local to this scope",
-                "functions": "[Object/S] like `variables`, but only lists function declarations",
-                "uses_with": "[boolean/S] tells whether this scope uses the `with` statement",
-                "uses_eval": "[boolean/S] tells whether this scope contains a direct call to the global `eval`",
-                "parent_scope": "[AST_Scope?/S] link to the parent scope",
-                "enclosed": "[SymbolDef*/S] a list of all symbol definitions that are accessed from this scope or any subscopes",
-                "cname": "[integer/S] current index for mangling variables (used internally by the mangler)"
-            }
-        }, AST_Block);
-        AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids shebang import_order module_id exports submodules classes filename srchash", {
-            "$documentation": "The toplevel scope",
-            "$propdoc": {
-                "globals": "[Object/S] a map of name -> SymbolDef for all undeclared names",
-                "baselib": "[Object/s] a collection of used parts of baselib",
-                "imports": "[Object/S] a map of module_id->AST_Toplevel for all imported modules (this represents all imported modules across all source files)",
-                "imported_module_ids": "[string*] a list of module ids that were imported by this module, specifically",
-                "nonlocalvars": "[String*] a list of all non-local variable names (names that come from the global scope)",
-                "shebang": "[string] If #! line is present, it will be stored here",
-                "import_order": "[number] The global order in which this scope was imported",
-                "module_id": "[string] The id of this module",
-                "exports": "[SymbolDef*] list of names exported from this module",
-                "submodules": "[string*] list of names exported from this module",
-                "classes": "[Object/S] a map of class names to AST_Class for classes defined in this module",
-                "filename": "[string] The absolute path to the file from which this module was read",
-                "srchash": "[string] SHA1 hash of source code, used for caching"
-            }
-        }, AST_Scope);
-        AST_Import = DEFNODE("Import", "module key alias argnames body", {
-            "$documentation": "Container for a single import",
-            "$propdoc": {
-                "module": "[AST_SymbolVar] name of the module we're importing",
-                "key": "[string] The key by which this module is stored in the global modules mapping",
-                "alias": "[AST_SymbolAlias] The name this module is imported as, can be None. For import x as y statements.",
-                "argnames": "[AST_ImportedVar*] names of objects to be imported",
-                "body": "[AST_TopLevel] parsed contents of the imported file"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Node);
+        AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with uses_eval parent_scope enclosed cname docstrings", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for all statements introducing a lexical scope";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["directives"] = "[string*/S] an array of directives declared in this scope";
+                ρσ_d["variables"] = "[Object/S] a map of name -> SymbolDef for all variables/functions defined in this scope";
+                ρσ_d["localvars"] = "[SymbolDef*] list of variables local to this scope";
+                ρσ_d["functions"] = "[Object/S] like `variables`, but only lists function declarations";
+                ρσ_d["uses_with"] = "[boolean/S] tells whether this scope uses the `with` statement";
+                ρσ_d["uses_eval"] = "[boolean/S] tells whether this scope contains a direct call to the global `eval`";
+                ρσ_d["parent_scope"] = "[AST_Scope?/S] link to the parent scope";
+                ρσ_d["enclosed"] = "[SymbolDef*/S] a list of all symbol definitions that are accessed from this scope or any subscopes";
+                ρσ_d["cname"] = "[integer/S] current index for mangling variables (used internally by the mangler)";
+                ρσ_d["docstrings"] = "[AST_String*] list of docstrings for this scope";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids shebang import_order module_id exports submodules classes filename srchash", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The toplevel scope";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["globals"] = "[Object/S] a map of name -> SymbolDef for all undeclared names";
+                ρσ_d["baselib"] = "[Object/s] a collection of used parts of baselib";
+                ρσ_d["imports"] = "[Object/S] a map of module_id->AST_Toplevel for all imported modules (this represents all imported modules across all source files)";
+                ρσ_d["imported_module_ids"] = "[string*] a list of module ids that were imported by this module, specifically";
+                ρσ_d["nonlocalvars"] = "[String*] a list of all non-local variable names (names that come from the global scope)";
+                ρσ_d["shebang"] = "[string] If #! line is present, it will be stored here";
+                ρσ_d["import_order"] = "[number] The global order in which this scope was imported";
+                ρσ_d["module_id"] = "[string] The id of this module";
+                ρσ_d["exports"] = "[SymbolDef*] list of names exported from this module";
+                ρσ_d["submodules"] = "[string*] list of names exported from this module";
+                ρσ_d["classes"] = "[Object/S] a map of class names to AST_Class for classes defined in this module";
+                ρσ_d["filename"] = "[string] The absolute path to the file from which this module was read";
+                ρσ_d["srchash"] = "[string] SHA1 hash of source code, used for caching";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Scope);
+        AST_Import = DEFNODE("Import", "module key alias argnames body", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Container for a single import";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["module"] = "[AST_SymbolVar] name of the module we're importing";
+                ρσ_d["key"] = "[string] The key by which this module is stored in the global modules mapping";
+                ρσ_d["alias"] = "[AST_SymbolAlias] The name this module is imported as, can be None. For import x as y statements.";
+                ρσ_d["argnames"] = "[AST_ImportedVar*] names of objects to be imported";
+                ρσ_d["body"] = "[AST_TopLevel] parsed contents of the imported file";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4420,14 +4405,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_Imports = DEFNODE("Imports", "imports", {
-            "$documentation": "Container for a single import",
-            "$propdoc": {
-                "imports": "[AST_Import+] array of imports"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_Imports = DEFNODE("Imports", "imports", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Container for a single import";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["imports"] = "[AST_Import+] array of imports";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4447,14 +4436,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_Decorator = DEFNODE("Decorator", "expression", {
-            "$documentation": "Class for function decorators",
-            "$propdoc": {
-                "expression": "[AST_Node] the decorator expression"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_Decorator = DEFNODE("Decorator", "expression", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Class for function decorators";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["expression"] = "[AST_Node] the decorator expression";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4468,20 +4461,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous return_annotation", {
-            "$documentation": "Base class for functions",
-            "$propdoc": {
-                "name": "[AST_SymbolDeclaration?] the name of this function",
-                "argnames": "[AST_SymbolFunarg*] array of function arguments",
-                "decorators": "[AST_Decorator*] function decorators, if any",
-                "is_generator": "[bool*] True iff this function is a generator",
-                "is_expression": "[bool*] True iff this function is a function expression",
-                "is_anonymous": "[bool*] True iff this function is an anonymous function",
-                "return_annotation": "[AST_Node?] The return type annotation provided (if any)"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_Lambda = DEFNODE("Lambda", "name argnames decorators is_generator is_expression is_anonymous return_annotation", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for functions";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["name"] = "[AST_SymbolDeclaration?] the name of this function";
+                ρσ_d["argnames"] = "[AST_SymbolFunarg*] array of function arguments";
+                ρσ_d["decorators"] = "[AST_Decorator*] function decorators, if any";
+                ρσ_d["is_generator"] = "[bool*] True iff this function is a generator";
+                ρσ_d["is_expression"] = "[bool*] True iff this function is a function expression";
+                ρσ_d["is_anonymous"] = "[bool*] True iff this function is an anonymous function";
+                ρσ_d["return_annotation"] = "[AST_Node?] The return type annotation provided (if any)";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4519,27 +4516,33 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Scope);
-        AST_Function = DEFNODE("Function", null, {
-            "$documentation": "A function expression"
-        }, AST_Lambda);
-        AST_Class = DEFNODE("Class", "init name parent bases static external bound decorators module_id statements dynamic_properties", {
-            "$documentation": "A class declaration",
-            "$propdoc": {
-                "name": "[AST_SymbolDeclaration?] the name of this class",
-                "init": "[AST_Function] constructor for the class",
-                "parent": "[AST_Symbol?] parent class this class inherits from",
-                "bases": "[AST_Symbol*] list of base classes this class inherits from",
-                "static": "[string*] list of static methods",
-                "external": "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
-                "bound": "[string*] list of methods that need to be bound to self",
-                "decorators": "[AST_Decorator*] function decorators, if any",
-                "module_id": "[string] The id of the module this class is defined in",
-                "statements": "[AST_Node*] list of statements in the class scope (excluding method definitions)",
-                "dynamic_properties": "[dict] map of dynamic property names to property descriptors of the form {getter:AST_Method, setter:AST_Method"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Scope);
+        AST_Function = DEFNODE("Function", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A function expression";
+            return ρσ_d;
+        }).call(this), AST_Lambda);
+        AST_Class = DEFNODE("Class", "init name parent bases static external bound decorators module_id statements dynamic_properties", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A class declaration";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["name"] = "[AST_SymbolDeclaration?] the name of this class";
+                ρσ_d["init"] = "[AST_Function] constructor for the class";
+                ρσ_d["parent"] = "[AST_Symbol?] parent class this class inherits from";
+                ρσ_d["bases"] = "[AST_Symbol*] list of base classes this class inherits from";
+                ρσ_d["static"] = "[string*] list of static methods";
+                ρσ_d["external"] = "[boolean] true if class is declared elsewhere, but will be within current scope at runtime";
+                ρσ_d["bound"] = "[string*] list of methods that need to be bound to self";
+                ρσ_d["decorators"] = "[AST_Decorator*] function decorators, if any";
+                ρσ_d["module_id"] = "[string] The id of the module this class is defined in";
+                ρσ_d["statements"] = "[AST_Node*] list of statements in the class scope (excluding method definitions)";
+                ρσ_d["dynamic_properties"] = "[dict] map of dynamic property names to property descriptors of the form {getter:AST_Method, setter:AST_Method";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4561,25 +4564,35 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Scope);
-        AST_Method = DEFNODE("Method", "static is_getter is_setter", {
-            "$documentation": "A class method definition",
-            "$propdoc": {
-                "static": "[boolean] true if method is static",
-                "is_getter": "[boolean] true if method is a property getter",
-                "is_setter": "[boolean] true if method is a property setter"
-            }
-        }, AST_Lambda);
-        AST_Jump = DEFNODE("Jump", null, {
-            "$documentation": "Base class for “jumps” (for now that's `return`, `throw`, `break` and `continue`)"
-        }, AST_Statement);
-        AST_Exit = DEFNODE("Exit", "value", {
-            "$documentation": "Base class for “exits” (`return` and `throw`)",
-            "$propdoc": {
-                "value": "[AST_Node?] the value returned or thrown by this statement; could be null for AST_Return"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Scope);
+        AST_Method = DEFNODE("Method", "static is_getter is_setter", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A class method definition";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = "[boolean] true if method is static";
+                ρσ_d["is_getter"] = "[boolean] true if method is a property getter";
+                ρσ_d["is_setter"] = "[boolean] true if method is a property setter";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Lambda);
+        AST_Jump = DEFNODE("Jump", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for “jumps” (for now that's `return`, `throw`, `break` and `continue`)";
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_Exit = DEFNODE("Exit", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for “exits” (`return` and `throw`)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[AST_Node?] the value returned or thrown by this statement; could be null for AST_Return";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4593,36 +4606,54 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Jump);
-        AST_Return = DEFNODE("Return", null, {
-            "$documentation": "A `return` statement"
-        }, AST_Exit);
-        AST_Yield = DEFNODE("Yield", "is_yield_from", {
-            "$documentation": "A `yield` statement",
-            "$propdoc": {
-                "is_yield_from": "[bool] True iff this is a yield from, False otherwise"
-            }
-        }, AST_Return);
-        AST_Throw = DEFNODE("Throw", null, {
-            "$documentation": "A `throw` statement"
-        }, AST_Exit);
-        AST_LoopControl = DEFNODE("LoopControl", null, {
-            "$documentation": "Base class for loop control statements (`break` and `continue`)"
-        }, AST_Jump);
-        AST_Break = DEFNODE("Break", null, {
-            "$documentation": "A `break` statement"
-        }, AST_LoopControl);
-        AST_Continue = DEFNODE("Continue", null, {
-            "$documentation": "A `continue` statement"
-        }, AST_LoopControl);
-        AST_If = DEFNODE("If", "condition alternative", {
-            "$documentation": "A `if` statement",
-            "$propdoc": {
-                "condition": "[AST_Node] the `if` condition",
-                "alternative": "[AST_Statement?] the `else` part, or null if not present"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Jump);
+        AST_Return = DEFNODE("Return", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `return` statement";
+            return ρσ_d;
+        }).call(this), AST_Exit);
+        AST_Yield = DEFNODE("Yield", "is_yield_from", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `yield` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["is_yield_from"] = "[bool] True iff this is a yield from, False otherwise";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Return);
+        AST_Throw = DEFNODE("Throw", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `throw` statement";
+            return ρσ_d;
+        }).call(this), AST_Exit);
+        AST_LoopControl = DEFNODE("LoopControl", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for loop control statements (`break` and `continue`)";
+            return ρσ_d;
+        }).call(this), AST_Jump);
+        AST_Break = DEFNODE("Break", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `break` statement";
+            return ρσ_d;
+        }).call(this), AST_LoopControl);
+        AST_Continue = DEFNODE("Continue", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `continue` statement";
+            return ρσ_d;
+        }).call(this), AST_LoopControl);
+        AST_If = DEFNODE("If", "condition alternative", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `if` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["condition"] = "[AST_Node] the `if` condition";
+                ρσ_d["alternative"] = "[AST_Statement?] the `else` part, or null if not present";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4638,15 +4669,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_StatementWithBody);
-        AST_Try = DEFNODE("Try", "bcatch bfinally", {
-            "$documentation": "A `try` statement",
-            "$propdoc": {
-                "bcatch": "[AST_Catch?] the catch block, or null if not present",
-                "bfinally": "[AST_Finally?] the finally block, or null if not present"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_StatementWithBody);
+        AST_Try = DEFNODE("Try", "bcatch bfinally", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `try` statement";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["bcatch"] = "[AST_Catch?] the catch block, or null if not present";
+                ρσ_d["bfinally"] = "[AST_Finally?] the finally block, or null if not present";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4664,19 +4699,25 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Block);
-        AST_Catch = DEFNODE("Catch", null, {
-            "$documentation": "A `catch` node; only makes sense as part of a `try` statement",
-            "$propdoc": {}
-        }, AST_Block);
-        AST_Except = DEFNODE("Except", "argname errors", {
-            "$documentation": "An `except` node for RapydScript, which resides inside the catch block",
-            "$propdoc": {
-                "argname": "[AST_SymbolCatch] symbol for the exception",
-                "errors": "[AST_SymbolVar*] error classes to catch in this block"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_Catch = DEFNODE("Catch", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `catch` node; only makes sense as part of a `try` statement";
+            ρσ_d["$propdoc"] = Object.create(null);
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_Except = DEFNODE("Except", "argname errors", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An `except` node for RapydScript, which resides inside the catch block";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["argname"] = "[AST_SymbolCatch] symbol for the exception";
+                ρσ_d["errors"] = "[AST_SymbolVar*] error classes to catch in this block";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4699,17 +4740,23 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Block);
-        AST_Finally = DEFNODE("Finally", null, {
-            "$documentation": "A `finally` node; only makes sense as part of a `try` statement"
-        }, AST_Block);
-        AST_Definitions = DEFNODE("Definitions", "definitions", {
-            "$documentation": "Base class for `var` or `const` nodes (variable declarations/initializations)",
-            "$propdoc": {
-                "definitions": "[AST_VarDef*] array of variable definitions"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_Finally = DEFNODE("Finally", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `finally` node; only makes sense as part of a `try` statement";
+            return ρσ_d;
+        }).call(this), AST_Block);
+        AST_Definitions = DEFNODE("Definitions", "definitions", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for `var` or `const` nodes (variable declarations/initializations)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["definitions"] = "[AST_VarDef*] array of variable definitions";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4729,21 +4776,29 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_Statement);
-        AST_Var = DEFNODE("Var", null, {
-            "$documentation": "A `var` statement"
-        }, AST_Definitions);
-        AST_Const = DEFNODE("Const", null, {
-            "$documentation": "A `const` statement"
-        }, AST_Definitions);
-        AST_VarDef = DEFNODE("VarDef", "name value", {
-            "$documentation": "A variable declaration; only appears in a AST_Definitions node",
-            "$propdoc": {
-                "name": "[AST_SymbolVar|AST_SymbolConst|AST_SymbolNonlocal] name of the variable",
-                "value": "[AST_Node?] initializer, or null if there's no initializer"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_Statement);
+        AST_Var = DEFNODE("Var", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `var` statement";
+            return ρσ_d;
+        }).call(this), AST_Definitions);
+        AST_Const = DEFNODE("Const", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A `const` statement";
+            return ρσ_d;
+        }).call(this), AST_Definitions);
+        AST_VarDef = DEFNODE("VarDef", "name value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A variable declaration; only appears in a AST_Definitions node";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["name"] = "[AST_SymbolVar|AST_SymbolConst|AST_SymbolNonlocal] name of the variable";
+                ρσ_d["value"] = "[AST_Node?] initializer, or null if there's no initializer";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4758,20 +4813,28 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_BaseCall = DEFNODE("BaseCall", "args", {
-            "$documentation": "A base class for function calls",
-            "$propdoc": {
-                "args": "[AST_Node*] array of arguments"
-            }
-        });
-        AST_Call = DEFNODE("Call", "expression", {
-            "$documentation": "A function call expression",
-            "$propdoc": {
-                "expression": "[AST_Node] expression to invoke as function"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_BaseCall = DEFNODE("BaseCall", "args", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A base class for function calls";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["args"] = "[AST_Node*] array of arguments";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this));
+        AST_Call = DEFNODE("Call", "expression", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A function call expression";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["expression"] = "[AST_Node] expression to invoke as function";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4811,16 +4874,20 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_BaseCall);
-        AST_ClassCall = DEFNODE("ClassCall", "class method static", {
-            "$documentation": "A function call expression",
-            "$propdoc": {
-                "class": "[string] name of the class method belongs to",
-                "method": "[string] class method being called",
-                "static": "[boolean] defines whether the method is static"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_BaseCall);
+        AST_ClassCall = DEFNODE("ClassCall", "class method static", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A function call expression";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["class"] = "[string] name of the class method belongs to";
+                ρσ_d["method"] = "[string] class method being called";
+                ρσ_d["static"] = "[boolean] defines whether the method is static";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4860,18 +4927,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_BaseCall);
-        AST_New = DEFNODE("New", null, {
-            "$documentation": "An object instantiation. Derives from a function call since it has exactly the same properties"
-        }, AST_Call);
-        AST_Seq = DEFNODE("Seq", "car cdr", {
-            "$documentation": "A sequence expression (two comma-separated expressions)",
-            "$propdoc": {
-                "car": "[AST_Node] first element in sequence",
-                "cdr": "[AST_Node] second element in sequence"
-            },
-            "$cons": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_BaseCall);
+        AST_New = DEFNODE("New", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An object instantiation. Derives from a function call since it has exactly the same properties";
+            return ρσ_d;
+        }).call(this), AST_Call);
+        AST_Seq = DEFNODE("Seq", "car cdr", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A sequence expression (two comma-separated expressions)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["car"] = "[AST_Node] first element in sequence";
+                ρσ_d["cdr"] = "[AST_Node] second element in sequence";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["$cons"] = (function() {
                 var ρσ_anonfunc = function (x, y) {
                     var seq;
                     seq = new AST_Seq(x);
@@ -4883,8 +4956,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["x", "y"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "$from_array": (function() {
+            })();
+            ρσ_d["$from_array"] = (function() {
                 var ρσ_anonfunc = function (array) {
                     var list, i, p;
                     if (array.length === 0) {
@@ -4912,8 +4985,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["array"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "to_array": function () {
+            })();
+            ρσ_d["to_array"] = function () {
                 var p, a;
                 p = this;
                 a = ρσ_list_decorate([]);
@@ -4926,8 +4999,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     p = p.cdr;
                 }
                 return a;
-            },
-            "add": (function() {
+            };
+            ρσ_d["add"] = (function() {
                 var ρσ_anonfunc = function (node) {
                     var p, cell;
                     p = this;
@@ -4943,8 +5016,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["node"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "_walk": (function() {
+            })();
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4959,18 +5032,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_PropAccess = DEFNODE("PropAccess", "expression property", {
-            "$documentation": "Base class for property access expressions, i.e. `a.foo` or `a[\"foo\"]`",
-            "$propdoc": {
-                "expression": "[AST_Node] the “container” expression",
-                "property": "[AST_Node|string] the property to access.  For AST_Dot this is always a plain string, while for AST_Sub it's an arbitrary AST_Node"
-            }
-        });
-        AST_Dot = DEFNODE("Dot", null, {
-            "$documentation": "A dotted property access expression",
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_PropAccess = DEFNODE("PropAccess", "expression property", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for property access expressions, i.e. `a.foo` or `a[\"foo\"]`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["expression"] = "[AST_Node] the “container” expression";
+                ρσ_d["property"] = "[AST_Node|string] the property to access.  For AST_Dot this is always a plain string, while for AST_Sub it's an arbitrary AST_Node";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this));
+        AST_Dot = DEFNODE("Dot", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A dotted property access expression";
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4982,11 +5061,13 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_PropAccess);
-        AST_Sub = DEFNODE("Sub", null, {
-            "$documentation": "Index-style property access, i.e. `a[\"foo\"]`",
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_PropAccess);
+        AST_Sub = DEFNODE("Sub", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Index-style property access, i.e. `a[\"foo\"]`";
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -4999,14 +5080,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_PropAccess);
-        AST_ItemAccess = DEFNODE("ItemAccess", "assignment", {
-            "$documentation": "Python index-style property access, i.e. `a.__getitem__(\"foo\")`",
-            "$propdoc": {
-                "assignment": "[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_PropAccess);
+        AST_ItemAccess = DEFNODE("ItemAccess", "assignment", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Python index-style property access, i.e. `a.__getitem__(\"foo\")`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["assignment"] = "[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5022,15 +5107,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_PropAccess);
-        AST_Splice = DEFNODE("Slice", "property2 assignment", {
-            "$documentation": "Index-style property access, i.e. `a[3:5]`",
-            "$propdoc": {
-                "property2": "[AST_Node] the 2nd property to access - typically ending index for the array.",
-                "assignment": "[AST_Node] The data being spliced in."
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_PropAccess);
+        AST_Splice = DEFNODE("Slice", "property2 assignment", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Index-style property access, i.e. `a[3:5]`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["property2"] = "[AST_Node] the 2nd property to access - typically ending index for the array.";
+                ρσ_d["assignment"] = "[AST_Node] The data being spliced in.";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5044,15 +5133,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        }, AST_PropAccess);
-        AST_Unary = DEFNODE("Unary", "operator expression", {
-            "$documentation": "Base class for unary expressions",
-            "$propdoc": {
-                "operator": "[string] the operator",
-                "expression": "[AST_Node] expression that this unary operator applies to"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this), AST_PropAccess);
+        AST_Unary = DEFNODE("Unary", "operator expression", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for unary expressions";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["operator"] = "[string] the operator";
+                ρσ_d["expression"] = "[AST_Node] expression that this unary operator applies to";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5064,22 +5157,30 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_UnaryPrefix = DEFNODE("UnaryPrefix", null, {
-            "$documentation": "Unary prefix expression, i.e. `typeof i` or `++i`"
-        }, AST_Unary);
-        AST_UnaryPostfix = DEFNODE("UnaryPostfix", null, {
-            "$documentation": "Unary postfix expression, i.e. `i++`"
-        }, AST_Unary);
-        AST_Binary = DEFNODE("Binary", "left operator right", {
-            "$documentation": "Binary expression, i.e. `a + b`",
-            "$propdoc": {
-                "left": "[AST_Node] left-hand side expression",
-                "operator": "[string] the operator",
-                "right": "[AST_Node] right-hand side expression"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_UnaryPrefix = DEFNODE("UnaryPrefix", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Unary prefix expression, i.e. `typeof i` or `++i`";
+            return ρσ_d;
+        }).call(this), AST_Unary);
+        AST_UnaryPostfix = DEFNODE("UnaryPostfix", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Unary postfix expression, i.e. `i++`";
+            return ρσ_d;
+        }).call(this), AST_Unary);
+        AST_Binary = DEFNODE("Binary", "left operator right", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Binary expression, i.e. `a + b`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["left"] = "[AST_Node] left-hand side expression";
+                ρσ_d["operator"] = "[string] the operator";
+                ρσ_d["right"] = "[AST_Node] right-hand side expression";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5092,16 +5193,20 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", {
-            "$documentation": "Conditional expression using the ternary operator, i.e. `a ? b : c`",
-            "$propdoc": {
-                "condition": "[AST_Node]",
-                "consequent": "[AST_Node]",
-                "alternative": "[AST_Node]"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Conditional expression using the ternary operator, i.e. `a ? b : c`";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["condition"] = "[AST_Node]";
+                ρσ_d["consequent"] = "[AST_Node]";
+                ρσ_d["alternative"] = "[AST_Node]";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5115,14 +5220,16 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_Assign = DEFNODE("Assign", null, {
-            "$documentation": "An assignment expression — `a = b + 5`",
-            "is_chained": function () {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_Assign = DEFNODE("Assign", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An assignment expression — `a = b + 5`";
+            ρσ_d["is_chained"] = function () {
                 return ρσ_instanceof(this.right, AST_Assign) || ρσ_instanceof(this.right, AST_Seq) && (ρσ_instanceof(this.right.car, AST_Assign) || ρσ_instanceof(this.right.cdr, AST_Assign));
-            },
-            "traverse_chain": function () {
+            };
+            ρσ_d["traverse_chain"] = function () {
                 var right, left_hand_sides, next, assign;
                 right = this.right;
                 while (true) {
@@ -5132,10 +5239,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                     }
                     if (ρσ_instanceof(right, AST_Seq)) {
                         if (ρσ_instanceof(right.car, AST_Assign)) {
-                            right = new AST_Seq({
-                                "car": right.car.right,
-                                "cdr": right.cdr
-                            });
+                            right = new AST_Seq((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["car"] = right.car.right;
+                                ρσ_d["cdr"] = right.cdr;
+                                return ρσ_d;
+                            }).call(this));
                             continue;
                         }
                         if (ρσ_instanceof(right.cdr, AST_Assign)) {
@@ -5156,10 +5265,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                     if (ρσ_instanceof(next, AST_Seq)) {
                         if (ρσ_instanceof(next.cdr, AST_Assign)) {
                             assign = next.cdr;
-                            left_hand_sides.push(new AST_Seq({
-                                "car": next.car,
-                                "cdr": assign.left
-                            }));
+                            left_hand_sides.push(new AST_Seq((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["car"] = next.car;
+                                ρσ_d["cdr"] = assign.left;
+                                return ρσ_d;
+                            }).call(this)));
                             next = assign.right;
                             continue;
                         }
@@ -5167,14 +5278,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     break;
                 }
                 return [left_hand_sides, right];
-            }
-        }, AST_Binary);
-        AST_Array = DEFNODE("Array", "elements", {
-            "$documentation": "An array literal",
-            "$propdoc": {
-                "elements": "[AST_Node*] array of elements"
-            },
-            "_walk": (function() {
+            };
+            return ρσ_d;
+        }).call(this), AST_Binary);
+        AST_Array = DEFNODE("Array", "elements", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An array literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["elements"] = "[AST_Node*] array of elements";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5194,8 +5309,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "flatten": function () {
+            })();
+            ρσ_d["flatten"] = function () {
                 function flatten(arr) {
                     var ans, value;
                     ans = ρσ_list_decorate([]);
@@ -5220,15 +5335,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                 });
 
                 return flatten(this.elements);
-            }
-        });
-        AST_Object = DEFNODE("Object", "properties is_pydict", {
-            "$documentation": "An object literal",
-            "$propdoc": {
-                "properties": "[AST_ObjectProperty*] array of properties",
-                "is_pydict": "[bool] True if this object is a python dict literal"
-            },
-            "_walk": (function() {
+            };
+            return ρσ_d;
+        }).call(this));
+        AST_Object = DEFNODE("Object", "properties is_pydict", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An object literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["properties"] = "[AST_ObjectProperty*] array of properties";
+                ρσ_d["is_pydict"] = "[bool] True if this object is a python dict literal";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5248,18 +5367,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_ExpressiveObject = DEFNODE("ExpressiveObject", null, {
-            "$documentation": "An object literal with expressions for some keys"
-        }, AST_Object);
-        AST_ObjectProperty = DEFNODE("ObjectProperty", "key value quoted", {
-            "$documentation": "Base class for literal object properties",
-            "$propdoc": {
-                "key": "[AST_Node] the property expression",
-                "value": "[AST_Node] property value.  For setters and getters this is an AST_Function."
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_ExpressiveObject = DEFNODE("ExpressiveObject", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An object literal with expressions for some keys";
+            return ρσ_d;
+        }).call(this), AST_Object);
+        AST_ObjectProperty = DEFNODE("ObjectProperty", "key value quoted", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for literal object properties";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["key"] = "[AST_Node] the property expression";
+                ρσ_d["value"] = "[AST_Node] property value.  For setters and getters this is an AST_Function.";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5272,17 +5397,23 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_ObjectKeyVal = DEFNODE("ObjectKeyVal", null, {
-            "$documentation": "A key: value object property"
-        }, AST_ObjectProperty);
-        AST_Set = DEFNODE("Set", "items", {
-            "$documentation": "A set literal",
-            "$propdoc": {
-                "items": "[AST_SetItem*] array of items"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_ObjectKeyVal = DEFNODE("ObjectKeyVal", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A key: value object property";
+            return ρσ_d;
+        }).call(this), AST_ObjectProperty);
+        AST_Set = DEFNODE("Set", "items", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A set literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["items"] = "[AST_SetItem*] array of items";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5302,14 +5433,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_SetItem = DEFNODE("SetItem", "value", {
-            "$documentation": "An item in a set literal",
-            "$propdoc": {
-                "value": "[AST_Node] The value of this item"
-            },
-            "_walk": (function() {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_SetItem = DEFNODE("SetItem", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An item in a set literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[AST_Node] The value of this item";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
                 var ρσ_anonfunc = function (visitor) {
                     var node;
                     node = this;
@@ -5321,130 +5456,203 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["visitor"]}
                 });
                 return ρσ_anonfunc;
-            })()
-        });
-        AST_Symbol = DEFNODE("Symbol", "scope name thedef", {
-            "$propdoc": {
-                "name": "[string] name of this symbol",
-                "scope": "[AST_Scope/S] the current scope (not necessarily the definition scope)",
-                "thedef": "[SymbolDef/S] the definition of this symbol"
-            },
-            "$documentation": "Base class for all symbols"
-        });
-        AST_SymbolAlias = DEFNODE("SymbolAlias", null, {
-            "$documentation": "An alias used in an import statement or with statement"
-        }, AST_Symbol);
-        AST_SymbolDeclaration = DEFNODE("SymbolDeclaration", "init", {
-            "$documentation": "A declaration symbol (symbol in var/const, function name or argument, symbol in catch)",
-            "$propdoc": {
-                "init": "[AST_Node*/S] array of initializers for this declaration."
-            }
-        }, AST_Symbol);
-        AST_SymbolVar = DEFNODE("SymbolVar", null, {
-            "$documentation": "Symbol defining a variable"
-        }, AST_SymbolDeclaration);
-        AST_ImportedVar = DEFNODE("ImportedVar", "alias", {
-            "$documentation": "Symbol defining an imported symbol",
-            "$propdoc": {
-                "alias": "AST_SymbolAlias the alias for this imported symbol"
-            }
-        }, AST_SymbolVar);
-        AST_SymbolConst = DEFNODE("SymbolConst", null, {
-            "$documentation": "A constant declaration"
-        }, AST_SymbolDeclaration);
-        AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", null, {
-            "$documentation": "A nonlocal declaration"
-        }, AST_SymbolDeclaration);
-        AST_SymbolFunarg = DEFNODE("SymbolFunarg", "annotation", {
-            "$documentation": "Symbol naming a function argument, possibly with an annotation.",
-            "$propdoc": {
-                "annotation": "[AST_Node?] The annotation provided for this argument (if any)"
-            }
-        }, AST_SymbolVar);
-        AST_SymbolDefun = DEFNODE("SymbolDefun", null, {
-            "$documentation": "Symbol defining a function"
-        }, AST_SymbolDeclaration);
-        AST_SymbolLambda = DEFNODE("SymbolLambda", null, {
-            "$documentation": "Symbol naming a function expression"
-        }, AST_SymbolDeclaration);
-        AST_SymbolCatch = DEFNODE("SymbolCatch", null, {
-            "$documentation": "Symbol naming the exception in catch"
-        }, AST_SymbolDeclaration);
-        AST_SymbolRef = DEFNODE("SymbolRef", "parens", {
-            "$documentation": "Reference to some symbol (not definition/declaration)",
-            "$propdoc": {
-                "parens": "[boolean/S] if true, this variable is wrapped in parentheses"
-            }
-        }, AST_Symbol);
-        AST_This = DEFNODE("This", null, {
-            "$documentation": "The `this` symbol"
-        }, AST_Symbol);
-        AST_Constant = DEFNODE("Constant", null, {
-            "$documentation": "Base class for all constants",
-            "getValue": function () {
+            })();
+            return ρσ_d;
+        }).call(this));
+        AST_Symbol = DEFNODE("Symbol", "scope name thedef", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["name"] = "[string] name of this symbol";
+                ρσ_d["scope"] = "[AST_Scope/S] the current scope (not necessarily the definition scope)";
+                ρσ_d["thedef"] = "[SymbolDef/S] the definition of this symbol";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["$documentation"] = "Base class for all symbols";
+            return ρσ_d;
+        }).call(this));
+        AST_SymbolAlias = DEFNODE("SymbolAlias", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "An alias used in an import statement or with statement";
+            return ρσ_d;
+        }).call(this), AST_Symbol);
+        AST_SymbolDeclaration = DEFNODE("SymbolDeclaration", "init", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A declaration symbol (symbol in var/const, function name or argument, symbol in catch)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["init"] = "[AST_Node*/S] array of initializers for this declaration.";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Symbol);
+        AST_SymbolVar = DEFNODE("SymbolVar", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol defining a variable";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_ImportedVar = DEFNODE("ImportedVar", "alias", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol defining an imported symbol";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["alias"] = "AST_SymbolAlias the alias for this imported symbol";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_SymbolVar);
+        AST_SymbolConst = DEFNODE("SymbolConst", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A constant declaration";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_SymbolNonlocal = DEFNODE("SymbolNonlocal", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A nonlocal declaration";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_SymbolFunarg = DEFNODE("SymbolFunarg", "annotation", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol naming a function argument, possibly with an annotation.";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["annotation"] = "[AST_Node?] The annotation provided for this argument (if any)";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_SymbolVar);
+        AST_SymbolDefun = DEFNODE("SymbolDefun", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol defining a function";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_SymbolLambda = DEFNODE("SymbolLambda", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol naming a function expression";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_SymbolCatch = DEFNODE("SymbolCatch", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Symbol naming the exception in catch";
+            return ρσ_d;
+        }).call(this), AST_SymbolDeclaration);
+        AST_SymbolRef = DEFNODE("SymbolRef", "parens", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Reference to some symbol (not definition/declaration)";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["parens"] = "[boolean/S] if true, this variable is wrapped in parentheses";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Symbol);
+        AST_This = DEFNODE("This", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `this` symbol";
+            return ρσ_d;
+        }).call(this), AST_Symbol);
+        AST_Constant = DEFNODE("Constant", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for all constants";
+            ρσ_d["getValue"] = function () {
                 return this.value;
-            }
-        });
-        AST_String = DEFNODE("String", "value", {
-            "$documentation": "A string literal",
-            "$propdoc": {
-                "value": "[string] the contents of this string"
-            }
-        }, AST_Constant);
-        AST_Verbatim = DEFNODE("Verbatim", "value", {
-            "$documentation": "Raw JavaScript code",
-            "$propdoc": {
-                "value": "[string] A string of raw JS code"
-            }
-        }, AST_Constant);
-        AST_Number = DEFNODE("Number", "value", {
-            "$documentation": "A number literal",
-            "$propdoc": {
-                "value": "[number] the numeric value"
-            }
-        }, AST_Constant);
-        AST_RegExp = DEFNODE("RegExp", "value", {
-            "$documentation": "A regexp literal",
-            "$propdoc": {
-                "value": "[RegExp] the actual regexp"
-            }
-        }, AST_Constant);
-        AST_Atom = DEFNODE("Atom", null, {
-            "$documentation": "Base class for atoms"
-        }, AST_Constant);
-        AST_Null = DEFNODE("Null", null, {
-            "$documentation": "The `null` atom",
-            "value": null
-        }, AST_Atom);
-        AST_NaN = DEFNODE("NaN", null, {
-            "$documentation": "The impossible value",
-            "value": 0 / 0
-        }, AST_Atom);
-        AST_Undefined = DEFNODE("Undefined", null, {
-            "$documentation": "The `undefined` value",
-            "value": function () {
-            }.call(this)
-        }, AST_Atom);
-        AST_Hole = DEFNODE("Hole", null, {
-            "$documentation": "A hole in an array",
-            "value": function () {
-            }.call(this)
-        }, AST_Atom);
-        AST_Infinity = DEFNODE("Infinity", null, {
-            "$documentation": "The `Infinity` value",
-            "value": 1 / 0
-        }, AST_Atom);
-        AST_Boolean = DEFNODE("Boolean", null, {
-            "$documentation": "Base class for booleans"
-        }, AST_Atom);
-        AST_False = DEFNODE("False", null, {
-            "$documentation": "The `false` atom",
-            "value": false
-        }, AST_Boolean);
-        AST_True = DEFNODE("True", null, {
-            "$documentation": "The `true` atom",
-            "value": true
-        }, AST_Boolean);
+            };
+            return ρσ_d;
+        }).call(this));
+        AST_String = DEFNODE("String", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A string literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[string] the contents of this string";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Constant);
+        AST_Verbatim = DEFNODE("Verbatim", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Raw JavaScript code";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[string] A string of raw JS code";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Constant);
+        AST_Number = DEFNODE("Number", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A number literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[number] the numeric value";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Constant);
+        AST_RegExp = DEFNODE("RegExp", "value", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A regexp literal";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["value"] = "[RegExp] the actual regexp";
+                return ρσ_d;
+            }).call(this);
+            return ρσ_d;
+        }).call(this), AST_Constant);
+        AST_Atom = DEFNODE("Atom", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for atoms";
+            return ρσ_d;
+        }).call(this), AST_Constant);
+        AST_Null = DEFNODE("Null", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `null` atom";
+            ρσ_d["value"] = null;
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_NaN = DEFNODE("NaN", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The impossible value";
+            ρσ_d["value"] = 0 / 0;
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_Undefined = DEFNODE("Undefined", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `undefined` value";
+            ρσ_d["value"] = function () {
+            }.call(this);
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_Hole = DEFNODE("Hole", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "A hole in an array";
+            ρσ_d["value"] = function () {
+            }.call(this);
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_Infinity = DEFNODE("Infinity", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `Infinity` value";
+            ρσ_d["value"] = 1 / 0;
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_Boolean = DEFNODE("Boolean", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Base class for booleans";
+            return ρσ_d;
+        }).call(this), AST_Atom);
+        AST_False = DEFNODE("False", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `false` atom";
+            ρσ_d["value"] = false;
+            return ρσ_d;
+        }).call(this), AST_Boolean);
+        AST_True = DEFNODE("True", null, (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "The `true` atom";
+            ρσ_d["value"] = true;
+            return ρσ_d;
+        }).call(this), AST_Boolean);
         function TreeWalker(callback) {
             this.visit = callback;
             this.stack = ρσ_list_decorate([]);
@@ -5453,8 +5661,9 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["callback"]}
         });
 
-        TreeWalker.prototype = {
-            "_visit": (function() {
+        TreeWalker.prototype = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["_visit"] = (function() {
                 var ρσ_anonfunc = function (node, descend) {
                     var ret;
                     this.stack.push(node);
@@ -5471,8 +5680,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["node", "descend"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "parent": (function() {
+            })();
+            ρσ_d["parent"] = (function() {
                 var ρσ_anonfunc = function (n) {
                     return this.stack[this.stack.length - 2 - (n || 0)];
                 };
@@ -5480,8 +5689,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["n"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "push": (function() {
+            })();
+            ρσ_d["push"] = (function() {
                 var ρσ_anonfunc = function (node) {
                     this.stack.push(node);
                 };
@@ -5489,14 +5698,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["node"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "pop": function () {
+            })();
+            ρσ_d["pop"] = function () {
                 return this.stack.pop();
-            },
-            "self": function () {
+            };
+            ρσ_d["self"] = function () {
                 return this.stack[this.stack.length - 1];
-            },
-            "find_parent": (function() {
+            };
+            ρσ_d["find_parent"] = (function() {
                 var ρσ_anonfunc = function (type) {
                     var stack, x, i;
                     stack = this.stack;
@@ -5512,8 +5721,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                     __argnames__ : {value: ["type"]}
                 });
                 return ρσ_anonfunc;
-            })(),
-            "in_boolean_context": function () {
+            })();
+            ρσ_d["in_boolean_context"] = function () {
                 var stack, i, self, p;
                 stack = this.stack;
                 i = stack.length;
@@ -5528,8 +5737,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                     }
                     self = p;
                 }
-            }
-        };
+            };
+            return ρσ_d;
+        }).call(this);
         function Found() {
             if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
             Found.prototype.__init__.apply(this, arguments);
@@ -5705,26 +5915,30 @@ var str = ρσ_str, repr = ρσ_repr;;
             s.jsset.add("!==");
             return s;
         })();
-        ASCII_CONTROL_CHARS = {
-            "a": 7,
-            "b": 8,
-            "f": 12,
-            "n": 10,
-            "r": 13,
-            "t": 9,
-            "v": 11
-        };
+        ASCII_CONTROL_CHARS = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["a"] = 7;
+            ρσ_d["b"] = 8;
+            ρσ_d["f"] = 12;
+            ρσ_d["n"] = 10;
+            ρσ_d["r"] = 13;
+            ρσ_d["t"] = 9;
+            ρσ_d["v"] = 11;
+            return ρσ_d;
+        }).call(this);
         HEX_PAT = /[a-fA-F0-9]/;
         NAME_PAT = /[a-zA-Z ]/;
         OPERATORS = make_predicate(ρσ_list_decorate([ "in", "instanceof", "typeof", "new", "void", "del", "++", "--", "+", "-", "not", "~", "&", "|", "^", "**", "*", "//", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "===", "is", "!=", "!==", "?", "=", "+=", "-=", "//=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "and", "or", "@", "->" ]));
-        OP_MAP = {
-            "or": "||",
-            "and": "&&",
-            "not": "!",
-            "del": "delete",
-            "None": "null",
-            "is": "==="
-        };
+        OP_MAP = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["or"] = "||";
+            ρσ_d["and"] = "&&";
+            ρσ_d["not"] = "!";
+            ρσ_d["del"] = "delete";
+            ρσ_d["None"] = "null";
+            ρσ_d["is"] = "===";
+            return ρσ_d;
+        }).call(this);
         WHITESPACE_CHARS = make_predicate(characters("  \n\r\t\f\u000b​᠎           \u202f 　"));
         PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"));
         PUNC_CHARS = make_predicate(characters("[]{}(),;:"));
@@ -5825,12 +6039,14 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["num"]}
         });
 
-        UNICODE = {
-            "letter": new RegExp("[\\u0041-\\u005A\\u0061-\\u007A\\u00AA\\u00B5\\u00BA\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02C1\\u02C6-\\u02D1\\u02E0-\\u02E4\\u02EC\\u02EE\\u0370-\\u0374\\u0376\\u0377\\u037A-\\u037D\\u0386\\u0388-\\u038A\\u038C\\u038E-\\u03A1\\u03A3-\\u03F5\\u03F7-\\u0481\\u048A-\\u0523\\u0531-\\u0556\\u0559\\u0561-\\u0587\\u05D0-\\u05EA\\u05F0-\\u05F2\\u0621-\\u064A\\u066E\\u066F\\u0671-\\u06D3\\u06D5\\u06E5\\u06E6\\u06EE\\u06EF\\u06FA-\\u06FC\\u06FF\\u0710\\u0712-\\u072F\\u074D-\\u07A5\\u07B1\\u07CA-\\u07EA\\u07F4\\u07F5\\u07FA\\u0904-\\u0939\\u093D\\u0950\\u0958-\\u0961\\u0971\\u0972\\u097B-\\u097F\\u0985-\\u098C\\u098F\\u0990\\u0993-\\u09A8\\u09AA-\\u09B0\\u09B2\\u09B6-\\u09B9\\u09BD\\u09CE\\u09DC\\u09DD\\u09DF-\\u09E1\\u09F0\\u09F1\\u0A05-\\u0A0A\\u0A0F\\u0A10\\u0A13-\\u0A28\\u0A2A-\\u0A30\\u0A32\\u0A33\\u0A35\\u0A36\\u0A38\\u0A39\\u0A59-\\u0A5C\\u0A5E\\u0A72-\\u0A74\\u0A85-\\u0A8D\\u0A8F-\\u0A91\\u0A93-\\u0AA8\\u0AAA-\\u0AB0\\u0AB2\\u0AB3\\u0AB5-\\u0AB9\\u0ABD\\u0AD0\\u0AE0\\u0AE1\\u0B05-\\u0B0C\\u0B0F\\u0B10\\u0B13-\\u0B28\\u0B2A-\\u0B30\\u0B32\\u0B33\\u0B35-\\u0B39\\u0B3D\\u0B5C\\u0B5D\\u0B5F-\\u0B61\\u0B71\\u0B83\\u0B85-\\u0B8A\\u0B8E-\\u0B90\\u0B92-\\u0B95\\u0B99\\u0B9A\\u0B9C\\u0B9E\\u0B9F\\u0BA3\\u0BA4\\u0BA8-\\u0BAA\\u0BAE-\\u0BB9\\u0BD0\\u0C05-\\u0C0C\\u0C0E-\\u0C10\\u0C12-\\u0C28\\u0C2A-\\u0C33\\u0C35-\\u0C39\\u0C3D\\u0C58\\u0C59\\u0C60\\u0C61\\u0C85-\\u0C8C\\u0C8E-\\u0C90\\u0C92-\\u0CA8\\u0CAA-\\u0CB3\\u0CB5-\\u0CB9\\u0CBD\\u0CDE\\u0CE0\\u0CE1\\u0D05-\\u0D0C\\u0D0E-\\u0D10\\u0D12-\\u0D28\\u0D2A-\\u0D39\\u0D3D\\u0D60\\u0D61\\u0D7A-\\u0D7F\\u0D85-\\u0D96\\u0D9A-\\u0DB1\\u0DB3-\\u0DBB\\u0DBD\\u0DC0-\\u0DC6\\u0E01-\\u0E30\\u0E32\\u0E33\\u0E40-\\u0E46\\u0E81\\u0E82\\u0E84\\u0E87\\u0E88\\u0E8A\\u0E8D\\u0E94-\\u0E97\\u0E99-\\u0E9F\\u0EA1-\\u0EA3\\u0EA5\\u0EA7\\u0EAA\\u0EAB\\u0EAD-\\u0EB0\\u0EB2\\u0EB3\\u0EBD\\u0EC0-\\u0EC4\\u0EC6\\u0EDC\\u0EDD\\u0F00\\u0F40-\\u0F47\\u0F49-\\u0F6C\\u0F88-\\u0F8B\\u1000-\\u102A\\u103F\\u1050-\\u1055\\u105A-\\u105D\\u1061\\u1065\\u1066\\u106E-\\u1070\\u1075-\\u1081\\u108E\\u10A0-\\u10C5\\u10D0-\\u10FA\\u10FC\\u1100-\\u1159\\u115F-\\u11A2\\u11A8-\\u11F9\\u1200-\\u1248\\u124A-\\u124D\\u1250-\\u1256\\u1258\\u125A-\\u125D\\u1260-\\u1288\\u128A-\\u128D\\u1290-\\u12B0\\u12B2-\\u12B5\\u12B8-\\u12BE\\u12C0\\u12C2-\\u12C5\\u12C8-\\u12D6\\u12D8-\\u1310\\u1312-\\u1315\\u1318-\\u135A\\u1380-\\u138F\\u13A0-\\u13F4\\u1401-\\u166C\\u166F-\\u1676\\u1681-\\u169A\\u16A0-\\u16EA\\u1700-\\u170C\\u170E-\\u1711\\u1720-\\u1731\\u1740-\\u1751\\u1760-\\u176C\\u176E-\\u1770\\u1780-\\u17B3\\u17D7\\u17DC\\u1820-\\u1877\\u1880-\\u18A8\\u18AA\\u1900-\\u191C\\u1950-\\u196D\\u1970-\\u1974\\u1980-\\u19A9\\u19C1-\\u19C7\\u1A00-\\u1A16\\u1B05-\\u1B33\\u1B45-\\u1B4B\\u1B83-\\u1BA0\\u1BAE\\u1BAF\\u1C00-\\u1C23\\u1C4D-\\u1C4F\\u1C5A-\\u1C7D\\u1D00-\\u1DBF\\u1E00-\\u1F15\\u1F18-\\u1F1D\\u1F20-\\u1F45\\u1F48-\\u1F4D\\u1F50-\\u1F57\\u1F59\\u1F5B\\u1F5D\\u1F5F-\\u1F7D\\u1F80-\\u1FB4\\u1FB6-\\u1FBC\\u1FBE\\u1FC2-\\u1FC4\\u1FC6-\\u1FCC\\u1FD0-\\u1FD3\\u1FD6-\\u1FDB\\u1FE0-\\u1FEC\\u1FF2-\\u1FF4\\u1FF6-\\u1FFC\\u2071\\u207F\\u2090-\\u2094\\u2102\\u2107\\u210A-\\u2113\\u2115\\u2119-\\u211D\\u2124\\u2126\\u2128\\u212A-\\u212D\\u212F-\\u2139\\u213C-\\u213F\\u2145-\\u2149\\u214E\\u2183\\u2184\\u2C00-\\u2C2E\\u2C30-\\u2C5E\\u2C60-\\u2C6F\\u2C71-\\u2C7D\\u2C80-\\u2CE4\\u2D00-\\u2D25\\u2D30-\\u2D65\\u2D6F\\u2D80-\\u2D96\\u2DA0-\\u2DA6\\u2DA8-\\u2DAE\\u2DB0-\\u2DB6\\u2DB8-\\u2DBE\\u2DC0-\\u2DC6\\u2DC8-\\u2DCE\\u2DD0-\\u2DD6\\u2DD8-\\u2DDE\\u2E2F\\u3005\\u3006\\u3031-\\u3035\\u303B\\u303C\\u3041-\\u3096\\u309D-\\u309F\\u30A1-\\u30FA\\u30FC-\\u30FF\\u3105-\\u312D\\u3131-\\u318E\\u31A0-\\u31B7\\u31F0-\\u31FF\\u3400\\u4DB5\\u4E00\\u9FC3\\uA000-\\uA48C\\uA500-\\uA60C\\uA610-\\uA61F\\uA62A\\uA62B\\uA640-\\uA65F\\uA662-\\uA66E\\uA67F-\\uA697\\uA717-\\uA71F\\uA722-\\uA788\\uA78B\\uA78C\\uA7FB-\\uA801\\uA803-\\uA805\\uA807-\\uA80A\\uA80C-\\uA822\\uA840-\\uA873\\uA882-\\uA8B3\\uA90A-\\uA925\\uA930-\\uA946\\uAA00-\\uAA28\\uAA40-\\uAA42\\uAA44-\\uAA4B\\uAC00\\uD7A3\\uF900-\\uFA2D\\uFA30-\\uFA6A\\uFA70-\\uFAD9\\uFB00-\\uFB06\\uFB13-\\uFB17\\uFB1D\\uFB1F-\\uFB28\\uFB2A-\\uFB36\\uFB38-\\uFB3C\\uFB3E\\uFB40\\uFB41\\uFB43\\uFB44\\uFB46-\\uFBB1\\uFBD3-\\uFD3D\\uFD50-\\uFD8F\\uFD92-\\uFDC7\\uFDF0-\\uFDFB\\uFE70-\\uFE74\\uFE76-\\uFEFC\\uFF21-\\uFF3A\\uFF41-\\uFF5A\\uFF66-\\uFFBE\\uFFC2-\\uFFC7\\uFFCA-\\uFFCF\\uFFD2-\\uFFD7\\uFFDA-\\uFFDC]"),
-            "non_spacing_mark": new RegExp("[\\u0300-\\u036F\\u0483-\\u0487\\u0591-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u05C5\\u05C7\\u0610-\\u061A\\u064B-\\u065E\\u0670\\u06D6-\\u06DC\\u06DF-\\u06E4\\u06E7\\u06E8\\u06EA-\\u06ED\\u0711\\u0730-\\u074A\\u07A6-\\u07B0\\u07EB-\\u07F3\\u0816-\\u0819\\u081B-\\u0823\\u0825-\\u0827\\u0829-\\u082D\\u0900-\\u0902\\u093C\\u0941-\\u0948\\u094D\\u0951-\\u0955\\u0962\\u0963\\u0981\\u09BC\\u09C1-\\u09C4\\u09CD\\u09E2\\u09E3\\u0A01\\u0A02\\u0A3C\\u0A41\\u0A42\\u0A47\\u0A48\\u0A4B-\\u0A4D\\u0A51\\u0A70\\u0A71\\u0A75\\u0A81\\u0A82\\u0ABC\\u0AC1-\\u0AC5\\u0AC7\\u0AC8\\u0ACD\\u0AE2\\u0AE3\\u0B01\\u0B3C\\u0B3F\\u0B41-\\u0B44\\u0B4D\\u0B56\\u0B62\\u0B63\\u0B82\\u0BC0\\u0BCD\\u0C3E-\\u0C40\\u0C46-\\u0C48\\u0C4A-\\u0C4D\\u0C55\\u0C56\\u0C62\\u0C63\\u0CBC\\u0CBF\\u0CC6\\u0CCC\\u0CCD\\u0CE2\\u0CE3\\u0D41-\\u0D44\\u0D4D\\u0D62\\u0D63\\u0DCA\\u0DD2-\\u0DD4\\u0DD6\\u0E31\\u0E34-\\u0E3A\\u0E47-\\u0E4E\\u0EB1\\u0EB4-\\u0EB9\\u0EBB\\u0EBC\\u0EC8-\\u0ECD\\u0F18\\u0F19\\u0F35\\u0F37\\u0F39\\u0F71-\\u0F7E\\u0F80-\\u0F84\\u0F86\\u0F87\\u0F90-\\u0F97\\u0F99-\\u0FBC\\u0FC6\\u102D-\\u1030\\u1032-\\u1037\\u1039\\u103A\\u103D\\u103E\\u1058\\u1059\\u105E-\\u1060\\u1071-\\u1074\\u1082\\u1085\\u1086\\u108D\\u109D\\u135F\\u1712-\\u1714\\u1732-\\u1734\\u1752\\u1753\\u1772\\u1773\\u17B7-\\u17BD\\u17C6\\u17C9-\\u17D3\\u17DD\\u180B-\\u180D\\u18A9\\u1920-\\u1922\\u1927\\u1928\\u1932\\u1939-\\u193B\\u1A17\\u1A18\\u1A56\\u1A58-\\u1A5E\\u1A60\\u1A62\\u1A65-\\u1A6C\\u1A73-\\u1A7C\\u1A7F\\u1B00-\\u1B03\\u1B34\\u1B36-\\u1B3A\\u1B3C\\u1B42\\u1B6B-\\u1B73\\u1B80\\u1B81\\u1BA2-\\u1BA5\\u1BA8\\u1BA9\\u1C2C-\\u1C33\\u1C36\\u1C37\\u1CD0-\\u1CD2\\u1CD4-\\u1CE0\\u1CE2-\\u1CE8\\u1CED\\u1DC0-\\u1DE6\\u1DFD-\\u1DFF\\u20D0-\\u20DC\\u20E1\\u20E5-\\u20F0\\u2CEF-\\u2CF1\\u2DE0-\\u2DFF\\u302A-\\u302F\\u3099\\u309A\\uA66F\\uA67C\\uA67D\\uA6F0\\uA6F1\\uA802\\uA806\\uA80B\\uA825\\uA826\\uA8C4\\uA8E0-\\uA8F1\\uA926-\\uA92D\\uA947-\\uA951\\uA980-\\uA982\\uA9B3\\uA9B6-\\uA9B9\\uA9BC\\uAA29-\\uAA2E\\uAA31\\uAA32\\uAA35\\uAA36\\uAA43\\uAA4C\\uAAB0\\uAAB2-\\uAAB4\\uAAB7\\uAAB8\\uAABE\\uAABF\\uAAC1\\uABE5\\uABE8\\uABED\\uFB1E\\uFE00-\\uFE0F\\uFE20-\\uFE26]"),
-            "space_combining_mark": new RegExp("[\\u0903\\u093E-\\u0940\\u0949-\\u094C\\u094E\\u0982\\u0983\\u09BE-\\u09C0\\u09C7\\u09C8\\u09CB\\u09CC\\u09D7\\u0A03\\u0A3E-\\u0A40\\u0A83\\u0ABE-\\u0AC0\\u0AC9\\u0ACB\\u0ACC\\u0B02\\u0B03\\u0B3E\\u0B40\\u0B47\\u0B48\\u0B4B\\u0B4C\\u0B57\\u0BBE\\u0BBF\\u0BC1\\u0BC2\\u0BC6-\\u0BC8\\u0BCA-\\u0BCC\\u0BD7\\u0C01-\\u0C03\\u0C41-\\u0C44\\u0C82\\u0C83\\u0CBE\\u0CC0-\\u0CC4\\u0CC7\\u0CC8\\u0CCA\\u0CCB\\u0CD5\\u0CD6\\u0D02\\u0D03\\u0D3E-\\u0D40\\u0D46-\\u0D48\\u0D4A-\\u0D4C\\u0D57\\u0D82\\u0D83\\u0DCF-\\u0DD1\\u0DD8-\\u0DDF\\u0DF2\\u0DF3\\u0F3E\\u0F3F\\u0F7F\\u102B\\u102C\\u1031\\u1038\\u103B\\u103C\\u1056\\u1057\\u1062-\\u1064\\u1067-\\u106D\\u1083\\u1084\\u1087-\\u108C\\u108F\\u109A-\\u109C\\u17B6\\u17BE-\\u17C5\\u17C7\\u17C8\\u1923-\\u1926\\u1929-\\u192B\\u1930\\u1931\\u1933-\\u1938\\u19B0-\\u19C0\\u19C8\\u19C9\\u1A19-\\u1A1B\\u1A55\\u1A57\\u1A61\\u1A63\\u1A64\\u1A6D-\\u1A72\\u1B04\\u1B35\\u1B3B\\u1B3D-\\u1B41\\u1B43\\u1B44\\u1B82\\u1BA1\\u1BA6\\u1BA7\\u1BAA\\u1C24-\\u1C2B\\u1C34\\u1C35\\u1CE1\\u1CF2\\uA823\\uA824\\uA827\\uA880\\uA881\\uA8B4-\\uA8C3\\uA952\\uA953\\uA983\\uA9B4\\uA9B5\\uA9BA\\uA9BB\\uA9BD-\\uA9C0\\uAA2F\\uAA30\\uAA33\\uAA34\\uAA4D\\uAA7B\\uABE3\\uABE4\\uABE6\\uABE7\\uABE9\\uABEA\\uABEC]"),
-            "connector_punctuation": new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]")
-        };
+        UNICODE = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["letter"] = new RegExp("[\\u0041-\\u005A\\u0061-\\u007A\\u00AA\\u00B5\\u00BA\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02C1\\u02C6-\\u02D1\\u02E0-\\u02E4\\u02EC\\u02EE\\u0370-\\u0374\\u0376\\u0377\\u037A-\\u037D\\u0386\\u0388-\\u038A\\u038C\\u038E-\\u03A1\\u03A3-\\u03F5\\u03F7-\\u0481\\u048A-\\u0523\\u0531-\\u0556\\u0559\\u0561-\\u0587\\u05D0-\\u05EA\\u05F0-\\u05F2\\u0621-\\u064A\\u066E\\u066F\\u0671-\\u06D3\\u06D5\\u06E5\\u06E6\\u06EE\\u06EF\\u06FA-\\u06FC\\u06FF\\u0710\\u0712-\\u072F\\u074D-\\u07A5\\u07B1\\u07CA-\\u07EA\\u07F4\\u07F5\\u07FA\\u0904-\\u0939\\u093D\\u0950\\u0958-\\u0961\\u0971\\u0972\\u097B-\\u097F\\u0985-\\u098C\\u098F\\u0990\\u0993-\\u09A8\\u09AA-\\u09B0\\u09B2\\u09B6-\\u09B9\\u09BD\\u09CE\\u09DC\\u09DD\\u09DF-\\u09E1\\u09F0\\u09F1\\u0A05-\\u0A0A\\u0A0F\\u0A10\\u0A13-\\u0A28\\u0A2A-\\u0A30\\u0A32\\u0A33\\u0A35\\u0A36\\u0A38\\u0A39\\u0A59-\\u0A5C\\u0A5E\\u0A72-\\u0A74\\u0A85-\\u0A8D\\u0A8F-\\u0A91\\u0A93-\\u0AA8\\u0AAA-\\u0AB0\\u0AB2\\u0AB3\\u0AB5-\\u0AB9\\u0ABD\\u0AD0\\u0AE0\\u0AE1\\u0B05-\\u0B0C\\u0B0F\\u0B10\\u0B13-\\u0B28\\u0B2A-\\u0B30\\u0B32\\u0B33\\u0B35-\\u0B39\\u0B3D\\u0B5C\\u0B5D\\u0B5F-\\u0B61\\u0B71\\u0B83\\u0B85-\\u0B8A\\u0B8E-\\u0B90\\u0B92-\\u0B95\\u0B99\\u0B9A\\u0B9C\\u0B9E\\u0B9F\\u0BA3\\u0BA4\\u0BA8-\\u0BAA\\u0BAE-\\u0BB9\\u0BD0\\u0C05-\\u0C0C\\u0C0E-\\u0C10\\u0C12-\\u0C28\\u0C2A-\\u0C33\\u0C35-\\u0C39\\u0C3D\\u0C58\\u0C59\\u0C60\\u0C61\\u0C85-\\u0C8C\\u0C8E-\\u0C90\\u0C92-\\u0CA8\\u0CAA-\\u0CB3\\u0CB5-\\u0CB9\\u0CBD\\u0CDE\\u0CE0\\u0CE1\\u0D05-\\u0D0C\\u0D0E-\\u0D10\\u0D12-\\u0D28\\u0D2A-\\u0D39\\u0D3D\\u0D60\\u0D61\\u0D7A-\\u0D7F\\u0D85-\\u0D96\\u0D9A-\\u0DB1\\u0DB3-\\u0DBB\\u0DBD\\u0DC0-\\u0DC6\\u0E01-\\u0E30\\u0E32\\u0E33\\u0E40-\\u0E46\\u0E81\\u0E82\\u0E84\\u0E87\\u0E88\\u0E8A\\u0E8D\\u0E94-\\u0E97\\u0E99-\\u0E9F\\u0EA1-\\u0EA3\\u0EA5\\u0EA7\\u0EAA\\u0EAB\\u0EAD-\\u0EB0\\u0EB2\\u0EB3\\u0EBD\\u0EC0-\\u0EC4\\u0EC6\\u0EDC\\u0EDD\\u0F00\\u0F40-\\u0F47\\u0F49-\\u0F6C\\u0F88-\\u0F8B\\u1000-\\u102A\\u103F\\u1050-\\u1055\\u105A-\\u105D\\u1061\\u1065\\u1066\\u106E-\\u1070\\u1075-\\u1081\\u108E\\u10A0-\\u10C5\\u10D0-\\u10FA\\u10FC\\u1100-\\u1159\\u115F-\\u11A2\\u11A8-\\u11F9\\u1200-\\u1248\\u124A-\\u124D\\u1250-\\u1256\\u1258\\u125A-\\u125D\\u1260-\\u1288\\u128A-\\u128D\\u1290-\\u12B0\\u12B2-\\u12B5\\u12B8-\\u12BE\\u12C0\\u12C2-\\u12C5\\u12C8-\\u12D6\\u12D8-\\u1310\\u1312-\\u1315\\u1318-\\u135A\\u1380-\\u138F\\u13A0-\\u13F4\\u1401-\\u166C\\u166F-\\u1676\\u1681-\\u169A\\u16A0-\\u16EA\\u1700-\\u170C\\u170E-\\u1711\\u1720-\\u1731\\u1740-\\u1751\\u1760-\\u176C\\u176E-\\u1770\\u1780-\\u17B3\\u17D7\\u17DC\\u1820-\\u1877\\u1880-\\u18A8\\u18AA\\u1900-\\u191C\\u1950-\\u196D\\u1970-\\u1974\\u1980-\\u19A9\\u19C1-\\u19C7\\u1A00-\\u1A16\\u1B05-\\u1B33\\u1B45-\\u1B4B\\u1B83-\\u1BA0\\u1BAE\\u1BAF\\u1C00-\\u1C23\\u1C4D-\\u1C4F\\u1C5A-\\u1C7D\\u1D00-\\u1DBF\\u1E00-\\u1F15\\u1F18-\\u1F1D\\u1F20-\\u1F45\\u1F48-\\u1F4D\\u1F50-\\u1F57\\u1F59\\u1F5B\\u1F5D\\u1F5F-\\u1F7D\\u1F80-\\u1FB4\\u1FB6-\\u1FBC\\u1FBE\\u1FC2-\\u1FC4\\u1FC6-\\u1FCC\\u1FD0-\\u1FD3\\u1FD6-\\u1FDB\\u1FE0-\\u1FEC\\u1FF2-\\u1FF4\\u1FF6-\\u1FFC\\u2071\\u207F\\u2090-\\u2094\\u2102\\u2107\\u210A-\\u2113\\u2115\\u2119-\\u211D\\u2124\\u2126\\u2128\\u212A-\\u212D\\u212F-\\u2139\\u213C-\\u213F\\u2145-\\u2149\\u214E\\u2183\\u2184\\u2C00-\\u2C2E\\u2C30-\\u2C5E\\u2C60-\\u2C6F\\u2C71-\\u2C7D\\u2C80-\\u2CE4\\u2D00-\\u2D25\\u2D30-\\u2D65\\u2D6F\\u2D80-\\u2D96\\u2DA0-\\u2DA6\\u2DA8-\\u2DAE\\u2DB0-\\u2DB6\\u2DB8-\\u2DBE\\u2DC0-\\u2DC6\\u2DC8-\\u2DCE\\u2DD0-\\u2DD6\\u2DD8-\\u2DDE\\u2E2F\\u3005\\u3006\\u3031-\\u3035\\u303B\\u303C\\u3041-\\u3096\\u309D-\\u309F\\u30A1-\\u30FA\\u30FC-\\u30FF\\u3105-\\u312D\\u3131-\\u318E\\u31A0-\\u31B7\\u31F0-\\u31FF\\u3400\\u4DB5\\u4E00\\u9FC3\\uA000-\\uA48C\\uA500-\\uA60C\\uA610-\\uA61F\\uA62A\\uA62B\\uA640-\\uA65F\\uA662-\\uA66E\\uA67F-\\uA697\\uA717-\\uA71F\\uA722-\\uA788\\uA78B\\uA78C\\uA7FB-\\uA801\\uA803-\\uA805\\uA807-\\uA80A\\uA80C-\\uA822\\uA840-\\uA873\\uA882-\\uA8B3\\uA90A-\\uA925\\uA930-\\uA946\\uAA00-\\uAA28\\uAA40-\\uAA42\\uAA44-\\uAA4B\\uAC00\\uD7A3\\uF900-\\uFA2D\\uFA30-\\uFA6A\\uFA70-\\uFAD9\\uFB00-\\uFB06\\uFB13-\\uFB17\\uFB1D\\uFB1F-\\uFB28\\uFB2A-\\uFB36\\uFB38-\\uFB3C\\uFB3E\\uFB40\\uFB41\\uFB43\\uFB44\\uFB46-\\uFBB1\\uFBD3-\\uFD3D\\uFD50-\\uFD8F\\uFD92-\\uFDC7\\uFDF0-\\uFDFB\\uFE70-\\uFE74\\uFE76-\\uFEFC\\uFF21-\\uFF3A\\uFF41-\\uFF5A\\uFF66-\\uFFBE\\uFFC2-\\uFFC7\\uFFCA-\\uFFCF\\uFFD2-\\uFFD7\\uFFDA-\\uFFDC]");
+            ρσ_d["non_spacing_mark"] = new RegExp("[\\u0300-\\u036F\\u0483-\\u0487\\u0591-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u05C5\\u05C7\\u0610-\\u061A\\u064B-\\u065E\\u0670\\u06D6-\\u06DC\\u06DF-\\u06E4\\u06E7\\u06E8\\u06EA-\\u06ED\\u0711\\u0730-\\u074A\\u07A6-\\u07B0\\u07EB-\\u07F3\\u0816-\\u0819\\u081B-\\u0823\\u0825-\\u0827\\u0829-\\u082D\\u0900-\\u0902\\u093C\\u0941-\\u0948\\u094D\\u0951-\\u0955\\u0962\\u0963\\u0981\\u09BC\\u09C1-\\u09C4\\u09CD\\u09E2\\u09E3\\u0A01\\u0A02\\u0A3C\\u0A41\\u0A42\\u0A47\\u0A48\\u0A4B-\\u0A4D\\u0A51\\u0A70\\u0A71\\u0A75\\u0A81\\u0A82\\u0ABC\\u0AC1-\\u0AC5\\u0AC7\\u0AC8\\u0ACD\\u0AE2\\u0AE3\\u0B01\\u0B3C\\u0B3F\\u0B41-\\u0B44\\u0B4D\\u0B56\\u0B62\\u0B63\\u0B82\\u0BC0\\u0BCD\\u0C3E-\\u0C40\\u0C46-\\u0C48\\u0C4A-\\u0C4D\\u0C55\\u0C56\\u0C62\\u0C63\\u0CBC\\u0CBF\\u0CC6\\u0CCC\\u0CCD\\u0CE2\\u0CE3\\u0D41-\\u0D44\\u0D4D\\u0D62\\u0D63\\u0DCA\\u0DD2-\\u0DD4\\u0DD6\\u0E31\\u0E34-\\u0E3A\\u0E47-\\u0E4E\\u0EB1\\u0EB4-\\u0EB9\\u0EBB\\u0EBC\\u0EC8-\\u0ECD\\u0F18\\u0F19\\u0F35\\u0F37\\u0F39\\u0F71-\\u0F7E\\u0F80-\\u0F84\\u0F86\\u0F87\\u0F90-\\u0F97\\u0F99-\\u0FBC\\u0FC6\\u102D-\\u1030\\u1032-\\u1037\\u1039\\u103A\\u103D\\u103E\\u1058\\u1059\\u105E-\\u1060\\u1071-\\u1074\\u1082\\u1085\\u1086\\u108D\\u109D\\u135F\\u1712-\\u1714\\u1732-\\u1734\\u1752\\u1753\\u1772\\u1773\\u17B7-\\u17BD\\u17C6\\u17C9-\\u17D3\\u17DD\\u180B-\\u180D\\u18A9\\u1920-\\u1922\\u1927\\u1928\\u1932\\u1939-\\u193B\\u1A17\\u1A18\\u1A56\\u1A58-\\u1A5E\\u1A60\\u1A62\\u1A65-\\u1A6C\\u1A73-\\u1A7C\\u1A7F\\u1B00-\\u1B03\\u1B34\\u1B36-\\u1B3A\\u1B3C\\u1B42\\u1B6B-\\u1B73\\u1B80\\u1B81\\u1BA2-\\u1BA5\\u1BA8\\u1BA9\\u1C2C-\\u1C33\\u1C36\\u1C37\\u1CD0-\\u1CD2\\u1CD4-\\u1CE0\\u1CE2-\\u1CE8\\u1CED\\u1DC0-\\u1DE6\\u1DFD-\\u1DFF\\u20D0-\\u20DC\\u20E1\\u20E5-\\u20F0\\u2CEF-\\u2CF1\\u2DE0-\\u2DFF\\u302A-\\u302F\\u3099\\u309A\\uA66F\\uA67C\\uA67D\\uA6F0\\uA6F1\\uA802\\uA806\\uA80B\\uA825\\uA826\\uA8C4\\uA8E0-\\uA8F1\\uA926-\\uA92D\\uA947-\\uA951\\uA980-\\uA982\\uA9B3\\uA9B6-\\uA9B9\\uA9BC\\uAA29-\\uAA2E\\uAA31\\uAA32\\uAA35\\uAA36\\uAA43\\uAA4C\\uAAB0\\uAAB2-\\uAAB4\\uAAB7\\uAAB8\\uAABE\\uAABF\\uAAC1\\uABE5\\uABE8\\uABED\\uFB1E\\uFE00-\\uFE0F\\uFE20-\\uFE26]");
+            ρσ_d["space_combining_mark"] = new RegExp("[\\u0903\\u093E-\\u0940\\u0949-\\u094C\\u094E\\u0982\\u0983\\u09BE-\\u09C0\\u09C7\\u09C8\\u09CB\\u09CC\\u09D7\\u0A03\\u0A3E-\\u0A40\\u0A83\\u0ABE-\\u0AC0\\u0AC9\\u0ACB\\u0ACC\\u0B02\\u0B03\\u0B3E\\u0B40\\u0B47\\u0B48\\u0B4B\\u0B4C\\u0B57\\u0BBE\\u0BBF\\u0BC1\\u0BC2\\u0BC6-\\u0BC8\\u0BCA-\\u0BCC\\u0BD7\\u0C01-\\u0C03\\u0C41-\\u0C44\\u0C82\\u0C83\\u0CBE\\u0CC0-\\u0CC4\\u0CC7\\u0CC8\\u0CCA\\u0CCB\\u0CD5\\u0CD6\\u0D02\\u0D03\\u0D3E-\\u0D40\\u0D46-\\u0D48\\u0D4A-\\u0D4C\\u0D57\\u0D82\\u0D83\\u0DCF-\\u0DD1\\u0DD8-\\u0DDF\\u0DF2\\u0DF3\\u0F3E\\u0F3F\\u0F7F\\u102B\\u102C\\u1031\\u1038\\u103B\\u103C\\u1056\\u1057\\u1062-\\u1064\\u1067-\\u106D\\u1083\\u1084\\u1087-\\u108C\\u108F\\u109A-\\u109C\\u17B6\\u17BE-\\u17C5\\u17C7\\u17C8\\u1923-\\u1926\\u1929-\\u192B\\u1930\\u1931\\u1933-\\u1938\\u19B0-\\u19C0\\u19C8\\u19C9\\u1A19-\\u1A1B\\u1A55\\u1A57\\u1A61\\u1A63\\u1A64\\u1A6D-\\u1A72\\u1B04\\u1B35\\u1B3B\\u1B3D-\\u1B41\\u1B43\\u1B44\\u1B82\\u1BA1\\u1BA6\\u1BA7\\u1BAA\\u1C24-\\u1C2B\\u1C34\\u1C35\\u1CE1\\u1CF2\\uA823\\uA824\\uA827\\uA880\\uA881\\uA8B4-\\uA8C3\\uA952\\uA953\\uA983\\uA9B4\\uA9B5\\uA9BA\\uA9BB\\uA9BD-\\uA9C0\\uAA2F\\uAA30\\uAA33\\uAA34\\uAA4D\\uAA7B\\uABE3\\uABE4\\uABE6\\uABE7\\uABE9\\uABEA\\uABEC]");
+            ρσ_d["connector_punctuation"] = new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]");
+            return ρσ_d;
+        }).call(this);
         function is_token(token, type, val) {
             return token.type === type && (val === null || val === undefined || token.value === val);
         };
@@ -5838,30 +6054,32 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["token", "type", "val"]}
         });
 
-        EX_EOF = {};
+        EX_EOF = Object.create(null);
         function tokenizer($TEXT, filename) {
             var S, read_string, read_regexp;
-            S = {
-                "text": $TEXT.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, ""),
-                "filename": filename,
-                "pos": 0,
-                "tokpos": 0,
-                "line": 1,
-                "tokline": 0,
-                "col": 0,
-                "tokcol": 0,
-                "newline_before": false,
-                "regex_allowed": false,
-                "comments_before": [],
-                "whitespace_before": [],
-                "newblock": false,
-                "endblock": false,
-                "indentation_matters": [ true ],
-                "cached_whitespace": "",
-                "prev": undefined,
-                "index_or_slice": [ false ],
-                "expecting_object_literal_key": false
-            };
+            S = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["text"] = $TEXT.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, "");
+                ρσ_d["filename"] = filename;
+                ρσ_d["pos"] = 0;
+                ρσ_d["tokpos"] = 0;
+                ρσ_d["line"] = 1;
+                ρσ_d["tokline"] = 0;
+                ρσ_d["col"] = 0;
+                ρσ_d["tokcol"] = 0;
+                ρσ_d["newline_before"] = false;
+                ρσ_d["regex_allowed"] = false;
+                ρσ_d["comments_before"] = [];
+                ρσ_d["whitespace_before"] = [];
+                ρσ_d["newblock"] = false;
+                ρσ_d["endblock"] = false;
+                ρσ_d["indentation_matters"] = [ true ];
+                ρσ_d["cached_whitespace"] = "";
+                ρσ_d["prev"] = undefined;
+                ρσ_d["index_or_slice"] = [ false ];
+                ρσ_d["expecting_object_literal_key"] = false;
+                return ρσ_d;
+            }).call(this);
             function peek() {
                 return S.text.charAt(S.pos);
             };
@@ -5918,16 +6136,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (type === "operator" && OP_MAP[value]) {
                     value = OP_MAP[value];
                 }
-                ret = {
-                    "type": type,
-                    "value": value,
-                    "line": S.tokline,
-                    "col": S.tokcol,
-                    "pos": S.tokpos,
-                    "endpos": S.pos,
-                    "nlb": S.newline_before,
-                    "file": filename
-                };
+                ret = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["type"] = type;
+                    ρσ_d["value"] = value;
+                    ρσ_d["line"] = S.tokline;
+                    ρσ_d["col"] = S.tokcol;
+                    ρσ_d["pos"] = S.tokpos;
+                    ρσ_d["endpos"] = S.pos;
+                    ρσ_d["nlb"] = S.newline_before;
+                    ρσ_d["file"] = filename;
+                    return ρσ_d;
+                }).call(this);
                 if (!is_comment) {
                     ret.comments_before = S.comments_before;
                     S.comments_before = [];
@@ -6148,7 +6368,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if ("\"'".indexOf(q) !== -1) {
                     return q;
                 }
-                if (ASCII_CONTROL_CHARS.hasOwnProperty(q)) {
+                if (ASCII_CONTROL_CHARS[q]) {
                     return String.fromCharCode(ASCII_CONTROL_CHARS[q]);
                 }
                 if ("0" <= q && q <= "7") {
@@ -6556,10 +6776,11 @@ var str = ρσ_str, repr = ρσ_repr;;
 
     (function(){
         var __name__ = "parse";
-        var has_prop, COMPILER_VERSION, PYTHON_FLAGS, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
+        var COMPILER_VERSION, PYTHON_FLAGS, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
         var make_predicate = ρσ_modules.utils.make_predicate;
         var array_to_hash = ρσ_modules.utils.array_to_hash;
         var defaults = ρσ_modules.utils.defaults;
+        var has_prop = ρσ_modules.utils.has_prop;
         
         var SyntaxError = ρσ_modules.errors.SyntaxError;
         var ImportError = ρσ_modules.errors.ImportError;
@@ -6648,67 +6869,80 @@ var str = ρσ_str, repr = ρσ_repr;;
         var is_token = ρσ_modules.tokenizer.is_token;
         var UNARY_POSTFIX = ρσ_modules.tokenizer.UNARY_POSTFIX;
         
-        has_prop = Object.prototype.hasOwnProperty;
-        COMPILER_VERSION = "5704bd724fedd67613c2070bad7f843eecc8aa15";
-        PYTHON_FLAGS = {
-            "dict_literals": true,
-            "overload_getitem": true,
-            "bound_methods": true
-        };
-        NATIVE_CLASSES = {
-            "Image": {},
-            "RegExp": {},
-            "Error": {},
-            "EvalError": {},
-            "InternalError": {},
-            "RangeError": {},
-            "ReferenceError": {},
-            "SyntaxError": {},
-            "TypeError": {},
-            "URIError": {},
-            "Object": {
-                "static": ρσ_list_decorate([ "getOwnPropertyNames", "getOwnPropertyDescriptor", "getOwnPropertySymbols", "keys", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ])
-            },
-            "String": {
-                "static": ρσ_list_decorate([ "fromCharCode" ])
-            },
-            "Array": {
-                "static": ρσ_list_decorate([ "isArray", "from", "of" ])
-            },
-            "Function": {},
-            "Date": {
-                "static": ρσ_list_decorate([ "UTC", "now", "parse" ])
-            },
-            "ArrayBuffer": {},
-            "DataView": {},
-            "Float32Array": {},
-            "Float64Array": {},
-            "Int16Array": {},
-            "Int32Array": {},
-            "Int8Array": {},
-            "Uint16Array": {},
-            "Uint32Array": {},
-            "Uint8Array": {},
-            "Uint8ClampedArray": {},
-            "Map": {},
-            "WeakMap": {},
-            "Set": {},
-            "WeakSet": {},
-            "XMLHttpRequest": {},
-            "TextEncoder": {},
-            "TextDecoder": {},
-            "MouseEvent": {},
-            "Event": {},
-            "CustomEvent": {},
-            "Blob": {}
-        };
-        ERROR_CLASSES = {
-            "Exception": {},
-            "AttributeError": {},
-            "IndexError": {},
-            "KeyError": {},
-            "ValueError": {}
-        };
+        COMPILER_VERSION = "387f3a0ff8b4e4d1f154556315b92b529de88031";
+        PYTHON_FLAGS = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["dict_literals"] = true;
+            ρσ_d["overload_getitem"] = true;
+            ρσ_d["bound_methods"] = true;
+            return ρσ_d;
+        }).call(this);
+        NATIVE_CLASSES = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["Image"] = Object.create(null);
+            ρσ_d["RegExp"] = Object.create(null);
+            ρσ_d["Error"] = Object.create(null);
+            ρσ_d["EvalError"] = Object.create(null);
+            ρσ_d["InternalError"] = Object.create(null);
+            ρσ_d["RangeError"] = Object.create(null);
+            ρσ_d["ReferenceError"] = Object.create(null);
+            ρσ_d["SyntaxError"] = Object.create(null);
+            ρσ_d["TypeError"] = Object.create(null);
+            ρσ_d["URIError"] = Object.create(null);
+            ρσ_d["Object"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "getOwnPropertyNames", "getOwnPropertyDescriptor", "getOwnPropertySymbols", "keys", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ]);
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["String"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "fromCharCode" ]);
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["Array"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "isArray", "from", "of" ]);
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["Function"] = Object.create(null);
+            ρσ_d["Date"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "UTC", "now", "parse" ]);
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["ArrayBuffer"] = Object.create(null);
+            ρσ_d["DataView"] = Object.create(null);
+            ρσ_d["Float32Array"] = Object.create(null);
+            ρσ_d["Float64Array"] = Object.create(null);
+            ρσ_d["Int16Array"] = Object.create(null);
+            ρσ_d["Int32Array"] = Object.create(null);
+            ρσ_d["Int8Array"] = Object.create(null);
+            ρσ_d["Uint16Array"] = Object.create(null);
+            ρσ_d["Uint32Array"] = Object.create(null);
+            ρσ_d["Uint8Array"] = Object.create(null);
+            ρσ_d["Uint8ClampedArray"] = Object.create(null);
+            ρσ_d["Map"] = Object.create(null);
+            ρσ_d["WeakMap"] = Object.create(null);
+            ρσ_d["Set"] = Object.create(null);
+            ρσ_d["WeakSet"] = Object.create(null);
+            ρσ_d["XMLHttpRequest"] = Object.create(null);
+            ρσ_d["TextEncoder"] = Object.create(null);
+            ρσ_d["TextDecoder"] = Object.create(null);
+            ρσ_d["MouseEvent"] = Object.create(null);
+            ρσ_d["Event"] = Object.create(null);
+            ρσ_d["CustomEvent"] = Object.create(null);
+            ρσ_d["Blob"] = Object.create(null);
+            return ρσ_d;
+        }).call(this);
+        ERROR_CLASSES = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["Exception"] = Object.create(null);
+            ρσ_d["AttributeError"] = Object.create(null);
+            ρσ_d["IndexError"] = Object.create(null);
+            ρσ_d["KeyError"] = Object.create(null);
+            ρσ_d["ValueError"] = Object.create(null);
+            return ρσ_d;
+        }).call(this);
         COMMON_STATIC = ρσ_list_decorate([ "call", "apply", "bind", "toString" ]);
         UNARY_PREFIX = make_predicate(ρσ_list_decorate([ "typeof", "void", "delete", "--", "++", "!", "~", "-", "+", "@" ]));
         ASSIGNMENT = make_predicate(ρσ_list_decorate([ "=", "+=", "-=", "/=", "//=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ]));
@@ -6729,7 +6963,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                 __argnames__ : {value: ["a", "ret"]}
             });
             return ρσ_anonfunc;
-        })()(ρσ_list_decorate([ ρσ_list_decorate([ "||" ]), ρσ_list_decorate([ "&&" ]), ρσ_list_decorate([ "|" ]), ρσ_list_decorate([ "^" ]), ρσ_list_decorate([ "&" ]), ρσ_list_decorate([ "==", "===", "!=", "!==" ]), ρσ_list_decorate([ "<", ">", "<=", ">=", "in", "instanceof" ]), ρσ_list_decorate([ ">>", "<<", ">>>" ]), ρσ_list_decorate([ "+", "-" ]), ρσ_list_decorate([ "*", "/", "//", "%" ]), ρσ_list_decorate([ "**" ]) ]), {});
+        })()(ρσ_list_decorate([ ρσ_list_decorate([ "||" ]), ρσ_list_decorate([ "&&" ]), ρσ_list_decorate([ "|" ]), ρσ_list_decorate([ "^" ]), ρσ_list_decorate([ "&" ]), ρσ_list_decorate([ "==", "===", "!=", "!==" ]), ρσ_list_decorate([ "<", ">", "<=", ">=", "in", "instanceof" ]), ρσ_list_decorate([ ">>", "<<", ">>>" ]), ρσ_list_decorate([ "+", "-" ]), ρσ_list_decorate([ "*", "/", "//", "%" ]), ρσ_list_decorate([ "**" ]) ]), Object.create(null));
         STATEMENTS_WITH_LABELS = array_to_hash(ρσ_list_decorate([ "for", "do", "while", "switch" ]));
         ATOMIC_START_TOKEN = array_to_hash(ρσ_list_decorate([ "atom", "num", "string", "regexp", "name", "js" ]));
         compile_time_decorators = ρσ_list_decorate([ "staticmethod", "external", "property" ]);
@@ -6926,7 +7160,7 @@ var str = ρσ_str, repr = ρσ_repr;;
 
             function scan_for_classes(body) {
                 var ans, obj;
-                ans = {};
+                ans = Object.create(null);
                 var ρσ_Iter29 = ρσ_Iterable(body);
                 for (var ρσ_Index29 = 0; ρσ_Index29 < ρσ_Iter29.length; ρσ_Index29++) {
                     obj = ρσ_Iter29[ρσ_Index29];
@@ -6942,11 +7176,10 @@ var str = ρσ_str, repr = ρσ_repr;;
 
             function scan_for_local_vars(body) {
                 var localvars, seen, clause, stmt, lhs;
-                "\n        Pick out all variables being assigned to from within this scope, we'll mark them as local\n\n        body        body to be scanned\n        ";
                 localvars = [];
-                seen = {};
+                seen = Object.create(null);
                 function push(x) {
-                    if (has_prop.call(seen, x)) {
+                    if (has_prop(seen, x)) {
                         return;
                     }
                     seen[x] = true;
@@ -6993,9 +7226,11 @@ var str = ρσ_str, repr = ρσ_repr;;
 
                 function add_assign_lhs(lhs) {
                     if (ρσ_instanceof(lhs, AST_Seq)) {
-                        lhs = new AST_Array({
-                            "elements": lhs.to_array()
-                        });
+                        lhs = new AST_Array((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["elements"] = lhs.to_array();
+                            return ρσ_d;
+                        }).call(this));
                     }
                     if (ρσ_instanceof(lhs, AST_Array)) {
                         push("ρσ_unpack");
@@ -7146,28 +7381,34 @@ var str = ρσ_str, repr = ρσ_repr;;
                 } else if (tmp_ === "shebang") {
                     tmp_ = S.token.value;
                     next();
-                    return new AST_Directive({
-                        "value": tmp_
-                    });
+                    return new AST_Directive((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["value"] = tmp_;
+                        return ρσ_d;
+                    }).call(this));
                 } else if (tmp_ === "num" || tmp_ === "regexp" || tmp_ === "operator" || tmp_ === "atom" || tmp_ === "js") {
                     return simple_statement();
                 } else if (tmp_ === "punc") {
                     tmp_ = S.token.value;
                     if (tmp_ === ":") {
-                        return new AST_BlockStatement({
-                            "start": S.token,
-                            "body": block_(),
-                            "end": prev()
-                        });
+                        return new AST_BlockStatement((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = S.token;
+                            ρσ_d["body"] = block_();
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "{" || tmp_ === "[" || tmp_ === "(") {
                         return simple_statement();
                     } else if (tmp_ === ";") {
                         next();
-                        return new AST_EmptyStatement({
-                            "stype": ";",
-                            "start": prev(),
-                            "end": prev()
-                        });
+                        return new AST_EmptyStatement((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["stype"] = ";";
+                            ρσ_d["start"] = prev();
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this));
                     } else {
                         unexpected();
                     }
@@ -7185,22 +7426,26 @@ var str = ρσ_str, repr = ρσ_repr;;
                         semicolon();
                         return new AST_Debugger;
                     } else if (tmp_ === "do") {
-                        return new AST_Do({
-                            "body": in_loop(statement),
-                            "condition": function () {
+                        return new AST_Do((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["body"] = in_loop(statement);
+                            ρσ_d["condition"] = function () {
                                 var tmp;
                                 expect(".");
                                 expect_token("keyword", "while");
                                 tmp = expression(true);
                                 semicolon();
                                 return tmp;
-                            }()
-                        });
+                            }();
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "while") {
-                        return new AST_While({
-                            "condition": expression(true),
-                            "body": in_loop(statement)
-                        });
+                        return new AST_While((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["condition"] = expression(true);
+                            ρσ_d["body"] = in_loop(statement);
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "for") {
                         if (is_("js")) {
                             return for_js();
@@ -7221,21 +7466,25 @@ var str = ρσ_str, repr = ρσ_repr;;
                         if (chain === func) {
                             return func;
                         } else {
-                            return new AST_SimpleStatement({
-                                "start": start,
-                                "body": chain,
-                                "end": prev()
-                            });
+                            return new AST_SimpleStatement((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["body"] = chain;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
                         }
                     } else if (tmp_ === "if") {
                         return if_();
                     } else if (tmp_ === "pass") {
                         semicolon();
-                        return new AST_EmptyStatement({
-                            "stype": "pass",
-                            "start": prev(),
-                            "end": prev()
-                        });
+                        return new AST_EmptyStatement((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["stype"] = "pass";
+                            ρσ_d["start"] = prev();
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "return") {
                         if (S.in_function === 0) {
                             croak("'return' outside of function");
@@ -7244,8 +7493,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                             croak("'return' not allowed in a function with yield");
                         }
                         S.functions[S.functions.length-1].is_generator = false;
-                        return new AST_Return({
-                            "value": (is_("punc", ";")) ? function () {
+                        return new AST_Return((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = (is_("punc", ";")) ? function () {
                                 semicolon();
                                 return null;
                             }() : (can_insert_semicolon()) ? null : function () {
@@ -7253,23 +7503,30 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 tmp = expression(true);
                                 semicolon();
                                 return tmp;
-                            }()
-                        });
+                            }();
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "yield") {
                         return yield_();
                     } else if (tmp_ === "raise") {
                         if (S.token.nlb) {
-                            return new AST_Throw({
-                                "value": new AST_SymbolCatch({
-                                    "name": "ρσ_Exception"
-                                })
-                            });
+                            return new AST_Throw((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = new AST_SymbolCatch((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = "ρσ_Exception";
+                                    return ρσ_d;
+                                }).call(this));
+                                return ρσ_d;
+                            }).call(this));
                         }
                         tmp = expression(true);
                         semicolon();
-                        return new AST_Throw({
-                            "value": tmp
-                        });
+                        return new AST_Throw((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = tmp;
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp_ === "try") {
                         return try_();
                     } else if (tmp_ === "nonlocal") {
@@ -7302,10 +7559,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                         alias = as_symbol(AST_SymbolAlias);
                     }
-                    clauses.push(new AST_WithClause({
-                        "expression": expr,
-                        "alias": alias
-                    }));
+                    clauses.push(new AST_WithClause((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["alias"] = alias;
+                        return ρσ_d;
+                    }).call(this)));
                     if (is_("punc", ",")) {
                         next();
                         continue;
@@ -7319,18 +7578,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                     token_error(start, "with statement must have at least one clause");
                 }
                 body = statement();
-                return new AST_With({
-                    "clauses": clauses,
-                    "body": body
-                });
+                return new AST_With((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["clauses"] = clauses;
+                    ρσ_d["body"] = body;
+                    return ρσ_d;
+                }).call(this));
             };
 
             function simple_statement(tmp) {
                 tmp = expression(true);
                 semicolon();
-                return new AST_SimpleStatement({
-                    "body": tmp
-                });
+                return new AST_SimpleStatement((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["body"] = tmp;
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(simple_statement, {
                 __argnames__ : {value: ["tmp"]}
@@ -7360,9 +7623,10 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (is_yield_from) {
                     next();
                 }
-                return new AST_Yield({
-                    "is_yield_from": is_yield_from,
-                    "value": (is_("punc", ";")) ? function () {
+                return new AST_Yield((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["is_yield_from"] = is_yield_from;
+                    ρσ_d["value"] = (is_("punc", ";")) ? function () {
                         semicolon();
                         return null;
                     }() : (can_insert_semicolon()) ? null : function () {
@@ -7370,8 +7634,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                         tmp = expression(true);
                         semicolon();
                         return tmp;
-                    }()
-                });
+                    }();
+                    return ρσ_d;
+                }).call(this));
             };
 
             function for_(list_comp) {
@@ -7385,11 +7650,13 @@ var str = ρσ_str, repr = ρσ_repr;;
                         } else {
                             tmp = ρσ_list_decorate([ init ]);
                         }
-                        init = new AST_Array({
-                            "start": init.start,
-                            "elements": tmp,
-                            "end": init.end
-                        });
+                        init = new AST_Array((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = init.start;
+                            ρσ_d["elements"] = tmp;
+                            ρσ_d["end"] = init.end;
+                            return ρσ_d;
+                        }).call(this));
                     }
                     if (is_("operator", "in")) {
                         if (ρσ_instanceof(init, AST_Var) && init.definitions.length > 1) {
@@ -7410,18 +7677,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                 lhs = (ρσ_instanceof(init, AST_Var)) ? init.definitions[0].name : null;
                 obj = expression(true);
                 if (list_comp) {
-                    return {
-                        "init": init,
-                        "name": lhs,
-                        "object": obj
-                    };
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["init"] = init;
+                        ρσ_d["name"] = lhs;
+                        ρσ_d["object"] = obj;
+                        return ρσ_d;
+                    }).call(this);
                 }
-                return new AST_ForIn({
-                    "init": init,
-                    "name": lhs,
-                    "object": obj,
-                    "body": in_loop(statement)
-                });
+                return new AST_ForIn((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["init"] = init;
+                    ρσ_d["name"] = lhs;
+                    ρσ_d["object"] = obj;
+                    ρσ_d["body"] = in_loop(statement);
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(for_in, {
                 __argnames__ : {value: ["init", "list_comp"]}
@@ -7430,24 +7701,26 @@ var str = ρσ_str, repr = ρσ_repr;;
             function for_js() {
                 var condition;
                 condition = as_atom_node();
-                return new AST_ForJS({
-                    "condition": condition,
-                    "body": in_loop(statement)
-                });
+                return new AST_ForJS((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["condition"] = condition;
+                    ρσ_d["body"] = in_loop(statement);
+                    return ρσ_d;
+                }).call(this));
             };
 
             function get_class_in_scope(expr) {
                 var s, referenced_path, class_name;
                 if (ρσ_instanceof(expr, AST_SymbolRef)) {
-                    if (NATIVE_CLASSES.hasOwnProperty(expr.name)) {
+                    if (has_prop(NATIVE_CLASSES, expr.name)) {
                         return NATIVE_CLASSES[expr.name];
                     }
-                    if (ERROR_CLASSES.hasOwnProperty(expr.name)) {
+                    if (has_prop(ERROR_CLASSES, expr.name)) {
                         return ERROR_CLASSES[expr.name];
                     }
                     for (var ρσ_Index36 = S.classes.length - 1; ρσ_Index36 > -1; ρσ_Index36-=1) {
                         s = ρσ_Index36;
-                        if (S.classes[s].hasOwnProperty(expr.name)) {
+                        if (has_prop(S.classes[s], expr.name)) {
                             return S.classes[s][expr.name];
                         }
                     }
@@ -7463,7 +7736,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                             class_name = referenced_path.join(".");
                             for (var ρσ_Index37 = S.classes.length - 1; ρσ_Index37 > -1; ρσ_Index37-=1) {
                                 s = ρσ_Index37;
-                                if (S.classes[s].hasOwnProperty(class_name)) {
+                                if (has_prop(S.classes[s], class_name)) {
                                     return S.classes[s][class_name];
                                 }
                             }
@@ -7487,10 +7760,10 @@ var str = ρσ_str, repr = ρσ_repr;;
 
             function do_import(key) {
                 var package_module_id, src_code, filename, ρσ_chain_assign_temp, modpath, ρσ_unpack, data, location, cached, srchash, ikey, bitem;
-                if (imported_modules.hasOwnProperty(key)) {
+                if (has_prop(imported_modules, key)) {
                     return;
                 }
-                if (importing_modules.hasOwnProperty(key) && importing_modules[key]) {
+                if (has_prop(importing_modules, key) && importing_modules[key]) {
                     import_error("Detected a recursive import of: " + key + " while importing: " + module_id);
                 }
                 package_module_id = key.split(".").slice(0, -1).join(".");
@@ -7498,16 +7771,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                     do_import(package_module_id);
                 }
                 if (options.for_linting) {
-                    imported_modules[key] = {
-                        "is_cached": true,
-                        "classes": {},
-                        "module_id": key,
-                        "exports": ρσ_list_decorate([]),
-                        "submodules": ρσ_list_decorate([]),
-                        "nonlocalvars": ρσ_list_decorate([]),
-                        "baselib": {},
-                        "outputs": {}
-                    };
+                    imported_modules[key] = (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["is_cached"] = true;
+                        ρσ_d["classes"] = Object.create(null);
+                        ρσ_d["module_id"] = key;
+                        ρσ_d["exports"] = ρσ_list_decorate([]);
+                        ρσ_d["submodules"] = ρσ_list_decorate([]);
+                        ρσ_d["nonlocalvars"] = ρσ_list_decorate([]);
+                        ρσ_d["baselib"] = Object.create(null);
+                        ρσ_d["outputs"] = Object.create(null);
+                        return ρσ_d;
+                    }).call(this);
                     if (len(package_module_id) > 0) {
                         imported_modules[package_module_id].submodules.push(key);
                     }
@@ -7572,28 +7847,32 @@ var str = ρσ_str, repr = ρσ_repr;;
                         ikey = ρσ_Iter40[ρσ_Index40];
                         do_import(ikey);
                     }
-                    imported_modules[key] = {
-                        "is_cached": true,
-                        "classes": cached["classes"],
-                        "outputs": cached["outputs"],
-                        "module_id": key,
-                        "import_order": Object.keys(imported_modules).length,
-                        "submodules": ρσ_list_decorate([]),
-                        "nonlocalvars": cached["nonlocalvars"],
-                        "baselib": cached["baselib"],
-                        "exports": cached.exports
-                    };
+                    imported_modules[key] = (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["is_cached"] = true;
+                        ρσ_d["classes"] = cached["classes"];
+                        ρσ_d["outputs"] = cached["outputs"];
+                        ρσ_d["module_id"] = key;
+                        ρσ_d["import_order"] = Object.keys(imported_modules).length;
+                        ρσ_d["submodules"] = ρσ_list_decorate([]);
+                        ρσ_d["nonlocalvars"] = cached["nonlocalvars"];
+                        ρσ_d["baselib"] = cached["baselib"];
+                        ρσ_d["exports"] = cached.exports;
+                        return ρσ_d;
+                    }).call(this);
                 } else {
-                    parse(src_code, {
-                        "filename": filename,
-                        "toplevel": null,
-                        "basedir": options.basedir,
-                        "libdir": options.libdir,
-                        "import_dirs": options.import_dirs,
-                        "module_id": key,
-                        "imported_modules": imported_modules,
-                        "importing_modules": importing_modules
-                    });
+                    parse(src_code, (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["filename"] = filename;
+                        ρσ_d["toplevel"] = null;
+                        ρσ_d["basedir"] = options.basedir;
+                        ρσ_d["libdir"] = options.libdir;
+                        ρσ_d["import_dirs"] = options.import_dirs;
+                        ρσ_d["module_id"] = key;
+                        ρσ_d["imported_modules"] = imported_modules;
+                        ρσ_d["importing_modules"] = importing_modules;
+                        return ρσ_d;
+                    }).call(this));
                 }
                 imported_modules[key].srchash = srchash;
                 if (len(package_module_id) > 0) {
@@ -7626,7 +7905,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                     if (!val) {
                         name = name.slice(3);
                     }
-                    if (!has_prop.call(PYTHON_FLAGS, name)) {
+                    if (!has_prop(PYTHON_FLAGS, name)) {
                         croak("Unknown __python__ flag: " + name);
                     }
                     S.scoped_flags.set(name, val);
@@ -7644,18 +7923,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                         break;
                     }
                 }
-                return new AST_EmptyStatement({
-                    "stype": "scoped_flags",
-                    "start": prev(),
-                    "end": prev()
-                });
+                return new AST_EmptyStatement((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["stype"] = "scoped_flags";
+                    ρσ_d["start"] = prev();
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
             };
 
             function import_(from_import) {
                 var ans, tok, tmp, name, last_tok, ρσ_chain_assign_temp, key, alias, aimp, ρσ_unpack, classes, argnames, bracketed, exports, symdef, aname, obj, argvar, cname, imp;
-                ans = new AST_Imports({
-                    "imports": ρσ_list_decorate([])
-                });
+                ans = new AST_Imports((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["imports"] = ρσ_list_decorate([]);
+                    return ρσ_d;
+                }).call(this));
                 while (true) {
                     ρσ_chain_assign_temp = expression(false);
                     tok = ρσ_chain_assign_temp;
@@ -7680,15 +7963,17 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                         alias = as_symbol(AST_SymbolAlias);
                     }
-                    aimp = new AST_Import({
-                        "module": name,
-                        "key": key,
-                        "alias": alias,
-                        "argnames": null,
-                        "body": function () {
+                    aimp = new AST_Import((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["module"] = name;
+                        ρσ_d["key"] = key;
+                        ρσ_d["alias"] = alias;
+                        ρσ_d["argnames"] = null;
+                        ρσ_d["body"] = function () {
                             return imported_modules[key];
-                        }
-                    });
+                        };
+                        return ρσ_d;
+                    }).call(this));
                     ρσ_unpack = [tok.start, last_tok.end];
                     aimp.start = ρσ_unpack[0];
                     aimp.end = ρσ_unpack[1];
@@ -7717,7 +8002,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                         if (bracketed) {
                             next();
                         }
-                        exports = {};
+                        exports = Object.create(null);
                         var ρσ_Iter43 = ρσ_Iterable(imported_modules[key].exports);
                         for (var ρσ_Index43 = 0; ρσ_Index43 < ρσ_Iter43.length; ρσ_Index43++) {
                             symdef = ρσ_Iter43[ρσ_Index43];
@@ -7725,7 +8010,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                         }
                         while (true) {
                             aname = as_symbol(AST_ImportedVar);
-                            if (!options.for_linting && !exports.hasOwnProperty(aname.name)) {
+                            if (!options.for_linting && !has_prop(exports, aname.name)) {
                                 import_error("The symbol \"" + aname.name + "\" is not exported from the module: " + key);
                             }
                             if (is_("keyword", "as")) {
@@ -7752,10 +8037,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                             obj = classes[argvar.name];
                             if (obj) {
                                 key = (argvar.alias) ? argvar.alias.name : argvar.name;
-                                S.classes[S.classes.length-1][key] = {
-                                    "static": obj.static,
-                                    "bound": obj.bound
-                                };
+                                S.classes[S.classes.length-1][key] = (function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["static"] = obj.static;
+                                    ρσ_d["bound"] = obj.bound;
+                                    return ρσ_d;
+                                }).call(this);
                             }
                         }
                     } else {
@@ -7764,10 +8051,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                             cname = ρσ_Iter45[ρσ_Index45];
                             obj = classes[cname];
                             key = (imp.alias) ? imp.alias.name : imp.key;
-                            S.classes[S.classes.length-1][key + "." + obj.name.name] = {
-                                "static": obj.static,
-                                "bound": obj.bound
-                            };
+                            S.classes[S.classes.length-1][key + "." + obj.name.name] = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["static"] = obj.static;
+                                ρσ_d["bound"] = obj.bound;
+                                return ρσ_d;
+                            }).call(this);
                         }
                     }
                 }
@@ -7778,16 +8067,18 @@ var str = ρσ_str, repr = ρσ_repr;;
             });
 
             function class_() {
-                var name, externaldecorator, class_details, bases, class_parent, a, definition, descriptor, ρσ_chain_assign_temp, stmt, class_var_names, visitor;
+                var name, externaldecorator, class_details, bases, class_parent, a, docstrings, definition, descriptor, ρσ_chain_assign_temp, stmt, class_var_names, visitor;
                 name = as_symbol(AST_SymbolDefun);
                 if (!name) {
                     unexpected();
                 }
                 externaldecorator = has_simple_decorator(S.decorators, "external");
-                class_details = {
-                    "static": ρσ_list_decorate([]),
-                    "bound": []
-                };
+                class_details = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["static"] = ρσ_list_decorate([]);
+                    ρσ_d["bound"] = [];
+                    return ρσ_d;
+                }).call(this);
                 bases = [];
                 class_parent = null;
                 if (is_("punc", "(")) {
@@ -7810,25 +8101,30 @@ var str = ρσ_str, repr = ρσ_repr;;
                         }
                     }
                 }
-                definition = new AST_Class({
-                    "name": name,
-                    "module_id": module_id,
-                    "dynamic_properties": Object.create(null),
-                    "parent": class_parent,
-                    "bases": bases,
-                    "localvars": ρσ_list_decorate([]),
-                    "static": class_details.static,
-                    "external": externaldecorator,
-                    "bound": class_details.bound,
-                    "statements": ρσ_list_decorate([]),
-                    "decorators": function () {
+                docstrings = [];
+                definition = new AST_Class((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = name;
+                    ρσ_d["docstrings"] = docstrings;
+                    ρσ_d["module_id"] = module_id;
+                    ρσ_d["dynamic_properties"] = Object.create(null);
+                    ρσ_d["parent"] = class_parent;
+                    ρσ_d["bases"] = bases;
+                    ρσ_d["localvars"] = ρσ_list_decorate([]);
+                    ρσ_d["static"] = class_details.static;
+                    ρσ_d["external"] = externaldecorator;
+                    ρσ_d["bound"] = class_details.bound;
+                    ρσ_d["statements"] = ρσ_list_decorate([]);
+                    ρσ_d["decorators"] = function () {
                         var d;
                         d = ρσ_list_decorate([]);
                         S.decorators.forEach((function() {
                             var ρσ_anonfunc = function (decorator) {
-                                d.push(new AST_Decorator({
-                                    "expression": decorator
-                                }));
+                                d.push(new AST_Decorator((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["expression"] = decorator;
+                                    return ρσ_d;
+                                }).call(this)));
                             };
                             Object.defineProperties(ρσ_anonfunc, {
                                 __argnames__ : {value: ["decorator"]}
@@ -7837,18 +8133,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                         })());
                         S.decorators = [];
                         return d;
-                    }(),
-                    "body": (function() {
+                    }();
+                    ρσ_d["body"] = (function() {
                         var ρσ_anonfunc = function (loop, labels) {
                             var a;
                             S.in_class.push(name.name);
                             S.classes[S.classes.length - 1][name.name] = class_details;
-                            S.classes.push({});
+                            S.classes.push(Object.create(null));
                             S.scoped_flags.push();
                             S.in_function += 1;
                             S.in_loop = 0;
                             S.labels = ρσ_list_decorate([]);
-                            a = block_();
+                            a = block_(docstrings);
                             S.in_function -= 1;
                             S.scoped_flags.pop();
                             S.classes.pop();
@@ -7861,8 +8157,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                             __argnames__ : {value: ["loop", "labels"]}
                         });
                         return ρσ_anonfunc;
-                    })()(S.in_loop, S.labels)
-                });
+                    })()(S.in_loop, S.labels);
+                    return ρσ_d;
+                }).call(this));
                 var ρσ_Iter46 = ρσ_Iterable(definition.body);
                 for (var ρσ_Index46 = 0; ρσ_Index46 < ρσ_Iter46.length; ρσ_Index46++) {
                     stmt = ρσ_Iter46[ρσ_Index46];
@@ -7870,7 +8167,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                         if (stmt.is_getter || stmt.is_setter) {
                             descriptor = definition.dynamic_properties[stmt.name.name];
                             if (!descriptor) {
-                                ρσ_chain_assign_temp = {};
+                                ρσ_chain_assign_temp = Object.create(null);
                                 descriptor = ρσ_chain_assign_temp;
                                 definition.dynamic_properties[stmt.name.name] = ρσ_chain_assign_temp;
 ;
@@ -7881,7 +8178,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                         }
                     }
                 }
-                class_var_names = {};
+                class_var_names = Object.create(null);
                 function walker() {
                     function visit_node(node, descend) {
                         if (ρσ_instanceof(node, AST_Method)) {
@@ -7889,10 +8186,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                             return;
                         } else if (ρσ_instanceof(node, AST_Assign) && ρσ_instanceof(node.left, AST_SymbolRef)) {
                             class_var_names[node.left.name] = true;
-                        } else if (ρσ_instanceof(node, AST_SymbolRef) && has_prop.call(class_var_names, node.name)) {
-                            node.thedef = new AST_SymbolDefun({
-                                "name": name.name + ".prototype." + node.name
-                            });
+                        } else if (ρσ_instanceof(node, AST_SymbolRef) && has_prop(class_var_names, node.name)) {
+                            node.thedef = new AST_SymbolDefun((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["name"] = name.name + ".prototype." + node.name;
+                                return ρσ_d;
+                            }).call(this));
                         }
                         if (descend) {
                             descend.call(node);
@@ -7918,7 +8217,7 @@ var str = ρσ_str, repr = ρσ_repr;;
             };
 
             function function_(in_class, is_expression) {
-                var name, is_anonymous, staticmethod, property_getter, property_setter, ρσ_chain_assign_temp, staticloc, ctor, return_annotation, is_generator, definition, assignments, j, i, nonlocals;
+                var name, is_anonymous, staticmethod, property_getter, property_setter, ρσ_chain_assign_temp, staticloc, ctor, return_annotation, is_generator, docstrings, definition, assignments, j, i, nonlocals;
                 name = (is_("name")) ? as_symbol((in_class) ? AST_SymbolDefun : AST_SymbolLambda) : null;
                 if (in_class && !name) {
                     croak("Cannot use anonymous function as class methods");
@@ -7948,23 +8247,25 @@ var str = ρσ_str, repr = ρσ_repr;;
                 ctor = (in_class) ? AST_Method : AST_Function;
                 return_annotation = null;
                 is_generator = [];
-                definition = new ctor({
-                    "name": name,
-                    "is_expression": is_expression,
-                    "is_anonymous": is_anonymous,
-                    "argnames": (function() {
+                docstrings = [];
+                definition = new ctor((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = name;
+                    ρσ_d["is_expression"] = is_expression;
+                    ρσ_d["is_anonymous"] = is_anonymous;
+                    ρσ_d["argnames"] = (function() {
                         var ρσ_anonfunc = function (a) {
                             var defaults, first, seen_names, def_line, current_arg_name, name_token;
-                            defaults = {};
+                            defaults = Object.create(null);
                             first = true;
-                            seen_names = {};
+                            seen_names = Object.create(null);
                             def_line = S.input.context().tokline;
                             current_arg_name = null;
                             name_token = null;
                             function get_arg() {
                                 var name_ctx, ntok, annotation, sym;
                                 current_arg_name = S.token.value;
-                                if (has_prop.call(seen_names, current_arg_name)) {
+                                if (has_prop(seen_names, current_arg_name)) {
                                     token_error(prev(), "Can't repeat parameter names");
                                 }
                                 if (current_arg_name === "arguments") {
@@ -7982,12 +8283,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                                         croak("Name expected", name_ctx.tokline);
                                         return null;
                                     }
-                                    sym = new AST_SymbolFunarg({
-                                        "name": name_token.value,
-                                        "start": S.token,
-                                        "end": S.token,
-                                        "annotation": annotation
-                                    });
+                                    sym = new AST_SymbolFunarg((function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["name"] = name_token.value;
+                                        ρσ_d["start"] = S.token;
+                                        ρσ_d["end"] = S.token;
+                                        ρσ_d["annotation"] = annotation;
+                                        return ρσ_d;
+                                    }).call(this));
                                     return sym;
                                 } else {
                                     if (!is_("name")) {
@@ -7998,12 +8301,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                                         }
                                         return null;
                                     }
-                                    sym = new AST_SymbolFunarg({
-                                        "name": current_arg_name,
-                                        "start": S.token,
-                                        "end": S.token,
-                                        "annotation": null
-                                    });
+                                    sym = new AST_SymbolFunarg((function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["name"] = current_arg_name;
+                                        ρσ_d["start"] = S.token;
+                                        ρσ_d["end"] = S.token;
+                                        ρσ_d["annotation"] = null;
+                                        return ρσ_d;
+                                    }).call(this));
                                     next();
                                     return sym;
                                 }
@@ -8066,16 +8371,18 @@ var str = ρσ_str, repr = ρσ_repr;;
                             __argnames__ : {value: ["a"]}
                         });
                         return ρσ_anonfunc;
-                    })()([]),
-                    "localvars": ρσ_list_decorate([]),
-                    "decorators": function () {
+                    })()([]);
+                    ρσ_d["localvars"] = ρσ_list_decorate([]);
+                    ρσ_d["decorators"] = function () {
                         var d;
                         d = [];
                         S.decorators.forEach((function() {
                             var ρσ_anonfunc = function (decorator) {
-                                d.push(new AST_Decorator({
-                                    "expression": decorator
-                                }));
+                                d.push(new AST_Decorator((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["expression"] = decorator;
+                                    return ρσ_d;
+                                }).call(this)));
                             };
                             Object.defineProperties(ρσ_anonfunc, {
                                 __argnames__ : {value: ["decorator"]}
@@ -8084,18 +8391,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                         })());
                         S.decorators = [];
                         return d;
-                    }(),
-                    "body": (function() {
+                    }();
+                    ρσ_d["docstrings"] = docstrings;
+                    ρσ_d["body"] = (function() {
                         var ρσ_anonfunc = function (loop, labels) {
                             var a;
                             S.in_class.push(false);
-                            S.classes.push({});
+                            S.classes.push(Object.create(null));
                             S.scoped_flags.push();
                             S.in_function += 1;
-                            S.functions.push({});
+                            S.functions.push(Object.create(null));
                             S.in_loop = 0;
                             S.labels = ρσ_list_decorate([]);
-                            a = block_();
+                            a = block_(docstrings);
                             S.in_function -= 1;
                             S.scoped_flags.pop();
                             is_generator.push(bool(S.functions.pop().is_generator));
@@ -8109,8 +8417,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                             __argnames__ : {value: ["loop", "labels"]}
                         });
                         return ρσ_anonfunc;
-                    })()(S.in_loop, S.labels)
-                });
+                    })()(S.in_loop, S.labels);
+                    return ρσ_d;
+                }).call(this));
                 definition.return_annotation = return_annotation;
                 definition.is_generator = is_generator[0];
                 if (ρσ_instanceof(definition, AST_Method)) {
@@ -8181,15 +8490,29 @@ var str = ρσ_str, repr = ρσ_repr;;
                     }
                     belse = statement();
                 }
-                return new AST_If({
-                    "condition": cond,
-                    "body": body,
-                    "alternative": belse
-                });
+                return new AST_If((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["condition"] = cond;
+                    ρσ_d["body"] = body;
+                    ρσ_d["alternative"] = belse;
+                    return ρσ_d;
+                }).call(this));
             };
 
-            function block_() {
-                var a;
+            function is_docstring(stmt) {
+                if (ρσ_instanceof(stmt, AST_SimpleStatement)) {
+                    if (ρσ_instanceof(stmt.body, AST_String)) {
+                        return stmt.body;
+                    }
+                }
+                return false;
+            };
+            Object.defineProperties(is_docstring, {
+                __argnames__ : {value: ["stmt"]}
+            });
+
+            function block_(docstrings) {
+                var a, stmt, ds;
                 expect(":");
                 a = [];
                 if (!S.token.nlb) {
@@ -8197,19 +8520,38 @@ var str = ρσ_str, repr = ρσ_repr;;
                         if (is_("eof")) {
                             unexpected();
                         }
-                        a.push(statement());
+                        stmt = statement();
+                        if (docstrings) {
+                            ds = is_docstring(stmt);
+                            if (ds) {
+                                docstrings.push(ds);
+                                continue;
+                            }
+                        }
+                        a.push(stmt);
                     }
                 } else {
                     while (!is_("punc", "}")) {
                         if (is_("eof")) {
                             return a;
                         }
-                        a.push(statement());
+                        stmt = statement();
+                        if (docstrings) {
+                            ds = is_docstring(stmt);
+                            if (ds) {
+                                docstrings.push(ds);
+                                continue;
+                            }
+                        }
+                        a.push(stmt);
                     }
                     next();
                 }
                 return a;
             };
+            Object.defineProperties(block_, {
+                __argnames__ : {value: ["docstrings"]}
+            });
 
             function try_() {
                 var body, bcatch, bfinally, start, exceptions, name;
@@ -8232,45 +8574,55 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                         name = as_symbol(AST_SymbolCatch);
                     }
-                    bcatch.push(new AST_Except({
-                        "start": start,
-                        "argname": name,
-                        "errors": exceptions,
-                        "body": block_(),
-                        "end": prev()
-                    }));
+                    bcatch.push(new AST_Except((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["argname"] = name;
+                        ρσ_d["errors"] = exceptions;
+                        ρσ_d["body"] = block_();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
                 }
                 if (is_("keyword", "finally")) {
                     start = S.token;
                     next();
-                    bfinally = new AST_Finally({
-                        "start": start,
-                        "body": block_(),
-                        "end": prev()
-                    });
+                    bfinally = new AST_Finally((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = block_();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
                 }
                 if (!bcatch.length && !bfinally) {
                     croak("Missing except/finally blocks");
                 }
-                return new AST_Try({
-                    "body": body,
-                    "bcatch": (bcatch.length) ? new AST_Catch({
-                        "body": bcatch
-                    }) : null,
-                    "bfinally": bfinally
-                });
+                return new AST_Try((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["body"] = body;
+                    ρσ_d["bcatch"] = (bcatch.length) ? new AST_Catch((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["body"] = bcatch;
+                        return ρσ_d;
+                    }).call(this)) : null;
+                    ρσ_d["bfinally"] = bfinally;
+                    return ρσ_d;
+                }).call(this));
             };
 
             function vardefs(no_in, in_const, in_nonlocal) {
                 var a;
                 a = ρσ_list_decorate([]);
                 while (true) {
-                    a.push(new AST_VarDef({
-                        "start": S.token,
-                        "name": as_symbol((in_const) ? AST_SymbolConst : (in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar),
-                        "value": (is_("operator", "=")) ? (next(), expression(false, no_in)) : null,
-                        "end": prev()
-                    }));
+                    a.push(new AST_VarDef((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = S.token;
+                        ρσ_d["name"] = as_symbol((in_const) ? AST_SymbolConst : (in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar);
+                        ρσ_d["value"] = (is_("operator", "=")) ? (next(), expression(false, no_in)) : null;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
                     if (!is_("punc", ",")) {
                         break;
                     }
@@ -8283,22 +8635,26 @@ var str = ρσ_str, repr = ρσ_repr;;
             });
 
             function nonlocal_(no_in) {
-                return new AST_Var({
-                    "start": prev(),
-                    "definitions": vardefs(no_in, false, true),
-                    "end": prev()
-                });
+                return new AST_Var((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = prev();
+                    ρσ_d["definitions"] = vardefs(no_in, false, true);
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(nonlocal_, {
                 __argnames__ : {value: ["no_in"]}
             });
 
             function const_() {
-                return new AST_Const({
-                    "start": prev(),
-                    "definitions": vardefs(false, true),
-                    "end": prev()
-                });
+                return new AST_Const((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = prev();
+                    ρσ_d["definitions"] = vardefs(false, true);
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
             };
 
             function new_() {
@@ -8314,12 +8670,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                 } else {
                     args = func_call_list(true);
                 }
-                return subscripts(new AST_New({
-                    "start": start,
-                    "expression": newexp,
-                    "args": args,
-                    "end": prev()
-                }), true);
+                return subscripts(new AST_New((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["expression"] = newexp;
+                    ρσ_d["args"] = args;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this)), true);
             };
 
             function string_() {
@@ -8333,11 +8691,13 @@ var str = ρσ_str, repr = ρσ_repr;;
                     }
                     next();
                 }
-                return new AST_String({
-                    "start": start,
-                    "end": S.token,
-                    "value": strings.join("")
-                });
+                return new AST_String((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["end"] = S.token;
+                    ρσ_d["value"] = strings.join("");
+                    return ρσ_d;
+                }).call(this));
             };
 
             function token_as_atom_node() {
@@ -8347,43 +8707,55 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (tmp_ === "name") {
                     return token_as_symbol(tok, AST_SymbolRef);
                 } else if (tmp_ === "num") {
-                    return new AST_Number({
-                        "start": tok,
-                        "end": tok,
-                        "value": tok.value
-                    });
+                    return new AST_Number((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
                 } else if (tmp_ === "string") {
                     return string_();
                 } else if (tmp_ === "regexp") {
-                    return new AST_RegExp({
-                        "start": tok,
-                        "end": tok,
-                        "value": tok.value
-                    });
+                    return new AST_RegExp((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
                 } else if (tmp_ === "atom") {
                     tmp__ = tok.value;
                     if (tmp__ === "False") {
-                        return new AST_False({
-                            "start": tok,
-                            "end": tok
-                        });
+                        return new AST_False((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp__ === "True") {
-                        return new AST_True({
-                            "start": tok,
-                            "end": tok
-                        });
+                        return new AST_True((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
                     } else if (tmp__ === "None") {
-                        return new AST_Null({
-                            "start": tok,
-                            "end": tok
-                        });
+                        return new AST_Null((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
                     }
                 } else if (tmp_ === "js") {
-                    return new AST_Verbatim({
-                        "start": tok,
-                        "end": tok,
-                        "value": tok.value
-                    });
+                    return new AST_Verbatim((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
                 }
                 token_error(tok, "Expecting an atomic token (number/string/bool/regexp/js/None)");
             };
@@ -8408,15 +8780,19 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                         if (is_("punc", ")")) {
                             next();
-                            return new AST_Array({
-                                "elements": ρσ_list_decorate([])
-                            });
+                            return new AST_Array((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["elements"] = ρσ_list_decorate([]);
+                                return ρσ_d;
+                            }).call(this));
                         }
                         ex = expression(true);
                         if (is_("keyword", "for")) {
-                            ret = read_comprehension(new AST_GeneratorComprehension({
-                                "statement": ex
-                            }), ")");
+                            ret = read_comprehension(new AST_GeneratorComprehension((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["statement"] = ex;
+                                return ρσ_d;
+                            }).call(this)), ")");
                             S.in_parenthesized_expr = false;
                             return ret;
                         }
@@ -8486,10 +8862,12 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                     }
                     if (is_("punc", ",") && allow_empty) {
-                        a.push(new AST_Hole({
-                            "start": S.token,
-                            "end": S.token
-                        }));
+                        a.push(new AST_Hole((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = S.token;
+                            ρσ_d["end"] = S.token;
+                            return ρσ_d;
+                        }).call(this)));
                     } else {
                         a.push(expression(false));
                     }
@@ -8555,9 +8933,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 if (!first) {
                                     croak("Generator expression must be parenthesized if not sole argument");
                                 }
-                                a.push(read_comprehension(new AST_GeneratorComprehension({
-                                    "statement": arg
-                                }), ")"));
+                                a.push(read_comprehension(new AST_GeneratorComprehension((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["statement"] = arg;
+                                    return ρσ_d;
+                                }).call(this)), ")"));
                                 single_comprehension = true;
                                 break;
                             }
@@ -8583,17 +8963,21 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (!is_("punc", "]")) {
                     expr.push(expression(false));
                     if (is_("keyword", "for")) {
-                        return read_comprehension(new AST_ListComprehension({
-                            "statement": expr[0]
-                        }), "]");
+                        return read_comprehension(new AST_ListComprehension((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["statement"] = expr[0];
+                            return ρσ_d;
+                        }).call(this)), "]");
                     }
                     if (!is_("punc", "]")) {
                         expect(",");
                     }
                 }
-                return new AST_Array({
-                    "elements": expr.concat(expr_list("]", true, true))
-                });
+                return new AST_Array((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["elements"] = expr.concat(expr_list("]", true, true));
+                    return ρσ_d;
+                }).call(this));
             });
 
             
@@ -8622,9 +9006,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                         ctx.expecting_object_literal_key = orig;
                     }
                     if (is_("keyword", "for")) {
-                        return read_comprehension(new AST_SetComprehension({
-                            "statement": left
-                        }), "}");
+                        return read_comprehension(new AST_SetComprehension((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["statement"] = left;
+                            return ρσ_d;
+                        }).call(this)), "}");
                     }
                     if (a.length === 0 && (is_("punc", ",") || is_("punc", "}"))) {
                         end = prev();
@@ -8634,49 +9020,59 @@ var str = ρσ_str, repr = ρσ_repr;;
                         has_non_const_keys = true;
                     }
                     expect(":");
-                    a.push(new AST_ObjectKeyVal({
-                        "start": start,
-                        "key": left,
-                        "value": expression(false),
-                        "end": prev()
-                    }));
+                    a.push(new AST_ObjectKeyVal((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["key"] = left;
+                        ρσ_d["value"] = expression(false);
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
                     if (a.length === 1 && is_("keyword", "for")) {
                         return dict_comprehension(a, is_pydict);
                     }
                 }
                 next();
-                return new ((has_non_const_keys) ? AST_ExpressiveObject : AST_Object)({
-                    "properties": a,
-                    "is_pydict": is_pydict
-                });
+                return new ((has_non_const_keys) ? AST_ExpressiveObject : AST_Object)((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["properties"] = a;
+                    ρσ_d["is_pydict"] = is_pydict;
+                    return ρσ_d;
+                }).call(this));
             });
 
             function set_(start, end, expr) {
                 var ostart, a;
                 ostart = start;
-                a = ρσ_list_decorate([ new AST_SetItem({
-                    "start": start,
-                    "end": end,
-                    "value": expr
-                }) ]);
+                a = ρσ_list_decorate([ new AST_SetItem((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["end"] = end;
+                    ρσ_d["value"] = expr;
+                    return ρσ_d;
+                }).call(this)) ]);
                 while (!is_("punc", "}")) {
                     expect(",");
                     start = S.token;
                     if (is_("punc", "}")) {
                         break;
                     }
-                    a.push(new AST_SetItem({
-                        "start": start,
-                        "value": expression(false),
-                        "end": prev()
-                    }));
+                    a.push(new AST_SetItem((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["value"] = expression(false);
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
                 }
                 next();
-                return new AST_Set({
-                    "items": a,
-                    "start": ostart,
-                    "end": prev()
-                });
+                return new AST_Set((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["items"] = a;
+                    ρσ_d["start"] = ostart;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(set_, {
                 __argnames__ : {value: ["start", "end", "expr"]}
@@ -8713,18 +9109,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                 } else {
                     left = expression(false);
                     if (!is_("punc", ":")) {
-                        return read_comprehension(new AST_SetComprehension({
-                            "statement": left
-                        }), "}");
+                        return read_comprehension(new AST_SetComprehension((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["statement"] = left;
+                            return ρσ_d;
+                        }).call(this)), "}");
                     }
                     expect(":");
                     right = expression(false);
                 }
-                return read_comprehension(new AST_DictComprehension({
-                    "statement": left,
-                    "value_statement": right,
-                    "is_pydict": is_pydict
-                }), "}");
+                return read_comprehension(new AST_DictComprehension((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["statement"] = left;
+                    ρσ_d["value_statement"] = right;
+                    ρσ_d["is_pydict"] = is_pydict;
+                    return ρσ_d;
+                }).call(this)), "}");
             };
             Object.defineProperties(dict_comprehension, {
                 __argnames__ : {value: ["a", "is_pydict"]}
@@ -8745,11 +9145,13 @@ var str = ρσ_str, repr = ρσ_repr;;
             function token_as_symbol(tok, ttype) {
                 var name;
                 name = tok.value;
-                return new ((name === "this") ? AST_This : ttype)({
-                    "name": String(tok.value),
-                    "start": tok,
-                    "end": tok
-                });
+                return new ((name === "this") ? AST_This : ttype)((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = String(tok.value);
+                    ρσ_d["start"] = tok;
+                    ρσ_d["end"] = tok;
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(token_as_symbol, {
                 __argnames__ : {value: ["tok", "ttype"]}
@@ -8773,11 +9175,13 @@ var str = ρσ_str, repr = ρσ_repr;;
 
             function new_symbol(type, name) {
                 var sym;
-                sym = new ((name === "this") ? AST_This : type)({
-                    "name": String(name),
-                    "start": null,
-                    "end": null
-                });
+                sym = new ((name === "this") ? AST_This : type)((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = String(name);
+                    ρσ_d["start"] = null;
+                    ρσ_d["end"] = null;
+                    return ρσ_d;
+                }).call(this));
                 return sym;
             };
             Object.defineProperties(new_symbol, {
@@ -8800,12 +9204,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                 start = expr.start;
                 if (is_("punc", ".")) {
                     next();
-                    return subscripts(new AST_Dot({
-                        "start": start,
-                        "expression": expr,
-                        "property": as_name(),
-                        "end": prev()
-                    }), allow_calls);
+                    return subscripts(new AST_Dot((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["property"] = as_name();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), allow_calls);
                 }
                 if (is_("punc", "[") && !S.token.nlb) {
                     next();
@@ -8838,16 +9244,20 @@ var str = ρσ_str, repr = ρσ_repr;;
                     if (is_slice) {
                         if (is_("operator") && S.token.value === "=") {
                             next();
-                            return subscripts(new AST_Splice({
-                                "start": start,
-                                "expression": expr,
-                                "property": slice_bounds[0] || new AST_Number({
-                                    "value": 0
-                                }),
-                                "property2": slice_bounds[1],
-                                "assignment": expression(true),
-                                "end": prev()
-                            }), allow_calls);
+                            return subscripts(new AST_Splice((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = expr;
+                                ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 0;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["property2"] = slice_bounds[1];
+                                ρσ_d["assignment"] = expression(true);
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
                         } else if (slice_bounds.length === 3) {
                             slice_bounds.unshift(slice_bounds.pop());
                             if (!slice_bounds[slice_bounds.length-1]) {
@@ -8858,37 +9268,47 @@ var str = ρσ_str, repr = ρσ_repr;;
                             } else if (!slice_bounds[slice_bounds.length-2]) {
                                 slice_bounds[slice_bounds.length-2] = new AST_Undefined;
                             }
-                            return subscripts(new AST_Call({
-                                "start": start,
-                                "expression": new AST_SymbolRef({
-                                    "name": "ρσ_eslice"
-                                }),
-                                "args": ρσ_list_decorate([ expr ]).concat(slice_bounds),
-                                "end": prev()
-                            }), allow_calls);
+                            return subscripts(new AST_Call((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = new AST_SymbolRef((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = "ρσ_eslice";
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["args"] = ρσ_list_decorate([ expr ]).concat(slice_bounds);
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
                         } else {
                             slice_bounds = (function() {
                                 var ρσ_Iter = ρσ_Iterable(slice_bounds), ρσ_Result = [], i;
                                 for (var ρσ_Index = 0; ρσ_Index < ρσ_Iter.length; ρσ_Index++) {
                                     i = ρσ_Iter[ρσ_Index];
-                                    ρσ_Result.push((i === null) ? new AST_Number({
-                                        "value": 0
-                                    }) : i);
+                                    ρσ_Result.push((i === null) ? new AST_Number((function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["value"] = 0;
+                                        return ρσ_d;
+                                    }).call(this)) : i);
                                 }
                                 ρσ_Result = ρσ_list_constructor(ρσ_Result);
                                 return ρσ_Result;
                             })();
-                            return subscripts(new AST_Call({
-                                "start": start,
-                                "expression": new AST_Dot({
-                                    "start": start,
-                                    "expression": expr,
-                                    "property": "slice",
-                                    "end": prev()
-                                }),
-                                "args": slice_bounds,
-                                "end": prev()
-                            }), allow_calls);
+                            return subscripts(new AST_Call((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = new AST_Dot((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["start"] = start;
+                                    ρσ_d["expression"] = expr;
+                                    ρσ_d["property"] = "slice";
+                                    ρσ_d["end"] = prev();
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["args"] = slice_bounds;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
                         }
                     } else {
                         if (is_py_sub) {
@@ -8897,36 +9317,46 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 next();
                                 assignment = expression(true);
                             }
-                            return subscripts(new AST_ItemAccess({
-                                "start": start,
-                                "expression": expr,
-                                "property": slice_bounds[0] || new AST_Number({
-                                    "value": 0
-                                }),
-                                "assignment": assignment,
-                                "end": prev()
-                            }), allow_calls);
+                            return subscripts(new AST_ItemAccess((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = expr;
+                                ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 0;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["assignment"] = assignment;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
                         }
-                        return subscripts(new AST_Sub({
-                            "start": start,
-                            "expression": expr,
-                            "property": slice_bounds[0] || new AST_Number({
-                                "value": 0
-                            }),
-                            "end": prev()
-                        }), allow_calls);
+                        return subscripts(new AST_Sub((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = expr;
+                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = 0;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
                     }
                 }
                 if (allow_calls && is_("punc", "(") && !S.token.nlb) {
                     S.in_parenthesized_expr = true;
                     next();
                     if (!expr.parens && get_class_in_scope(expr)) {
-                        ret = subscripts(new AST_New({
-                            "start": start,
-                            "expression": expr,
-                            "args": func_call_list(),
-                            "end": prev()
-                        }), true);
+                        ret = subscripts(new AST_New((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = expr;
+                            ρσ_d["args"] = func_call_list();
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), true);
                         S.in_parenthesized_expr = false;
                         return ret;
                     } else {
@@ -8938,25 +9368,29 @@ var str = ρσ_str, repr = ρσ_repr;;
                             if (funcname.property === "__init__") {
                                 funcname.property = "constructor";
                             }
-                            ret = subscripts(new AST_ClassCall({
-                                "start": start,
-                                "class": expr.expression,
-                                "method": funcname.property,
-                                "static": is_static_method(c, funcname.property),
-                                "args": func_call_list(),
-                                "end": prev()
-                            }), true);
+                            ret = subscripts(new AST_ClassCall((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["class"] = expr.expression;
+                                ρσ_d["method"] = funcname.property;
+                                ρσ_d["static"] = is_static_method(c, funcname.property);
+                                ρσ_d["args"] = func_call_list();
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), true);
                             S.in_parenthesized_expr = false;
                             return ret;
                         } else if (ρσ_instanceof(expr, AST_SymbolRef)) {
                             tmp_ = expr.name;
                             if (tmp_ === "type") {
-                                ret = new AST_UnaryPrefix({
-                                    "start": start,
-                                    "operator": "typeof",
-                                    "expression": func_call_list()[0],
-                                    "end": prev()
-                                });
+                                ret = new AST_UnaryPrefix((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["start"] = start;
+                                    ρσ_d["operator"] = "typeof";
+                                    ρσ_d["expression"] = func_call_list()[0];
+                                    ρσ_d["end"] = prev();
+                                    return ρσ_d;
+                                }).call(this));
                                 S.in_parenthesized_expr = false;
                                 return ret;
                             } else if (tmp_ === "isinstance") {
@@ -8964,23 +9398,27 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 if (args.length !== 2) {
                                     croak("isinstance() must be called with exactly two arguments");
                                 }
-                                ret = new AST_Binary({
-                                    "start": start,
-                                    "left": args[0],
-                                    "operator": "instanceof",
-                                    "right": args[1],
-                                    "end": prev()
-                                });
+                                ret = new AST_Binary((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["start"] = start;
+                                    ρσ_d["left"] = args[0];
+                                    ρσ_d["operator"] = "instanceof";
+                                    ρσ_d["right"] = args[1];
+                                    ρσ_d["end"] = prev();
+                                    return ρσ_d;
+                                }).call(this));
                                 S.in_parenthesized_expr = false;
                                 return ret;
                             }
                         }
-                        ret = subscripts(new AST_Call({
-                            "start": start,
-                            "expression": expr,
-                            "args": func_call_list(),
-                            "end": prev()
-                        }), true);
+                        ret = subscripts(new AST_Call((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = expr;
+                            ρσ_d["args"] = func_call_list();
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), true);
                         S.in_parenthesized_expr = false;
                         return ret;
                     }
@@ -9003,11 +9441,13 @@ var str = ρσ_str, repr = ρσ_repr;;
                     expr = expression();
                     S.parsing_decorator = false;
                     S.decorators.push(expr);
-                    return new AST_EmptyStatement({
-                        "stype": "@",
-                        "start": prev(),
-                        "end": prev()
-                    });
+                    return new AST_EmptyStatement((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["stype"] = "@";
+                        ρσ_d["start"] = prev();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
                 }
                 if (is_("operator") && UNARY_PREFIX(start.value)) {
                     next();
@@ -9030,10 +9470,12 @@ var str = ρσ_str, repr = ρσ_repr;;
             });
 
             function make_unary(ctor, op, expr) {
-                return new ctor({
-                    "operator": op,
-                    "expression": expr
-                });
+                return new ctor((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["operator"] = op;
+                    ρσ_d["expression"] = expr;
+                    return ρσ_d;
+                }).call(this));
             };
             Object.defineProperties(make_unary, {
                 __argnames__ : {value: ["ctor", "op", "expr"]}
@@ -9057,20 +9499,24 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (prec !== null && prec > min_prec) {
                     next();
                     right = expr_op(maybe_unary(true), prec, no_in);
-                    ret = new AST_Binary({
-                        "start": left.start,
-                        "left": left,
-                        "operator": op,
-                        "right": right,
-                        "end": right.end
-                    });
+                    ret = new AST_Binary((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = left.start;
+                        ρσ_d["left"] = left;
+                        ρσ_d["operator"] = op;
+                        ρσ_d["right"] = right;
+                        ρσ_d["end"] = right.end;
+                        return ρσ_d;
+                    }).call(this));
                     if (not_in) {
-                        ret = new AST_UnaryPrefix({
-                            "start": left.start,
-                            "operator": "!",
-                            "expression": ret,
-                            "end": right.end
-                        });
+                        ret = new AST_UnaryPrefix((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = left.start;
+                            ρσ_d["operator"] = "!";
+                            ρσ_d["expression"] = ret;
+                            ρσ_d["end"] = right.end;
+                            return ρσ_d;
+                        }).call(this));
                     }
                     return expr_op(ret, min_prec, no_in);
                 }
@@ -9097,23 +9543,27 @@ var str = ρσ_str, repr = ρσ_repr;;
                     ne = expression(false);
                     if (pystyle) {
                         expect_token("keyword", "else");
-                        conditional = new AST_Conditional({
-                            "start": start,
-                            "condition": ne,
-                            "consequent": expr,
-                            "alternative": expression(false, no_in),
-                            "end": peek()
-                        });
+                        conditional = new AST_Conditional((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["condition"] = ne;
+                            ρσ_d["consequent"] = expr;
+                            ρσ_d["alternative"] = expression(false, no_in);
+                            ρσ_d["end"] = peek();
+                            return ρσ_d;
+                        }).call(this));
                     } else {
                         yes = ne;
                         expect(":");
-                        conditional = new AST_Conditional({
-                            "start": start,
-                            "condition": expr,
-                            "consequent": yes,
-                            "alternative": expression(false, no_in),
-                            "end": peek()
-                        });
+                        conditional = new AST_Conditional((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["condition"] = expr;
+                            ρσ_d["consequent"] = yes;
+                            ρσ_d["alternative"] = expression(false, no_in);
+                            ρσ_d["end"] = peek();
+                            return ρσ_d;
+                        }).call(this));
                     }
                     return conditional;
                 }
@@ -9143,13 +9593,15 @@ var str = ρσ_str, repr = ρσ_repr;;
                         croak("Invalid assignment operator for chained assignment: " + val);
                     }
                     next();
-                    return create_assign({
-                        "start": start,
-                        "left": left,
-                        "operator": val,
-                        "right": maybe_assign(no_in, true),
-                        "end": prev()
-                    });
+                    return create_assign((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["left"] = left;
+                        ρσ_d["operator"] = val;
+                        ρσ_d["right"] = maybe_assign(no_in, true);
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
                 }
                 return left;
             };
@@ -9165,12 +9617,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                     if (a.length === 1) {
                         return a[0];
                     }
-                    return new AST_Seq({
-                        "start": start,
-                        "car": a.shift(),
-                        "cdr": build_seq(a),
-                        "end": peek()
-                    });
+                    return new AST_Seq((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["car"] = a.shift();
+                        ρσ_d["cdr"] = build_seq(a);
+                        ρσ_d["end"] = peek();
+                        return ρσ_d;
+                    }).call(this));
                 };
                 Object.defineProperties(build_seq, {
                     __argnames__ : {value: ["a"]}
@@ -9182,33 +9636,43 @@ var str = ρσ_str, repr = ρσ_repr;;
                         next();
                         if (ρσ_instanceof(expr, AST_Assign)) {
                             left[left.length-1] = left[left.length-1].left;
-                            return create_assign({
-                                "start": start,
-                                "left": (left.length === 1) ? left[0] : new AST_Array({
-                                    "elements": left
-                                }),
-                                "operator": expr.operator,
-                                "right": new AST_Seq({
-                                    "car": expr.right,
-                                    "cdr": expression(true, no_in)
-                                }),
-                                "end": peek()
-                            });
+                            return create_assign((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["left"] = (left.length === 1) ? left[0] : new AST_Array((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["elements"] = left;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["operator"] = expr.operator;
+                                ρσ_d["right"] = new AST_Seq((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["car"] = expr.right;
+                                    ρσ_d["cdr"] = expression(true, no_in);
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["end"] = peek();
+                                return ρσ_d;
+                            }).call(this));
                         }
                         expr = maybe_assign(no_in);
                         left.push(expr);
                     }
                     if (left.length > 1 && ρσ_instanceof(left[left.length-1], AST_Assign)) {
                         left[left.length-1] = left[left.length-1].left;
-                        return create_assign({
-                            "start": start,
-                            "left": new AST_Array({
-                                "elements": left
-                            }),
-                            "operator": expr.operator,
-                            "right": expr.right,
-                            "end": peek()
-                        });
+                        return create_assign((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["left"] = new AST_Array((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["elements"] = left;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["operator"] = expr.operator;
+                            ρσ_d["right"] = expr.right;
+                            ρσ_d["end"] = peek();
+                            return ρσ_d;
+                        }).call(this));
                     }
                     return build_seq(left);
                 }
@@ -9230,39 +9694,49 @@ var str = ρσ_str, repr = ρσ_repr;;
             });
 
             function run_parser() {
-                var start, ρσ_chain_assign_temp, body, first_token, element, shebang, end, toplevel, seen_exports;
+                var start, ρσ_chain_assign_temp, body, docstrings, first_token, toplevel, element, shebang, ds, end, seen_exports;
                 ρσ_chain_assign_temp = next();
                 start = ρσ_chain_assign_temp;
                 S.token = ρσ_chain_assign_temp;
 ;
-                body = ρσ_list_decorate([]);
+                body = [];
+                docstrings = [];
                 first_token = true;
+                toplevel = options.toplevel;
                 while (!is_("eof")) {
                     element = statement();
                     if (first_token && ρσ_instanceof(element, AST_Directive) && element.value.indexOf("#!") === 0) {
                         shebang = element.value;
                     } else {
-                        body.push(element);
+                        ds = !toplevel && is_docstring(element);
+                        if (ds) {
+                            docstrings.push(ds);
+                        } else {
+                            body.push(element);
+                        }
                     }
                     first_token = false;
                 }
                 end = prev();
-                toplevel = options.toplevel;
                 if (toplevel) {
                     toplevel.body = toplevel.body.concat(body);
                     toplevel.end = end;
+                    toplevel.docstrings;
                 } else {
-                    toplevel = new AST_Toplevel({
-                        "start": start,
-                        "body": body,
-                        "shebang": shebang,
-                        "end": end
-                    });
+                    toplevel = new AST_Toplevel((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = body;
+                        ρσ_d["shebang"] = shebang;
+                        ρσ_d["end"] = end;
+                        ρσ_d["docstrings"] = docstrings;
+                        return ρσ_d;
+                    }).call(this));
                 }
                 toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body);
                 toplevel.localvars = ρσ_list_decorate([]);
                 toplevel.exports = ρσ_list_decorate([]);
-                seen_exports = {};
+                seen_exports = Object.create(null);
                 function add_item(item, isvar) {
                     var symbol;
                     if (toplevel.nonlocalvars.indexOf(item) < 0) {
@@ -9270,7 +9744,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                         if (isvar) {
                             toplevel.localvars.push(symbol);
                         }
-                        if (!has_prop.call(seen_exports, item)) {
+                        if (!has_prop(seen_exports, item)) {
                             toplevel.exports.push(symbol);
                             seen_exports[item] = true;
                         }
@@ -9320,15 +9794,17 @@ var str = ρσ_str, repr = ρσ_repr;;
 
         function parse(text, options) {
             var import_dirs, x, location, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, S, obj, cname;
-            options = defaults(options, {
-                "filename": null,
-                "module_id": "__main__",
-                "toplevel": null,
-                "for_linting": false,
-                "import_dirs": [],
-                "classes": undefined,
-                "scoped_flags": {}
-            });
+            options = defaults(options, (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["filename"] = null;
+                ρσ_d["module_id"] = "__main__";
+                ρσ_d["toplevel"] = null;
+                ρσ_d["for_linting"] = false;
+                ρσ_d["import_dirs"] = [];
+                ρσ_d["classes"] = undefined;
+                ρσ_d["scoped_flags"] = Object.create(null);
+                return ρσ_d;
+            }).call(this));
             import_dirs = (function() {
                 var ρσ_Iter = ρσ_Iterable(options.import_dirs), ρσ_Result = [], x;
                 for (var ρσ_Index = 0; ρσ_Index < ρσ_Iter.length; ρσ_Index++) {
@@ -9346,42 +9822,45 @@ var str = ρσ_str, repr = ρσ_repr;;
                 }
             }
             module_id = options.module_id;
-            baselib_items = {};
+            baselib_items = Object.create(null);
             imported_module_ids = ρσ_list_decorate([]);
-            imported_modules = options.imported_modules || {};
-            importing_modules = options.importing_modules || {};
+            imported_modules = options.imported_modules || Object.create(null);
+            importing_modules = options.importing_modules || Object.create(null);
             importing_modules[module_id] = true;
-            S = {
-                "input": (typeof text === "string") ? tokenizer(text, options.filename) : text,
-                "token": null,
-                "prev": null,
-                "peeked": ρσ_list_decorate([]),
-                "in_function": 0,
-                "statement_starting_token": null,
-                "in_comprehension": false,
-                "in_parenthesized_expr": false,
-                "in_loop": 0,
-                "in_class": ρσ_list_decorate([ false ]),
-                "classes": ρσ_list_decorate([ {} ]),
-                "functions": ρσ_list_decorate([ {} ]),
-                "labels": ρσ_list_decorate([]),
-                "decorators": [],
-                "parsing_decorator": false,
-                "scoped_flags": {
-                    "stack": [options.scoped_flags || {}],
-                    "push": function () {
-                        this.stack.push({});
-                    },
-                    "pop": function () {
+            S = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["input"] = (typeof text === "string") ? tokenizer(text, options.filename) : text;
+                ρσ_d["token"] = null;
+                ρσ_d["prev"] = null;
+                ρσ_d["peeked"] = ρσ_list_decorate([]);
+                ρσ_d["in_function"] = 0;
+                ρσ_d["statement_starting_token"] = null;
+                ρσ_d["in_comprehension"] = false;
+                ρσ_d["in_parenthesized_expr"] = false;
+                ρσ_d["in_loop"] = 0;
+                ρσ_d["in_class"] = ρσ_list_decorate([ false ]);
+                ρσ_d["classes"] = ρσ_list_decorate([ Object.create(null) ]);
+                ρσ_d["functions"] = ρσ_list_decorate([ Object.create(null) ]);
+                ρσ_d["labels"] = ρσ_list_decorate([]);
+                ρσ_d["decorators"] = [];
+                ρσ_d["parsing_decorator"] = false;
+                ρσ_d["scoped_flags"] = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["stack"] = [options.scoped_flags || Object.create(null)];
+                    ρσ_d["push"] = function () {
+                        this.stack.push(Object.create(null));
+                    };
+                    ρσ_d["pop"] = function () {
                         this.stack.pop();
-                    },
-                    "get": (function() {
+                    };
+                    ρσ_d["get"] = (function() {
                         var ρσ_anonfunc = function (name, defval) {
-                            var d;
+                            var d, q;
                             for (var i = this.stack.length - 1; i >= 0; i--) {
                                 d = this.stack[i];
-                                if (has_prop.call(d, name)) {
-                                    return d[name];
+                                q = d[name];
+                                if (q) {
+                                    return q;
                                 }
                             }
                             return defval;
@@ -9390,8 +9869,8 @@ var str = ρσ_str, repr = ρσ_repr;;
                             __argnames__ : {value: ["name", "defval"]}
                         });
                         return ρσ_anonfunc;
-                    })(),
-                    "set": (function() {
+                    })();
+                    ρσ_d["set"] = (function() {
                         var ρσ_anonfunc = function (name, val) {
                             this.stack[this.stack.length-1][name] = val;
                         };
@@ -9399,18 +9878,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                             __argnames__ : {value: ["name", "val"]}
                         });
                         return ρσ_anonfunc;
-                    })()
-                }
-            };
+                    })();
+                    return ρσ_d;
+                }).call(this);
+                return ρσ_d;
+            }).call(this);
             if (options.classes) {
                 var ρσ_Iter52 = ρσ_Iterable(options.classes);
                 for (var ρσ_Index52 = 0; ρσ_Index52 < ρσ_Iter52.length; ρσ_Index52++) {
                     cname = ρσ_Iter52[ρσ_Index52];
                     obj = options.classes[cname];
-                    S.classes[0][cname] = {
-                        "static": obj.static,
-                        "bound": obj.bound
-                    };
+                    S.classes[0][cname] = (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["static"] = obj.static;
+                        ρσ_d["bound"] = obj.bound;
+                        return ρσ_d;
+                    }).call(this);
                 }
             }
             return create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)();
@@ -9419,7 +9902,6 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["text", "options"]}
         });
 
-        ρσ_modules.parse.has_prop = has_prop;
         ρσ_modules.parse.COMPILER_VERSION = COMPILER_VERSION;
         ρσ_modules.parse.PYTHON_FLAGS = PYTHON_FLAGS;
         ρσ_modules.parse.NATIVE_CLASSES = NATIVE_CLASSES;
@@ -9443,13 +9925,13 @@ var str = ρσ_str, repr = ρσ_repr;;
         ρσ_modules["output"]["stream"] = ρσ_modules["output.stream"];
         ρσ_modules["output"]["statements"] = ρσ_modules["output.statements"];
         ρσ_modules["output"]["exceptions"] = ρσ_modules["output.exceptions"];
+        ρσ_modules["output"]["utils"] = ρσ_modules["output.utils"];
         ρσ_modules["output"]["functions"] = ρσ_modules["output.functions"];
         ρσ_modules["output"]["classes"] = ρσ_modules["output.classes"];
         ρσ_modules["output"]["literals"] = ρσ_modules["output.literals"];
         ρσ_modules["output"]["loops"] = ρσ_modules["output.loops"];
         ρσ_modules["output"]["modules"] = ρσ_modules["output.modules"];
         ρσ_modules["output"]["operators"] = ρσ_modules["output.operators"];
-        ρσ_modules["output"]["utils"] = ρσ_modules["output.utils"];
         ρσ_modules["output"]["codegen"] = ρσ_modules["output.codegen"];
     })();
 
@@ -9512,34 +9994,36 @@ var str = ρσ_str, repr = ρσ_repr;;
         }
         OutputStream.prototype.__init__ = function __init__(options) {
             var self = this;
-            self.options = defaults(options, {
-                "indent_start": 0,
-                "indent_level": 4,
-                "quote_keys": false,
-                "space_colon": true,
-                "ascii_only": false,
-                "width": 80,
-                "max_line_len": 32e3,
-                "ie_proof": true,
-                "beautify": false,
-                "source_map": null,
-                "bracketize": false,
-                "semicolons": true,
-                "comments": false,
-                "preserve_line": false,
-                "omit_baselib": false,
-                "baselib_plain": null,
-                "private_scope": true,
-                "auto_bind": false,
-                "js_version": 5,
-                "write_name": true
-            }, true);
+            self.options = defaults(options, (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["indent_start"] = 0;
+                ρσ_d["indent_level"] = 4;
+                ρσ_d["quote_keys"] = false;
+                ρσ_d["space_colon"] = true;
+                ρσ_d["ascii_only"] = false;
+                ρσ_d["width"] = 80;
+                ρσ_d["max_line_len"] = 32e3;
+                ρσ_d["ie_proof"] = true;
+                ρσ_d["beautify"] = false;
+                ρσ_d["source_map"] = null;
+                ρσ_d["bracketize"] = false;
+                ρσ_d["semicolons"] = true;
+                ρσ_d["comments"] = false;
+                ρσ_d["preserve_line"] = false;
+                ρσ_d["omit_baselib"] = false;
+                ρσ_d["baselib_plain"] = null;
+                ρσ_d["private_scope"] = true;
+                ρσ_d["keep_docstrings"] = false;
+                ρσ_d["js_version"] = 5;
+                ρσ_d["write_name"] = true;
+                return ρσ_d;
+            }).call(this), true);
             self._indentation = 0;
             self.current_col = 0;
             self.current_line = 1;
             self.current_pos = 0;
             self.OUTPUT = "";
-            self.IMPORTED = {};
+            self.IMPORTED = Object.create(null);
             self.might_need_space = false;
             self.might_need_semicolon = false;
             self._last = null;
@@ -10331,6 +10815,117 @@ var str = ρσ_str, repr = ρσ_repr;;
     })();
 
     (function(){
+        var __name__ = "output.utils";
+        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
+        
+        function best_of(a) {
+            var best, len_, i;
+            best = a[0];
+            len_ = best.length;
+            for (var ρσ_Index56 = 1; ρσ_Index56 < a.length; ρσ_Index56++) {
+                i = ρσ_Index56;
+                if (a[i].length < len_) {
+                    best = a[i];
+                    len_ = best.length;
+                }
+            }
+            return best;
+        };
+        Object.defineProperties(best_of, {
+            __argnames__ : {value: ["a"]}
+        });
+
+        function make_num(num) {
+            var str_, a, m;
+            str_ = num.toString(10);
+            a = ρσ_list_decorate([ str_.replace(/^0\./, ".").replace("e+", "e") ]);
+            m = null;
+            if (Math.floor(num) === num) {
+                if (num >= 0) {
+                    a.push("0x" + num.toString(16).toLowerCase(), "0" + num.toString(8));
+                } else {
+                    a.push("-0x" + (-num).toString(16).toLowerCase(), "-0" + (-num).toString(8));
+                }
+                if (m = /^(.*?)(0+)$/.exec(num)) {
+                    a.push(m[1] + "e" + m[2].length);
+                }
+            } else if (m = /^0?\.(0+)(.*)$/.exec(num)) {
+                a.push(m[2] + "e-" + (m[1].length + m[2].length), str_.substr(str_.indexOf(".")));
+            }
+            return best_of(a);
+        };
+        Object.defineProperties(make_num, {
+            __argnames__ : {value: ["num"]}
+        });
+
+        function make_block(stmt, output) {
+            if (ρσ_instanceof(stmt, AST_BlockStatement)) {
+                stmt.print(output);
+                return;
+            }
+            output.with_block(function () {
+                output.indent();
+                stmt.print(output);
+                output.newline();
+            });
+        };
+        Object.defineProperties(make_block, {
+            __argnames__ : {value: ["stmt", "output"]}
+        });
+
+        function create_doctring(docstrings) {
+            var ans, ds, lines, min_leading_whitespace, r, leading_whitespace, line, lw, ρσ_unpack, l;
+            ans = [];
+            var ρσ_Iter57 = ρσ_Iterable(docstrings);
+            for (var ρσ_Index57 = 0; ρσ_Index57 < ρσ_Iter57.length; ρσ_Index57++) {
+                ds = ρσ_Iter57[ρσ_Index57];
+                ds = str.rstrip(ds.value);
+                lines = [];
+                min_leading_whitespace = "";
+                var ρσ_Iter58 = ρσ_Iterable(ds.split(/$/gm));
+                for (var ρσ_Index58 = 0; ρσ_Index58 < ρσ_Iter58.length; ρσ_Index58++) {
+                    line = ρσ_Iter58[ρσ_Index58];
+                    r = /^\s+/.exec(line);
+                    leading_whitespace = "";
+                    if (r) {
+                        leading_whitespace = (r) ? r[0].replace(/[\n\r]/g, "") : "";
+                        line = line.slice(r[0].length);
+                    }
+                    if (!str.strip(line)) {
+                        lines.push(["", ""]);
+                    } else {
+                        leading_whitespace = leading_whitespace.replace(/\t/g, "    ");
+                        if (leading_whitespace && (!min_leading_whitespace || leading_whitespace.length < min_leading_whitespace.length)) {
+                            min_leading_whitespace = leading_whitespace;
+                        }
+                        lines.push([leading_whitespace, line]);
+                    }
+                }
+                var ρσ_Iter59 = ρσ_Iterable(lines);
+                for (var ρσ_Index59 = 0; ρσ_Index59 < ρσ_Iter59.length; ρσ_Index59++) {
+                    ρσ_unpack = ρσ_Iter59[ρσ_Index59];
+                    lw = ρσ_unpack[0];
+                    l = ρσ_unpack[1];
+                    if (min_leading_whitespace) {
+                        lw = lw.slice(min_leading_whitespace.length);
+                    }
+                    ans.push(lw + l);
+                }
+                ans.push("");
+            }
+            return str.rstrip(ans.join("\n"));
+        };
+        Object.defineProperties(create_doctring, {
+            __argnames__ : {value: ["docstrings"]}
+        });
+
+        ρσ_modules["output.utils"].best_of = best_of;
+        ρσ_modules["output.utils"].make_num = make_num;
+        ρσ_modules["output.utils"].make_block = make_block;
+        ρσ_modules["output.utils"].create_doctring = create_doctring;
+    })();
+
+    (function(){
         var __name__ = "output.functions";
         var anonfunc;
         var AST_ClassCall = ρσ_modules.ast.AST_ClassCall;
@@ -10342,6 +10937,8 @@ var str = ρσ_str, repr = ρσ_repr;;
         var OutputStream = ρσ_modules["output.stream"].OutputStream;
         
         var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
+        
+        var create_doctring = ρσ_modules["output.utils"].create_doctring;
         
         anonfunc = "ρσ_anonfunc";
         function decorate(decorators, output, func) {
@@ -10396,9 +10993,9 @@ var str = ρσ_str, repr = ρσ_repr;;
             }
             fname = (node.name) ? node.name.name : anonfunc;
             kw = "arguments[arguments.length-1]";
-            var ρσ_Iter56 = ρσ_Iterable(enumerate(a));
-            for (var ρσ_Index56 = 0; ρσ_Index56 < ρσ_Iter56.length; ρσ_Index56++) {
-                ρσ_unpack = ρσ_Iter56[ρσ_Index56];
+            var ρσ_Iter60 = ρσ_Iterable(enumerate(a));
+            for (var ρσ_Index60 = 0; ρσ_Index60 < ρσ_Iter60.length; ρσ_Index60++) {
+                ρσ_unpack = ρσ_Iter60[ρσ_Index60];
                 c = ρσ_unpack[0];
                 arg = ρσ_unpack[1];
                 i = c - offset;
@@ -10427,9 +11024,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                 output.spaced("if", "(" + kw, "===", "null", "||", "typeof", kw, "!==", "\"object\"", "||", kw, "[ρσ_kwargs_symbol]", "!==", "true)", kw, "=", "{}");
                 output.end_statement();
                 if (a.has_defaults) {
-                    var ρσ_Iter57 = ρσ_Iterable(Object.keys(a.defaults));
-                    for (var ρσ_Index57 = 0; ρσ_Index57 < ρσ_Iter57.length; ρσ_Index57++) {
-                        dname = ρσ_Iter57[ρσ_Index57];
+                    var ρσ_Iter61 = ρσ_Iterable(Object.keys(a.defaults));
+                    for (var ρσ_Index61 = 0; ρσ_Index61 < ρσ_Iter61.length; ρσ_Index61++) {
+                        dname = ρσ_Iter61[ρσ_Index61];
                         output.indent();
                         output.spaced("if", "(Object.prototype.hasOwnProperty.call(" + kw + ",", "\"" + dname + "\"))");
                         output.with_block(function () {
@@ -10466,9 +11063,9 @@ var str = ρσ_str, repr = ρσ_repr;;
             if (self.return_annotation) {
                 return true;
             }
-            var ρσ_Iter58 = ρσ_Iterable(self.argnames);
-            for (var ρσ_Index58 = 0; ρσ_Index58 < ρσ_Iter58.length; ρσ_Index58++) {
-                arg = ρσ_Iter58[ρσ_Index58];
+            var ρσ_Iter62 = ρσ_Iterable(self.argnames);
+            for (var ρσ_Index62 = 0; ρσ_Index62 < ρσ_Iter62.length; ρσ_Index62++) {
+                arg = ρσ_Iter62[ρσ_Index62];
                 if (arg.annotation) {
                     return true;
                 }
@@ -10556,6 +11153,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                     output.print("]");
                 };
             }
+            if (output.options.keep_docstrings && self.docstrings && self.docstrings.length) {
+                props.__doc__ = function () {
+                    output.print(JSON.stringify(create_doctring(self.docstrings)));
+                };
+            }
             names = Object.keys(props);
             if (names.length) {
                 [output.indent(), output.print("Object.defineProperties(" + fname), output.comma()];
@@ -10580,7 +11182,7 @@ var str = ρσ_str, repr = ρσ_repr;;
         function function_definition(self, output, strip_first, as_expression) {
             var orig_indent;
             as_expression = as_expression || self.is_expression || self.is_anonymous;
-            if (!self.argnames.length && !self.return_annotation) {
+            if (!self.argnames.length && !self.return_annotation && (!output.options.keep_docstrings || !self.docstrings || !self.docstrings.length)) {
                 as_expression = false;
             }
             if (as_expression) {
@@ -10603,9 +11205,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                         function_args(self.argnames, output, strip_first);
                         print_bracketed(self, output, true, function_preamble);
                     } else {
-                        temp = new OutputStream({
-                            "beautify": true
-                        });
+                        temp = new OutputStream((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["beautify"] = true;
+                            return ρσ_d;
+                        }).call(this));
                         temp.print("function* js_generator");
                         function_args(self.argnames, temp, strip_first);
                         print_bracketed(self, temp, true, function_preamble);
@@ -10921,6 +11525,8 @@ var str = ρσ_str, repr = ρσ_repr;;
         var function_definition = ρσ_modules["output.functions"].function_definition;
         var function_annotation = ρσ_modules["output.functions"].function_annotation;
         
+        var create_doctring = ρσ_modules["output.utils"].create_doctring;
+        
         function print_class(output) {
             var self, seen_methods, property_names, defined_methods;
             self = this;
@@ -11045,9 +11651,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 output.end_statement();
                             }
                         }
-                        var ρσ_Iter59 = ρσ_Iterable(self.bound);
-                        for (var ρσ_Index59 = 0; ρσ_Index59 < ρσ_Iter59.length; ρσ_Index59++) {
-                            bname = ρσ_Iter59[ρσ_Index59];
+                        var ρσ_Iter63 = ρσ_Iterable(self.bound);
+                        for (var ρσ_Index63 = 0; ρσ_Index63 < ρσ_Iter63.length; ρσ_Index63++) {
+                            bname = ρσ_Iter63[ρσ_Index63];
                             if (seen_methods[bname] || self.dynamic_properties[bname]) {
                                 continue;
                             }
@@ -11067,9 +11673,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                     [self.name.print(output), output.print(".prototype"), output.comma(), output.space(), 
                     output.with_block(function () {
                         var prop, name;
-                        var ρσ_Iter60 = ρσ_Iterable(property_names);
-                        for (var ρσ_Index60 = 0; ρσ_Index60 < ρσ_Iter60.length; ρσ_Index60++) {
-                            name = ρσ_Iter60[ρσ_Index60];
+                        var ρσ_Iter64 = ρσ_Iterable(property_names);
+                        for (var ρσ_Index64 = 0; ρσ_Index64 < ρσ_Iter64.length; ρσ_Index64++) {
+                            name = ρσ_Iter64[ρσ_Index64];
                             prop = self.dynamic_properties[name];
                             [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
                             output.with_block(function () {
@@ -11109,7 +11715,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                     }
                 });
             }
-            defined_methods = {};
+            defined_methods = Object.create(null);
             self.body.forEach((function() {
                 var ρσ_anonfunc = function (stmt, i) {
                     var sname, attr;
@@ -11121,9 +11727,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                         defined_methods[stmt.name.name] = true;
                         sname = stmt.name.name;
                         if (sname === "__init__") {
-                            var ρσ_Iter61 = ρσ_Iterable(ρσ_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
-                            for (var ρσ_Index61 = 0; ρσ_Index61 < ρσ_Iter61.length; ρσ_Index61++) {
-                                attr = ρσ_Iter61[ρσ_Index61];
+                            var ρσ_Iter65 = ρσ_Iterable(ρσ_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
+                            for (var ρσ_Index65 = 0; ρσ_Index65 < ρσ_Iter65.length; ρσ_Index65++) {
+                                attr = ρσ_Iter65[ρσ_Index65];
                                 [output.indent(), self.name.print(output), output.assign(attr)];
                                 [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
                             }
@@ -11176,6 +11782,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                     self.bases[i].print(output);
                 }
                 [output.print(")"), output.end_statement()];
+            }
+            if (self.docstrings && self.docstrings.length && output.options.keep_docstrings) {
+                add_hidden_property("__doc__", function () {
+                    output.print(JSON.stringify(create_doctring(self.docstrings)));
+                });
             }
             self.statements.forEach((function() {
                 var ρσ_anonfunc = function (stmt) {
@@ -11242,7 +11853,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                     if (self.is_pydict) {
                         output.spaced.apply(output, "var ρσ_d = ρσ_dict()".split(" "));
                     } else {
-                        output.spaced.apply(output, "var ρσ_d = {}".split(" "));
+                        output.spaced.apply(output, "var ρσ_d = Object.create(null)".split(" "));
                     }
                     output.end_statement();
                     self.properties.forEach((function() {
@@ -11275,7 +11886,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                     output.end_statement();
                 });
             });
-            output.print("()");
+            output.print(".call(this)");
         };
         Object.defineProperties(print_obj_literal, {
             __argnames__ : {value: ["self", "output"]}
@@ -11290,25 +11901,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                 }
             } else {
                 if (self.properties.length > 0) {
-                    output.with_block(function () {
-                        self.properties.forEach((function() {
-                            var ρσ_anonfunc = function (prop, i) {
-                                if (i) {
-                                    output.print(",");
-                                    output.newline();
-                                }
-                                output.indent();
-                                prop.print(output);
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["prop", "i"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
-                        output.newline();
-                    });
+                    print_obj_literal(self, output);
                 } else {
-                    output.print("{}");
+                    output.print("Object.create(null)");
                 }
             }
         };
@@ -11523,9 +12118,11 @@ var str = ρσ_str, repr = ρσ_repr;;
             var increment, args, tmp_, start, end, idx, ρσ_chain_assign_temp, itervar;
             function write_object() {
                 if (self.object.TYPE === "Seq") {
-                    new AST_Array({
-                        "elements": self.object.to_array()
-                    }).print(output);
+                    new AST_Array((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["elements"] = self.object.to_array();
+                        return ρσ_d;
+                    }).call(this)).print(output);
                 } else {
                     self.object.print(output);
                 }
@@ -11637,11 +12234,13 @@ var str = ρσ_str, repr = ρσ_repr;;
 
         function print_list_comprehension(self, output) {
             var result_obj, is_generator, es5, add_to_result, push_func;
-            result_obj = {
-                "ListComprehension": "[]",
-                "DictComprehension": "{}",
-                "SetComprehension": "ρσ_set()"
-            }[self.TYPE];
+            result_obj = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["ListComprehension"] = "[]";
+                ρσ_d["DictComprehension"] = "Object.create(null)";
+                ρσ_d["SetComprehension"] = "ρσ_set()";
+                return ρσ_d;
+            }).call(this)[self.TYPE];
             is_generator = self.TYPE === "GeneratorComprehension";
             es5 = output.option("js_version") === 5;
             if (self.TYPE === "DictComprehension") {
@@ -11732,9 +12331,11 @@ var str = ρσ_str, repr = ρσ_repr;;
                     body_out = output;
                     if (is_generator) {
                         if (es5) {
-                            body_out = new OutputStream({
-                                "beautify": true
-                            });
+                            body_out = new OutputStream((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["beautify"] = true;
+                                return ρσ_d;
+                            }).call(this));
                         }
                         body_out.indent();
                         [body_out.print("function* js_generator()"), body_out.space(), body_out.print("{")];
@@ -11903,12 +12504,14 @@ var str = ρσ_str, repr = ρσ_repr;;
         
         var OutputStream = ρσ_modules["output.stream"].OutputStream;
         
+        var create_doctring = ρσ_modules["output.utils"].create_doctring;
+        
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = ρσ_list_decorate([]);
-            var ρσ_Iter62 = ρσ_Iterable(Object.keys(module.imports));
-            for (var ρσ_Index62 = 0; ρσ_Index62 < ρσ_Iter62.length; ρσ_Index62++) {
-                import_id = ρσ_Iter62[ρσ_Index62];
+            var ρσ_Iter66 = ρσ_Iterable(Object.keys(module.imports));
+            for (var ρσ_Index66 = 0; ρσ_Index66 < ρσ_Iter66.length; ρσ_Index66++) {
+                import_id = ρσ_Iter66[ρσ_Index66];
                 imports.push(module.imports[import_id]);
             }
             imports.sort((function() {
@@ -11929,13 +12532,13 @@ var str = ρσ_str, repr = ρσ_repr;;
                 output.print("var ρσ_modules = {};");
                 output.newline();
             }
-            nonlocalvars = {};
-            var ρσ_Iter63 = ρσ_Iterable(imports);
-            for (var ρσ_Index63 = 0; ρσ_Index63 < ρσ_Iter63.length; ρσ_Index63++) {
-                module_ = ρσ_Iter63[ρσ_Index63];
-                var ρσ_Iter64 = ρσ_Iterable(module_.nonlocalvars);
-                for (var ρσ_Index64 = 0; ρσ_Index64 < ρσ_Iter64.length; ρσ_Index64++) {
-                    name = ρσ_Iter64[ρσ_Index64];
+            nonlocalvars = Object.create(null);
+            var ρσ_Iter67 = ρσ_Iterable(imports);
+            for (var ρσ_Index67 = 0; ρσ_Index67 < ρσ_Iter67.length; ρσ_Index67++) {
+                module_ = ρσ_Iter67[ρσ_Index67];
+                var ρσ_Iter68 = ρσ_Iterable(module_.nonlocalvars);
+                for (var ρσ_Index68 = 0; ρσ_Index68 < ρσ_Iter68.length; ρσ_Index68++) {
+                    name = ρσ_Iter68[ρσ_Index68];
                     nonlocalvars[name] = true;
                 }
             }
@@ -11946,9 +12549,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                 output.semicolon();
                 output.newline();
             }
-            var ρσ_Iter65 = ρσ_Iterable(imports);
-            for (var ρσ_Index65 = 0; ρσ_Index65 < ρσ_Iter65.length; ρσ_Index65++) {
-                module_ = ρσ_Iter65[ρσ_Index65];
+            var ρσ_Iter69 = ρσ_Iterable(imports);
+            for (var ρσ_Index69 = 0; ρσ_Index69 < ρσ_Iter69.length; ρσ_Index69++) {
+                module_ = ρσ_Iter69[ρσ_Index69];
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -11961,9 +12564,9 @@ var str = ρσ_str, repr = ρσ_repr;;
                     output.end_statement();
                 }
             }
-            var ρσ_Iter66 = ρσ_Iterable(imports);
-            for (var ρσ_Index66 = 0; ρσ_Index66 < ρσ_Iter66.length; ρσ_Index66++) {
-                module_ = ρσ_Iter66[ρσ_Index66];
+            var ρσ_Iter70 = ρσ_Iterable(imports);
+            for (var ρσ_Index70 = 0; ρσ_Index70 < ρσ_Iter70.length; ρσ_Index70++) {
+                module_ = ρσ_Iter70[ρσ_Index70];
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -11987,13 +12590,25 @@ var str = ρσ_str, repr = ρσ_repr;;
             __argnames__ : {value: ["output"]}
         });
 
-        function declare_exports(module_id, exports, submodules, output) {
-            var seen, symbol;
-            seen = {};
+        function declare_exports(module_id, exports, submodules, output, docstrings) {
+            var seen, v, symbol;
+            seen = Object.create(null);
+            if (output.option("keep_docstrings") && docstrings && docstrings.length) {
+                exports.push((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = "__doc__";
+                    ρσ_d["refname"] = "ρσ_module_doc__";
+                    return ρσ_d;
+                }).call(this));
+                [output.newline(), output.indent()];
+                v = (output.js_version > 5) ? "const" : "var";
+                [output.assign(v + " ρσ_module_doc__"), output.print(JSON.stringify(create_doctring(docstrings)))];
+                output.end_statement();
+            }
             output.newline();
-            var ρσ_Iter67 = ρσ_Iterable(exports);
-            for (var ρσ_Index67 = 0; ρσ_Index67 < ρσ_Iter67.length; ρσ_Index67++) {
-                symbol = ρσ_Iter67[ρσ_Index67];
+            var ρσ_Iter71 = ρσ_Iterable(exports);
+            for (var ρσ_Index71 = 0; ρσ_Index71 < ρσ_Iter71.length; ρσ_Index71++) {
+                symbol = ρσ_Iter71[ρσ_Index71];
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -12001,22 +12616,22 @@ var str = ρσ_str, repr = ρσ_repr;;
                     } else {
                         output.print("ρσ_modules[\"" + module_id + "\"]." + symbol.name);
                     }
-                    [output.space(), output.print("="), output.space(), output.print(symbol.name)];
+                    [output.space(), output.print("="), output.space(), output.print(symbol.refname || symbol.name)];
                     seen[symbol.name] = true;
                     output.end_statement();
                 }
             }
         };
         Object.defineProperties(declare_exports, {
-            __argnames__ : {value: ["module_id", "exports", "submodules", "output"]}
+            __argnames__ : {value: ["module_id", "exports", "submodules", "output", "docstrings"]}
         });
 
         function declare_submodules(module_id, submodules, output) {
             var seen, key, sub_module_id;
-            seen = {};
-            var ρσ_Iter68 = ρσ_Iterable(submodules);
-            for (var ρσ_Index68 = 0; ρσ_Index68 < ρσ_Iter68.length; ρσ_Index68++) {
-                sub_module_id = ρσ_Iter68[ρσ_Index68];
+            seen = Object.create(null);
+            var ρσ_Iter72 = ρσ_Iterable(submodules);
+            for (var ρσ_Index72 = 0; ρσ_Index72 < ρσ_Iter72.length; ρσ_Index72++) {
+                sub_module_id = ρσ_Iter72[ρσ_Index72];
                 if (!Object.prototype.hasOwnProperty.call(seen, sub_module_id)) {
                     seen[sub_module_id] = true;
                     key = (ρσ_expr_temp = sub_module_id.split("."), ρσ_expr_temp[ρσ_expr_temp.length-1]);
@@ -12062,6 +12677,16 @@ var str = ρσ_str, repr = ρσ_repr;;
         function print_top_level(self, output) {
             var is_main;
             is_main = output.is_main();
+            function write_docstrings() {
+                var v;
+                if (is_main && output.option("keep_docstrings") && self.docstrings && self.docstrings.length) {
+                    [output.newline(), output.indent()];
+                    v = (output.js_version > 5) ? "const" : "var";
+                    [output.assign(v + " ρσ_module_doc__"), output.print(JSON.stringify(create_doctring(self.docstrings)))];
+                    output.end_statement();
+                }
+            };
+
             if (output.option("private_scope") && is_main) {
                 output.with_parens(function () {
                     output.print("function()");
@@ -12081,6 +12706,7 @@ var str = ρσ_str, repr = ρσ_repr;;
                                 declare_vars(self.localvars, output);
                                 display_body(self.body, true, output);
                                 output.newline();
+                                write_docstrings();
                             });
                         });
                         output.print("();");
@@ -12107,7 +12733,7 @@ var str = ρσ_str, repr = ρσ_repr;;
             function output_module(output) {
                 declare_vars(self.localvars, output);
                 display_body(self.body, true, output);
-                declare_exports(self.module_id, self.exports, self.submodules, output);
+                declare_exports(self.module_id, self.exports, self.submodules, output, self.docstrings);
             };
             Object.defineProperties(output_module, {
                 __argnames__ : {value: ["output"]}
@@ -12118,7 +12744,7 @@ var str = ρσ_str, repr = ρσ_repr;;
             output.with_parens(function () {
                 output.print("function()");
                 output.with_block(function () {
-                    var okey, cached, cobj, cname, symdef, co, raw, js_version, auto_bind, beautify;
+                    var okey, cached, cobj, cname, symdef, co, raw, js_version, keep_docstrings, beautify;
                     if (output.option("write_name")) {
                         output.indent();
                         output.print("var ");
@@ -12127,14 +12753,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                         output.semicolon();
                         output.newline();
                     }
-                    function output_key(beautify, auto_bind, js_version) {
-                        return "beautify:" + beautify + " auto_bind:" + auto_bind + " js_version:" + js_version;
+                    function output_key(beautify, keep_docstrings, js_version) {
+                        return "beautify:" + beautify + " keep_docstrings:" + keep_docstrings + " js_version:" + js_version;
                     };
                     Object.defineProperties(output_key, {
-                        __argnames__ : {value: ["beautify", "auto_bind", "js_version"]}
+                        __argnames__ : {value: ["beautify", "keep_docstrings", "js_version"]}
                     });
 
-                    okey = output_key(output.option("beautify"), output.option("auto_bind"), output.option("js_version"));
+                    okey = output_key(output.option("beautify"), output.option("keep_docstrings"), output.option("js_version"));
                     if (self.is_cached && ρσ_in(okey, self.outputs)) {
                         output.print(self.outputs[okey]);
                         declare_submodules(self.module_id, self.submodules, output);
@@ -12142,56 +12768,66 @@ var str = ρσ_str, repr = ρσ_repr;;
                         output_module(output);
                         declare_submodules(self.module_id, self.submodules, output);
                         if (self.srchash && self.filename) {
-                            cached = {
-                                "version": COMPILER_VERSION,
-                                "signature": self.srchash,
-                                "classes": {},
-                                "baselib": self.baselib,
-                                "nonlocalvars": self.nonlocalvars,
-                                "imported_module_ids": self.imported_module_ids,
-                                "exports": ρσ_list_decorate([]),
-                                "outputs": {}
-                            };
-                            var ρσ_Iter69 = ρσ_Iterable(Object.keys(self.classes));
-                            for (var ρσ_Index69 = 0; ρσ_Index69 < ρσ_Iter69.length; ρσ_Index69++) {
-                                cname = ρσ_Iter69[ρσ_Index69];
+                            cached = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["version"] = COMPILER_VERSION;
+                                ρσ_d["signature"] = self.srchash;
+                                ρσ_d["classes"] = Object.create(null);
+                                ρσ_d["baselib"] = self.baselib;
+                                ρσ_d["nonlocalvars"] = self.nonlocalvars;
+                                ρσ_d["imported_module_ids"] = self.imported_module_ids;
+                                ρσ_d["exports"] = ρσ_list_decorate([]);
+                                ρσ_d["outputs"] = Object.create(null);
+                                return ρσ_d;
+                            }).call(this);
+                            var ρσ_Iter73 = ρσ_Iterable(Object.keys(self.classes));
+                            for (var ρσ_Index73 = 0; ρσ_Index73 < ρσ_Iter73.length; ρσ_Index73++) {
+                                cname = ρσ_Iter73[ρσ_Index73];
                                 cobj = self.classes[cname];
-                                cached.classes[cname] = {
-                                    "name": {
-                                        "name": cobj.name.name
-                                    },
-                                    "static": cobj.static,
-                                    "bound": cobj.bound
-                                };
+                                cached.classes[cname] = (function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = (function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["name"] = cobj.name.name;
+                                        return ρσ_d;
+                                    }).call(this);
+                                    ρσ_d["static"] = cobj.static;
+                                    ρσ_d["bound"] = cobj.bound;
+                                    return ρσ_d;
+                                }).call(this);
                             }
-                            var ρσ_Iter70 = ρσ_Iterable(self.exports);
-                            for (var ρσ_Index70 = 0; ρσ_Index70 < ρσ_Iter70.length; ρσ_Index70++) {
-                                symdef = ρσ_Iter70[ρσ_Index70];
-                                cached.exports.push({
-                                    "name": symdef.name
-                                });
+                            var ρσ_Iter74 = ρσ_Iterable(self.exports);
+                            for (var ρσ_Index74 = 0; ρσ_Index74 < ρσ_Iter74.length; ρσ_Index74++) {
+                                symdef = ρσ_Iter74[ρσ_Index74];
+                                cached.exports.push((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = symdef.name;
+                                    return ρσ_d;
+                                }).call(this));
                             }
-                            var ρσ_Iter71 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
-                            for (var ρσ_Index71 = 0; ρσ_Index71 < ρσ_Iter71.length; ρσ_Index71++) {
-                                beautify = ρσ_Iter71[ρσ_Index71];
-                                var ρσ_Iter72 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
-                                for (var ρσ_Index72 = 0; ρσ_Index72 < ρσ_Iter72.length; ρσ_Index72++) {
-                                    auto_bind = ρσ_Iter72[ρσ_Index72];
-                                    var ρσ_Iter73 = ρσ_Iterable(ρσ_list_decorate([ 5, 6 ]));
-                                    for (var ρσ_Index73 = 0; ρσ_Index73 < ρσ_Iter73.length; ρσ_Index73++) {
-                                        js_version = ρσ_Iter73[ρσ_Index73];
-                                        co = new OutputStream({
-                                            "beautify": beautify,
-                                            "auto_bind": auto_bind,
-                                            "js_version": js_version,
-                                            "private_scope": false,
-                                            "write_name": false
-                                        });
+                            var ρσ_Iter75 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
+                            for (var ρσ_Index75 = 0; ρσ_Index75 < ρσ_Iter75.length; ρσ_Index75++) {
+                                beautify = ρσ_Iter75[ρσ_Index75];
+                                var ρσ_Iter76 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
+                                for (var ρσ_Index76 = 0; ρσ_Index76 < ρσ_Iter76.length; ρσ_Index76++) {
+                                    keep_docstrings = ρσ_Iter76[ρσ_Index76];
+                                    var ρσ_Iter77 = ρσ_Iterable(ρσ_list_decorate([ 5, 6 ]));
+                                    for (var ρσ_Index77 = 0; ρσ_Index77 < ρσ_Iter77.length; ρσ_Index77++) {
+                                        js_version = ρσ_Iter77[ρσ_Index77];
+                                        co = new OutputStream((function(){
+                                            var ρσ_d = Object.create(null);
+                                            ρσ_d["beautify"] = beautify;
+                                            ρσ_d["keep_docstrings"] = keep_docstrings;
+                                            ρσ_d["js_version"] = js_version;
+                                            ρσ_d["private_scope"] = false;
+                                            ρσ_d["write_name"] = false;
+                                            return ρσ_d;
+                                        }).call(this));
                                         co.with_indent(output.indentation(), function () {
                                             output_module(co);
                                         });
-                                        raw = co.toString();
-                                        cached.outputs[output_key(beautify, auto_bind, js_version)] = raw;
+                                        raw = co.get();
+                                        cached.outputs[output_key(beautify, keep_docstrings, js_version)] = raw;
                                     }
                                 }
                             }
@@ -12239,14 +12875,14 @@ var str = ρσ_str, repr = ρσ_repr;;
                 __argnames__ : {value: ["aname", "key", "from_import"]}
             });
 
-            var ρσ_Iter74 = ρσ_Iterable(container.imports);
-            for (var ρσ_Index74 = 0; ρσ_Index74 < ρσ_Iter74.length; ρσ_Index74++) {
-                self = ρσ_Iter74[ρσ_Index74];
+            var ρσ_Iter78 = ρσ_Iterable(container.imports);
+            for (var ρσ_Index78 = 0; ρσ_Index78 < ρσ_Iter78.length; ρσ_Index78++) {
+                self = ρσ_Iter78[ρσ_Index78];
                 output.import_(self.module);
                 if (self.argnames) {
-                    var ρσ_Iter75 = ρσ_Iterable(self.argnames);
-                    for (var ρσ_Index75 = 0; ρσ_Index75 < ρσ_Iter75.length; ρσ_Index75++) {
-                        argname = ρσ_Iter75[ρσ_Index75];
+                    var ρσ_Iter79 = ρσ_Iterable(self.argnames);
+                    for (var ρσ_Index79 = 0; ρσ_Index79 < ρσ_Iter79.length; ρσ_Index79++) {
+                        argname = ρσ_Iter79[ρσ_Index79];
                         akey = (argname.alias) ? argname.alias.name : argname.name;
                         add_aname(akey, self.key, argname.name);
                     }
@@ -12465,18 +13101,22 @@ var str = ρσ_str, repr = ρσ_repr;;
 
         function print_binary_op(self, output) {
             var comparators, function_ops, leftvar;
-            comparators = {
-                "<": true,
-                ">": true,
-                "<=": true,
-                ">=": true,
-                "==": true,
-                "!=": true
-            };
-            function_ops = {
-                "in": "ρσ_in",
-                "**": "Math.pow"
-            };
+            comparators = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["<"] = true;
+                ρσ_d[">"] = true;
+                ρσ_d["<="] = true;
+                ρσ_d[">="] = true;
+                ρσ_d["=="] = true;
+                ρσ_d["!="] = true;
+                return ρσ_d;
+            }).call(this);
+            function_ops = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["in"] = "ρσ_in";
+                ρσ_d["**"] = "Math.pow";
+                return ρσ_d;
+            }).call(this);
             if (function_ops[self.operator]) {
                 output.print(function_ops[self.operator]);
                 output.with_parens(function () {
@@ -12535,9 +13175,11 @@ var str = ρσ_str, repr = ρσ_repr;;
             flattened = false;
             left = self.left;
             if (ρσ_instanceof(left, AST_Seq)) {
-                left = new AST_Array({
-                    "elements": [left.car, left.cdr]
-                });
+                left = new AST_Array((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["elements"] = [left.car, left.cdr];
+                    return ρσ_d;
+                }).call(this));
             }
             if (ρσ_instanceof(left, AST_Array)) {
                 flat = left.flatten();
@@ -12585,23 +13227,29 @@ var str = ρσ_str, repr = ρσ_repr;;
                 ρσ_unpack = self.traverse_chain();
                 left_hand_sides = ρσ_unpack[0];
                 rhs = ρσ_unpack[1];
-                temp_rhs = new AST_SymbolRef({
-                    "name": "ρσ_chain_assign_temp"
-                });
-                print_assignment(new AST_Assign({
-                    "left": temp_rhs,
-                    "operator": "=",
-                    "right": rhs
-                }), output);
+                temp_rhs = new AST_SymbolRef((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = "ρσ_chain_assign_temp";
+                    return ρσ_d;
+                }).call(this));
+                print_assignment(new AST_Assign((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["left"] = temp_rhs;
+                    ρσ_d["operator"] = "=";
+                    ρσ_d["right"] = rhs;
+                    return ρσ_d;
+                }).call(this)), output);
                 [output.end_statement(), output.indent()];
-                var ρσ_Iter76 = ρσ_Iterable(left_hand_sides);
-                for (var ρσ_Index76 = 0; ρσ_Index76 < ρσ_Iter76.length; ρσ_Index76++) {
-                    lhs = ρσ_Iter76[ρσ_Index76];
-                    print_assignment(new AST_Assign({
-                        "left": lhs,
-                        "right": temp_rhs,
-                        "operator": self.operator
-                    }), output);
+                var ρσ_Iter80 = ρσ_Iterable(left_hand_sides);
+                for (var ρσ_Index80 = 0; ρσ_Index80 < ρσ_Iter80.length; ρσ_Index80++) {
+                    lhs = ρσ_Iter80[ρσ_Index80];
+                    print_assignment(new AST_Assign((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["left"] = lhs;
+                        ρσ_d["right"] = temp_rhs;
+                        ρσ_d["operator"] = self.operator;
+                        return ρσ_d;
+                    }).call(this)), output);
                     output.end_statement();
                     if (lhs !== left_hand_sides[left_hand_sides.length-1]) {
                         output.indent();
@@ -12674,70 +13322,6 @@ var str = ρσ_str, repr = ρσ_repr;;
         ρσ_modules["output.operators"].print_assign = print_assign;
         ρσ_modules["output.operators"].print_conditional = print_conditional;
         ρσ_modules["output.operators"].print_seq = print_seq;
-    })();
-
-    (function(){
-        var __name__ = "output.utils";
-        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
-        
-        function best_of(a) {
-            var best, len_, i;
-            best = a[0];
-            len_ = best.length;
-            for (var ρσ_Index77 = 1; ρσ_Index77 < a.length; ρσ_Index77++) {
-                i = ρσ_Index77;
-                if (a[i].length < len_) {
-                    best = a[i];
-                    len_ = best.length;
-                }
-            }
-            return best;
-        };
-        Object.defineProperties(best_of, {
-            __argnames__ : {value: ["a"]}
-        });
-
-        function make_num(num) {
-            var str_, a, m;
-            str_ = num.toString(10);
-            a = ρσ_list_decorate([ str_.replace(/^0\./, ".").replace("e+", "e") ]);
-            m = null;
-            if (Math.floor(num) === num) {
-                if (num >= 0) {
-                    a.push("0x" + num.toString(16).toLowerCase(), "0" + num.toString(8));
-                } else {
-                    a.push("-0x" + (-num).toString(16).toLowerCase(), "-0" + (-num).toString(8));
-                }
-                if (m = /^(.*?)(0+)$/.exec(num)) {
-                    a.push(m[1] + "e" + m[2].length);
-                }
-            } else if (m = /^0?\.(0+)(.*)$/.exec(num)) {
-                a.push(m[2] + "e-" + (m[1].length + m[2].length), str_.substr(str_.indexOf(".")));
-            }
-            return best_of(a);
-        };
-        Object.defineProperties(make_num, {
-            __argnames__ : {value: ["num"]}
-        });
-
-        function make_block(stmt, output) {
-            if (ρσ_instanceof(stmt, AST_BlockStatement)) {
-                stmt.print(output);
-                return;
-            }
-            output.with_block(function () {
-                output.indent();
-                stmt.print(output);
-                output.newline();
-            });
-        };
-        Object.defineProperties(make_block, {
-            __argnames__ : {value: ["stmt", "output"]}
-        });
-
-        ρσ_modules["output.utils"].best_of = best_of;
-        ρσ_modules["output.utils"].make_num = make_num;
-        ρσ_modules["output.utils"].make_block = make_block;
     })();
 
     (function(){
@@ -13674,9 +14258,9 @@ var str = ρσ_str, repr = ρσ_repr;;
             exports.SyntaxError = SyntaxError;
             exports.tokenizer = tokenizer;
             ast = ρσ_modules["ast"];
-            var ρσ_Iter78 = ρσ_Iterable(ast);
-            for (var ρσ_Index78 = 0; ρσ_Index78 < ρσ_Iter78.length; ρσ_Index78++) {
-                ast_node = ρσ_Iter78[ρσ_Index78];
+            var ρσ_Iter81 = ρσ_Iterable(ast);
+            for (var ρσ_Index81 = 0; ρσ_Index81 < ρσ_Iter81.length; ρσ_Index81++) {
+                ast_node = ρσ_Iter81[ρσ_Index81];
                 if (ast_node.substr(0, 4) === "AST_") {
                     exports[ast_node] = ast[ast_node];
                 }
