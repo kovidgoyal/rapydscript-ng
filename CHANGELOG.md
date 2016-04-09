@@ -1,3 +1,17 @@
+version 0.6.4
+==============
+
+ * Support for docstrings in modules, classes and functions, just like python.
+   By default the docstrings are discarded (except in the REPL). There is a
+   compiler option to keep the docstrings as the `__doc__` attribute in the
+   output JavaScript.
+
+ * Add hexlify()/unhexlify() to the encodings stdlib module
+
+ * Object literals now produce JavaScript objects that have no prototype. This
+   makes them more like python dicts, in that there is no need to use
+   Object.keys() and Object.hasOwnProperty() to iterate/test their keys.
+
 version 0.6.3
 ==============
 
