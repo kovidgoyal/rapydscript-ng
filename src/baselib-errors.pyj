@@ -4,38 +4,34 @@
 
 v'var Exception = Error'
 
-class AttributeError(Error):
+class _Exception(Exception):
+
+    name = 'Exception'
+
+    def __init__(self, message):
+        self.message = message
+        self.stack = Error().stack
+
+class AttributeError(_Exception):
 
     name = 'AttributeError'
 
-    def __init__(self, msg):
-        self.message = msg
-        self.stack = (new Error()).stack
-
-class IndexError(Error):
+class IndexError(_Exception):
 
     name = 'IndexError'
 
-    def __init__(self, msg):
-        self.message = msg
-        self.stack = (new Error()).stack
-
-class KeyError(Error):
+class KeyError(_Exception):
 
     name = 'KeyError'
 
-    def __init__(self, msg):
-        self.message = msg
-        self.stack = (new Error()).stack
-
-class ValueError(Error):
+class ValueError(_Exception):
 
     name = 'ValueError'
 
-    def __init__(self, msg):
-        self.message = msg
-        self.stack = (new Error()).stack
-
-class UnicodeDecodeError(ValueError):
+class UnicodeDecodeError(_Exception):
 
     name = 'UnicodeDecodeError'
+
+class AssertionError(_Exception):
+
+    name = 'AssertionError'
