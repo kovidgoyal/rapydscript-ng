@@ -728,12 +728,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cached = None
 
         srchash = sha1sum(src_code)  # noqa:undef
-        if cached and cached['version'] is COMPILER_VERSION and cached['signature'] is srchash:
+        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             imported_modules[key] = {
-                'is_cached':True, 'classes':cached['classes'], 'outputs':cached['outputs'], 'module_id':key, 'import_order':Object.keys(imported_modules).length,
-                'submodules':[], 'nonlocalvars':cached['nonlocalvars'], 'baselib':cached['baselib'], 'exports':cached.exports
+                'is_cached':True, 'classes':cached.classes, 'outputs':cached.outputs, 'module_id':key, 'import_order':Object.keys(imported_modules).length,
+                'submodules':[], 'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports
             }
         else:
             parse(src_code, {
