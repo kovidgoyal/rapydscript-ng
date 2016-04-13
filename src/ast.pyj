@@ -158,6 +158,22 @@ AST_SimpleStatement = DEFNODE("SimpleStatement", "body", {
 
 }, AST_Statement)
 
+AST_Assert = DEFNODE("Assert", "condition message", {
+    '$documentation': "An assert statement, e.g. assert True, 'an error message'",
+    '$propdoc': {
+        'condition': "[AST_Node] the expression that should be tested",
+        'message': "[AST_Node*] the expression that is the error message or None",
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.condition._walk(visitor)
+            if node.message:
+                node.message._walk(visitor)
+        )
+
+}, AST_Statement)
+
 def walk_body(node, visitor):
     if isinstance(node.body, AST_Statement):
         node.body._walk(visitor)

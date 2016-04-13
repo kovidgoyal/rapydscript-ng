@@ -1,3 +1,5 @@
+# globals: assrt
+
 def throw_test(code):
     orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
     assrt.throws(def():
@@ -203,3 +205,14 @@ assrt.ok(1 in deleteme)
 del deleteme[1]
 assrt.ok(1 not in deleteme)
 assrt.equal(len(deleteme), 1)
+
+# Asserts
+
+assrt.throws(def():
+    assert 0
+, AssertionError
+)
+assrt.throws(def():
+    assert 0, 'xdx'
+, /xdx/
+)

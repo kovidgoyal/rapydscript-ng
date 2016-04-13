@@ -157,4 +157,12 @@ def print_with(self, output):
         output.indent(), output.spaced('if', '(!ρσ_with_suppress)', 'throw ρσ_with_exception'), output.end_statement()
     )
 
-
+def print_assert(self, output):
+    if output.options.discard_asserts:
+        return
+    output.spaced('if', '(!'), self.condition.print(output), output.spaced(')', 'throw new AssertionError')
+    if self.message:
+        output.print('(')
+        self.message.print(output)
+        output.print(')')
+    output.end_statement()

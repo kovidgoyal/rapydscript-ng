@@ -195,7 +195,7 @@ def print_module(self, output):
                     cached = {
                         'version':COMPILER_VERSION, 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
                         'nonlocalvars':self.nonlocalvars, 'imported_module_ids':self.imported_module_ids, 'exports':[],
-                        'outputs':{},
+                        'outputs':{}, 'discard_asserts': output.options.discard_asserts
                     }
                     for cname in Object.keys(self.classes):
                         cobj = self.classes[cname]
@@ -205,7 +205,11 @@ def print_module(self, output):
                     for beautify in [True, False]:
                         for keep_docstrings in [True, False]:
                             for js_version in [5, 6]:
-                                co = OutputStream({'beautify':beautify, 'keep_docstrings':keep_docstrings, 'js_version':js_version, 'private_scope':False, 'write_name':False})
+                                co = OutputStream({
+                                    'beautify':beautify, 'keep_docstrings':keep_docstrings,
+                                    'js_version':js_version, 'private_scope':False,
+                                    'write_name':False, 'discard_asserts':output.options.discard_asserts
+                                })
                                 co.with_indent(output.indentation(), def():
                                     output_module(co)
                                 )

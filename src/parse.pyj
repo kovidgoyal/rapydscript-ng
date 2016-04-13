@@ -19,7 +19,7 @@ AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
-AST_Yield
+AST_Yield, AST_Assert
 )
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
@@ -468,6 +468,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         'body': chain,
                         'end': prev()
                     })
+            elif tmp_ is 'assert':
+                start = prev()
+                cond = expression(False)
+                msg = None
+                if is_('punc', ','):
+                    next()
+                    msg = expression(False)
+                return new AST_Assert({'start': start, 'condition':cond, 'message':msg, 'end':prev()})
             elif tmp_ is "if":
                 return if_()
             elif tmp_ is "pass":
@@ -694,7 +702,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if options.for_linting:
             imported_modules[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
-                             'submodules':[], 'nonlocalvars':[], 'baselib':{}, 'outputs':{}}
+                                     'submodules':[], 'nonlocalvars':[], 'baselib':{}, 'outputs':{}, 'discard_asserts':options.discard_asserts}
             if len(package_module_id) > 0:
                 imported_modules[package_module_id].submodules.push(key)
             return
@@ -728,12 +736,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cached = None
 
         srchash = sha1sum(src_code)  # noqa:undef
-        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash:
+        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash and cached.discard_asserts is options.discard_asserts:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             imported_modules[key] = {
                 'is_cached':True, 'classes':cached.classes, 'outputs':cached.outputs, 'module_id':key, 'import_order':Object.keys(imported_modules).length,
-                'submodules':[], 'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports
+                'submodules':[], 'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports, 'discard_asserts':options.discard_asserts,
             }
         else:
             parse(src_code, {
@@ -745,6 +753,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'module_id': key,
                 'imported_modules': imported_modules,
                 'importing_modules': importing_modules,
+                'discard_asserts': options.discard_asserts,
             })  # This function will add the module to imported_modules itself
 
         imported_modules[key].srchash = srchash
@@ -2101,6 +2110,7 @@ def parse(text, options):
         'import_dirs': v'[]',
         'classes': undefined, # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
         'scoped_flags': {},   # Global scoped flags (used by the REPL)
+        'discard_asserts': False,
     })
     import_dirs = [x for x in options.import_dirs]
     for location in v'[options.libdir, options.basedir]':

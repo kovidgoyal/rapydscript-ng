@@ -26,7 +26,7 @@ module.exports = function(compiler, baselib, runjs, name) {
     return {
         'toplevel': null,
 
-        'compile': function web_repl_compile(code, filename, keep_docstrings) {
+        'compile': function web_repl_compile(code, filename, keep_docstrings, discard_asserts) {
             var classes = (this.toplevel) ? this.toplevel.classes : undefined;
             var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;
             this.toplevel = compiler.parse(code, {
@@ -34,6 +34,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'basedir': '__stdlib__',
                 'classes': classes,
                 'scoped_flags': scoped_flags,
+                'discard_asserts': discard_asserts,
             });
             var ans = print_ast(this.toplevel, false, keep_docstrings);
             if (classes) {

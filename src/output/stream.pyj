@@ -51,6 +51,7 @@ class OutputStream:
             'baselib_plain': None,
             'private_scope': True,
             'keep_docstrings': False,
+            'discard_asserts': False,
             'js_version':5,
             'write_name': True,
         }, True)

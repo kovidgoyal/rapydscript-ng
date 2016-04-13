@@ -257,6 +257,12 @@ attributes on functions, classes and modules. Normally,
 the docstring are deleted to reduce download size.
 */});
 
+opt("discard_asserts", 'a', 'bool', false, function(){/*
+Discard any assert statements. If you use assert statements
+for debugging, then use this option to generate an optimized build
+without the assert statements.
+*/});
+
 opt("uglify", 'u', 'bool', false, function(){/*
 Minify the output instead of pretty printing it.
 */});

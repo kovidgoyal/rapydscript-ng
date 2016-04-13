@@ -35,6 +35,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         omit_baselib: argv.omit_baselib,
         js_version: parseInt(argv.js_version),
         keep_docstrings: argv.keep_docstrings,
+        discard_asserts: argv.discard_asserts,
     };
     var files = argv.files.slice();
     var STATS = {}, TOPLEVEL;
@@ -47,6 +48,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             basedir: path.dirname(file),
             libdir: path.join(src_path, 'lib'),
             import_dirs: utils.get_import_dirs(argv.import_path),
+            discard_asserts: argv.discard_asserts,
         });
     }
 
