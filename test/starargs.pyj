@@ -9,7 +9,7 @@ def get(obj, name):
 # Test the parsing of function definitions {{{
 
 def basic_test(code, arglen, starargs, kwargs, defaults):
-    func = RapydScript.parse('def function(' + code + '): pass\n', {'filename':code}).body[0]
+    func = RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
     eq(func.argnames.length, arglen)
     eq(get(func.argnames.starargs, 'name'), starargs)
     eq(get(func.argnames.kwargs, 'name'), kwargs)
@@ -24,7 +24,7 @@ def basic_test(code, arglen, starargs, kwargs, defaults):
 def throw_test(code):
     orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
     assert.throws(def():
-        RapydScript.parse('def function(' + code + '): pass\n', {'filename':code}).body[0]
+        RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
     , RapydScript.SyntaxError)
     RapydScript.AST_Node.warn_function = orig
 

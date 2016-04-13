@@ -21,7 +21,7 @@ AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
 AST_Yield
 )
-from tokenizer import tokenizer, is_token, UNARY_POSTFIX
+from tokenizer import tokenizer, is_token, UNARY_POSTFIX, RESERVED_WORDS
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
@@ -1639,6 +1639,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def token_as_symbol(tok, ttype):
         name = tok.value
+        if RESERVED_WORDS(name) and name is not 'this':
+            croak(name + ' is a reserved word')
         return new ((name is "this" ? AST_This : ttype))({
             'name': v"String(tok.value)",
             'start': tok,

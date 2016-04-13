@@ -71,6 +71,9 @@ assert.deepEqual([a, b, c, d, e, f], [1, 2, 1, 2, 1, 2])
 throw_test('a += b += 1')
 throw_test('a += 1, 2 += b')
 throw_test('a += [1, 2] += b')
+throw_test('function = 1')
+throw_test('def function():\n pass')
+throw_test('class function:\n pass')
 
 # object literals
 {1:

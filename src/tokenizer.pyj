@@ -90,15 +90,18 @@ PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
 REGEXP_MODIFIERS = make_predicate(characters("gmsiy"))
 
 
-KEYWORDS = "as break case class const continue debugger def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return yield switch try typeof var void while with or and not delete default"
+KEYWORDS = "as break class continue def del do elif else except finally for from if import in is new nonlocal pass raise return yield try while with or and not"
 
 KEYWORDS_ATOM = "False None True"
 
-RESERVED_WORDS = "abstract await boolean byte char delete default double enum export extends final float goto implements int interface long native package private protected public short static super synchronized this throws transient volatile" + " " + KEYWORDS_ATOM + " " + KEYWORDS
+# see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar
+RESERVED_WORDS = ("break case class catch const continue debugger default delete do else export extends"
+" finally for function if import in instanceof new return super switch this throw try typeof var void"
+" while with yield enum implements static private package let public protected interface await null true false" )
 
 KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if"
 
-ALL_KEYWORDS = RESERVED_WORDS + " " + KEYWORDS_BEFORE_EXPRESSION
+ALL_KEYWORDS = KEYWORDS + " " + KEYWORDS_ATOM
 
 KEYWORDS = make_predicate(KEYWORDS)
 RESERVED_WORDS = make_predicate(RESERVED_WORDS)
@@ -128,7 +131,7 @@ def is_unicode_connector_punctuation(ch):
     return UNICODE.connector_punctuation.test(ch)
 
 def is_identifier(name):
-    return not RESERVED_WORDS(name) and IDENTIFIER_PAT.test(name)
+    return not RESERVED_WORDS(name) and not KEYWORDS(name) and not KEYWORDS_ATOM(name) and IDENTIFIER_PAT.test(name)
 
 def is_identifier_start(code):
     return code is 36 or code is 95 or is_letter(code)
