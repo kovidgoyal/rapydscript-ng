@@ -10,10 +10,7 @@ RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
 RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i
 
-UNARY_POSTFIX = make_predicate('-- ++')
-
 OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"))
-INVALID_OPERATORS = {"++", "--", "===", "!=="}
 
 ASCII_CONTROL_CHARS = {'a':7, 'b':8, 'f': 12, 'n': 10, 'r': 13, 't': 9, 'v': 11}
 HEX_PAT = /[a-fA-F0-9]/
@@ -26,8 +23,6 @@ OPERATORS = make_predicate([
     "new",
     "void",
     "del",
-    "++",
-    "--",
     "+",
     "-",
     "not",
@@ -48,10 +43,8 @@ OPERATORS = make_predicate([
     "<=",
     ">=",
     "==",
-    "===",
     "is",
     "!=",
-    "!==",
     "?",
     "=",
     "+=",
@@ -213,9 +206,9 @@ def tokenizer($TEXT, filename):
         S.tokpos = S.pos
 
     def token(type, value, is_comment, keep_newline):
-        S.regex_allowed = type is "operator" and not UNARY_POSTFIX[value] \
-            or type is "keyword" and KEYWORDS_BEFORE_EXPRESSION[value] \
-            or type is "punc" and PUNC_BEFORE_EXPRESSION[value]
+        S.regex_allowed = (type is "operator"
+            or type is "keyword" and KEYWORDS_BEFORE_EXPRESSION[value]
+            or type is "punc" and PUNC_BEFORE_EXPRESSION[value])
 
         if type is "operator" and value is "is" and S.text.substr(S.pos).trimLeft().substr(0, 4).trimRight() is "not":
             next_token()
@@ -579,9 +572,7 @@ def tokenizer($TEXT, filename):
             else:
                 return op
         op = grow(prefix or next())
-        if INVALID_OPERATORS.has(op):
-            parse_error("Invalid operator «" + op + "»")
-        elif op is '->':
+        if op is '->':
             # pretend that this is an operator as the tokenizer only allows
             # one character punctuation.
             return token('punc', op)
