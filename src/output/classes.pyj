@@ -183,14 +183,19 @@ def print_class(output):
 
     if not defined_methods['__repr__']:
         define_default_method('__repr__', def():
-            output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', '"')
-            self.name.print(output)
-            output.spaced('"', '+', '" #"', '+', 'this.ρσ_object_id', '+', '">"')
+            if self.parent:
+                output.print('if('), self.parent.print(output), output.spaced('.prototype.__repr__)', 'return', self.parent)
+                output.print('.prototype.__repr__.call(this)'), output.end_statement()
+            output.indent(), output.spaced('return', '"<"', '+', '__name__', '+', '"."', '+', 'this.constructor.name', '')
+            output.spaced('+', '" #"', '+', 'this.ρσ_object_id', '+', '">"')
             output.end_statement()
         )
 
     if not defined_methods['__str__']:
         define_default_method('__str__', def():
+            if self.parent:
+                output.print('if('), self.parent.print(output), output.spaced('.prototype.__str__)', 'return', self.parent)
+                output.print('.prototype.__str__.call(this)'), output.end_statement()
             output.spaced('return', 'this.__repr__()')
             output.end_statement()
         )

@@ -1,3 +1,5 @@
+# globals: assrt
+
 # empty classes are allowed
 class Blank:
     pass
