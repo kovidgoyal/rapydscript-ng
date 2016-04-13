@@ -756,7 +756,7 @@ AST_PropAccess = DEFNODE("PropAccess", "expression property", {
     '$documentation': 'Base class for property access expressions, i.e. `a.foo` or `a["foo"]`',
     '$propdoc': {
         'expression': "[AST_Node] the “container” expression",
-        'property': "[AST_Node|string] the property to access.  For AST_Dot this is always a plain string, while for AST_Sub it's an arbitrary AST_Node"
+        'property': "[AST_Node|string] the property to access.  For AST_Dot this is always a plain string, while for AST_Sub it's an arbitrary AST_Node",
     }
 })
 
@@ -823,7 +823,7 @@ AST_Unary = DEFNODE("Unary", "operator expression", {
 })
 
 AST_UnaryPrefix = DEFNODE("UnaryPrefix", None, {
-    '$documentation': "Unary prefix expression, i.e. `typeof i` or `++i`"
+    '$documentation': "Unary prefix expression, i.e. `typeof i` or `del i`"
 }, AST_Unary)
 
 AST_Binary = DEFNODE("Binary", "left operator right", {
