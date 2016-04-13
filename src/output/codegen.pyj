@@ -16,7 +16,7 @@ from ast import (
     AST_RegExp, AST_Return, AST_Set, AST_Seq, AST_SimpleStatement, AST_Splice,
     AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
     AST_Symbol, AST_This, AST_Throw, AST_Toplevel, AST_Try, AST_Unary,
-    AST_UnaryPostfix, AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
+    AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef,
     AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker
 )
 from output.exceptions import print_try, print_catch, print_finally
@@ -27,7 +27,7 @@ from output.loops import print_do_loop, print_while_loop, print_for_loop_body, p
 from output.modules import print_top_level, print_imports
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
-    print_unary_prefix, print_unary_postfix, print_binary_op, print_assign,
+    print_unary_prefix, print_binary_op, print_assign,
     print_conditional, print_seq)
 from output.functions import print_function, print_function_call
 from output.statements import print_bracketed, first_in_statement, force_statement, print_with
@@ -452,8 +452,6 @@ def generate_code():
     DEFPRINT(AST_Splice, print_splice_assignment)
 
     DEFPRINT(AST_UnaryPrefix, print_unary_prefix)
-
-    DEFPRINT(AST_UnaryPostfix, print_unary_postfix)
 
     DEFPRINT(AST_Binary, print_binary_op)
 

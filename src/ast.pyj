@@ -826,10 +826,6 @@ AST_UnaryPrefix = DEFNODE("UnaryPrefix", None, {
     '$documentation': "Unary prefix expression, i.e. `typeof i` or `++i`"
 }, AST_Unary)
 
-AST_UnaryPostfix = DEFNODE("UnaryPostfix", None, {
-    '$documentation': "Unary postfix expression, i.e. `i++`"
-}, AST_Unary)
-
 AST_Binary = DEFNODE("Binary", "left operator right", {
     '$documentation': "Binary expression, i.e. `a + b`",
     '$propdoc': {

@@ -4,7 +4,7 @@
 from ast import (
     AST_Definitions, AST_Scope, AST_Method, AST_Except, AST_EmptyStatement,
     AST_Statement, AST_Seq, AST_BaseCall, AST_Dot, AST_Sub, AST_ItemAccess,
-    AST_Conditional, AST_Binary, AST_UnaryPostfix, AST_BlockStatement
+    AST_Conditional, AST_Binary, AST_BlockStatement
 )
 
 def force_statement(stat, output):
@@ -42,8 +42,7 @@ def first_in_statement(output):
         or isinstance(p, AST_Sub) and p.expression is node
         or isinstance(p, AST_ItemAccess) and p.expression is node
         or isinstance(p, AST_Conditional) and p.condition is node
-        or isinstance(p, AST_Binary) and p.left is node
-        or isinstance(p, AST_UnaryPostfix) and p.expression is node:
+        or isinstance(p, AST_Binary) and p.left is node:
             node = p
             p = a[i -= 1]
         else:

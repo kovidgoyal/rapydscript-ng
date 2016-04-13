@@ -77,10 +77,6 @@ def print_unary_prefix(self, output):
         output.space()
     self.expression.print(output)
 
-def print_unary_postfix(self, output):
-    self.expression.print(output)
-    output.print(self.operator)
-
 def write_instanceof(left, right, output):
 
     def do_many(vals):

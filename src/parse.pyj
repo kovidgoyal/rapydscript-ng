@@ -17,11 +17,11 @@ AST_SetComprehension, AST_SetItem, AST_Seq, AST_SimpleStatement, AST_Splice,
 AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAlias,
 AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
-AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPostfix, AST_UnaryPrefix,
+AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
 AST_Yield
 )
-from tokenizer import tokenizer, is_token, UNARY_POSTFIX, RESERVED_WORDS
+from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
@@ -1876,11 +1876,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return ex
 
         val = expr_atom(allow_calls)
-        while is_("operator") and UNARY_POSTFIX[S.token.value] and not S.token.nlb:
-            val = make_unary(AST_UnaryPostfix, S.token.value, val)
-            val.start = start
-            val.end = S.token
-            next()
         return val
 
     def make_unary(ctor, op, expr):
