@@ -1,0 +1,33 @@
+# vim:fileencoding=utf-8
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: ρσ_str
+
+def format_exc(limit):
+    if not isinstance(this, Error):
+        return []
+    tb = this.internal_traceback or this.stack
+    if tb:
+        lines = ρσ_str.splitlines(tb)
+        e = lines[0]
+        lines = [l for l in lines[1:]]
+        if limit:
+            lines = lines[:limit+1] if limit > 0 else lines[limit:]
+        lines.push(e)
+        lines.insert(0, 'Traceback (most recent call last):')
+        return [l+'\n' for l in lines]
+    return [this.toString()]
+
+def print_exc(limit):
+    print(format_exc.call(this, limit).join(''))
+
+def format_stack(limit):
+    stack = Error().stack
+    if not stack:
+        return []
+    lines = str.splitlines(stack)[2:]
+    if limit:
+        lines = lines[:limit+1] if limit > 0 else lines[limit:]
+    return [l + '\n' for l in lines]
+
+def print_stack(limit):
+    print(format_stack.call(this, limit).join(''))

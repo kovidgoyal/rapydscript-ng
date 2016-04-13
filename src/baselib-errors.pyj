@@ -11,7 +11,7 @@ class Exception(Error):
         self.name = self.constructor.name
 
     @property
-    def traceback(self):
+    def internal_traceback(self):
         if self.stack:
             lines = ρσ_str.splitlines(self.stack, '\n')
             for i, line in enumerate(lines):
