@@ -196,10 +196,9 @@ def ρσ_mixin():
 
 def ρσ_instanceof():
     obj = arguments[0]
-    try:
+    bases = ''
+    if obj and obj.constructor and obj.constructor.prototype:
         bases = obj.constructor.prototype.__bases__ or ''
-    except Exception:
-        bases = ''
     for v'var i = 1; i < arguments.length; i++':
         q = arguments[i]
         if v'obj instanceof q':
