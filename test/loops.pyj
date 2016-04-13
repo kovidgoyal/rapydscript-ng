@@ -56,3 +56,7 @@ for q in range(3):
     u = q
     q = 10
 assert.equal(u, 2)
+a = [1,2]
+for li in range(len(a)):
+    a.pop()
+assert.equal(len(a), 0)

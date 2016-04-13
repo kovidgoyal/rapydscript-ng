@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: regenerate
 
-from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number
+from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number, has_calls
 from output.stream import OutputStream
 
 def unpack_tuple(elems, output, in_statement):
@@ -45,19 +45,18 @@ def is_simple_for_in(self):
 
 def is_simple_for(self):
     # returns true if this loop can be simplified into a basic for(i=n;i<h;i++) loop
-    if isinstance(self.object, AST_BaseCall)
-    and isinstance(self.object.expression, AST_SymbolRef)
-    and self.object.expression.name is "range"
-    and not (isinstance(self.init, AST_Array))
-    and (
-        self.object.args.length < 3 or (
-            isinstance(self.object.args.slice(-1)[0], AST_Number)
-            or isinstance(self.object.args.slice(-1)[0], AST_Unary)
-                and self.object.args.slice(-1)[0].operator is "-"
-                and isinstance(self.object.args.slice(-1)[0].expression, AST_Number)
-        )
-    ):
-        return True
+    if (isinstance(self.object, AST_BaseCall) and
+            isinstance(self.object.expression, AST_SymbolRef) and
+            self.object.expression.name is "range" and
+            not (isinstance(self.init, AST_Array))):
+        a = self.object.args
+        l = a.length
+        if l < 3 or (
+            isinstance(a[2], AST_Number) or (
+                isinstance(a[2], AST_Unary) and a[2].operator is '-' and isinstance(a[2].expression, AST_Number)
+        )):
+            if (l is 1 and not has_calls(a[0])) or (l > 1 and not has_calls(a[1])):
+                return True
     return False
 
 def print_for_loop_body(output):
