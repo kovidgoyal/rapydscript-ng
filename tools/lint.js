@@ -32,7 +32,7 @@ var BUILTINS = Object.create(null);
 ('this self window document chr ord iterator_symbol print len range dir' + 
  ' eval undefined arguments abs max min enumerate callable reversed sum' + 
  ' getattr isFinite setattr hasattr parseInt parseFloat options_object' +
- ' isNan JSON Math list set list_wrap ρσ_modules require bool int bin' +
+ ' isNaN JSON Math list set list_wrap ρσ_modules require bool int bin' +
  ' float iter Error EvalError set_wrap RangeError ReferenceError SyntaxError' +
  ' str TypeError URIError Exception IndexError AttributeError KeyError' +
  ' ValueError map hex filter zip dict dict_wrap UnicodeDecodeError HTMLCollection' +
