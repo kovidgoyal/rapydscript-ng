@@ -6,7 +6,7 @@ from _import_two import (toplevel_var2,
 def AClass(x):
     return this
 
-eq = assert.equal
+eq = assrt.equal
 # Test import of top-level variables and callables
 eq(toplevel_var, 'foo')
 eq(tf('x'), 'xtoplevel')
@@ -60,9 +60,9 @@ eq(GLOBAL_SYMBOL, 'i am global')
 # Import errors happen during parsing, so we cannot test them directly as they would
 # prevent this file from being parsed.
 
-assert.throws(def():
+assrt.throws(def():
     RapydScript.parse('from _import_one import not_exported', {'basedir':test_path}).body[0]
 , /not exported/)
-assert.throws(def():
+assrt.throws(def():
     RapydScript.parse('import xxxx', {'basedir':test_path}).body[0]
 , /doesn't exist/)

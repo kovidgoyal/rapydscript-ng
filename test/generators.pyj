@@ -23,19 +23,19 @@ class A:
         for x in self.items:
             yield x
 
-assert.deepEqual([x for x in g1()], [1, 2])
-assert.deepEqual([x for x in g2()], [1, 2, 1, 2])
-assert.deepEqual([x for x in A()], [1, 2, 3])
+assrt.deepEqual([x for x in g1()], [1, 2])
+assrt.deepEqual([x for x in g2()], [1, 2, 1, 2])
+assrt.deepEqual([x for x in A()], [1, 2, 3])
 
 g = g3()
-assert.equal(g.next().value, 1)
-assert.equal(g.next('a').value, 'a')
+assrt.equal(g.next().value, 1)
+assrt.equal(g.next('a').value, 'a')
 
 a = (x for x in range(3))
-assert.deepEqual(list(a), [0, 1, 2])
+assrt.deepEqual(list(a), [0, 1, 2])
 a = ([x, x**2] for x in range(3))
-assert.deepEqual(list(a), [[0, 0], [1, 1], [2, 4]])
-assert.deepEqual(list(x for x in range(3)), [0, 1, 2])
+assrt.deepEqual(list(a), [[0, 0], [1, 1], [2, 4]])
+assrt.deepEqual(list(x for x in range(3)), [0, 1, 2])
 def t(a, b):
-    assert.deepEqual(list(a), list(b))
+    assrt.deepEqual(list(a), list(b))
 t((x for x in range(1)), (y for y in range(1)))

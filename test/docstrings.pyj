@@ -8,8 +8,8 @@ def f():
     " A basic docstring "
     pass
 
-assert.equal(f.__doc__, 'A basic docstring')
-assert.equal(_import_one.__doc__, 'Module level ds1\n\nModule level ds2\nline2\n\nModule level ds 3')
+assrt.equal(f.__doc__, 'A basic docstring')
+assrt.equal(_import_one.__doc__, 'Module level ds1\n\nModule level ds2\nline2\n\nModule level ds 3')
 
 def g():
     '''
@@ -21,7 +21,7 @@ def g():
     '''
     pass
 
-assert.equal(g.__doc__, 'A more complex docstring:\n    xxx\n        yyyy\n\nthe end')
+assrt.equal(g.__doc__, 'A more complex docstring:\n    xxx\n        yyyy\n\nthe end')
 
 class D:
     ' Docstring for a class '
@@ -30,10 +30,10 @@ class D:
         'ds for a method'
         pass
 
-assert.equal(D().__doc__, 'Docstring for a class')
-assert.equal(D().method.__doc__, 'ds for a method')
+assrt.equal(D().__doc__, 'Docstring for a class')
+assrt.equal(D().method.__doc__, 'ds for a method')
 
 x = def():
     'xxx'
 
-assert.equal(x.__doc__, 'xxx')
+assrt.equal(x.__doc__, 'xxx')

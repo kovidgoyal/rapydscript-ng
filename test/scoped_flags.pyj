@@ -2,28 +2,28 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 a = {1:1}
-assert.ok(not isinstance(a, dict))
+assrt.ok(not isinstance(a, dict))
 
 from __python__ import dict_literals, overload_getitem
 a = {1:1}
-assert.ok(isinstance(a, dict))
-assert.equal(a[1], 1)
+assrt.ok(isinstance(a, dict))
+assrt.equal(a[1], 1)
 a[2] = 2
-assert.equal(a[2], 2)
-assert.deepEqual(list(a.keys()), [1, 2])
+assrt.equal(a[2], 2)
+assrt.deepEqual(list(a.keys()), [1, 2])
 from __python__ import no_dict_literals, no_overload_getitem
 
 
 a = {1:1}
-assert.ok(not isinstance(a, dict))
+assrt.ok(not isinstance(a, dict))
 
 def f():
     from __python__ import dict_literals
     a = {1:1}
-    assert.ok(isinstance(a, dict))
+    assrt.ok(isinstance(a, dict))
 
 a = {1:1}
-assert.ok(not isinstance(a, dict))
+assrt.ok(not isinstance(a, dict))
 
 class S:
     from __python__ import bound_methods
@@ -35,7 +35,7 @@ class S:
         return self.a if self else None
 
 f = S().val
-assert.equal(f(), S().val())
+assrt.equal(f(), S().val())
 
 class U:
 
@@ -46,7 +46,7 @@ class U:
         return self.a if self else None
 
 f = U().val
-assert.equal(f(), None)
+assrt.equal(f(), None)
 
 class C:
 
@@ -69,6 +69,6 @@ class C:
 c = C()
 u1, u2 = c.uval1, c.uval2
 f = c.bval
-assert.equal(u1(), None)
-assert.equal(u2(), None)
-assert.equal(f(), 3)
+assrt.equal(u1(), None)
+assrt.equal(u2(), None)
+assrt.equal(f(), 3)

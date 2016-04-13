@@ -28,11 +28,11 @@ def rungcm(keys, ivs, inputs, adatas, outputs, tags):
         outputbytes = from_hex(outputs[i])
         adata = from_hex(adatas[i])
         ans = gcm._crypt(iv, inputbytes, adata, False)
-        assert.equal(as_hex(ans.cipherbytes), outputs[i])
-        assert.equal(as_hex(ans.tag), tags[i])
+        assrt.equal(as_hex(ans.cipherbytes), outputs[i])
+        assrt.equal(as_hex(ans.tag), tags[i])
         ans = gcm._crypt(iv, outputbytes, adata, True)
-        assert.equal(as_hex(ans.cipherbytes), inputs[i])
-        assert.equal(as_hex(ans.tag), tags[i])
+        assrt.equal(as_hex(ans.cipherbytes), inputs[i])
+        assrt.equal(as_hex(ans.tag), tags[i])
 
 def run_tests():
     # Test basic AES {{{
@@ -53,7 +53,7 @@ def run_tests():
         aes = AES(from_hex(key))
         output = Uint8Array(block.length * 4)
         aes.decrypt32(block, output, 0) if decrypt else aes.encrypt32(block, output, 0)
-        assert.equal(expected, as_hex(output))
+        assrt.equal(expected, as_hex(output))
 
     # Test AES-CBC
     keys = [
@@ -91,9 +91,9 @@ def run_tests():
         outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
         iv = from_hex(ivs[i])
         ans = cbc.encrypt_bytes(inputbytes, [], iv)
-        assert.equal(as_hex(ans.cipherbytes), outputs[i])
+        assrt.equal(as_hex(ans.cipherbytes), outputs[i])
         ans = cbc.decrypt_bytes(outputbytes, [], iv)
-        assert.equal(as_hex(ans), as_hex(inputbytes))
+        assrt.equal(as_hex(ans), as_hex(inputbytes))
     # }}}
 
     # Test AES-CTR {{{
@@ -126,7 +126,7 @@ def run_tests():
         outputbytes = string_to_bytes(x) if ' ' in x else from_hex(x)
         temp = Uint8Array(inputbytes)
         ctr._crypt(temp)
-        assert.equal(as_hex(temp), outputs[i])
+        assrt.equal(as_hex(temp), outputs[i])
     # }}}
 
     # Test AES-GCM {{{
@@ -377,12 +377,12 @@ def run_tests():
     gcm = GCM(random_bytes(16))
     for i in range(5):
         iv = gcm.encrypt(str(i)).iv
-        assert.equal(iv[11], i+1)
+        assrt.equal(iv[11], i+1)
         for j in range(10):
-            assert.equal(iv[j], 0)
+            assrt.equal(iv[j], 0)
     # Test that iv rollover is not allowed
     gcm.current_iv.fill(255)
-    assert.throws(def(): gcm.encrypt('iv over');)
+    assrt.throws(def(): gcm.encrypt('iv over');)
 
     # }}}
 
@@ -393,29 +393,29 @@ def run_tests():
     cbc = CBC()
     crypted = cbc.encrypt(text)
     decrypted = cbc.decrypt(crypted)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
     secret_tag = generate_tag()
     crypted = cbc.encrypt(text, secret_tag)
     decrypted = cbc.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
 
     ctr = CTR()
     crypted = ctr.encrypt(text)
     decrypted = ctr.decrypt(crypted)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
     crypted = ctr.encrypt(text, secret_tag)
     decrypted = ctr.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
 
     gcm = GCM()
     crypted = gcm.encrypt(text)
     decrypted = gcm.decrypt(crypted)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
     crypted = gcm.encrypt(text, secret_tag)
     decrypted = gcm.decrypt(crypted, secret_tag)
-    assert.equal(text, decrypted)
+    assrt.equal(text, decrypted)
 
-    assert.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
+    assrt.ok(equals(from_hex('69c4e0d86a7b0430d8cdb78070b4c55a'), from32([0x69c4e0d8, 0x6a7b0430, 0xd8cdb780, 0x70b4c55a])))
     # }}}
 
 run_tests()

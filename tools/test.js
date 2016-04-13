@@ -76,7 +76,7 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             var code = output.toString();
             try {
                 vm.runInNewContext(code, {
-                    'assert':assert, 
+                    'assrt':assert, 
                     'require':require, 
                     'fs':fs,
                     'RapydScript':RapydScript, 

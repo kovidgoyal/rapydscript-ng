@@ -3,7 +3,7 @@
 
 from elementmaker import E
 
-eq = assert.equal
+eq = assrt.equal
 
 def dummy_elem_eq(a, b):
     eq(type(a), type(b))

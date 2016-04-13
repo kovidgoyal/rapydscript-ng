@@ -58,12 +58,12 @@ def check(text, output):
 
 def check_in(text, output):
     send_text(text)
-    assert.ok(output in stdout, output + ' not in ' + stdout)
+    assrt.ok(output in stdout, output + ' not in ' + stdout)
     clear()
 
 def check_not_in(text, output):
     send_text(text)
-    assert.ok(output not in stdout)
+    assrt.ok(output not in stdout)
     clear()
 
 readline = {
@@ -72,7 +72,7 @@ readline = {
         return rl
 }
 repl({'lib_path':compiler_dir, 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
-eq = assert.equal
+eq = assrt.equal
 eq('>>> ', stdout[-1])
 clear()
 check('1', '1')
@@ -103,7 +103,7 @@ def completions(line):
 def check_completions():
     items = completions(arguments[0])
     for x in Array.prototype.slice.call(arguments, 1):
-        assert.ok(items and x in items, x + ' not in completions for: ' + arguments[0])
+        assrt.ok(items and x in items, x + ' not in completions for: ' + arguments[0])
 
 check_completions('', 'return', 'A')
 check_completions('Array.', 'isArray', 'apply')

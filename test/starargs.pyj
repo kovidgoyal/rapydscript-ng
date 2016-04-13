@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 
-eq = assert.equal
-de = assert.deepEqual
+eq = assrt.equal
+de = assrt.deepEqual
 
 def get(obj, name):
     return (obj) ? obj[name] : undefined
@@ -23,7 +23,7 @@ def basic_test(code, arglen, starargs, kwargs, defaults):
 
 def throw_test(code):
     orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
-    assert.throws(def():
+    assrt.throws(def():
         RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
     , RapydScript.SyntaxError)
     RapydScript.AST_Node.warn_function = orig

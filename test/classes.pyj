@@ -2,7 +2,7 @@
 class Blank:
     pass
 blank = Blank()
-assert.ok(isinstance(blank, Blank))
+assrt.ok(isinstance(blank, Blank))
 
 # basic class
 class Human:
@@ -38,25 +38,25 @@ class OldFriend(Friend):
         Friend.__init__(self, name)
 
 bob = Human("Bob")
-assert.equal(bob.greet(), "Hello, I'm Bob")
-assert.equal(Human.greet(bob), "Hello, I'm Bob")
-assert.equal(Human.getTypicalWeight(), "150") # static method recognition
+assrt.equal(bob.greet(), "Hello, I'm Bob")
+assrt.equal(Human.greet(bob), "Hello, I'm Bob")
+assrt.equal(Human.getTypicalWeight(), "150") # static method recognition
 
 joe = Friend("Joe")
-assert.equal(joe.greet(), "Yo, it's me, Joe")
-assert.ok(isinstance(joe, Friend))
-assert.ok(isinstance(joe, Human))
+assrt.equal(joe.greet(), "Yo, it's me, Joe")
+assrt.ok(isinstance(joe, Friend))
+assrt.ok(isinstance(joe, Human))
 
 angela = OldFriend("Angela", 8)
-assert.equal(angela.greet(), "Yo, it's me, Angela")
-assert.equal(angela.how_long(), "I've known you for 8 years")
+assrt.equal(angela.greet(), "Yo, it's me, Angela")
+assrt.equal(angela.how_long(), "I've known you for 8 years")
 
 # test that function stays bound
 bound = angela.get_bound_method()
-assert.equal(bound(), angela.how_long())
+assrt.equal(bound(), angela.how_long())
 
 # function methods
-assert.deepEqual(dir(angela).sort(), [
+assrt.deepEqual(dir(angela).sort(), [
     "__init__",
     '__repr__',
     '__str__',
@@ -71,7 +71,7 @@ assert.deepEqual(dir(angela).sort(), [
 
 # test that binding works in relation to the actual class, not the parent
 angela.nickname("Angie")
-assert.equal(angela.greet(), "Yo, it's me, Angie")
+assrt.equal(angela.greet(), "Yo, it's me, Angie")
 
 dude = None
 (def fake_module():
@@ -83,9 +83,9 @@ dude = None
             return Friend.greet(self)
     dude = Stranger("some guy")
 )()
-assert.equal(dude.greet(), "Yo, it's me, some guy")
+assrt.equal(dude.greet(), "Yo, it's me, some guy")
 # also test that classes declared this way are not globally scoped (while normal ones are)
-assert.throws(
+assrt.throws(
     def():
         Friend("another friend")
         Stranger("another guy")  # noqa:undef
@@ -94,23 +94,23 @@ assert.throws(
 )
 
 # attributes
-assert.ok(hasattr(dude, "greet"))
-assert.equal(getattr(dude, "greet").bind(dude)(), "Yo, it's me, some guy") # function stays bound after binding
-assert.equal(hasattr(dude, "stuff"), False)
+assrt.ok(hasattr(dude, "greet"))
+assrt.equal(getattr(dude, "greet").bind(dude)(), "Yo, it's me, some guy") # function stays bound after binding
+assrt.equal(hasattr(dude, "stuff"), False)
 setattr(dude, "stuff", True)
-assert.ok(hasattr(dude, "stuff"))
+assrt.ok(hasattr(dude, "stuff"))
 
 # native classes and methods
 st = String("test")
-assert.equal(st, "test")
-assert.equal(st.toUpperCase(), "TEST")
-assert.equal(String.toUpperCase(st), "TEST")
-assert.equal(String.fromCharCode(65), "A") # static method recognition
+assrt.equal(st, "test")
+assrt.equal(st.toUpperCase(), "TEST")
+assrt.equal(String.toUpperCase(st), "TEST")
+assrt.equal(String.fromCharCode(65), "A") # static method recognition
 
 # now we test RapydScript's ability to insert 'new' operator correctly
-assert.ok(String('a') != 'a')   # string literal vs string object
-assert.ok((String)('a') == 'a') # string literal vs string literal
-assert.ok(String.call(this, 'a') == 'a') # string literal via static method on string
+assrt.ok(String('a') != 'a')   # string literal vs string object
+assrt.ok((String)('a') == 'a') # string literal vs string literal
+assrt.ok(String.call(this, 'a') == 'a') # string literal via static method on string
 
 # self consistency
 class Counter:
@@ -122,7 +122,7 @@ class Counter:
 c = Counter(5)
 inc = c.getIncrementer()
 inc()
-assert.equal(c.count, 6)
+assrt.equal(c.count, 6)
 
 # nested classes
 # not yet fully implemented
@@ -137,10 +137,10 @@ assert.equal(c.count, 6)
 #           self.structure.push(Molecule.Atom(e))
 #
 #water = Molecule(['H', "H", 'O'])
-#assert.equal(len(water.structure), 3)
-#assert.equal(water.structure[0].element, 'H')
+#assrt.equal(len(water.structure), 3)
+#assrt.equal(water.structure[0].element, 'H')
 #for atom in water.structure:
-#   assert.ok(isinstance(atom, Molecule.Atom))
+#   assrt.ok(isinstance(atom, Molecule.Atom))
 
 # starargs and method decorators
 def negate(fn):
@@ -167,11 +167,11 @@ class Math:
         return a+b
 
 m = Math()
-assert.equal(m.sum(1,2,3), 6)
-assert.equal(m.sum(1,*[2,3]), 6)
-assert.equal(m.concatSum("foo", 1, 2, 5), "foo8")
-assert.equal(m.plus(2, 5), -7)
-assert.equal(m.pi, 3.14)
+assrt.equal(m.sum(1,2,3), 6)
+assrt.equal(m.sum(1,*[2,3]), 6)
+assrt.equal(m.concatSum("foo", 1, 2, 5), "foo8")
+assrt.equal(m.plus(2, 5), -7)
+assrt.equal(m.pi, 3.14)
 
 
 class CV():
@@ -188,15 +188,15 @@ class CV():
     two = one
 
 c = CV()
-assert.deepEqual([c.a, c.b, c.c, c.d], [1, 1, 2, 1])
-assert.equal(c.one(), c.two())
+assrt.deepEqual([c.a, c.b, c.c, c.d], [1, 1, 2, 1])
+assrt.equal(c.one(), c.two())
 
 
 class Properties:
 
     def __init__(self):
         self._a = 19
-        assert.equal(self.a, 19)
+        assrt.equal(self.a, 19)
 
     @property
     def a(self):
@@ -229,20 +229,20 @@ class B(A):
 
 
 p = Properties()
-assert.equal(p._a, p.a)
+assrt.equal(p._a, p.a)
 p.a = 11
-assert.equal(11, p.a)
-assert.equal(p.c(), p.a)
-assert.equal(p.b, 1)
-assert.throws(
+assrt.equal(11, p.a)
+assrt.equal(p.c(), p.a)
+assrt.equal(p.b, 1)
+assrt.throws(
     def():
         p.b = 2
 )
 p = B()
-assert.equal(p.val, 'b')
-assert.equal(p.parent, 'parent')
-assert.equal(id(p), id(p))
-assert.notEqual(id(p), id(B()))
+assrt.equal(p.val, 'b')
+assrt.equal(p.parent, 'parent')
+assrt.equal(id(p), id(p))
+assrt.notEqual(id(p), id(B()))
 
 class Context:
 
@@ -257,13 +257,13 @@ class Context:
         return True
 
 with Context() as c:
-    assert.eq(c.val, 2)
-assert.equal(c.val, 3)
+    assrt.eq(c.val, 2)
+assrt.equal(c.val, 3)
 
 with Context() as d:
-    assert.equal(d.val, 2)
+    assrt.equal(d.val, 2)
     raise Exception('error')
-assert.equal(d.val, 3)
+assrt.equal(d.val, 3)
 
 class Throws:
 
@@ -273,7 +273,7 @@ class Throws:
     def __exit__(self):
         pass
 
-assert.throws(
+assrt.throws(
     def ():
         with Throws():
             raise Exception('error')
@@ -291,9 +291,9 @@ class Y(X):
 class Z(Y):
     pass
 
-assert.equal(Z().a, X().a)
-assert.ok(repr(Z()).indexOf('<__main__.Z') == 0)
-assert.ok(str(Z()).indexOf('<__main__.Z') == 0)
+assrt.equal(Z().a, X().a)
+assrt.ok(repr(Z()).indexOf('<__main__.Z') == 0)
+assrt.ok(str(Z()).indexOf('<__main__.Z') == 0)
 
 from __python__ import bound_methods
 
@@ -307,7 +307,7 @@ class U:
 
 u = U(3)
 f = u.val
-assert.equal(f(), u.val())
+assrt.equal(f(), u.val())
 
 class U2(U):
 
@@ -316,7 +316,7 @@ class U2(U):
 
 u = U2(3)
 f = u.val
-assert.equal(f(), 6)
+assrt.equal(f(), 6)
 
 class M1:
 
@@ -356,14 +356,14 @@ class Child(M1, M2):
         return 'Child-f3'
 
 c = Child()
-assert.equal(c.f0(), 'M0-f0')
-assert.equal(c.f1(), 'M1-f1')
-assert.equal(c.f2(), 'M2-f2')
-assert.equal(c.f3(), 'Child-f3')
-assert.equal(c.prop, 'prop')
+assrt.equal(c.f0(), 'M0-f0')
+assrt.equal(c.f1(), 'M1-f1')
+assrt.equal(c.f2(), 'M2-f2')
+assrt.equal(c.f3(), 'Child-f3')
+assrt.equal(c.prop, 'prop')
 c.prop = 1
-assert.equal(c.prop, 1)
-assert.ok(isinstance(c, Child))
-assert.ok(isinstance(c, M1))
-assert.ok(isinstance(c, M2))
-assert.ok(isinstance(c, M0))
+assrt.equal(c.prop, 1)
+assrt.ok(isinstance(c, Child))
+assrt.ok(isinstance(c, M1))
+assrt.ok(isinstance(c, M2))
+assrt.ok(isinstance(c, M0))

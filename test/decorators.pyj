@@ -45,11 +45,11 @@ o = {'double':double}
 def f4():
     return 1
 
-assert.equal(2, half(2))
-assert.equal(4, f1(2))
-assert.equal(12, f2(2))
-assert.equal(2, f4())
-assert.deepEqual([1, 2], f3())
+assrt.equal(2, half(2))
+assrt.equal(4, f1(2))
+assrt.equal(12, f2(2))
+assrt.equal(2, f4())
+assrt.deepEqual([1, 2], f3())
 
 def multiply(amt):
 
@@ -72,6 +72,6 @@ def three():
 def four():
     return 1
 
-assert.equal(2, two())
-assert.equal(3, three())
-assert.equal(4, four())
+assrt.equal(2, two())
+assrt.equal(3, three())
+assrt.equal(4, four())

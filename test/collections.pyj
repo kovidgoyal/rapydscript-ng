@@ -10,50 +10,50 @@ i0 = Item()
 i1 = Item()
 i2 = Item()
 b = [i0, i1]
-assert.ok(i0 != i1)
+assrt.ok(i0 != i1)
 
 # access and slicing
-assert.equal(len(a), 4)
-assert.equal(a[-1], 7)
-assert.equal(a[-2], 6)
-assert.deepEqual(a[1:3], [5,6])
-assert.deepEqual(a[:3], [4,5,6])
-assert.deepEqual(a[2:], [6,7])
-assert.ok(7 in a)
-assert.ok(i1 in b)
-assert.ok(i2 not in b)
-assert.ok(b == b.copy())
-assert.ok([1] in [[1], [2]])
-assert.ok([3] not in [[1], [2]])
+assrt.equal(len(a), 4)
+assrt.equal(a[-1], 7)
+assrt.equal(a[-2], 6)
+assrt.deepEqual(a[1:3], [5,6])
+assrt.deepEqual(a[:3], [4,5,6])
+assrt.deepEqual(a[2:], [6,7])
+assrt.ok(7 in a)
+assrt.ok(i1 in b)
+assrt.ok(i2 not in b)
+assrt.ok(b == b.copy())
+assrt.ok([1] in [[1], [2]])
+assrt.ok([3] not in [[1], [2]])
 
 # assignment
 a[-1] = 9
-assert.equal(a[-1], 9)
+assrt.equal(a[-1], 9)
 
 # extended slices
 b = list(range(11))
 s = 'abcde'
-assert.deepEqual(b[::2], [0, 2, 4, 6, 8, 10])
-assert.deepEqual(b[::-1], list(range(10,-1,-1)))
-assert.deepEqual(b[7:0:-1], [7, 6, 5, 4, 3, 2, 1])
-assert.deepEqual(b[7:1:-2], [7, 5, 3])
-assert.equal(s[::2], 'ace')
-assert.equal(s[::-1], 'edcba')
-assert.equal(s[4:0:-1], 'edcb')
-assert.equal(s[4:1:-2], 'ec')
+assrt.deepEqual(b[::2], [0, 2, 4, 6, 8, 10])
+assrt.deepEqual(b[::-1], list(range(10,-1,-1)))
+assrt.deepEqual(b[7:0:-1], [7, 6, 5, 4, 3, 2, 1])
+assrt.deepEqual(b[7:1:-2], [7, 5, 3])
+assrt.equal(s[::2], 'ace')
+assrt.equal(s[::-1], 'edcba')
+assrt.equal(s[4:0:-1], 'edcb')
+assrt.equal(s[4:1:-2], 'ec')
 
 # strings
-assert.ok("tes" in "this is a test")
+assrt.ok("tes" in "this is a test")
 
 one = "one"
 two = "two"
 one, two = two, one
 [x, y, z] = 'x', 'y', 'z'
-assert.equal(one, "two")
-assert.equal(two, "one")
-assert.equal(x, 'x')
-assert.equal(y, 'y')
-assert.equal(z, 'z')
+assrt.equal(one, "two")
+assrt.equal(two, "one")
+assrt.equal(x, 'x')
+assrt.equal(y, 'y')
+assrt.equal(z, 'z')
 
 
 # DICTIONARIES
@@ -69,46 +69,46 @@ d1 = {
 }
 
 # access
-assert.ok('foo' in d1)
-assert.equal(d0.a, d0['a'])
-assert.equal(d1['fun1'](), 5)
-assert.equal(d1.fun2(3), 4)
-assert.equal(len(d0), 3)
+assrt.ok('foo' in d1)
+assrt.equal(d0.a, d0['a'])
+assrt.equal(d1['fun1'](), 5)
+assrt.equal(d1.fun2(3), 4)
+assrt.equal(len(d0), 3)
 
 # assignment
 d1["bar"] += "!"
-assert.equal(d1.bar, "baz!")
+assrt.equal(d1.bar, "baz!")
 
 # nested comparisons
 x = 3
-assert.ok(1 < x <= 3)
-assert.ok(1 < x*x > 3)
-assert.ok(1 < (x+=1) < 5) # check that only one increment occurs
-assert.equal(x, 4)
+assrt.ok(1 < x <= 3)
+assrt.ok(1 < x*x > 3)
+assrt.ok(1 < (x+=1) < 5) # check that only one increment occurs
+assrt.equal(x, 4)
 
 # list comprehensions
 e0 = [i*i for i in [0,1,2,3]]
 e1 = [x+y for x, y in enumerate(range(5,0,-1))]
 e2 = [e0+1 for e0 in range(6) if e0%3]
-assert.deepEqual(e0, [0,1,4,9])
-assert.deepEqual(e1, [5,5,5,5,5])
-assert.deepEqual(e2, [2,3,5,6])
+assrt.deepEqual(e0, [0,1,4,9])
+assrt.deepEqual(e1, [5,5,5,5,5])
+assrt.deepEqual(e2, [2,3,5,6])
 hash = {
     "foo": 1,
     "bar": 1,
     "baz": 1,
 }
-assert.deepEqual(Object.keys(hash), [k for k in hash])
+assrt.deepEqual(Object.keys(hash), [k for k in hash])
 
 a = {1:2}
 b = {2:1}
-assert.ok(a != b)
+assrt.ok(a != b)
 b = a
-assert.ok(a == b)
+assrt.ok(a == b)
 b = {1:2}
-assert.ok(a == b)
-assert.ok(v'{1:2}' == v'{1:2}')
+assrt.ok(a == b)
+assrt.ok(v'{1:2}' == v'{1:2}')
 
 # iterating over TypedArrays
-assert.deepEqual(list(Uint8Array(2)), [0, 0])
-assert.deepEqual(list(Int32Array([1,-1])), [1,-1])
+assrt.deepEqual(list(Uint8Array(2)), [0, 0])
+assrt.deepEqual(list(Int32Array([1,-1])), [1,-1])

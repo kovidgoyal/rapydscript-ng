@@ -1,6 +1,6 @@
 def nothing():
     pass
-assert.equal(nothing(), undefined)
+assrt.equal(nothing(), undefined)
 
 add = def(a, b):
     return a+b
@@ -17,11 +17,11 @@ mul = None
         return a/b
 )()
 
-assert.equal(add(1,2), 3)
-assert.equal(sub(1,2), -1)
-assert.equal(mul(2,2), 4)
+assrt.equal(add(1,2), 3)
+assrt.equal(sub(1,2), -1)
+assrt.equal(mul(2,2), 4)
 # for some reason input to throws must be of type block, hence the 'def' wrapper
-assert.throws(
+assrt.throws(
     def():
         div(6,3)  # noqa: undef
     ,
@@ -29,16 +29,16 @@ assert.throws(
 )
 
 arr = [8,4]
-assert.equal(add(*arr), 12)
-assert.ok(Array.isArray(arr))
+assrt.equal(add(*arr), 12)
+assrt.ok(Array.isArray(arr))
 
 def sum(*args):
     ttl = 0
     for i in args:
         ttl += i
     return ttl
-assert.equal(sum(1,2,3), 6)
-assert.equal(sum(1,*[2,3]), 6)
+assrt.equal(sum(1,2,3), 6)
+assrt.equal(sum(1,*[2,3]), 6)
 
 num = 4
 def():
@@ -46,15 +46,15 @@ def():
     num = 5
 .call(this)
 
-assert.equal(num, 5)
+assrt.equal(num, 5)
 
 x = "foo"
 y = 5
 def swap(x, y):
     return y, x
 x, y = swap(x, y)
-assert.equal(x, 5)
-assert.equal(y, "foo")
+assrt.equal(x, 5)
+assrt.equal(y, "foo")
 
 count = 0
 f, r = (def():
@@ -67,12 +67,12 @@ f, r = (def():
 ).call(this)
 
 f()
-assert.equal(count, 0)
+assrt.equal(count, 0)
 r()
-assert.equal(count, 1)
+assrt.equal(count, 1)
 
 st = "this is a string"
-assert.equal(type(st), v"typeof st")
+assrt.equal(type(st), v"typeof st")
 
 # testing inlined functions
 inlined = [
@@ -81,10 +81,10 @@ inlined = [
     ,
     def(x): return x+4
 ]
-assert.equal(inlined[0](1), 2)
-assert.equal(inlined[1](1), 3)
-assert.equal(inlined[2](1), 4)
-assert.equal(inlined[3](1), 5)
+assrt.equal(inlined[0](1), 2)
+assrt.equal(inlined[1](1), 3)
+assrt.equal(inlined[2](1), 4)
+assrt.equal(inlined[3](1), 5)
 
 # decorators
 def makebold(fn):
@@ -102,13 +102,13 @@ def makeitalic(fn):
 def hello(something):
     return "hello " + something
 
-assert.equal(hello("world"), "<b><i>hello world</i></b>")
+assrt.equal(hello("world"), "<b><i>hello world</i></b>")
 
 # just because something is a reserved keyword in RapydScript, doesn't mean other libraries won't attempt to use it
 # let's make sure we parse that correctly
 five = {}
 v"five.is = function(n) { return 5 == n };"
-assert.ok(five.is(5))
+assrt.ok(five.is(5))
 
 # function assignment via conditional
 foo = 0 ? def(): return 5; : def(): return 6
@@ -117,12 +117,12 @@ baz = 1 ? def():
     return 5
 : def():
     return 6
-assert.equal(foo(), 6)
-assert.equal(bar(), 5)
-assert.equal(baz(), 5)
+assrt.equal(foo(), 6)
+assrt.equal(bar(), 5)
+assrt.equal(baz(), 5)
 
 def trailing_comma(a, b,):
     return a + b
-assert.equal(trailing_comma(1, 2), 3)
-assert.equal(trailing_comma(1, 2,), 3)
+assrt.equal(trailing_comma(1, 2), 3)
+assrt.equal(trailing_comma(1, 2,), 3)
 
