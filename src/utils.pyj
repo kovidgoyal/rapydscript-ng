@@ -177,13 +177,9 @@ def set_intersection(a, b):
     )
 
 def make_predicate(words):
-    if not Array.isArray(words):
+    if type(words) is 'string':
         words = words.split(" ")
-    if type(Set) is 'function':
-        a = Set(words)
-        return a.has.bind(a)
-    else:
-        a = {}
-        for k in words:
-            a[k] = True
-        return Object.prototype.hasOwnProperty.bind(a)
+    a = Object.create(None)
+    for k in words:
+        a[k] = True
+    return a

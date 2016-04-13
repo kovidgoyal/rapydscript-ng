@@ -93,7 +93,7 @@ class OutputStream:
         ch = str_.charAt(0)
         if self.might_need_semicolon:
             if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(self._last):
-                if self.options.semicolons or require_semi_colon_chars(ch):
+                if self.options.semicolons or require_semi_colon_chars[ch]:
                     self.OUTPUT += ";"
                     self.current_col += 1
                     self.current_pos += 1

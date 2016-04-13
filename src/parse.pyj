@@ -98,7 +98,7 @@ UNARY_PREFIX = make_predicate([
 ])
 
 
-ASSIGNMENT = make_predicate([ "=", "+=", "-=", "/=", "//=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=" ])
+ASSIGNMENT = make_predicate('= += -= /= //= *= %= >>= <<= >>>= |= ^= &=')
 
 PRECEDENCE = (def(a, ret):
     for i in range(a.length):
@@ -1639,7 +1639,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def token_as_symbol(tok, ttype):
         name = tok.value
-        if RESERVED_WORDS(name) and name is not 'this':
+        if RESERVED_WORDS[name] and name is not 'this':
             croak(name + ' is a reserved word')
         return new ((name is "this" ? AST_This : ttype))({
             'name': v"String(tok.value)",
@@ -1868,7 +1868,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             S.parsing_decorator = False
             S.decorators.push(expr)
             return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
-        if is_("operator") and UNARY_PREFIX(start.value):
+        if is_("operator") and UNARY_PREFIX[start.value]:
             next()
             ex = make_unary(AST_UnaryPrefix, start.value, maybe_unary(allow_calls))
             ex.start = start
@@ -1876,7 +1876,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return ex
 
         val = expr_atom(allow_calls)
-        while is_("operator") and UNARY_POSTFIX(S.token.value) and not S.token.nlb:
+        while is_("operator") and UNARY_POSTFIX[S.token.value] and not S.token.nlb:
             val = make_unary(AST_UnaryPostfix, S.token.value, val)
             val.start = start
             val.end = S.token
@@ -1965,7 +1965,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         start = S.token
         left = maybe_conditional(no_in)
         val = S.token.value
-        if is_("operator") and ASSIGNMENT(val):
+        if is_("operator") and ASSIGNMENT[val]:
             if only_plain_assignment and val is not '=':
                 croak('Invalid assignment operator for chained assignment: ' + val)
             next()

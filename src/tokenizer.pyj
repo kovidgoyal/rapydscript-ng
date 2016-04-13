@@ -10,7 +10,7 @@ RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
 RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i
 
-UNARY_POSTFIX = make_predicate([ "--", "++" ])
+UNARY_POSTFIX = make_predicate('-- ++')
 
 OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"))
 INVALID_OPERATORS = {"++", "--", "===", "!=="}
@@ -87,9 +87,6 @@ PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"))
 
 PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
 
-REGEXP_MODIFIERS = make_predicate(characters("gmsiy"))
-
-
 KEYWORDS = "as break class continue def del do elif else except finally for from if import in is new nonlocal pass raise return yield try while with or and not"
 
 KEYWORDS_ATOM = "False None True"
@@ -131,7 +128,7 @@ def is_unicode_connector_punctuation(ch):
     return UNICODE.connector_punctuation.test(ch)
 
 def is_identifier(name):
-    return not RESERVED_WORDS(name) and not KEYWORDS(name) and not KEYWORDS_ATOM(name) and IDENTIFIER_PAT.test(name)
+    return not RESERVED_WORDS[name] and not KEYWORDS[name] and not KEYWORDS_ATOM[name] and IDENTIFIER_PAT.test(name)
 
 def is_identifier_start(code):
     return code is 36 or code is 95 or is_letter(code)
@@ -217,8 +214,8 @@ def tokenizer($TEXT, filename):
 
     def token(type, value, is_comment, keep_newline):
         S.regex_allowed = type is "operator" and not UNARY_POSTFIX[value] \
-            or type is "keyword" and KEYWORDS_BEFORE_EXPRESSION(value) \
-            or type is "punc" and PUNC_BEFORE_EXPRESSION(value)
+            or type is "keyword" and KEYWORDS_BEFORE_EXPRESSION[value] \
+            or type is "punc" and PUNC_BEFORE_EXPRESSION[value]
 
         if type is "operator" and value is "is" and S.text.substr(S.pos).trimLeft().substr(0, 4).trimRight() is "not":
             next_token()
@@ -279,7 +276,7 @@ def tokenizer($TEXT, filename):
     def parse_whitespace():
         leading_whitespace = ""
         whitespace_exists = False
-        while WHITESPACE_CHARS(peek()):
+        while WHITESPACE_CHARS[peek()]:
             whitespace_exists = True
             ch = next()
             if ch is "\n":
@@ -576,7 +573,7 @@ def tokenizer($TEXT, filename):
                 return op
 
             bigger = op + peek()
-            if OPERATORS(bigger):
+            if OPERATORS[bigger]:
                 next()
                 return grow(bigger)
             else:
@@ -600,7 +597,7 @@ def tokenizer($TEXT, filename):
 
     def read_word():
         word = read_name()
-        return (KEYWORDS_ATOM(word) ? token("atom", word) : (not KEYWORDS(word) ? token("name", word) : (OPERATORS(word) and prevChar() is not "." ? token("operator", word) : token("keyword", word))))
+        return (KEYWORDS_ATOM[word] ? token("atom", word) : (not KEYWORDS[word] ? token("name", word) : (OPERATORS[word] and prevChar() is not "." ? token("operator", word) : token("keyword", word))))
 
     def next_token():
 
@@ -635,10 +632,10 @@ def tokenizer($TEXT, filename):
         if is_digit(code):
             return read_num()
 
-        if PUNC_CHARS(ch):
+        if PUNC_CHARS[ch]:
             return token("punc", next())
 
-        if OPERATOR_CHARS(ch):
+        if OPERATOR_CHARS[ch]:
             return read_operator()
 
         if code is 92 and S.text.charAt(S.pos + 1) is "\n":
