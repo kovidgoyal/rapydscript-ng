@@ -28,28 +28,20 @@ var MESSAGES = {
     'dup-method': 'The method {name} was defined previously at line: {line}',
 };
 
-var BUILTINS = {
-    'this':true, 'self':true, 'window':true, 'document':true, 'chr':true, 'ord':true,
-    'iterator_symbol':true, 'print':true, 'len':true, 'range':true, 'dir':true,
-    'eval':true, 'undefined':true, 'arguments':true, 'abs':true,
-    'max':true, 'min':true, 'enumerate':true, 'callable':true,
-    'reversed':true, 'sum':true, 'getattr':true, 'isFinite':true,
-    'setattr':true, 'hasattr':true, 'parseInt':true, 'parseFloat':true, 'options_object':true,
-    'isNaN':true, 'JSON':true, 'Math':true, 'list':true, 'set':true, 'list_wrap':true,
-    'ρσ_modules':true, 'require':true, 'bool':true, 'int':true, 'bin':true, 
-    'float':true, 'iter':true, 'Error':true, 'EvalError':true, 'set_wrap':true,
-    'RangeError':true, 'ReferenceError':true, 'SyntaxError':true, 'str':true,
-    'TypeError':true, 'URIError':true, 'Exception':true, 'IndexError':true,
-    'AttributeError':true, 'KeyError':true, 'ValueError':true, 'map':true, 'hex':true,
-    'filter':true, 'zip':true, 'dict':true, 'dict_wrap':true, 'UnicodeDecodeError': true,
-    'HTMLCollection': true, 'NodeList': true, 'alert': true, 'console': true,
-    'Node':true, 'Symbol':true, 'NamedNodeMap':true, 'ρσ_eslice': true,
-    'Number':true, 'Boolean':true, 'encodeURIComponent':true,
-    'decodeURIComponent':true, 'setTimeout': true, 'setInterval': true,
-    'setImmediate': true, 'clearTimeout': true, 'clearInterval': true,
-    'clearImmediate': true, 'requestAnimationFrame': true, 'id':true, 'repr': true,
-    'sorted':true, '__name__':true, 'equals': true,
-};
+var BUILTINS = Object.create(null);
+('this self window document chr ord iterator_symbol print len range dir' + 
+ ' eval undefined arguments abs max min enumerate callable reversed sum' + 
+ ' getattr isFinite setattr hasattr parseInt parseFloat options_object' +
+ ' isNan JSON Math list set list_wrap ρσ_modules require bool int bin' +
+ ' float iter Error EvalError set_wrap RangeError ReferenceError SyntaxError' +
+ ' str TypeError URIError Exception IndexError AttributeError KeyError' +
+ ' ValueError map hex filter zip dict dict_wrap UnicodeDecodeError HTMLCollection' +
+ ' NodeList alert console Node Symbol NamedNodeMap ρσ_eslice ρσ_delslice Number' +
+ ' Boolean encodeURIComponent decodeURIComponent setTimeout setInterval' +
+ ' setImmediate clearTimeout clearInterval clearImmediate requestAnimationFrame' +
+ ' id repr sorted __name__ equals'
+ ).split(' ').forEach(function(x) { BUILTINS[x] = true; });
+
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
