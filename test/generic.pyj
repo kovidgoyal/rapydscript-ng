@@ -216,3 +216,34 @@ assrt.throws(def():
     assert 0, 'xdx'
 , /xdx/
 )
+
+# Exceptions
+
+class MyException(Exception):
+
+    def __init__(self, message, val):
+        Exception.__init__(self, message)
+        self.val = val
+
+try:
+    raise MyException('xxx', 3)
+except MyException as e:
+    assrt.equal(e.name, 'MyException')
+    assrt.equal(e.message, 'xxx')
+    assrt.equal(e.val, 3)
+    assrt.equal(e.toString(), 'MyException: xxx')
+    assrt.ok(v'e instanceof MyException')
+    assrt.ok(v'e instanceof Error')
+
+try:
+    raise Error('eee')
+except Exception:
+    pass
+
+def errf():
+    raise MyException()
+
+try:
+    errf()
+except MyException as e:
+    assrt.ok(str.strip(str.splitlines(e.traceback)[1]).startsWith('at errf'))

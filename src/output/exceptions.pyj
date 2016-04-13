@@ -47,7 +47,10 @@ def print_catch(self, output):
                             output.space()
                             output.print("instanceof")
                             output.space()
-                            err.print(output)
+                            if err.name is 'Exception':
+                                output.print('Error')
+                            else:
+                                err.print(output)
                         )
                     )
                     output.space()

@@ -1,37 +1,44 @@
 # vim:fileencoding=utf-8
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: ρσ_str
 
-v'var Exception = Error'
-
-class _Exception(Exception):
-
-    name = 'Exception'
+class Exception(Error):
 
     def __init__(self, message):
         self.message = message
         self.stack = Error().stack
+        self.name = self.constructor.name
 
-class AttributeError(_Exception):
+    @property
+    def traceback(self):
+        if self.stack:
+            lines = ρσ_str.splitlines(self.stack, '\n')
+            for i, line in enumerate(lines):
+                line = ρσ_str.strip(line)
+                # These two conditions work on desktop Chrome and Firefox to identify the correct
+                # line in the traceback.
+                if line.startsWith('at new ' + self.name) or line.startsWith(self.name + '@'):
+                    return self.__repr__() + '\n' +  lines.slice(i+1).join('')
+            return self.stack
 
-    name = 'AttributeError'
+    def __repr__(self):
+        return self.name + ': ' + self.message
 
-class IndexError(_Exception):
+class AttributeError(Exception):
+    pass
 
-    name = 'IndexError'
+class IndexError(Exception):
+    pass
 
-class KeyError(_Exception):
+class KeyError(Exception):
+    pass
 
-    name = 'KeyError'
+class ValueError(Exception):
+    pass
 
-class ValueError(_Exception):
+class UnicodeDecodeError(Exception):
+    pass
 
-    name = 'ValueError'
-
-class UnicodeDecodeError(_Exception):
-
-    name = 'UnicodeDecodeError'
-
-class AssertionError(_Exception):
-
-    name = 'AssertionError'
+class AssertionError(Exception):
+    pass
