@@ -581,6 +581,7 @@ Object.defineProperties(ρσ_dict.prototype, {
 ρσ_dict.prototype.__len__ = def(): return this.jsmap.size
 ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def(x): return this.jsmap.has(x)
 ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def(key, value): this.jsmap.set(key, value)
+ρσ_dict.prototype.__delitem__ = def (key): this.jsmap.delete(key)
 ρσ_dict.prototype.clear = def(): this.jsmap.clear()
 ρσ_dict.prototype.copy = def(): return ρσ_dict(this)
 ρσ_dict.prototype.keys = def(): return this.jsmap.keys()

@@ -4,7 +4,7 @@
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
     AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement, has_calls, AST_String
+    AST_Return, AST_SimpleStatement, has_calls, AST_String, AST_Sub, AST_ItemAccess
 )
 from output.loops import unpack_tuple
 
@@ -53,7 +53,7 @@ def print_rich_getitem(self, output):  # AST_ItemAccess
 
 def print_splice_assignment(self, output):
     # splice assignment via pythonic array[start:end]
-    output.print('[].splice.apply')
+    output.print('Array.splice.apply')
     output.with_parens(def():
         self.expression.print(output)
         output.comma()
@@ -70,8 +70,18 @@ def print_splice_assignment(self, output):
         )
     )
 
+def print_delete(self, output):
+    if isinstance(self, AST_Symbol):
+        output.assign(self), output.print('undefined')
+    elif isinstance(self, (AST_Sub, AST_ItemAccess)):
+        output.print('ρσ_delitem('), self.expression.print(output), output.comma(), self.property.print(output), output.print(')')
+    else:
+        output.spaced('delete', self)
+
 def print_unary_prefix(self, output):
     op = self.operator
+    if op is 'delete':
+        return print_delete(self.expression, output)
     output.print(op)
     if /^[a-z]/i.test(op):
         output.space()

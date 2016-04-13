@@ -3,9 +3,52 @@
 
 # globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains, ρσ_list_constructor, ρσ_str
 
+def ρσ_eslice(arr, step, start, end):
+    if type(arr) is 'string' or isinstance(arr, String):
+        is_string = True
+        arr = arr.split('')
+
+    if step < 0:
+        step = -step
+        arr = arr.slice().reverse()
+        if type(start) is not "undefined": start = arr.length - start - 1
+        if type(end) is not "undefined": end = arr.length - end - 1
+    if type(start) is "undefined": start = 0
+    if type(end) is "undefined": end = arr.length
+
+    arr = arr.slice(start, end).filter(def(e, i): return i % step is 0;)
+    if is_string:
+        arr = arr.join('')
+    return arr
+
+def ρσ_delslice(arr, step, start, end):
+    if type(arr) is 'string' or isinstance(arr, String):
+        is_string = True
+        arr = arr.split('')
+    if step < 0:
+        if type(start) is "undefined": start = arr.length
+        if type(end) is "undefined": end = 0
+        start, end, step = end, start, -step
+    if type(start) is "undefined": start = 0
+    if type(end) is "undefined": end = arr.length
+
+    if step is 1:
+        arr.splice(start, end - start)
+    else:
+        if end > start:
+            indices = v'[]'
+            for v'var i = start; i < end; i += step':
+                indices.push(i)
+            for v'var i = indices.length - 1; i >= 0; i--':
+                arr.splice(indices[i], 1)
+
+    if is_string:
+        arr = arr.join('')
+    return arr
+
 def ρσ_flatten(arr):
     ans = []
-    for v'var i=0; i<arr.length; i++':
+    for v'var i=0; i < arr.length; i++':
         value = arr[i]  # noqa:undef
         if Array.isArray(value):
             ans = ans.concat(ρσ_flatten(value))
@@ -114,6 +157,14 @@ def ρσ_setitem(obj, key, val):
         obj.__setitem__(key, val)
     else:
         obj[key] = val
+
+def ρσ_delitem(obj, key):
+    if obj.__delitem__:
+        obj.__delitem__(key)
+    elif type(obj.splice) is 'function':
+        obj.splice(key, 1)
+    else:
+        v'delete obj[key]'
 
 def ρσ_mixin():
     # Implement a depth-first left-to-right method resolution order This is not

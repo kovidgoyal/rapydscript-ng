@@ -7,23 +7,6 @@
 def ρσ_bool(val):
     return v'!!val'
 
-def ρσ_eslice(arr, step, start, end):
-    arr = arr[:]
-    if type(arr) is 'string' or isinstance(arr, String):
-        isString = True
-        arr = arr.split('')
-
-    if step < 0:
-        step = -step
-        arr.reverse()
-        if type(start) is not "undefined": start = arr.length - start - 1
-        if type(end) is not "undefined": end = arr.length - end - 1
-    if type(start) is "undefined": start = 0
-    if type(end) is "undefined": end = arr.length
-
-    arr = arr.slice(start, end).filter(def(e, i): return i % step is 0;)
-    return isString ? arr.join('') : arr
-
 def ρσ_print():
     if v'typeof console' is 'object':
         parts = v'[]'
@@ -214,7 +197,7 @@ def ρσ_hasattr(obj, name):
 
 v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool'
 v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
-v'var print = ρσ_print, eslice = ρσ_eslice, id = ρσ_id'
+v'var print = ρσ_print, id = ρσ_id'
 v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'
 v'var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len'
 v'var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr'

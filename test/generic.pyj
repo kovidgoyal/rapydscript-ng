@@ -169,3 +169,37 @@ def cc():
     return [1]
 cc()[-1]
 assert.equal(call_count, 1)
+
+# Test the del operator
+
+# JS object
+deleteme = {1:1}
+assert.ok(Object.keys(deleteme).indexOf('1') is not -1)
+del deleteme[1]
+assert.ok(Object.keys(deleteme).indexOf('1') is -1)
+
+# list
+deleteme = [1, 2]
+del deleteme[0]
+assert.equal(deleteme.length, 1)
+assert.deepEqual(deleteme, [2])
+deleteme = [1, 2, 3]
+del deleteme[::2]
+assert.deepEqual(deleteme, [2])
+deleteme = [1, 2, 3]
+del deleteme[::1]
+assert.equal(deleteme.length, 0)
+deleteme = [1, 2, 3]
+del deleteme[1:2]
+assert.deepEqual(deleteme, [1, 3])
+
+# global
+del deleteme
+
+# python dict
+from __python__ import dict_literals, overload_getitem
+deleteme = {1:1, 2:2}
+assert.ok(1 in deleteme)
+del deleteme[1]
+assert.ok(1 not in deleteme)
+assert.equal(len(deleteme), 1)

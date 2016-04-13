@@ -84,19 +84,7 @@ ERROR_CLASSES = {
 COMMON_STATIC = [ "call", "apply", "bind", "toString" ]
 
 # -----[ Parser (constants) ]-----
-UNARY_PREFIX = make_predicate([
-    "typeof",
-    "void",
-    "delete",
-    "--",
-    "++",
-    "!",
-    "~",
-    "-",
-    "+",
-    "@"
-])
-
+UNARY_PREFIX = make_predicate('typeof void delete ~ - + ! @')
 
 ASSIGNMENT = make_predicate('= += -= /= //= *= %= >>= <<= >>>= |= ^= &=')
 
@@ -1686,7 +1674,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if is_("punc", "[") and not S.token.nlb:
             next()
             is_py_sub = S.scoped_flags.get('overload_getitem', False)
-            slice_bounds = []
+            slice_bounds = v'[]'
             is_slice = False
             if is_("punc", ":"):
                 # slice [:n]
@@ -1714,7 +1702,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             expect("]")
 
             if is_slice:
-                if is_("operator") and S.token.value is "=":
+                if is_("operator", '='):
                     # splice-assignment (arr[start:end] = ...)
                     next()  # swallow the assignment
                     return subscripts(new AST_Splice({
@@ -1736,20 +1724,25 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                             slice_bounds.pop()
                     elif not slice_bounds[-2]:
                         slice_bounds[-2] = new AST_Undefined()
-
                     return subscripts(new AST_Call({
                         'start': start,
                         'expression': new AST_SymbolRef({
-                            'name': "ρσ_eslice"
+                            'name': 'ρσ_delslice' if S.in_delete else "ρσ_eslice"
                         }),
                         'args': [expr].concat(slice_bounds),
                         'end': prev()
                     }), allow_calls)
                 else:
                     # regular slice (arr[start:end])
-                    slice_bounds = [i is None ? new AST_Number({
-                        'value': 0
-                    }) : i for i in slice_bounds]
+                    slice_bounds = [new AST_Number({'value':0}) if i is None else i for i in slice_bounds]
+                    if S.in_delete:
+                        return subscripts(new AST_Call({
+                            'start': start,
+                            'expression': new AST_SymbolRef({'name': 'ρσ_delslice'}),
+                            'args': [expr, new AST_Number({'value':1})].concat(slice_bounds),
+                            'end': prev()
+                        }), allow_calls)
+
                     return subscripts(new AST_Call({
                         'start': start,
                         'expression': new AST_Dot({
@@ -1870,7 +1863,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
         if is_("operator") and UNARY_PREFIX[start.value]:
             next()
-            ex = make_unary(AST_UnaryPrefix, start.value, maybe_unary(allow_calls))
+            S.in_delete = start.value is 'delete'
+            expr = maybe_unary(allow_calls)
+            S.in_delete = False
+            ex = make_unary(AST_UnaryPrefix, start.value, expr)
             ex.start = start
             ex.end = prev()
             return ex
@@ -2127,6 +2123,7 @@ def parse(text, options):
         'statement_starting_token': None,
         'in_comprehension': False,
         'in_parenthesized_expr': False,
+        'in_delete': False,
         'in_loop': 0,
         'in_class': [ False ],
         'classes': [ {} ],

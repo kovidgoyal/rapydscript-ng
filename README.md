@@ -1557,7 +1557,7 @@ below:
 
 - There are many more keywords than in Python. Because RapydScript compiles
   down to JavaScript, the set of keywords is all the keywords of Python + all
-  the keywords of JavaScript. For example, ``default`` and ``delete`` are
+  the keywords of JavaScript. For example, ``default`` and ``switch`` are
   keywords in RapydScript. See [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords)
   for a list of JavaScript keywords.
 
