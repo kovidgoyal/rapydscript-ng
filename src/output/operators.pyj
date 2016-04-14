@@ -19,14 +19,13 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
     # the name after dot would be mapped about here.
     output.print_name(self.property)
 
-def print_getitem(self, output, skip_expression):  # AST_Sub
+def print_getitem(self, output):  # AST_Sub
     is_repeatable = not has_calls(self.expression)
     from_end = isinstance(self.property, AST_Unary) and self.property.operator is "-" and isinstance(self.property.expression, AST_Number)
-    enclose = from_end and not is_repeatable and not skip_expression
+    enclose = from_end and not is_repeatable
     if enclose:
         output.assign('(ρσ_expr_temp')
-    if not skip_expression:
-        self.expression.print(output)
+    self.expression.print(output)
     if enclose:
         output.comma(), output.print('ρσ_expr_temp')
     output.print("[")

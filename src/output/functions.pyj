@@ -6,6 +6,7 @@ from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef
 from output.stream import OutputStream
 from output.statements import print_bracketed
 from output.utils import create_doctring
+from output.operators import print_getattr
 
 anonfunc = 'ρσ_anonfunc'
 
@@ -283,7 +284,7 @@ def print_function_call(self, output):
             if not is_repeatable:
                 output.print('ρσ_expr_temp')
                 if isinstance(self.expression, AST_Dot):
-                    self.expression._codegen(self.expression, output, True)
+                    print_getattr(self.expression, output, True)
             else:
                 self.expression.print(output)
 
