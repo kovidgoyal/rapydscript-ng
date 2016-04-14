@@ -22,58 +22,56 @@ def print_catch(self, output):
         output.print("ρσ_Exception")
     )
     output.space()
-    #        print_bracketed(self, output)
-    if self.body.length > 1 or self.body[0].errors.length:
-        output.with_block(def():
-            output.indent()
-            no_default = True
-            self.body.forEach(def(exception, i):
-                nonlocal no_default
-                if i:
-                    output.print("else ")
+    output.with_block(def():
+        output.indent()
+        output.spaced('ρσ_last_exception', '=', 'ρσ_Exception'), output.end_statement()
+        output.indent()
+        no_default = True
+        self.body.forEach(def(exception, i):
+            nonlocal no_default
+            if i:
+                output.print("else ")
 
-                if exception.errors.length:
-                    output.print("if")
-                    output.space()
-                    output.with_parens(def():
-                        exception.errors.forEach(def(err, i):
-                            if i:
-                                output.newline()
-                                output.indent()
-                                output.print("||")
-                                output.space()
+            if exception.errors.length:
+                output.print("if")
+                output.space()
+                output.with_parens(def():
+                    exception.errors.forEach(def(err, i):
+                        if i:
+                            output.newline()
+                            output.indent()
+                            output.print("||")
+                            output.space()
 
-                            output.print("ρσ_Exception")
-                            output.space()
-                            output.print("instanceof")
-                            output.space()
-                            if err.name is 'Exception':
-                                output.print('Error')
-                            else:
-                                err.print(output)
-                        )
+                        output.print("ρσ_Exception")
+                        output.space()
+                        output.print("instanceof")
+                        output.space()
+                        if err.name is 'Exception':
+                            output.print('Error')
+                        else:
+                            err.print(output)
                     )
-                    output.space()
-                else:
-                    no_default = False
-                print_bracketed(exception, output, True)
-                output.space()
-            )
-            if no_default:
-                output.print("else")
-                output.space()
-                output.with_block(def():
-                    output.indent()
-                    output.print("throw")
-                    output.space()
-                    output.print("ρσ_Exception")
-                    output.semicolon()
-                    output.newline()
                 )
-            output.newline()
+                output.space()
+            else:
+                no_default = False
+            print_bracketed(exception, output, True)
+            output.space()
         )
-    else:
-        print_bracketed(self.body[0], output, True)
+        if no_default:
+            output.print("else")
+            output.space()
+            output.with_block(def():
+                output.indent()
+                output.print("throw")
+                output.space()
+                output.print("ρσ_Exception")
+                output.semicolon()
+                output.newline()
+            )
+        output.newline()
+    )
 
 def print_finally(self, output):
     output.print("finally")

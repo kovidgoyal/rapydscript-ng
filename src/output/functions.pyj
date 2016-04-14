@@ -286,10 +286,6 @@ def print_function_call(self, output):
                     self.expression._codegen(self.expression, output, True)
             else:
                 self.expression.print(output)
-                if isinstance(self.expression, AST_Dot) and isinstance(self.expression.expression, AST_SymbolRef)
-                and self.expression.expression.name is 'traceback'
-                and (self.expression.property is 'print_exc' or self.expression.property is 'format_exc'):
-                    output.print('.bind(ρσ_Exception)')
 
     def print_kwargs():
         output.print('ρσ_desugar_kwargs(')
