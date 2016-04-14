@@ -26,7 +26,7 @@ def print_getitem(self, output):  # AST_Sub
         expr.print(output)
         output.print('['), prop.print(output), output.print(']')
         return
-
+    is_negative_number = isinstance(prop, AST_Unary) and prop.operator is "-" and isinstance(prop.expression, AST_Number)
     is_repeatable = isinstance(expr, AST_SymbolRef)
     if is_repeatable:
         expr.print(output)
@@ -34,21 +34,19 @@ def print_getitem(self, output):  # AST_Sub
         output.spaced('(ρσ_expr_temp', '=', expr), output.print(')')
         expr = {'print': def(): output.print('ρσ_expr_temp');}
 
-    if isinstance(prop, AST_Unary) and prop.operator is "-" and isinstance(prop.expression, AST_Number):
+    if is_negative_number:
         output.print('['), expr.print(output), output.print('.length'), prop.print(output), output.print(']')
         return
     is_repeatable = isinstance(prop, AST_SymbolRef)
     # We have to check the type of the property because if it is a Symbol, it
     # will raise a TypeError with the < operator.
-    output.spaced('[(typeof', '')
     if is_repeatable:
-        prop.print(output)
+        output.spaced('[(typeof', prop, '===', '"number"', '&&', prop)
+        output.spaced('', '<', '0)', '?', expr), output.spaced('.length', '+', prop, ':', prop)
+        output.print("]")
     else:
-        output.spaced('(ρσ_prop_temp', '=', prop), output.print(')')
-        prop = {'print':def(): output.print('ρσ_prop_temp');}
-    output.spaced('', '===', '"number"', '&&', prop)
-    output.spaced('', '<', '0)', '?', expr), output.spaced('.length', '+', prop, ':', prop)
-    output.print("]")
+        output.print('[ρσ_bound_index('), prop.print(output), output.comma(), expr.print(output), output.print(')]')
+
 
 def print_rich_getitem(self, output):  # AST_ItemAccess
     func = 'ρσ_' + ('setitem' if self.assignment else 'getitem')
