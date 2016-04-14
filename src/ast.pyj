@@ -339,18 +339,10 @@ AST_WithClause = DEFNODE('WithClause', 'expression alias', {
 }, AST_Node)
 
 # -----[ scope and functions ]-----
-AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with uses_eval parent_scope enclosed cname docstrings", {
+AST_Scope = DEFNODE("Scope", "localvars docstrings", {
     '$documentation': "Base class for all statements introducing a lexical scope",
     '$propdoc': {
-        'directives': "[string*/S] an array of directives declared in this scope",
-        'variables': "[Object/S] a map of name -> SymbolDef for all variables/functions defined in this scope",
         'localvars': "[SymbolDef*] list of variables local to this scope",
-        'functions': "[Object/S] like `variables`, but only lists function declarations",
-        'uses_with': "[boolean/S] tells whether this scope uses the `with` statement",
-        'uses_eval': "[boolean/S] tells whether this scope contains a direct call to the global `eval`",
-        'parent_scope': "[AST_Scope?/S] link to the parent scope",
-        'enclosed': "[SymbolDef*/S] a list of all symbol definitions that are accessed from this scope or any subscopes",
-        'cname': "[integer/S] current index for mangling variables (used internally by the mangler)",
         'docstrings': "[AST_String*] list of docstrings for this scope",
     }
 }, AST_Block)
