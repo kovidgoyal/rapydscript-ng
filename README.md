@@ -646,14 +646,6 @@ for v'i = 0; i < arr.length; i++':
    print (arr[i])
 ```
 
-Note that as a convenience, RapydScript supports both the Python and JavaScript
-forms for the conditional ternary operator. Namely, both the following work:
-
-```js
-a = (condition) ? 1 : 2
-a = 1 if condition else 2
-```
-
 Containers (lists/sets/dicts)
 ------------------------------
 

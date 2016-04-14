@@ -45,7 +45,6 @@ OPERATORS = make_predicate([
     "==",
     "is",
     "!=",
-    "?",
     "=",
     "+=",
     "-=",

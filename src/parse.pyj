@@ -1911,29 +1911,17 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def maybe_conditional(no_in):
         start = S.token
         expr = expr_ops(no_in)
-        if is_("operator", "?") or (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token is not S.token and not S.in_comprehension and not S.token.nlb))):
-            pystyle = is_('keyword', 'if')
+        if (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token is not S.token and not S.in_comprehension and not S.token.nlb))):
             next()
             ne = expression(False)
-            if pystyle:
-                expect_token('keyword', 'else')
-                conditional = new AST_Conditional({
-                    'start': start,
-                    'condition': ne,
-                    'consequent': expr,
-                    'alternative': expression(False, no_in),
-                    'end': peek()
-                })
-            else:
-                yes = ne
-                expect(":")
-                conditional = new AST_Conditional({
-                    'start': start,
-                    'condition': expr,
-                    'consequent': yes,
-                    'alternative': expression(False, no_in),
-                    'end': peek()
-                })
+            expect_token('keyword', 'else')
+            conditional = new AST_Conditional({
+                'start': start,
+                'condition': ne,
+                'consequent': expr,
+                'alternative': expression(False, no_in),
+                'end': peek()
+            })
             return conditional
         return expr
 
