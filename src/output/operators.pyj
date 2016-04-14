@@ -4,7 +4,7 @@
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
     AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement, has_calls, AST_String, AST_Sub, AST_ItemAccess
+    AST_Return, AST_SimpleStatement, AST_String, AST_Sub, AST_ItemAccess
 )
 from output.loops import unpack_tuple
 
@@ -20,27 +20,35 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
     output.print_name(self.property)
 
 def print_getitem(self, output):  # AST_Sub
-    is_repeatable = not has_calls(self.expression)
-    from_end = isinstance(self.property, AST_Unary) and self.property.operator is "-" and isinstance(self.property.expression, AST_Number)
-    enclose = from_end and not is_repeatable
-    if enclose:
-        output.assign('(ρσ_expr_temp')
-    self.expression.print(output)
-    if enclose:
-        output.comma(), output.print('ρσ_expr_temp')
-    output.print("[")
-    if from_end:
-        # parse negative constants into len - constant
-        if enclose:
-            output.print('ρσ_expr_temp')
-        else:
-            self.expression.print(output)
-        output.print(".length")
+    expr = self.expression
+    prop = self.property
+    if isinstance(prop, (AST_Number, AST_String)) or (isinstance(prop, AST_SymbolRef) and prop.name and prop.name.startsWith('ρσ_')):
+        expr.print(output)
+        output.print('['), prop.print(output), output.print(']')
+        return
 
-    self.property.print(output)
+    is_repeatable = isinstance(expr, AST_SymbolRef)
+    if is_repeatable:
+        expr.print(output)
+    else:
+        output.spaced('(ρσ_expr_temp', '=', expr), output.print(')')
+        expr = {'print': def(): output.print('ρσ_expr_temp');}
+
+    if isinstance(prop, AST_Unary) and prop.operator is "-" and isinstance(prop.expression, AST_Number):
+        output.print('['), expr.print(output), output.print('.length'), prop.print(output), output.print(']')
+        return
+    is_repeatable = isinstance(prop, AST_SymbolRef)
+    # We have to check the type of the property because if it is a Symbol, it
+    # will raise a TypeError with the < operator.
+    output.spaced('[(typeof', '')
+    if is_repeatable:
+        prop.print(output)
+    else:
+        output.spaced('(ρσ_prop_temp', '=', prop), output.print(')')
+        prop = {'print':def(): output.print('ρσ_prop_temp');}
+    output.spaced('', '===', '"number"', '&&', prop)
+    output.spaced('', '<', '0)', '?', expr), output.spaced('.length', '+', prop, ':', prop)
     output.print("]")
-    if enclose:
-        output.print(')')
 
 def print_rich_getitem(self, output):  # AST_ItemAccess
     func = 'ρσ_' + ('setitem' if self.assignment else 'getitem')

@@ -100,7 +100,7 @@ def prologue(module, output):
     output.indent(), output.print(v), output.space()
     output.spaced.apply(output, (('ρσ_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
     output.end_statement()
-    output.indent(), output.spaced('var', 'ρσ_cond_temp,', 'ρσ_expr_temp,', 'ρσ_last_exception'), output.end_statement()
+    output.indent(), output.spaced('var', 'ρσ_cond_temp,', 'ρσ_expr_temp,', 'ρσ_prop_temp,', 'ρσ_last_exception'), output.end_statement()
     output.indent(), output.spaced('var', 'ρσ_object_counter', '=', '0'), output.end_statement()
     needs_yield = output.options.js_version < 6 and module.baselib['yield']
     if needs_yield:
