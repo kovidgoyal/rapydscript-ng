@@ -10,18 +10,6 @@ class Exception(Error):
         self.stack = Error().stack
         self.name = self.constructor.name
 
-    @property
-    def internal_traceback(self):
-        if self.stack:
-            lines = ρσ_str.splitlines(self.stack, '\n')
-            for i, line in enumerate(lines):
-                line = ρσ_str.strip(line)
-                # These two conditions work on desktop Chrome and Firefox to identify the correct
-                # line in the traceback.
-                if line.startsWith('at new ' + self.name) or line.startsWith(self.name + '@'):
-                    return self.__repr__() + '\n' +  lines.slice(i+1).join('')
-            return self.stack
-
     def __repr__(self):
         return self.name + ': ' + self.message
 
