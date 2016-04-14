@@ -12,6 +12,7 @@ def format_exc(limit):
         lines = [l for l in lines[1:]]
         if limit:
             lines = lines[:limit+1] if limit > 0 else lines[limit:]
+        lines.reverse()
         lines.push(e)
         lines.insert(0, 'Traceback (most recent call last):')
         return [l+'\n' for l in lines]
@@ -25,6 +26,7 @@ def format_stack(limit):
     if not stack:
         return []
     lines = str.splitlines(stack)[2:]
+    lines.reverse()
     if limit:
         lines = lines[:limit+1] if limit > 0 else lines[limit:]
     return [l + '\n' for l in lines]

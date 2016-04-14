@@ -250,8 +250,8 @@ def errf():
 try:
     errf()
 except MyException as e:
-    assrt.ok(str.strip(traceback.format_exc()[1]).startsWith('at errf'))
+    assrt.ok(str.strip(traceback.format_exc()[-2]).startsWith('at errf'))
 
 def stackf():
     return traceback.format_stack()
-assrt.ok(str.strip(stackf()[0]).startsWith('at stackf'))
+assrt.ok(str.strip(stackf()[-1]).startsWith('at stackf'))
