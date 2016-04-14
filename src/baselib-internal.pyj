@@ -150,12 +150,18 @@ def ρσ_interpolate_kwargs_constructor(apply, f, supplied_args):
     return this
 
 def ρσ_getitem(obj, key):
-    return obj.__getitem__(key) if obj.__getitem__ else obj[key]
+    if obj.__getitem__:
+        return obj.__getitem__(key)
+    if key < 0 and type(obj.length) is 'number':
+        key += obj.length
+    return obj[key]
 
 def ρσ_setitem(obj, key, val):
     if obj.__setitem__:
         obj.__setitem__(key, val)
     else:
+        if key < 0 and type(obj.length) is 'number':
+            key += obj.length
         obj[key] = val
 
 def ρσ_delitem(obj, key):
@@ -164,6 +170,8 @@ def ρσ_delitem(obj, key):
     elif type(obj.splice) is 'function':
         obj.splice(key, 1)
     else:
+        if key < 0 and type(obj.length) is 'number':
+            key += obj.length
         v'delete obj[key]'
 
 def ρσ_mixin():
