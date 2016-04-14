@@ -240,7 +240,9 @@ except MyException as e:
 try:
     raise Error('eee')
 except Exception:
-    pass
+    # Test that we can catch JS errors and that local variables in the except block are declared
+    xxlocalvar = 1
+    assrt.equal(xxlocalvar, 1)
 
 def errf():
     raise MyException()
