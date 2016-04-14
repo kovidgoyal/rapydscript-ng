@@ -1,10 +1,11 @@
 # vim:fileencoding=utf-8
+# globals: assrt
 
 eq = assrt.equal
 de = assrt.deepEqual
 
 def get(obj, name):
-    return (obj) ? obj[name] : undefined
+    return obj[name] if obj else undefined
 
 # Test the parsing of function definitions {{{
 

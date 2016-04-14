@@ -27,7 +27,6 @@ assrt.ok(3<5<7)
 assrt.deepEqual((), [])
 
 # Conditional operators
-assrt.equal((True) ? 1: 2, 1)
 assrt.equal(1 if True else 2, 1)
 assrt.equal(1
              if True else 2, 1)
