@@ -1562,9 +1562,8 @@ below:
   for a list of JavaScript keywords.
 
 - Method binding in RS is not automatic. So ``someobj.somemethod()`` will do the
-  right thing, but ``x = someobj.somethod; x()`` will not. RS could work around
-  it, but at significant performance cost. See the section above on method
-  binding for details.
+  right thing, but ``x = someobj.somethod; x()`` will not. You can turn method binding on
+  via a scoped flag. See the section above on method binding for details.
 
 - Nested comprehensions are not supported. So you cannot do this:
 	[a for a in b for b in c]
@@ -1578,10 +1577,9 @@ below:
   yourself. Similarly, the compiler will try to convert SomeClass.method() into
   SomeClass.prototype.method() for you, but again, this is not 100% reliable.
 
-- The {"a":b} syntax is used to create JavaScript objects. These do not behave
+- The {"a":b} syntax is used to create JavaScript hashes. These do not behave
   like python dictionaries. To create python like dictionary objects, you
-  should use the {!"a":b} syntax. This is done to ease interop with external
-  javascript libraries, most of which use javascript objects as dictionaries.
+  should use a scoped flag. See the section on dictionaries above for details.
 
 
 Reasons for the fork
