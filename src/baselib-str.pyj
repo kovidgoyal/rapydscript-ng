@@ -108,9 +108,9 @@ define_str_func('format', def ():
         first, arg = arg[0], arg[1:]
         key = split(arg, ρσ_str.format._template_resolve_pat, 1)[0]
         rest = arg[key.length:]
-        ans = (first is '[') ? object[key[:-1]] : getattr(object, key)
+        ans = object[key[:-1]] if first is '[' else getattr(object, key)
         if ans is undefined:
-            raise KeyError((first is '[') ? key[:-1] : key)
+            raise KeyError(key[:-1] if first is '[' else key)
         return resolve(rest, ans)
 
     def resolve_format_spec(format_spec):
@@ -294,7 +294,7 @@ define_str_func('format', def ():
             if implicit:
                 raise ValueError('cannot switch from automatic field numbering to manual field specification')
             nvalue = parseInt(lkey)
-            object = isNaN(nvalue) ? kwargs[lkey] : args[nvalue]
+            object = kwargs[lkey] if isNaN(nvalue) else args[nvalue]
             if object is undefined:
                 if isNaN(nvalue):
                     raise KeyError(lkey)

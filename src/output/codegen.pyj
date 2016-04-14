@@ -203,7 +203,7 @@ def generate_code():
         if isinstance(p, AST_BaseCall) and p.expression is this:
             return True
 
-        # (a = foo) ? bar : baz
+        # bar if a = foo else baz
         if isinstance(p, AST_Conditional) and p.condition is this:
             return True
 
@@ -301,7 +301,7 @@ def generate_code():
         output.semicolon()
     )
     DEFPRINT(AST_Yield, def(self, output):
-        self._do_print(output, "yield" + (self.is_yield_from ? '*' : ''))
+        self._do_print(output, "yield" + ('*' if self.is_yield_from else ''))
     )
     DEFPRINT(AST_Return, def(self, output):
         self._do_print(output, "return")
@@ -481,7 +481,7 @@ def generate_code():
     )
     DEFPRINT(AST_Symbol, def(self, output):
         def_ = self.definition()
-        output.print_name((def_ ? def_.mangled_name or def_.name : self.name))
+        output.print_name((def_.mangled_name or def_.name) if def_ else self.name)
     )
     DEFPRINT(AST_Undefined, def(self, output):
         output.print("void 0")

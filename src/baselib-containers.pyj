@@ -54,7 +54,7 @@ def ρσ_list_extend(iterable):
         for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
-        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             this.push(result.value)
@@ -215,7 +215,7 @@ def ρσ_list_constructor(iterable):
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
     elif type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
@@ -305,7 +305,7 @@ def ρσ_set(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])
         elif type(iterable[ρσ_iterator_symbol]) is 'function':
-            iterator = (type(Map) is 'function' and isinstance(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]()
+            iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -598,7 +598,7 @@ Object.defineProperties(ρσ_dict.prototype, {
 ρσ_dict.prototype.get = def (key, defval):
     ans = this.jsmap.get(key)
     if ans is undefined and not this.jsmap.has(key):
-        return (defval is undefined) ? None : defval
+        return None if defval is undefined else defval
     return ans
 
 ρσ_dict.prototype.set_default = def (key, defval):

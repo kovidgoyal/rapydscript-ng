@@ -29,7 +29,7 @@ def decorate(decorators, output, func):
 def function_args(argnames, output, strip_first):
     output.with_parens(def():
         if argnames and argnames.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
-            ((strip_first) ? argnames.slice(1) : argnames).forEach(def(arg, i):
+            (argnames.slice(1) if strip_first else argnames).forEach(def(arg, i):
                 if i:
                     output.comma()
                 arg.print(output)
@@ -65,7 +65,7 @@ def function_preamble(node, output, offset):
             output.end_statement()
     if a.kwargs or a.has_defaults:
         # Look for an options object
-        kw = (a.kwargs) ? a.kwargs.name : 'ρσ_kwargs_obj'
+        kw = a.kwargs.name if a.kwargs else 'ρσ_kwargs_obj'
         output.indent()
         output.spaced('var', kw, '=', 'arguments[arguments.length-1]')
         output.end_statement()

@@ -132,12 +132,12 @@ def print_for_in(self, output):
         output.space()
         output.with_parens(def():
             output.spaced('var', idx, '='), output.space()
-            start.print ? start.print(output) : output.print(start)
+            start.print(output) if start.print else output.print(start)
             output.semicolon()
             output.space()
             output.print(idx)
             output.space()
-            isinstance(increment, AST_Unary) ? output.print(">") : output.print("<")
+            output.print(">") if isinstance(increment, AST_Unary) else output.print("<")
             output.space()
             end.print(output)
             output.semicolon()
@@ -243,7 +243,7 @@ def print_list_comprehension(self, output):
                 )
                 output.end_statement()
     else:
-        push_func = "ρσ_Result." + ((self.TYPE is 'ListComprehension') ? 'push' : 'add')
+        push_func = "ρσ_Result." + ('push' if self.TYPE is 'ListComprehension' else 'add')
         if is_generator:
             push_func = 'yield '
         add_to_result = def(output):
@@ -323,7 +323,7 @@ def print_list_comprehension(self, output):
             body_out.space()
             body_out.with_block(def():
                 body_out.indent()
-                itervar = (es5) ? 'ρσ_Iter[ρσ_Index]' : 'ρσ_Index'
+                itervar = 'ρσ_Iter[ρσ_Index]' if es5 else 'ρσ_Index'
                 if isinstance(self.init, AST_Array):
                     flat = self.init.flatten()
                     body_out.assign("ρσ_unpack")

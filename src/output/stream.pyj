@@ -151,7 +151,7 @@ class OutputStream:
 
     def indent(self, half):
         if self.options.beautify:
-            self.print(self.make_indent((half ? 0.5 : 0)))
+            self.print(self.make_indent((0.5 if half else 0)))
 
     def with_indent(self, col, proceed):
         if self.options.beautify:

@@ -13,7 +13,7 @@ def write_imports(module, output):
         imports.push(module.imports[import_id])
     imports.sort(def(a, b):
         a, b = a.import_order, b.import_order
-        return ((a < b) ? -1 : ((a > b) ? 1 : 0))
+        return -1 if a < b else (1 if a > b else 0)
     )
     if imports.length > 1:
         output.indent()
@@ -245,7 +245,7 @@ def print_imports(container, output):
         if self.argnames:
             # A from import
             for argname in self.argnames:
-                akey = (argname.alias) ? argname.alias.name : argname.name
+                akey = argname.alias.name if argname.alias else argname.name
                 add_aname(akey, self.key, argname.name)
         else:
             if self.alias:

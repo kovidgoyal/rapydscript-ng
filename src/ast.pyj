@@ -844,7 +844,7 @@ AST_Binary = DEFNODE("Binary", "left operator right", {
 })
 
 AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", {
-    '$documentation': "Conditional expression using the ternary operator, i.e. `a ? b : c`",
+    '$documentation': "Conditional expression using the ternary operator, i.e. `a if b else c`",
     '$propdoc': {
         'condition': "[AST_Node]",
         'consequent': "[AST_Node]",
@@ -1152,7 +1152,7 @@ def TreeWalker(callback):
 TreeWalker.prototype = {
     '_visit': def(node, descend):
         this.stack.push(node)
-        ret = this.visit(node, (descend ? def(): descend.call(node); : noop))
+        ret = this.visit(node, ((def(): descend.call(node);) if descend else noop))
         if not ret and descend:
             descend.call(node)
 

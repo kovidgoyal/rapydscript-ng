@@ -354,7 +354,7 @@ def tokenizer($TEXT, filename):
                     return True
                 return False
             elif ch is '.':
-                return not has_dot and not has_x and not has_e ? has_dot = True : False
+                return (has_dot = True) if not has_dot and not has_x and not has_e else False
             return is_alphanumeric_char(ch.charCodeAt(0))
         )
         if prefix:
@@ -444,7 +444,7 @@ def tokenizer($TEXT, filename):
 
     read_string = with_eof_error("Unterminated string constant", def(is_raw_literal, is_js_literal):
         quote = next()
-        tok_type = (is_js_literal) ? 'js' : 'string'
+        tok_type = 'js' if is_js_literal else 'string'
         ret = ""
         is_multiline = False
         if peek() is quote:
@@ -462,7 +462,7 @@ def tokenizer($TEXT, filename):
                 parse_error("End of line while scanning string literal")
 
             if ch is "\\":
-                ret += is_raw_literal ? ('\\' + next(True)) : read_escape_sequence()
+                ret += ('\\' + next(True)) if is_raw_literal else read_escape_sequence()
                 continue
 
             if ch is quote:
@@ -479,7 +479,7 @@ def tokenizer($TEXT, filename):
         return token(tok_type, ret)
     )
 
-    def read_line_comment(shebang=False):
+    def read_line_comment(shebang):
         if not shebang:
             next()
         i = find("\n")
@@ -491,7 +491,7 @@ def tokenizer($TEXT, filename):
             ret = S.text.substring(S.pos, i)
             S.pos = i
 
-        return token(shebang ? "shebang" : "comment1", ret, True)
+        return token("shebang" if shebang else "comment1", ret, True)
 
     def read_name():
         name = ch = ""
@@ -580,15 +580,15 @@ def tokenizer($TEXT, filename):
 
     def handle_slash():
         next()
-        return (S.regex_allowed ? read_regexp("") : read_operator("/"))
+        return read_regexp("") if S.regex_allowed else read_operator("/")
 
     def handle_dot():
         next()
-        return (is_digit(peek().charCodeAt(0)) ? read_num(".") : token("punc", "."))
+        return read_num(".") if is_digit(peek().charCodeAt(0)) else token("punc", ".")
 
     def read_word():
         word = read_name()
-        return (KEYWORDS_ATOM[word] ? token("atom", word) : (not KEYWORDS[word] ? token("name", word) : (OPERATORS[word] and prevChar() is not "." ? token("operator", word) : token("keyword", word))))
+        return token("atom", word) if KEYWORDS_ATOM[word] else (token("name", word) if not KEYWORDS[word] else (token("operator", word) if OPERATORS[word] and prevChar() is not "." else token("keyword", word)))
 
     def next_token():
 

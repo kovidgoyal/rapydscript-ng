@@ -47,7 +47,7 @@ def defaults(args, defs, croak):
                 raise DefaultsError(i, defs)
 
     for i in defs:
-        ret[i] = args and has_prop(args, i) ? args[i] : defs[i]
+        ret[i] = args[i] if args and has_prop(args, i) else defs[i]
     return ret
 
 def merge(obj, ext):
@@ -71,12 +71,12 @@ MAP = def():
             if isinstance(val, AtTop):
                 val = val.v
                 if isinstance(val, Splice):
-                    top.push.apply(top, (backwards ? val.v.slice().reverse() : val.v))
+                    top.push.apply(top, (val.v.slice().reverse() if backwards else val.v))
                 else:
                     top.push(val)
             elif val is not skip:
                 if isinstance(val, Splice):
-                    ret.push.apply(ret, (backwards ? val.v.slice().reverse() : val.v))
+                    ret.push.apply(ret, (val.v.slice().reverse() if backwards else val.v))
                 else:
                     ret.push(val)
             return is_last

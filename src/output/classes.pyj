@@ -19,7 +19,7 @@ def print_class(output):
             if is_var:
                 output.assign(".prototype[" + method + "]")
             else:
-                output.assign(".prototype" + ((method ? "." + method : "")))
+                output.assign(".prototype" + (("." + method) if method else ""))
 
     def define_method(stmt, is_property):
         name = stmt.name.name

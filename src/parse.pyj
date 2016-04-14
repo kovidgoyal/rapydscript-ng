@@ -168,11 +168,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def croak(msg, line, col, pos, is_eof):
         # note: undefined means nothing was passed in, None/null means a null value was passed in
         ctx = S.input.context()
-        raise new SyntaxError(msg, ctx.filename, (line is not undefined ? line : ctx.tokline),
-                 (col is not undefined ? col : ctx.tokcol), (pos is not undefined ? pos : ctx.tokpos), is_eof)
+        raise new SyntaxError(msg, ctx.filename, (line if line is not undefined else ctx.tokline),
+                 (col if col is not undefined else ctx.tokcol), (pos if pos is not undefined else ctx.tokpos), is_eof)
 
     def token_error(token, msg):
-        is_eof = (token.type is 'eof') ? True : False
+        is_eof = token.type is 'eof'
         croak(msg, token.line, token.col, undefined, is_eof)
 
     def unexpected(token):
@@ -377,6 +377,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         return vars
 
+    def return_():
+        if is_('punc', ';'):
+            semicolon()
+            value = None
+        else:
+            if can_insert_semicolon():
+                value = None
+            else:
+                value = expression(True)
+                semicolon()
+        return value
+
     @embed_tokens
     def statement():
         # From Kovid: The next three lines were a hack to try to support statements
@@ -488,20 +500,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     croak("'return' not allowed in a function with yield")
                 S.functions[-1].is_generator = False
 
-                return new AST_Return({
-                    'value': (is_("punc", ";") ?
-                        (def():
-                            semicolon()
-                            return None
-                        )() : (can_insert_semicolon() ? None
-                            : (def():
-                                tmp = expression(True)
-                                semicolon()
-                                return tmp
-                            )()
-                        )
-                    )
-                })
+                return new AST_Return({'value':return_()})
             elif tmp_ is "yield":
                 return yield_()
             elif tmp_ is "raise":
@@ -582,21 +581,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         is_yield_from = is_('keyword', 'from')
         if is_yield_from:
             next()
-        return new AST_Yield({
-            'is_yield_from':is_yield_from,
-            'value': (is_("punc", ";") ?
-                (def():
-                    semicolon()
-                    return None
-                )() : (can_insert_semicolon() ? None
-                    : (def():
-                        tmp = expression(True)
-                        semicolon()
-                        return tmp
-                    )()
-                )
-            )
-        })
+        return new AST_Yield({'is_yield_from':is_yield_from, 'value': return_()})
 
     def for_(list_comp):
         #        expect("(")
@@ -625,7 +610,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         unexpected()
 
     def for_in(init, list_comp):
-        lhs = (isinstance(init, AST_Var) ? init.definitions[0].name : None)
+        lhs = init.definitions[0].name if isinstance(init, AST_Var) else None
         obj = expression(True)
         #        expect(")")
         if list_comp:
@@ -857,12 +842,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 for argvar in argnames:
                     obj = classes[argvar.name]
                     if obj:
-                        key = (argvar.alias) ? argvar.alias.name : argvar.name
+                        key = argvar.alias.name if argvar.alias else argvar.name
                         S.classes[-1][key] = { "static": obj.static, 'bound': obj.bound }
             else:
                 for cname in Object.keys(classes):
                     obj = classes[cname]
-                    key = (imp.alias) ? imp.alias.name : imp.key
+                    key = imp.alias.name if imp.alias else imp.key
                     S.classes[-1][key + '.' + obj.name.name] = { 'static': obj.static, 'bound': obj.bound }
 
         return ans
@@ -977,7 +962,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return definition
 
     def function_(in_class, is_expression):
-        name = (is_("name") ? as_symbol((in_class ? AST_SymbolDefun : AST_SymbolLambda)) : None)
+        name = as_symbol(AST_SymbolDefun if in_class else AST_SymbolLambda) if is_('name') else None
         if in_class and not name:
             croak('Cannot use anonymous function as class methods')
         is_anonymous = not name
@@ -997,7 +982,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         expect("(")
         S.in_parenthesized_expr = True
-        ctor = in_class ? AST_Method : AST_Function
+        ctor = AST_Method if in_class else AST_Function
         return_annotation = None
         is_generator = v'[]'
         docstrings = v'[]'
@@ -1266,9 +1251,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         return new AST_Try({
             'body': body,
-            'bcatch': (bcatch.length ? new AST_Catch({
-                'body': bcatch
-            }) : None),
+            'bcatch': (new AST_Catch({ 'body': bcatch }) if bcatch.length else None),
             'bfinally': bfinally
         })
 
@@ -1277,8 +1260,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         while True:
             a.push(new AST_VarDef({
                 'start': S.token,
-                'name': as_symbol((in_const ? AST_SymbolConst : ((in_nonlocal) ? AST_SymbolNonlocal : AST_SymbolVar))),
-                'value': (is_("operator", "=") ? (next(), expression(False, no_in)) : None),
+                'name': as_symbol(AST_SymbolConst if in_const else (AST_SymbolNonlocal if in_nonlocal else AST_SymbolVar)),
+                'value': (next(), expression(False, no_in)) if is_('operator', '=') else None,
                 'end': prev()
             }))
             if not is_("punc", ","):
@@ -1581,7 +1564,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return dict_comprehension(a, is_pydict)
 
         next()
-        return new (has_non_const_keys ? AST_ExpressiveObject : AST_Object)({
+        return new (AST_ExpressiveObject if has_non_const_keys else AST_Object)({
             'properties': a,
             'is_pydict': is_pydict,
         })
@@ -1609,7 +1592,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         obj.init = forloop.init
         obj.name = forloop.name
         obj.object = forloop.object
-        obj.condition = (is_("punc", terminator) ? None : (expect_token("keyword", "if"), expression(True)))
+        obj.condition = None if is_('punc', terminator) else (expect_token("keyword", "if"), expression(True))
         expect(terminator)
         S.in_comprehension = False
         return obj
@@ -1638,7 +1621,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         name = tok.value
         if RESERVED_WORDS[name] and name is not 'this':
             croak(name + ' is a reserved word')
-        return new ((name is "this" ? AST_This : ttype))({
+        return new (AST_This if name is 'this' else ttype)({
             'name': v"String(tok.value)",
             'start': tok,
             'end': tok
@@ -1656,7 +1639,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     # for generating/inserting a new symbol
     def new_symbol(type, name):
-        sym = new ((name is "this" ? AST_This : type))({
+        sym = new (AST_This if name is 'this' else type)({
             'name': v"String(name)",
             'start': None,
             'end': None
@@ -1890,7 +1873,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         })
 
     def expr_op(left, min_prec, no_in):
-        op = (is_("operator") ? S.token.value : None)
+        op = S.token.value if is_('operator') else None
         not_in = False
         if op is "!" and peek().type is "operator" and peek().value is "in":
             next()
@@ -1901,7 +1884,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if no_in:
                 op = None
 
-        prec = (op is not None ? PRECEDENCE[op] : None)
+        prec = PRECEDENCE[op] if op is not None else None
         if prec is not None and prec > min_prec:
             next()
             right = expr_op(maybe_unary(True), prec, no_in)
@@ -2001,7 +1984,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     left[-1] = left[-1].left
                     return create_assign({
                         'start': start,
-                        'left': (left.length is 1 ? left[0] : new AST_Array({
+                        'left': (left[0] if left.length is 1 else new AST_Array({
                             'elements': left
                         })),
                         'operator': expr.operator,
