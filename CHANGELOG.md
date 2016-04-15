@@ -1,3 +1,29 @@
+version 0.7.0
+==============
+
+New features
+-------------
+
+ * Implement the existential operator, see the README for details.
+ * Add the any() and all() builtin functions from python
+ * Drop support for the JavaScript form of the conditional ternary operator
+   (backwards incompatible). This was done mainly to free up the `?` operator for use
+   as the existential operator.
+ * Add a traceback module to the standard library that works like the python
+   one 
+ * Full support for negative indices on lists: `a=-1; b[a] is b[-1]`
+
+Bug fixes
+------------
+ * Fix local variables in except: blocks not being declared
+ * Make defining custom exception classes work just as in python (just subclass
+   Exception and you are done)
+ * Make the default `__repr__()` method use the base class implementation when available
+ * Fix the del operator: Now your can use it to delete slices of arrays,
+   variable names, etc.
+ * Make the use of javascript reserved words as identifiers a compile time error, instead of a runtime error
+ * Fix optimization of range() causing incorrect behavior when the stop expression is dynamic
+
 version 0.6.4
 ==============
 
