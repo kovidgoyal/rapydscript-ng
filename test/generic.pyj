@@ -258,6 +258,9 @@ assrt.ok(str.strip(stackf()[-1]).startsWith('at stackf'))
 # Existential operator
 
 assrt.ok(not gfsgs?)
+assrt.equal(gfsgs ? 1, 1)
+assrt.equal(gfsgs?.b, undefined)
+assrt.equal(gfsgs?(), undefined)
 undef = undefined
 assrt.ok(not undef?)
 undef = None
@@ -266,3 +269,6 @@ undef = 0
 assrt.ok(undef?)
 assrt.equal(undef?(), undefined)
 assrt.equal(undef?.xxx?(), undefined)
+assrt.equal(undef.a, undefined)
+assrt.equal(undef[1], undefined)
+assrt.equal(undef ? 1, 0)

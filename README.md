@@ -924,12 +924,20 @@ if all parts of the chain are ok, but cause the entire chaning to result in
 `undefined` if any of its links are null-like. For example:
 
 ```py
-ans = a?.b?[1].c?()
+ans = a?.b?[1]?()
 # Which, without the ? operator becomes
 ans = undefined
-if a is not undefined and a is not None and a.b is not undefined and a.b is not
-None and type(a.b.c) is 'function':
-	ans = a.b[1].c()
+if a is not undefined and a is not None and a.b is not undefined and a.b is not None and type(a.b[1]) is 'function':
+	ans = a.b[1]()
+```
+
+Finally, you can also use the existential operator as shorthand for the
+conditional ternary operator, like this:
+
+```py
+a = b ? c
+# is the same as
+a = c if (b is undefined or b is None) else b
 ```
 
 Regular Expressions

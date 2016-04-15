@@ -197,14 +197,26 @@ after_map = {'.':'d', '(':'c', '[':'d', 'g':'g', 'null':'n'}
 
 def print_existential(self, output):
     key = after_map[self.after] if self.after is None or type(self.after) is 'string' else 'e'
-    if key is 'n' and isinstance(self.expression, AST_SymbolRef):
-        output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')
-    else:
-        output.print('ρσ_exists.' + key + '(')
-        self.expression.print(output)
-        if key is 'e':
-            output.comma(), self.after.print(output)
+    if isinstance(self.expression, AST_SymbolRef):
+        if key is 'n':
+            output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')
+            return
+        if key is 'c':
+            output.spaced('(typeof', self.expression, '===', '"function"', '?', self.expression, ':', '(function(){return undefined;}))')
+            return
+        after = self.after
+        if key is 'd':
+            after = 'Object.create(null)'
+        elif key is 'g':
+            after = '{__getitem__:function(){return undefined;}}'
+        output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null', '?', self.expression, ':', after)
         output.print(')')
+        return
+    output.print('ρσ_exists.' + key + '(')
+    self.expression.print(output)
+    if key is 'e':
+        output.comma(), self.after.print(output)
+    output.print(')')
 
 def print_assignment(self, output):
     flattened = False
