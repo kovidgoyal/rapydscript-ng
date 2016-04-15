@@ -1639,7 +1639,9 @@ Object.defineProperties(ρσ_dict_wrap, {
     __argnames__ : {value: ["x"]}
 });
 
-var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;function Exception() {
+var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;var NameError;
+NameError = ReferenceError;
+function Exception() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     Exception.prototype.__init__.apply(this, arguments);
 }
@@ -1781,7 +1783,7 @@ return this.__repr__();
 };
 Object.defineProperty(AssertionError.prototype, "__bases__", {value: [Exception]});
 
-var ρσ_in, ρσ_desugar_kwargs;
+var ρσ_in, ρσ_desugar_kwargs, ρσ_exists;
 function ρσ_eslice(arr, step, start, end) {
     var is_string;
     if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
@@ -2084,6 +2086,71 @@ Object.defineProperties(ρσ_bound_index, {
     __argnames__ : {value: ["idx", "arr"]}
 });
 
+ρσ_exists = (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["n"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            return expr !== undefined && expr !== null;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["d"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null) {
+                return Object.create(null);
+            }
+            return expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["c"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (typeof expr === "function") {
+                return expr;
+            }
+            return function () {
+                return undefined;
+            };
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["g"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null || typeof expr.__getitem__ !== "function") {
+                return (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["__getitem__"] = function () {
+                        return undefined;
+                    };
+                    return ρσ_d;
+                }).call(this);
+            }
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["e"] = (function() {
+        var ρσ_anonfunc = function (expr, alt) {
+            return (expr === undefined || expr === null) ? alt : expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr", "alt"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    return ρσ_d;
+}).call(this);
 function ρσ_mixin() {
     var seen, ρσ_chain_assign_temp, resolved_props, p, target, props, name;
     seen = Object.create(null);
@@ -3916,7 +3983,7 @@ return this.__repr__();
 
     (function(){
         var __name__ = "ast";
-        var AST_Token, AST_Node, AST_Statement, AST_Debugger, AST_Directive, AST_SimpleStatement, AST_Assert, AST_Block, AST_BlockStatement, AST_EmptyStatement, AST_StatementWithBody, AST_DWLoop, AST_Do, AST_While, AST_ForIn, AST_ForJS, AST_ListComprehension, AST_SetComprehension, AST_DictComprehension, AST_GeneratorComprehension, AST_With, AST_WithClause, AST_Scope, AST_Toplevel, AST_Import, AST_Imports, AST_Decorator, AST_Lambda, AST_Function, AST_Class, AST_Method, AST_Jump, AST_Exit, AST_Return, AST_Yield, AST_Throw, AST_LoopControl, AST_Break, AST_Continue, AST_If, AST_Try, AST_Catch, AST_Except, AST_Finally, AST_Definitions, AST_Var, AST_VarDef, AST_BaseCall, AST_Call, AST_ClassCall, AST_New, AST_Seq, AST_PropAccess, AST_Dot, AST_Sub, AST_ItemAccess, AST_Splice, AST_Unary, AST_UnaryPrefix, AST_Binary, AST_Conditional, AST_Assign, AST_Array, AST_Object, AST_ExpressiveObject, AST_ObjectProperty, AST_ObjectKeyVal, AST_Set, AST_SetItem, AST_Symbol, AST_SymbolAlias, AST_SymbolDeclaration, AST_SymbolVar, AST_ImportedVar, AST_SymbolConst, AST_SymbolNonlocal, AST_SymbolFunarg, AST_SymbolDefun, AST_SymbolLambda, AST_SymbolCatch, AST_SymbolRef, AST_This, AST_Constant, AST_String, AST_Verbatim, AST_Number, AST_RegExp, AST_Atom, AST_Null, AST_NaN, AST_Undefined, AST_Hole, AST_Infinity, AST_Boolean, AST_False, AST_True;
+        var AST_Token, AST_Node, AST_Statement, AST_Debugger, AST_Directive, AST_SimpleStatement, AST_Assert, AST_Block, AST_BlockStatement, AST_EmptyStatement, AST_StatementWithBody, AST_DWLoop, AST_Do, AST_While, AST_ForIn, AST_ForJS, AST_ListComprehension, AST_SetComprehension, AST_DictComprehension, AST_GeneratorComprehension, AST_With, AST_WithClause, AST_Scope, AST_Toplevel, AST_Import, AST_Imports, AST_Decorator, AST_Lambda, AST_Function, AST_Class, AST_Method, AST_Jump, AST_Exit, AST_Return, AST_Yield, AST_Throw, AST_LoopControl, AST_Break, AST_Continue, AST_If, AST_Try, AST_Catch, AST_Except, AST_Finally, AST_Definitions, AST_Var, AST_VarDef, AST_BaseCall, AST_Call, AST_ClassCall, AST_New, AST_Seq, AST_PropAccess, AST_Dot, AST_Sub, AST_ItemAccess, AST_Splice, AST_Unary, AST_UnaryPrefix, AST_Binary, AST_Existential, AST_Conditional, AST_Assign, AST_Array, AST_Object, AST_ExpressiveObject, AST_ObjectProperty, AST_ObjectKeyVal, AST_Set, AST_SetItem, AST_Symbol, AST_SymbolAlias, AST_SymbolDeclaration, AST_SymbolVar, AST_ImportedVar, AST_SymbolConst, AST_SymbolNonlocal, AST_SymbolFunarg, AST_SymbolDefun, AST_SymbolLambda, AST_SymbolCatch, AST_SymbolRef, AST_This, AST_Constant, AST_String, AST_Verbatim, AST_Number, AST_RegExp, AST_Atom, AST_Null, AST_NaN, AST_Undefined, AST_Hole, AST_Infinity, AST_Boolean, AST_False, AST_True;
         var noop = ρσ_modules.utils.noop;
         var string_template = ρσ_modules.utils.string_template;
         
@@ -5360,6 +5427,33 @@ return this.__repr__();
             })();
             return ρσ_d;
         }).call(this));
+        AST_Existential = DEFNODE("Existential", "expression after", (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["$documentation"] = "Existential operator a?";
+            ρσ_d["$propdoc"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["expression"] = "[AST_Node] The expression whose existence we need to check";
+                ρσ_d["after"] = "[None|string|AST_Node] is None when there is nothing following this operator, is a string when there is as AST_PropAccess following this operator, is an AST_Node if it is used a a shorthand for the conditional ternary, i.e. a ? b == a if a? else b";
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["_walk"] = (function() {
+                var ρσ_anonfunc = function (visitor) {
+                    var node;
+                    node = this;
+                    return visitor._visit(node, function () {
+                        node.expression._walk(visitor);
+                        if (typeof node.after === "object") {
+                            node.after._walk(visitor);
+                        }
+                    });
+                };
+                Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["visitor"]}
+                });
+                return ρσ_anonfunc;
+            })();
+            return ρσ_d;
+        }).call(this));
         AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["$documentation"] = "Conditional expression using the ternary operator, i.e. `a if b else c`";
@@ -6013,6 +6107,7 @@ return this.__repr__();
         ρσ_modules.ast.AST_Unary = AST_Unary;
         ρσ_modules.ast.AST_UnaryPrefix = AST_UnaryPrefix;
         ρσ_modules.ast.AST_Binary = AST_Binary;
+        ρσ_modules.ast.AST_Existential = AST_Existential;
         ρσ_modules.ast.AST_Conditional = AST_Conditional;
         ρσ_modules.ast.AST_Assign = AST_Assign;
         ρσ_modules.ast.AST_Array = AST_Array;
@@ -6098,7 +6193,7 @@ return this.__repr__();
         }).call(this);
         WHITESPACE_CHARS = make_predicate(characters("  \n\r\t\f\u000b​᠎           \u202f 　"));
         PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"));
-        PUNC_CHARS = make_predicate(characters("[]{}(),;:"));
+        PUNC_CHARS = make_predicate(characters("[]{}(),;:?"));
         KEYWORDS = "as assert break class continue def del do elif else except finally for from if import in is new nonlocal pass raise return yield try while with or and not";
         KEYWORDS_ATOM = "False None True";
         RESERVED_WORDS = "break case class catch const continue debugger default delete do else export extends finally for function if import in instanceof new return super switch this throw try typeof var void while with yield enum implements static private package let public protected interface await null true false";
@@ -7009,12 +7104,13 @@ return this.__repr__();
         var AST_WithClause = ρσ_modules.ast.AST_WithClause;
         var AST_Yield = ρσ_modules.ast.AST_Yield;
         var AST_Assert = ρσ_modules.ast.AST_Assert;
+        var AST_Existential = ρσ_modules.ast.AST_Existential;
         
         var tokenizer = ρσ_modules.tokenizer.tokenizer;
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
         
-        COMPILER_VERSION = "b11876bcb5af4c11861a653adc993d0af0160b47";
+        COMPILER_VERSION = "b478ae76c00f096a2c5df715ccff50029af8003a";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -9358,157 +9454,40 @@ return this.__repr__();
                 __argnames__ : {value: ["cls", "method"]}
             });
 
-            function subscripts(expr, allow_calls) {
-                var start, is_py_sub, slice_bounds, is_slice, i, assignment, ret, c, funcname, tmp_, args;
+            function getitem(expr, allow_calls) {
+                var start, is_py_sub, slice_bounds, is_slice, i, assignment;
                 start = expr.start;
-                if (is_("punc", ".")) {
-                    next();
-                    return subscripts(new AST_Dot((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["expression"] = expr;
-                        ρσ_d["property"] = as_name();
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)), allow_calls);
+                next();
+                is_py_sub = S.scoped_flags.get("overload_getitem", false);
+                slice_bounds = [];
+                is_slice = false;
+                if (is_("punc", ":")) {
+                    slice_bounds.push(null);
+                } else {
+                    slice_bounds.push(expression(false));
                 }
-                if (is_("punc", "[") && !S.token.nlb) {
+                if (is_("punc", ":")) {
+                    is_slice = true;
                     next();
-                    is_py_sub = S.scoped_flags.get("overload_getitem", false);
-                    slice_bounds = [];
-                    is_slice = false;
                     if (is_("punc", ":")) {
                         slice_bounds.push(null);
+                    } else if (!is_("punc", "]")) {
+                        slice_bounds.push(expression(false));
+                    }
+                }
+                if (is_("punc", ":")) {
+                    next();
+                    if (is_("punc", "]")) {
+                        unexpected();
                     } else {
                         slice_bounds.push(expression(false));
                     }
-                    if (is_("punc", ":")) {
-                        is_slice = true;
+                }
+                expect("]");
+                if (is_slice) {
+                    if (is_("operator", "=")) {
                         next();
-                        if (is_("punc", ":")) {
-                            slice_bounds.push(null);
-                        } else if (!is_("punc", "]")) {
-                            slice_bounds.push(expression(false));
-                        }
-                    }
-                    if (is_("punc", ":")) {
-                        next();
-                        if (is_("punc", "]")) {
-                            unexpected();
-                        } else {
-                            slice_bounds.push(expression(false));
-                        }
-                    }
-                    expect("]");
-                    if (is_slice) {
-                        if (is_("operator", "=")) {
-                            next();
-                            return subscripts(new AST_Splice((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = expr;
-                                ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = 0;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["property2"] = slice_bounds[1];
-                                ρσ_d["assignment"] = expression(true);
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this)), allow_calls);
-                        } else if (slice_bounds.length === 3) {
-                            slice_bounds.unshift(slice_bounds.pop());
-                            if (!slice_bounds[slice_bounds.length-1]) {
-                                slice_bounds.pop();
-                                if (!slice_bounds[slice_bounds.length-1]) {
-                                    slice_bounds.pop();
-                                }
-                            } else if (!slice_bounds[slice_bounds.length-2]) {
-                                slice_bounds[slice_bounds.length-2] = new AST_Undefined;
-                            }
-                            return subscripts(new AST_Call((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = new AST_SymbolRef((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["name"] = (S.in_delete) ? "ρσ_delslice" : "ρσ_eslice";
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["args"] = ρσ_list_decorate([ expr ]).concat(slice_bounds);
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this)), allow_calls);
-                        } else {
-                            slice_bounds = (function() {
-                                var ρσ_Iter = ρσ_Iterable(slice_bounds), ρσ_Result = [], i;
-                                for (var ρσ_Index = 0; ρσ_Index < ρσ_Iter.length; ρσ_Index++) {
-                                    i = ρσ_Iter[ρσ_Index];
-                                    ρσ_Result.push((i === null) ? new AST_Number((function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["value"] = 0;
-                                        return ρσ_d;
-                                    }).call(this)) : i);
-                                }
-                                ρσ_Result = ρσ_list_constructor(ρσ_Result);
-                                return ρσ_Result;
-                            })();
-                            if (S.in_delete) {
-                                return subscripts(new AST_Call((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["expression"] = new AST_SymbolRef((function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["name"] = "ρσ_delslice";
-                                        return ρσ_d;
-                                    }).call(this));
-                                    ρσ_d["args"] = ρσ_list_decorate([ expr, new AST_Number((function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["value"] = 1;
-                                        return ρσ_d;
-                                    }).call(this)) ]).concat(slice_bounds);
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this)), allow_calls);
-                            }
-                            return subscripts(new AST_Call((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = new AST_Dot((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["expression"] = expr;
-                                    ρσ_d["property"] = "slice";
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["args"] = slice_bounds;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this)), allow_calls);
-                        }
-                    } else {
-                        if (is_py_sub) {
-                            assignment = null;
-                            if (is_("operator") && S.token.value === "=") {
-                                next();
-                                assignment = expression(true);
-                            }
-                            return subscripts(new AST_ItemAccess((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = expr;
-                                ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = 0;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["assignment"] = assignment;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this)), allow_calls);
-                        }
-                        return subscripts(new AST_Sub((function(){
+                        return subscripts(new AST_Splice((function(){
                             var ρσ_d = Object.create(null);
                             ρσ_d["start"] = start;
                             ρσ_d["expression"] = expr;
@@ -9517,88 +9496,271 @@ return this.__repr__();
                                 ρσ_d["value"] = 0;
                                 return ρσ_d;
                             }).call(this));
+                            ρσ_d["property2"] = slice_bounds[1];
+                            ρσ_d["assignment"] = expression(true);
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    } else if (slice_bounds.length === 3) {
+                        slice_bounds.unshift(slice_bounds.pop());
+                        if (!slice_bounds[slice_bounds.length-1]) {
+                            slice_bounds.pop();
+                            if (!slice_bounds[slice_bounds.length-1]) {
+                                slice_bounds.pop();
+                            }
+                        } else if (!slice_bounds[slice_bounds.length-2]) {
+                            slice_bounds[slice_bounds.length-2] = new AST_Undefined;
+                        }
+                        return subscripts(new AST_Call((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = new AST_SymbolRef((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["name"] = (S.in_delete) ? "ρσ_delslice" : "ρσ_eslice";
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["args"] = ρσ_list_decorate([ expr ]).concat(slice_bounds);
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    } else {
+                        slice_bounds = (function() {
+                            var ρσ_Iter = ρσ_Iterable(slice_bounds), ρσ_Result = [], i;
+                            for (var ρσ_Index = 0; ρσ_Index < ρσ_Iter.length; ρσ_Index++) {
+                                i = ρσ_Iter[ρσ_Index];
+                                ρσ_Result.push((i === null) ? new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 0;
+                                    return ρσ_d;
+                                }).call(this)) : i);
+                            }
+                            ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                            return ρσ_Result;
+                        })();
+                        if (S.in_delete) {
+                            return subscripts(new AST_Call((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = new AST_SymbolRef((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = "ρσ_delslice";
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["args"] = ρσ_list_decorate([ expr, new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 1;
+                                    return ρσ_d;
+                                }).call(this)) ]).concat(slice_bounds);
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
+                        }
+                        return subscripts(new AST_Call((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = new AST_Dot((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = expr;
+                                ρσ_d["property"] = "slice";
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["args"] = slice_bounds;
                             ρσ_d["end"] = prev();
                             return ρσ_d;
                         }).call(this)), allow_calls);
                     }
-                }
-                if (allow_calls && is_("punc", "(") && !S.token.nlb) {
-                    S.in_parenthesized_expr = true;
-                    next();
-                    if (!expr.parens && get_class_in_scope(expr)) {
-                        ret = subscripts(new AST_New((function(){
+                } else {
+                    if (is_py_sub) {
+                        assignment = null;
+                        if (is_("operator") && S.token.value === "=") {
+                            next();
+                            assignment = expression(true);
+                        }
+                        return subscripts(new AST_ItemAccess((function(){
                             var ρσ_d = Object.create(null);
                             ρσ_d["start"] = start;
                             ρσ_d["expression"] = expr;
+                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = 0;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["assignment"] = assignment;
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    }
+                    return subscripts(new AST_Sub((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = 0;
+                            return ρσ_d;
+                        }).call(this));
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), allow_calls);
+                }
+            };
+            Object.defineProperties(getitem, {
+                __argnames__ : {value: ["expr", "allow_calls"]}
+            });
+
+            function call_(expr) {
+                var start, ret, c, funcname, tmp_, args;
+                start = expr.start;
+                S.in_parenthesized_expr = true;
+                next();
+                if (!expr.parens && get_class_in_scope(expr)) {
+                    ret = subscripts(new AST_New((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["args"] = func_call_list();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), true);
+                    S.in_parenthesized_expr = false;
+                    return ret;
+                } else {
+                    if (ρσ_instanceof(expr, AST_Dot)) {
+                        c = get_class_in_scope(expr.expression);
+                    }
+                    if (c) {
+                        funcname = expr;
+                        if (funcname.property === "__init__") {
+                            funcname.property = "constructor";
+                        }
+                        ret = subscripts(new AST_ClassCall((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["class"] = expr.expression;
+                            ρσ_d["method"] = funcname.property;
+                            ρσ_d["static"] = is_static_method(c, funcname.property);
                             ρσ_d["args"] = func_call_list();
                             ρσ_d["end"] = prev();
                             return ρσ_d;
                         }).call(this)), true);
                         S.in_parenthesized_expr = false;
                         return ret;
-                    } else {
-                        if (ρσ_instanceof(expr, AST_Dot)) {
-                            c = get_class_in_scope(expr.expression);
-                        }
-                        if (c) {
-                            funcname = expr;
-                            if (funcname.property === "__init__") {
-                                funcname.property = "constructor";
-                            }
-                            ret = subscripts(new AST_ClassCall((function(){
+                    } else if (ρσ_instanceof(expr, AST_SymbolRef)) {
+                        tmp_ = expr.name;
+                        if (tmp_ === "type") {
+                            ret = new AST_UnaryPrefix((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["start"] = start;
-                                ρσ_d["class"] = expr.expression;
-                                ρσ_d["method"] = funcname.property;
-                                ρσ_d["static"] = is_static_method(c, funcname.property);
-                                ρσ_d["args"] = func_call_list();
+                                ρσ_d["operator"] = "typeof";
+                                ρσ_d["expression"] = func_call_list()[0];
                                 ρσ_d["end"] = prev();
                                 return ρσ_d;
-                            }).call(this)), true);
+                            }).call(this));
                             S.in_parenthesized_expr = false;
                             return ret;
-                        } else if (ρσ_instanceof(expr, AST_SymbolRef)) {
-                            tmp_ = expr.name;
-                            if (tmp_ === "type") {
-                                ret = new AST_UnaryPrefix((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["operator"] = "typeof";
-                                    ρσ_d["expression"] = func_call_list()[0];
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this));
-                                S.in_parenthesized_expr = false;
-                                return ret;
-                            } else if (tmp_ === "isinstance") {
-                                args = func_call_list();
-                                if (args.length !== 2) {
-                                    croak("isinstance() must be called with exactly two arguments");
-                                }
-                                ret = new AST_Binary((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["left"] = args[0];
-                                    ρσ_d["operator"] = "instanceof";
-                                    ρσ_d["right"] = args[1];
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this));
-                                S.in_parenthesized_expr = false;
-                                return ret;
+                        } else if (tmp_ === "isinstance") {
+                            args = func_call_list();
+                            if (args.length !== 2) {
+                                croak("isinstance() must be called with exactly two arguments");
                             }
+                            ret = new AST_Binary((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["left"] = args[0];
+                                ρσ_d["operator"] = "instanceof";
+                                ρσ_d["right"] = args[1];
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                            S.in_parenthesized_expr = false;
+                            return ret;
                         }
-                        ret = subscripts(new AST_Call((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["expression"] = expr;
-                            ρσ_d["args"] = func_call_list();
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), true);
-                        S.in_parenthesized_expr = false;
-                        return ret;
                     }
+                    ret = subscripts(new AST_Call((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["args"] = func_call_list();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), true);
+                    S.in_parenthesized_expr = false;
+                    return ret;
+                }
+            };
+            Object.defineProperties(call_, {
+                __argnames__ : {value: ["expr"]}
+            });
+
+            function get_attr(expr, allow_calls) {
+                next();
+                return subscripts(new AST_Dot((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = expr.start;
+                    ρσ_d["expression"] = expr;
+                    ρσ_d["property"] = as_name();
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this)), allow_calls);
+            };
+            Object.defineProperties(get_attr, {
+                __argnames__ : {value: ["expr", "allow_calls"]}
+            });
+
+            function existential(expr, allow_calls) {
+                var ans, ttype, val, is_py_sub;
+                ans = new AST_Existential((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = expr.start;
+                    ρσ_d["end"] = S.token;
+                    ρσ_d["expression"] = expr;
+                    return ρσ_d;
+                }).call(this));
+                next();
+                ttype = S.token.type;
+                val = S.token.value;
+                if (S.token.nlb || ttype === "keyword" || ttype === "operator" || ttype === "eof") {
+                    ans.after = null;
+                    return ans;
+                }
+                if (ttype === "punc") {
+                    if (val === ".") {
+                        ans.after = ".";
+                    } else if (val === "[") {
+                        is_py_sub = S.scoped_flags.get("overload_getitem", false);
+                        ans.after = (is_py_sub) ? "g" : "[";
+                    } else if (val === "(") {
+                        if (!allow_calls) {
+                            unexpected();
+                        }
+                        ans.after = "(";
+                    } else {
+                        ans.after = null;
+                        return ans;
+                    }
+                    return subscripts(ans, allow_calls);
+                }
+                ans.after = expression();
+                return ans;
+            };
+            Object.defineProperties(existential, {
+                __argnames__ : {value: ["expr", "allow_calls"]}
+            });
+
+            function subscripts(expr, allow_calls) {
+                if (is_("punc", ".")) {
+                    return get_attr(expr, allow_calls);
+                }
+                if (is_("punc", "[") && !S.token.nlb) {
+                    return getitem(expr, allow_calls);
+                }
+                if (allow_calls && is_("punc", "(") && !S.token.nlb) {
+                    return call_(expr);
+                }
+                if (is_("punc", "?")) {
+                    return existential(expr, allow_calls);
                 }
                 return expr;
             };
@@ -11640,6 +11802,7 @@ return this.__repr__();
 
     (function(){
         var __name__ = "output.operators";
+        var after_map;
         var AST_Number = ρσ_modules.ast.AST_Number;
         var AST_Unary = ρσ_modules.ast.AST_Unary;
         var AST_Seq = ρσ_modules.ast.AST_Seq;
@@ -11917,6 +12080,48 @@ return this.__repr__();
             __argnames__ : {value: ["self", "output"]}
         });
 
+        after_map = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["."] = "d";
+            ρσ_d["("] = "c";
+            ρσ_d["["] = "d";
+            ρσ_d["g"] = "g";
+            ρσ_d["null"] = "n";
+            return ρσ_d;
+        }).call(this);
+        function print_existential(self, output) {
+            var key, after;
+            key = (self.after === null || typeof self.after === "string") ? after_map[ρσ_bound_index(self.after, after_map)] : "e";
+            if (ρσ_instanceof(self.expression, AST_SymbolRef)) {
+                if (key === "n") {
+                    output.spaced("(typeof", self.expression, "!==", "\"undefined\"", "&&", self.expression, "!==", "null)");
+                    return;
+                }
+                if (key === "c") {
+                    output.spaced("(typeof", self.expression, "===", "\"function\"", "?", self.expression, ":", "(function(){return undefined;}))");
+                    return;
+                }
+                after = self.after;
+                if (key === "d") {
+                    after = "Object.create(null)";
+                } else if (key === "g") {
+                    after = "{__getitem__:function(){return undefined;}}";
+                }
+                output.spaced("(typeof", self.expression, "!==", "\"undefined\"", "&&", self.expression, "!==", "null", "?", self.expression, ":", after);
+                output.print(")");
+                return;
+            }
+            output.print("ρσ_exists." + key + "(");
+            self.expression.print(output);
+            if (key === "e") {
+                [output.comma(), self.after.print(output)];
+            }
+            output.print(")");
+        };
+        Object.defineProperties(print_existential, {
+            __argnames__ : {value: ["self", "output"]}
+        });
+
         function print_assignment(self, output) {
             var flattened, left, flat;
             flattened = false;
@@ -12056,6 +12261,7 @@ return this.__repr__();
             __argnames__ : {value: ["output"]}
         });
 
+        ρσ_modules["output.operators"].after_map = after_map;
         ρσ_modules["output.operators"].print_getattr = print_getattr;
         ρσ_modules["output.operators"].print_getitem = print_getitem;
         ρσ_modules["output.operators"].print_rich_getitem = print_rich_getitem;
@@ -12065,6 +12271,7 @@ return this.__repr__();
         ρσ_modules["output.operators"].write_instanceof = write_instanceof;
         ρσ_modules["output.operators"].write_smart_equality = write_smart_equality;
         ρσ_modules["output.operators"].print_binary_op = print_binary_op;
+        ρσ_modules["output.operators"].print_existential = print_existential;
         ρσ_modules["output.operators"].print_assignment = print_assignment;
         ρσ_modules["output.operators"].print_assign = print_assign;
         ρσ_modules["output.operators"].print_conditional = print_conditional;
@@ -13616,6 +13823,7 @@ return this.__repr__();
         var AST_With = ρσ_modules.ast.AST_With;
         var AST_Yield = ρσ_modules.ast.AST_Yield;
         var TreeWalker = ρσ_modules.ast.TreeWalker;
+        var AST_Existential = ρσ_modules.ast.AST_Existential;
         
         var print_try = ρσ_modules["output.exceptions"].print_try;
         var print_catch = ρσ_modules["output.exceptions"].print_catch;
@@ -13649,6 +13857,7 @@ return this.__repr__();
         var print_assign = ρσ_modules["output.operators"].print_assign;
         var print_conditional = ρσ_modules["output.operators"].print_conditional;
         var print_seq = ρσ_modules["output.operators"].print_seq;
+        var print_existential = ρσ_modules["output.operators"].print_existential;
         
         var print_function = ρσ_modules["output.functions"].print_function;
         var print_function_call = ρσ_modules["output.functions"].print_function_call;
@@ -14327,6 +14536,7 @@ return this.__repr__();
             DEFPRINT(AST_Splice, print_splice_assignment);
             DEFPRINT(AST_UnaryPrefix, print_unary_prefix);
             DEFPRINT(AST_Binary, print_binary_op);
+            DEFPRINT(AST_Existential, print_existential);
             DEFPRINT(AST_Assign, print_assign);
             DEFPRINT(AST_Conditional, print_conditional);
             DEFPRINT(AST_Array, print_array);

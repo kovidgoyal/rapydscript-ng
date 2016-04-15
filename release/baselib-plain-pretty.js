@@ -1633,7 +1633,9 @@ Object.defineProperties(ρσ_dict_wrap, {
     __argnames__ : {value: ["x"]}
 });
 
-var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;function Exception() {
+var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;var NameError;
+NameError = ReferenceError;
+function Exception() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     Exception.prototype.__init__.apply(this, arguments);
 }
@@ -1775,7 +1777,7 @@ return this.__repr__();
 };
 Object.defineProperty(AssertionError.prototype, "__bases__", {value: [Exception]});
 
-var ρσ_in, ρσ_desugar_kwargs;
+var ρσ_in, ρσ_desugar_kwargs, ρσ_exists;
 function ρσ_eslice(arr, step, start, end) {
     var is_string;
     if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
@@ -2078,6 +2080,71 @@ Object.defineProperties(ρσ_bound_index, {
     __argnames__ : {value: ["idx", "arr"]}
 });
 
+ρσ_exists = (function(){
+    var ρσ_d = Object.create(null);
+    ρσ_d["n"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            return expr !== undefined && expr !== null;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["d"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null) {
+                return Object.create(null);
+            }
+            return expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["c"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (typeof expr === "function") {
+                return expr;
+            }
+            return function () {
+                return undefined;
+            };
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["g"] = (function() {
+        var ρσ_anonfunc = function (expr) {
+            if (expr === undefined || expr === null || typeof expr.__getitem__ !== "function") {
+                return (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["__getitem__"] = function () {
+                        return undefined;
+                    };
+                    return ρσ_d;
+                }).call(this);
+            }
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    ρσ_d["e"] = (function() {
+        var ρσ_anonfunc = function (expr, alt) {
+            return (expr === undefined || expr === null) ? alt : expr;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["expr", "alt"]}
+        });
+        return ρσ_anonfunc;
+    })();
+    return ρσ_d;
+}).call(this);
 function ρσ_mixin() {
     var seen, ρσ_chain_assign_temp, resolved_props, p, target, props, name;
     seen = Object.create(null);
