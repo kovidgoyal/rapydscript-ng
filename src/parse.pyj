@@ -19,7 +19,7 @@ AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
-AST_Yield, AST_Assert
+AST_Yield, AST_Assert, AST_Existential
 )
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
@@ -1829,6 +1829,32 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'end': prev()
         }), allow_calls)
 
+    def existential(expr, allow_calls):
+        ans = new AST_Existential({'start':expr.start, 'end':S.token, 'expression':expr})
+        next()
+        ttype = S.token.type
+        val = S.token.value
+        if S.token.nlb or ttype is 'keyword' or ttype is 'operator' or ttype is 'eof':
+            ans.after = None
+            return ans
+        if ttype is 'punc':
+            if val is '.':
+                ans.after = '.'
+            elif val is '[':
+                is_py_sub = S.scoped_flags.get('overload_getitem', False)
+                ans.after = 'g' if is_py_sub else '['
+            elif val is '(':
+                if not allow_calls:
+                    unexpected()
+                ans.after = '('
+            else:
+                ans.after = None
+                return ans
+            return subscripts(ans, allow_calls)
+
+        ans.after = expression()
+        return ans
+
     def subscripts(expr, allow_calls):
         if is_("punc", "."):
             return get_attr(expr, allow_calls)
@@ -1838,6 +1864,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if allow_calls and is_("punc", "(") and not S.token.nlb:
             return call_(expr)
+
+        if is_('punc', '?'):
+            return existential(expr, allow_calls)
 
         return expr
 

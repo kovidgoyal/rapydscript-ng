@@ -30,6 +30,7 @@ backwards compatible) features. For more on the forking, [see the bottom of this
 - [Loops](#loops)
 - [List/Set/Dict Comprehensions](#listsetdict-comprehensions)
 - [Strings](#strings)
+- [The Existential Operator](#the-existential-operator)
 - [Regular Expressions](#regular-expressions)
 - [Creating DOM trees easily](#creating-dom-trees-easily)
 - [Classes](#classes)
@@ -882,6 +883,54 @@ some functions to make dealing with non-BMP unicode characters easier:
 	```
 
   - ``str.ulen(string)`` -- return the number of unicode characters in the string
+
+The Existential Operator
+---------------------------
+
+One of the annoying warts of JavaScript is that there are two "null-like"
+values: `undefined` and `null`. So if you want to test if a variable is not
+null you often have to write a lengthy expression that looks like
+
+```py
+(var !== undefined and var !== None)
+```
+
+Simply doing `bool(var)` will not work because zero and empty strings are also
+False.
+
+Similarly, if you need to access a chain of properties/keys and dont want a
+`TypeError` to be raised, if one of them is undefined/null then you have
+to do something like:
+
+```py
+if a and a.b and a.b.c:
+	ans = a.b.c()
+else:
+	ans = undefined
+```
+
+To ease these irritations, RapydScript borrows the *Existential operator* from
+CoffeeScript. This can be used to test if a variable is null-like, with a
+single character, like this:
+
+```py
+yes = True if no? else False
+# Which, without the ? operator becomes
+yes = True if no is not undefined and no is not None else False
+```
+
+When it comes to long chains, the `?` operator will return the expected value
+if all parts of the chain are ok, but cause the entire chaning to result in
+`undefined` if any of its links are null-like. For example:
+
+```py
+ans = a?.b?[1].c?()
+# Which, without the ? operator becomes
+ans = undefined
+if a is not undefined and a is not None and a.b is not undefined and a.b is not
+None and type(a.b.c) is 'function':
+	ans = a.b[1].c()
+```
 
 Regular Expressions
 ----------------------

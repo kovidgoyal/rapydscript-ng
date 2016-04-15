@@ -839,6 +839,21 @@ AST_Binary = DEFNODE("Binary", "left operator right", {
         )
 })
 
+AST_Existential = DEFNODE("Existential", "expression after", {
+    '$documentation': "Existential operator a?",
+    '$propdoc': {
+        'expression': "[AST_Node] The expression whose existence we need to check",
+    'after': "[None|string|AST_Node] is None when there is nothing following this operator, is a string when there is as AST_PropAccess following this operator, is an AST_Node if it is used a a shorthand for the conditional ternary, i.e. a ? b == a if a? else b",
+    },
+    '_walk': def(visitor):
+        node = this
+        return visitor._visit(node, def():
+            node.expression._walk(visitor)
+            if type(node.after) is 'object':
+                node.after._walk(visitor)
+        )
+})
+
 AST_Conditional = DEFNODE("Conditional", "condition consequent alternative", {
     '$documentation': "Conditional expression using the ternary operator, i.e. `a if b else c`",
     '$propdoc': {

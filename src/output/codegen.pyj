@@ -17,7 +17,7 @@ from ast import (
     AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
     AST_Symbol, AST_This, AST_Throw, AST_Toplevel, AST_Try, AST_Unary,
     AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef, AST_Assert,
-    AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker
+    AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker, AST_Existential
 )
 from output.exceptions import print_try, print_catch, print_finally
 from output.stream import OutputStream
@@ -28,7 +28,7 @@ from output.modules import print_top_level, print_imports
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_binary_op, print_assign,
-    print_conditional, print_seq
+    print_conditional, print_seq, print_existential
 )
 from output.functions import print_function, print_function_call
 from output.statements import print_bracketed, first_in_statement, force_statement, print_with, print_assert
@@ -213,6 +213,7 @@ def generate_code():
 
     PARENS(AST_Assign, assign_and_conditional_paren_rules)
     PARENS(AST_Conditional, assign_and_conditional_paren_rules)
+
     # -----[ PRINTERS ]-----
     DEFPRINT(AST_Directive, def(self, output):
         output.print_string(self.value)
@@ -454,6 +455,8 @@ def generate_code():
     DEFPRINT(AST_UnaryPrefix, print_unary_prefix)
 
     DEFPRINT(AST_Binary, print_binary_op)
+
+    DEFPRINT(AST_Existential, print_existential)
 
     DEFPRINT(AST_Assign, print_assign)
 

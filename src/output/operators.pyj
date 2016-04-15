@@ -193,6 +193,19 @@ def print_binary_op(self, output):
     else:
         output.spaced(self.left, self.operator, self.right)
 
+after_map = {'.':'d', '(':'c', '[':'d', 'g':'g', 'null':'n'}
+
+def print_existential(self, output):
+    key = after_map[self.after] if self.after is None or type(self.after) is 'string' else 'e'
+    if key is 'n' and isinstance(self.expression, AST_SymbolRef):
+        output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')
+    else:
+        output.print('ρσ_exists.' + key + '(')
+        self.expression.print(output)
+        if key is 'e':
+            output.comma(), self.after.print(output)
+        output.print(')')
+
 def print_assignment(self, output):
     flattened = False
     left = self.left

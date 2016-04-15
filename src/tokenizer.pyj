@@ -77,7 +77,7 @@ WHITESPACE_CHARS = make_predicate(characters(" \u00a0\n\r\t\f\u000b\u200b\u180e\
 
 PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"))
 
-PUNC_CHARS = make_predicate(characters("[]{}(),;:"))
+PUNC_CHARS = make_predicate(characters("[]{}(),;:?"))
 
 KEYWORDS = "as assert break class continue def del do elif else except finally for from if import in is new nonlocal pass raise return yield try while with or and not"
 

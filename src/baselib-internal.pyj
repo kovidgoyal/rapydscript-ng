@@ -179,6 +179,25 @@ def ρσ_bound_index(idx, arr):
         idx += arr.length
     return idx
 
+ρσ_exists = {
+     'n': def(expr):
+        return expr is not undefined and expr is not None
+    ,'d': def(expr):
+        if expr is undefined or expr is None:
+            return Object.create(None)
+        return expr
+    ,'c': def(expr):
+        if type(expr) is 'function':
+            return expr
+        return def():
+            return undefined
+    ,'g': def(expr):
+        if expr is undefined or expr is None or type(expr.__getitem__) is not 'function':
+            return {'__getitem__': def(): return undefined;}
+    ,'e': def(expr, alt):
+        return alt if expr is undefined or expr is None else expr
+}
+
 def ρσ_mixin():
     # Implement a depth-first left-to-right method resolution order This is not
     # the same as python's MRO, but I really dont feel like implementing the C3

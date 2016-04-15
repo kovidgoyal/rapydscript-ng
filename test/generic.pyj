@@ -254,3 +254,15 @@ except MyException as e:
 def stackf():
     return traceback.format_stack()
 assrt.ok(str.strip(stackf()[-1]).startsWith('at stackf'))
+
+# Existential operator
+
+assrt.ok(not gfsgs?)
+undef = undefined
+assrt.ok(not undef?)
+undef = None
+assrt.ok(not undef?)
+undef = 0
+assrt.ok(undef?)
+assrt.equal(undef?(), undefined)
+assrt.equal(undef?.xxx?(), undefined)
