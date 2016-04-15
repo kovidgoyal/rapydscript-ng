@@ -1641,193 +1641,203 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         else:
             return False
 
-    def subscripts(expr, allow_calls):
+    def getitem(expr, allow_calls):
         start = expr.start
-        if is_("punc", "."):
-            next()
-            return subscripts(new AST_Dot({
-                'start': start,
-                'expression': expr,
-                'property': as_name(),
-                'end': prev()
-            }), allow_calls)
+        next()
+        is_py_sub = S.scoped_flags.get('overload_getitem', False)
+        slice_bounds = v'[]'
+        is_slice = False
+        if is_("punc", ":"):
+            # slice [:n]
+            slice_bounds.push(None)
+        else:
+            slice_bounds.push(expression(False))
 
-        if is_("punc", "[") and not S.token.nlb:
+        if is_("punc", ":"):
+            # slice [n:m?]
+            is_slice = True
             next()
-            is_py_sub = S.scoped_flags.get('overload_getitem', False)
-            slice_bounds = v'[]'
-            is_slice = False
             if is_("punc", ":"):
-                # slice [:n]
                 slice_bounds.push(None)
+            elif not is_("punc", "]"):
+                slice_bounds.push(expression(False))
+
+        if is_("punc", ":"):
+            # slice [n:m:o?]
+            next()
+            if is_("punc", "]"):
+                unexpected()
             else:
                 slice_bounds.push(expression(False))
 
-            if is_("punc", ":"):
-                # slice [n:m?]
-                is_slice = True
-                next()
-                if is_("punc", ":"):
-                    slice_bounds.push(None)
-                elif not is_("punc", "]"):
-                    slice_bounds.push(expression(False))
+        expect("]")
 
-            if is_("punc", ":"):
-                # slice [n:m:o?]
-                next()
-                if is_("punc", "]"):
-                    unexpected()
-                else:
-                    slice_bounds.push(expression(False))
-
-            expect("]")
-
-            if is_slice:
-                if is_("operator", '='):
-                    # splice-assignment (arr[start:end] = ...)
-                    next()  # swallow the assignment
-                    return subscripts(new AST_Splice({
-                        'start': start,
-                        'expression': expr,
-                        'property': slice_bounds[0] or new AST_Number({
-                            'value': 0
-                        }),
-                        'property2': slice_bounds[1],
-                        'assignment': expression(True),
-                        'end': prev()
-                    }), allow_calls)
-                elif slice_bounds.length is 3:
-                    # extended slice (arr[start:end:step])
-                    slice_bounds.unshift(slice_bounds.pop())
-                    if not slice_bounds[-1]:
-                        slice_bounds.pop()
-                        if not slice_bounds[-1]:
-                            slice_bounds.pop()
-                    elif not slice_bounds[-2]:
-                        slice_bounds[-2] = new AST_Undefined()
-                    return subscripts(new AST_Call({
-                        'start': start,
-                        'expression': new AST_SymbolRef({
-                            'name': 'ρσ_delslice' if S.in_delete else "ρσ_eslice"
-                        }),
-                        'args': [expr].concat(slice_bounds),
-                        'end': prev()
-                    }), allow_calls)
-                else:
-                    # regular slice (arr[start:end])
-                    slice_bounds = [new AST_Number({'value':0}) if i is None else i for i in slice_bounds]
-                    if S.in_delete:
-                        return subscripts(new AST_Call({
-                            'start': start,
-                            'expression': new AST_SymbolRef({'name': 'ρσ_delslice'}),
-                            'args': [expr, new AST_Number({'value':1})].concat(slice_bounds),
-                            'end': prev()
-                        }), allow_calls)
-
-                    return subscripts(new AST_Call({
-                        'start': start,
-                        'expression': new AST_Dot({
-                            'start': start,
-                            'expression': expr,
-                            'property': "slice",
-                            'end': prev()
-                        }),
-                        'args': slice_bounds,
-                        'end': prev()
-                    }), allow_calls)
-            else:
-                # regular index (arr[index])
-                if is_py_sub:
-                    assignment = None
-                    if is_("operator") and S.token.value is "=":
-                        next()
-                        assignment = expression(True)
-                    return subscripts(new AST_ItemAccess({
-                        'start': start,
-                        'expression': expr,
-                        'property': slice_bounds[0] or new AST_Number({
-                            'value': 0
-                        }),
-                        'assignment':assignment,
-                        'end': prev()
-                    }), allow_calls)
-
-                return subscripts(new AST_Sub({
+        if is_slice:
+            if is_("operator", '='):
+                # splice-assignment (arr[start:end] = ...)
+                next()  # swallow the assignment
+                return subscripts(new AST_Splice({
                     'start': start,
                     'expression': expr,
                     'property': slice_bounds[0] or new AST_Number({
                         'value': 0
                     }),
+                    'property2': slice_bounds[1],
+                    'assignment': expression(True),
+                    'end': prev()
+                }), allow_calls)
+            elif slice_bounds.length is 3:
+                # extended slice (arr[start:end:step])
+                slice_bounds.unshift(slice_bounds.pop())
+                if not slice_bounds[-1]:
+                    slice_bounds.pop()
+                    if not slice_bounds[-1]:
+                        slice_bounds.pop()
+                elif not slice_bounds[-2]:
+                    slice_bounds[-2] = new AST_Undefined()
+                return subscripts(new AST_Call({
+                    'start': start,
+                    'expression': new AST_SymbolRef({
+                        'name': 'ρσ_delslice' if S.in_delete else "ρσ_eslice"
+                    }),
+                    'args': [expr].concat(slice_bounds),
+                    'end': prev()
+                }), allow_calls)
+            else:
+                # regular slice (arr[start:end])
+                slice_bounds = [new AST_Number({'value':0}) if i is None else i for i in slice_bounds]
+                if S.in_delete:
+                    return subscripts(new AST_Call({
+                        'start': start,
+                        'expression': new AST_SymbolRef({'name': 'ρσ_delslice'}),
+                        'args': [expr, new AST_Number({'value':1})].concat(slice_bounds),
+                        'end': prev()
+                    }), allow_calls)
+
+                return subscripts(new AST_Call({
+                    'start': start,
+                    'expression': new AST_Dot({
+                        'start': start,
+                        'expression': expr,
+                        'property': "slice",
+                        'end': prev()
+                    }),
+                    'args': slice_bounds,
+                    'end': prev()
+                }), allow_calls)
+        else:
+            # regular index (arr[index])
+            if is_py_sub:
+                assignment = None
+                if is_("operator") and S.token.value is "=":
+                    next()
+                    assignment = expression(True)
+                return subscripts(new AST_ItemAccess({
+                    'start': start,
+                    'expression': expr,
+                    'property': slice_bounds[0] or new AST_Number({
+                        'value': 0
+                    }),
+                    'assignment':assignment,
                     'end': prev()
                 }), allow_calls)
 
-        if allow_calls and is_("punc", "(") and not S.token.nlb:
-            S.in_parenthesized_expr = True
-            next()
-            if not expr.parens and get_class_in_scope(expr):
-                # this is an object being created using a class
-                ret = subscripts(new AST_New({
+            return subscripts(new AST_Sub({
+                'start': start,
+                'expression': expr,
+                'property': slice_bounds[0] or new AST_Number({
+                    'value': 0
+                }),
+                'end': prev()
+            }), allow_calls)
+
+    def call_(expr):
+        start = expr.start
+        S.in_parenthesized_expr = True
+        next()
+        if not expr.parens and get_class_in_scope(expr):
+            # this is an object being created using a class
+            ret = subscripts(new AST_New({
+                'start': start,
+                'expression': expr,
+                'args': func_call_list(),
+                'end': prev()
+            }), True)
+            S.in_parenthesized_expr = False
+            return ret
+        else:
+            if isinstance(expr, AST_Dot):
+                c = get_class_in_scope(expr.expression)
+
+            if c:
+                # generate class call
+                funcname = expr
+                if funcname.property is "__init__":
+                    funcname.property = "constructor"
+
+                ret = subscripts(new AST_ClassCall({
                     'start': start,
-                    'expression': expr,
+                    "class": expr.expression,
+                    'method': funcname.property,
+                    "static": is_static_method(c, funcname.property),
                     'args': func_call_list(),
                     'end': prev()
                 }), True)
                 S.in_parenthesized_expr = False
                 return ret
-            else:
-                if isinstance(expr, AST_Dot):
-                    c = get_class_in_scope(expr.expression)
-
-                if c:
-                    # generate class call
-                    funcname = expr
-                    if funcname.property is "__init__":
-                        funcname.property = "constructor"
-
-                    ret = subscripts(new AST_ClassCall({
+            elif isinstance(expr, AST_SymbolRef):
+                tmp_ = expr.name
+                if tmp_ is "type":
+                    ret = new AST_UnaryPrefix({
                         'start': start,
-                        "class": expr.expression,
-                        'method': funcname.property,
-                        "static": is_static_method(c, funcname.property),
-                        'args': func_call_list(),
+                        'operator': "typeof",
+                        'expression': func_call_list()[0],
                         'end': prev()
-                    }), True)
+                    })
                     S.in_parenthesized_expr = False
                     return ret
-                elif isinstance(expr, AST_SymbolRef):
-                    tmp_ = expr.name
-                    if tmp_ is "type":
-                        ret = new AST_UnaryPrefix({
-                            'start': start,
-                            'operator': "typeof",
-                            'expression': func_call_list()[0],
-                            'end': prev()
-                        })
-                        S.in_parenthesized_expr = False
-                        return ret
-                    elif tmp_ is "isinstance":
-                        args = func_call_list()
-                        if args.length is not 2:
-                            croak('isinstance() must be called with exactly two arguments')
-                        ret = new AST_Binary({
-                            'start': start,
-                            'left': args[0],
-                            'operator': 'instanceof',
-                            'right': args[1],
-                            'end': prev()
-                        })
-                        S.in_parenthesized_expr = False
-                        return ret
+                elif tmp_ is "isinstance":
+                    args = func_call_list()
+                    if args.length is not 2:
+                        croak('isinstance() must be called with exactly two arguments')
+                    ret = new AST_Binary({
+                        'start': start,
+                        'left': args[0],
+                        'operator': 'instanceof',
+                        'right': args[1],
+                        'end': prev()
+                    })
+                    S.in_parenthesized_expr = False
+                    return ret
 
-                # fall-through to basic function call
-                ret = subscripts(new AST_Call({
-                    'start': start,
-                    'expression': expr,
-                    'args': func_call_list(),
-                    'end': prev()
-                }), True)
-                S.in_parenthesized_expr = False
-                return ret
+            # fall-through to basic function call
+            ret = subscripts(new AST_Call({
+                'start': start,
+                'expression': expr,
+                'args': func_call_list(),
+                'end': prev()
+            }), True)
+            S.in_parenthesized_expr = False
+            return ret
+
+    def get_attr(expr, allow_calls):
+        next()
+        return subscripts(new AST_Dot({
+            'start': expr.start,
+            'expression': expr,
+            'property': as_name(),
+            'end': prev()
+        }), allow_calls)
+
+    def subscripts(expr, allow_calls):
+        if is_("punc", "."):
+            return get_attr(expr, allow_calls)
+
+        if is_("punc", "[") and not S.token.nlb:
+            return getitem(expr, allow_calls)
+
+        if allow_calls and is_("punc", "(") and not S.token.nlb:
+            return call_(expr)
 
         return expr
 
