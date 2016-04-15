@@ -7,7 +7,7 @@ from utils import noop
 from parse import PRECEDENCE
 from ast import (
     AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
-    AST_Catch, AST_Class, AST_Conditional, AST_Const, AST_Constant, AST_Continue,
+    AST_Catch, AST_Class, AST_Conditional, AST_Constant, AST_Continue,
     AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
     AST_EmptyStatement, AST_Exit, AST_ExpressiveObject, AST_Finally, AST_ForIn,
     AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports, AST_Infinity,
@@ -405,9 +405,6 @@ def generate_code():
     )
     DEFPRINT(AST_Var, def(self, output):
         self._do_print(output, "var")
-    )
-    DEFPRINT(AST_Const, def(self, output):
-        self._do_print(output, "const")
     )
     def parenthesize_for_noin(node, output, noin):
         if not noin:

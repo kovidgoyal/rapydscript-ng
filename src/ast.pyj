@@ -616,10 +616,6 @@ AST_Var = DEFNODE("Var", None, {
     '$documentation': "A `var` statement"
 }, AST_Definitions)
 
-AST_Const = DEFNODE("Const", None, {
-    '$documentation': "A `const` statement"
-}, AST_Definitions)
-
 AST_VarDef = DEFNODE("VarDef", "name value", {
     '$documentation': "A variable declaration; only appears in a AST_Definitions node",
     '$propdoc': {
