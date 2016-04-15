@@ -3,6 +3,8 @@
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: ρσ_str
 
+NameError = ReferenceError
+
 class Exception(Error):
 
     def __init__(self, message):
