@@ -6,50 +6,12 @@ Object.defineProperties(ρσ_bool, {
     __argnames__ : {value: ["val"]}
 });
 
-function ρσ_eslice(arr, step, start, end) {
-    var isString;
-    arr = arr.slice(0);
-    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
-        isString = true;
-        arr = arr.split("");
-    }
-    if (step < 0) {
-        step = -step;
-        arr.reverse();
-        if (typeof start !== "undefined") {
-            start = arr.length - start - 1;
-        }
-        if (typeof end !== "undefined") {
-            end = arr.length - end - 1;
-        }
-    }
-    if (typeof start === "undefined") {
-        start = 0;
-    }
-    if (typeof end === "undefined") {
-        end = arr.length;
-    }
-    arr = arr.slice(start, end).filter((function() {
-        var ρσ_anonfunc = function (e, i) {
-            return i % step === 0;
-        };
-        Object.defineProperties(ρσ_anonfunc, {
-            __argnames__ : {value: ["e", "i"]}
-        });
-        return ρσ_anonfunc;
-    })());
-    return (isString) ? arr.join("") : arr;
-};
-Object.defineProperties(ρσ_eslice, {
-    __argnames__ : {value: ["arr", "step", "start", "end"]}
-});
-
 function ρσ_print() {
     var parts;
     if (typeof console === "object") {
         parts = [];
         for (var i = 0; i < arguments.length; i++) {
-            parts.push(ρσ_str(arguments[i]));
+            parts.push(ρσ_str(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]));
         }
         console.log(parts.join(" "));
     }
@@ -99,7 +61,7 @@ function ρσ_arraylike_creator() {
 function options_object(f) {
     return function () {
         if (typeof arguments[arguments.length - 1] === "object") {
-            arguments[arguments.length - 1][ρσ_kwargs_symbol] = true;
+            arguments[ρσ_bound_index(arguments.length - 1, arguments)][ρσ_kwargs_symbol] = true;
         }
         return f.apply(this, arguments);
     };
@@ -307,8 +269,9 @@ Object.defineProperties(ρσ_range, {
 function ρσ_getattr(obj, name, defval) {
     var ret;
     try {
-        ret = obj[name];
+        ret = obj[(typeof name === "number" && name < 0) ? obj.length + name : name];
     } catch (ρσ_Exception) {
+        ρσ_last_exception = ρσ_Exception;
         if (ρσ_Exception instanceof TypeError) {
             if (defval === undefined) {
                 throw new AttributeError("The attribute " + name + " is not present");
@@ -331,7 +294,7 @@ Object.defineProperties(ρσ_getattr, {
 });
 
 function ρσ_setattr(obj, name, value) {
-    obj[name] = value;
+    obj[(typeof name === "number" && name < 0) ? obj.length + name : name] = value;
 };
 Object.defineProperties(ρσ_setattr, {
     __argnames__ : {value: ["obj", "name", "value"]}
@@ -378,7 +341,7 @@ Object.defineProperties(ρσ_hasattr, {
 }();
 var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool;
 var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
-var print = ρσ_print, eslice = ρσ_eslice, id = ρσ_id;
+var print = ρσ_print, id = ρσ_id;
 var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;
 var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len;
 var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr;var ρσ_chain_assign_temp;
@@ -398,7 +361,7 @@ function ρσ_equals(a, b) {
             return false;
         }
         for (var i=0; i < a.length; i++) {
-            if (!((a[i] === b[i] || typeof a[i] === "object" && ρσ_equals(a[i], b[i])))) {
+            if (!((a[(typeof i === "number" && i < 0) ? a.length + i : i] === b[(typeof i === "number" && i < 0) ? b.length + i : i] || typeof a[(typeof i === "number" && i < 0) ? a.length + i : i] === "object" && ρσ_equals(a[(typeof i === "number" && i < 0) ? a.length + i : i], b[(typeof i === "number" && i < 0) ? b.length + i : i])))) {
                 return false;
             }
         }
@@ -412,8 +375,8 @@ function ρσ_equals(a, b) {
             return false;
         }
         for (var j=0; j < akeys.length; j++) {
-            key = akeys[j];
-            if (!((a[key] === b[key] || typeof a[key] === "object" && ρσ_equals(a[key], b[key])))) {
+            key = akeys[(typeof j === "number" && j < 0) ? akeys.length + j : j];
+            if (!((a[(typeof key === "number" && key < 0) ? a.length + key : key] === b[(typeof key === "number" && key < 0) ? b.length + key : key] || typeof a[(typeof key === "number" && key < 0) ? a.length + key : key] === "object" && ρσ_equals(a[(typeof key === "number" && key < 0) ? a.length + key : key], b[(typeof key === "number" && key < 0) ? b.length + key : key])))) {
                 return false;
             }
         }
@@ -448,7 +411,7 @@ function ρσ_list_extend(iterable) {
         start = this.length;
         this.length += iterable.length;
         for (var i = 0; i < iterable.length; i++) {
-            this[start + i] = iterable[i];
+            (ρσ_expr_temp = this)[ρσ_bound_index(start + i, ρσ_expr_temp)] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
     } else {
         iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
@@ -483,7 +446,7 @@ function ρσ_list_index(val, start, stop) {
         stop = this.length + stop;
     }
     for (var i = start; i < stop; i++) {
-        if ((this[i] === val || typeof this[i] === "object" && ρσ_equals(this[i], val))) {
+        if (((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === val || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], val))) {
             return i;
         }
     }
@@ -534,9 +497,9 @@ function ρσ_list_insert(index, val) {
         return;
     }
     for (var i = this.length; i > index; i--) {
-        this[i] = this[i - 1];
+        (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] = (ρσ_expr_temp = this)[ρσ_bound_index(i - 1, ρσ_expr_temp)];
     }
-    this[index] = val;
+    (ρσ_expr_temp = this)[(typeof index === "number" && index < 0) ? ρσ_expr_temp.length + index : index] = val;
 };
 Object.defineProperties(ρσ_list_insert, {
     __argnames__ : {value: ["index", "val"]}
@@ -600,7 +563,7 @@ function ρσ_list_sort(key, reverse) {
     mult = (reverse) ? -1 : 1;
     keymap = dict();
     for (var i=0; i < this.length; i++) {
-        k = this[i];
+        k = (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         keymap.set(k, key(k));
     }
     this.sort((function() {
@@ -650,7 +613,7 @@ function ρσ_list_iterator(value) {
             return (function(){
                 var ρσ_d = Object.create(null);
                 ρσ_d["done"] = false;
-                ρσ_d["value"] = this._list[this._i];
+                ρσ_d["value"] = (ρσ_expr_temp = this._list)[ρσ_bound_index(this._i, ρσ_expr_temp)];
                 return ρσ_d;
             }).call(this);
         };
@@ -667,7 +630,7 @@ function ρσ_list_len() {
 
 function ρσ_list_contains(val) {
     for (var i = 0; i < this.length; i++) {
-        if ((this[i] === val || typeof this[i] === "object" && ρσ_equals(this[i], val))) {
+        if (((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === val || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], val))) {
             return true;
         }
     }
@@ -685,7 +648,7 @@ function ρσ_list_eq(other) {
         return false;
     }
     for (var i = 0; i < this.length; i++) {
-        if (!((this[i] === other[i] || typeof this[i] === "object" && ρσ_equals(this[i], other[i])))) {
+        if (!(((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === other[(typeof i === "number" && i < 0) ? other.length + i : i] || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], other[(typeof i === "number" && i < 0) ? other.length + i : i])))) {
             return false;
         }
     }
@@ -731,7 +694,7 @@ function ρσ_list_constructor(iterable) {
     } else if (ρσ_arraylike(iterable)) {
         ans = new Array(iterable.length);
         for (var i = 0; i < iterable.length; i++) {
-            ans[i] = iterable[i];
+            ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
     } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
         iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
@@ -813,7 +776,7 @@ function ρσ_set_polyfill() {
         key = ρσ_set_keyfor(x);
         if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
-            this._store[key] = x;
+            (ρσ_expr_temp = this._store)[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = x;
         }
         return this;
     };
@@ -894,7 +857,7 @@ function ρσ_set(iterable) {
         s = ans.jsset;
         if (ρσ_arraylike(iterable)) {
             for (var i = 0; i < iterable.length; i++) {
-                s.add(iterable[i]);
+                s.add(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i]);
             }
         } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
             iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
@@ -906,7 +869,7 @@ function ρσ_set(iterable) {
         } else {
             keys = Object.keys(iterable);
             for (var j=0; j < keys.length; j++) {
-                s.add(keys[j]);
+                s.add(keys[(typeof j === "number" && j < 0) ? keys.length + j : j]);
             }
         }
         return ans;
@@ -989,7 +952,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
         x = r.value;
         has = false;
         for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i].has(x)) {
+            if (arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 has = true;
                 break;
             }
@@ -1010,7 +973,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
     while (!r.done) {
         x = r.value;
         for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i].has(x)) {
+            if (arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 remove.push(x);
                 break;
             }
@@ -1018,7 +981,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
         r = iterator.next();
     }
     for (var j = 0; j < remove.length; j++) {
-        s.delete(remove[j]);
+        s.delete(remove[(typeof j === "number" && j < 0) ? remove.length + j : j]);
     }
 };
 ρσ_set.prototype.intersection = function () {
@@ -1031,7 +994,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
         x = r.value;
         has = true;
         for (var i = 0; i < arguments.length; i++) {
-            if (!arguments[i].has(x)) {
+            if (!arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 has = false;
                 break;
             }
@@ -1052,7 +1015,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
     while (!r.done) {
         x = r.value;
         for (var i = 0; i < arguments.length; i++) {
-            if (!arguments[i].has(x)) {
+            if (!arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].has(x)) {
                 remove.push(x);
                 break;
             }
@@ -1060,7 +1023,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
         r = iterator.next();
     }
     for (var j = 0; j < remove.length; j++) {
-        s.delete(remove[j]);
+        s.delete(remove[(typeof j === "number" && j < 0) ? remove.length + j : j]);
     }
 };
 ρσ_set.prototype.isdisjoint = (function() {
@@ -1173,7 +1136,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
     var s, iterator, r;
     s = this.jsset;
     for (var i=0; i < arguments.length; i++) {
-        iterator = arguments[i][ρσ_iterator_symbol]();
+        iterator = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i][ρσ_iterator_symbol]();
         r = iterator.next();
         while (!r.done) {
             s.add(r.value);
@@ -1238,7 +1201,7 @@ function ρσ_dict_polyfill() {
         if (!Object.prototype.hasOwnProperty.call(this._store, key)) {
             this.size += 1;
         }
-        this._store[key] = [x, value];
+        (ρσ_expr_temp = this._store)[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = [x, value];
         return this;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -1284,8 +1247,9 @@ function ρσ_dict_polyfill() {
 ρσ_dict_polyfill.prototype.get = (function() {
     var ρσ_anonfunc = function (x) {
         try {
-            return this._store[ρσ_set_keyfor(x)][1];
+            return (ρσ_expr_temp = this._store)[ρσ_bound_index(ρσ_set_keyfor(x), ρσ_expr_temp)][1];
         } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
             if (ρσ_Exception instanceof TypeError) {
                 return undefined;
             } else {
@@ -1427,6 +1391,15 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
 ρσ_dict.prototype.set = ρσ_chain_assign_temp;
 ρσ_dict.prototype.__setitem__ = ρσ_chain_assign_temp;
 ;
+ρσ_dict.prototype.__delitem__ = (function() {
+    var ρσ_anonfunc = function (key) {
+        this.jsmap.delete(key);
+    };
+    Object.defineProperties(ρσ_anonfunc, {
+        __argnames__ : {value: ["key"]}
+    });
+    return ρσ_anonfunc;
+})();
 ρσ_dict.prototype.clear = function () {
     this.jsmap.clear();
 };
@@ -1556,7 +1529,7 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
     iterable = arguments[0];
     if (Array.isArray(iterable)) {
         for (var i = 0; i < iterable.length; i++) {
-            m.set(iterable[i][0], iterable[i][1]);
+            m.set(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][0], iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][1]);
         }
     } else if (ρσ_instanceof(iterable, ρσ_dict)) {
         iterator = iterable.items();
@@ -1582,8 +1555,8 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
     } else {
         keys = Object.keys(iterable);
         for (var j=0; j < keys.length; j++) {
-            if (keys[j] !== ρσ_iterator_symbol) {
-                m.set(keys[j], iterable[keys[j]]);
+            if (keys[(typeof j === "number" && j < 0) ? keys.length + j : j] !== ρσ_iterator_symbol) {
+                m.set(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], iterable[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], iterable)]);
             }
         }
     }
@@ -1640,7 +1613,7 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
         iterator = this.jsmap.entries();
         r = iterator.next();
         while (!r.done) {
-            ans[r.value[0]] = r.value[1];
+            ans[ρσ_bound_index(r.value[0], ans)] = r.value[1];
             r = iterator.next();
         }
         return ans;
@@ -1660,125 +1633,240 @@ Object.defineProperties(ρσ_dict_wrap, {
     __argnames__ : {value: ["x"]}
 });
 
-var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;var Exception = Error;
+var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;function Exception() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    Exception.prototype.__init__.apply(this, arguments);
+}
+ρσ_extends(Exception, Error);
+Exception.prototype.__init__ = function __init__(message) {
+    var self = this;
+    self.message = message;
+    self.stack = (new Error).stack;
+    self.name = self.constructor.name;
+};
+Object.defineProperties(Exception.prototype.__init__, {
+    __argnames__ : {value: ["message"]}
+});
+Exception.__argnames__ = Exception.prototype.__init__.__argnames__;
+Exception.__handles_kwarg_interpolation__ = Exception.prototype.__init__.__handles_kwarg_interpolation__;
+Exception.prototype.__repr__ = function __repr__() {
+    var self = this;
+    return self.name + ": " + self.message;
+};
+Object.defineProperties(Exception.prototype.__repr__, {
+    __argnames__ : {value: []}
+});
+Exception.prototype.__str__ = function __str__ () {
+    if(Error.prototype.__str__) return Error.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(Exception.prototype, "__bases__", {value: [Error]});
+
 function AttributeError() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     AttributeError.prototype.__init__.apply(this, arguments);
 }
-ρσ_extends(AttributeError, Error);
-AttributeError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
+ρσ_extends(AttributeError, Exception);
+AttributeError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
 };
-Object.defineProperties(AttributeError.prototype.__init__, {
-    __argnames__ : {value: ["msg"]}
-});
-AttributeError.__argnames__ = AttributeError.prototype.__init__.__argnames__;
-AttributeError.__handles_kwarg_interpolation__ = AttributeError.prototype.__init__.__handles_kwarg_interpolation__;
 AttributeError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "AttributeError" + " #" + this.ρσ_object_id + ">";
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
 };
 AttributeError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
 };
-Object.defineProperty(AttributeError.prototype, "__bases__", {value: [Error]});
-AttributeError.prototype.name = "AttributeError";
+Object.defineProperty(AttributeError.prototype, "__bases__", {value: [Exception]});
+
 
 function IndexError() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     IndexError.prototype.__init__.apply(this, arguments);
 }
-ρσ_extends(IndexError, Error);
-IndexError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
+ρσ_extends(IndexError, Exception);
+IndexError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
 };
-Object.defineProperties(IndexError.prototype.__init__, {
-    __argnames__ : {value: ["msg"]}
-});
-IndexError.__argnames__ = IndexError.prototype.__init__.__argnames__;
-IndexError.__handles_kwarg_interpolation__ = IndexError.prototype.__init__.__handles_kwarg_interpolation__;
 IndexError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "IndexError" + " #" + this.ρσ_object_id + ">";
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
 };
 IndexError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
 };
-Object.defineProperty(IndexError.prototype, "__bases__", {value: [Error]});
-IndexError.prototype.name = "IndexError";
+Object.defineProperty(IndexError.prototype, "__bases__", {value: [Exception]});
+
 
 function KeyError() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     KeyError.prototype.__init__.apply(this, arguments);
 }
-ρσ_extends(KeyError, Error);
-KeyError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
+ρσ_extends(KeyError, Exception);
+KeyError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
 };
-Object.defineProperties(KeyError.prototype.__init__, {
-    __argnames__ : {value: ["msg"]}
-});
-KeyError.__argnames__ = KeyError.prototype.__init__.__argnames__;
-KeyError.__handles_kwarg_interpolation__ = KeyError.prototype.__init__.__handles_kwarg_interpolation__;
 KeyError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "KeyError" + " #" + this.ρσ_object_id + ">";
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
 };
 KeyError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
 };
-Object.defineProperty(KeyError.prototype, "__bases__", {value: [Error]});
-KeyError.prototype.name = "KeyError";
+Object.defineProperty(KeyError.prototype, "__bases__", {value: [Exception]});
+
 
 function ValueError() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     ValueError.prototype.__init__.apply(this, arguments);
 }
-ρσ_extends(ValueError, Error);
-ValueError.prototype.__init__ = function __init__(msg) {
-    var self = this;
-    self.message = msg;
-    self.stack = (new Error).stack;
+ρσ_extends(ValueError, Exception);
+ValueError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
 };
-Object.defineProperties(ValueError.prototype.__init__, {
-    __argnames__ : {value: ["msg"]}
-});
-ValueError.__argnames__ = ValueError.prototype.__init__.__argnames__;
-ValueError.__handles_kwarg_interpolation__ = ValueError.prototype.__init__.__handles_kwarg_interpolation__;
 ValueError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "ValueError" + " #" + this.ρσ_object_id + ">";
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
 };
 ValueError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
 };
-Object.defineProperty(ValueError.prototype, "__bases__", {value: [Error]});
-ValueError.prototype.name = "ValueError";
+Object.defineProperty(ValueError.prototype, "__bases__", {value: [Exception]});
+
 
 function UnicodeDecodeError() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
     UnicodeDecodeError.prototype.__init__.apply(this, arguments);
 }
-ρσ_extends(UnicodeDecodeError, ValueError);
+ρσ_extends(UnicodeDecodeError, Exception);
 UnicodeDecodeError.prototype.__init__ = function __init__ () {
-    ValueError.prototype.__init__ && ValueError.prototype.__init__.apply(this, arguments);
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
 };
 UnicodeDecodeError.prototype.__repr__ = function __repr__ () {
-    return "<" + __name__ + "." + "UnicodeDecodeError" + " #" + this.ρσ_object_id + ">";
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
 };
 UnicodeDecodeError.prototype.__str__ = function __str__ () {
-    return this.__repr__();
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
 };
-Object.defineProperty(UnicodeDecodeError.prototype, "__bases__", {value: [ValueError]});
-UnicodeDecodeError.prototype.name = "UnicodeDecodeError";
+Object.defineProperty(UnicodeDecodeError.prototype, "__bases__", {value: [Exception]});
+
+
+function AssertionError() {
+    if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+    AssertionError.prototype.__init__.apply(this, arguments);
+}
+ρσ_extends(AssertionError, Exception);
+AssertionError.prototype.__init__ = function __init__ () {
+    Exception.prototype.__init__ && Exception.prototype.__init__.apply(this, arguments);
+};
+AssertionError.prototype.__repr__ = function __repr__ () {
+    if(Exception.prototype.__repr__) return Exception.prototype.__repr__.call(this);
+    return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+};
+AssertionError.prototype.__str__ = function __str__ () {
+    if(Exception.prototype.__str__) return Exception.prototype.__str__.call(this);
+return this.__repr__();
+};
+Object.defineProperty(AssertionError.prototype, "__bases__", {value: [Exception]});
+
 var ρσ_in, ρσ_desugar_kwargs;
+function ρσ_eslice(arr, step, start, end) {
+    var is_string;
+    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+        is_string = true;
+        arr = arr.split("");
+    }
+    if (step < 0) {
+        step = -step;
+        arr = arr.slice().reverse();
+        if (typeof start !== "undefined") {
+            start = arr.length - start - 1;
+        }
+        if (typeof end !== "undefined") {
+            end = arr.length - end - 1;
+        }
+    }
+    if (typeof start === "undefined") {
+        start = 0;
+    }
+    if (typeof end === "undefined") {
+        end = arr.length;
+    }
+    arr = arr.slice(start, end).filter((function() {
+        var ρσ_anonfunc = function (e, i) {
+            return i % step === 0;
+        };
+        Object.defineProperties(ρσ_anonfunc, {
+            __argnames__ : {value: ["e", "i"]}
+        });
+        return ρσ_anonfunc;
+    })());
+    if (is_string) {
+        arr = arr.join("");
+    }
+    return arr;
+};
+Object.defineProperties(ρσ_eslice, {
+    __argnames__ : {value: ["arr", "step", "start", "end"]}
+});
+
+function ρσ_delslice(arr, step, start, end) {
+    var is_string, ρσ_unpack, indices;
+    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+        is_string = true;
+        arr = arr.split("");
+    }
+    if (step < 0) {
+        if (typeof start === "undefined") {
+            start = arr.length;
+        }
+        if (typeof end === "undefined") {
+            end = 0;
+        }
+        ρσ_unpack = [end, start, -step];
+        start = ρσ_unpack[0];
+        end = ρσ_unpack[1];
+        step = ρσ_unpack[2];
+    }
+    if (typeof start === "undefined") {
+        start = 0;
+    }
+    if (typeof end === "undefined") {
+        end = arr.length;
+    }
+    if (step === 1) {
+        arr.splice(start, end - start);
+    } else {
+        if (end > start) {
+            indices = [];
+            for (var i = start; i < end; i += step) {
+                indices.push(i);
+            }
+            for (var i = indices.length - 1; i >= 0; i--) {
+                arr.splice(indices[(typeof i === "number" && i < 0) ? indices.length + i : i], 1);
+            }
+        }
+    }
+    if (is_string) {
+        arr = arr.join("");
+    }
+    return arr;
+};
+Object.defineProperties(ρσ_delslice, {
+    __argnames__ : {value: ["arr", "step", "start", "end"]}
+});
+
 function ρσ_flatten(arr) {
     var ans, value;
     ans = ρσ_list_decorate([]);
-    for (var i=0; i<arr.length; i++) {
-        value = arr[i];
+    for (var i=0; i < arr.length; i++) {
+        value = arr[(typeof i === "number" && i < 0) ? arr.length + i : i];
         if (Array.isArray(value)) {
             ans = ans.concat(ρσ_flatten(value));
         } else {
@@ -1870,7 +1958,7 @@ Object.defineProperties(ρσ_Iterable, {
             ans = Object.create(null);
             ans[ρσ_kwargs_symbol] = true;
             for (var i = 0; i < arguments.length; i++) {
-                Object.assign(ans, arguments[i]);
+                Object.assign(ans, arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
             }
             return ans;
         };
@@ -1880,9 +1968,9 @@ Object.defineProperties(ρσ_Iterable, {
         ans = Object.create(null);
         ans[ρσ_kwargs_symbol] = true;
         for (var i = 0; i < arguments.length; i++) {
-            keys = Object.keys(arguments[i]);
+            keys = Object.keys(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
             for (var j = 0; j < keys.length; j++) {
-                ans[keys[j]] = arguments[i][keys[j]];
+                ans[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], ans)] = (ρσ_expr_temp = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i])[ρσ_bound_index(keys[(typeof j === "number" && j < 0) ? keys.length + j : j], ρσ_expr_temp)];
             }
         }
         return ans;
@@ -1900,23 +1988,23 @@ function ρσ_interpolate_kwargs(f, supplied_args) {
         args[args.length-1] = kwobj;
         for (var i = 0; i < args.length - 1; i++) {
             if (i < f.__argnames__.length) {
-                prop = f.__argnames__[i];
+                prop = (ρσ_expr_temp = f.__argnames__)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
                 if (has_prop.call(kwobj, prop)) {
-                    args[i] = kwobj[prop];
+                    args[(typeof i === "number" && i < 0) ? args.length + i : i] = kwobj[(typeof prop === "number" && prop < 0) ? kwobj.length + prop : prop];
                     delete kwobj[prop];
                 } else if (i < supplied_args.length) {
-                    args[i] = supplied_args[i];
+                    args[(typeof i === "number" && i < 0) ? args.length + i : i] = supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i];
                 }
             } else {
-                args[i] = supplied_args[i];
+                args[(typeof i === "number" && i < 0) ? args.length + i : i] = supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i];
             }
         }
         return f.apply(this, args);
     }
     for (var i = 0; i < f.__argnames__.length; i++) {
-        prop = f.__argnames__[i];
+        prop = (ρσ_expr_temp = f.__argnames__)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         if (has_prop.call(kwobj, prop)) {
-            supplied_args[i] = kwobj[prop];
+            supplied_args[(typeof i === "number" && i < 0) ? supplied_args.length + i : i] = kwobj[(typeof prop === "number" && prop < 0) ? kwobj.length + prop : prop];
         }
     }
     return f.apply(this, supplied_args);
@@ -1938,7 +2026,13 @@ Object.defineProperties(ρσ_interpolate_kwargs_constructor, {
 });
 
 function ρσ_getitem(obj, key) {
-    return (obj.__getitem__) ? obj.__getitem__(key) : obj[key];
+    if (obj.__getitem__) {
+        return obj.__getitem__(key);
+    }
+    if (typeof key === "number" && key < 0) {
+        key += obj.length;
+    }
+    return obj[(typeof key === "number" && key < 0) ? obj.length + key : key];
 };
 Object.defineProperties(ρσ_getitem, {
     __argnames__ : {value: ["obj", "key"]}
@@ -1948,11 +2042,40 @@ function ρσ_setitem(obj, key, val) {
     if (obj.__setitem__) {
         obj.__setitem__(key, val);
     } else {
-        obj[key] = val;
+        if (typeof key === "number" && key < 0) {
+            key += obj.length;
+        }
+        obj[(typeof key === "number" && key < 0) ? obj.length + key : key] = val;
     }
 };
 Object.defineProperties(ρσ_setitem, {
     __argnames__ : {value: ["obj", "key", "val"]}
+});
+
+function ρσ_delitem(obj, key) {
+    if (obj.__delitem__) {
+        obj.__delitem__(key);
+    } else if (typeof obj.splice === "function") {
+        obj.splice(key, 1);
+    } else {
+        if (typeof key === "number" && key < 0) {
+            key += obj.length;
+        }
+        delete obj[key];
+    }
+};
+Object.defineProperties(ρσ_delitem, {
+    __argnames__ : {value: ["obj", "key"]}
+});
+
+function ρσ_bound_index(idx, arr) {
+    if (typeof idx === "number" && idx < 0) {
+        idx += arr.length;
+    }
+    return idx;
+};
+Object.defineProperties(ρσ_bound_index, {
+    __argnames__ : {value: ["idx", "arr"]}
 });
 
 function ρσ_mixin() {
@@ -1977,21 +2100,21 @@ function ρσ_mixin() {
     while (p && p !== Object.prototype) {
         props = Object.getOwnPropertyNames(p);
         for (var i = 0; i < props.length; i++) {
-            seen[props[i]] = true;
+            seen[ρσ_bound_index(props[(typeof i === "number" && i < 0) ? props.length + i : i], seen)] = true;
         }
         p = Object.getPrototypeOf(p);
     }
     for (var c = 1; c < arguments.length; c++) {
-        p = arguments[c].prototype;
+        p = arguments[(typeof c === "number" && c < 0) ? arguments.length + c : c].prototype;
         while (p && p !== Object.prototype) {
             props = Object.getOwnPropertyNames(p);
             for (var i = 0; i < props.length; i++) {
-                name = props[i];
-                if (seen[name]) {
+                name = props[(typeof i === "number" && i < 0) ? props.length + i : i];
+                if (seen[(typeof name === "number" && name < 0) ? seen.length + name : name]) {
                     continue;
                 }
-                seen[name] = true;
-                resolved_props[name] = Object.getOwnPropertyDescriptor(p, name);
+                seen[(typeof name === "number" && name < 0) ? seen.length + name : name] = true;
+                resolved_props[(typeof name === "number" && name < 0) ? resolved_props.length + name : name] = Object.getOwnPropertyDescriptor(p, name);
             }
             p = Object.getPrototypeOf(p);
         }
@@ -2002,17 +2125,12 @@ function ρσ_mixin() {
 function ρσ_instanceof() {
     var obj, bases, q, cls, p;
     obj = arguments[0];
-    try {
+    bases = "";
+    if (obj && obj.constructor && obj.constructor.prototype) {
         bases = obj.constructor.prototype.__bases__ || "";
-    } catch (ρσ_Exception) {
-        if (ρσ_Exception instanceof Exception) {
-            bases = "";
-        } else {
-            throw ρσ_Exception;
-        }
     }
     for (var i = 1; i < arguments.length; i++) {
-        q = arguments[i];
+        q = arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i];
         if (obj instanceof q) {
             return true;
         }
@@ -2024,7 +2142,7 @@ function ρσ_instanceof() {
         }
         if (bases.length > 1) {
             for (var c = 1; c < bases.length; c++) {
-                cls = bases[c];
+                cls = bases[(typeof c === "number" && c < 0) ? bases.length + c : c];
                 while (cls) {
                     if (q === cls) {
                         return true;
@@ -2072,7 +2190,7 @@ function map() {
     func = arguments[0];
     args = new Array(arguments.length - 1);
     for (var i = 1; i < arguments.length; i++) {
-        iterators[i - 1] = iter(arguments[i]);
+        iterators[ρσ_bound_index(i - 1, iterators)] = iter(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
     }
     ans = {'_func':func, '_iterators':iterators, '_args':args};
     ans[ρσ_iterator_symbol] = function () {
@@ -2081,11 +2199,11 @@ function map() {
     ans["next"] = function () {
         var r;
         for (var i = 0; i < this._iterators.length; i++) {
-            r = this._iterators[i].next();
+            r = (ρσ_expr_temp = this._iterators)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].next();
             if (r.done) {
                 return {'done':true};
             }
-            this._args[i] = r.value;
+            (ρσ_expr_temp = this._args)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] = r.value;
         }
         return {'done':false, 'value':this._func.apply(undefined, this._args)};
     };
@@ -2120,7 +2238,7 @@ function zip() {
     var iterators, ans;
     iterators = new Array(arguments.length);
     for (var i = 0; i < arguments.length; i++) {
-        iterators[i] = iter(arguments[i]);
+        iterators[(typeof i === "number" && i < 0) ? iterators.length + i : i] = iter(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
     }
     ans = {'_iterators':iterators};
     ans[ρσ_iterator_symbol] = function () {
@@ -2130,16 +2248,46 @@ function zip() {
         var args, r;
         args = new Array(this._iterators.length);
         for (var i = 0; i < this._iterators.length; i++) {
-            r = this._iterators[i].next();
+            r = (ρσ_expr_temp = this._iterators)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].next();
             if (r.done) {
                 return {'done':true};
             }
-            args[i] = r.value;
+            args[(typeof i === "number" && i < 0) ? args.length + i : i] = r.value;
         }
         return {'done':false, 'value':args};
     };
     return ans;
 };
+
+function any(iterable) {
+    var i;
+    var ρσ_Iter0 = ρσ_Iterable(iterable);
+    for (var ρσ_Index0 = 0; ρσ_Index0 < ρσ_Iter0.length; ρσ_Index0++) {
+        i = ρσ_Iter0[ρσ_Index0];
+        if (i) {
+            return true;
+        }
+    }
+    return false;
+};
+Object.defineProperties(any, {
+    __argnames__ : {value: ["iterable"]}
+});
+
+function all(iterable) {
+    var i;
+    var ρσ_Iter1 = ρσ_Iterable(iterable);
+    for (var ρσ_Index1 = 0; ρσ_Index1 < ρσ_Iter1.length; ρσ_Index1++) {
+        i = ρσ_Iter1[ρσ_Index1];
+        if (!i) {
+            return false;
+        }
+    }
+    return true;
+};
+Object.defineProperties(all, {
+    __argnames__ : {value: ["iterable"]}
+});
 var define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
 function ρσ_repr_js_builtin(x, as_array) {
     var ans, b, keys, key;
@@ -2148,13 +2296,13 @@ function ρσ_repr_js_builtin(x, as_array) {
     if (as_array) {
         b = "[]";
         for (var i = 0; i < x.length; i++) {
-            ans.push(ρσ_repr(x[i]));
+            ans.push(ρσ_repr(x[(typeof i === "number" && i < 0) ? x.length + i : i]));
         }
     } else {
         keys = Object.keys(x);
         for (var k = 0; k < keys.length; k++) {
-            key = keys[k];
-            ans.push(JSON.stringify(key) + ":" + ρσ_repr(x[key]));
+            key = keys[(typeof k === "number" && k < 0) ? keys.length + k : k];
+            ans.push(JSON.stringify(key) + ":" + ρσ_repr(x[(typeof key === "number" && key < 0) ? x.length + key : key]));
         }
     }
     return b[0] + ans.join(", ") + b[1];
@@ -2202,6 +2350,9 @@ function ρσ_repr(x) {
         try {
             ans = JSON.stringify(x);
         } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            {
+            } 
         }
     }
     return ans + "";
@@ -2256,9 +2407,9 @@ Object.defineProperties(ρσ_str, {
 define_str_func = (function() {
     var ρσ_anonfunc = function (name, func) {
         var f, ρσ_chain_assign_temp;
-        ρσ_str.prototype[name] = func;
+        (ρσ_expr_temp = ρσ_str.prototype)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name] = func;
         ρσ_chain_assign_temp = func.call.bind(func);
-        ρσ_str[name] = ρσ_chain_assign_temp;
+        ρσ_str[(typeof name === "number" && name < 0) ? ρσ_str.length + name : name] = ρσ_chain_assign_temp;
         f = ρσ_chain_assign_temp;
 ;
         if (func.__argnames__) {
@@ -2308,7 +2459,7 @@ define_str_func("format", function () {
         arg = ρσ_unpack[1];
         key = split(arg, ρσ_str.format._template_resolve_pat, 1)[0];
         rest = arg.slice(key.length);
-        ans = (first === "[") ? object[key.slice(0, -1)] : getattr(object, key);
+        ans = (first === "[") ? object[ρσ_bound_index(key.slice(0, -1), object)] : getattr(object, key);
         if (ans === undefined) {
             throw new KeyError((first === "[") ? key.slice(0, -1) : key);
         }
@@ -2327,7 +2478,7 @@ define_str_func("format", function () {
                 if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
                     return "";
                 }
-                return "" + kwargs[key];
+                return "" + kwargs[(typeof key === "number" && key < 0) ? kwargs.length + key : key];
             };
             Object.defineProperties(ρσ_anonfunc, {
                 __argnames__ : {value: ["match", "key"]}
@@ -2359,6 +2510,7 @@ define_str_func("format", function () {
             precision = ρσ_unpack[7];
             ftype = ρσ_unpack[8];
         } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
             if (ρσ_Exception instanceof TypeError) {
                 return value;
             } else {
@@ -2518,7 +2670,7 @@ define_str_func("format", function () {
         pos = 0;
         state = 0;
         while (pos < markup.length) {
-            ch = markup[pos];
+            ch = markup[(typeof pos === "number" && pos < 0) ? markup.length + pos : pos];
             if (state === 0) {
                 if (ch === "!") {
                     state = 1;
@@ -2560,7 +2712,7 @@ define_str_func("format", function () {
                 throw new ValueError("cannot switch from automatic field numbering to manual field specification");
             }
             nvalue = parseInt(lkey);
-            object = (isNaN(nvalue)) ? kwargs[lkey] : args[nvalue];
+            object = (isNaN(nvalue)) ? kwargs[(typeof lkey === "number" && lkey < 0) ? kwargs.length + lkey : lkey] : args[(typeof nvalue === "number" && nvalue < 0) ? args.length + nvalue : nvalue];
             if (object === undefined) {
                 if (isNaN(nvalue)) {
                     throw new KeyError(lkey);
@@ -2576,7 +2728,7 @@ define_str_func("format", function () {
             if (idx >= args.length) {
                 throw new IndexError("Not enough arguments to match template: " + template);
             }
-            object = args[idx];
+            object = args[(typeof idx === "number" && idx < 0) ? args.length + idx : idx];
             idx += 1;
         }
         if (typeof object === "function") {
@@ -2597,7 +2749,7 @@ define_str_func("format", function () {
     in_brace = 0;
     markup = "";
     while (pos < template.length) {
-        ch = template[pos];
+        ch = template[(typeof pos === "number" && pos < 0) ? template.length + pos : pos];
         if (in_brace) {
             if (ch === "{") {
                 in_brace += 1;
@@ -2614,7 +2766,7 @@ define_str_func("format", function () {
             }
         } else {
             if (ch === "{") {
-                if (template[pos + 1] === "{") {
+                if (template[ρσ_bound_index(pos + 1, template)] === "{") {
                     pos += 1;
                     ans += "{";
                 } else {
@@ -2697,7 +2849,7 @@ define_str_func("endswith", (function() {
             string = string.slice(0, end);
         }
         for (var i = 0; i < suffixes.length; i++) {
-            q = suffixes[i];
+            q = suffixes[(typeof i === "number" && i < 0) ? suffixes.length + i : i];
             if (string.indexOf(q, Math.max(start, string.length - q.length)) !== -1) {
                 return true;
             }
@@ -2717,7 +2869,7 @@ define_str_func("startswith", (function() {
             prefixes = [prefixes];
         }
         for (var i = 0; i < prefixes.length; i++) {
-            prefix = prefixes[i];
+            prefix = prefixes[(typeof i === "number" && i < 0) ? prefixes.length + i : i];
             end = (end === undefined) ? this.length : end;
             if (end - start >= prefix.length && prefix === this.slice(start, start + prefix.length)) {
                 return true;
@@ -2875,7 +3027,7 @@ define_str_func("lstrip", (function() {
         string = this;
         pos = 0;
         chars = chars || ρσ_str.whitespace;
-        while (chars.indexOf(string[pos]) !== -1) {
+        while (chars.indexOf(string[(typeof pos === "number" && pos < 0) ? string.length + pos : pos]) !== -1) {
             pos += 1;
         }
         if (pos) {
@@ -2894,7 +3046,7 @@ define_str_func("rstrip", (function() {
         string = this;
         pos = string.length - 1;
         chars = chars || ρσ_str.whitespace;
-        while (chars.indexOf(string[pos]) !== -1) {
+        while (chars.indexOf(string[(typeof pos === "number" && pos < 0) ? string.length + pos : pos]) !== -1) {
             pos -= 1;
         }
         if (pos < string.length - 1) {
@@ -2986,9 +3138,9 @@ define_str_func("split", (function() {
                 parts = [];
                 for (var i = 0; i < ans.length; i++) {
                     if (parts.length >= maxsplit + 1) {
-                        extra += ans[i];
+                        extra += ans[(typeof i === "number" && i < 0) ? ans.length + i : i];
                     } else if (i % 2 === 0) {
-                        parts.push(ans[i]);
+                        parts.push(ans[(typeof i === "number" && i < 0) ? ans.length + i : i]);
                     }
                 }
                 parts[parts.length-1] += extra;
@@ -3029,7 +3181,7 @@ define_str_func("rsplit", (function() {
                 current = "";
                 while (pos > -1 && maxsplit > 0) {
                     spc = false;
-                    ch = this[pos];
+                    ch = (ρσ_expr_temp = this)[(typeof pos === "number" && pos < 0) ? ρσ_expr_temp.length + pos : pos];
                     while (pos > -1 && is_space.test(ch)) {
                         spc = true;
                         ch = this[--pos];
@@ -3088,9 +3240,9 @@ define_str_func("splitlines", (function() {
             ans = [];
             for (var i = 0; i < parts.length; i++) {
                 if (i % 2 === 0) {
-                    ans.push(parts[i]);
+                    ans.push(parts[(typeof i === "number" && i < 0) ? parts.length + i : i]);
                 } else {
-                    ans[ans.length-1] += parts[i];
+                    ans[ans.length-1] += parts[(typeof i === "number" && i < 0) ? parts.length + i : i];
                 }
             }
         } else {
@@ -3107,12 +3259,12 @@ define_str_func("swapcase", function () {
     var ans, a, b;
     ans = new Array(this.length);
     for (var i = 0; i < ans.length; i++) {
-        a = this[i];
+        a = (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         b = a.toLowerCase();
         if (a === b) {
             b = a.toUpperCase();
         }
-        ans[i] = b;
+        ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = b;
     }
     return ans.join("");
 });
