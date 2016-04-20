@@ -55,11 +55,6 @@ def generate_code():
 
         stream.pop_node()
     )
-    AST_Node.DEFMETHOD("print_to_string", def(options):
-        s = OutputStream(options)
-        this.print(s)
-        return s.get()
-    )
     # -----[ comments ]-----
     AST_Node.DEFMETHOD("add_comments", def(output):
         c = output.option("comments")
