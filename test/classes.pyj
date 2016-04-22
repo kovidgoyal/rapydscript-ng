@@ -18,6 +18,10 @@ class Human:
     def getTypicalWeight():
         return "150"
 
+    @staticmethod
+    def with_arg(x):
+        return x
+
 
 # don't have to declare __init__, it either gets inherited or stays empty
 # isinstance correctly sees inheritance
@@ -43,6 +47,7 @@ bob = Human("Bob")
 assrt.equal(bob.greet(), "Hello, I'm Bob")
 assrt.equal(Human.greet(bob), "Hello, I'm Bob")
 assrt.equal(Human.getTypicalWeight(), "150") # static method recognition
+assrt.equal(Human.with_arg(3), 3) # static method with arg
 
 joe = Friend("Joe")
 assrt.equal(joe.greet(), "Yo, it's me, Joe")
