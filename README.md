@@ -452,21 +452,6 @@ $(element)\
 	.show()
 ```
 
-RapydScript also allows an alternative syntax for the same feature, for those preferring Python's traditional, hanging-indent look:
-
-```js
-def(one, two) and call(this, 1, 2):
-	...
-```
-
-Which is equivalent to the following:
-
-```js
-def(one, two):
-	...
-.call(this, 1, 2)
-```
-
 Some of you might welcome this feature, some of you might not. RapydScript always aims to make its unique features unobtrusive to regular Python, which means that you don't have to use them if you disagree with them. Recently, we have enhanced this feature to handle `do/while` loops as well:
 
 ```js
@@ -476,16 +461,6 @@ do:
 	a += 1
 .while a < 1
 ```
-
-In my opinion, this is something even Python could benefit from. Like with functions, you could use the hanging-indent form as well:
-
-```js
-a = 0
-do and while a < 1:
-	print(a)
-	a += 1
-```
-
 
 Function calling with optional arguments
 -------------------------------------------
