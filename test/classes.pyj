@@ -8,6 +8,9 @@ assrt.ok(isinstance(blank, Blank))
 
 # basic class
 class Human:
+
+    HAIRS = 23
+
     def __init__(self, name):
         self.name = name
 
@@ -48,6 +51,7 @@ assrt.equal(bob.greet(), "Hello, I'm Bob")
 assrt.equal(Human.greet(bob), "Hello, I'm Bob")
 assrt.equal(Human.getTypicalWeight(), "150") # static method recognition
 assrt.equal(Human.with_arg(3), 3) # static method with arg
+assrt.equal(Human.HAIRS, 23)
 
 joe = Friend("Joe")
 assrt.equal(joe.greet(), "Yo, it's me, Joe")
@@ -64,6 +68,7 @@ assrt.equal(bound(), angela.how_long())
 
 # function methods
 assrt.deepEqual(dir(angela).sort(), [
+    'HAIRS',
     "__init__",
     '__repr__',
     '__str__',

@@ -199,7 +199,7 @@ def print_module(self, output):
                     }
                     for cname in Object.keys(self.classes):
                         cobj = self.classes[cname]
-                        cached.classes[cname] = {'name':{'name':cobj.name.name}, 'static':cobj.static, 'bound':cobj.bound}
+                        cached.classes[cname] = {'name':{'name':cobj.name.name}, 'static':cobj.static, 'bound':cobj.bound, 'classvars':cobj.classvars}
                     for symdef in self.exports:
                         cached.exports.push({'name':symdef.name})
                     for beautify in [True, False]:

@@ -82,6 +82,7 @@ ERROR_CLASSES = {
     'ValueError': {},
 }
 COMMON_STATIC = [ "call", "apply", "bind", "toString" ]
+FORBIDDEN_CLASS_VARS = 'prototype constructor'.split(' ')
 
 # -----[ Parser (constants) ]-----
 UNARY_PREFIX = make_predicate('typeof void delete ~ - + ! @')
@@ -839,12 +840,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     obj = classes[argvar.name]
                     if obj:
                         key = argvar.alias.name if argvar.alias else argvar.name
-                        S.classes[-1][key] = { "static": obj.static, 'bound': obj.bound }
+                        S.classes[-1][key] = { "static": obj.static, 'bound': obj.bound, 'classvars': obj.classvars }
             else:
                 for cname in Object.keys(classes):
                     obj = classes[cname]
                     key = imp.alias.name if imp.alias else imp.key
-                    S.classes[-1][key + '.' + obj.name.name] = { 'static': obj.static, 'bound': obj.bound }
+                    S.classes[-1][key + '.' + obj.name.name] = { 'static': obj.static, 'bound': obj.bound, 'classvars': obj.classvars }
 
         return ans
 
@@ -859,6 +860,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         class_details = {
             "static": [],
             'bound': v'[]',
+            'classvars': {},
         }
         bases = v'[]'
         class_parent = None
@@ -889,6 +891,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'parent': class_parent,
             'bases': bases,
             'localvars': [],
+            'classvars': class_details.classvars,
             'static': class_details.static,
             'external': externaldecorator,
             'bound': class_details.bound,
@@ -943,7 +946,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     class_var_names[node.name.name] = True
                     return
                 elif isinstance(node, AST_Assign) and isinstance(node.left, AST_SymbolRef):
-                    class_var_names[node.left.name] = True
+                    varname = node.left.name
+                    if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
+                        token_error(node.left.start, varname + ' is not allowed as a class variable name')
+                    class_var_names[varname] = True
+                    definition.classvars[varname] = True
                 elif isinstance(node, AST_SymbolRef) and has_prop(class_var_names, node.name):
                     node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
                 if descend:
@@ -1822,10 +1829,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def get_attr(expr, allow_calls):
         next()
+        prop = as_name()
+        c = get_class_in_scope(expr)
+        if c and c.classvars and v'c.classvars[prop]':
+            prop = 'prototype.' + prop
         return subscripts(new AST_Dot({
             'start': expr.start,
             'expression': expr,
-            'property': as_name(),
+            'property': prop,
             'end': prev()
         }), allow_calls)
 
@@ -2159,6 +2170,6 @@ def parse(text, options):
     if options.classes:
         for cname in options.classes:
             obj = options.classes[cname]
-            S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound }
+            S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound, 'classvars': obj.classvars }
 
     return create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)()
