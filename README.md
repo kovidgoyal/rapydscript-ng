@@ -670,12 +670,14 @@ py_set = set_wrap(js_set)
 Note that using non-primitive objects as set members does not behave the
 same way as in Python. For example:
 
+```py
 a = [1, 2]
 s = {a}
 a in s  # True
 [1, 2] in s # False
+```
 
-This is because, as noted above, object equality is vai the ```is```
+This is because, as noted above, object equality is via the ```is```
 operator, not hashes.
 
 ### Dicts
