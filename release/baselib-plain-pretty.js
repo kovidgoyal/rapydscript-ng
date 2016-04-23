@@ -2503,7 +2503,7 @@ define_str_func("format", function () {
     }
     args = Array.prototype.slice.call(arguments);
     kwargs = Object.create(null);
-    if (args.length && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
+    if (args[args.length-1] && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
     }
