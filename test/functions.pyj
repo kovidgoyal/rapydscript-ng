@@ -129,3 +129,7 @@ def trailing_comma(a, b,):
 assrt.equal(trailing_comma(1, 2), 3)
 assrt.equal(trailing_comma(1, 2,), 3)
 
+def return_string_with_newline():
+    return '''a
+b'''
+assrt.equal(return_string_with_newline(), 'a\nb')
