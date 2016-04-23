@@ -214,7 +214,13 @@ def print_module(self, output):
     output.newline()
 
 def print_imports(container, output):
+    is_first_aname = True
     def add_aname(aname, key, from_import):
+        nonlocal is_first_aname
+        if is_first_aname:
+            is_first_aname = False
+        else:
+            output.indent()
         output.print('var ')
         output.assign(aname)
         if key.indexOf('.') is -1:
@@ -224,9 +230,7 @@ def print_imports(container, output):
         if from_import:
             output.print('.')
             output.print(from_import)
-        output.semicolon()
-        output.newline()
-        output.indent()
+        output.end_statement()
 
     for self in container.imports:
         output.import_(self.module)
@@ -245,5 +249,6 @@ def print_imports(container, output):
                         add_aname(part, part, False)
                     else:
                         q = parts[:i+1].join('.')
+                        output.indent()
                         output.spaced(q, '=', 'ρσ_modules["' + q + '"]')
                         output.end_statement()
