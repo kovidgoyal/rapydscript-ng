@@ -1,3 +1,16 @@
+version 0.7.1
+==============
+
+* Make importing of non-aliased submodules `import module.submodule` work just
+  like in python (the submodule name is bound into the parent namespace at
+  the import statement rather than at import time)
+
+* Fix referring to class variables not working. Now there is no need to use 
+  `A.prototype.x` one can just do `A.x` and the compiler will handle it automatically,
+  provided it knows that A is a class.
+
+* Fix a regression in 0.6.0 that broke using @staticmethod for methods that accept arguments
+
 version 0.7.0
 ==============
 
