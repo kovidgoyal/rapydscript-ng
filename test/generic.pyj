@@ -272,3 +272,6 @@ assrt.equal(undef?.xxx?(), undefined)
 assrt.equal(undef.a, undefined)
 assrt.equal(undef[1], undefined)
 assrt.equal(undef ? 1, 0)
+ml = 1, '''
+'''
+assrt.deepEqual(ml, [1, '\n'])

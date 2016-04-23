@@ -380,7 +380,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             semicolon()
             value = None
         else:
-            is_end_of_statement = (S.token.nlb and S.token.type is not 'string') or is_("eof") or is_("punc", "}")
+            is_end_of_statement = S.token.nlb or is_("eof") or is_("punc", "}")
             if is_end_of_statement:
                 value = None
             else:

@@ -456,7 +456,7 @@ def tokenizer($TEXT, filename):
             else:
                 return token(tok_type, '')
 
-        while ch = next(True):
+        while ch = next(True, True):
             if ch is "\n" and not is_multiline:
                 parse_error("End of line while scanning string literal")
 
