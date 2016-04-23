@@ -684,9 +684,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if options.for_linting:
             imported_modules[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
-                                     'submodules':[], 'nonlocalvars':[], 'baselib':{}, 'outputs':{}, 'discard_asserts':options.discard_asserts}
-            if len(package_module_id) > 0:
-                imported_modules[package_module_id].submodules.push(key)
+                                     'nonlocalvars':[], 'baselib':{}, 'outputs':{}, 'discard_asserts':options.discard_asserts}
             return
 
         def safe_read(base_path):
@@ -723,7 +721,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             imported_modules[key] = {
                 'is_cached':True, 'classes':cached.classes, 'outputs':cached.outputs, 'module_id':key, 'import_order':Object.keys(imported_modules).length,
-                'submodules':[], 'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports, 'discard_asserts':options.discard_asserts,
+                'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports, 'discard_asserts':options.discard_asserts,
             }
         else:
             parse(src_code, {
@@ -739,8 +737,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             })  # This function will add the module to imported_modules itself
 
         imported_modules[key].srchash = srchash
-        if len(package_module_id) > 0:
-            imported_modules[package_module_id].submodules.push(key)
 
         for bitem in Object.keys(imported_modules[key].baselib):
             baselib_items[bitem] = True
@@ -2097,7 +2093,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         scan_for_top_level_callables(toplevel.body).forEach(def (item): add_item(item, False);)
 
         toplevel.filename = options.filename
-        toplevel.submodules = []
         toplevel.imported_module_ids = imported_module_ids
         toplevel.classes = scan_for_classes(toplevel.body)
         toplevel.import_order = Object.keys(imported_modules).length

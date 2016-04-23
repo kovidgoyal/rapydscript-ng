@@ -58,7 +58,7 @@ def write_main_name(output):
         output.newline()
         output.newline()
 
-def declare_exports(module_id, exports, submodules, output, docstrings):
+def declare_exports(module_id, exports, output, docstrings):
     seen = {}
     if output.option('keep_docstrings') and docstrings and docstrings.length:
         exports.push({'name':'__doc__', 'refname': 'ρσ_module_doc__'})
@@ -76,16 +76,6 @@ def declare_exports(module_id, exports, submodules, output, docstrings):
                 output.print('ρσ_modules["' + module_id + '"].' + symbol.name)
             output.space(), output.print('='), output.space(), output.print(symbol.refname or symbol.name)
             seen[symbol.name] = True
-            output.end_statement()
-
-def declare_submodules(module_id, submodules, output):
-    seen = {}
-    for sub_module_id in submodules:
-        if not Object.prototype.hasOwnProperty.call(seen, sub_module_id):
-            seen[sub_module_id] = True
-            key = sub_module_id.split('.')[-1]
-            output.indent()
-            output.spaced('ρσ_modules["' + module_id + '"]["' + key + '"]', '=', 'ρσ_modules["' + sub_module_id + '"]')
             output.end_statement()
 
 def prologue(module, output):
@@ -167,7 +157,7 @@ def print_module(self, output):
     def output_module(output):
         declare_vars(self.localvars, output)
         display_body(self.body, True, output)
-        declare_exports(self.module_id, self.exports, self.submodules, output, self.docstrings)
+        declare_exports(self.module_id, self.exports, output, self.docstrings)
 
     output.newline()
     output.indent()
@@ -187,10 +177,8 @@ def print_module(self, output):
             okey = output_key(output.option('beautify'), output.option('keep_docstrings'), output.option('js_version'))
             if self.is_cached and okey in self.outputs:
                 output.print(self.outputs[okey])
-                declare_submodules(self.module_id, self.submodules, output)
             else:
                 output_module(output)
-                declare_submodules(self.module_id, self.submodules, output)
                 if self.srchash and self.filename:
                     cached = {
                         'version':COMPILER_VERSION, 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
@@ -251,7 +239,11 @@ def print_imports(container, output):
             if self.alias:
                 add_aname(self.alias.name, self.key, False)
             else:
-                bound_name = self.key.split('.', 1)[0]
-                add_aname(bound_name, bound_name, False)
-
-
+                parts = self.key.split('.')
+                for i, part in enumerate(parts):
+                    if i is 0:
+                        add_aname(part, part, False)
+                    else:
+                        q = parts[:i+1].join('.')
+                        output.spaced(q, '=', 'ρσ_modules["' + q + '"]')
+                        output.end_statement()

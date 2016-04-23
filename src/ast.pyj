@@ -347,7 +347,7 @@ AST_Scope = DEFNODE("Scope", "localvars docstrings", {
     }
 }, AST_Block)
 
-AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids shebang import_order module_id exports submodules classes filename srchash", {
+AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids shebang import_order module_id exports classes filename srchash", {
     '$documentation': "The toplevel scope",
     '$propdoc': {
         'globals': "[Object/S] a map of name -> SymbolDef for all undeclared names",
@@ -359,7 +359,6 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports imported_module_ids 
         'import_order': "[number] The global order in which this scope was imported",
         'module_id': "[string] The id of this module",
         'exports': "[SymbolDef*] list of names exported from this module",
-        'submodules': "[string*] list of names exported from this module",
         'classes': "[Object/S] a map of class names to AST_Class for classes defined in this module",
         'filename': "[string] The absolute path to the file from which this module was read",
         'srchash': "[string] SHA1 hash of source code, used for caching",
