@@ -39,7 +39,7 @@ var BUILTINS = Object.create(null);
  ' NodeList alert console Node Symbol NamedNodeMap ρσ_eslice ρσ_delslice Number' +
  ' Boolean encodeURIComponent decodeURIComponent setTimeout setInterval' +
  ' setImmediate clearTimeout clearInterval clearImmediate requestAnimationFrame' +
- ' id repr sorted __name__ equals'
+ ' id repr sorted __name__ equals get_module'
  ).split(' ').forEach(function(x) { BUILTINS[x] = true; });
 
 Object.keys(RapydScript.NATIVE_CLASSES).forEach(function (name) { BUILTINS[name] = true; });

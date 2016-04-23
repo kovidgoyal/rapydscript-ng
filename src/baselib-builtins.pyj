@@ -194,10 +194,12 @@ def ρσ_hasattr(obj, name):
     return len if v'typeof Set' is 'function' and v'typeof Map' is 'function' else len5
 )()
 
+def ρσ_get_module(name):
+    return ρσ_modules[name]
 
 v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool'
 v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
-v'var print = ρσ_print, id = ρσ_id'
+v'var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module'
 v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'
 v'var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len'
 v'var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr'
