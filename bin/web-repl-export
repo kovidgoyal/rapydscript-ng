@@ -72,15 +72,25 @@ rs += '})(this)';
 
 
 var base_dir = process.argv.slice(-1)[0];
+if (process.argv.length !== 3) {
+    console.error('Usage: web-repl-export /path/to/export/directory');
+    process.exit();
+}
+
 base_dir = path.normalize(path.resolve(base_dir));
 
 try {
     fs.mkdirSync(base_dir);
 } catch(e) {
-    if (e.code != 'EEXIST') throw e;
+    if (e.code !== 'EEXIST') throw e;
 }
 
-process.chdir(base_dir);
+try {
+    process.chdir(base_dir);
+} catch(e) {
+    if (e.code === 'ENOTDIR') { console.error(base_dir + ' is not a directory'); process.exit(); }
+    throw e;
+}
 fs.writeFileSync('rapydscript.js', rs, {'encoding':'utf-8'});
 var web_repl = path.join(base, 'web-repl');
 fs.readdirSync(web_repl).forEach(function(x) {
