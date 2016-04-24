@@ -74,7 +74,7 @@ rs += '})(this)';
 var base_dir = process.argv.slice(-1)[0];
 if (process.argv.length !== 3) {
     console.error('Usage: web-repl-export /path/to/export/directory');
-    process.exit();
+    process.exit(1);
 }
 
 base_dir = path.normalize(path.resolve(base_dir));
@@ -88,7 +88,7 @@ try {
 try {
     process.chdir(base_dir);
 } catch(e) {
-    if (e.code === 'ENOTDIR') { console.error(base_dir + ' is not a directory'); process.exit(); }
+    if (e.code === 'ENOTDIR') { console.error(base_dir + ' is not a directory'); process.exit(1); }
     throw e;
 }
 fs.writeFileSync('rapydscript.js', rs, {'encoding':'utf-8'});
