@@ -1,6 +1,21 @@
 version 0.7.1
 ==============
 
+* Fix multiline string literals not working in some contexts, such as after
+  return or yield keywords
+
+* Add a scoped flag `hash_literals` to control whether `{}` literals generate
+  JavaScript arrays or JavaScript hashes. Note that the `dict_literals` scoped
+  flag takes precedence over this flag.
+
+* Add a builtin function `get_module()` to get a reference to the module dicts
+  for a previously imported module.
+
+* Nicer error messages when web-repl-export is not called correctly
+
+version 0.7.1
+==============
+
 * Make importing of non-aliased submodules `import module.submodule` work just
   like in python (the submodule name is bound into the parent namespace at
   the import statement rather than at import time)
