@@ -1,4 +1,4 @@
-version 0.7.1
+version 0.7.2
 ==============
 
 * Fix multiline string literals not working in some contexts, such as after
