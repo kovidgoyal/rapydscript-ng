@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
-# License: BSD
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
 

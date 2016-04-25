@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: writefile
+from __python__ import hash_literals
 
 from parse import COMPILER_VERSION
 from output.statements import declare_vars, display_body

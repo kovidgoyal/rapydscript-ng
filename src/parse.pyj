@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
-# License: BSD
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 from utils import make_predicate, array_to_hash, defaults, has_prop
 from errors import SyntaxError, ImportError
@@ -25,7 +26,7 @@ from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
-PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True}
+PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
 
 NATIVE_CLASSES = {
     'Image': {},
@@ -752,7 +753,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             val = False if name.startsWith('no_') else True
             if not val:
                 name = name.slice(3)
-            if not has_prop(PYTHON_FLAGS, name):
+            if not PYTHON_FLAGS:
                 croak('Unknown __python__ flag: ' + name)
             S.scoped_flags.set(name, val)
             next()
@@ -1518,6 +1519,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         first = True
         has_non_const_keys = False
         is_pydict = S.scoped_flags.get('dict_literals', False)
+        is_jshash = S.scoped_flags.get('hash_literals', False)
         a = []
         while not is_("punc", "}"):
             if not first:
@@ -1551,12 +1553,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'end': prev()
             }))
             if a.length is 1 and is_('keyword', 'for'):
-                return dict_comprehension(a, is_pydict)
+                return dict_comprehension(a, is_pydict, is_jshash)
 
         next()
         return new (AST_ExpressiveObject if has_non_const_keys else AST_Object)({
             'properties': a,
             'is_pydict': is_pydict,
+            'is_jshash': is_jshash,
         })
 
     def set_(start, end, expr):
@@ -1587,7 +1590,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         S.in_comprehension = False
         return obj
 
-    def dict_comprehension(a, is_pydict):
+    def dict_comprehension(a, is_pydict, is_jshash):
         if a.length:
             left, right = a[0].key, a[0].value
         else:
@@ -1596,7 +1599,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return read_comprehension(new AST_SetComprehension({'statement':left}), '}')
             expect(':')
             right = expression(False)
-        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right, 'is_pydict':is_pydict}), '}')
+        return read_comprehension(new AST_DictComprehension({'statement':left, 'value_statement':right, 'is_pydict':is_pydict, 'is_jshash':is_jshash}), '}')
 
     def as_name():
         tmp = S.token

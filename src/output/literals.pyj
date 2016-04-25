@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 from ast import AST_Binary
 
@@ -30,7 +31,7 @@ def print_obj_literal(self, output):
             if self.is_pydict:
                 output.spaced.apply(output, 'var ρσ_d = ρσ_dict()'.split(' '))
             else:
-                output.spaced.apply(output, 'var ρσ_d = Object.create(null)'.split(' '))
+                output.spaced('var', 'ρσ_d', '=', ('Object.create(null)' if self.is_jshash else '{}'))
             output.end_statement()
             self.properties.forEach(def(prop, i):
                 output.indent()
@@ -65,7 +66,7 @@ def print_object(self, output):
         if self.properties.length > 0:
             print_obj_literal(self, output)
         else:
-            output.print("Object.create(null)")
+            output.print("Object.create(null)" if self.is_jshash else '{}')
 
 def print_set(self, output):
     if self.items.length is 0:

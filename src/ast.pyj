@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
-# License: BSD
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 from utils import noop, string_template
 
@@ -286,11 +287,12 @@ AST_SetComprehension = DEFNODE('SetComprehension', None, {
     '$documentation': 'A set comprehension',
 }, AST_ListComprehension)
 
-AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement is_pydict', {
+AST_DictComprehension = DEFNODE('DictComprehension', 'value_statement is_pydict is_jshash', {
     '$documentation': 'A set comprehension',
     '$propdoc': {
         'value_statement': "[AST_Node] statement to perform on each value before returning it",
         'is_pydict': "[bool] True if this comprehension is for a python dict",
+        'is_jshash': "[bool] True if this comprehension is for a js hash",
     },
     '_walk': def(visitor):
         node = this
@@ -944,11 +946,12 @@ AST_Array = DEFNODE("Array", "elements", {
     ,
 })
 
-AST_Object = DEFNODE("Object", "properties is_pydict", {
+AST_Object = DEFNODE("Object", "properties is_pydict is_jshash", {
     '$documentation': "An object literal",
     '$propdoc': {
         'properties': "[AST_ObjectProperty*] array of properties",
-        'is_pydict': "[bool] True if this object is a python dict literal"
+        'is_pydict': "[bool] True if this object is a python dict literal",
+        'is_jshash': "[bool] True if this object is a js hash literal",
     },
     '_walk': def(visitor):
         node = this
