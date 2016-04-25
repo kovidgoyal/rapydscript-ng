@@ -345,9 +345,16 @@ Object.defineProperties(ρσ_hasattr, {
 
     return (typeof Set === "function" && typeof Map === "function") ? len : len5;
 }();
+function ρσ_get_module(name) {
+    return ρσ_modules[(typeof name === "number" && name < 0) ? ρσ_modules.length + name : name];
+};
+Object.defineProperties(ρσ_get_module, {
+    __argnames__ : {value: ["name"]}
+});
+
 var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool;
 var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
-var print = ρσ_print, id = ρσ_id;
+var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module;
 var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;
 var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len;
 var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr;var ρσ_chain_assign_temp;
@@ -604,20 +611,20 @@ function ρσ_list_iterator(value) {
     var self;
     self = this;
     return (function(){
-        var ρσ_d = Object.create(null);
+        var ρσ_d = {};
         ρσ_d["_i"] = -1;
         ρσ_d["_list"] = self;
         ρσ_d["next"] = function () {
             this._i += 1;
             if (this._i >= this._list.length) {
                 return (function(){
-                    var ρσ_d = Object.create(null);
+                    var ρσ_d = {};
                     ρσ_d["done"] = true;
                     return ρσ_d;
                 }).call(this);
             }
             return (function(){
-                var ρσ_d = Object.create(null);
+                var ρσ_d = {};
                 ρσ_d["done"] = false;
                 ρσ_d["value"] = (ρσ_expr_temp = this._list)[ρσ_bound_index(this._i, ρσ_expr_temp)];
                 return ρσ_d;
@@ -760,7 +767,7 @@ function ρσ_set_keyfor(x) {
     if (ans === undefined) {
         ans = "_!@#$" + (++ρσ_global_object_id);
         Object.defineProperty(x, "ρσ_hash_key_prop", (function(){
-            var ρσ_d = Object.create(null);
+            var ρσ_d = {};
             ρσ_d["value"] = ans;
             return ρσ_d;
         }).call(this));
@@ -772,7 +779,7 @@ Object.defineProperties(ρσ_set_keyfor, {
 });
 
 function ρσ_set_polyfill() {
-    this._store = Object.create(null);
+    this._store = {};
     this.size = 0;
 };
 
@@ -793,7 +800,7 @@ function ρσ_set_polyfill() {
 })();
 ρσ_set_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = Object.create(null);
+        this._store = {};
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -889,16 +896,16 @@ Object.defineProperties(ρσ_set, {
 
 ρσ_set.prototype.__name__ = "set";
 Object.defineProperties(ρσ_set.prototype, (function(){
-    var ρσ_d = Object.create(null);
+    var ρσ_d = {};
     ρσ_d["length"] = (function(){
-        var ρσ_d = Object.create(null);
+        var ρσ_d = {};
         ρσ_d["get"] = function () {
             return this.jsset.size;
         };
         return ρσ_d;
     }).call(this);
     ρσ_d["size"] = (function(){
-        var ρσ_d = Object.create(null);
+        var ρσ_d = {};
         ρσ_d["get"] = function () {
             return this.jsset.size;
         };
@@ -1196,7 +1203,7 @@ Object.defineProperties(ρσ_set_wrap, {
 var set = ρσ_set, set_wrap = ρσ_set_wrap;
 var ρσ_dict_implementation;
 function ρσ_dict_polyfill() {
-    this._store = Object.create(null);
+    this._store = {};
     this.size = 0;
 };
 
@@ -1217,7 +1224,7 @@ function ρσ_dict_polyfill() {
 })();
 ρσ_dict_polyfill.prototype.clear = (function() {
     var ρσ_anonfunc = function (x) {
-        this._store = Object.create(null);
+        this._store = {};
         this.size = 0;
     };
     Object.defineProperties(ρσ_anonfunc, {
@@ -1353,16 +1360,16 @@ Object.defineProperties(ρσ_dict, {
 
 ρσ_dict.prototype.__name__ = "dict";
 Object.defineProperties(ρσ_dict.prototype, (function(){
-    var ρσ_d = Object.create(null);
+    var ρσ_d = {};
     ρσ_d["length"] = (function(){
-        var ρσ_d = Object.create(null);
+        var ρσ_d = {};
         ρσ_d["get"] = function () {
             return this.jsmap.size;
         };
         return ρσ_d;
     }).call(this);
     ρσ_d["size"] = (function(){
-        var ρσ_d = Object.create(null);
+        var ρσ_d = {};
         ρσ_d["get"] = function () {
             return this.jsmap.size;
         };
@@ -1615,7 +1622,7 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
 ρσ_dict.prototype.as_object = (function() {
     var ρσ_anonfunc = function (other) {
         var ans, iterator, r;
-        ans = Object.create(null);
+        ans = {};
         iterator = this.jsmap.entries();
         r = iterator.next();
         while (!r.done) {
@@ -2087,7 +2094,7 @@ Object.defineProperties(ρσ_bound_index, {
 });
 
 ρσ_exists = (function(){
-    var ρσ_d = Object.create(null);
+    var ρσ_d = {};
     ρσ_d["n"] = (function() {
         var ρσ_anonfunc = function (expr) {
             return expr !== undefined && expr !== null;
@@ -2127,7 +2134,7 @@ Object.defineProperties(ρσ_bound_index, {
         var ρσ_anonfunc = function (expr) {
             if (expr === undefined || expr === null || typeof expr.__getitem__ !== "function") {
                 return (function(){
-                    var ρσ_d = Object.create(null);
+                    var ρσ_d = {};
                     ρσ_d["__getitem__"] = function () {
                         return undefined;
                     };
@@ -2165,7 +2172,7 @@ function ρσ_mixin() {
     seen.constructor = ρσ_chain_assign_temp;
     seen.__class__ = ρσ_chain_assign_temp;
 ;
-    resolved_props = Object.create(null);
+    resolved_props = {};
     ρσ_chain_assign_temp = arguments[0].prototype;
     p = ρσ_chain_assign_temp;
     target = ρσ_chain_assign_temp;
@@ -2487,7 +2494,7 @@ define_str_func = (function() {
 ;
         if (func.__argnames__) {
             Object.defineProperty(f, "__argnames__", (function(){
-                var ρσ_d = Object.create(null);
+                var ρσ_d = {};
                 ρσ_d["value"] = ['string'].concat(func.__argnames__);
                 return ρσ_d;
             }).call(this));
@@ -2508,7 +2515,7 @@ define_str_func("format", function () {
         throw new TypeError("Template is required");
     }
     args = Array.prototype.slice.call(arguments);
-    kwargs = Object.create(null);
+    kwargs = {};
     if (args[args.length-1] && args[args.length-1][ρσ_kwargs_symbol] !== undefined) {
         kwargs = args[args.length-1];
         args = args.slice(0, -1);
@@ -3358,7 +3365,7 @@ define_str_func("zfill", (function() {
 ρσ_str.uchrs = (function() {
     var ρσ_anonfunc = function (string, with_positions) {
         return (function(){
-            var ρσ_d = Object.create(null);
+            var ρσ_d = {};
             ρσ_d["_string"] = string;
             ρσ_d["_pos"] = 0;
             ρσ_d[ρσ_iterator_symbol] = function () {
@@ -3369,7 +3376,7 @@ define_str_func("zfill", (function() {
                 length = this._string.length;
                 if (this._pos >= length) {
                     return (function(){
-                        var ρσ_d = Object.create(null);
+                        var ρσ_d = {};
                         ρσ_d["done"] = true;
                         return ρσ_d;
                     }).call(this);
@@ -3389,14 +3396,14 @@ define_str_func("zfill", (function() {
                 }
                 if (with_positions) {
                     return (function(){
-                        var ρσ_d = Object.create(null);
+                        var ρσ_d = {};
                         ρσ_d["done"] = false;
                         ρσ_d["value"] = ρσ_list_decorate([ pos, ans ]);
                         return ρσ_d;
                     }).call(this);
                 } else {
                     return (function(){
-                        var ρσ_d = Object.create(null);
+                        var ρσ_d = {};
                         ρσ_d["done"] = false;
                         ρσ_d["value"] = ans;
                         return ρσ_d;
@@ -3959,7 +3966,7 @@ return this.__repr__();
         DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
         ALIAS_MAP = function () {
             var ans, line, parts, code_point;
-            ans = Object.create(null);
+            ans = {};
             var ρσ_Iter10 = ρσ_Iterable(DB.split("\n"));
             for (var ρσ_Index10 = 0; ρσ_Index10 < ρσ_Iter10.length; ρσ_Index10++) {
                 line = ρσ_Iter10[ρσ_Index10];
@@ -4484,13 +4491,14 @@ return this.__repr__();
             ρσ_d["$documentation"] = "A set comprehension";
             return ρσ_d;
         }).call(this), AST_ListComprehension);
-        AST_DictComprehension = DEFNODE("DictComprehension", "value_statement is_pydict", (function(){
+        AST_DictComprehension = DEFNODE("DictComprehension", "value_statement is_pydict is_jshash", (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["$documentation"] = "A set comprehension";
             ρσ_d["$propdoc"] = (function(){
                 var ρσ_d = Object.create(null);
                 ρσ_d["value_statement"] = "[AST_Node] statement to perform on each value before returning it";
                 ρσ_d["is_pydict"] = "[bool] True if this comprehension is for a python dict";
+                ρσ_d["is_jshash"] = "[bool] True if this comprehension is for a js hash";
                 return ρσ_d;
             }).call(this);
             ρσ_d["_walk"] = (function() {
@@ -5596,13 +5604,14 @@ return this.__repr__();
             };
             return ρσ_d;
         }).call(this));
-        AST_Object = DEFNODE("Object", "properties is_pydict", (function(){
+        AST_Object = DEFNODE("Object", "properties is_pydict is_jshash", (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["$documentation"] = "An object literal";
             ρσ_d["$propdoc"] = (function(){
                 var ρσ_d = Object.create(null);
                 ρσ_d["properties"] = "[AST_ObjectProperty*] array of properties";
                 ρσ_d["is_pydict"] = "[bool] True if this object is a python dict literal";
+                ρσ_d["is_jshash"] = "[bool] True if this object is a js hash literal";
                 return ρσ_d;
             }).call(this);
             ρσ_d["_walk"] = (function() {
@@ -6727,7 +6736,7 @@ return this.__repr__();
                             return token(tok_type, "");
                         }
                     }
-                    while (ch = next(true)) {
+                    while (ch = next(true, true)) {
                         if (ch === "\n" && !is_multiline) {
                             parse_error("End of line while scanning string literal");
                         }
@@ -7110,12 +7119,13 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "09db67b8765bd35bfe8f26f11395cda96edc0c2b";
+        COMPILER_VERSION = "2c5358f68245caf1c19be19c747de4f4379b7e29";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
             ρσ_d["overload_getitem"] = true;
             ρσ_d["bound_methods"] = true;
+            ρσ_d["hash_literals"] = true;
             return ρσ_d;
         }).call(this);
         NATIVE_CLASSES = (function(){
@@ -7326,10 +7336,6 @@ return this.__repr__();
             Object.defineProperties(expect, {
                 __argnames__ : {value: ["punc"]}
             });
-
-            function can_insert_semicolon() {
-                return S.token.nlb || is_("eof") || is_("punc", "}");
-            };
 
             function semicolon() {
                 if (is_("punc", ";")) {
@@ -7611,12 +7617,13 @@ return this.__repr__();
             });
 
             function return_() {
-                var value;
+                var value, is_end_of_statement;
                 if (is_("punc", ";")) {
                     semicolon();
                     value = null;
                 } else {
-                    if (can_insert_semicolon()) {
+                    is_end_of_statement = S.token.nlb || is_("eof") || is_("punc", "}");
+                    if (is_end_of_statement) {
                         value = null;
                     } else {
                         value = expression(true);
@@ -8160,7 +8167,7 @@ return this.__repr__();
                     if (!val) {
                         name = name.slice(3);
                     }
-                    if (!has_prop(PYTHON_FLAGS, name)) {
+                    if (!PYTHON_FLAGS) {
                         croak("Unknown __python__ flag: " + name);
                     }
                     S.scoped_flags.set(name, val);
@@ -9237,11 +9244,12 @@ return this.__repr__();
 
             
             var object_ = embed_tokens(function object_() {
-                var first, has_non_const_keys, is_pydict, a, start, ctx, orig, left, end;
+                var first, has_non_const_keys, is_pydict, is_jshash, a, start, ctx, orig, left, end;
                 expect("{");
                 first = true;
                 has_non_const_keys = false;
                 is_pydict = S.scoped_flags.get("dict_literals", false);
+                is_jshash = S.scoped_flags.get("hash_literals", false);
                 a = ρσ_list_decorate([]);
                 while (!is_("punc", "}")) {
                     if (!first) {
@@ -9284,7 +9292,7 @@ return this.__repr__();
                         return ρσ_d;
                     }).call(this)));
                     if (a.length === 1 && is_("keyword", "for")) {
-                        return dict_comprehension(a, is_pydict);
+                        return dict_comprehension(a, is_pydict, is_jshash);
                     }
                 }
                 next();
@@ -9292,6 +9300,7 @@ return this.__repr__();
                     var ρσ_d = Object.create(null);
                     ρσ_d["properties"] = a;
                     ρσ_d["is_pydict"] = is_pydict;
+                    ρσ_d["is_jshash"] = is_jshash;
                     return ρσ_d;
                 }).call(this));
             });
@@ -9355,7 +9364,7 @@ return this.__repr__();
                 __argnames__ : {value: ["obj", "terminator"]}
             });
 
-            function dict_comprehension(a, is_pydict) {
+            function dict_comprehension(a, is_pydict, is_jshash) {
                 var ρσ_unpack, left, right;
                 if (a.length) {
                     ρσ_unpack = [a[0].key, a[0].value];
@@ -9378,11 +9387,12 @@ return this.__repr__();
                     ρσ_d["statement"] = left;
                     ρσ_d["value_statement"] = right;
                     ρσ_d["is_pydict"] = is_pydict;
+                    ρσ_d["is_jshash"] = is_jshash;
                     return ρσ_d;
                 }).call(this)), "}");
             };
             Object.defineProperties(dict_comprehension, {
-                __argnames__ : {value: ["a", "is_pydict"]}
+                __argnames__ : {value: ["a", "is_pydict", "is_jshash"]}
             });
 
             function as_name() {
@@ -11541,7 +11551,7 @@ return this.__repr__();
             result_obj = (ρσ_expr_temp = (function(){
                 var ρσ_d = Object.create(null);
                 ρσ_d["ListComprehension"] = "[]";
-                ρσ_d["DictComprehension"] = "Object.create(null)";
+                ρσ_d["DictComprehension"] = (self.is_jshash) ? "Object.create(null)" : "{}";
                 ρσ_d["SetComprehension"] = "ρσ_set()";
                 return ρσ_d;
             }).call(this))[ρσ_bound_index(self.TYPE, ρσ_expr_temp)];
@@ -13217,7 +13227,7 @@ return this.__repr__();
                     if (self.is_pydict) {
                         output.spaced.apply(output, "var ρσ_d = ρσ_dict()".split(" "));
                     } else {
-                        output.spaced.apply(output, "var ρσ_d = Object.create(null)".split(" "));
+                        output.spaced("var", "ρσ_d", "=", (self.is_jshash) ? "Object.create(null)" : "{}");
                     }
                     output.end_statement();
                     self.properties.forEach((function() {
@@ -13267,7 +13277,7 @@ return this.__repr__();
                 if (self.properties.length > 0) {
                     print_obj_literal(self, output);
                 } else {
-                    output.print("Object.create(null)");
+                    output.print((self.is_jshash) ? "Object.create(null)" : "{}");
                 }
             }
         };
@@ -13825,8 +13835,6 @@ return this.__repr__();
         var print_try = ρσ_modules["output.exceptions"].print_try;
         var print_catch = ρσ_modules["output.exceptions"].print_catch;
         var print_finally = ρσ_modules["output.exceptions"].print_finally;
-
-        var OutputStream = ρσ_modules["output.stream"].OutputStream;
 
         var print_class = ρσ_modules["output.classes"].print_class;
 
