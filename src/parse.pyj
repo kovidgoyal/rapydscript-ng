@@ -334,9 +334,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         elif isinstance(body, AST_Assign):
             # this is a single assignment operator
             if body.is_chained():
+                is_compound_assign = False
                 for lhs in body.traverse_chain()[0]:
                     add_assign_lhs(lhs)
-                push('ρσ_chain_assign_temp')
+                    if isinstance(lhs, (AST_Seq, AST_Array)):
+                        is_compound_assign = True
+                        break
+                if is_compound_assign:
+                    push('ρσ_chain_assign_temp')
             else:
                 add_assign_lhs(body.left)
             if not isinstance(body.right, AST_Scope):

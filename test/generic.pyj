@@ -70,6 +70,8 @@ a, (x, b) = c, d = [1, [2, 3]]
 assrt.deepEqual([a, x, b, c, d], [1, 2, 3, 1, [2, 3]])
 a, b = [c, d] = [e, f] = [1, 2]
 assrt.deepEqual([a, b, c, d, e, f], [1, 2, 1, 2, 1, 2])
+a = b, c = 1, 2
+assrt.deepEqual([a, b, c], [[1,2], 1, 2])
 
 throw_test('a += b += 1')
 throw_test('a += 1, 2 += b')

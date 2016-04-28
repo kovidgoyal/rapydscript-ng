@@ -257,11 +257,21 @@ def print_assign(self, output):
         return
     if self.operator is '=' and self.is_chained():
         left_hand_sides, rhs = self.traverse_chain()
-        temp_rhs = new AST_SymbolRef({'name':'ρσ_chain_assign_temp'})
-        print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
+        is_compound_assign = False
         for lhs in left_hand_sides:
-            output.end_statement(), output.indent()
-            print_assignment(new AST_Assign({'left':lhs, 'right':temp_rhs, 'operator':self.operator}), output)
+            if isinstance(lhs, (AST_Seq, AST_Array)):
+                is_compound_assign = True
+                break
+        if is_compound_assign:
+            temp_rhs = new AST_SymbolRef({'name':'ρσ_chain_assign_temp'})
+            print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
+            for lhs in left_hand_sides:
+                output.end_statement(), output.indent()
+                print_assignment(new AST_Assign({'left':lhs, 'right':temp_rhs, 'operator':self.operator}), output)
+        else:
+            for lhs in left_hand_sides:
+                output.spaced(lhs, '=', '')
+            rhs.print(output)
     else:
         print_assignment(self, output)
 
