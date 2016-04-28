@@ -3,6 +3,7 @@ RapydScript
 
 [![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.svg)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
 [![Downloads](https://img.shields.io/npm/dm/rapydscript-ng.svg)](https://www.npmjs.com/package/rapydscript-ng)
+[![Current Tag](https://img.shields.io/github/tag/kovidgoyal/rapydscript-ng.svg)](https://github.com/kovidgoyal/rapydscript-ng/releases)
 
 This is a fork of the original RapydScript that adds many new (not always
 backwards compatible) features. For more on the forking, [see the bottom of this file](#reasons-for-the-fork)
