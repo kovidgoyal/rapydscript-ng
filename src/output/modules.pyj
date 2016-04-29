@@ -180,7 +180,7 @@ def print_module(self, output):
                 output.print(self.outputs[okey])
             else:
                 output_module(output)
-                if self.srchash and self.filename and not self.is_cached:
+                if self.srchash and self.filename:
                     cached = {
                         'version':COMPILER_VERSION, 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
                         'nonlocalvars':self.nonlocalvars, 'imported_module_ids':self.imported_module_ids, 'exports':[],
