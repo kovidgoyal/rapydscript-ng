@@ -13,6 +13,7 @@ def throw_test(code):
 assrt.equal(3**4, Math.pow(3, 4))
 assrt.equal(100**-2, Math.pow(100, -2))
 assrt.equal(2*5**2*3, 150)
+assrt.equal(-2**2, -4)
 assrt.equal(100 // 3, 33)
 assrt.equal(-100 // 3, -34)
 a = 100

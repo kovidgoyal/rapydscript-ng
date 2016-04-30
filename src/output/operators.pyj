@@ -139,7 +139,6 @@ def print_binary_op(self, output):
     }
     function_ops = {
         "in": "ρσ_in",
-        "**": "Math.pow"
     }
 
     if function_ops[self.operator]:
@@ -185,6 +184,13 @@ def print_binary_op(self, output):
             output.space()
             self.right.print(output)
         )
+    elif self.operator is '**':
+        if isinstance(self.left, AST_Unary):
+            output.print(self.left.operator + 'Math.pow(')
+            self.left.expression.print(output), output.comma()
+            self.right.print(output), output.print(')')
+        else:
+            output.print('Math.pow('), self.left.print(output), output.comma(), self.right.print(output), output.print(')')
     elif self.operator is '==' or self.operator is '!=':
         write_smart_equality(self, output)
     elif self.operator is 'instanceof':
