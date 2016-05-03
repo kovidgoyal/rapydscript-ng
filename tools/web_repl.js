@@ -57,8 +57,11 @@ module.exports = function(compiler, baselib) {
             return true;
         },
 
-        'compile': function web_repl_compile(code, filename) {
-            return streaming_compiler.compile(code, filename, true);
+        'compile': function web_repl_compile(code, opts) {
+            opts = opts || {};
+            opts.keep_docstrings = true;
+            opts.filename = '<input>';
+            return streaming_compiler.compile(code, opts);
         },
 
         'runjs': function runjs(code) {
