@@ -1477,7 +1477,7 @@ your webapp directly compile user supplied RapydScript code into JavaScript.
 To do so, simply include the [embeddable rapydscript compiler](https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js) 
 in your page, and use it to compile arbitrary RapydScript code. 
 
-You create the compiler by calling: `RapydScript.create_compiler()` and compile
+You create the compiler by calling: `RapydScript.create_embedded_compiler()` and compile
 code with `compiler.compile(code)`. You can execute the resulting JavaScript
 using the standard `eval()` function. See the sample
 HTML below for an example.
