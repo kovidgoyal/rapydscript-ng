@@ -1505,9 +1505,13 @@ window.onload = function() {
 There are a couple of caveats when using the embedded compiler:
 
 * It only works when run in a modern browser (one that supports ES6) so no
-  Internet Explorer. Technically, it is possible to have it work with older
-  browsers, but that would increase the size of the embedded compiler by an
-  order of magnitude (600 KB -> 6 MB)
+  Internet Explorer. You can have it work in an ES 5 runtime by passing
+  an option to the compile() method, like this:
+  ```
+  compiler.compile(code, {js_version:5})
+  ```
+  Note that doing this means that you cannot use generators and the
+  yield keyword in your RapydScript code.
 
 * Importing of modules only works with the standard library modules. There is
   currently no way to make your own modules importable.
