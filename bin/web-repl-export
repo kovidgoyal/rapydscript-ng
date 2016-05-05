@@ -8,7 +8,7 @@ var path = require('path');
 
 var base = path.normalize(path.resolve(path.join(path.dirname(__dirname))));
 var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
-var commit_sha = fs.readFileSync(path.join(base, '.git', 'refs', 'heads', 'master'), {'encoding':'utf-8'});
+var commit_sha = fs.readFileSync(path.join(base, '.git', 'refs', 'heads', 'master'), {'encoding':'utf-8'}).trim();
 var compiler_dir = path.join(base, 'dev');
 if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
 
