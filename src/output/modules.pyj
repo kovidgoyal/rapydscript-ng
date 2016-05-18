@@ -59,12 +59,18 @@ def write_main_name(output):
         output.newline()
         output.newline()
 
+def const_decl(js_version):
+    # return 'const' if js_version > 5 else 'var'
+    # Workaround for bug in Chrome eval(). eval() barfs if it sees const before a function.
+    # See https://github.com/kovidgoyal/rapydscript-ng/issues/29
+    return 'var'
+
 def declare_exports(module_id, exports, output, docstrings):
     seen = {}
     if output.option('keep_docstrings') and docstrings and docstrings.length:
         exports.push({'name':'__doc__', 'refname': 'ρσ_module_doc__'})
         output.newline(), output.indent()
-        v = 'const' if output.js_version > 5 else 'var'
+        v = const_decl(output.js_version)
         output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(docstrings)))
         output.end_statement()
     output.newline()
@@ -84,7 +90,7 @@ def prologue(module, output):
     if output.options.omit_baselib:
         return
     output.indent()
-    v = 'const' if output.options.js_version > 5 else 'var'
+    v = const_decl(output.js_version)
     output.print(v), output.space()
     output.spaced.apply(output, (('ρσ_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' '))))
     output.end_statement()
@@ -109,7 +115,7 @@ def print_top_level(self, output):
     def write_docstrings():
         if is_main and output.option('keep_docstrings') and self.docstrings and self.docstrings.length:
             output.newline(), output.indent()
-            v = 'const' if output.js_version > 5 else 'var'
+            v = const_decl(output.js_version)
             output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(self.docstrings)))
             output.end_statement()
 
