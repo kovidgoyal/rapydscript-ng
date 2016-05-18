@@ -1,14 +1,14 @@
 RapydScript
 ===========
 
-[![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.svg)](http://travis-ci.org/kovidgoyal/rapydscript-ng)
+[![Build Status](https://secure.travis-ci.org/kovidgoyal/rapydscript-ng.svg)](https://travis-ci.org/kovidgoyal/rapydscript-ng)
 [![Downloads](https://img.shields.io/npm/dm/rapydscript-ng.svg)](https://www.npmjs.com/package/rapydscript-ng)
 [![Current Release](https://img.shields.io/npm/v/rapydscript-ng.svg)](https://www.npmjs.com/package/rapydscript-ng)
 
 This is a fork of the original RapydScript that adds many new (not always
 backwards compatible) features. For more on the forking, [see the bottom of this file](#reasons-for-the-fork)
 
-[Try RapydScript-ng live via an in-browser REPL!](http://kovidgoyal.github.io/rapydscript/repl/)
+[Try RapydScript-ng live via an in-browser REPL!](https://kovidgoyal.github.io/rapydscript/repl/)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -98,9 +98,9 @@ learn a new language/framework is to dive in.
 Installation
 ------------
 
-[Try RapydScript-ng live via an in-browser REPL!](http://kovidgoyal.github.io/rapydscript/repl/)
+[Try RapydScript-ng live via an in-browser REPL!](https://kovidgoyal.github.io/rapydscript/repl/)
 
-First make sure you have installed the latest version of [node.js](http://nodejs.org/) (You may need to restart your computer after this step). 
+First make sure you have installed the latest version of [node.js](https://nodejs.org/) (You may need to restart your computer after this step). 
 
 From NPM for use as a command line app:
 
@@ -178,7 +178,7 @@ Now all we need is to tie it into our page so that it's interactive. Let's add a
 	<div id="result"></div>
 ```
 
-**NOTE:** To complement RapydScript, I have also written RapydML (<http://bitbucket.org/pyjeon/rapydml>), which is a pre-compiler for HTML (just like RapydScript is a pre-compiler for JavaScript). 
+**NOTE:** To complement RapydScript, I have also written RapydML (<https://bitbucket.org/pyjeon/rapydml>), which is a pre-compiler for HTML (just like RapydScript is a pre-compiler for JavaScript). 
 
 Now let's implement computeFactorial() function in RapydScript:
 
