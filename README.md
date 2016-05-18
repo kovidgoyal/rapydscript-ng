@@ -1486,8 +1486,9 @@ HTML below for an example.
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
         <title>Test embedded RapydScript</title>
-        <script src="https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js"></script>
+        <script charset="UTF-8" src="https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js"></script>
         <script>
 var compiler = RapydScript.create_embedded_compiler();
 var js = compiler.compile("def hello_world():\n a='RapydScript is cool!'\n print(a)\n alert(a)");
