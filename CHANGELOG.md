@@ -1,3 +1,18 @@
+version 0.7.3
+==============
+
+* Fix extra-semicolon after chain assignment, and also avoid using a temp
+  variable for non-destructuring chain assignments
+
+* Fix a bug in the compiler cache system that could cause the compiler to
+  output incorrect code when re-compiling a previously cached module that was
+  imported from more than one other module.
+
+* Add the builtin `pow()` function from python
+
+* Workaround for a bug in the latest release of Chrome that broke the web REPL
+  and embedded compiler.
+
 version 0.7.2
 ==============
 
