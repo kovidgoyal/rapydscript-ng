@@ -3829,6 +3829,17 @@ return this.__repr__();
             __argnames__ : {value: ["words"]}
         });
 
+        function cache_file_name(src, cache_dir) {
+            if (cache_dir) {
+                src = str.replace(src, "\\", "/");
+                return cache_dir + "/" + str.lstrip(str.replace(src, "/", "-") + ".json", "-");
+            }
+            return src + "-cached";
+        };
+        Object.defineProperties(cache_file_name, {
+            __argnames__ : {value: ["src", "cache_dir"]}
+        });
+
         ρσ_modules.utils.has_prop = has_prop;
         ρσ_modules.utils.MAP = MAP;
         ρσ_modules.utils.array_to_hash = array_to_hash;
@@ -3847,6 +3858,7 @@ return this.__repr__();
         ρσ_modules.utils.set_difference = set_difference;
         ρσ_modules.utils.set_intersection = set_intersection;
         ρσ_modules.utils.make_predicate = make_predicate;
+        ρσ_modules.utils.cache_file_name = cache_file_name;
     })();
 
     (function(){
@@ -6983,6 +6995,7 @@ return this.__repr__();
         var array_to_hash = ρσ_modules.utils.array_to_hash;
         var defaults = ρσ_modules.utils.defaults;
         var has_prop = ρσ_modules.utils.has_prop;
+        var cache_file_name = ρσ_modules.utils.cache_file_name;
 
         var SyntaxError = ρσ_modules.errors.SyntaxError;
         var ImportError = ρσ_modules.errors.ImportError;
@@ -7071,7 +7084,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "68736160f09deb3eae26a563ab33eb409694878b";
+        COMPILER_VERSION = "7eaaaa8244308ceee0ceffc2a5acab7dcd7c53e5";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -8053,7 +8066,7 @@ return this.__repr__();
                     import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(":"));
                 }
                 try {
-                    cached = JSON.parse(readfile(filename + "-cached", "utf-8"));
+                    cached = JSON.parse(readfile(cache_file_name(filename, options.module_cache_dir), "utf-8"));
                 } catch (ρσ_Exception) {
                     ρσ_last_exception = ρσ_Exception;
                     {
@@ -8093,6 +8106,7 @@ return this.__repr__();
                         ρσ_d["imported_modules"] = imported_modules;
                         ρσ_d["importing_modules"] = importing_modules;
                         ρσ_d["discard_asserts"] = options.discard_asserts;
+                        ρσ_d["module_cache_dir"] = options.module_cache_dir;
                         return ρσ_d;
                     }).call(this));
                 }
@@ -10081,6 +10095,7 @@ return this.__repr__();
                 ρσ_d["classes"] = undefined;
                 ρσ_d["scoped_flags"] = Object.create(null);
                 ρσ_d["discard_asserts"] = false;
+                ρσ_d["module_cache_dir"] = "";
                 return ρσ_d;
             }).call(this));
             import_dirs = (function() {
@@ -10285,6 +10300,7 @@ return this.__repr__();
                 ρσ_d["private_scope"] = true;
                 ρσ_d["keep_docstrings"] = false;
                 ρσ_d["discard_asserts"] = false;
+                ρσ_d["module_cache_dir"] = "";
                 ρσ_d["js_version"] = 5;
                 ρσ_d["write_name"] = true;
                 return ρσ_d;
@@ -13305,6 +13321,8 @@ return this.__repr__();
         var __name__ = "output.modules";
         var COMPILER_VERSION = ρσ_modules.parse.COMPILER_VERSION;
 
+        var cache_file_name = ρσ_modules.utils.cache_file_name;
+
         var declare_vars = ρσ_modules["output.statements"].declare_vars;
         var display_body = ρσ_modules["output.statements"].display_body;
 
@@ -13628,7 +13646,7 @@ return this.__repr__();
                                 }
                             }
                             try {
-                                writefile(self.filename + "-cached", JSON.stringify(cached, null, "\t"));
+                                writefile(cache_file_name(self.filename, output.options.module_cache_dir), JSON.stringify(cached, null, "\t"));
                             } catch (ρσ_Exception) {
                                 ρσ_last_exception = ρσ_Exception;
                                 if (ρσ_Exception instanceof Error) {
