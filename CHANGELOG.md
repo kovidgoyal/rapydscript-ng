@@ -1,3 +1,10 @@
+version 0.7.5
+==============
+
+* Add an option to have the compiler generate all its cache files in a central
+  directory. Use --cache-dir if you dislike having the `*.pyj-cached` files spread
+  throughout your source code
+
 version 0.7.4
 ==============
 

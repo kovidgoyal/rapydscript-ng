@@ -188,5 +188,5 @@ def make_predicate(words):
 def cache_file_name(src, cache_dir):
     if cache_dir:
         src = str.replace(src, '\\', '/')
-        return cache_dir + '/' + str.replace(src, '/', '-') + '.json'
+        return cache_dir + '/' + str.lstrip(str.replace(src, '/', '-') + '.json', '-')
     return src + '-cached'
