@@ -53,6 +53,7 @@ class OutputStream:
             'private_scope': True,
             'keep_docstrings': False,
             'discard_asserts': False,
+            'module_cache_dir': '',
             'js_version':5,
             'write_name': True,
         }, True)

@@ -4,6 +4,7 @@
 from __python__ import hash_literals
 
 from parse import COMPILER_VERSION
+from utils import cache_file_name
 from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
@@ -211,7 +212,7 @@ def print_module(self, output):
                                 raw = co.get()
                                 cached.outputs[output_key(beautify, keep_docstrings, js_version)] = raw
                     try:
-                        writefile(self.filename + '-cached', JSON.stringify(cached, None, '\t'))
+                        writefile(cache_file_name(self.filename, output.options.module_cache_dir), JSON.stringify(cached, None, '\t'))
                     except Error as e:
                         console.error('Failed to write output cache file:', self.filename + '-cached', 'with error:', e)
         )

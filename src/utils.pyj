@@ -184,3 +184,9 @@ def make_predicate(words):
     for k in words:
         a[k] = True
     return a
+
+def cache_file_name(src, cache_dir):
+    if cache_dir:
+        src = str.replace(src, '\\', '/')
+        return cache_dir + '/' + str.replace(src, '/', '-') + '.json'
+    return src + '-cached'

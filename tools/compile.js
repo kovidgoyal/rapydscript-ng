@@ -27,8 +27,25 @@ function read_whole_file(filename, cb) {
     }
 }
 
+function makedirs(dir) {
+    try {
+        fs.mkdirSync(dir);
+    } catch(e) {
+        if (e.code == 'EEXIST') return;
+        if (e.code == 'ENOENT') { makedirs(path.dirname(dir)); fs.mkdirSync(dir); }
+        throw e;
+    }
+}
+
+function process_cache_dir(dir) {
+    dir = path.resolve(path.normalize(dir));
+    makedirs(dir);
+    return dir;
+}
+
 module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     // configure settings for the output
+    var cache_dir = process_cache_dir(argv.cache_dir);
     var OUTPUT_OPTIONS = {
         beautify: !argv.uglify,
         private_scope: !argv.bare,
@@ -36,7 +53,9 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         js_version: parseInt(argv.js_version),
         keep_docstrings: argv.keep_docstrings,
         discard_asserts: argv.discard_asserts,
+        module_cache_dir: cache_dir,
     };
+
     var files = argv.files.slice();
     var STATS = {}, TOPLEVEL;
     var num_of_files = files.length || 1;
@@ -49,6 +68,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             libdir: path.join(src_path, 'lib'),
             import_dirs: utils.get_import_dirs(argv.import_path),
             discard_asserts: argv.discard_asserts,
+            module_cache_dir: cache_dir,
         });
     }
 

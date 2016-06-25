@@ -1,8 +1,9 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: readfile
 from __python__ import hash_literals
 
-from utils import make_predicate, array_to_hash, defaults, has_prop
+from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
 from errors import SyntaxError, ImportError
 from ast import (
 AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
@@ -715,7 +716,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(':'))
 
         try:
-            cached = JSON.parse(readfile(filename + '-cached', 'utf-8'))  # noqa:undef
+            cached = JSON.parse(readfile(cache_file_name(filename, options.module_cache_dir), 'utf-8'))
         except:
             cached = None
 
@@ -739,6 +740,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'imported_modules': imported_modules,
                 'importing_modules': importing_modules,
                 'discard_asserts': options.discard_asserts,
+                'module_cache_dir': options.module_cache_dir,
             })  # This function will add the module to imported_modules itself
 
         imported_modules[key].srchash = srchash
@@ -2124,6 +2126,7 @@ def parse(text, options):
         'classes': undefined, # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
         'scoped_flags': {},   # Global scoped flags (used by the REPL)
         'discard_asserts': False,
+        'module_cache_dir': '',
     })
     import_dirs = [x for x in options.import_dirs]
     for location in v'[options.libdir, options.basedir]':

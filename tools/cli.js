@@ -300,6 +300,13 @@ Note, that you can also use the --import-path option to
 add directories to the import path.
 */});
 
+opt("cache_dir", "C", 'string', '', function(){/*
+directory to use to store the cached files generated
+by the compiler. Normally, these are stored right next to
+every compiled pyj file, with the extension pyj-cached. This
+option allows them to be consolidated in a single directory.
+*/});
+
 opt("comments", undefined, 'string', '', function(){/*
 Preserve copyright comments in the output.
 By default this works like Google Closure, keeping 
