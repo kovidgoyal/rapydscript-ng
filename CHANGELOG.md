@@ -1,3 +1,8 @@
+version 0.7.4
+==============
+
+* Fix piping data into rapydscript for compilation not working
+
 version 0.7.3
 ==============
 
