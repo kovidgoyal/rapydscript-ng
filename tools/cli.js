@@ -175,7 +175,7 @@ function parse_args() {  // {{{
 			val = t;
 		} else val = undefined;
 
-		var name = name_map[arg.replace('-', '_')];
+		var name = name_map[arg.replace(/-/g, '_')];
 		if (!name) {
 			print_usage(group);
 			console.error('\nThe option:', colored('-' + oarg, 'red'), 'is not recognized');
