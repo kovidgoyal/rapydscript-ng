@@ -45,7 +45,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         return RapydScript.parse(code, {
             filename: file,
             toplevel: toplevel,
-            basedir: path.dirname(file),
+            basedir: (file !== '<stdin>') ? path.dirname(file) : undefined,
             libdir: path.join(src_path, 'lib'),
             import_dirs: utils.get_import_dirs(argv.import_path),
             discard_asserts: argv.discard_asserts,
@@ -84,11 +84,12 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
             process.exit(1);
         }
         time_it("parse", function(){
+            var file = files[0] || argv.filename_for_stdin || '<stdin>';
             try {
-                TOPLEVEL = parse_file(code, files[0], TOPLEVEL);
+                TOPLEVEL = parse_file(code, file, TOPLEVEL);
             } catch (e) {
                 if (!(e instanceof RapydScript.SyntaxError)) throw e;
-                console.error((files[0] || '<stdin>') + ':' + e.toString());
+                console.error(e.toString());
                 process.exit(1);
             }
         });

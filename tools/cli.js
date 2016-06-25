@@ -293,6 +293,13 @@ are searched before the builtin paths, which means you
 can use them to replace builtin modules.
 */});
 
+opt("filename_for_stdin", "P", 'string', '', function(){/*
+filename to use for data piped into STDIN. Imports will
+be resolved relative to the directory this filename is in.
+Note, that you can also use the --import-path option to
+add directories to the import path.
+*/});
+
 opt("comments", undefined, 'string', '', function(){/*
 Preserve copyright comments in the output.
 By default this works like Google Closure, keeping 
