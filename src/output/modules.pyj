@@ -100,6 +100,11 @@ def prologue(module, output):
     output.end_statement()
     output.indent(), output.spaced('var', 'ρσ_cond_temp,', 'ρσ_expr_temp,', 'ρσ_last_exception'), output.end_statement()
     output.indent(), output.spaced('var', 'ρσ_object_counter', '=', '0'), output.end_statement()
+    if output.options.js_version > 5:
+        # Needed for Chrome < 51 and Edge as of August 2016
+        output.indent(), output.spaced('if(', 'typeof', 'HTMLCollection', '!==', '"undefined")',
+            'NodeList.prototype[Symbol.iterator]', '=', 'HTMLCollection.prototype[Symbol.iterator]', '=', 'NamedNodeMap.prototype[Symbol.iterator]', '=', 'Array.prototype[Symbol.iterator]')
+        output.end_statement()
     needs_yield = output.options.js_version < 6 and module.baselib['yield']
     if needs_yield:
         output.dump_yield()
