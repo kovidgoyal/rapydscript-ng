@@ -68,6 +68,7 @@ NATIVE_CLASSES = {
     'WeakMap': {},
     'Set': {},
     'WeakSet': {},
+    'WebSocket': {},
     'XMLHttpRequest': {},
     'TextEncoder': {},
     'TextDecoder': {},
