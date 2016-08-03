@@ -7084,7 +7084,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "7eaaaa8244308ceee0ceffc2a5acab7dcd7c53e5";
+        COMPILER_VERSION = "20b25f064163e44a51827524a42a3ceaf9a2242e";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -7141,6 +7141,7 @@ return this.__repr__();
             ρσ_d["WeakMap"] = Object.create(null);
             ρσ_d["Set"] = Object.create(null);
             ρσ_d["WeakSet"] = Object.create(null);
+            ρσ_d["WebSocket"] = Object.create(null);
             ρσ_d["XMLHttpRequest"] = Object.create(null);
             ρσ_d["TextEncoder"] = Object.create(null);
             ρσ_d["TextDecoder"] = Object.create(null);
@@ -8048,7 +8049,7 @@ return this.__repr__();
                 });
 
                 src_code = filename = null;
-                modpath = key.replace(".", "/");
+                modpath = key.replace(/\./g, "/");
                 var ρσ_Iter39 = ρσ_Iterable(import_dirs);
                 for (var ρσ_Index39 = 0; ρσ_Index39 < ρσ_Iter39.length; ρσ_Index39++) {
                     location = ρσ_Iter39[ρσ_Index39];
@@ -13473,6 +13474,10 @@ return this.__repr__();
             [output.indent(), output.spaced("var", "ρσ_cond_temp,", "ρσ_expr_temp,", "ρσ_last_exception"), 
             output.end_statement()];
             [output.indent(), output.spaced("var", "ρσ_object_counter", "=", "0"), output.end_statement()];
+            if (output.options.js_version > 5) {
+                [output.indent(), output.spaced("if(", "typeof", "HTMLCollection", "!==", "\"undefined\")", "NodeList.prototype[Symbol.iterator]", "=", "HTMLCollection.prototype[Symbol.iterator]", "=", "NamedNodeMap.prototype[Symbol.iterator]", "=", "Array.prototype[Symbol.iterator]")];
+                output.end_statement();
+            }
             needs_yield = output.options.js_version < 6 && module.baselib["yield"];
             if (needs_yield) {
                 output.dump_yield();
