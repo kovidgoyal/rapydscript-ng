@@ -1,3 +1,10 @@
+version 0.7.6
+==============
+
+* Fix nested imports beyond two levels not working
+* Fix iteration over NodeList/HTMLCollection not working with ES 6 output in Edge and Chrome < 51
+* Add WebSocket to the list of known global class names
+
 version 0.7.5
 ==============
 
