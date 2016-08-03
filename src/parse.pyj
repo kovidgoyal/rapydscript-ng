@@ -705,7 +705,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         raise
 
         src_code = filename = None
-        modpath = key.replace('.', '/')
+        modpath = key.replace(/\./g, '/')
 
         for location in import_dirs:
             if location:

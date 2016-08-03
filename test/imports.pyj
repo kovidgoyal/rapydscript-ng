@@ -35,6 +35,10 @@ eq('sub', _import_two.sub.sub_var)
 eq('sub', ts.sub_var)
 eq('sub', _import_two.sub.sub_func())
 
+# Test deep import
+from _import_two.level2.deep import deep_var
+eq('deep', deep_var)
+
 # Test that class accessed via plain import is
 # recognized
 s = _import_two.sub.Sub(1)
