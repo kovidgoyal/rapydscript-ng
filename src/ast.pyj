@@ -851,7 +851,7 @@ AST_Existential = DEFNODE("Existential", "expression after", {
         node = this
         return visitor._visit(node, def():
             node.expression._walk(visitor)
-            if type(node.after) is 'object':
+            if node.after is not None and type(node.after) is 'object':
                 node.after._walk(visitor)
         )
 })
