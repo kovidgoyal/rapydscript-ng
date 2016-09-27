@@ -54,7 +54,7 @@ def ρσ_list_extend(iterable):
         for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
-        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             this.push(result.value)
@@ -215,7 +215,7 @@ def ρσ_list_constructor(iterable):
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
     elif type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
@@ -295,7 +295,7 @@ else:
     v'ρσ_set_implementation = Set'
 
 def ρσ_set(iterable):
-    if isinstance(this, ρσ_set):
+    if v'this instanceof ρσ_set':
         this.jsset = new ρσ_set_implementation()  # noqa:undef
         ans = this
         if iterable is undefined:
@@ -305,7 +305,7 @@ def ρσ_set(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])
         elif type(iterable[ρσ_iterator_symbol]) is 'function':
-            iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+            iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -466,7 +466,7 @@ Object.defineProperties(ρσ_set.prototype, {
     return '{' + list(this).join(', ') + '}'
 
 ρσ_set.prototype.__eq__ = def(other):
-    if not isinstance(other, this.constructor):
+    if not v'other instanceof this.constructor':
         return False
     if other.size is not this.size:
         return False
@@ -562,7 +562,7 @@ else:
     v'ρσ_dict_implementation = Map'
 
 def ρσ_dict(iterable):
-    if isinstance(this, ρσ_dict):
+    if v'this instanceof ρσ_dict':
         this.jsmap = new ρσ_dict_implementation()  # noqa:undef
         if iterable is not undefined:
             this.update(iterable)
@@ -641,13 +641,13 @@ Object.defineProperties(ρσ_dict.prototype, {
     if Array.isArray(iterable):
         for v'var i = 0; i < iterable.length; i++':
             m.set(iterable[i][0], iterable[i][1])
-    elif isinstance(iterable, ρσ_dict):
+    elif v'iterable instanceof ρσ_dict':
         iterator = iterable.items()
         result = iterator.next()
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(Map) is 'function' and isinstance(iterable, Map):
+    elif type(Map) is 'function' and v'iterable instanceof Map':
         iterator = iterable.entries()
         result = iterator.next()
         while not result.done:
@@ -677,7 +677,7 @@ Object.defineProperties(ρσ_dict.prototype, {
     return '{' + entries.join(', ') + '}'
 
 ρσ_dict.prototype.__eq__ = def(other):
-    if not isinstance(other, this.constructor):
+    if not v'(other instanceof this.constructor)':
         return False
     if other.size is not this.size:
         return False

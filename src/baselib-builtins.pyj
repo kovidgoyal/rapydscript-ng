@@ -102,7 +102,7 @@ def ρσ_enumerate(iterable):
                 return v"{'done':true}"
         return ans
     if type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         ans['_iterator'] = iterator
         ans['next'] = def():
             r = this._iterator.next()
@@ -129,7 +129,7 @@ def ρσ_reversed(iterable):
 def ρσ_iter(iterable):
     # Generate a JavaScript iterator object from iterable
     if type(iterable[ρσ_iterator_symbol]) is 'function':
-        return iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+        return iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
     if ρσ_arraylike(iterable):
         ans = v'{"_i":-1}'
         ans[ρσ_iterator_symbol] = def():
