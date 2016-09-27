@@ -92,7 +92,7 @@ def print_set(self, output):
     output.print('()')
 
 def print_regexp(self, output):
-    str_ = self.getValue().toString()
+    str_ = self.value.toString()
     if output.option("ascii_only"):
         str_ = output.to_ascii(str_)
     output.print(str_)

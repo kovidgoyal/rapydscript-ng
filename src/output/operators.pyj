@@ -13,7 +13,7 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
     if not skip_expression:
         expr = self.expression
         expr.print(output)
-    if isinstance(expr, AST_Number) and expr.getValue() >= 0:
+    if isinstance(expr, AST_Number) and expr.value >= 0:
         if not /[xa-f.]/i.test(output.last()):
             output.print(".")
     output.print(".")

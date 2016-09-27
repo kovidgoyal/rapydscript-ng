@@ -57,7 +57,6 @@ function Gettext(catalog, filename) {
 
 function gettext(catalog, code, filename) {
     var toplevel;
-    RapydScript.AST_Node.warn_function = function() {};
 
     try {
         toplevel = parse_file(code, filename);

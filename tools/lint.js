@@ -411,7 +411,7 @@ function Linter(toplevel, filename, code, options) {
         var seen = {};
         (node.properties || []).forEach(function (prop) {
             if (prop.key instanceof RapydScript.AST_Constant) {
-                var val = prop.key.getValue();
+                var val = prop.key.value;
                 if (has_prop(seen, val)) 
                     this.messages.push(msg_from_node(filename, 'dup-key', val, prop));
                 seen[val] = true;
@@ -478,8 +478,6 @@ function Linter(toplevel, filename, code, options) {
             this.handle_scope();
         } 
 
-        // console.log(node.TYPE);
-         
         if (cont !== undefined) cont();
 
         if (this.scopes.length > scope_count) {
@@ -536,7 +534,6 @@ function lint_code(code, options) {
     var filename = options.filename || '<eval>';
     var toplevel, messages;
     var lines = code.split('\n');  // Can be used (in the future) to display extract from code corresponding to error location
-    RapydScript.AST_Node.warn_function = function() {};
 
     try {
         toplevel = parse_file(code, filename);

@@ -3,11 +3,9 @@
 import traceback
 
 def throw_test(code):
-    orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
     assrt.throws(def():
         RapydScript.parse(code, {'filename':code}).body[0]
     , RapydScript.SyntaxError)
-    RapydScript.AST_Node.warn_function = orig
 
 # arithmetic
 assrt.equal(3**4, Math.pow(3, 4))

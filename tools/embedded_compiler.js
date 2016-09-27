@@ -9,7 +9,6 @@
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 module.exports = function(compiler, baselib, runjs, name) {
-    compiler.AST_Node.warn_function = function() {};
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
     runjs(print_ast(compiler.parse(''), true));

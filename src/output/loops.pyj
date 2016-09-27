@@ -3,7 +3,7 @@
 # globals: regenerate
 from __python__ import hash_literals
 
-from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number, has_calls
+from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number, has_calls, AST_Seq, AST_ListComprehension
 from output.stream import OutputStream
 
 def unpack_tuple(elems, output, in_statement):
@@ -106,7 +106,7 @@ def init_es6_itervar(output, itervar):
 
 def print_for_in(self, output):
     def write_object():
-        if self.object.TYPE is "Seq":
+        if self.object.constructor is AST_Seq:
             (new AST_Array({'elements':self.object.to_array()})).print(output)
         else:
             self.object.print(output)
@@ -208,10 +208,11 @@ def print_for_in(self, output):
     self._do_print_body(output)
 
 def print_list_comprehension(self, output):
-    result_obj = {'ListComprehension':'[]', 'DictComprehension':('Object.create(null)' if self.is_jshash else '{}'), 'SetComprehension':'ρσ_set()'}[self.TYPE]
-    is_generator = self.TYPE is 'GeneratorComprehension'
+    tname = self.constructor.name.slice(4)
+    result_obj = {'ListComprehension':'[]', 'DictComprehension':('Object.create(null)' if self.is_jshash else '{}'), 'SetComprehension':'ρσ_set()'}[tname]
+    is_generator = tname is 'GeneratorComprehension'
     es5 = output.option('js_version') is 5
-    if self.TYPE is 'DictComprehension':
+    if tname is 'DictComprehension':
         if self.is_pydict:
             result_obj = 'ρσ_dict()'
             add_to_result = def(output):
@@ -221,7 +222,7 @@ def print_list_comprehension(self, output):
                     self.statement.print(output)
                     output.space(), output.print(','), output.space()
                     output.with_parens(def():
-                        if self.value_statement.TYPE is 'Seq':
+                        if self.value_statement.constructor is AST_Seq:
                             output.with_square(def():self.value_statement.print(output);)
                         else:
                             self.value_statement.print(output)
@@ -237,21 +238,21 @@ def print_list_comprehension(self, output):
                 )
                 output.space(), output.print('='), output.space()
                 output.with_parens(def():
-                    if self.value_statement.TYPE is 'Seq':
+                    if self.value_statement.constructor is AST_Seq:
                         output.with_square(def():self.value_statement.print(output);)
                     else:
                         self.value_statement.print(output)
                 )
                 output.end_statement()
     else:
-        push_func = "ρσ_Result." + ('push' if self.TYPE is 'ListComprehension' else 'add')
+        push_func = "ρσ_Result." + ('push' if self.constructor is AST_ListComprehension else 'add')
         if is_generator:
             push_func = 'yield '
         add_to_result = def(output):
             output.indent()
             output.print(push_func)
             output.with_parens(def():
-                if self.statement.TYPE is 'Seq':
+                if self.statement.constructor is AST_Seq:
                     output.with_square(def():self.statement.print(output);)
                 else:
                     self.statement.print(output)
@@ -353,7 +354,7 @@ def print_list_comprehension(self, output):
                     add_to_result(body_out)
             )
             body_out.newline()
-            if self.TYPE is 'ListComprehension':
+            if self.constructor is AST_ListComprehension:
                 body_out.indent()
                 body_out.spaced('ρσ_Result', '=', 'ρσ_list_constructor(ρσ_Result)')
                 body_out.end_statement()

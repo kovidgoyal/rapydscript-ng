@@ -571,7 +571,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def break_cont(type):
         if S.in_loop is 0:
-            croak(type.TYPE + " not inside a loop or switch")
+            croak(type.name.slice(4) + " not inside a loop or switch")
         semicolon()
         return new type()
 

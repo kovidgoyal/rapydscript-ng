@@ -23,11 +23,9 @@ def basic_test(code, arglen, starargs, kwargs, defaults):
     return func
 
 def throw_test(code):
-    orig, RapydScript.AST_Node.warn_function = RapydScript.AST_Node.warn_function, def():pass
     assrt.throws(def():
         RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
     , RapydScript.SyntaxError)
-    RapydScript.AST_Node.warn_function = orig
 
 basic_test('a, b, c', 3)
 basic_test('*args', 0, 'args')

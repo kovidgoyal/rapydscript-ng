@@ -38,9 +38,9 @@ from output.utils import make_block, make_num
 def generate_code():
     # -----[ utils ]-----
     def DEFPRINT(nodetype, generator):
-        nodetype.DEFMETHOD("_codegen", generator)
+        nodetype.prototype._codegen = generator
 
-    AST_Node.DEFMETHOD("print", def(stream, force_parens):
+    AST_Node.prototype.print = def(stream, force_parens):
         self = this
         generator = self._codegen
         stream.push_node(self)
@@ -54,9 +54,9 @@ def generate_code():
             generator(self, stream)
 
         stream.pop_node()
-    )
+
     # -----[ comments ]-----
-    AST_Node.DEFMETHOD("add_comments", def(output):
+    AST_Node.prototype.add_comments = def(output):
         c = output.option("comments")
         self = this
         if c:
@@ -96,10 +96,10 @@ def generate_code():
                 )
 
 
-    )
+
     # -----[ PARENTHESES ]-----
     def PARENS(nodetype, func):
-        nodetype.DEFMETHOD("needs_parens", func)
+        nodetype.prototype.needs_parens = func
 
     PARENS(AST_Node, def():
         return False
@@ -176,7 +176,7 @@ def generate_code():
     )
     PARENS(AST_Number, def(output):
         p = output.parent()
-        if this.getValue() < 0 and isinstance(p, AST_PropAccess) and p.expression is this:
+        if this.value < 0 and isinstance(p, AST_PropAccess) and p.expression is this:
             return True
     )
     PARENS(AST_NaN, def(output):
@@ -218,9 +218,9 @@ def generate_code():
         output.print("debugger")
         output.semicolon()
     )
-    AST_StatementWithBody.DEFMETHOD("_do_print_body", def(output):
+    AST_StatementWithBody.prototype._do_print_body = def(output):
         force_statement(this.body, output)
-    )
+
     DEFPRINT(AST_Statement, def(self, output):
         self.body.print(output)
         output.semicolon()
@@ -246,11 +246,11 @@ def generate_code():
 
     DEFPRINT(AST_While, print_while_loop)
 
-    AST_ForIn.DEFMETHOD("_do_print_body", print_for_loop_body)
+    AST_ForIn.prototype._do_print_body = print_for_loop_body
 
     DEFPRINT(AST_ForIn, print_for_in)
 
-    AST_ForJS.DEFMETHOD("_do_print_body", def(output):
+    AST_ForJS.prototype._do_print_body = def(output):
         self = this
         output.with_block(def():
             self.body.body.forEach(def(stmt, i):
@@ -259,7 +259,6 @@ def generate_code():
                 output.newline()
             )
         )
-    )
 
     DEFPRINT(AST_ForJS, def(self, output):
         output.print("for")
@@ -277,17 +276,17 @@ def generate_code():
 
     DEFPRINT(AST_Assert, print_assert)
 
-    AST_Lambda.DEFMETHOD("_do_print", print_function)
+    AST_Lambda.prototype._do_print = print_function
 
     DEFPRINT(AST_Lambda, def(self, output):
         self._do_print(output)
     )
-    AST_Class.DEFMETHOD("_do_print", print_class)
+    AST_Class.prototype._do_print = print_class
     DEFPRINT(AST_Class, def(self, output):
         self._do_print(output)
     )
     # -----[ exits ]-----
-    AST_Exit.DEFMETHOD("_do_print", def(output, kind):
+    AST_Exit.prototype._do_print = def(output, kind):
         self = this
         output.print(kind)
         if self.value:
@@ -295,7 +294,7 @@ def generate_code():
             self.value.print(output)
 
         output.semicolon()
-    )
+
     DEFPRINT(AST_Yield, def(self, output):
         self._do_print(output, "yield" + ('*' if self.is_yield_from else ''))
     )
@@ -307,14 +306,14 @@ def generate_code():
     )
 
     # -----[ loop control ]-----
-    AST_LoopControl.DEFMETHOD("_do_print", def(output, kind):
+    AST_LoopControl.prototype._do_print = def(output, kind):
         output.print(kind)
         if this.label:
             output.space()
             this.label.print(output)
 
         output.semicolon()
-    )
+
     DEFPRINT(AST_Break, def(self, output):
         self._do_print(output, "break")
     )
@@ -385,7 +384,7 @@ def generate_code():
     DEFPRINT(AST_Finally, print_finally)
 
     # -----[ var/const ]-----
-    AST_Definitions.DEFMETHOD("_do_print", def(output, kind):
+    AST_Definitions.prototype._do_print = def(output, kind):
         output.print(kind)
         output.space()
         this.definitions.forEach(def(def_, i):
@@ -398,7 +397,7 @@ def generate_code():
         avoid_semicolon = in_for and p.init is this
         if not avoid_semicolon:
             output.semicolon()
-    )
+
     DEFPRINT(AST_Var, def(self, output):
         self._do_print(output, "var")
     )
@@ -434,7 +433,7 @@ def generate_code():
     # -----[ other expressions ]-----
     DEFPRINT(AST_BaseCall, print_function_call)
 
-    AST_Seq.DEFMETHOD("_do_print", print_seq)
+    AST_Seq.prototype._do_print = print_seq
 
     DEFPRINT(AST_Seq, def(self, output):
         self._do_print(output)
@@ -471,9 +470,9 @@ def generate_code():
     )
     DEFPRINT(AST_Set, print_set)
 
-    AST_Symbol.DEFMETHOD("definition", def():
+    AST_Symbol.prototype.definition = def():
         return this.thedef
-    )
+
     DEFPRINT(AST_Symbol, def(self, output):
         def_ = self.definition()
         output.print_name((def_.mangled_name or def_.name) if def_ else self.name)
@@ -493,16 +492,16 @@ def generate_code():
         output.print("this")
     )
     DEFPRINT(AST_Constant, def(self, output):
-        output.print(self.getValue())
+        output.print(self.value)
     )
     DEFPRINT(AST_String, def(self, output):
-        output.print_string(self.getValue())
+        output.print_string(self.value)
     )
     DEFPRINT(AST_Verbatim, def(self, output):
-        output.print(self.getValue())
+        output.print(self.value)
     )
     DEFPRINT(AST_Number, def(self, output):
-        output.print(make_num(self.getValue()))
+        output.print(make_num(self.value))
     )
     DEFPRINT(AST_RegExp, print_regexp)
 
