@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ast import AST_Binary
+from ast import AST_Binary, is_node_type
 
 def print_array(self, output):
     output.print('ρσ_list_decorate')
@@ -97,5 +97,5 @@ def print_regexp(self, output):
         str_ = output.to_ascii(str_)
     output.print(str_)
     p = output.parent()
-    if isinstance(p, AST_Binary) and /^in/.test(p.operator) and p.left is self:
+    if is_node_type(p, AST_Binary) and /^in/.test(p.operator) and p.left is self:
         output.print(" ")

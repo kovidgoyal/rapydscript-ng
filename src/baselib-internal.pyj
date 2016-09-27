@@ -4,7 +4,7 @@
 # globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains, ρσ_list_constructor, ρσ_str
 
 def ρσ_eslice(arr, step, start, end):
-    if type(arr) is 'string' or isinstance(arr, String):
+    if type(arr) is 'string' or v'arr instanceof String':
         is_string = True
         arr = arr.split('')
 
@@ -22,7 +22,7 @@ def ρσ_eslice(arr, step, start, end):
     return arr
 
 def ρσ_delslice(arr, step, start, end):
-    if type(arr) is 'string' or isinstance(arr, String):
+    if type(arr) is 'string' or v'arr instanceof String':
         is_string = True
         arr = arr.split('')
     if step < 0:
@@ -67,7 +67,7 @@ def ρσ_extends(child, parent):
                 return arr.indexOf(val) is not -1
             if type(arr.__contains__) is 'function':
                 return arr.__contains__(val)
-            if isinstance(arr, (Map, Set)):
+            if v'arr instanceof Map || arr instanceof Set':
                 return arr.has(val)
             if ρσ_arraylike(arr):
                 return ρσ_list_contains.call(arr, val)
@@ -88,7 +88,7 @@ def ρσ_Iterable(iterable):
     if ρσ_arraylike(iterable):
         return iterable
     if type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if type(Map) is 'function' and isinstance(iterable, Map) else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:

@@ -9,7 +9,7 @@ from parse import PRECEDENCE
 from ast import (
     AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
     AST_Catch, AST_Class, AST_Conditional, AST_Constant, AST_Continue,
-    AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot,
+    AST_Debugger, AST_Definitions, AST_Directive, AST_Do, AST_Dot, is_node_type,
     AST_EmptyStatement, AST_Exit, AST_ExpressiveObject, AST_Finally, AST_ForIn,
     AST_ForJS, AST_Function, AST_Hole, AST_If, AST_Imports, AST_Infinity,
     AST_Lambda, AST_ListComprehension, AST_LoopControl, AST_NaN, AST_New, AST_Node,
@@ -67,7 +67,7 @@ def generate_code():
                 # XXX: ugly fix for https://github.com/mishoo/RapydScript2/issues/112
                 #      if this node is `return` or `throw`, we cannot allow comments before
                 #      the returned or thrown value.
-                if isinstance(self, AST_Exit) and self.value and self.value.start.comments_before.length > 0:
+                if is_node_type(self, AST_Exit) and self.value and self.value.start.comments_before.length > 0:
                     comments = (comments or []).concat(self.value.start.comments_before)
                     self.value.start.comments_before = []
 
@@ -116,28 +116,28 @@ def generate_code():
     )
     PARENS(AST_Unary, def(output):
         p = output.parent()
-        return isinstance(p, AST_PropAccess) and p.expression is this
+        return is_node_type(p, AST_PropAccess) and p.expression is this
     )
     PARENS(AST_Seq, def(output):
         p = output.parent()
-        return isinstance(p, AST_Unary) or isinstance(p, AST_VarDef) or isinstance(p, AST_Dot) or isinstance(p, AST_ObjectProperty) or isinstance(p, AST_Conditional)
+        return is_node_type(p, AST_Unary) or is_node_type(p, AST_VarDef) or is_node_type(p, AST_Dot) or is_node_type(p, AST_ObjectProperty) or is_node_type(p, AST_Conditional)
     )
     PARENS(AST_Binary, def(output):
         p = output.parent()
         # (foo && bar)()
-        if isinstance(p, AST_BaseCall) and p.expression is this:
+        if is_node_type(p, AST_BaseCall) and p.expression is this:
             return True
 
         # typeof (foo && bar)
-        if isinstance(p, AST_Unary):
+        if is_node_type(p, AST_Unary):
             return True
 
         # (foo && bar)["prop"], (foo && bar).prop
-        if isinstance(p, AST_PropAccess) and p.expression is this:
+        if is_node_type(p, AST_PropAccess) and p.expression is this:
             return True
 
         # this deals with precedence: 3 * (2 + 1)
-        if isinstance(p, AST_Binary):
+        if is_node_type(p, AST_Binary):
             po = p.operator
             pp = PRECEDENCE[po]
             so = this.operator
@@ -147,7 +147,7 @@ def generate_code():
     )
     PARENS(AST_PropAccess, def(output):
         p = output.parent()
-        if isinstance(p, AST_New) and p.expression is this:
+        if is_node_type(p, AST_New) and p.expression is this:
             # i.e. new (foo.bar().baz)
             #
             # if there's one call into this subtree, then we need
@@ -156,7 +156,7 @@ def generate_code():
             # expression.
             try:
                 this.walk(new TreeWalker(def(node):
-                    if isinstance(node, AST_BaseCall):
+                    if is_node_type(node, AST_BaseCall):
                         raise p
                 ))
             except as ex:
@@ -166,44 +166,44 @@ def generate_code():
     )
     PARENS(AST_BaseCall, def(output):
         p = output.parent()
-        return isinstance(p, AST_New) and p.expression is this
+        return is_node_type(p, AST_New) and p.expression is this
     )
     PARENS(AST_New, def(output):
         p = output.parent()
-        if this.args.length is 0 and (isinstance(p, AST_PropAccess) or isinstance(p, AST_BaseCall) and p.expression is this):
+        if this.args.length is 0 and (is_node_type(p, AST_PropAccess) or is_node_type(p, AST_BaseCall) and p.expression is this):
             # (new foo)(bar)
             return True
     )
     PARENS(AST_Number, def(output):
         p = output.parent()
-        if this.value < 0 and isinstance(p, AST_PropAccess) and p.expression is this:
+        if this.value < 0 and is_node_type(p, AST_PropAccess) and p.expression is this:
             return True
     )
     PARENS(AST_NaN, def(output):
         p = output.parent()
-        if isinstance(p, AST_PropAccess) and p.expression is this:
+        if is_node_type(p, AST_PropAccess) and p.expression is this:
             return True
     )
     def assign_and_conditional_paren_rules(output):
         p = output.parent()
         # !(a = false) → true
-        if isinstance(p, AST_Unary):
+        if is_node_type(p, AST_Unary):
             return True
 
         # 1 + (a = 2) + 3 → 6, side effect setting a = 2
-        if isinstance(p, AST_Binary) and not (isinstance(p, AST_Assign)):
+        if is_node_type(p, AST_Binary) and not (is_node_type(p, AST_Assign)):
             return True
 
         # (a = func)() —or— new (a = Object)()
-        if isinstance(p, AST_BaseCall) and p.expression is this:
+        if is_node_type(p, AST_BaseCall) and p.expression is this:
             return True
 
         # bar if a = foo else baz
-        if isinstance(p, AST_Conditional) and p.condition is this:
+        if is_node_type(p, AST_Conditional) and p.condition is this:
             return True
 
         # (a = foo)["prop"] —or— (a = foo).prop
-        if isinstance(p, AST_PropAccess) and p.expression is this:
+        if is_node_type(p, AST_PropAccess) and p.expression is this:
             return True
 
     PARENS(AST_Assign, assign_and_conditional_paren_rules)
@@ -230,7 +230,7 @@ def generate_code():
     DEFPRINT(AST_Imports, print_imports)
 
     DEFPRINT(AST_SimpleStatement, def(self, output):
-        if not (isinstance(self.body, AST_EmptyStatement)):
+        if not (is_node_type(self.body, AST_EmptyStatement)):
             self.body.print(output)
             output.semicolon()
     )
@@ -337,7 +337,7 @@ def generate_code():
         if not self.body:
             return output.force_semicolon()
 
-        if isinstance(self.body, AST_Do) and output.option("ie_proof"):
+        if is_node_type(self.body, AST_Do) and output.option("ie_proof"):
             # https://github.com/mishoo/RapydScript/issues/#issue/57 IE
             # croaks with "syntax error" on code like this: if (foo)
             # do ... while(cond); else ...  we need block brackets
@@ -347,13 +347,13 @@ def generate_code():
 
         b = self.body
         while True:
-            if isinstance(b, AST_If):
+            if is_node_type(b, AST_If):
                 if not b.alternative:
                     make_block(self.body, output)
                     return
 
                 b = b.alternative
-            elif isinstance(b, AST_StatementWithBody):
+            elif is_node_type(b, AST_StatementWithBody):
                 b = b.body
             else:
                 break
@@ -393,7 +393,7 @@ def generate_code():
             def_.print(output)
         )
         p = output.parent()
-        in_for = isinstance(p, AST_ForIn)
+        in_for = is_node_type(p, AST_ForIn)
         avoid_semicolon = in_for and p.init is this
         if not avoid_semicolon:
             output.semicolon()
@@ -409,7 +409,7 @@ def generate_code():
                 # need to take some precautions here:
                 #    https://github.com/mishoo/RapydScript2/issues/60
                 node.walk(new TreeWalker(def(node):
-                    if isinstance(node, AST_Binary) and node.operator is "in":
+                    if is_node_type(node, AST_Binary) and node.operator is "in":
                         raise output
                 ))
                 node.print(output)
@@ -426,7 +426,7 @@ def generate_code():
             #            output.print("=")
             #            output.space()
             p = output.parent(1)
-            noin = isinstance(p, AST_ForIn)
+            noin = is_node_type(p, AST_ForIn)
             parenthesize_for_noin(self.value, output, noin)
     )
 

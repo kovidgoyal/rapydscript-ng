@@ -21,7 +21,7 @@ AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
-AST_Yield, AST_Assert, AST_Existential
+AST_Yield, AST_Assert, AST_Existential, is_node_type
 )
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
@@ -124,7 +124,7 @@ def has_simple_decorator(decorators, name):
     remove = v'[]'
     for v'var i = 0; i < decorators.length; i++':
         s = decorators[i]
-        if isinstance(s, AST_SymbolRef) and not s.parens and s.name is name:
+        if is_node_type(s, AST_SymbolRef) and not s.parens and s.name is name:
             remove.push(i)
     if remove.length:
         remove.reverse()
@@ -137,7 +137,7 @@ def has_setter_decorator(decorators, name):
     remove = v'[]'
     for v'var i = 0; i < decorators.length; i++':
         s = decorators[i]
-        if isinstance(s, AST_Dot) and isinstance(s.expression, AST_SymbolRef) and s.expression.name is name and s.property is 'setter':
+        if is_node_type(s, AST_Dot) and is_node_type(s.expression, AST_SymbolRef) and s.expression.name is name and s.property is 'setter':
             remove.push(i)
     if remove.length:
         remove.reverse()
@@ -215,21 +215,21 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         # Get the named functions and classes
         if Array.isArray(body):
             for obj in body:
-                if isinstance(obj, AST_Function) or isinstance(obj, AST_Class):
+                if is_node_type(obj, AST_Function) or is_node_type(obj, AST_Class):
                     if obj.name:
                         ans.push(obj.name.name)
                     else:
                         token_error(obj.start, "Top-level functions must have names")
                 else:
                     # skip inner scopes
-                    if isinstance(obj, AST_Scope):
+                    if is_node_type(obj, AST_Scope):
                         continue
                     for x in ['body', 'alternative']:
                         opt = obj[x]
                         if opt:
                             ans = ans.concat(scan_for_top_level_callables(opt))
 
-                        if isinstance(opt, AST_Assign) and not (isinstance(opt.right, AST_Scope)):
+                        if is_node_type(opt, AST_Assign) and not (is_node_type(opt.right, AST_Scope)):
                             ans = ans.concat(scan_for_top_level_callables(opt.right))
 
         elif body.body:
@@ -244,7 +244,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def scan_for_classes(body):
         ans = {}
         for obj in body:
-            if isinstance(obj, AST_Class):
+            if is_node_type(obj, AST_Class):
                 ans[obj.name.name] = obj
         return ans
 
@@ -269,20 +269,20 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         def scan_in_array(arr):
             for x in arr:
-                if isinstance(x, AST_Seq):
+                if is_node_type(x, AST_Seq):
                     x = x.to_array()
-                elif isinstance(x, AST_Array):
+                elif is_node_type(x, AST_Array):
                     x = x.elements
                 if Array.isArray(x):
                     scan_in_array(x)
                 else:
-                    if not isinstance(x, AST_PropAccess):
+                    if not is_node_type(x, AST_PropAccess):
                         push(x.name)
 
         def add_assign_lhs(lhs):
-            if isinstance(lhs, AST_Seq):
+            if is_node_type(lhs, AST_Seq):
                 lhs = new AST_Array({'elements':lhs.to_array()})
-            if isinstance(lhs, AST_Array):
+            if is_node_type(lhs, AST_Array):
                 # assignment to an implicit tuple
                 push("ρσ_unpack")
                 scan_in_array(lhs.elements)
@@ -291,7 +291,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 push(lhs.name)
 
         def add_for_in(stmt):
-            if isinstance(stmt.init, AST_Array):
+            if is_node_type(stmt.init, AST_Array):
                 # iteration via implicit tuple
                 push("ρσ_unpack")
                 scan_in_array(stmt.init.elements)
@@ -303,7 +303,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             # this is a body of statements
             for stmt in body:
                 # skip inner scopes
-                if isinstance(stmt, AST_Scope):
+                if is_node_type(stmt, AST_Scope):
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
@@ -312,16 +312,16 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     if opt:
                         extend(scan_for_local_vars(opt))
 
-                    if isinstance(opt, AST_Assign) and not (isinstance(opt.right, AST_Scope)):
+                    if is_node_type(opt, AST_Assign) and not (is_node_type(opt.right, AST_Scope)):
                         extend(scan_for_local_vars(opt.right))
                 )
 
                 # pick up iterators from loops
-                if isinstance(stmt, AST_ForIn):
+                if is_node_type(stmt, AST_ForIn):
                     add_for_in(stmt)
-                elif isinstance(stmt, AST_DWLoop):
+                elif is_node_type(stmt, AST_DWLoop):
                     extend(scan_for_local_vars(stmt))
-                elif isinstance(stmt, AST_With):
+                elif is_node_type(stmt, AST_With):
                     push('ρσ_with_exception'), push('ρσ_with_suppress')
                     for clause in stmt.clauses:
                         if clause.alias:
@@ -333,23 +333,23 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if body.alternative:
                 extend(scan_for_local_vars(body.alternative))
 
-        elif isinstance(body, AST_Assign):
+        elif is_node_type(body, AST_Assign):
             # this is a single assignment operator
             if body.is_chained():
                 is_compound_assign = False
                 for lhs in body.traverse_chain()[0]:
                     add_assign_lhs(lhs)
-                    if isinstance(lhs, (AST_Seq, AST_Array)):
+                    if is_node_type(lhs, AST_Seq) or is_node_type(lhs, AST_Array):
                         is_compound_assign = True
                         break
                 if is_compound_assign:
                     push('ρσ_chain_assign_temp')
             else:
                 add_assign_lhs(body.left)
-            if not isinstance(body.right, AST_Scope):
+            if not is_node_type(body.right, AST_Scope):
                 extend(scan_for_local_vars(body.right))
 
-        elif isinstance(body, AST_ForIn):
+        elif is_node_type(body, AST_ForIn):
             add_for_in(body)
 
         return localvars
@@ -358,11 +358,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         vars = v'[]'
         if Array.isArray(body):
             for stmt in body:
-                if isinstance(stmt, AST_Scope):
+                if is_node_type(stmt, AST_Scope):
                     continue
 
                 # don't invade nested scopes
-                if isinstance(stmt, AST_Definitions):
+                if is_node_type(stmt, AST_Definitions):
                     stmt.definitions.forEach(def(vardef):
                         vars.push(vardef.name.name)
                     )
@@ -592,8 +592,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if not is_("punc", ";"):
             init = expression(True, True)
             # standardize AST_Seq into array now for consistency
-            if isinstance(init, AST_Seq):
-                if isinstance(init.car, AST_SymbolRef) and isinstance(init.cdr, AST_SymbolRef):
+            if is_node_type(init, AST_Seq):
+                if is_node_type(init.car, AST_SymbolRef) and is_node_type(init.cdr, AST_SymbolRef):
                     # Optimization to prevent runtime call to ρσ_flatten when init is simply (a, b)
                     tmp = init.to_array()
                 else:
@@ -605,7 +605,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 })
 
             if is_("operator", "in"):
-                if isinstance(init, AST_Var) and init.definitions.length > 1:
+                if is_node_type(init, AST_Var) and init.definitions.length > 1:
                     croak("Only one variable declaration allowed in for..in loop")
                 next()
                 return for_in(init, list_comp)
@@ -613,7 +613,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         unexpected()
 
     def for_in(init, list_comp):
-        lhs = init.definitions[0].name if isinstance(init, AST_Var) else None
+        lhs = init.definitions[0].name if is_node_type(init, AST_Var) else None
         obj = expression(True)
         #        expect(")")
         if list_comp:
@@ -645,7 +645,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         # class. This bug was always present. Fixing it will require the parser
         # to maintain a list of local variables for every AST_Scope and provide
         # an easy way to walk the ast tree upwards.
-        if isinstance(expr, AST_SymbolRef):
+        if is_node_type(expr, AST_SymbolRef):
             # check Native JS classes
             if has_prop(NATIVE_CLASSES, expr.name):
                 return NATIVE_CLASSES[expr.name]
@@ -657,13 +657,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if has_prop(S.classes[s], expr.name):
                     return S.classes[s][expr.name]
 
-        elif isinstance(expr, AST_Dot):
+        elif is_node_type(expr, AST_Dot):
             referenced_path = []
             # this one is for detecting classes inside modules and eventually nested classes
-            while isinstance(expr, AST_Dot):
+            while is_node_type(expr, AST_Dot):
                 referenced_path.unshift(expr.property)
                 expr = expr.expression
-            if isinstance(expr, AST_SymbolRef):
+            if is_node_type(expr, AST_SymbolRef):
                 referenced_path.unshift(expr.name)
                 # now 'referenced_path' should contain the full path of potential class
                 if len(referenced_path) > 1:
@@ -781,7 +781,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         while True:
             tok = tmp = name = last_tok = expression(False)
             key = ''
-            while isinstance(tmp, AST_Dot):
+            while is_node_type(tmp, AST_Dot):
                 key = "." + tmp.property + key
                 tmp = last_tok = tmp.expression
             key = tmp.name + key
@@ -932,7 +932,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         })
         # find the constructor
         for stmt in definition.body:
-            if isinstance(stmt, AST_Method):
+            if is_node_type(stmt, AST_Method):
                 if stmt.is_getter or stmt.is_setter:
                     descriptor = definition.dynamic_properties[stmt.name.name]
                     if not descriptor:
@@ -947,16 +947,16 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         # mangled.
         def walker():
             def visit_node(node, descend):
-                if isinstance(node, AST_Method):
+                if is_node_type(node, AST_Method):
                     class_var_names[node.name.name] = True
                     return
-                elif isinstance(node, AST_Assign) and isinstance(node.left, AST_SymbolRef):
+                elif is_node_type(node, AST_Assign) and is_node_type(node.left, AST_SymbolRef):
                     varname = node.left.name
                     if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
                         token_error(node.left.start, varname + ' is not allowed as a class variable name')
                     class_var_names[varname] = True
                     definition.classvars[varname] = True
-                elif isinstance(node, AST_SymbolRef) and has_prop(class_var_names, node.name):
+                elif is_node_type(node, AST_SymbolRef) and has_prop(class_var_names, node.name):
                     node.thedef = new AST_SymbolDefun({'name':name.name + '.prototype.' + node.name})
                 if descend:
                     descend.call(node)
@@ -964,7 +964,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         visitor = new walker()
 
         for stmt in definition.body:
-            if not isinstance(stmt, AST_Class):
+            if not is_node_type(stmt, AST_Class):
                 stmt.walk(visitor)
                 definition.statements.push(stmt)
         return definition
@@ -1137,7 +1137,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         })
         definition.return_annotation = return_annotation
         definition.is_generator = is_generator[0]
-        if isinstance(definition, AST_Method):
+        if is_node_type(definition, AST_Method):
             definition.static = staticmethod
             definition.is_getter = property_getter
             definition.is_setter = property_setter
@@ -1184,8 +1184,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         })
 
     def is_docstring(stmt):
-        if isinstance(stmt, AST_SimpleStatement):
-            if isinstance(stmt.body, AST_String):
+        if is_node_type(stmt, AST_SimpleStatement):
+            if is_node_type(stmt.body, AST_String):
                 return stmt.body
         return False
 
@@ -1387,9 +1387,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return ret
                 ex.start = start
                 ex.end = S.token
-                if isinstance(ex, AST_SymbolRef):
+                if is_node_type(ex, AST_SymbolRef):
                     ex.parens = True
-                if not isinstance(ex, AST_GeneratorComprehension):
+                if not is_node_type(ex, AST_GeneratorComprehension):
                     expect(")")
                 S.in_parenthesized_expr = False
                 return subscripts(ex, allow_calls)
@@ -1454,7 +1454,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             tmp = []
             tmp.kwargs = []
             for arg in a:
-                if isinstance(arg, AST_Assign):
+                if is_node_type(arg, AST_Assign):
                     tmp.kwargs.push([arg.left, arg.right])
                 else:
                     tmp.push(arg)
@@ -1491,7 +1491,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 a.starargs = True
             else:
                 arg = expression(False)
-                if isinstance(arg, AST_Assign):
+                if is_node_type(arg, AST_Assign):
                     a.kwargs.push([arg.left, arg.right])
                 else:
                     if is_('keyword', 'for'):
@@ -1553,7 +1553,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if a.length is 0 and (is_('punc', ',') or is_('punc', '}')):
                 end = prev()
                 return set_(start, end, left)
-            if not isinstance(left, AST_Constant):
+            if not is_node_type(left, AST_Constant):
                 has_non_const_keys = True
             expect(":")
             a.push(new AST_ObjectKeyVal({
@@ -1586,7 +1586,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return new AST_Set({'items':a, 'start':ostart, 'end':prev()})
 
     def read_comprehension(obj, terminator):
-        if isinstance(obj, AST_GeneratorComprehension):
+        if is_node_type(obj, AST_GeneratorComprehension):
             baselib_items['yield'] = True
         S.in_comprehension = True
         S.in_parenthesized_expr = False  # in case we are already in a parenthesized expression
@@ -1780,7 +1780,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             S.in_parenthesized_expr = False
             return ret
         else:
-            if isinstance(expr, AST_Dot):
+            if is_node_type(expr, AST_Dot):
                 c = get_class_in_scope(expr.expression)
 
             if c:
@@ -1799,7 +1799,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 }), True)
                 S.in_parenthesized_expr = False
                 return ret
-            elif isinstance(expr, AST_SymbolRef):
+            elif is_node_type(expr, AST_SymbolRef):
                 tmp_ = expr.name
                 if tmp_ is "type":
                     ret = new AST_UnaryPrefix({
@@ -1972,9 +1972,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return expr
 
     def create_assign(data):
-        if data.right and isinstance(data.right, AST_Seq) and (
-                isinstance(data.right.car, AST_Assign) or
-                isinstance(data.right.cdr, AST_Assign)) and data.operator is not '=':
+        if data.right and is_node_type(data.right, AST_Seq) and (
+                is_node_type(data.right.car, AST_Assign) or
+                is_node_type(data.right.cdr, AST_Assign)) and data.operator is not '=':
             token_error(data.start, 'Invalid assignment operator for chained assignment: ' + data.operator)
         return new AST_Assign(data)
 
@@ -2014,7 +2014,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             left = v'[ expr ]'
             while is_("punc", ",") and not peek().nlb:
                 next()
-                if isinstance(expr, AST_Assign):
+                if is_node_type(expr, AST_Assign):
                     left[-1] = left[-1].left
                     return create_assign({
                         'start': start,
@@ -2033,7 +2033,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 left.push(expr)
 
             # if last one was an assignment, fix it
-            if left.length > 1 and isinstance(left[-1], AST_Assign):
+            if left.length > 1 and is_node_type(left[-1], AST_Assign):
                 left[-1] = left[-1].left
                 return create_assign({
                     'start': start,
@@ -2062,7 +2062,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         toplevel = options.toplevel
         while not is_("eof"):
             element = statement()
-            if first_token and isinstance(element, AST_Directive) and element.value.indexOf('#!') is 0:
+            if first_token and is_node_type(element, AST_Directive) and element.value.indexOf('#!') is 0:
                 shebang = element.value
             else:
                 ds = not toplevel and is_docstring(element)  # do not process strings as docstrings if we are concatenating toplevels

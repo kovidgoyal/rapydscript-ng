@@ -4,6 +4,9 @@ from __python__ import hash_literals
 
 from utils import noop
 
+def is_node_type(node, typ):
+    return v'node instanceof typ'
+
 # Basic classes {{{
 
 class AST:
@@ -19,7 +22,7 @@ class AST:
                 obj = Object.getPrototypeOf(obj)
                 if obj is None:
                     break
-                for v'var i in obj.properties':
+                for v'var i in obj.properties':  # noqa: unused-local
                     v'self[i] = initializer[i]'
 
     def clone(self):
@@ -82,7 +85,7 @@ class AST_Node(AST):
                 else:
                     p(pad + ' ' + blue + key + ': ' + reset + '[]')
             elif self[key]:
-                if isinstance(self[key], AST):
+                if is_node_type(self[key], AST):
                     tname = self[key].constructor.name.slice(4)
                     if tname is 'Token':
                         p(pad + ' ' + blue + key + ': ' + magenta + tname + reset)
@@ -150,7 +153,7 @@ class AST_Assert(AST_Statement):
 
 
 def walk_body(node, visitor):
-    if isinstance(node.body, AST_Statement):
+    if is_node_type(node.body, AST_Statement):
         node.body._walk(visitor)
     elif node.body:
         node.body.forEach(def(stat):
@@ -640,7 +643,7 @@ class AST_Seq(AST_Node):
         a = []
         while p:
             a.push(p.car)
-            if p.cdr and not (isinstance(p.cdr, AST_Seq)):
+            if p.cdr and not (is_node_type(p.cdr, AST_Seq)):
                 a.push(p.cdr)
                 break
             p = p.cdr
@@ -649,7 +652,7 @@ class AST_Seq(AST_Node):
     def add(self, node):
         p = self
         while p:
-            if not (isinstance(p.cdr, AST_Seq)):
+            if not (is_node_type(p.cdr, AST_Seq)):
                 cell = AST_Seq.cons(p.cdr, node)
                 return p.cdr = cell
             p = p.cdr
@@ -800,34 +803,34 @@ class AST_Assign(AST_Binary):
     "An assignment expression — `a = b + 5`"
 
     def is_chained(self):
-        return isinstance(self.right, AST_Assign) or (
-            isinstance(self.right, AST_Seq) and (
-                isinstance(self.right.car, AST_Assign) or isinstance(self.right.cdr, AST_Assign))
+        return is_node_type(self.right, AST_Assign) or (
+            is_node_type(self.right, AST_Seq) and (
+                is_node_type(self.right.car, AST_Assign) or is_node_type(self.right.cdr, AST_Assign))
         )
 
     def traverse_chain(self):
         right = self.right
         while True:
-            if isinstance(right, AST_Assign):
+            if is_node_type(right, AST_Assign):
                 right = right.right
                 continue
-            if isinstance(right, AST_Seq):
-                if isinstance(right.car, AST_Assign):
+            if is_node_type(right, AST_Seq):
+                if is_node_type(right.car, AST_Assign):
                     right = new AST_Seq({'car':right.car.right, 'cdr': right.cdr})
                     continue
-                if isinstance(right.cdr, AST_Assign):
+                if is_node_type(right.cdr, AST_Assign):
                     right = right.cdr.right
                     continue
             break
         left_hand_sides = v'[self.left]'
         next = self.right
         while True:
-            if isinstance(next, AST_Assign):
+            if is_node_type(next, AST_Assign):
                 left_hand_sides.push(next.left)
                 next = next.right
                 continue
-            if isinstance(next, AST_Seq):
-                if isinstance(next.cdr, AST_Assign):
+            if is_node_type(next, AST_Seq):
+                if is_node_type(next.cdr, AST_Assign):
                     assign = next.cdr
                     left_hand_sides.push(new AST_Seq({'car':next.car, 'cdr':assign.left}))
                     next = assign.right
@@ -857,9 +860,9 @@ class AST_Array(AST_Node):
         def flatten(arr):
             ans = []
             for value in arr:
-                if isinstance(value, AST_Seq):
+                if is_node_type(value, AST_Seq):
                     value = value.to_array()
-                elif isinstance(value, AST_Array):
+                elif is_node_type(value, AST_Array):
                     value = value.elements
                 if Array.isArray(value):
                     ans = ans.concat(flatten(value))
@@ -1081,7 +1084,7 @@ class TreeWalker:
         stack = self.stack
         for i in range(stack.length-1, -1, -1):
             x = stack[i]
-            if isinstance(x, type):
+            if is_node_type(x, type):
                 return x
 
     def in_boolean_context(self):
@@ -1090,12 +1093,12 @@ class TreeWalker:
         self = stack[i -= 1]
         while i > 0:
             p = stack[i -= 1]
-            if isinstance(p, AST_If) and p.condition is self
-            or isinstance(p, AST_Conditional) and p.condition is self
-            or isinstance(p, AST_DWLoop) and p.condition is self
-            or isinstance(p, AST_UnaryPrefix) and p.operator is "!" and p.expression is self:
+            if is_node_type(p, AST_If) and p.condition is self
+            or is_node_type(p, AST_Conditional) and p.condition is self
+            or is_node_type(p, AST_DWLoop) and p.condition is self
+            or is_node_type(p, AST_UnaryPrefix) and p.operator is "!" and p.expression is self:
                 return True
-            if not (isinstance(p, AST_Binary) and (p.operator is "&&" or p.operator is "||")):
+            if not (is_node_type(p, AST_Binary) and (p.operator is "&&" or p.operator is "||")):
                 return False
             self = p
 # }}}
@@ -1112,7 +1115,7 @@ def has_calls(expression):
         return False
     try:
         expression.walk(new TreeWalker(def(node):
-            if isinstance(node, (AST_BaseCall, AST_ItemAccess)):
+            if is_node_type(node, AST_BaseCall) or is_node_type(node, AST_ItemAccess):
                 raise Found()
         ))
     except Found:

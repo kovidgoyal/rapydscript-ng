@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ast import AST_Class, AST_Method
+from ast import AST_Class, AST_Method, is_node_type
 from output.functions import decorate, function_definition, function_annotation
 from output.utils import create_doctring
 
@@ -163,7 +163,7 @@ def print_class(output):
     defined_methods = {}
 
     self.body.forEach(def(stmt, i):
-        if isinstance(stmt, AST_Method):
+        if is_node_type(stmt, AST_Method):
             if stmt.is_getter or stmt.is_setter:
                 return
             define_method(stmt)
@@ -180,7 +180,7 @@ def print_class(output):
                 output.print('.prototype.' + stmt.name.name)
                 output.end_statement()
 
-        elif isinstance(stmt, AST_Class):
+        elif is_node_type(stmt, AST_Class):
             console.error('Nested classes aren\'t supported yet')  # noqa:undef
     )
 
@@ -230,7 +230,7 @@ def print_class(output):
 
     # Other statements in the class context
     self.statements.forEach(def(stmt):
-        if not isinstance(stmt, AST_Method):
+        if not is_node_type(stmt, AST_Method):
             output.indent()
             stmt.print(output)
             output.newline()

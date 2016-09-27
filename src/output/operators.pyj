@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from ast import (
     AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
     AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement, AST_String, AST_Sub, AST_ItemAccess
+    AST_Return, AST_SimpleStatement, AST_String, AST_Sub, AST_ItemAccess, is_node_type
 )
 from output.loops import unpack_tuple
 
@@ -13,7 +13,7 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
     if not skip_expression:
         expr = self.expression
         expr.print(output)
-    if isinstance(expr, AST_Number) and expr.value >= 0:
+    if is_node_type(expr, AST_Number) and expr.value >= 0:
         if not /[xa-f.]/i.test(output.last()):
             output.print(".")
     output.print(".")
@@ -23,12 +23,12 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
 def print_getitem(self, output):  # AST_Sub
     expr = self.expression
     prop = self.property
-    if isinstance(prop, (AST_Number, AST_String)) or (isinstance(prop, AST_SymbolRef) and prop.name and prop.name.startsWith('ρσ_')):
+    if (is_node_type(prop, AST_Number) or is_node_type(prop, AST_String)) or (is_node_type(prop, AST_SymbolRef) and prop.name and prop.name.startsWith('ρσ_')):
         expr.print(output)
         output.print('['), prop.print(output), output.print(']')
         return
-    is_negative_number = isinstance(prop, AST_Unary) and prop.operator is "-" and isinstance(prop.expression, AST_Number)
-    is_repeatable = isinstance(expr, AST_SymbolRef)
+    is_negative_number = is_node_type(prop, AST_Unary) and prop.operator is "-" and is_node_type(prop.expression, AST_Number)
+    is_repeatable = is_node_type(expr, AST_SymbolRef)
     if is_repeatable:
         expr.print(output)
     else:
@@ -38,7 +38,7 @@ def print_getitem(self, output):  # AST_Sub
     if is_negative_number:
         output.print('['), expr.print(output), output.print('.length'), prop.print(output), output.print(']')
         return
-    is_repeatable = isinstance(prop, AST_SymbolRef)
+    is_repeatable = is_node_type(prop, AST_SymbolRef)
     # We have to check the type of the property because if it is a Symbol, it
     # will raise a TypeError with the < operator.
     if is_repeatable:
@@ -77,9 +77,9 @@ def print_splice_assignment(self, output):
     )
 
 def print_delete(self, output):
-    if isinstance(self, AST_Symbol):
+    if is_node_type(self, AST_Symbol):
         output.assign(self), output.print('undefined')
-    elif isinstance(self, (AST_Sub, AST_ItemAccess)):
+    elif is_node_type(self, AST_Sub) or is_node_type(self, AST_ItemAccess):
         output.print('ρσ_delitem('), self.expression.print(output), output.comma(), self.property.print(output), output.print(')')
     else:
         output.spaced('delete', self)
@@ -104,9 +104,9 @@ def write_instanceof(left, right, output):
                 output.comma()
         output.print('])')
 
-    if isinstance(right, AST_Seq):
+    if is_node_type(right, AST_Seq):
         do_many(right.to_array())
-    elif isinstance(right, AST_Array):
+    elif is_node_type(right, AST_Array):
         do_many(right.elements)
     else:
         output.print('ρσ_instanceof(')
@@ -114,7 +114,11 @@ def write_instanceof(left, right, output):
 
 def write_smart_equality(self, output):
     def is_ok(x):
-        return not isinstance(x, (AST_Array, AST_Set, AST_Object, AST_Statement, AST_Binary, AST_Conditional, AST_BaseCall))
+        return not (
+            is_node_type(x, AST_Array) or is_node_type(x, AST_Set) or is_node_type(x, AST_Object) or
+            is_node_type(x, AST_Statement) or is_node_type(x, AST_Binary) or is_node_type(x, AST_Conditional)
+            or is_node_type(x, AST_BaseCall)
+        )
     if is_ok(self.left) and is_ok(self.right):
         if self.operator is '==':
             output.print('(')
@@ -148,8 +152,8 @@ def print_binary_op(self, output):
             output.comma()
             self.right.print(output)
         )
-    elif comparators[self.operator] and isinstance(self.left, AST_Binary) and comparators[self.left.operator]:
-        if isinstance(self.left.right, AST_Symbol):
+    elif comparators[self.operator] and is_node_type(self.left, AST_Binary) and comparators[self.left.operator]:
+        if is_node_type(self.left.right, AST_Symbol):
             # left side compares against a regular variable,
             # no caching needed
             self.left.print(output)
@@ -185,7 +189,7 @@ def print_binary_op(self, output):
             self.right.print(output)
         )
     elif self.operator is '**':
-        if isinstance(self.left, AST_Unary):
+        if is_node_type(self.left, AST_Unary):
             output.print(self.left.operator + 'Math.pow(')
             self.left.expression.print(output), output.comma()
             self.right.print(output), output.print(')')
@@ -195,7 +199,7 @@ def print_binary_op(self, output):
         write_smart_equality(self, output)
     elif self.operator is 'instanceof':
         write_instanceof(self.left, self.right, output)
-    elif self.operator is '*' and isinstance(self.left, AST_String):
+    elif self.operator is '*' and is_node_type(self.left, AST_String):
         self.left.print(output), output.print('.repeat('), self.right.print(output), output.print(')')
     else:
         output.spaced(self.left, self.operator, self.right)
@@ -204,7 +208,7 @@ after_map = {'.':'d', '(':'c', '[':'d', 'g':'g', 'null':'n'}
 
 def print_existential(self, output):
     key = after_map[self.after] if self.after is None or type(self.after) is 'string' else 'e'
-    if isinstance(self.expression, AST_SymbolRef):
+    if is_node_type(self.expression, AST_SymbolRef):
         if key is 'n':
             output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')
             return
@@ -228,9 +232,9 @@ def print_existential(self, output):
 def print_assignment(self, output):
     flattened = False
     left = self.left
-    if isinstance(left, AST_Seq):
+    if is_node_type(left, AST_Seq):
         left = new AST_Array({'elements':v'[left.car, left.cdr]'})
-    if isinstance(left, AST_Array):
+    if is_node_type(left, AST_Array):
         flat = left.flatten()
         flattened = flat.length > left.elements.length
         output.print("ρσ_unpack")
@@ -244,7 +248,7 @@ def print_assignment(self, output):
         output.with_parens(def():self.right.print(output);)
     else:
         self.right.print(output)
-    if isinstance(left, AST_Array):
+    if is_node_type(left, AST_Array):
         output.semicolon()
         output.newline()
         unpack_tuple(flat, output, True)
@@ -265,7 +269,7 @@ def print_assign(self, output):
         left_hand_sides, rhs = self.traverse_chain()
         is_compound_assign = False
         for lhs in left_hand_sides:
-            if isinstance(lhs, (AST_Seq, AST_Array)):
+            if is_node_type(lhs, AST_Seq) or is_node_type(lhs, AST_Array):
                 is_compound_assign = True
                 break
         if is_compound_assign:
@@ -305,11 +309,11 @@ def print_seq(output):
             self.cdr.print(output)
 
     # this will effectively convert tuples to arrays
-    if isinstance(p, AST_Binary)
-    or isinstance(p, AST_Return)
-    or isinstance(p, AST_Array)
-    or isinstance(p, AST_BaseCall)
-    or isinstance(p, AST_SimpleStatement):
+    if is_node_type(p, AST_Binary)
+    or is_node_type(p, AST_Return)
+    or is_node_type(p, AST_Array)
+    or is_node_type(p, AST_BaseCall)
+    or is_node_type(p, AST_SimpleStatement):
         output.with_square(print_seq)
     else:
         print_seq()
