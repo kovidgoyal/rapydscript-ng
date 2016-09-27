@@ -664,30 +664,32 @@ class AST_Seq(AST_Node):
                 self.cdr._walk(visitor)
         )
 
-AST_Seq.cons = def cons(x, y):
-    seq = new AST_Seq(x)
-    seq.car = x
-    seq.cdr = y
-    return seq
+    def cons(self, x, y):
+        # Should be called as a classmethod: AST_Seq.cons()
+        seq = new AST_Seq(x)
+        seq.car = x
+        seq.cdr = y
+        return seq
 
-AST_Seq.from_array = def from_array(array):
-    if array.length is 0:
-        return None
+    def from_array(self, array):
+        # Should be called as a classmethod: AST_Seq.from_array()
+        if array.length is 0:
+            return None
 
-    if array.length is 1:
-        return array[0].clone()
+        if array.length is 1:
+            return array[0].clone()
 
-    ans = None
-    for i in range(array.length-1, -1, -1):
-        ans = AST_Seq.cons(array[i], ans)
+        ans = None
+        for i in range(array.length-1, -1, -1):
+            ans = AST_Seq.cons(array[i], ans)
 
-    p = ans
-    while p:
-        if p.cdr and not p.cdr.cdr:
-            p.cdr = p.cdr.car
-            break
-        p = p.cdr
-    return ans
+        p = ans
+        while p:
+            if p.cdr and not p.cdr.cdr:
+                p.cdr = p.cdr.car
+                break
+            p = p.cdr
+        return ans
 
 class AST_PropAccess(AST_Node):
     'Base class for property access expressions, i.e. `a.foo` or `a["foo"]`'
