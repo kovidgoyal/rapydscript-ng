@@ -1,3 +1,12 @@
+version 0.7.7
+==============
+
+* Implement literal string interpolation (PEP 498)
+* Fix incorrect method binding when using the `bound_methods` scoped flag and calling the super-class `__init__()` method
+* elementmaker: Ignore kwargs that have types other than bool, string or func
+* gettext: Allow registering callbacks for notification when new translation data is installed
+* Fix a rare crash in the linter
+
 version 0.7.6
 ==============
 
