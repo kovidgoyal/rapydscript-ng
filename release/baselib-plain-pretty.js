@@ -174,7 +174,7 @@ function ρσ_enumerate(iterable) {
         return ans;
     }
     if (typeof iterable[ρσ_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
         ans["_iterator"] = iterator;
         ans["next"] = function () {
             var r;
@@ -218,7 +218,7 @@ Object.defineProperties(ρσ_reversed, {
 function ρσ_iter(iterable) {
     var ans;
     if (typeof iterable[ρσ_iterator_symbol] === "function") {
-        return (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        return (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
     }
     if (ρσ_arraylike(iterable)) {
         ans = {"_i":-1};
@@ -432,7 +432,7 @@ function ρσ_list_extend(iterable) {
             (ρσ_expr_temp = this)[ρσ_bound_index(start + i, ρσ_expr_temp)] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
     } else {
-        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
         result = iterator.next();
         while (!result.done) {
             this.push(result.value);
@@ -715,7 +715,7 @@ function ρσ_list_constructor(iterable) {
             ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i];
         }
     } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
         ans = ρσ_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
@@ -866,7 +866,7 @@ if (typeof Set !== "function" || typeof Set.prototype.delete !== "function") {
 }
 function ρσ_set(iterable) {
     var ans, s, iterator, result, keys;
-    if (ρσ_instanceof(this, ρσ_set)) {
+    if (this instanceof ρσ_set) {
         this.jsset = new ρσ_set_implementation;
         ans = this;
         if (iterable === undefined) {
@@ -878,7 +878,7 @@ function ρσ_set(iterable) {
                 s.add(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i]);
             }
         } else if (typeof iterable[ρσ_iterator_symbol] === "function") {
-            iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+            iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
             result = iterator.next();
             while (!result.done) {
                 s.add(result.value);
@@ -1165,7 +1165,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
 ρσ_set.prototype.__eq__ = (function() {
     var ρσ_anonfunc = function (other) {
         var iterator, r;
-        if (!(ρσ_instanceof(other, this.constructor))) {
+        if (!other instanceof this.constructor) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1343,7 +1343,7 @@ if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
     ρσ_dict_implementation = Map;
 }
 function ρσ_dict(iterable) {
-    if (ρσ_instanceof(this, ρσ_dict)) {
+    if (this instanceof ρσ_dict) {
         this.jsmap = new ρσ_dict_implementation;
         if (iterable !== undefined) {
             this.update(iterable);
@@ -1531,14 +1531,14 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
         for (var i = 0; i < iterable.length; i++) {
             m.set(iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][0], iterable[(typeof i === "number" && i < 0) ? iterable.length + i : i][1]);
         }
-    } else if (ρσ_instanceof(iterable, ρσ_dict)) {
+    } else if (iterable instanceof ρσ_dict) {
         iterator = iterable.items();
         result = iterator.next();
         while (!result.done) {
             m.set(result.value[0], result.value[1]);
             result = iterator.next();
         }
-    } else if (typeof Map === "function" && ρσ_instanceof(iterable, Map)) {
+    } else if (typeof Map === "function" && iterable instanceof Map) {
         iterator = iterable.entries();
         result = iterator.next();
         while (!result.done) {
@@ -1578,7 +1578,7 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
 ρσ_dict.prototype.__eq__ = (function() {
     var ρσ_anonfunc = function (other) {
         var iterator, r, x;
-        if (!(ρσ_instanceof(other, this.constructor))) {
+        if (!(other instanceof this.constructor)) {
             return false;
         }
         if (other.size !== this.size) {
@@ -1777,7 +1777,7 @@ Object.defineProperty(AssertionError.prototype, "__bases__", {value: [Exception]
 var ρσ_in, ρσ_desugar_kwargs, ρσ_exists;
 function ρσ_eslice(arr, step, start, end) {
     var is_string;
-    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+    if (typeof arr === "string" || arr instanceof String) {
         is_string = true;
         arr = arr.split("");
     }
@@ -1817,7 +1817,7 @@ Object.defineProperties(ρσ_eslice, {
 
 function ρσ_delslice(arr, step, start, end) {
     var is_string, ρσ_unpack, indices;
-    if (typeof arr === "string" || ρσ_instanceof(arr, String)) {
+    if (typeof arr === "string" || arr instanceof String) {
         is_string = true;
         arr = arr.split("");
     }
@@ -1896,7 +1896,7 @@ Object.defineProperties(ρσ_extends, {
                 if (typeof arr.__contains__ === "function") {
                     return arr.__contains__(val);
                 }
-                if (ρσ_instanceof.apply(null, [arr, Map, Set])) {
+                if (arr instanceof Map || arr instanceof Set) {
                     return arr.has(val);
                 }
                 if (ρσ_arraylike(arr)) {
@@ -1935,7 +1935,7 @@ function ρσ_Iterable(iterable) {
         return iterable;
     }
     if (typeof iterable[ρσ_iterator_symbol] === "function") {
-        iterator = (typeof Map === "function" && ρσ_instanceof(iterable, Map)) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
         ans = ρσ_list_decorate([]);
         result = iterator.next();
         while (!result.done) {
