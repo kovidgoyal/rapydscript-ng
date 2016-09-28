@@ -29,6 +29,14 @@ def test_throws():
         return str.format.apply(None, args[1:])
     assrt.throws(f, args[0])
 
+def test_interpolation():
+    a, b, c = 1, ['x'], 30000
+    assrt.equal(f'{a}', '1')
+    assrt.equal(f'0{a}', '01')
+    assrt.equal(f'0{a}2', '012')
+    assrt.equal(f'{a}{b[-1]}', '1x')
+    assrt.equal(f'{c:,d}', '30,000')
+
 test(' 1 2', ' {} {}', 1, 2)
 test('{ a ', '{{ {0} ', 'a')
 test('11', '{0}{0}', 1)
@@ -59,6 +67,7 @@ test_throws(KeyError, '{a}', b=1)
 test_throws(IndexError, '{} {}', 1)
 test_throws(IndexError, '{1} {2}', 1)
 test_throws(ValueError, '{1')
+test_interpolation()
 
 # Test miscellaneous services
 ae = assrt.equal

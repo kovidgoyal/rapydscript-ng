@@ -6,6 +6,7 @@ from unicode_aliases import ALIAS_MAP
 from utils import make_predicate, characters
 from ast import AST_Token
 from errors import SyntaxError
+from string_interpolation import interpolate
 
 RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
@@ -101,7 +102,7 @@ IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i
 
 def is_string_modifier(val):
     for ch in val:
-        if 'vruVRU'.indexOf(ch) is -1:
+        if 'vrufVRUF'.indexOf(ch) is -1:
             return False
     return True
 
@@ -479,6 +480,12 @@ def tokenizer(raw_text, filename):
         return token(tok_type, ret)
     )
 
+    def handle_interpolated_string(string, start_tok):
+        def raise_error(err):
+            raise new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, False)
+        S.text = S.text[:S.pos] + '(' + interpolate(string, raise_error) + ')' + S.text[S.pos:]
+        return token('punc', next())
+
     def read_line_comment(shebang):
         if not shebang:
             next()
@@ -642,8 +649,12 @@ def tokenizer(raw_text, filename):
             tok = read_word()
             if '\'"'.indexOf(peek()) is not -1 and is_string_modifier(tok.value):
                 mods = tok.value.toLowerCase()
+                start_pos_for_string = S.tokpos
                 stok = read_string(mods.indexOf('r') is not -1, mods.indexOf('v') is not -1)
                 tok.endpos = stok.endpos
+                if stok.type is not 'js' and mods.indexOf('f') is not -1:
+                    tok.col += start_pos_for_string - tok.pos
+                    return handle_interpolated_string(stok.value, tok)
                 tok.value = stok.value
                 tok.type = stok.type
             return tok
