@@ -1786,8 +1786,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if c:
                 # generate class call
                 funcname = expr
-                if funcname.property is "__init__":
-                    funcname.property = "constructor"
 
                 ret = subscripts(new AST_ClassCall({
                     'start': start,

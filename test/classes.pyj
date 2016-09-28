@@ -379,3 +379,25 @@ assrt.ok(isinstance(c, Child))
 assrt.ok(isinstance(c, M1))
 assrt.ok(isinstance(c, M2))
 assrt.ok(isinstance(c, M0))
+
+
+class B1:
+
+    def __init__(self):
+        self.b1 = 1
+
+    def one(self):
+        return self.two()
+
+    def two(self):
+        return self.b1
+
+class B2(B1):
+
+    def __init__(self):
+        self.b2 = 2
+        B1.__init__(self)
+
+    def two(self):
+        return self.b2
+assrt.equal(B2().two(), 2)
