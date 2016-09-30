@@ -156,9 +156,8 @@ def walk_body(node, visitor):
     if is_node_type(node.body, AST_Statement):
         node.body._walk(visitor)
     elif node.body:
-        node.body.forEach(def(stat):
+        for stat in node.body:
             stat._walk(visitor)
-        )
 
 class AST_Block(AST_Statement):
     "A body of statements (usually bracketed)"
@@ -281,9 +280,8 @@ class AST_With(AST_StatementWithBody):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.clauses.forEach(def(exp):
+            for exp in self.clauses:
                 exp._walk(visitor)
-            )
             self.body._walk(visitor)
         )
 
@@ -345,9 +343,8 @@ class AST_Import(AST_Statement):
             if self.alias:
                 self.alias._walk(visitor)
             if self.argnames:
-                self.argnames.forEach(def(arg):
+                for arg in self.argnames:
                     arg._walk(visitor)
-                )
         )
 
 class AST_Imports(AST_Statement):
@@ -358,9 +355,8 @@ class AST_Imports(AST_Statement):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.imports.forEach(def(imp):
+            for imp in self.imports:
                 imp._walk(visitor)
-            )
         )
 
 class AST_Decorator(AST_Node):
@@ -395,9 +391,8 @@ class AST_Lambda(AST_Scope):
             if self.name:
                 self.name._walk(visitor)
 
-            self.argnames.forEach(def(arg):
+            for arg in self.argnames:
                 arg._walk(visitor)
-            )
             if self.argnames.starargs:
                 self.argnames.starargs._walk(visitor)
             if self.argnames.kwargs:
@@ -552,9 +547,8 @@ class AST_Definitions(AST_Statement):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.definitions.forEach(def(def_):
+            for def_ in self.definitions:
                 def_._walk(visitor)
-            )
         )
 
 class AST_Var(AST_Definitions):
@@ -592,16 +586,15 @@ class AST_Call(AST_BaseCall):
     def _walk(self, visitor):
         return visitor._visit(self, def():
             self.expression._walk(visitor)
-            self.args.forEach(def(arg):
+            for arg in self.args:
                 arg._walk(visitor)
-            )
-            if (self.args.kwargs) self.args.kwargs.forEach(def(arg):
-                arg[0]._walk(visitor)
-                arg[1]._walk(visitor)
-            )
-            if (self.args.kwarg_items) self.args.kwarg_items.forEach(def(arg):
-                arg._walk(visitor)
-            )
+            if self.args.kwargs:
+                for arg in self.args.kwargs:
+                    arg[0]._walk(visitor)
+                    arg[1]._walk(visitor)
+            if self.args.kwarg_items:
+                for arg in self.args.kwarg_items:
+                    arg._walk(visitor)
         )
 
 
@@ -616,16 +609,13 @@ class AST_ClassCall(AST_BaseCall):
     def _walk(self, visitor):
         return visitor._visit(self, def():
             if (self.expression) self.expression._walk(visitor)
-            self.args.forEach(def(arg):
+            for arg in self.args:
                 arg._walk(visitor)
-            )
-            self.args.kwargs.forEach(def(arg):
+            for arg in self.args.kwargs:
                 arg[0]._walk(visitor)
                 arg[1]._walk(visitor)
-            )
-            self.args.kwarg_items.forEach(def(arg):
+            for arg in self.args.kwarg_items:
                 arg._walk(visitor)
-            )
         )
 
 class AST_New(AST_Call):
@@ -853,9 +843,8 @@ class AST_Array(AST_Node):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.elements.forEach(def(el):
+            for el in self.elements:
                 el._walk(visitor)
-            )
         )
 
     def flatten(self):
@@ -883,9 +872,8 @@ class AST_Object(AST_Node):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.properties.forEach(def(prop):
+            for prop in self.properties:
                 prop._walk(visitor)
-            )
         )
 
 class AST_ExpressiveObject(AST_Object):
@@ -916,9 +904,8 @@ class AST_Set(AST_Node):
 
     def _walk(self, visitor):
         return visitor._visit(self, def():
-            self.items.forEach(def(prop):
+            for prop in self.items:
                 prop._walk(visitor)
-            )
         )
 
 class AST_SetItem(AST_Node):

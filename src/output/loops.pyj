@@ -7,7 +7,7 @@ from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number, h
 from output.stream import OutputStream
 
 def unpack_tuple(elems, output, in_statement):
-    elems.forEach(def(elem, i):
+    for i, elem in enumerate(elems):
         output.indent()
         output.assign(elem)
         output.print("ρσ_unpack")
@@ -17,7 +17,6 @@ def unpack_tuple(elems, output, in_statement):
         if not in_statement or i < elems.length - 1:
             output.semicolon()
             output.newline()
-    )
 
 def print_do_loop(self, output):
     output.print("do")
@@ -91,11 +90,10 @@ def print_for_loop_body(output):
             output.print(self.simple_for_index)
             output.end_statement()
 
-        self.body.body.forEach(def(stmt, i):
+        for stmt in self.body.body:
             output.indent()
             stmt.print(output)
             output.newline()
-        )
     )
 
 def init_es6_itervar(output, itervar):
@@ -289,10 +287,9 @@ def print_list_comprehension(self, output):
                 body_out.print(result_obj)
             # make sure to locally scope loop variables
             if is_node_type(self.init, AST_Array):
-                self.init.elements.forEach(def(i):
+                for i in self.init.elements:
                     body_out.comma()
                     i.print(body_out)
-                )
             else:
                 body_out.comma()
                 self.init.print(body_out)

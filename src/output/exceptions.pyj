@@ -28,8 +28,7 @@ def print_catch(self, output):
         output.spaced('ρσ_last_exception', '=', 'ρσ_Exception'), output.end_statement()
         output.indent()
         no_default = True
-        self.body.forEach(def(exception, i):
-            nonlocal no_default
+        for i, exception in enumerate(self.body):
             if i:
                 output.print("else ")
 
@@ -37,7 +36,7 @@ def print_catch(self, output):
                 output.print("if")
                 output.space()
                 output.with_parens(def():
-                    exception.errors.forEach(def(err, i):
+                    for i, err in enumerate(exception.errors):
                         if i:
                             output.newline()
                             output.indent()
@@ -52,14 +51,12 @@ def print_catch(self, output):
                             output.print('Error')
                         else:
                             err.print(output)
-                    )
                 )
                 output.space()
             else:
                 no_default = False
             print_bracketed(exception, output, True)
             output.space()
-        )
         if no_default:
             output.print("else")
             output.space()

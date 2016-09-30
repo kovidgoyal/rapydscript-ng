@@ -30,11 +30,10 @@ def decorate(decorators, output, func):
 def function_args(argnames, output, strip_first):
     output.with_parens(def():
         if argnames and argnames.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
-            (argnames.slice(1) if strip_first else argnames).forEach(def(arg, i):
+            for i, arg in enumerate((argnames.slice(1) if strip_first else argnames)):
                 if i:
                     output.comma()
                 arg.print(output)
-            )
     )
     output.space()
 
@@ -119,14 +118,13 @@ def function_annotation(self, output, strip_first, name):
         props.__annotations__ = def():
             output.print('{')
             if self.argnames and self.argnames.length:
-                self.argnames.forEach(def(arg, i):
+                for i, arg in enumerate(self.argnames):
                     if arg.annotation:
                         arg.print(output)
                         output.print(':'), output.space()
                         arg.annotation.print(output)
                         if i < self.argnames.length - 1 or self.return_annotation:
                             output.comma()
-                )
             if self.return_annotation:
                 output.print('return:'), output.space()
                 self.return_annotation.print(output)
@@ -138,11 +136,10 @@ def function_annotation(self, output, strip_first, name):
     if dkeys.length:
         props.__defaults__ = def():
             output.print('{')
-            dkeys.forEach(def(k, i):
+            for i, k in enumerate(dkeys):
                 output.print(k + ':'), defaults[k].print(output)
                 if i is not dkeys.length - 1:
                     output.comma()
-            )
             output.print('}')
 
     # Create __handles_kwarg_interpolation__
@@ -153,13 +150,13 @@ def function_annotation(self, output, strip_first, name):
     # Create __argnames__
     if self.argnames.length:
         props.__argnames__ = def():
-            output.print('['), self.argnames.forEach(def (arg, i):
+            output.print('[')
+            for i, arg in enumerate(self.argnames):
                 if strip_first and i is 0:
-                    return
+                    continue
                 output.print(JSON.stringify(arg.name))
                 if i is not self.argnames.length - 1:
                     output.comma()
-            )
             output.print(']')
 
     # Create __doc__
@@ -292,25 +289,23 @@ def print_function_call(self, output):
     def print_kwargs():
         output.print('ρσ_desugar_kwargs(')
         if has_kwarg_items:
-            self.args.kwarg_items.forEach(def(kwname, i):
+            for i, kwname in enumerate(self.args.kwarg_items):
                 if i > 0:
                     output.print(',')
                     output.space()
                 kwname.print(output)
-            )
             if has_kwarg_formals:
                 output.print(',')
                 output.space()
 
         if has_kwarg_formals:
             output.print('{')
-            self.args.kwargs.forEach(def(pair, i):
+            for i, pair in enumerate(self.args.kwargs):
                 if i: output.comma()
                 pair[0].print(output)
                 output.print(':')
                 output.space()
                 pair[1].print(output)
-            )
             output.print('}')
         output.print(')')
 
@@ -368,11 +363,10 @@ def print_function_call(self, output):
             output.print('new'), output.space()
         print_function_name()
         output.with_parens(def():
-            self.args.forEach(def(a, i):
+            for i, a in enumerate(self.args):
                 if i:
                     output.comma()
                 a.print(output)
-            )
         )
         return
 

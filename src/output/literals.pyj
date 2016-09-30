@@ -12,11 +12,10 @@ def print_array(self, output):
             len_ = a.length
             if len_ > 0:
                 output.space()
-            a.forEach(def(exp, i):
+            for i, exp in enumerate(a):
                 if i:
                     output.comma()
                 exp.print(output)
-            )
             if len_ > 0:
                 output.space()
         )
@@ -33,7 +32,7 @@ def print_obj_literal(self, output):
             else:
                 output.spaced('var', 'ρσ_d', '=', ('Object.create(null)' if self.is_jshash else '{}'))
             output.end_statement()
-            self.properties.forEach(def(prop, i):
+            for i, prop in enumerate(self.properties):
                 output.indent()
                 if self.is_pydict:
                     output.print('ρσ_d.set')
@@ -48,7 +47,6 @@ def print_obj_literal(self, output):
                     output.space(), output.print('='), output.space()
                     prop.value.print(output)
                 output.end_statement()
-            )
             output.indent()
             output.spaced('return', 'ρσ_d')
             output.end_statement()
@@ -78,12 +76,11 @@ def print_set(self, output):
             output.indent()
             output.spaced.apply(output, 'var s = ρσ_set()'.split(' '))
             output.end_statement()
-            self.items.forEach(def(item, i):
+            for item in self.items:
                 output.indent()
                 output.print('s.jsset.add')
                 output.with_parens(def():item.value.print(output);)
                 output.end_statement()
-            )
             output.indent()
             output.spaced('return', 's')
             output.end_statement()

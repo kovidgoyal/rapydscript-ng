@@ -162,10 +162,10 @@ def print_class(output):
 
     defined_methods = {}
 
-    self.body.forEach(def(stmt, i):
+    for stmt in self.body:
         if is_node_type(stmt, AST_Method):
             if stmt.is_getter or stmt.is_setter:
-                return
+                continue
             define_method(stmt)
             defined_methods[stmt.name.name] = True
             sname = stmt.name.name
@@ -182,7 +182,6 @@ def print_class(output):
 
         elif is_node_type(stmt, AST_Class):
             console.error('Nested classes aren\'t supported yet')  # noqa:undef
-    )
 
     if not defined_methods['__repr__']:
         define_default_method('__repr__', def():
@@ -229,9 +228,8 @@ def print_class(output):
         )
 
     # Other statements in the class context
-    self.statements.forEach(def(stmt):
+    for stmt in self.statements:
         if not is_node_type(stmt, AST_Method):
             output.indent()
             stmt.print(output)
             output.newline()
-    )

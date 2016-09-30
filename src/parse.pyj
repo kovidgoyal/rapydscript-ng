@@ -307,14 +307,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
-                v'[ "body", "alternative", "bcatch" ]'.forEach(def(option):
+                for option in ('body', 'alternative', 'bcatch'):
                     opt = stmt[option]
                     if opt:
                         extend(scan_for_local_vars(opt))
 
                     if is_node_type(opt, AST_Assign) and not (is_node_type(opt.right, AST_Scope)):
                         extend(scan_for_local_vars(opt.right))
-                )
 
                 # pick up iterators from loops
                 if is_node_type(stmt, AST_ForIn):
@@ -363,17 +362,15 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
                 # don't invade nested scopes
                 if is_node_type(stmt, AST_Definitions):
-                    stmt.definitions.forEach(def(vardef):
+                    for vardef in stmt.definitions:
                         vars.push(vardef.name.name)
-                    )
 
-                v'[ "body", "alternative" ]'.forEach(def(option):
+                for option in ('body', 'alternative'):
                     nonlocal vars
                     opt = stmt[option]
                     if opt:
                         vars = vars.concat(scan_for_nonlocal_defs(opt))
 
-                )
 
         elif body.body:
             vars = vars.concat(scan_for_nonlocal_defs(body.body))
@@ -903,11 +900,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'statements': [],
             'decorators': (def():
                 d = []
-                S.decorators.forEach(def(decorator):
+                for decorator in S.decorators:
                     d.push(new AST_Decorator({
                         'expression': decorator
                     }))
-                )
                 S.decorators = v'[]'
                 return d
             )(),
@@ -1107,11 +1103,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'localvars': [],
             'decorators': (def():
                 d = v'[]'
-                S.decorators.forEach(def(decorator):
+                for decorator in S.decorators:
                     d.push(new AST_Decorator({
                         'expression': decorator
                     }))
-                )
                 S.decorators = v'[]'
                 return d
             )(),
@@ -2098,8 +2093,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     toplevel.exports.push(symbol)
                     seen_exports[item] = True
 
-        scan_for_local_vars(toplevel.body).forEach(def(item): add_item(item, True);)
-        scan_for_top_level_callables(toplevel.body).forEach(def (item): add_item(item, False);)
+        for item in scan_for_local_vars(toplevel.body):
+            add_item(item, True)
+        for item in scan_for_top_level_callables(toplevel.body):
+            add_item(item, False)
 
         toplevel.filename = options.filename
         toplevel.imported_module_ids = imported_module_ids

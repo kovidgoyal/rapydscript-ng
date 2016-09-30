@@ -14,9 +14,8 @@ def string_to_bytes_slow(string):
         return String.fromCharCode('0x' + p1)
     )
     ua = Uint8Array(binstr.length)
-    Array.prototype.forEach.call(binstr, def(ch, i):
+    for i, ch in enumerate(binstr):
         ua[i] = ch.charCodeAt(0)
-    )
     return ua
 
 def as_hex(array, sep=''):

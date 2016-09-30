@@ -80,20 +80,17 @@ def generate_code():
                         return c(self, comment)
                     )
 
-                comments.forEach(def(c):
-                    if c.type is "comment1":
-                        output.print("//" + c.value + "\n")
+                for comm in comments:
+                    if comm.type is "comment1":
+                        output.print("//" + comm.value + "\n")
                         output.indent()
-                    elif c.type is "comment2":
-                        output.print("/*" + c.value + "*/")
+                    elif comm.type is "comment2":
+                        output.print("/*" + comm.value + "*/")
                         if start.nlb:
                             output.print("\n")
                             output.indent()
                         else:
                             output.space()
-
-
-                )
 
 
 
@@ -253,11 +250,10 @@ def generate_code():
     AST_ForJS.prototype._do_print_body = def(output):
         self = this
         output.with_block(def():
-            self.body.body.forEach(def(stmt, i):
+            for stmt in self.body.body:
                 output.indent()
                 stmt.print(output)
                 output.newline()
-            )
         )
 
     DEFPRINT(AST_ForJS, def(self, output):
@@ -387,11 +383,10 @@ def generate_code():
     AST_Definitions.prototype._do_print = def(output, kind):
         output.print(kind)
         output.space()
-        this.definitions.forEach(def(def_, i):
+        for i, def_ in enumerate(this.definitions):
             if i:
                 output.comma()
             def_.print(output)
-        )
         p = output.parent()
         in_for = is_node_type(p, AST_ForIn)
         avoid_semicolon = in_for and p.init is this

@@ -56,24 +56,22 @@ def declare_vars(vars, output):
         output.indent()
         output.print("var")
         output.space()
-        vars.forEach(def(arg, i):
+        for i, arg in enumerate(vars):
             if i:
                 output.comma()
 
             arg.print(output)
-        )
         output.semicolon()
         output.newline()
 
 def display_body(body, is_toplevel, output):
     last = body.length - 1
-    body.forEach(def(stmt, i):
+    for i, stmt in enumerate(body):
         if not (is_node_type(stmt, AST_EmptyStatement)) and not (is_node_type(stmt, AST_Definitions)):
             output.indent()
             stmt.print(output)
             if not (i is last and is_toplevel):
                 output.newline()
-    )
 
 
 def display_complex_body(node, is_toplevel, output, function_preamble):
