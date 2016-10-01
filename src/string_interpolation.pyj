@@ -3,7 +3,7 @@
 from __python__ import hash_literals
 
 def quoted_string(x):
-    return '"' + x.replace(/"/g, r'\"') + '"'
+    return '"' + x.replace(/\\/g, '\\\\').replace(/"/g, r'\"').replace(/\n/, '\\n') + '"'
 
 def render_markup(markup):
     pos, key = 0, ''
