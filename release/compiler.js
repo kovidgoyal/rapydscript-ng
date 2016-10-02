@@ -4327,18 +4327,15 @@ return this.__repr__();
         }).call(this);
 
         function walk_body(node, visitor) {
+            var stat;
             if (is_node_type(node.body, AST_Statement)) {
                 node.body._walk(visitor);
             } else if (node.body) {
-                node.body.forEach((function() {
-                    var ρσ_anonfunc = function (stat) {
-                        stat._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["stat"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter15 = ρσ_Iterable(node.body);
+                for (var ρσ_Index15 = 0; ρσ_Index15 < ρσ_Iter15.length; ρσ_Index15++) {
+                    stat = ρσ_Iter15[ρσ_Index15];
+                    stat._walk(visitor);
+                }
             }
         };
         Object.defineProperties(walk_body, {
@@ -4709,15 +4706,12 @@ return this.__repr__();
         AST_With.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.clauses.forEach((function() {
-                    var ρσ_anonfunc = function (exp) {
-                        exp._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["exp"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var exp;
+                var ρσ_Iter16 = ρσ_Iterable(self.clauses);
+                for (var ρσ_Index16 = 0; ρσ_Index16 < ρσ_Iter16.length; ρσ_Index16++) {
+                    exp = ρσ_Iter16[ρσ_Index16];
+                    exp._walk(visitor);
+                }
                 self.body._walk(visitor);
             });
         };
@@ -4844,19 +4838,16 @@ return this.__repr__();
         AST_Import.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
+                var arg;
                 if (self.alias) {
                     self.alias._walk(visitor);
                 }
                 if (self.argnames) {
-                    self.argnames.forEach((function() {
-                        var ρσ_anonfunc = function (arg) {
-                            arg._walk(visitor);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["arg"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter17 = ρσ_Iterable(self.argnames);
+                    for (var ρσ_Index17 = 0; ρσ_Index17 < ρσ_Iter17.length; ρσ_Index17++) {
+                        arg = ρσ_Iter17[ρσ_Index17];
+                        arg._walk(visitor);
+                    }
                 }
             });
         };
@@ -4893,15 +4884,12 @@ return this.__repr__();
         AST_Imports.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.imports.forEach((function() {
-                    var ρσ_anonfunc = function (imp) {
-                        imp._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["imp"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var imp;
+                var ρσ_Iter18 = ρσ_Iterable(self.imports);
+                for (var ρσ_Index18 = 0; ρσ_Index18 < ρσ_Iter18.length; ρσ_Index18++) {
+                    imp = ρσ_Iter18[ρσ_Index18];
+                    imp._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_Imports.prototype._walk, {
@@ -4967,26 +4955,22 @@ return this.__repr__();
         AST_Lambda.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                var d;
+                var d, arg;
                 if (self.decorators) {
-                    var ρσ_Iter15 = ρσ_Iterable(self.decorators);
-                    for (var ρσ_Index15 = 0; ρσ_Index15 < ρσ_Iter15.length; ρσ_Index15++) {
-                        d = ρσ_Iter15[ρσ_Index15];
+                    var ρσ_Iter19 = ρσ_Iterable(self.decorators);
+                    for (var ρσ_Index19 = 0; ρσ_Index19 < ρσ_Iter19.length; ρσ_Index19++) {
+                        d = ρσ_Iter19[ρσ_Index19];
                         d.walk(visitor);
                     }
                 }
                 if (self.name) {
                     self.name._walk(visitor);
                 }
-                self.argnames.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
-                        arg._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter20 = ρσ_Iterable(self.argnames);
+                for (var ρσ_Index20 = 0; ρσ_Index20 < ρσ_Iter20.length; ρσ_Index20++) {
+                    arg = ρσ_Iter20[ρσ_Index20];
+                    arg._walk(visitor);
+                }
                 if (self.argnames.starargs) {
                     self.argnames.starargs._walk(visitor);
                 }
@@ -5051,9 +5035,9 @@ return this.__repr__();
             return visitor._visit(self, function () {
                 var d;
                 if (self.decorators) {
-                    var ρσ_Iter16 = ρσ_Iterable(self.decorators);
-                    for (var ρσ_Index16 = 0; ρσ_Index16 < ρσ_Iter16.length; ρσ_Index16++) {
-                        d = ρσ_Iter16[ρσ_Index16];
+                    var ρσ_Iter21 = ρσ_Iterable(self.decorators);
+                    for (var ρσ_Index21 = 0; ρσ_Index21 < ρσ_Iter21.length; ρσ_Index21++) {
+                        d = ρσ_Iter21[ρσ_Index21];
                         d.walk(visitor);
                     }
                 }
@@ -5391,9 +5375,9 @@ return this.__repr__();
                     self.argname.walk(visitor);
                 }
                 if (self.errors) {
-                    var ρσ_Iter17 = ρσ_Iterable(self.errors);
-                    for (var ρσ_Index17 = 0; ρσ_Index17 < ρσ_Iter17.length; ρσ_Index17++) {
-                        e = ρσ_Iter17[ρσ_Index17];
+                    var ρσ_Iter22 = ρσ_Iterable(self.errors);
+                    for (var ρσ_Index22 = 0; ρσ_Index22 < ρσ_Iter22.length; ρσ_Index22++) {
+                        e = ρσ_Iter22[ρσ_Index22];
                         e.walk(visitor);
                     }
                 }
@@ -5448,15 +5432,12 @@ return this.__repr__();
         AST_Definitions.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.definitions.forEach((function() {
-                    var ρσ_anonfunc = function (def_) {
-                        def_._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["def_"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var def_;
+                var ρσ_Iter23 = ρσ_Iterable(self.definitions);
+                for (var ρσ_Index23 = 0; ρσ_Index23 < ρσ_Iter23.length; ρσ_Index23++) {
+                    def_ = ρσ_Iter23[ρσ_Index23];
+                    def_._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_Definitions.prototype._walk, {
@@ -5565,35 +5546,28 @@ return this.__repr__();
         AST_Call.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
+                var arg;
                 self.expression._walk(visitor);
-                self.args.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
-                        arg._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                if (self.args.kwargs) self.args.kwargs.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
+                var ρσ_Iter24 = ρσ_Iterable(self.args);
+                for (var ρσ_Index24 = 0; ρσ_Index24 < ρσ_Iter24.length; ρσ_Index24++) {
+                    arg = ρσ_Iter24[ρσ_Index24];
+                    arg._walk(visitor);
+                }
+                if (self.args.kwargs) {
+                    var ρσ_Iter25 = ρσ_Iterable(self.args.kwargs);
+                    for (var ρσ_Index25 = 0; ρσ_Index25 < ρσ_Iter25.length; ρσ_Index25++) {
+                        arg = ρσ_Iter25[ρσ_Index25];
                         arg[0]._walk(visitor);
                         arg[1]._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                if (self.args.kwarg_items) self.args.kwarg_items.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
+                    }
+                }
+                if (self.args.kwarg_items) {
+                    var ρσ_Iter26 = ρσ_Iterable(self.args.kwarg_items);
+                    for (var ρσ_Index26 = 0; ρσ_Index26 < ρσ_Iter26.length; ρσ_Index26++) {
+                        arg = ρσ_Iter26[ρσ_Index26];
                         arg._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                    }
+                }
             });
         };
         Object.defineProperties(AST_Call.prototype._walk, {
@@ -5625,35 +5599,24 @@ return this.__repr__();
         AST_ClassCall.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
+                var arg;
                 if (self.expression) self.expression._walk(visitor);
-                self.args.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
-                        arg._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                self.args.kwargs.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
-                        arg[0]._walk(visitor);
-                        arg[1]._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                self.args.kwarg_items.forEach((function() {
-                    var ρσ_anonfunc = function (arg) {
-                        arg._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter27 = ρσ_Iterable(self.args);
+                for (var ρσ_Index27 = 0; ρσ_Index27 < ρσ_Iter27.length; ρσ_Index27++) {
+                    arg = ρσ_Iter27[ρσ_Index27];
+                    arg._walk(visitor);
+                }
+                var ρσ_Iter28 = ρσ_Iterable(self.args.kwargs);
+                for (var ρσ_Index28 = 0; ρσ_Index28 < ρσ_Iter28.length; ρσ_Index28++) {
+                    arg = ρσ_Iter28[ρσ_Index28];
+                    arg[0]._walk(visitor);
+                    arg[1]._walk(visitor);
+                }
+                var ρσ_Iter29 = ρσ_Iterable(self.args.kwarg_items);
+                for (var ρσ_Index29 = 0; ρσ_Index29 < ρσ_Iter29.length; ρσ_Index29++) {
+                    arg = ρσ_Iter29[ρσ_Index29];
+                    arg._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_ClassCall.prototype._walk, {
@@ -5768,8 +5731,8 @@ return this.__repr__();
                 return array[0].clone();
             }
             ans = null;
-            for (var ρσ_Index18 = array.length - 1; ρσ_Index18 > -1; ρσ_Index18-=1) {
-                i = ρσ_Index18;
+            for (var ρσ_Index30 = array.length - 1; ρσ_Index30 > -1; ρσ_Index30-=1) {
+                i = ρσ_Index30;
                 ans = AST_Seq.prototype.cons.call(array[(typeof i === "number" && i < 0) ? array.length + i : i], ans);
             }
             p = ans;
@@ -6199,15 +6162,12 @@ return this.__repr__();
         AST_Array.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.elements.forEach((function() {
-                    var ρσ_anonfunc = function (el) {
-                        el._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["el"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var el;
+                var ρσ_Iter31 = ρσ_Iterable(self.elements);
+                for (var ρσ_Index31 = 0; ρσ_Index31 < ρσ_Iter31.length; ρσ_Index31++) {
+                    el = ρσ_Iter31[ρσ_Index31];
+                    el._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_Array.prototype._walk, {
@@ -6218,9 +6178,9 @@ return this.__repr__();
             function flatten(arr) {
                 var ans, value;
                 ans = ρσ_list_decorate([]);
-                var ρσ_Iter19 = ρσ_Iterable(arr);
-                for (var ρσ_Index19 = 0; ρσ_Index19 < ρσ_Iter19.length; ρσ_Index19++) {
-                    value = ρσ_Iter19[ρσ_Index19];
+                var ρσ_Iter32 = ρσ_Iterable(arr);
+                for (var ρσ_Index32 = 0; ρσ_Index32 < ρσ_Iter32.length; ρσ_Index32++) {
+                    value = ρσ_Iter32[ρσ_Index32];
                     if (is_node_type(value, AST_Seq)) {
                         value = value.to_array();
                     } else if (is_node_type(value, AST_Array)) {
@@ -6269,15 +6229,12 @@ return this.__repr__();
         AST_Object.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.properties.forEach((function() {
-                    var ρσ_anonfunc = function (prop) {
-                        prop._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["prop"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var prop;
+                var ρσ_Iter33 = ρσ_Iterable(self.properties);
+                for (var ρσ_Index33 = 0; ρσ_Index33 < ρσ_Iter33.length; ρσ_Index33++) {
+                    prop = ρσ_Iter33[ρσ_Index33];
+                    prop._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_Object.prototype._walk, {
@@ -6382,15 +6339,12 @@ return this.__repr__();
         AST_Set.prototype._walk = function _walk(visitor) {
             var self = this;
             return visitor._visit(self, function () {
-                self.items.forEach((function() {
-                    var ρσ_anonfunc = function (prop) {
-                        prop._walk(visitor);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["prop"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var prop;
+                var ρσ_Iter34 = ρσ_Iterable(self.items);
+                for (var ρσ_Index34 = 0; ρσ_Index34 < ρσ_Iter34.length; ρσ_Index34++) {
+                    prop = ρσ_Iter34[ρσ_Index34];
+                    prop._walk(visitor);
+                }
             });
         };
         Object.defineProperties(AST_Set.prototype._walk, {
@@ -7054,8 +7008,8 @@ return this.__repr__();
             var self = this;
             var stack, x, i;
             stack = self.stack;
-            for (var ρσ_Index20 = stack.length - 1; ρσ_Index20 > -1; ρσ_Index20-=1) {
-                i = ρσ_Index20;
+            for (var ρσ_Index35 = stack.length - 1; ρσ_Index35 > -1; ρσ_Index35-=1) {
+                i = ρσ_Index35;
                 x = stack[(typeof i === "number" && i < 0) ? stack.length + i : i];
                 if (is_node_type(x, type)) {
                     return x;
@@ -7250,7 +7204,7 @@ return this.__repr__();
     (function(){
         var __name__ = "string_interpolation";
         function quoted_string(x) {
-            return "\"" + x.replace(/"/g, "\\\"") + "\"";
+            return "\"" + x.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\n/, "\\n") + "\"";
         };
         Object.defineProperties(quoted_string, {
             __argnames__ : {value: ["x"]}
@@ -7394,9 +7348,9 @@ return this.__repr__();
         IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i;
         function is_string_modifier(val) {
             var ch;
-            var ρσ_Iter21 = ρσ_Iterable(val);
-            for (var ρσ_Index21 = 0; ρσ_Index21 < ρσ_Iter21.length; ρσ_Index21++) {
-                ch = ρσ_Iter21[ρσ_Index21];
+            var ρσ_Iter36 = ρσ_Iterable(val);
+            for (var ρσ_Index36 = 0; ρσ_Index36 < ρσ_Iter36.length; ρσ_Index36++) {
+                ch = ρσ_Iter36[ρσ_Index36];
                 if ("vrufVRUF".indexOf(ch) === -1) {
                     return false;
                 }
@@ -7590,8 +7544,8 @@ return this.__repr__();
                 if (!is_comment) {
                     ret.comments_before = S.comments_before;
                     S.comments_before = [];
-                    for (var ρσ_Index22 = 0; ρσ_Index22 < ret.comments_before.length; ρσ_Index22++) {
-                        i = ρσ_Index22;
+                    for (var ρσ_Index37 = 0; ρσ_Index37 < ret.comments_before.length; ρσ_Index37++) {
+                        i = ρσ_Index37;
                         ret.nlb = ret.nlb || (ρσ_expr_temp = ret.comments_before)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].nlb;
                     }
                 }
@@ -8314,7 +8268,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "c23d5ca4429e9224a68c64b97e8579b4a0dea49f";
+        COMPILER_VERSION = "fbdabf414b586721409b7e3b9b0a16c655bd9061";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -8397,11 +8351,11 @@ return this.__repr__();
         PRECEDENCE = (function() {
             var ρσ_anonfunc = function (a, ret) {
                 var b, j, i;
-                for (var ρσ_Index23 = 0; ρσ_Index23 < a.length; ρσ_Index23++) {
-                    i = ρσ_Index23;
+                for (var ρσ_Index38 = 0; ρσ_Index38 < a.length; ρσ_Index38++) {
+                    i = ρσ_Index38;
                     b = a[(typeof i === "number" && i < 0) ? a.length + i : i];
-                    for (var ρσ_Index24 = 0; ρσ_Index24 < b.length; ρσ_Index24++) {
-                        j = ρσ_Index24;
+                    for (var ρσ_Index39 = 0; ρσ_Index39 < b.length; ρσ_Index39++) {
+                        j = ρσ_Index39;
                         ret[ρσ_bound_index(b[(typeof j === "number" && j < 0) ? b.length + j : j], ret)] = i + 1;
                     }
                 }
@@ -8564,9 +8518,9 @@ return this.__repr__();
                 var ans, opt, x, obj;
                 ans = [];
                 if (Array.isArray(body)) {
-                    var ρσ_Iter25 = ρσ_Iterable(body);
-                    for (var ρσ_Index25 = 0; ρσ_Index25 < ρσ_Iter25.length; ρσ_Index25++) {
-                        obj = ρσ_Iter25[ρσ_Index25];
+                    var ρσ_Iter40 = ρσ_Iterable(body);
+                    for (var ρσ_Index40 = 0; ρσ_Index40 < ρσ_Iter40.length; ρσ_Index40++) {
+                        obj = ρσ_Iter40[ρσ_Index40];
                         if (is_node_type(obj, AST_Function) || is_node_type(obj, AST_Class)) {
                             if (obj.name) {
                                 ans.push(obj.name.name);
@@ -8577,9 +8531,9 @@ return this.__repr__();
                             if (is_node_type(obj, AST_Scope)) {
                                 continue;
                             }
-                            var ρσ_Iter26 = ρσ_Iterable(ρσ_list_decorate([ "body", "alternative" ]));
-                            for (var ρσ_Index26 = 0; ρσ_Index26 < ρσ_Iter26.length; ρσ_Index26++) {
-                                x = ρσ_Iter26[ρσ_Index26];
+                            var ρσ_Iter41 = ρσ_Iterable(ρσ_list_decorate([ "body", "alternative" ]));
+                            for (var ρσ_Index41 = 0; ρσ_Index41 < ρσ_Iter41.length; ρσ_Index41++) {
+                                x = ρσ_Iter41[ρσ_Index41];
                                 opt = obj[(typeof x === "number" && x < 0) ? obj.length + x : x];
                                 if (opt) {
                                     ans = ans.concat(scan_for_top_level_callables(opt));
@@ -8605,9 +8559,9 @@ return this.__repr__();
             function scan_for_classes(body) {
                 var ans, obj;
                 ans = Object.create(null);
-                var ρσ_Iter27 = ρσ_Iterable(body);
-                for (var ρσ_Index27 = 0; ρσ_Index27 < ρσ_Iter27.length; ρσ_Index27++) {
-                    obj = ρσ_Iter27[ρσ_Index27];
+                var ρσ_Iter42 = ρσ_Iterable(body);
+                for (var ρσ_Index42 = 0; ρσ_Index42 < ρσ_Iter42.length; ρσ_Index42++) {
+                    obj = ρσ_Iter42[ρσ_Index42];
                     if (is_node_type(obj, AST_Class)) {
                         ans[ρσ_bound_index(obj.name.name, ans)] = obj;
                     }
@@ -8619,7 +8573,7 @@ return this.__repr__();
             });
 
             function scan_for_local_vars(body) {
-                var localvars, seen, clause, stmt, is_compound_assign, lhs;
+                var localvars, seen, opt, option, clause, stmt, is_compound_assign, lhs;
                 localvars = [];
                 seen = Object.create(null);
                 function push(x) {
@@ -8635,9 +8589,9 @@ return this.__repr__();
 
                 function extend(arr) {
                     var x;
-                    var ρσ_Iter28 = ρσ_Iterable(arr);
-                    for (var ρσ_Index28 = 0; ρσ_Index28 < ρσ_Iter28.length; ρσ_Index28++) {
-                        x = ρσ_Iter28[ρσ_Index28];
+                    var ρσ_Iter43 = ρσ_Iterable(arr);
+                    for (var ρσ_Index43 = 0; ρσ_Index43 < ρσ_Iter43.length; ρσ_Index43++) {
+                        x = ρσ_Iter43[ρσ_Index43];
                         push(x);
                     }
                 };
@@ -8647,9 +8601,9 @@ return this.__repr__();
 
                 function scan_in_array(arr) {
                     var x;
-                    var ρσ_Iter29 = ρσ_Iterable(arr);
-                    for (var ρσ_Index29 = 0; ρσ_Index29 < ρσ_Iter29.length; ρσ_Index29++) {
-                        x = ρσ_Iter29[ρσ_Index29];
+                    var ρσ_Iter44 = ρσ_Iterable(arr);
+                    for (var ρσ_Index44 = 0; ρσ_Index44 < ρσ_Iter44.length; ρσ_Index44++) {
+                        x = ρσ_Iter44[ρσ_Index44];
                         if (is_node_type(x, AST_Seq)) {
                             x = x.to_array();
                         } else if (is_node_type(x, AST_Array)) {
@@ -8700,37 +8654,32 @@ return this.__repr__();
                 });
 
                 if (Array.isArray(body)) {
-                    var ρσ_Iter30 = ρσ_Iterable(body);
-                    for (var ρσ_Index30 = 0; ρσ_Index30 < ρσ_Iter30.length; ρσ_Index30++) {
-                        stmt = ρσ_Iter30[ρσ_Index30];
+                    var ρσ_Iter45 = ρσ_Iterable(body);
+                    for (var ρσ_Index45 = 0; ρσ_Index45 < ρσ_Iter45.length; ρσ_Index45++) {
+                        stmt = ρσ_Iter45[ρσ_Index45];
                         if (is_node_type(stmt, AST_Scope)) {
                             continue;
                         }
-                        [ "body", "alternative", "bcatch" ].forEach((function() {
-                            var ρσ_anonfunc = function (option) {
-                                var opt;
-                                opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
-                                if (opt) {
-                                    extend(scan_for_local_vars(opt));
-                                }
-                                if (is_node_type(opt, AST_Assign) && !is_node_type(opt.right, AST_Scope)) {
-                                    extend(scan_for_local_vars(opt.right));
-                                }
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["option"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var ρσ_Iter46 = ρσ_Iterable(ρσ_list_decorate([ "body", "alternative", "bcatch" ]));
+                        for (var ρσ_Index46 = 0; ρσ_Index46 < ρσ_Iter46.length; ρσ_Index46++) {
+                            option = ρσ_Iter46[ρσ_Index46];
+                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
+                            if (opt) {
+                                extend(scan_for_local_vars(opt));
+                            }
+                            if (is_node_type(opt, AST_Assign) && !is_node_type(opt.right, AST_Scope)) {
+                                extend(scan_for_local_vars(opt.right));
+                            }
+                        }
                         if (is_node_type(stmt, AST_ForIn)) {
                             add_for_in(stmt);
                         } else if (is_node_type(stmt, AST_DWLoop)) {
                             extend(scan_for_local_vars(stmt));
                         } else if (is_node_type(stmt, AST_With)) {
                             [push("ρσ_with_exception"), push("ρσ_with_suppress")];
-                            var ρσ_Iter31 = ρσ_Iterable(stmt.clauses);
-                            for (var ρσ_Index31 = 0; ρσ_Index31 < ρσ_Iter31.length; ρσ_Index31++) {
-                                clause = ρσ_Iter31[ρσ_Index31];
+                            var ρσ_Iter47 = ρσ_Iterable(stmt.clauses);
+                            for (var ρσ_Index47 = 0; ρσ_Index47 < ρσ_Iter47.length; ρσ_Index47++) {
+                                clause = ρσ_Iter47[ρσ_Index47];
                                 if (clause.alias) {
                                     push(clause.alias.name);
                                 }
@@ -8745,9 +8694,9 @@ return this.__repr__();
                 } else if (is_node_type(body, AST_Assign)) {
                     if (body.is_chained()) {
                         is_compound_assign = false;
-                        var ρσ_Iter32 = ρσ_Iterable(body.traverse_chain()[0]);
-                        for (var ρσ_Index32 = 0; ρσ_Index32 < ρσ_Iter32.length; ρσ_Index32++) {
-                            lhs = ρσ_Iter32[ρσ_Index32];
+                        var ρσ_Iter48 = ρσ_Iterable(body.traverse_chain()[0]);
+                        for (var ρσ_Index48 = 0; ρσ_Index48 < ρσ_Iter48.length; ρσ_Index48++) {
+                            lhs = ρσ_Iter48[ρσ_Index48];
                             add_assign_lhs(lhs);
                             if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
                                 is_compound_assign = true;
@@ -8773,39 +8722,31 @@ return this.__repr__();
             });
 
             function scan_for_nonlocal_defs(body) {
-                var vars, stmt;
+                var vardef, opt, option, stmt;
                 vars = [];
                 if (Array.isArray(body)) {
-                    var ρσ_Iter33 = ρσ_Iterable(body);
-                    for (var ρσ_Index33 = 0; ρσ_Index33 < ρσ_Iter33.length; ρσ_Index33++) {
-                        stmt = ρσ_Iter33[ρσ_Index33];
+                    var ρσ_Iter49 = ρσ_Iterable(body);
+                    for (var ρσ_Index49 = 0; ρσ_Index49 < ρσ_Iter49.length; ρσ_Index49++) {
+                        stmt = ρσ_Iter49[ρσ_Index49];
                         if (is_node_type(stmt, AST_Scope)) {
                             continue;
                         }
                         if (is_node_type(stmt, AST_Definitions)) {
-                            stmt.definitions.forEach((function() {
-                                var ρσ_anonfunc = function (vardef) {
-                                    vars.push(vardef.name.name);
-                                };
-                                Object.defineProperties(ρσ_anonfunc, {
-                                    __argnames__ : {value: ["vardef"]}
-                                });
-                                return ρσ_anonfunc;
-                            })());
+                            var ρσ_Iter50 = ρσ_Iterable(stmt.definitions);
+                            for (var ρσ_Index50 = 0; ρσ_Index50 < ρσ_Iter50.length; ρσ_Index50++) {
+                                vardef = ρσ_Iter50[ρσ_Index50];
+                                vars.push(vardef.name.name);
+                            }
                         }
-                        [ "body", "alternative" ].forEach((function() {
-                            var ρσ_anonfunc = function (option) {
-                                var opt;
-                                opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
-                                if (opt) {
-                                    vars = vars.concat(scan_for_nonlocal_defs(opt));
-                                }
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["option"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var ρσ_Iter51 = ρσ_Iterable(ρσ_list_decorate([ "body", "alternative" ]));
+                        for (var ρσ_Index51 = 0; ρσ_Index51 < ρσ_Iter51.length; ρσ_Index51++) {
+                            option = ρσ_Iter51[ρσ_Index51];
+                            var vars;
+                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
+                            if (opt) {
+                                vars = vars.concat(scan_for_nonlocal_defs(opt));
+                            }
+                        }
                     }
                 } else if (body.body) {
                     vars = vars.concat(scan_for_nonlocal_defs(body.body));
@@ -9182,8 +9123,8 @@ return this.__repr__();
                     if (has_prop(ERROR_CLASSES, expr.name)) {
                         return ERROR_CLASSES[ρσ_bound_index(expr.name, ERROR_CLASSES)];
                     }
-                    for (var ρσ_Index34 = S.classes.length - 1; ρσ_Index34 > -1; ρσ_Index34-=1) {
-                        s = ρσ_Index34;
+                    for (var ρσ_Index52 = S.classes.length - 1; ρσ_Index52 > -1; ρσ_Index52-=1) {
+                        s = ρσ_Index52;
                         if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], expr.name)) {
                             return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[ρσ_bound_index(expr.name, ρσ_expr_temp)];
                         }
@@ -9198,8 +9139,8 @@ return this.__repr__();
                         referenced_path.unshift(expr.name);
                         if (len(referenced_path) > 1) {
                             class_name = referenced_path.join(".");
-                            for (var ρσ_Index35 = S.classes.length - 1; ρσ_Index35 > -1; ρσ_Index35-=1) {
-                                s = ρσ_Index35;
+                            for (var ρσ_Index53 = S.classes.length - 1; ρσ_Index53 > -1; ρσ_Index53-=1) {
+                                s = ρσ_Index53;
                                 if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], class_name)) {
                                     return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
                                 }
@@ -9251,9 +9192,9 @@ return this.__repr__();
                 }
                 function safe_read(base_path) {
                     var ρσ_unpack, i, path;
-                    var ρσ_Iter36 = ρσ_Iterable(enumerate(ρσ_list_decorate([ base_path + ".pyj", base_path + "/__init__.pyj" ])));
-                    for (var ρσ_Index36 = 0; ρσ_Index36 < ρσ_Iter36.length; ρσ_Index36++) {
-                        ρσ_unpack = ρσ_Iter36[ρσ_Index36];
+                    var ρσ_Iter54 = ρσ_Iterable(enumerate(ρσ_list_decorate([ base_path + ".pyj", base_path + "/__init__.pyj" ])));
+                    for (var ρσ_Index54 = 0; ρσ_Index54 < ρσ_Iter54.length; ρσ_Index54++) {
+                        ρσ_unpack = ρσ_Iter54[ρσ_Index54];
                         i = ρσ_unpack[0];
                         path = ρσ_unpack[1];
                         try {
@@ -9280,9 +9221,9 @@ return this.__repr__();
 
                 src_code = filename = null;
                 modpath = key.replace(/\./g, "/");
-                var ρσ_Iter37 = ρσ_Iterable(import_dirs);
-                for (var ρσ_Index37 = 0; ρσ_Index37 < ρσ_Iter37.length; ρσ_Index37++) {
-                    location = ρσ_Iter37[ρσ_Index37];
+                var ρσ_Iter55 = ρσ_Iterable(import_dirs);
+                for (var ρσ_Index55 = 0; ρσ_Index55 < ρσ_Iter55.length; ρσ_Index55++) {
+                    location = ρσ_Iter55[ρσ_Index55];
                     if (location) {
                         ρσ_unpack = safe_read(location + "/" + modpath);
                         data = ρσ_unpack[0];
@@ -9306,9 +9247,9 @@ return this.__repr__();
                 }
                 srchash = sha1sum(src_code);
                 if (cached && cached.version === COMPILER_VERSION && cached.signature === srchash && cached.discard_asserts === options.discard_asserts) {
-                    var ρσ_Iter38 = ρσ_Iterable(cached.imported_module_ids);
-                    for (var ρσ_Index38 = 0; ρσ_Index38 < ρσ_Iter38.length; ρσ_Index38++) {
-                        ikey = ρσ_Iter38[ρσ_Index38];
+                    var ρσ_Iter56 = ρσ_Iterable(cached.imported_module_ids);
+                    for (var ρσ_Index56 = 0; ρσ_Index56 < ρσ_Iter56.length; ρσ_Index56++) {
+                        ikey = ρσ_Iter56[ρσ_Index56];
                         do_import(ikey);
                     }
                     imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key] = (function(){
@@ -9342,9 +9283,9 @@ return this.__repr__();
                     }).call(this));
                 }
                 imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].srchash = srchash;
-                var ρσ_Iter39 = ρσ_Iterable(Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib));
-                for (var ρσ_Index39 = 0; ρσ_Index39 < ρσ_Iter39.length; ρσ_Index39++) {
-                    bitem = ρσ_Iter39[ρσ_Index39];
+                var ρσ_Iter57 = ρσ_Iterable(Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib));
+                for (var ρσ_Index57 = 0; ρσ_Index57 < ρσ_Iter57.length; ρσ_Index57++) {
+                    bitem = ρσ_Iter57[ρσ_Index57];
                     baselib_items[(typeof bitem === "number" && bitem < 0) ? baselib_items.length + bitem : bitem] = true;
                 }
             };
@@ -9442,9 +9383,9 @@ return this.__repr__();
                         break;
                     }
                 }
-                var ρσ_Iter40 = ρσ_Iterable(ans["imports"]);
-                for (var ρσ_Index40 = 0; ρσ_Index40 < ρσ_Iter40.length; ρσ_Index40++) {
-                    imp = ρσ_Iter40[ρσ_Index40];
+                var ρσ_Iter58 = ρσ_Iterable(ans["imports"]);
+                for (var ρσ_Index58 = 0; ρσ_Index58 < ρσ_Iter58.length; ρσ_Index58++) {
+                    imp = ρσ_Iter58[ρσ_Index58];
                     do_import(imp.key);
                     if (imported_module_ids.indexOf(imp.key) === -1) {
                         imported_module_ids.push(imp.key);
@@ -9458,9 +9399,9 @@ return this.__repr__();
                             next();
                         }
                         exports = Object.create(null);
-                        var ρσ_Iter41 = ρσ_Iterable(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports);
-                        for (var ρσ_Index41 = 0; ρσ_Index41 < ρσ_Iter41.length; ρσ_Index41++) {
-                            symdef = ρσ_Iter41[ρσ_Index41];
+                        var ρσ_Iter59 = ρσ_Iterable(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports);
+                        for (var ρσ_Index59 = 0; ρσ_Index59 < ρσ_Iter59.length; ρσ_Index59++) {
+                            symdef = ρσ_Iter59[ρσ_Index59];
                             exports[ρσ_bound_index(symdef.name, exports)] = true;
                         }
                         while (true) {
@@ -9486,9 +9427,9 @@ return this.__repr__();
                                 break;
                             }
                         }
-                        var ρσ_Iter42 = ρσ_Iterable(argnames);
-                        for (var ρσ_Index42 = 0; ρσ_Index42 < ρσ_Iter42.length; ρσ_Index42++) {
-                            argvar = ρσ_Iter42[ρσ_Index42];
+                        var ρσ_Iter60 = ρσ_Iterable(argnames);
+                        for (var ρσ_Index60 = 0; ρσ_Index60 < ρσ_Iter60.length; ρσ_Index60++) {
+                            argvar = ρσ_Iter60[ρσ_Index60];
                             obj = classes[ρσ_bound_index(argvar.name, classes)];
                             if (obj) {
                                 key = (argvar.alias) ? argvar.alias.name : argvar.name;
@@ -9502,9 +9443,9 @@ return this.__repr__();
                             }
                         }
                     } else {
-                        var ρσ_Iter43 = ρσ_Iterable(Object.keys(classes));
-                        for (var ρσ_Index43 = 0; ρσ_Index43 < ρσ_Iter43.length; ρσ_Index43++) {
-                            cname = ρσ_Iter43[ρσ_Index43];
+                        var ρσ_Iter61 = ρσ_Iterable(Object.keys(classes));
+                        for (var ρσ_Index61 = 0; ρσ_Index61 < ρσ_Iter61.length; ρσ_Index61++) {
+                            cname = ρσ_Iter61[ρσ_Index61];
                             obj = classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname];
                             key = (imp.alias) ? imp.alias.name : imp.key;
                             (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[ρσ_bound_index(key + "." + obj.name.name, ρσ_expr_temp)] = (function(){
@@ -9575,21 +9516,17 @@ return this.__repr__();
                     ρσ_d["bound"] = class_details.bound;
                     ρσ_d["statements"] = ρσ_list_decorate([]);
                     ρσ_d["decorators"] = function () {
-                        var d;
+                        var d, decorator;
                         d = ρσ_list_decorate([]);
-                        S.decorators.forEach((function() {
-                            var ρσ_anonfunc = function (decorator) {
-                                d.push(new AST_Decorator((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["expression"] = decorator;
-                                    return ρσ_d;
-                                }).call(this)));
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["decorator"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var ρσ_Iter62 = ρσ_Iterable(S.decorators);
+                        for (var ρσ_Index62 = 0; ρσ_Index62 < ρσ_Iter62.length; ρσ_Index62++) {
+                            decorator = ρσ_Iter62[ρσ_Index62];
+                            d.push(new AST_Decorator((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["expression"] = decorator;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
                         S.decorators = [];
                         return d;
                     }();
@@ -9619,9 +9556,9 @@ return this.__repr__();
                     })()(S.in_loop, S.labels);
                     return ρσ_d;
                 }).call(this));
-                var ρσ_Iter44 = ρσ_Iterable(definition.body);
-                for (var ρσ_Index44 = 0; ρσ_Index44 < ρσ_Iter44.length; ρσ_Index44++) {
-                    stmt = ρσ_Iter44[ρσ_Index44];
+                var ρσ_Iter63 = ρσ_Iterable(definition.body);
+                for (var ρσ_Index63 = 0; ρσ_Index63 < ρσ_Iter63.length; ρσ_Index63++) {
+                    stmt = ρσ_Iter63[ρσ_Index63];
                     if (is_node_type(stmt, AST_Method)) {
                         if (stmt.is_getter || stmt.is_setter) {
                             descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)];
@@ -9667,9 +9604,9 @@ return this.__repr__();
                 };
 
                 visitor = new walker;
-                var ρσ_Iter45 = ρσ_Iterable(definition.body);
-                for (var ρσ_Index45 = 0; ρσ_Index45 < ρσ_Iter45.length; ρσ_Index45++) {
-                    stmt = ρσ_Iter45[ρσ_Index45];
+                var ρσ_Iter64 = ρσ_Iterable(definition.body);
+                for (var ρσ_Index64 = 0; ρσ_Index64 < ρσ_Iter64.length; ρσ_Index64++) {
+                    stmt = ρσ_Iter64[ρσ_Index64];
                     if (!is_node_type(stmt, AST_Class)) {
                         stmt.walk(visitor);
                         definition.statements.push(stmt);
@@ -9832,21 +9769,17 @@ return this.__repr__();
                     })()([]);
                     ρσ_d["localvars"] = ρσ_list_decorate([]);
                     ρσ_d["decorators"] = function () {
-                        var d;
+                        var d, decorator;
                         d = [];
-                        S.decorators.forEach((function() {
-                            var ρσ_anonfunc = function (decorator) {
-                                d.push(new AST_Decorator((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["expression"] = decorator;
-                                    return ρσ_d;
-                                }).call(this)));
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["decorator"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var ρσ_Iter65 = ρσ_Iterable(S.decorators);
+                        for (var ρσ_Index65 = 0; ρσ_Index65 < ρσ_Iter65.length; ρσ_Index65++) {
+                            decorator = ρσ_Iter65[ρσ_Index65];
+                            d.push(new AST_Decorator((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["expression"] = decorator;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
                         S.decorators = [];
                         return d;
                     }();
@@ -9900,10 +9833,10 @@ return this.__repr__();
                     baselib_items["yield"] = true;
                 }
                 assignments = scan_for_local_vars(definition.body);
-                for (var ρσ_Index46 = 0; ρσ_Index46 < assignments.length; ρσ_Index46++) {
-                    i = ρσ_Index46;
-                    for (var ρσ_Index47 = 0; ρσ_Index47 < definition.argnames.length + 1; ρσ_Index47++) {
-                        j = ρσ_Index47;
+                for (var ρσ_Index66 = 0; ρσ_Index66 < assignments.length; ρσ_Index66++) {
+                    i = ρσ_Index66;
+                    for (var ρσ_Index67 = 0; ρσ_Index67 < definition.argnames.length + 1; ρσ_Index67++) {
+                        j = ρσ_Index67;
                         if (j === definition.argnames.length) {
                             definition.localvars.push(new_symbol(AST_SymbolVar, assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i]));
                         } else if (j < definition.argnames.length && assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i] === (ρσ_expr_temp = definition.argnames)[(typeof j === "number" && j < 0) ? ρσ_expr_temp.length + j : j].name) {
@@ -10323,9 +10256,9 @@ return this.__repr__();
                 if (func_call) {
                     tmp = ρσ_list_decorate([]);
                     tmp.kwargs = ρσ_list_decorate([]);
-                    var ρσ_Iter48 = ρσ_Iterable(a);
-                    for (var ρσ_Index48 = 0; ρσ_Index48 < ρσ_Iter48.length; ρσ_Index48++) {
-                        arg = ρσ_Iter48[ρσ_Index48];
+                    var ρσ_Iter68 = ρσ_Iterable(a);
+                    for (var ρσ_Index68 = 0; ρσ_Index68 < ρσ_Iter68.length; ρσ_Index68++) {
+                        arg = ρσ_Iter68[ρσ_Index68];
                         if (is_node_type(arg, AST_Assign)) {
                             tmp.kwargs.push(ρσ_list_decorate([ arg.left, arg.right ]));
                         } else {
@@ -11217,7 +11150,7 @@ return this.__repr__();
             });
 
             function run_parser() {
-                var start, body, docstrings, first_token, toplevel, element, shebang, ds, end, seen_exports;
+                var start, body, docstrings, first_token, toplevel, element, shebang, ds, end, seen_exports, item;
                 start = S.token = next();
                 body = [];
                 docstrings = [];
@@ -11274,24 +11207,16 @@ return this.__repr__();
                     __argnames__ : {value: ["item", "isvar"]}
                 });
 
-                scan_for_local_vars(toplevel.body).forEach((function() {
-                    var ρσ_anonfunc = function (item) {
-                        add_item(item, true);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["item"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                scan_for_top_level_callables(toplevel.body).forEach((function() {
-                    var ρσ_anonfunc = function (item) {
-                        add_item(item, false);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["item"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter69 = ρσ_Iterable(scan_for_local_vars(toplevel.body));
+                for (var ρσ_Index69 = 0; ρσ_Index69 < ρσ_Iter69.length; ρσ_Index69++) {
+                    item = ρσ_Iter69[ρσ_Index69];
+                    add_item(item, true);
+                }
+                var ρσ_Iter70 = ρσ_Iterable(scan_for_top_level_callables(toplevel.body));
+                for (var ρσ_Index70 = 0; ρσ_Index70 < ρσ_Iter70.length; ρσ_Index70++) {
+                    item = ρσ_Iter70[ρσ_Index70];
+                    add_item(item, false);
+                }
                 toplevel.filename = options.filename;
                 toplevel.imported_module_ids = imported_module_ids;
                 toplevel.classes = scan_for_classes(toplevel.body);
@@ -11335,9 +11260,9 @@ return this.__repr__();
                 ρσ_Result = ρσ_list_constructor(ρσ_Result);
                 return ρσ_Result;
             })();
-            var ρσ_Iter49 = ρσ_Iterable([options.libdir, options.basedir]);
-            for (var ρσ_Index49 = 0; ρσ_Index49 < ρσ_Iter49.length; ρσ_Index49++) {
-                location = ρσ_Iter49[ρσ_Index49];
+            var ρσ_Iter71 = ρσ_Iterable([options.libdir, options.basedir]);
+            for (var ρσ_Index71 = 0; ρσ_Index71 < ρσ_Iter71.length; ρσ_Index71++) {
+                location = ρσ_Iter71[ρσ_Index71];
                 if (location) {
                     import_dirs.push(location);
                 }
@@ -11406,9 +11331,9 @@ return this.__repr__();
                 return ρσ_d;
             }).call(this);
             if (options.classes) {
-                var ρσ_Iter50 = ρσ_Iterable(options.classes);
-                for (var ρσ_Index50 = 0; ρσ_Index50 < ρσ_Iter50.length; ρσ_Index50++) {
-                    cname = ρσ_Iter50[ρσ_Index50];
+                var ρσ_Iter72 = ρσ_Iterable(options.classes);
+                for (var ρσ_Index72 = 0; ρσ_Index72 < ρσ_Iter72.length; ρσ_Index72++) {
+                    cname = ρσ_Iter72[ρσ_Index72];
                     obj = (ρσ_expr_temp = options.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
                     (ρσ_expr_temp = S.classes[0])[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname] = (function(){
                         var ρσ_d = Object.create(null);
@@ -12055,22 +11980,21 @@ return this.__repr__();
         });
 
         function declare_vars(vars, output) {
+            var ρσ_unpack, i, arg;
             if (vars.length) {
                 output.indent();
                 output.print("var");
                 output.space();
-                vars.forEach((function() {
-                    var ρσ_anonfunc = function (arg, i) {
-                        if (i) {
-                            output.comma();
-                        }
-                        arg.print(output);
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["arg", "i"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter73 = ρσ_Iterable(enumerate(vars));
+                for (var ρσ_Index73 = 0; ρσ_Index73 < ρσ_Iter73.length; ρσ_Index73++) {
+                    ρσ_unpack = ρσ_Iter73[ρσ_Index73];
+                    i = ρσ_unpack[0];
+                    arg = ρσ_unpack[1];
+                    if (i) {
+                        output.comma();
+                    }
+                    arg.print(output);
+                }
                 output.semicolon();
                 output.newline();
             }
@@ -12080,23 +12004,21 @@ return this.__repr__();
         });
 
         function display_body(body, is_toplevel, output) {
-            var last;
+            var last, ρσ_unpack, i, stmt;
             last = body.length - 1;
-            body.forEach((function() {
-                var ρσ_anonfunc = function (stmt, i) {
-                    if (!is_node_type(stmt, AST_EmptyStatement) && !is_node_type(stmt, AST_Definitions)) {
-                        output.indent();
-                        stmt.print(output);
-                        if (!(i === last && is_toplevel)) {
-                            output.newline();
-                        }
+            var ρσ_Iter74 = ρσ_Iterable(enumerate(body));
+            for (var ρσ_Index74 = 0; ρσ_Index74 < ρσ_Iter74.length; ρσ_Index74++) {
+                ρσ_unpack = ρσ_Iter74[ρσ_Index74];
+                i = ρσ_unpack[0];
+                stmt = ρσ_unpack[1];
+                if (!is_node_type(stmt, AST_EmptyStatement) && !is_node_type(stmt, AST_Definitions)) {
+                    output.indent();
+                    stmt.print(output);
+                    if (!(i === last && is_toplevel)) {
+                        output.newline();
                     }
-                };
-                Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["stmt", "i"]}
-                });
-                return ρσ_anonfunc;
-            })());
+                }
+            }
         };
         Object.defineProperties(display_body, {
             __argnames__ : {value: ["body", "is_toplevel", "output"]}
@@ -12156,9 +12078,9 @@ return this.__repr__();
             var exits, clause_name, clause;
             exits = [];
             [output.assign("ρσ_with_exception"), output.print("undefined"), output.end_statement()];
-            var ρσ_Iter51 = ρσ_Iterable(self.clauses);
-            for (var ρσ_Index51 = 0; ρσ_Index51 < ρσ_Iter51.length; ρσ_Index51++) {
-                clause = ρσ_Iter51[ρσ_Index51];
+            var ρσ_Iter75 = ρσ_Iterable(self.clauses);
+            for (var ρσ_Index75 = 0; ρσ_Index75 < ρσ_Iter75.length; ρσ_Index75++) {
+                clause = ρσ_Iter75[ρσ_Index75];
                 output.with_counter += 1;
                 clause_name = "ρσ_with_clause_" + output.with_counter;
                 exits.push(clause_name);
@@ -12185,9 +12107,9 @@ return this.__repr__();
             [output.newline(), output.indent(), output.spaced("if", "(ρσ_with_exception", "===", "undefined)")];
             output.with_block(function () {
                 var clause;
-                var ρσ_Iter52 = ρσ_Iterable(exits);
-                for (var ρσ_Index52 = 0; ρσ_Index52 < ρσ_Iter52.length; ρσ_Index52++) {
-                    clause = ρσ_Iter52[ρσ_Index52];
+                var ρσ_Iter76 = ρσ_Iterable(exits);
+                for (var ρσ_Index76 = 0; ρσ_Index76 < ρσ_Iter76.length; ρσ_Index76++) {
+                    clause = ρσ_Iter76[ρσ_Index76];
                     [output.indent(), output.print(clause + ".__exit__()"), output.end_statement()];
                 }
             });
@@ -12195,9 +12117,9 @@ return this.__repr__();
             output.with_block(function () {
                 var clause;
                 [output.indent(), output.assign("ρσ_with_suppress"), output.print("false"), output.end_statement()];
-                var ρσ_Iter53 = ρσ_Iterable(exits);
-                for (var ρσ_Index53 = 0; ρσ_Index53 < ρσ_Iter53.length; ρσ_Index53++) {
-                    clause = ρσ_Iter53[ρσ_Index53];
+                var ρσ_Iter77 = ρσ_Iterable(exits);
+                for (var ρσ_Index77 = 0; ρσ_Index77 < ρσ_Iter77.length; ρσ_Index77++) {
+                    clause = ρσ_Iter77[ρσ_Index77];
                     output.indent();
                     output.spaced("ρσ_with_suppress", "|=", "ρσ_bool(" + clause + ".__exit__(ρσ_with_exception.constructor,", "ρσ_with_exception,", "ρσ_with_exception.stack))");
                     output.end_statement();
@@ -12265,56 +12187,53 @@ return this.__repr__();
             });
             output.space();
             output.with_block(function () {
-                var no_default;
+                var no_default, ρσ_unpack, i, exception;
                 output.indent();
                 [output.spaced("ρσ_last_exception", "=", "ρσ_Exception"), output.end_statement()];
                 output.indent();
                 no_default = true;
-                self.body.forEach((function() {
-                    var ρσ_anonfunc = function (exception, i) {
-                        if (i) {
-                            output.print("else ");
-                        }
-                        if (exception.errors.length) {
-                            output.print("if");
-                            output.space();
-                            output.with_parens(function () {
-                                exception.errors.forEach((function() {
-                                    var ρσ_anonfunc = function (err, i) {
-                                        if (i) {
-                                            output.newline();
-                                            output.indent();
-                                            output.print("||");
-                                            output.space();
-                                        }
-                                        output.print("ρσ_Exception");
-                                        output.space();
-                                        output.print("instanceof");
-                                        output.space();
-                                        if (err.name === "Exception") {
-                                            output.print("Error");
-                                        } else {
-                                            err.print(output);
-                                        }
-                                    };
-                                    Object.defineProperties(ρσ_anonfunc, {
-                                        __argnames__ : {value: ["err", "i"]}
-                                    });
-                                    return ρσ_anonfunc;
-                                })());
-                            });
-                            output.space();
-                        } else {
-                            no_default = false;
-                        }
-                        print_bracketed(exception, output, true);
+                var ρσ_Iter78 = ρσ_Iterable(enumerate(self.body));
+                for (var ρσ_Index78 = 0; ρσ_Index78 < ρσ_Iter78.length; ρσ_Index78++) {
+                    ρσ_unpack = ρσ_Iter78[ρσ_Index78];
+                    i = ρσ_unpack[0];
+                    exception = ρσ_unpack[1];
+                    if (i) {
+                        output.print("else ");
+                    }
+                    if (exception.errors.length) {
+                        output.print("if");
                         output.space();
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["exception", "i"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                        output.with_parens(function () {
+                            var ρσ_unpack, i, err;
+                            var ρσ_Iter79 = ρσ_Iterable(enumerate(exception.errors));
+                            for (var ρσ_Index79 = 0; ρσ_Index79 < ρσ_Iter79.length; ρσ_Index79++) {
+                                ρσ_unpack = ρσ_Iter79[ρσ_Index79];
+                                i = ρσ_unpack[0];
+                                err = ρσ_unpack[1];
+                                if (i) {
+                                    output.newline();
+                                    output.indent();
+                                    output.print("||");
+                                    output.space();
+                                }
+                                output.print("ρσ_Exception");
+                                output.space();
+                                output.print("instanceof");
+                                output.space();
+                                if (err.name === "Exception") {
+                                    output.print("Error");
+                                } else {
+                                    err.print(output);
+                                }
+                            }
+                        });
+                        output.space();
+                    } else {
+                        no_default = false;
+                    }
+                    print_bracketed(exception, output, true);
+                    output.space();
+                }
                 if (no_default) {
                     output.print("else");
                     output.space();
@@ -12357,8 +12276,8 @@ return this.__repr__();
             var best, len_, i;
             best = a[0];
             len_ = best.length;
-            for (var ρσ_Index54 = 1; ρσ_Index54 < a.length; ρσ_Index54++) {
-                i = ρσ_Index54;
+            for (var ρσ_Index80 = 1; ρσ_Index80 < a.length; ρσ_Index80++) {
+                i = ρσ_Index80;
                 if (a[(typeof i === "number" && i < 0) ? a.length + i : i].length < len_) {
                     best = a[(typeof i === "number" && i < 0) ? a.length + i : i];
                     len_ = best.length;
@@ -12411,15 +12330,15 @@ return this.__repr__();
         function create_doctring(docstrings) {
             var ans, ds, lines, min_leading_whitespace, r, leading_whitespace, line, lw, ρσ_unpack, l;
             ans = [];
-            var ρσ_Iter55 = ρσ_Iterable(docstrings);
-            for (var ρσ_Index55 = 0; ρσ_Index55 < ρσ_Iter55.length; ρσ_Index55++) {
-                ds = ρσ_Iter55[ρσ_Index55];
+            var ρσ_Iter81 = ρσ_Iterable(docstrings);
+            for (var ρσ_Index81 = 0; ρσ_Index81 < ρσ_Iter81.length; ρσ_Index81++) {
+                ds = ρσ_Iter81[ρσ_Index81];
                 ds = str.rstrip(ds.value);
                 lines = [];
                 min_leading_whitespace = "";
-                var ρσ_Iter56 = ρσ_Iterable(ds.split(/$/gm));
-                for (var ρσ_Index56 = 0; ρσ_Index56 < ρσ_Iter56.length; ρσ_Index56++) {
-                    line = ρσ_Iter56[ρσ_Index56];
+                var ρσ_Iter82 = ρσ_Iterable(ds.split(/$/gm));
+                for (var ρσ_Index82 = 0; ρσ_Index82 < ρσ_Iter82.length; ρσ_Index82++) {
+                    line = ρσ_Iter82[ρσ_Index82];
                     r = /^\s+/.exec(line);
                     leading_whitespace = "";
                     if (r) {
@@ -12436,9 +12355,9 @@ return this.__repr__();
                         lines.push([leading_whitespace, line]);
                     }
                 }
-                var ρσ_Iter57 = ρσ_Iterable(lines);
-                for (var ρσ_Index57 = 0; ρσ_Index57 < ρσ_Iter57.length; ρσ_Index57++) {
-                    ρσ_unpack = ρσ_Iter57[ρσ_Index57];
+                var ρσ_Iter83 = ρσ_Iterable(lines);
+                for (var ρσ_Index83 = 0; ρσ_Index83 < ρσ_Iter83.length; ρσ_Index83++) {
+                    ρσ_unpack = ρσ_Iter83[ρσ_Index83];
                     lw = ρσ_unpack[0];
                     l = ρσ_unpack[1];
                     if (min_leading_whitespace) {
@@ -12475,24 +12394,23 @@ return this.__repr__();
         var OutputStream = ρσ_modules["output.stream"].OutputStream;
 
         function unpack_tuple(elems, output, in_statement) {
-            elems.forEach((function() {
-                var ρσ_anonfunc = function (elem, i) {
-                    output.indent();
-                    output.assign(elem);
-                    output.print("ρσ_unpack");
-                    output.with_square(function () {
-                        output.print(i);
-                    });
-                    if (!in_statement || i < elems.length - 1) {
-                        output.semicolon();
-                        output.newline();
-                    }
-                };
-                Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["elem", "i"]}
+            var ρσ_unpack, i, elem;
+            var ρσ_Iter84 = ρσ_Iterable(enumerate(elems));
+            for (var ρσ_Index84 = 0; ρσ_Index84 < ρσ_Iter84.length; ρσ_Index84++) {
+                ρσ_unpack = ρσ_Iter84[ρσ_Index84];
+                i = ρσ_unpack[0];
+                elem = ρσ_unpack[1];
+                output.indent();
+                output.assign(elem);
+                output.print("ρσ_unpack");
+                output.with_square(function () {
+                    output.print(i);
                 });
-                return ρσ_anonfunc;
-            })());
+                if (!in_statement || i < elems.length - 1) {
+                    output.semicolon();
+                    output.newline();
+                }
+            }
         };
         Object.defineProperties(unpack_tuple, {
             __argnames__ : {value: ["elems", "output", "in_statement"]}
@@ -12558,7 +12476,7 @@ return this.__repr__();
             var self;
             self = this;
             output.with_block(function () {
-                var itervar, flat;
+                var itervar, flat, stmt;
                 if (!(self.simple_for_index || is_simple_for_in(self))) {
                     output.indent();
                     if (output.option("js_version") === 5) {
@@ -12589,17 +12507,13 @@ return this.__repr__();
                     output.print(self.simple_for_index);
                     output.end_statement();
                 }
-                self.body.body.forEach((function() {
-                    var ρσ_anonfunc = function (stmt, i) {
-                        output.indent();
-                        stmt.print(output);
-                        output.newline();
-                    };
-                    Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["stmt", "i"]}
-                    });
-                    return ρσ_anonfunc;
-                })());
+                var ρσ_Iter85 = ρσ_Iterable(self.body.body);
+                for (var ρσ_Index85 = 0; ρσ_Index85 < ρσ_Iter85.length; ρσ_Index85++) {
+                    stmt = ρσ_Iter85[ρσ_Index85];
+                    output.indent();
+                    stmt.print(output);
+                    output.newline();
+                }
             });
         };
         Object.defineProperties(print_for_loop_body, {
@@ -12826,7 +12740,7 @@ return this.__repr__();
                 output.print("()");
                 output.space();
                 output.with_block(function () {
-                    var body_out, previous_indentation, transpiled, ci;
+                    var body_out, previous_indentation, i, transpiled, ci;
                     body_out = output;
                     if (is_generator) {
                         if (es5) {
@@ -12858,16 +12772,12 @@ return this.__repr__();
                         body_out.print(result_obj);
                     }
                     if (is_node_type(self.init, AST_Array)) {
-                        self.init.elements.forEach((function() {
-                            var ρσ_anonfunc = function (i) {
-                                body_out.comma();
-                                i.print(body_out);
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["i"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var ρσ_Iter86 = ρσ_Iterable(self.init.elements);
+                        for (var ρσ_Index86 = 0; ρσ_Index86 < ρσ_Iter86.length; ρσ_Index86++) {
+                            i = ρσ_Iter86[ρσ_Index86];
+                            body_out.comma();
+                            i.print(body_out);
+                        }
                     } else {
                         body_out.comma();
                         self.init.print(body_out);
@@ -13383,9 +13293,9 @@ return this.__repr__();
                 left_hand_sides = ρσ_unpack[0];
                 rhs = ρσ_unpack[1];
                 is_compound_assign = false;
-                var ρσ_Iter58 = ρσ_Iterable(left_hand_sides);
-                for (var ρσ_Index58 = 0; ρσ_Index58 < ρσ_Iter58.length; ρσ_Index58++) {
-                    lhs = ρσ_Iter58[ρσ_Index58];
+                var ρσ_Iter87 = ρσ_Iterable(left_hand_sides);
+                for (var ρσ_Index87 = 0; ρσ_Index87 < ρσ_Iter87.length; ρσ_Index87++) {
+                    lhs = ρσ_Iter87[ρσ_Index87];
                     if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
                         is_compound_assign = true;
                         break;
@@ -13404,9 +13314,9 @@ return this.__repr__();
                         ρσ_d["right"] = rhs;
                         return ρσ_d;
                     }).call(this)), output);
-                    var ρσ_Iter59 = ρσ_Iterable(left_hand_sides);
-                    for (var ρσ_Index59 = 0; ρσ_Index59 < ρσ_Iter59.length; ρσ_Index59++) {
-                        lhs = ρσ_Iter59[ρσ_Index59];
+                    var ρσ_Iter88 = ρσ_Iterable(left_hand_sides);
+                    for (var ρσ_Index88 = 0; ρσ_Index88 < ρσ_Iter88.length; ρσ_Index88++) {
+                        lhs = ρσ_Iter88[ρσ_Index88];
                         [output.end_statement(), output.indent()];
                         print_assignment(new AST_Assign((function(){
                             var ρσ_d = Object.create(null);
@@ -13417,9 +13327,9 @@ return this.__repr__();
                         }).call(this)), output);
                     }
                 } else {
-                    var ρσ_Iter60 = ρσ_Iterable(left_hand_sides);
-                    for (var ρσ_Index60 = 0; ρσ_Index60 < ρσ_Iter60.length; ρσ_Index60++) {
-                        lhs = ρσ_Iter60[ρσ_Index60];
+                    var ρσ_Iter89 = ρσ_Iterable(left_hand_sides);
+                    for (var ρσ_Index89 = 0; ρσ_Index89 < ρσ_Iter89.length; ρσ_Index89++) {
+                        lhs = ρσ_Iter89[ρσ_Index89];
                         output.spaced(lhs, "=", "");
                     }
                     rhs.print(output);
@@ -13537,19 +13447,18 @@ return this.__repr__();
 
         function function_args(argnames, output, strip_first) {
             output.with_parens(function () {
+                var ρσ_unpack, i, arg;
                 if (argnames && argnames.length && (argnames.is_simple_func === true || argnames.is_simple_func === undefined)) {
-                    ((strip_first) ? argnames.slice(1) : argnames).forEach((function() {
-                        var ρσ_anonfunc = function (arg, i) {
-                            if (i) {
-                                output.comma();
-                            }
-                            arg.print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["arg", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter90 = ρσ_Iterable(enumerate((strip_first) ? argnames.slice(1) : argnames));
+                    for (var ρσ_Index90 = 0; ρσ_Index90 < ρσ_Iter90.length; ρσ_Index90++) {
+                        ρσ_unpack = ρσ_Iter90[ρσ_Index90];
+                        i = ρσ_unpack[0];
+                        arg = ρσ_unpack[1];
+                        if (i) {
+                            output.comma();
+                        }
+                        arg.print(output);
+                    }
                 }
             });
             output.space();
@@ -13566,9 +13475,9 @@ return this.__repr__();
             }
             fname = (node.name) ? node.name.name : anonfunc;
             kw = "arguments[arguments.length-1]";
-            var ρσ_Iter61 = ρσ_Iterable(enumerate(a));
-            for (var ρσ_Index61 = 0; ρσ_Index61 < ρσ_Iter61.length; ρσ_Index61++) {
-                ρσ_unpack = ρσ_Iter61[ρσ_Index61];
+            var ρσ_Iter91 = ρσ_Iterable(enumerate(a));
+            for (var ρσ_Index91 = 0; ρσ_Index91 < ρσ_Iter91.length; ρσ_Index91++) {
+                ρσ_unpack = ρσ_Iter91[ρσ_Index91];
                 c = ρσ_unpack[0];
                 arg = ρσ_unpack[1];
                 i = c - offset;
@@ -13597,9 +13506,9 @@ return this.__repr__();
                 output.spaced("if", "(" + kw, "===", "null", "||", "typeof", kw, "!==", "\"object\"", "||", kw, "[ρσ_kwargs_symbol]", "!==", "true)", kw, "=", "{}");
                 output.end_statement();
                 if (a.has_defaults) {
-                    var ρσ_Iter62 = ρσ_Iterable(Object.keys(a.defaults));
-                    for (var ρσ_Index62 = 0; ρσ_Index62 < ρσ_Iter62.length; ρσ_Index62++) {
-                        dname = ρσ_Iter62[ρσ_Index62];
+                    var ρσ_Iter92 = ρσ_Iterable(Object.keys(a.defaults));
+                    for (var ρσ_Index92 = 0; ρσ_Index92 < ρσ_Iter92.length; ρσ_Index92++) {
+                        dname = ρσ_Iter92[ρσ_Index92];
                         output.indent();
                         output.spaced("if", "(Object.prototype.hasOwnProperty.call(" + kw + ",", "\"" + dname + "\"))");
                         output.with_block(function () {
@@ -13636,9 +13545,9 @@ return this.__repr__();
             if (self.return_annotation) {
                 return true;
             }
-            var ρσ_Iter63 = ρσ_Iterable(self.argnames);
-            for (var ρσ_Index63 = 0; ρσ_Index63 < ρσ_Iter63.length; ρσ_Index63++) {
-                arg = ρσ_Iter63[ρσ_Index63];
+            var ρσ_Iter93 = ρσ_Iterable(self.argnames);
+            for (var ρσ_Index93 = 0; ρσ_Index93 < ρσ_Iter93.length; ρσ_Index93++) {
+                arg = ρσ_Iter93[ρσ_Index93];
                 if (arg.annotation) {
                     return true;
                 }
@@ -13655,24 +13564,23 @@ return this.__repr__();
             props = Object.create(null);
             if (has_annotations(self)) {
                 props.__annotations__ = function () {
+                    var ρσ_unpack, i, arg;
                     output.print("{");
                     if (self.argnames && self.argnames.length) {
-                        self.argnames.forEach((function() {
-                            var ρσ_anonfunc = function (arg, i) {
-                                if (arg.annotation) {
-                                    arg.print(output);
-                                    [output.print(":"), output.space()];
-                                    arg.annotation.print(output);
-                                    if (i < self.argnames.length - 1 || self.return_annotation) {
-                                        output.comma();
-                                    }
+                        var ρσ_Iter94 = ρσ_Iterable(enumerate(self.argnames));
+                        for (var ρσ_Index94 = 0; ρσ_Index94 < ρσ_Iter94.length; ρσ_Index94++) {
+                            ρσ_unpack = ρσ_Iter94[ρσ_Index94];
+                            i = ρσ_unpack[0];
+                            arg = ρσ_unpack[1];
+                            if (arg.annotation) {
+                                arg.print(output);
+                                [output.print(":"), output.space()];
+                                arg.annotation.print(output);
+                                if (i < self.argnames.length - 1 || self.return_annotation) {
+                                    output.comma();
                                 }
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["arg", "i"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                            }
+                        }
                     }
                     if (self.return_annotation) {
                         [output.print("return:"), output.space()];
@@ -13685,19 +13593,18 @@ return this.__repr__();
             dkeys = Object.keys(self.argnames.defaults);
             if (dkeys.length) {
                 props.__defaults__ = function () {
+                    var ρσ_unpack, i, k;
                     output.print("{");
-                    dkeys.forEach((function() {
-                        var ρσ_anonfunc = function (k, i) {
-                            [output.print(k + ":"), defaults[(typeof k === "number" && k < 0) ? defaults.length + k : k].print(output)];
-                            if (i !== dkeys.length - 1) {
-                                output.comma();
-                            }
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["k", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter95 = ρσ_Iterable(enumerate(dkeys));
+                    for (var ρσ_Index95 = 0; ρσ_Index95 < ρσ_Iter95.length; ρσ_Index95++) {
+                        ρσ_unpack = ρσ_Iter95[ρσ_Index95];
+                        i = ρσ_unpack[0];
+                        k = ρσ_unpack[1];
+                        [output.print(k + ":"), defaults[(typeof k === "number" && k < 0) ? defaults.length + k : k].print(output)];
+                        if (i !== dkeys.length - 1) {
+                            output.comma();
+                        }
+                    }
                     output.print("}");
                 };
             }
@@ -13708,21 +13615,21 @@ return this.__repr__();
             }
             if (self.argnames.length) {
                 props.__argnames__ = function () {
-                    [output.print("["), self.argnames.forEach((function() {
-                        var ρσ_anonfunc = function (arg, i) {
-                            if (strip_first && i === 0) {
-                                return;
-                            }
-                            output.print(JSON.stringify(arg.name));
-                            if (i !== self.argnames.length - 1) {
-                                output.comma();
-                            }
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["arg", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })())];
+                    var ρσ_unpack, i, arg;
+                    output.print("[");
+                    var ρσ_Iter96 = ρσ_Iterable(enumerate(self.argnames));
+                    for (var ρσ_Index96 = 0; ρσ_Index96 < ρσ_Iter96.length; ρσ_Index96++) {
+                        ρσ_unpack = ρσ_Iter96[ρσ_Index96];
+                        i = ρσ_unpack[0];
+                        arg = ρσ_unpack[1];
+                        if (strip_first && i === 0) {
+                            continue;
+                        }
+                        output.print(JSON.stringify(arg.name));
+                        if (i !== self.argnames.length - 1) {
+                            output.comma();
+                        }
+                    }
                     output.print("]");
                 };
             }
@@ -13909,21 +13816,20 @@ return this.__repr__();
             });
 
             function print_kwargs() {
+                var ρσ_unpack, i, kwname, pair;
                 output.print("ρσ_desugar_kwargs(");
                 if (has_kwarg_items) {
-                    self.args.kwarg_items.forEach((function() {
-                        var ρσ_anonfunc = function (kwname, i) {
-                            if (i > 0) {
-                                output.print(",");
-                                output.space();
-                            }
-                            kwname.print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["kwname", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter97 = ρσ_Iterable(enumerate(self.args.kwarg_items));
+                    for (var ρσ_Index97 = 0; ρσ_Index97 < ρσ_Iter97.length; ρσ_Index97++) {
+                        ρσ_unpack = ρσ_Iter97[ρσ_Index97];
+                        i = ρσ_unpack[0];
+                        kwname = ρσ_unpack[1];
+                        if (i > 0) {
+                            output.print(",");
+                            output.space();
+                        }
+                        kwname.print(output);
+                    }
                     if (has_kwarg_formals) {
                         output.print(",");
                         output.space();
@@ -13931,21 +13837,19 @@ return this.__repr__();
                 }
                 if (has_kwarg_formals) {
                     output.print("{");
-                    self.args.kwargs.forEach((function() {
-                        var ρσ_anonfunc = function (pair, i) {
-                            if (i) {
-                                output.comma();
-                            }
-                            pair[0].print(output);
-                            output.print(":");
-                            output.space();
-                            pair[1].print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["pair", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter98 = ρσ_Iterable(enumerate(self.args.kwargs));
+                    for (var ρσ_Index98 = 0; ρσ_Index98 < ρσ_Iter98.length; ρσ_Index98++) {
+                        ρσ_unpack = ρσ_Iter98[ρσ_Index98];
+                        i = ρσ_unpack[0];
+                        pair = ρσ_unpack[1];
+                        if (i) {
+                            output.comma();
+                        }
+                        pair[0].print(output);
+                        output.print(":");
+                        output.space();
+                        pair[1].print(output);
+                    }
                     output.print("}");
                 }
                 output.print(")");
@@ -14017,18 +13921,17 @@ return this.__repr__();
                 }
                 print_function_name();
                 output.with_parens(function () {
-                    self.args.forEach((function() {
-                        var ρσ_anonfunc = function (a, i) {
-                            if (i) {
-                                output.comma();
-                            }
-                            a.print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["a", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_unpack, i, a;
+                    var ρσ_Iter99 = ρσ_Iterable(enumerate(self.args));
+                    for (var ρσ_Index99 = 0; ρσ_Index99 < ρσ_Iter99.length; ρσ_Index99++) {
+                        ρσ_unpack = ρσ_Iter99[ρσ_Index99];
+                        i = ρσ_unpack[0];
+                        a = ρσ_unpack[1];
+                        if (i) {
+                            output.comma();
+                        }
+                        a.print(output);
+                    }
                 });
                 return;
             }
@@ -14103,7 +14006,7 @@ return this.__repr__();
         var create_doctring = ρσ_modules["output.utils"].create_doctring;
 
         function print_class(output) {
-            var self, seen_methods, property_names, defined_methods;
+            var self, seen_methods, property_names, defined_methods, sname, attr, stmt;
             self = this;
             if (self.external) {
                 return;
@@ -14228,9 +14131,9 @@ return this.__repr__();
                                 output.end_statement();
                             }
                         }
-                        var ρσ_Iter64 = ρσ_Iterable(self.bound);
-                        for (var ρσ_Index64 = 0; ρσ_Index64 < ρσ_Iter64.length; ρσ_Index64++) {
-                            bname = ρσ_Iter64[ρσ_Index64];
+                        var ρσ_Iter100 = ρσ_Iterable(self.bound);
+                        for (var ρσ_Index100 = 0; ρσ_Index100 < ρσ_Iter100.length; ρσ_Index100++) {
+                            bname = ρσ_Iter100[ρσ_Index100];
                             if (seen_methods[(typeof bname === "number" && bname < 0) ? seen_methods.length + bname : bname] || (ρσ_expr_temp = self.dynamic_properties)[(typeof bname === "number" && bname < 0) ? ρσ_expr_temp.length + bname : bname]) {
                                 continue;
                             }
@@ -14250,9 +14153,9 @@ return this.__repr__();
                     [self.name.print(output), output.print(".prototype"), output.comma(), output.space(), 
                     output.with_block(function () {
                         var prop, name;
-                        var ρσ_Iter65 = ρσ_Iterable(property_names);
-                        for (var ρσ_Index65 = 0; ρσ_Index65 < ρσ_Iter65.length; ρσ_Index65++) {
-                            name = ρσ_Iter65[ρσ_Index65];
+                        var ρσ_Iter101 = ρσ_Iterable(property_names);
+                        for (var ρσ_Index101 = 0; ρσ_Index101 < ρσ_Iter101.length; ρσ_Index101++) {
+                            name = ρσ_Iter101[ρσ_Index101];
                             prop = (ρσ_expr_temp = self.dynamic_properties)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name];
                             [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
                             output.with_block(function () {
@@ -14293,39 +14196,34 @@ return this.__repr__();
                 });
             }
             defined_methods = Object.create(null);
-            self.body.forEach((function() {
-                var ρσ_anonfunc = function (stmt, i) {
-                    var sname, attr;
-                    if (is_node_type(stmt, AST_Method)) {
-                        if (stmt.is_getter || stmt.is_setter) {
-                            return;
-                        }
-                        define_method(stmt);
-                        defined_methods[ρσ_bound_index(stmt.name.name, defined_methods)] = true;
-                        sname = stmt.name.name;
-                        if (sname === "__init__") {
-                            var ρσ_Iter66 = ρσ_Iterable(ρσ_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
-                            for (var ρσ_Index66 = 0; ρσ_Index66 < ρσ_Iter66.length; ρσ_Index66++) {
-                                attr = ρσ_Iter66[ρσ_Index66];
-                                [output.indent(), self.name.print(output), output.assign(attr)];
-                                [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
-                            }
-                        }
-                        if (sname === "__iter__") {
-                            class_def("ρσ_iterator_symbol", true);
-                            self.name.print(output);
-                            output.print(".prototype." + stmt.name.name);
-                            output.end_statement();
-                        }
-                    } else if (is_node_type(stmt, AST_Class)) {
-                        console.error("Nested classes aren't supported yet");
+            var ρσ_Iter102 = ρσ_Iterable(self.body);
+            for (var ρσ_Index102 = 0; ρσ_Index102 < ρσ_Iter102.length; ρσ_Index102++) {
+                stmt = ρσ_Iter102[ρσ_Index102];
+                if (is_node_type(stmt, AST_Method)) {
+                    if (stmt.is_getter || stmt.is_setter) {
+                        continue;
                     }
-                };
-                Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["stmt", "i"]}
-                });
-                return ρσ_anonfunc;
-            })());
+                    define_method(stmt);
+                    defined_methods[ρσ_bound_index(stmt.name.name, defined_methods)] = true;
+                    sname = stmt.name.name;
+                    if (sname === "__init__") {
+                        var ρσ_Iter103 = ρσ_Iterable(ρσ_list_decorate([ ".__argnames__", ".__handles_kwarg_interpolation__" ]));
+                        for (var ρσ_Index103 = 0; ρσ_Index103 < ρσ_Iter103.length; ρσ_Index103++) {
+                            attr = ρσ_Iter103[ρσ_Index103];
+                            [output.indent(), self.name.print(output), output.assign(attr)];
+                            [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
+                        }
+                    }
+                    if (sname === "__iter__") {
+                        class_def("ρσ_iterator_symbol", true);
+                        self.name.print(output);
+                        output.print(".prototype." + stmt.name.name);
+                        output.end_statement();
+                    }
+                } else if (is_node_type(stmt, AST_Class)) {
+                    console.error("Nested classes aren't supported yet");
+                }
+            }
             if (!defined_methods["__repr__"]) {
                 define_default_method("__repr__", function () {
                     if (self.parent) {
@@ -14372,19 +14270,15 @@ return this.__repr__();
                     output.print(JSON.stringify(create_doctring(self.docstrings)));
                 });
             }
-            self.statements.forEach((function() {
-                var ρσ_anonfunc = function (stmt) {
-                    if (!is_node_type(stmt, AST_Method)) {
-                        output.indent();
-                        stmt.print(output);
-                        output.newline();
-                    }
-                };
-                Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["stmt"]}
-                });
-                return ρσ_anonfunc;
-            })());
+            var ρσ_Iter104 = ρσ_Iterable(self.statements);
+            for (var ρσ_Index104 = 0; ρσ_Index104 < ρσ_Iter104.length; ρσ_Index104++) {
+                stmt = ρσ_Iter104[ρσ_Index104];
+                if (!is_node_type(stmt, AST_Method)) {
+                    output.indent();
+                    stmt.print(output);
+                    output.newline();
+                }
+            }
         };
         Object.defineProperties(print_class, {
             __argnames__ : {value: ["output"]}
@@ -14402,24 +14296,22 @@ return this.__repr__();
             output.print("ρσ_list_decorate");
             output.with_parens(function () {
                 output.with_square(function () {
-                    var a, len_;
+                    var a, len_, ρσ_unpack, i, exp;
                     a = self.elements;
                     len_ = a.length;
                     if (len_ > 0) {
                         output.space();
                     }
-                    a.forEach((function() {
-                        var ρσ_anonfunc = function (exp, i) {
-                            if (i) {
-                                output.comma();
-                            }
-                            exp.print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["exp", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter105 = ρσ_Iterable(enumerate(a));
+                    for (var ρσ_Index105 = 0; ρσ_Index105 < ρσ_Iter105.length; ρσ_Index105++) {
+                        ρσ_unpack = ρσ_Iter105[ρσ_Index105];
+                        i = ρσ_unpack[0];
+                        exp = ρσ_unpack[1];
+                        if (i) {
+                            output.comma();
+                        }
+                        exp.print(output);
+                    }
                     if (len_ > 0) {
                         output.space();
                     }
@@ -14434,6 +14326,7 @@ return this.__repr__();
             output.with_parens(function () {
                 output.print("function()");
                 output.with_block(function () {
+                    var ρσ_unpack, i, prop;
                     output.indent();
                     if (self.is_pydict) {
                         output.spaced.apply(output, "var ρσ_d = ρσ_dict()".split(" "));
@@ -14441,31 +14334,29 @@ return this.__repr__();
                         output.spaced("var", "ρσ_d", "=", (self.is_jshash) ? "Object.create(null)" : "{}");
                     }
                     output.end_statement();
-                    self.properties.forEach((function() {
-                        var ρσ_anonfunc = function (prop, i) {
-                            output.indent();
-                            if (self.is_pydict) {
-                                output.print("ρσ_d.set");
-                                output.with_parens(function () {
-                                    prop.key.print(output);
-                                    [output.print(","), output.space()];
-                                    prop.value.print(output);
-                                });
-                            } else {
-                                output.print("ρσ_d");
-                                output.with_square(function () {
-                                    prop.key.print(output);
-                                });
-                                [output.space(), output.print("="), output.space()];
+                    var ρσ_Iter106 = ρσ_Iterable(enumerate(self.properties));
+                    for (var ρσ_Index106 = 0; ρσ_Index106 < ρσ_Iter106.length; ρσ_Index106++) {
+                        ρσ_unpack = ρσ_Iter106[ρσ_Index106];
+                        i = ρσ_unpack[0];
+                        prop = ρσ_unpack[1];
+                        output.indent();
+                        if (self.is_pydict) {
+                            output.print("ρσ_d.set");
+                            output.with_parens(function () {
+                                prop.key.print(output);
+                                [output.print(","), output.space()];
                                 prop.value.print(output);
-                            }
-                            output.end_statement();
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["prop", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                            });
+                        } else {
+                            output.print("ρσ_d");
+                            output.with_square(function () {
+                                prop.key.print(output);
+                            });
+                            [output.space(), output.print("="), output.space()];
+                            prop.value.print(output);
+                        }
+                        output.end_statement();
+                    }
                     output.indent();
                     output.spaced("return", "ρσ_d");
                     output.end_statement();
@@ -14504,23 +14395,20 @@ return this.__repr__();
             output.with_parens(function () {
                 output.print("function()");
                 output.with_block(function () {
+                    var item;
                     output.indent();
                     output.spaced.apply(output, "var s = ρσ_set()".split(" "));
                     output.end_statement();
-                    self.items.forEach((function() {
-                        var ρσ_anonfunc = function (item, i) {
-                            output.indent();
-                            output.print("s.jsset.add");
-                            output.with_parens(function () {
-                                item.value.print(output);
-                            });
-                            output.end_statement();
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["item", "i"]}
+                    var ρσ_Iter107 = ρσ_Iterable(self.items);
+                    for (var ρσ_Index107 = 0; ρσ_Index107 < ρσ_Iter107.length; ρσ_Index107++) {
+                        item = ρσ_Iter107[ρσ_Index107];
+                        output.indent();
+                        output.print("s.jsset.add");
+                        output.with_parens(function () {
+                            item.value.print(output);
                         });
-                        return ρσ_anonfunc;
-                    })());
+                        output.end_statement();
+                    }
                     output.indent();
                     output.spaced("return", "s");
                     output.end_statement();
@@ -14571,9 +14459,9 @@ return this.__repr__();
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = ρσ_list_decorate([]);
-            var ρσ_Iter67 = ρσ_Iterable(Object.keys(module.imports));
-            for (var ρσ_Index67 = 0; ρσ_Index67 < ρσ_Iter67.length; ρσ_Index67++) {
-                import_id = ρσ_Iter67[ρσ_Index67];
+            var ρσ_Iter108 = ρσ_Iterable(Object.keys(module.imports));
+            for (var ρσ_Index108 = 0; ρσ_Index108 < ρσ_Iter108.length; ρσ_Index108++) {
+                import_id = ρσ_Iter108[ρσ_Index108];
                 imports.push((ρσ_expr_temp = module.imports)[(typeof import_id === "number" && import_id < 0) ? ρσ_expr_temp.length + import_id : import_id]);
             }
             imports.sort((function() {
@@ -14595,12 +14483,12 @@ return this.__repr__();
                 output.newline();
             }
             nonlocalvars = Object.create(null);
-            var ρσ_Iter68 = ρσ_Iterable(imports);
-            for (var ρσ_Index68 = 0; ρσ_Index68 < ρσ_Iter68.length; ρσ_Index68++) {
-                module_ = ρσ_Iter68[ρσ_Index68];
-                var ρσ_Iter69 = ρσ_Iterable(module_.nonlocalvars);
-                for (var ρσ_Index69 = 0; ρσ_Index69 < ρσ_Iter69.length; ρσ_Index69++) {
-                    name = ρσ_Iter69[ρσ_Index69];
+            var ρσ_Iter109 = ρσ_Iterable(imports);
+            for (var ρσ_Index109 = 0; ρσ_Index109 < ρσ_Iter109.length; ρσ_Index109++) {
+                module_ = ρσ_Iter109[ρσ_Index109];
+                var ρσ_Iter110 = ρσ_Iterable(module_.nonlocalvars);
+                for (var ρσ_Index110 = 0; ρσ_Index110 < ρσ_Iter110.length; ρσ_Index110++) {
+                    name = ρσ_Iter110[ρσ_Index110];
                     nonlocalvars[(typeof name === "number" && name < 0) ? nonlocalvars.length + name : name] = true;
                 }
             }
@@ -14611,9 +14499,9 @@ return this.__repr__();
                 output.semicolon();
                 output.newline();
             }
-            var ρσ_Iter70 = ρσ_Iterable(imports);
-            for (var ρσ_Index70 = 0; ρσ_Index70 < ρσ_Iter70.length; ρσ_Index70++) {
-                module_ = ρσ_Iter70[ρσ_Index70];
+            var ρσ_Iter111 = ρσ_Iterable(imports);
+            for (var ρσ_Index111 = 0; ρσ_Index111 < ρσ_Iter111.length; ρσ_Index111++) {
+                module_ = ρσ_Iter111[ρσ_Index111];
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -14626,9 +14514,9 @@ return this.__repr__();
                     output.end_statement();
                 }
             }
-            var ρσ_Iter71 = ρσ_Iterable(imports);
-            for (var ρσ_Index71 = 0; ρσ_Index71 < ρσ_Iter71.length; ρσ_Index71++) {
-                module_ = ρσ_Iter71[ρσ_Index71];
+            var ρσ_Iter112 = ρσ_Iterable(imports);
+            for (var ρσ_Index112 = 0; ρσ_Index112 < ρσ_Iter112.length; ρσ_Index112++) {
+                module_ = ρσ_Iter112[ρσ_Index112];
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -14675,9 +14563,9 @@ return this.__repr__();
                 output.end_statement();
             }
             output.newline();
-            var ρσ_Iter72 = ρσ_Iterable(exports);
-            for (var ρσ_Index72 = 0; ρσ_Index72 < ρσ_Iter72.length; ρσ_Index72++) {
-                symbol = ρσ_Iter72[ρσ_Index72];
+            var ρσ_Iter113 = ρσ_Iterable(exports);
+            for (var ρσ_Index113 = 0; ρσ_Index113 < ρσ_Iter113.length; ρσ_Index113++) {
+                symbol = ρσ_Iter113[ρσ_Index113];
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -14834,9 +14722,9 @@ return this.__repr__();
                                 ρσ_d["discard_asserts"] = output.options.discard_asserts;
                                 return ρσ_d;
                             }).call(this);
-                            var ρσ_Iter73 = ρσ_Iterable(Object.keys(self.classes));
-                            for (var ρσ_Index73 = 0; ρσ_Index73 < ρσ_Iter73.length; ρσ_Index73++) {
-                                cname = ρσ_Iter73[ρσ_Index73];
+                            var ρσ_Iter114 = ρσ_Iterable(Object.keys(self.classes));
+                            for (var ρσ_Index114 = 0; ρσ_Index114 < ρσ_Iter114.length; ρσ_Index114++) {
+                                cname = ρσ_Iter114[ρσ_Index114];
                                 cobj = (ρσ_expr_temp = self.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
                                 (ρσ_expr_temp = cached.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname] = (function(){
                                     var ρσ_d = Object.create(null);
@@ -14851,24 +14739,24 @@ return this.__repr__();
                                     return ρσ_d;
                                 }).call(this);
                             }
-                            var ρσ_Iter74 = ρσ_Iterable(self.exports);
-                            for (var ρσ_Index74 = 0; ρσ_Index74 < ρσ_Iter74.length; ρσ_Index74++) {
-                                symdef = ρσ_Iter74[ρσ_Index74];
+                            var ρσ_Iter115 = ρσ_Iterable(self.exports);
+                            for (var ρσ_Index115 = 0; ρσ_Index115 < ρσ_Iter115.length; ρσ_Index115++) {
+                                symdef = ρσ_Iter115[ρσ_Index115];
                                 cached.exports.push((function(){
                                     var ρσ_d = Object.create(null);
                                     ρσ_d["name"] = symdef.name;
                                     return ρσ_d;
                                 }).call(this));
                             }
-                            var ρσ_Iter75 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
-                            for (var ρσ_Index75 = 0; ρσ_Index75 < ρσ_Iter75.length; ρσ_Index75++) {
-                                beautify = ρσ_Iter75[ρσ_Index75];
-                                var ρσ_Iter76 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
-                                for (var ρσ_Index76 = 0; ρσ_Index76 < ρσ_Iter76.length; ρσ_Index76++) {
-                                    keep_docstrings = ρσ_Iter76[ρσ_Index76];
-                                    var ρσ_Iter77 = ρσ_Iterable(ρσ_list_decorate([ 5, 6 ]));
-                                    for (var ρσ_Index77 = 0; ρσ_Index77 < ρσ_Iter77.length; ρσ_Index77++) {
-                                        js_version = ρσ_Iter77[ρσ_Index77];
+                            var ρσ_Iter116 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
+                            for (var ρσ_Index116 = 0; ρσ_Index116 < ρσ_Iter116.length; ρσ_Index116++) {
+                                beautify = ρσ_Iter116[ρσ_Index116];
+                                var ρσ_Iter117 = ρσ_Iterable(ρσ_list_decorate([ true, false ]));
+                                for (var ρσ_Index117 = 0; ρσ_Index117 < ρσ_Iter117.length; ρσ_Index117++) {
+                                    keep_docstrings = ρσ_Iter117[ρσ_Index117];
+                                    var ρσ_Iter118 = ρσ_Iterable(ρσ_list_decorate([ 5, 6 ]));
+                                    for (var ρσ_Index118 = 0; ρσ_Index118 < ρσ_Iter118.length; ρσ_Index118++) {
+                                        js_version = ρσ_Iter118[ρσ_Index118];
                                         co = new OutputStream((function(){
                                             var ρσ_d = Object.create(null);
                                             ρσ_d["beautify"] = beautify;
@@ -14936,14 +14824,14 @@ return this.__repr__();
                 __argnames__ : {value: ["aname", "key", "from_import"]}
             });
 
-            var ρσ_Iter78 = ρσ_Iterable(container.imports);
-            for (var ρσ_Index78 = 0; ρσ_Index78 < ρσ_Iter78.length; ρσ_Index78++) {
-                self = ρσ_Iter78[ρσ_Index78];
+            var ρσ_Iter119 = ρσ_Iterable(container.imports);
+            for (var ρσ_Index119 = 0; ρσ_Index119 < ρσ_Iter119.length; ρσ_Index119++) {
+                self = ρσ_Iter119[ρσ_Index119];
                 output.import_(self.module);
                 if (self.argnames) {
-                    var ρσ_Iter79 = ρσ_Iterable(self.argnames);
-                    for (var ρσ_Index79 = 0; ρσ_Index79 < ρσ_Iter79.length; ρσ_Index79++) {
-                        argname = ρσ_Iter79[ρσ_Index79];
+                    var ρσ_Iter120 = ρσ_Iterable(self.argnames);
+                    for (var ρσ_Index120 = 0; ρσ_Index120 < ρσ_Iter120.length; ρσ_Index120++) {
+                        argname = ρσ_Iter120[ρσ_Index120];
                         akey = (argname.alias) ? argname.alias.name : argname.name;
                         add_aname(akey, self.key, argname.name);
                     }
@@ -14952,9 +14840,9 @@ return this.__repr__();
                         add_aname(self.alias.name, self.key, false);
                     } else {
                         parts = self.key.split(".");
-                        var ρσ_Iter80 = ρσ_Iterable(enumerate(parts));
-                        for (var ρσ_Index80 = 0; ρσ_Index80 < ρσ_Iter80.length; ρσ_Index80++) {
-                            ρσ_unpack = ρσ_Iter80[ρσ_Index80];
+                        var ρσ_Iter121 = ρσ_Iterable(enumerate(parts));
+                        for (var ρσ_Index121 = 0; ρσ_Index121 < ρσ_Iter121.length; ρσ_Index121++) {
+                            ρσ_unpack = ρσ_Iter121[ρσ_Index121];
                             i = ρσ_unpack[0];
                             part = ρσ_unpack[1];
                             if (i === 0) {
@@ -15134,7 +15022,7 @@ return this.__repr__();
             })();
             AST_Node.prototype.add_comments = (function() {
                 var ρσ_anonfunc = function (output) {
-                    var c, self, start, comments;
+                    var c, self, start, comments, comm;
                     c = output.option("comments");
                     self = this;
                     if (c) {
@@ -15167,26 +15055,22 @@ return this.__repr__();
                                     return ρσ_anonfunc;
                                 })());
                             }
-                            comments.forEach((function() {
-                                var ρσ_anonfunc = function (c) {
-                                    if (c.type === "comment1") {
-                                        output.print("//" + c.value + "\n");
+                            var ρσ_Iter122 = ρσ_Iterable(comments);
+                            for (var ρσ_Index122 = 0; ρσ_Index122 < ρσ_Iter122.length; ρσ_Index122++) {
+                                comm = ρσ_Iter122[ρσ_Index122];
+                                if (comm.type === "comment1") {
+                                    output.print("//" + comm.value + "\n");
+                                    output.indent();
+                                } else if (comm.type === "comment2") {
+                                    output.print("/*" + comm.value + "*/");
+                                    if (start.nlb) {
+                                        output.print("\n");
                                         output.indent();
-                                    } else if (c.type === "comment2") {
-                                        output.print("/*" + c.value + "*/");
-                                        if (start.nlb) {
-                                            output.print("\n");
-                                            output.indent();
-                                        } else {
-                                            output.space();
-                                        }
+                                    } else {
+                                        output.space();
                                     }
-                                };
-                                Object.defineProperties(ρσ_anonfunc, {
-                                    __argnames__ : {value: ["c"]}
-                                });
-                                return ρσ_anonfunc;
-                            })());
+                                }
+                            }
                         }
                     }
                 };
@@ -15461,17 +15345,14 @@ return this.__repr__();
                     var self;
                     self = this;
                     output.with_block(function () {
-                        self.body.body.forEach((function() {
-                            var ρσ_anonfunc = function (stmt, i) {
-                                output.indent();
-                                stmt.print(output);
-                                output.newline();
-                            };
-                            Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["stmt", "i"]}
-                            });
-                            return ρσ_anonfunc;
-                        })());
+                        var stmt;
+                        var ρσ_Iter123 = ρσ_Iterable(self.body.body);
+                        for (var ρσ_Index123 = 0; ρσ_Index123 < ρσ_Iter123.length; ρσ_Index123++) {
+                            stmt = ρσ_Iter123[ρσ_Index123];
+                            output.indent();
+                            stmt.print(output);
+                            output.newline();
+                        }
                     });
                 };
                 Object.defineProperties(ρσ_anonfunc, {
@@ -15653,21 +15534,19 @@ return this.__repr__();
             DEFPRINT(AST_Finally, print_finally);
             AST_Definitions.prototype._do_print = (function() {
                 var ρσ_anonfunc = function (output, kind) {
-                    var p, in_for, avoid_semicolon;
+                    var ρσ_unpack, i, def_, p, in_for, avoid_semicolon;
                     output.print(kind);
                     output.space();
-                    this.definitions.forEach((function() {
-                        var ρσ_anonfunc = function (def_, i) {
-                            if (i) {
-                                output.comma();
-                            }
-                            def_.print(output);
-                        };
-                        Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["def_", "i"]}
-                        });
-                        return ρσ_anonfunc;
-                    })());
+                    var ρσ_Iter124 = ρσ_Iterable(enumerate(this.definitions));
+                    for (var ρσ_Index124 = 0; ρσ_Index124 < ρσ_Iter124.length; ρσ_Index124++) {
+                        ρσ_unpack = ρσ_Iter124[ρσ_Index124];
+                        i = ρσ_unpack[0];
+                        def_ = ρσ_unpack[1];
+                        if (i) {
+                            output.comma();
+                        }
+                        def_.print(output);
+                    }
                     p = output.parent();
                     in_for = is_node_type(p, AST_ForIn);
                     avoid_semicolon = in_for && p.init === this;
@@ -15904,9 +15783,9 @@ return this.__repr__();
             exports.SyntaxError = SyntaxError;
             exports.tokenizer = tokenizer;
             ast = ρσ_modules["ast"];
-            var ρσ_Iter81 = ρσ_Iterable(ast);
-            for (var ρσ_Index81 = 0; ρσ_Index81 < ρσ_Iter81.length; ρσ_Index81++) {
-                ast_node = ρσ_Iter81[ρσ_Index81];
+            var ρσ_Iter125 = ρσ_Iterable(ast);
+            for (var ρσ_Index125 = 0; ρσ_Index125 < ρσ_Iter125.length; ρσ_Index125++) {
+                ast_node = ρσ_Iter125[ρσ_Index125];
                 if (ast_node.substr(0, 4) === "AST_") {
                     exports[(typeof ast_node === "number" && ast_node < 0) ? exports.length + ast_node : ast_node] = ast[(typeof ast_node === "number" && ast_node < 0) ? ast.length + ast_node : ast_node];
                 }
