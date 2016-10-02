@@ -45,7 +45,7 @@ function process_cache_dir(dir) {
 
 module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     // configure settings for the output
-    var cache_dir = process_cache_dir(argv.cache_dir);
+    var cache_dir = argv.cache_dir ? process_cache_dir(argv.cache_dir) : '';
     var OUTPUT_OPTIONS = {
         beautify: !argv.uglify,
         private_scope: !argv.bare,
