@@ -1,3 +1,11 @@
+version 0.7.8
+==============
+
+* Fix --cache-dir option defaulting to current working directory instead of being disabled
+* Fix display of option names containing more than a single hyphen
+* Fix including backslashes and/or newlines in interpolated string literals
+* Fix spurious error message from linter when using interpolated string literals
+
 version 0.7.7
 ==============
 
