@@ -92,9 +92,9 @@ function print_usage(group) {  // {{{
     var help = group.help;
 
 	Object.getOwnPropertyNames(options.alias).forEach(function (name) {
-		var optstr = '  --' + name.replace('_', '-');
+		var optstr = '  --' + name.replace(/_/g, '-');
 		options.alias[name].forEach(function (alias) {
-			optstr += ', ' + ((alias.length > 1) ? '--' : '-') + alias.replace('_', '-');
+			optstr += ', ' + ((alias.length > 1) ? '--' : '-') + alias.replace(/_/g, '-');
 		});
 		var ht = utils.wrap(help[name].split('\n'), COL_WIDTH - OPT_WIDTH);
 
