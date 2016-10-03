@@ -28,7 +28,7 @@ def ρσ_float():
 
 def ρσ_arraylike_creator():
     names = 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.split(' ')
-    if type(HTMLCollection) is 'function':
+    if jstype(HTMLCollection) is 'function':
         names = names.concat('HTMLCollection NodeList NamedNodeMap'.split(' '))
     return def(x):
         if Array.isArray(x) or v'typeof x' is 'string' or names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1:
@@ -71,7 +71,7 @@ def ρσ_callable(x):
     return v'typeof x === "function"'
 
 def ρσ_bin(x):
-    if type(x) is not 'number' or x % 1 is not 0:
+    if jstype(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(2)
     if ans[0] is '-':
@@ -81,7 +81,7 @@ def ρσ_bin(x):
     return ans
 
 def ρσ_hex(x):
-    if type(x) is not 'number' or x % 1 is not 0:
+    if jstype(x) is not 'number' or x % 1 is not 0:
         raise TypeError('integer required')
     ans = x.toString(16)
     if ans[0] is '-':
@@ -101,8 +101,8 @@ def ρσ_enumerate(iterable):
                     return v"{'done':false, 'value':[this._i, iterable[this._i]]}"
                 return v"{'done':true}"
         return ans
-    if type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+    if jstype(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         ans['_iterator'] = iterator
         ans['next'] = def():
             r = this._iterator.next()
@@ -128,8 +128,8 @@ def ρσ_reversed(iterable):
 
 def ρσ_iter(iterable):
     # Generate a JavaScript iterator object from iterable
-    if type(iterable[ρσ_iterator_symbol]) is 'function':
-        return iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+    if jstype(iterable[ρσ_iterator_symbol]) is 'function':
+        return iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
     if ρσ_arraylike(iterable):
         ans = v'{"_i":-1}'
         ans[ρσ_iterator_symbol] = def():
@@ -182,13 +182,13 @@ def ρσ_hasattr(obj, name):
 
     def len(obj):
         if ρσ_arraylike(obj): return obj.length
-        if type(obj.__len__) is 'function': return obj.__len__()
+        if jstype(obj.__len__) is 'function': return obj.__len__()
         if v'obj instanceof Set' or v'obj instanceof Map': return obj.size
         return Object.keys(obj).length
 
     def len5(obj):
         if ρσ_arraylike(obj): return obj.length
-        if type(obj.__len__) is 'function': return obj.__len__()
+        if jstype(obj.__len__) is 'function': return obj.__len__()
         return Object.keys(obj).length
 
     return len if v'typeof Set' is 'function' and v'typeof Map' is 'function' else len5
@@ -203,7 +203,10 @@ def ρσ_pow(x, y, z):
         ans %= z
     return ans
 
-v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool'
+def ρσ_type(x):
+    return x.constructor
+
+v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool, type = ρσ_type'
 v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
 v'var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow'
 v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'

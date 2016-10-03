@@ -29,7 +29,7 @@ assrt.ok(b == b.copy())
 assrt.ok([1] in [[1], [2]])
 assrt.ok([3] not in [[1], [2]])
 
-if type(Symbol) is 'function':
+if jstype(Symbol) is 'function':
     ss = Symbol('s')
     sym = {ss:1}
     assrt.equal(sym[ss], 1)

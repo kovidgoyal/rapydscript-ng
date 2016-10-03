@@ -54,7 +54,7 @@ def interpolate(template, raise_error):
     if ans[-1] is '+':
         ans[-1] = ''
     for v'var i = 0; i < ans.length; i++':
-        if type(ans[i]) is 'string':
+        if jstype(ans[i]) is 'string':
             ans[i] = quoted_string(ans[i])
         else:
             ans[i] = '+' + render_markup.apply(this, ans[i]) + '+'

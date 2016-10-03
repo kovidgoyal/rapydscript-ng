@@ -1,13 +1,14 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: assrt
 
 from elementmaker import E
 
 eq = assrt.equal
 
 def dummy_elem_eq(a, b):
-    eq(type(a), type(b))
-    if (type(a) == 'string'):
+    eq(jstype(a), jstype(b))
+    if (jstype(a) == 'string'):
         eq(a, b)
         return
     eq(a.attributes.length, b.attributes.length)

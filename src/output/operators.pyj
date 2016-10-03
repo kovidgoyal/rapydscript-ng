@@ -207,7 +207,7 @@ def print_binary_op(self, output):
 after_map = {'.':'d', '(':'c', '[':'d', 'g':'g', 'null':'n'}
 
 def print_existential(self, output):
-    key = after_map[self.after] if self.after is None or type(self.after) is 'string' else 'e'
+    key = after_map[self.after] if self.after is None or jstype(self.after) is 'string' else 'e'
     if is_node_type(self.expression, AST_SymbolRef):
         if key is 'n':
             output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')

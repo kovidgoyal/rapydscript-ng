@@ -75,7 +75,7 @@ def generate_code():
                     comments = comments.filter(def(comment):
                         return c.test(comment.value)
                     )
-                elif type(c) is "function":
+                elif jstype(c) is "function":
                     comments = comments.filter(def(comment):
                         return c(self, comment)
                     )

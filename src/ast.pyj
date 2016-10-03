@@ -95,9 +95,9 @@ class AST_Node(AST):
                         p(pad + ' ' + blue + key + ': ' + yellow + tname + reset)
                         if depth > 1:
                             self[key]._dump(depth-1, omit, offset+1, False)
-                elif type(self[key]) is "string":
+                elif jstype(self[key]) is "string":
                     p(pad + ' ' + blue + key + ': ' + green + '"' + self[key] + '"' + reset)
-                elif type(self[key]) is "number":
+                elif jstype(self[key]) is "number":
                     p(pad + ' ' + blue + key + ': ' + green + self[key] + reset)
                 else:
                     # unexpected object
@@ -772,7 +772,7 @@ class AST_Existential(AST_Node):
     def _walk(self, visitor):
         return visitor._visit(self, def():
             self.expression._walk(visitor)
-            if self.after is not None and type(self.after) is 'object':
+            if self.after is not None and jstype(self.after) is 'object':
                 self.after._walk(visitor)
         )
 

@@ -566,11 +566,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'body': tmp
         })
 
-    def break_cont(type):
+    def break_cont(t):
         if S.in_loop is 0:
-            croak(type.name.slice(4) + " not inside a loop or switch")
+            croak(t.name.slice(4) + " not inside a loop or switch")
         semicolon()
-        return new type()
+        return new t()
 
     def yield_():
         if S.in_function is 0:
@@ -1794,7 +1794,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return ret
             elif is_node_type(expr, AST_SymbolRef):
                 tmp_ = expr.name
-                if tmp_ is "type":
+                if tmp_ is "jstype":
                     ret = new AST_UnaryPrefix({
                         'start': start,
                         'operator': "typeof",
@@ -2137,7 +2137,7 @@ def parse(text, options):
 
     # The internal state of the parser
     S = {
-        'input': tokenizer(text, options.filename) if type(text) is 'string' else text,
+        'input': tokenizer(text, options.filename) if jstype(text) is 'string' else text,
         'token': None,
         'prev': None,
         'peeked': [],

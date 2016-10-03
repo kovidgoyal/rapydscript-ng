@@ -196,7 +196,7 @@ class OutputStream:
         for v'var i=0; i < arguments.length; i++':
             if i > 0:
                 self.space()
-            if type(arguments[i].print) is 'function':
+            if jstype(arguments[i].print) is 'function':
                 arguments[i].print(self)
             else:
                 self.print(arguments[i])
@@ -258,7 +258,7 @@ class OutputStream:
 
     def assign(self, name):
         # generates: '[name] = '
-        if type(name) is "string":
+        if jstype(name) is "string":
             self.print(name)
         else:
             name.print(self)

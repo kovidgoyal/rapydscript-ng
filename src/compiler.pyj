@@ -14,7 +14,7 @@ generate_code()  # create the print methods on the AST nodes
 
 # The following allows this module to be used from a pure javascript, require()
 # based environment like Node.js
-if type(exports) is 'object':
+if jstype(exports) is 'object':
     exports.DefaultsError = DefaultsError
     exports.parse = parse
     exports.compile_time_decorators = compile_time_decorators

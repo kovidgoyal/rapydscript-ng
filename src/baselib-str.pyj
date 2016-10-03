@@ -30,9 +30,9 @@ def ρσ_repr(x):
         ans = 'True' if x else 'False'
     elif Array.isArray(x):
         ans = ρσ_repr_js_builtin(x, True)
-    elif type(x) is 'function':
+    elif jstype(x) is 'function':
         ans = x.toString()
-    elif type(x) is 'object' and not x.toString:
+    elif jstype(x) is 'object' and not x.toString:
         # Assume this is a dictionary
         ans = ρσ_repr_js_builtin(x)
     else:
@@ -71,7 +71,7 @@ def ρσ_str(x):
         if ans is '[object Object]':
             # Assume this is a dictionary
             ans = ρσ_repr_js_builtin(x)
-    elif type(x) is 'object' and not x.toString:
+    elif jstype(x) is 'object' and not x.toString:
         # Assume this is a dictionary
         ans = ρσ_repr_js_builtin(x)
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
@@ -308,7 +308,7 @@ define_str_func('format', def ():
                 raise IndexError('Not enough arguments to match template: ' + template)
             object = args[idx]
             idx += 1
-        if type(object) is 'function':
+        if jstype(object) is 'function':
             object = object()
         ans = '' + object
         if format_spec:
@@ -391,7 +391,7 @@ define_str_func('count', def(needle, start, end):
 define_str_func('endswith', def(suffixes, start, end):
     string = this
     start = start or 0
-    if type(suffixes) is 'string':
+    if jstype(suffixes) is 'string':
         suffixes = v'[suffixes]'
     if end is not undefined:
         string = string[:end]
@@ -404,7 +404,7 @@ define_str_func('endswith', def(suffixes, start, end):
 
 define_str_func('startswith', def(prefixes, start, end):
     start = start or 0
-    if type(prefixes) is 'string':
+    if jstype(prefixes) is 'string':
         prefixes = v'[prefixes]'
     for v'var i = 0; i < prefixes.length; i++':
         prefix = prefixes[i]  # noqa:undef

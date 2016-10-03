@@ -74,7 +74,7 @@ r()
 assrt.equal(count, 1)
 
 st = "this is a string"
-assrt.equal(type(st), v"typeof st")
+assrt.equal(jstype(st), v"typeof st")
 
 # testing inlined functions
 inlined = [

@@ -401,17 +401,17 @@ def tokenizer(raw_text, filename):
             return String.fromCharCode(code)
         if q is 'x':
             code = read_hex_digits(2)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 return String.fromCharCode(code)
             return '\\x' + code
         if q is 'u':
             code = read_hex_digits(4)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 return String.fromCharCode(code)
             return '\\u' + code
         if q is 'U':
             code = read_hex_digits(8)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 if code <= 0xFFFF:
                     return String.fromCharCode(code)
                 code -= 0x10000

@@ -906,7 +906,7 @@ if all parts of the chain are ok, but cause the entire chaning to result in
 ans = a?.b?[1]?()
 # Which, without the ? operator becomes
 ans = undefined
-if a is not undefined and a is not None and a.b is not undefined and a.b is not None and type(a.b[1]) is 'function':
+if a is not undefined and a is not None and a.b is not undefined and a.b is not None and jstype(a.b[1]) is 'function':
 	ans = a.b[1]()
 ```
 

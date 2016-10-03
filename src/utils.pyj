@@ -178,7 +178,7 @@ def set_intersection(a, b):
     )
 
 def make_predicate(words):
-    if type(words) is 'string':
+    if jstype(words) is 'string':
         words = words.split(" ")
     a = Object.create(None)
     for k in words:

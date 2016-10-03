@@ -7,9 +7,9 @@
 def ρσ_equals(a, b):
     if a is b:
         return True
-    if a and type(a.__eq__) is 'function':
+    if a and jstype(a.__eq__) is 'function':
         return a.__eq__(b)
-    if b and type(b.__eq__) is 'function':
+    if b and jstype(b.__eq__) is 'function':
         return b.__eq__(a)
     if ρσ_arraylike(a) and ρσ_arraylike(b):
         if a.length != b.length:
@@ -18,7 +18,7 @@ def ρσ_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
-    if type(a) is 'object' and type(b) is 'object' and (
+    if jstype(a) is 'object' and jstype(b) is 'object' and (
         (a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)
     ):
             # Do a dict like comparison as this is most likely either a JS has
@@ -36,9 +36,9 @@ def ρσ_equals(a, b):
 def ρσ_not_equals(a, b):
     if a is b:
         return False
-    if a and type(a.__ne__) is 'function':
+    if a and jstype(a.__ne__) is 'function':
         return a.__ne__(b)
-    if b and type(b.__ne__) is 'function':
+    if b and jstype(b.__ne__) is 'function':
         return b.__ne__(a)
     return not ρσ_equals(a, b)
 
@@ -47,14 +47,14 @@ v'var equals = ρσ_equals'
 # list {{{
 
 def ρσ_list_extend(iterable):
-    if Array.isArray(iterable) or type(iterable) is 'string':
+    if Array.isArray(iterable) or jstype(iterable) is 'string':
         # Allocate all new memory in one operation
         start = this.length
         this.length += iterable.length
         for v'var i = 0; i < iterable.length; i++':
             this[start + i] = iterable[i]  # noqa:undef
     else:
-        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
             this.push(result.value)
@@ -119,7 +119,7 @@ def ρσ_list_count(value):
     return this.reduce(def(n, val): return n + (val is value);, 0)
 
 def ρσ_list_sort_key(value):
-    t = type(value)
+    t = jstype(value)
     if t is 'string' or t is 'number':
         return value
     return value.toString()
@@ -202,7 +202,7 @@ def ρσ_list_decorate(ans):
     ans.__contains__ = ρσ_list_contains
     ans.__eq__ = ρσ_list_eq
     ans.constructor = ρσ_list_constructor
-    if type(ans[ρσ_iterator_symbol]) is not 'function':
+    if jstype(ans[ρσ_iterator_symbol]) is not 'function':
         # Happens on ES 5 runtimes
         ans[ρσ_iterator_symbol] = ρσ_list_iterator
     return ans
@@ -214,14 +214,14 @@ def ρσ_list_constructor(iterable):
         ans = new Array(iterable.length)
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
-    elif type(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+    elif jstype(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
             ans.push(result.value)
             result = iterator.next()
-    elif type(iterable) is 'number':
+    elif jstype(iterable) is 'number':
         # non-pythonic optimization to allocate all needed memory in a single operation
         ans = new Array(iterable)
     else:
@@ -241,7 +241,7 @@ def sorted(iterable, key=None, reverse=False):
 v'var ρσ_global_object_id = 0, ρσ_set_implementation'
 
 def ρσ_set_keyfor(x):
-    t = type(x)
+    t = jstype(x)
     if t is 'string' or t is 'number' or t is 'boolean':
         return '_' + t[0] + x
     if v'x === null': # also matches undefined
@@ -289,7 +289,7 @@ def ρσ_set_polyfill():
         return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
     return ans
 
-if type(Set) is not 'function' or type(Set.prototype.delete) is not 'function':
+if jstype(Set) is not 'function' or jstype(Set.prototype.delete) is not 'function':
     v'ρσ_set_implementation = ρσ_set_polyfill'
 else:
     v'ρσ_set_implementation = Set'
@@ -304,8 +304,8 @@ def ρσ_set(iterable):
         if ρσ_arraylike(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])
-        elif type(iterable[ρσ_iterator_symbol]) is 'function':
-            iterator = iterable.keys() if type(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        elif jstype(iterable[ρσ_iterator_symbol]) is 'function':
+            iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -556,7 +556,7 @@ def ρσ_dict_polyfill():
         return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
     return ans
 
-if type(Map) is not 'function' or type(Map.prototype.delete) is not 'function':
+if jstype(Map) is not 'function' or jstype(Map.prototype.delete) is not 'function':
     v'ρσ_dict_implementation = ρσ_dict_polyfill'
 else:
     v'ρσ_dict_implementation = Map'
@@ -647,13 +647,13 @@ Object.defineProperties(ρσ_dict.prototype, {
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(Map) is 'function' and v'iterable instanceof Map':
+    elif jstype(Map) is 'function' and v'iterable instanceof Map':
         iterator = iterable.entries()
         result = iterator.next()
         while not result.done:
             m.set(result.value[0], result.value[1])
             result = iterator.next()
-    elif type(iterable[ρσ_iterator_symbol]) is 'function':
+    elif jstype(iterable[ρσ_iterator_symbol]) is 'function':
         iterator = iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done:
