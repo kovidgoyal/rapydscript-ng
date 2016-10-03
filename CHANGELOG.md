@@ -1,3 +1,13 @@
+version 0.7.9
+==============
+
+* BACWARDS INCOMPATIBLE: Make the `type()` function behave more like python's
+  `type()` function. It now return the class of the passed in argument, instead
+  of a string type name. For existing code that use `type()`, replace `type()` by
+  `jstype()`
+
+* Fix multiple newlines not being properly escaped in interpolated string literals
+
 version 0.7.8
 ==============
 
