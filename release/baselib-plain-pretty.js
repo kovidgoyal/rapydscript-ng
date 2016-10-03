@@ -358,7 +358,14 @@ Object.defineProperties(ρσ_pow, {
     __argnames__ : {value: ["x", "y", "z"]}
 });
 
-var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool;
+function ρσ_type(x) {
+    return x.constructor;
+};
+Object.defineProperties(ρσ_type, {
+    __argnames__ : {value: ["x"]}
+});
+
+var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool, type = ρσ_type;
 var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
 var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow;
 var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;

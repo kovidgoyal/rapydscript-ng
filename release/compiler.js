@@ -364,7 +364,14 @@ Object.defineProperties(ρσ_pow, {
     __argnames__ : {value: ["x", "y", "z"]}
 });
 
-var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool;
+function ρσ_type(x) {
+    return x.constructor;
+};
+Object.defineProperties(ρσ_type, {
+    __argnames__ : {value: ["x"]}
+});
+
+var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool, type = ρσ_type;
 var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
 var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow;
 var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;
@@ -7204,7 +7211,7 @@ return this.__repr__();
     (function(){
         var __name__ = "string_interpolation";
         function quoted_string(x) {
-            return "\"" + x.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\n/, "\\n") + "\"";
+            return "\"" + x.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"";
         };
         Object.defineProperties(quoted_string, {
             __argnames__ : {value: ["x"]}
@@ -8268,7 +8275,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "fbdabf414b586721409b7e3b9b0a16c655bd9061";
+        COMPILER_VERSION = "f0297ab6606f1ba8db3203c361193a7b0d789837";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -9012,15 +9019,15 @@ return this.__repr__();
                 __argnames__ : {value: ["tmp"]}
             });
 
-            function break_cont(type) {
+            function break_cont(t) {
                 if (S.in_loop === 0) {
-                    croak(type.name.slice(4) + " not inside a loop or switch");
+                    croak(t.name.slice(4) + " not inside a loop or switch");
                 }
                 semicolon();
-                return new type;
+                return new t;
             };
             Object.defineProperties(break_cont, {
-                __argnames__ : {value: ["type"]}
+                __argnames__ : {value: ["t"]}
             });
 
             function yield_() {
@@ -10778,7 +10785,7 @@ return this.__repr__();
                         return ret;
                     } else if (is_node_type(expr, AST_SymbolRef)) {
                         tmp_ = expr.name;
-                        if (tmp_ === "type") {
+                        if (tmp_ === "jstype") {
                             ret = new AST_UnaryPrefix((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["start"] = start;
