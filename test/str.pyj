@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: assrt
 
 import encodings
 
@@ -38,6 +39,7 @@ def test_interpolation():
     assrt.equal(f'{c:,d}', '30,000')
     assrt.equal(f'\n', '\n')
     assrt.equal(f'{a}\\{b[0]}', '1\\x')
+    assrt.equal(f'x\n\ny', 'x\n\ny')
 
 test(' 1 2', ' {} {}', 1, 2)
 test('{ a ', '{{ {0} ', 'a')
