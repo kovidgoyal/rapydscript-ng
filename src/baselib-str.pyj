@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol
+# globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol, HTMLElement
 
 def ρσ_repr_js_builtin(x, as_array):
     ans = v'[]'
@@ -17,6 +17,19 @@ def ρσ_repr_js_builtin(x, as_array):
             key = keys[k]
             ans.push(JSON.stringify(key) + ':' + ρσ_repr(x[key]))
     return b[0] + ans.join(', ') + b[1]
+
+def ρσ_html_element_to_string(elem):
+    attrs = v'[]'
+    for attr in elem.attributes:
+        if attr.specified:
+            val = attr.value
+            if val.length > 10:
+                val = val[:15] + '...'
+            val = JSON.stringify(val)
+            attrs.push(f'{attr.name}={val}')
+    attrs = (' ' + attrs.join(' ')) if attrs.length else ''
+    ans = f'<{elem.tagName}{attrs}>'
+    return ans
 
 def ρσ_repr(x):
     if x is None:
@@ -39,7 +52,10 @@ def ρσ_repr(x):
         name = Object.prototype.toString.call(x).slice(8, -1)
         if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
             return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
-        ans = x.toString() if v'typeof x.toString === "function"' else x
+        if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
+            ans = ρσ_html_element_to_string(x)
+        else:
+            ans = x.toString() if v'typeof x.toString === "function"' else x
         if ans is '[object Object]':
             # Assume this is a dictionary
             return ρσ_repr_js_builtin(x)
@@ -67,7 +83,10 @@ def ρσ_str(x):
         name = Object.prototype.toString.call(x).slice(8, -1)
         if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
             return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
-        ans = x.toString()
+        if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
+            ans = ρσ_html_element_to_string(x)
+        else:
+            ans = x.toString()
         if ans is '[object Object]':
             # Assume this is a dictionary
             ans = ρσ_repr_js_builtin(x)
