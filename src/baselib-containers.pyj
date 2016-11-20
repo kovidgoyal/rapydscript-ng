@@ -667,12 +667,12 @@ Object.defineProperties(ρσ_dict.prototype, {
     if arguments.length > 1:
         ρσ_dict.prototype.update.call(this, arguments[1])
 
-ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = def():
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = def():
     entries = v'[]'
     iterator = this.jsmap.entries()
     r = iterator.next()
     while not r.done:
-        entries.push(r.value[0] + ': ' + r.value[1])
+        entries.push(ρσ_repr(r.value[0]) + ': ' + ρσ_repr(r.value[1]))
         r = iterator.next()
     return '{' + entries.join(', ') + '}'
 
