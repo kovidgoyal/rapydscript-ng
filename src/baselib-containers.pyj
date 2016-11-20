@@ -561,14 +561,15 @@ if jstype(Map) is not 'function' or jstype(Map.prototype.delete) is not 'functio
 else:
     v'ρσ_dict_implementation = Map'
 
-def ρσ_dict(iterable):
+def ρσ_dict(iterable, **kw):
     if v'this instanceof ρσ_dict':
         this.jsmap = new ρσ_dict_implementation()  # noqa:undef
         if iterable is not undefined:
             this.update(iterable)
+        this.update(kw)
         return this
     else:
-        return new ρσ_dict(iterable)
+        return new ρσ_dict(iterable, **kw)
 ρσ_dict.prototype.__name__ = 'dict'
 
 

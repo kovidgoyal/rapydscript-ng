@@ -78,6 +78,7 @@ d1 = {
 	'fun2': def(c):
 		return c+1
 }
+d2 = dict([[1,2], [2,3]], a='b')
 
 # access
 assrt.ok('foo' in d1)
@@ -85,6 +86,8 @@ assrt.equal(d0.a, d0['a'])
 assrt.equal(d1['fun1'](), 5)
 assrt.equal(d1.fun2(3), 4)
 assrt.equal(len(d0), 3)
+assrt.equal(d2.get(1), 2)
+assrt.equal(d2.get('a'), 'b')
 
 # assignment
 d1["bar"] += "!"
