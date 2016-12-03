@@ -57,24 +57,15 @@ def print_rich_getitem(self, output):  # AST_ItemAccess
         output.comma(), self.assignment.print(output)
     output.print(')')
 
-def print_splice_assignment(self, output):
+def print_splice_assignment(self, output):  # AST_Splice
     # splice assignment via pythonic array[start:end]
-    output.print('Array.splice.apply')
-    output.with_parens(def():
-        self.expression.print(output)
+    output.print('ρσ_splice(')
+    self.expression.print(output), output.comma(), self.assignment.print(output), output.comma()
+    self.property.print(output) if self.property else output.print('0')
+    if self.property2:
         output.comma()
-        output.with_square(def():
-            self.property.print(output)
-            output.comma()
-            self.property2.print(output)
-            output.print('-')
-            self.property.print(output)
-        )
-        output.print('.concat')
-        output.with_parens(def():
-            self.assignment.print(output)
-        )
-    )
+        self.property2.print(output)
+    output.print(')')
 
 def print_delete(self, output):
     if is_node_type(self, AST_Symbol):
@@ -317,4 +308,3 @@ def print_seq(output):
         output.with_square(print_seq)
     else:
         print_seq()
-

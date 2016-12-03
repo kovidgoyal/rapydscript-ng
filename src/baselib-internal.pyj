@@ -179,6 +179,16 @@ def ρσ_bound_index(idx, arr):
         idx += arr.length
     return idx
 
+def ρσ_splice(arr, val, start, end):
+    start = start or 0
+    if start < 0:
+        start += arr.length
+    if end is undefined:
+        end = arr.length
+    if end < 0:
+        end += arr.length
+    Array.prototype.splice.apply(arr, v'[start, end - start].concat(val)')
+
 ρσ_exists = {
      'n': def(expr):
         return expr is not undefined and expr is not None

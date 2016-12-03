@@ -40,6 +40,13 @@ assrt.equal({keyf():2}[keyf()], 2)
 # assignment
 a[-1] = 9
 assrt.equal(a[-1], 9)
+s = [0,1,2,3,4]
+s[:2] = [8, 9]
+assrt.deepEqual(s, [8,9,2,3,4])
+s[1:2] = [5]
+assrt.deepEqual(s, [8,5,2,3,4])
+s[-2:] = [1,2]
+assrt.deepEqual(s, [8,5,2,1,2])
 
 # extended slices
 b = list(range(11))
