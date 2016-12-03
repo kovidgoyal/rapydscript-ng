@@ -1,3 +1,9 @@
+version 0.7.10
+==================
+
+* Fix passing of keyword args to the dict() function not working
+* Improve the string representation of dicts and HTMLElements
+
 version 0.7.9
 ==============
 
