@@ -1349,18 +1349,23 @@ if (typeof Map !== "function" || typeof Map.prototype.delete !== "function") {
 } else {
     ρσ_dict_implementation = Map;
 }
-function ρσ_dict(iterable) {
+function ρσ_dict() {
+    var iterable = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+    var kw = arguments[arguments.length-1];
+    if (kw === null || typeof kw !== "object" || kw [ρσ_kwargs_symbol] !== true) kw = {};
     if (this instanceof ρσ_dict) {
         this.jsmap = new ρσ_dict_implementation;
         if (iterable !== undefined) {
             this.update(iterable);
         }
+        this.update(kw);
         return this;
     } else {
-        return new ρσ_dict(iterable);
+        return ρσ_interpolate_kwargs_constructor.call(Object.create(ρσ_dict.prototype), false, ρσ_dict, [iterable].concat([ρσ_desugar_kwargs(kw)]));
     }
 };
 Object.defineProperties(ρσ_dict, {
+    __handles_kwarg_interpolation__ : {value: true},
     __argnames__ : {value: ["iterable"]}
 });
 
@@ -1571,13 +1576,13 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
         ρσ_dict.prototype.update.call(this, arguments[1]);
     }
 };
-ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = function () {
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = function () {
     var entries, iterator, r;
     entries = [];
     iterator = this.jsmap.entries();
     r = iterator.next();
     while (!r.done) {
-        entries.push(r.value[0] + ": " + r.value[1]);
+        entries.push(ρσ_repr(r.value[0]) + ": " + ρσ_repr(r.value[1]));
         r = iterator.next();
     }
     return "{" + entries.join(", ") + "}";
@@ -2369,6 +2374,29 @@ Object.defineProperties(ρσ_repr_js_builtin, {
     __argnames__ : {value: ["x", "as_array"]}
 });
 
+function ρσ_html_element_to_string(elem) {
+    var attrs, val, attr, ans;
+    attrs = [];
+    var ρσ_Iter0 = ρσ_Iterable(elem.attributes);
+    for (var ρσ_Index0 = 0; ρσ_Index0 < ρσ_Iter0.length; ρσ_Index0++) {
+        attr = ρσ_Iter0[ρσ_Index0];
+        if (attr.specified) {
+            val = attr.value;
+            if (val.length > 10) {
+                val = val.slice(0, 15) + "...";
+            }
+            val = JSON.stringify(val);
+            attrs.push("" + ρσ_str.format("{}", attr.name) + "=" + ρσ_str.format("{}", val) + "");
+        }
+    }
+    attrs = (attrs.length) ? " " + attrs.join(" ") : "";
+    ans = "<" + ρσ_str.format("{}", elem.tagName) + "" + ρσ_str.format("{}", attrs) + ">";
+    return ans;
+};
+Object.defineProperties(ρσ_html_element_to_string, {
+    __argnames__ : {value: ["elem"]}
+});
+
 function ρσ_repr(x) {
     var ans, name;
     if (x === null) {
@@ -2401,7 +2429,11 @@ function ρσ_repr(x) {
                 return ρσ_anonfunc;
             })()).join(", ") + "])";
         }
-        ans = (typeof x.toString === "function") ? x.toString() : x;
+        if (typeof HTMLElement !== "undefined" && x instanceof HTMLElement) {
+            ans = ρσ_html_element_to_string(x);
+        } else {
+            ans = (typeof x.toString === "function") ? x.toString() : x;
+        }
         if (ans === "[object Object]") {
             return ρσ_repr_js_builtin(x);
         }
@@ -2449,7 +2481,11 @@ function ρσ_str(x) {
                 return ρσ_anonfunc;
             })()).join(", ") + "])";
         }
-        ans = x.toString();
+        if (typeof HTMLElement !== "undefined" && x instanceof HTMLElement) {
+            ans = ρσ_html_element_to_string(x);
+        } else {
+            ans = x.toString();
+        }
         if (ans === "[object Object]") {
             ans = ρσ_repr_js_builtin(x);
         }
