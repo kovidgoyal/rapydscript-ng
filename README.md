@@ -1358,7 +1358,7 @@ def fun1():
 			a += 1
 ```
 
-Shadowing is preferred in most cases, since it can't accidently damage outside logic, and if you want to edit an external variable, you're usually better off assigning function's return value to it. There are cases, however, when using `nonlocal` makes the code cleaner. There is also `global`, but it is rarely a good solution, and use of `nonlocal` is preferred to it.
+Shadowing is preferred in most cases, since it can't accidentally damage outside logic, and if you want to edit an external variable, you're usually better off assigning function's return value to it. There are cases, however, when using `nonlocal` makes the code cleaner. 
 
 
 Available Libraries
