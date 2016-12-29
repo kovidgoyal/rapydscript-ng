@@ -557,7 +557,7 @@ class AST_Var(AST_Definitions):
 class AST_VarDef(AST_Node):
     "A variable declaration; only appears in a AST_Definitions node"
     properties = {
-        'name': "[AST_SymbolVar|AST_SymbolConst|AST_SymbolNonlocal] name of the variable",
+        'name': "[AST_SymbolVar|AST_SymbolNonlocal] name of the variable",
         'value': "[AST_Node?] initializer, or null if there's no initializer"
     }
 
@@ -944,9 +944,6 @@ class AST_ImportedVar(AST_SymbolVar):
     properties = {
         'alias': "AST_SymbolAlias the alias for this imported symbol"
     }
-
-class AST_SymbolConst(AST_SymbolDeclaration):
-    "A constant declaration"
 
 class AST_SymbolNonlocal(AST_SymbolDeclaration):
     "A nonlocal declaration"

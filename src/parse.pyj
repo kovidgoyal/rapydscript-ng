@@ -17,7 +17,7 @@ AST_Method, AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal,
 AST_PropAccess, AST_RegExp, AST_Return, AST_Scope, AST_Set,
 AST_SetComprehension, AST_SetItem, AST_Seq, AST_SimpleStatement, AST_Splice,
 AST_String, AST_Sub, AST_ItemAccess, AST_SymbolAlias,
-AST_SymbolCatch, AST_SymbolConst, AST_SymbolDefun, AST_SymbolFunarg,
+AST_SymbolCatch, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
@@ -1258,13 +1258,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'bfinally': bfinally
         })
 
-    def vardefs(no_in, in_const, in_nonlocal):
+    def vardefs(symbol_class):
         a = []
         while True:
             a.push(new AST_VarDef({
                 'start': S.token,
-                'name': as_symbol(AST_SymbolConst if in_const else (AST_SymbolNonlocal if in_nonlocal else AST_SymbolVar)),
-                'value': (next(), expression(False, no_in)) if is_('operator', '=') else None,
+                'name': as_symbol(symbol_class),
+                'value': (next(), expression(False)) if is_('operator', '=') else None,
                 'end': prev()
             }))
             if not is_("punc", ","):
@@ -1273,10 +1273,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         return a
 
-    def nonlocal_(no_in):
+    def nonlocal_():
         return new AST_Var({
             'start': prev(),
-            'definitions': vardefs(no_in, False, True),
+            'definitions': vardefs(AST_SymbolNonlocal),
             'end': prev()
         })
 
