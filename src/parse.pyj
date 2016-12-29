@@ -526,6 +526,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 tmp = nonlocal_()
                 semicolon()
                 return tmp
+            elif tmp_ is 'global':
+                tmp = nonlocal_(True)
+                semicolon()
+                return tmp
             elif tmp_ is "with":
                 return with_()
             else:
@@ -1273,10 +1277,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         return a
 
-    def nonlocal_():
+    def nonlocal_(is_global):
+        defs = vardefs(AST_SymbolNonlocal)
+        if is_global:
+            for vardef in defs:
+                S.globals.push(vardef.name.name)
         return new AST_Var({
             'start': prev(),
-            'definitions': vardefs(AST_SymbolNonlocal),
+            'definitions': defs,
             'end': prev()
         })
 
@@ -2079,7 +2087,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'docstrings': docstrings,
             })
 
-        toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body)
+        toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body).concat(S.globals)
         toplevel.localvars = []
         toplevel.exports = []
         seen_exports = {}
@@ -2153,6 +2161,7 @@ def parse(text, options):
         'labels': [],
         'decorators': v'[]',
         'parsing_decorator': False,
+        'globals': v'[]',
         'scoped_flags': {
             'stack': v'[options.scoped_flags || Object.create(null)]',
             'push': def (): this.stack.push(Object.create(None));,

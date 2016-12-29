@@ -1358,7 +1358,7 @@ def fun1():
 			a += 1
 ```
 
-Shadowing is preferred in most cases, since it can't accidentally damage outside logic, and if you want to edit an external variable, you're usually better off assigning function's return value to it. There are cases, however, when using `nonlocal` makes the code cleaner. 
+Shadowing is preferred in most cases, since it can't accidentally damage outside logic, and if you want to edit an external variable, you're usually better off assigning function's return value to it. There are cases, however, when using `nonlocal` makes the code cleaner. For compatibility with Python code, RapydScript also supports the `global` keyword, with the exception that if a variable is present both in the outer scope and the global scope, the variable from the outer scope will be used, rather than the variable from the global scope. This situation is rare in practice, and implementing it in RapydScript would require significant work, so RapydScript `global` remains a little incompatible with Python `global`.
 
 
 Available Libraries
