@@ -569,31 +569,43 @@ Object.defineProperties(ρσ_list_sort_key, {
     __argnames__ : {value: ["value"]}
 });
 
-function ρσ_list_sort_cmp(a, b) {
+function ρσ_list_sort_cmp(a, b, ap, bp) {
     if (a < b) {
         return -1;
     }
     if (a > b) {
         return 1;
     }
-    return 0;
+    return ap - bp;
 };
 Object.defineProperties(ρσ_list_sort_cmp, {
-    __argnames__ : {value: ["a", "b"]}
+    __argnames__ : {value: ["a", "b", "ap", "bp"]}
 });
 
-function ρσ_list_sort(key, reverse) {
-    var mult, keymap, k;
+function ρσ_list_sort() {
+    var key = (arguments[0] === undefined || ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_list_sort.__defaults__.key : arguments[0];
+    var reverse = (arguments[1] === undefined || ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? ρσ_list_sort.__defaults__.reverse : arguments[1];
+    var ρσ_kwargs_obj = arguments[arguments.length-1];
+    if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+    if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "key")){
+        key = ρσ_kwargs_obj.key;
+    }
+    if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "reverse")){
+        reverse = ρσ_kwargs_obj.reverse;
+    }
+    var mult, keymap, posmap, k;
     key = key || ρσ_list_sort_key;
     mult = (reverse) ? -1 : 1;
     keymap = dict();
+    posmap = dict();
     for (var i=0; i < this.length; i++) {
         k = (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
         keymap.set(k, key(k));
+        posmap.set(k, i);
     }
     this.sort((function() {
         var ρσ_anonfunc = function (a, b) {
-            return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b));
+            return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b), posmap.get(a), posmap.get(b));
         };
         Object.defineProperties(ρσ_anonfunc, {
             __argnames__ : {value: ["a", "b"]}
@@ -602,6 +614,8 @@ function ρσ_list_sort(key, reverse) {
     })());
 };
 Object.defineProperties(ρσ_list_sort, {
+    __defaults__ : {value: {key:null, reverse:false}},
+    __handles_kwarg_interpolation__ : {value: true},
     __argnames__ : {value: ["key", "reverse"]}
 });
 
@@ -2087,6 +2101,23 @@ function ρσ_bound_index(idx, arr) {
 };
 Object.defineProperties(ρσ_bound_index, {
     __argnames__ : {value: ["idx", "arr"]}
+});
+
+function ρσ_splice(arr, val, start, end) {
+    start = start || 0;
+    if (start < 0) {
+        start += arr.length;
+    }
+    if (end === undefined) {
+        end = arr.length;
+    }
+    if (end < 0) {
+        end += arr.length;
+    }
+    Array.prototype.splice.apply(arr, [start, end - start].concat(val));
+};
+Object.defineProperties(ρσ_splice, {
+    __argnames__ : {value: ["arr", "val", "start", "end"]}
 });
 
 ρσ_exists = (function(){
