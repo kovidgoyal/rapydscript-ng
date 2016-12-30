@@ -1,3 +1,11 @@
+version 0.7.11
+==================
+
+* Fix slice assignment not working
+* Implement the global keyword
+* Make list.pysort a stable sort on all JS engines
+* Fix a typo that broke the REPL when XDG_CACHE_HOME is an absolute path
+
 version 0.7.10
 ==================
 
