@@ -124,21 +124,23 @@ def ρσ_list_sort_key(value):
         return value
     return value.toString()
 
-def ρσ_list_sort_cmp(a, b):
+def ρσ_list_sort_cmp(a, b, ap, bp):
     if a < b:
         return -1
     if a > b:
         return 1
-    return 0
+    return ap - bp
 
-def ρσ_list_sort(key, reverse):
+def ρσ_list_sort(key=None, reverse=False):
     key = key or ρσ_list_sort_key
     mult = -1 if reverse else 1
     keymap = dict()
+    posmap = dict()
     for v'var i=0; i < this.length; i++':
         k = this[i]  # noqa:undef
         keymap.set(k, key(k))
-    this.sort(def (a, b): return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b));)
+        posmap.set(k, i)
+    this.sort(def (a, b): return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b), posmap.get(a), posmap.get(b));)
 
 def ρσ_list_concat():  # ensure concat() returns an object of type list
     ans = Array.prototype.concat.apply(this, arguments)
