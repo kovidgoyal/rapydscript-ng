@@ -1517,6 +1517,10 @@ There are a couple of caveats when using the embedded compiler:
 * Importing of modules only works with the standard library modules. There is
   currently no way to make your own modules importable.
 
+* To generate the embedded compiler yourself (rapydscript.js) from a source
+  checkout of rapydscript, follow the instructions above for installing from
+  source, then run `bin/web-repl-export`
+
 Internationalization
 -------------------------
 
