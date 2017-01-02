@@ -472,11 +472,11 @@ define_str_func('rindex', def(needle, start, end):
 )
 
 define_str_func('islower', def():
-    return this.length > 0 and this.toUpperCase() is not this
+    return this.length > 0 and this.toLowerCase() is this.toString()
 )
 
 define_str_func('isupper', def():
-    return this.length > 0 and this.toLowerCase() is not this
+    return this.length > 0 and this.toUpperCase() is this.toString()
 )
 
 define_str_func('isspace', def():

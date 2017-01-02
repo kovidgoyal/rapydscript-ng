@@ -17,6 +17,10 @@ assrt.equal("\U0001F431", '🐱')
 assrt.equal("\U0001F431", '🐱')
 assrt.equal("\N{nbsp}", '\u00a0')
 assrt.equal("\N{NBSp}", '\u00a0')
+assrt.equal(str.islower('a'), True)
+assrt.equal(str.islower('A'), False)
+assrt.equal(str.isupper('a'), False)
+assrt.equal(str.isupper('A'), True)
 
 # Test format()
 
