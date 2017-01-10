@@ -142,21 +142,27 @@ def ρσ_iter(iterable):
         return ans
     return ρσ_iter(Object.keys(iterable))
 
+def ρσ_range_next(step, length):
+    this._i += step
+    this._idx += 1
+    if this._idx >= length:
+        this._i, this._idx = this.__i, -1
+        return v"{'done':true}"
+    return v"{'done':false, 'value':this._i}"
+
 def ρσ_range(start, stop, step):
     if arguments.length <= 1:
         stop = start or 0
         start = 0
     step = arguments[2] or 1
     length = Math.max(Math.ceil((stop - start) / step), 0)
-    ans = v"{'_i': start - step, '_idx': -1}"
+    ans = v'{start:start, step:step, stop:stop}'
     ans[ρσ_iterator_symbol] = def():
-        return this
-    ans['next'] = def():
-        this._i += step
-        this._idx += 1
-        if this._idx >= length:
-            return v"{'done':true}"
-        return v"{'done':false, 'value':this._i}"
+        it = v'{"_i": start - step, "_idx": -1}'
+        it.next = ρσ_range_next.bind(it, step, length)
+        it[ρσ_iterator_symbol] = def():
+            return this
+        return it
     return ans
 
 def ρσ_getattr(obj, name, defval):
