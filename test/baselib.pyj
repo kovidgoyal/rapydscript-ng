@@ -1,5 +1,5 @@
 # vim:fileencoding=utf-8
-# globals: ρσ_iterator_symbol, ρσ_set_polyfill, ρσ_dict_polyfill
+# globals: ρσ_iterator_symbol, ρσ_set_polyfill, ρσ_dict_polyfill, assrt
 nonlocal ρσ_set_implementation, ρσ_dict_implementation
 
 class CustomIterable:
@@ -249,3 +249,9 @@ test_dicts()
 ρσ_dict_implementation = ρσ_dict_polyfill  # noqa:undef
 test_dicts()
 ρσ_dict_implementation = Map
+
+
+a = {1:1}
+b = None
+assrt.equal(a == b, False)
+assrt.equal(b == a, False)

@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals:ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike
+# globals:ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_repr
 
 def ρσ_equals(a, b):
     if a is b:
@@ -18,7 +18,7 @@ def ρσ_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
-    if jstype(a) is 'object' and jstype(b) is 'object' and (
+    if jstype(a) is 'object' and jstype(b) is 'object' and a is not None and b is not None and (
         (a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)
     ):
             # Do a dict like comparison as this is most likely either a JS has
