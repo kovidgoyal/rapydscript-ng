@@ -240,6 +240,22 @@ Object.defineProperties(ρσ_iter, {
     __argnames__ : {value: ["iterable"]}
 });
 
+function ρσ_range_next(step, length) {
+    var ρσ_unpack;
+    this._i += step;
+    this._idx += 1;
+    if (this._idx >= length) {
+        ρσ_unpack = [this.__i, -1];
+        this._i = ρσ_unpack[0];
+        this._idx = ρσ_unpack[1];
+        return {'done':true};
+    }
+    return {'done':false, 'value':this._i};
+};
+Object.defineProperties(ρσ_range_next, {
+    __argnames__ : {value: ["step", "length"]}
+});
+
 function ρσ_range(start, stop, step) {
     var length, ans;
     if (arguments.length <= 1) {
@@ -248,17 +264,15 @@ function ρσ_range(start, stop, step) {
     }
     step = arguments[2] || 1;
     length = Math.max(Math.ceil((stop - start) / step), 0);
-    ans = {'_i': start - step, '_idx': -1};
+    ans = {start:start, step:step, stop:stop};
     ans[ρσ_iterator_symbol] = function () {
-        return this;
-    };
-    ans["next"] = function () {
-        this._i += step;
-        this._idx += 1;
-        if (this._idx >= length) {
-            return {'done':true};
-        }
-        return {'done':false, 'value':this._i};
+        var it;
+        it = {"_i": start - step, "_idx": -1};
+        it.next = ρσ_range_next.bind(it, step, length);
+        it[ρσ_iterator_symbol] = function () {
+            return this;
+        };
+        return it;
     };
     return ans;
 };
@@ -392,7 +406,7 @@ var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr 
         }
         return true;
     }
-    if (typeof a === "object" && typeof b === "object" && (a.constructor === Object && b.constructor === Object || Object.getPrototypeOf(a) === null && Object.getPrototypeOf(b) === null)) {
+    if (typeof a === "object" && typeof b === "object" && a !== null && b !== null && (a.constructor === Object && b.constructor === Object || Object.getPrototypeOf(a) === null && Object.getPrototypeOf(b) === null)) {
         ρσ_unpack = [Object.keys(a), Object.keys(b)];
         akeys = ρσ_unpack[0];
         bkeys = ρσ_unpack[1];
@@ -1904,6 +1918,26 @@ Object.defineProperties(ρσ_flatten, {
     __argnames__ : {value: ["arr"]}
 });
 
+function ρσ_unpack_asarray(num, iterable) {
+    var ans, iterator, result;
+    if (ρσ_arraylike(iterable)) {
+        return iterable;
+    }
+    ans = [];
+    if (typeof iterable[ρσ_iterator_symbol] === "function") {
+        iterator = (typeof Map === "function" && iterable instanceof Map) ? iterable.keys() : iterable[ρσ_iterator_symbol]();
+        result = iterator.next();
+        while (!result.done && ans.length < num) {
+            ans.push(result.value);
+            result = iterator.next();
+        }
+    }
+    return ans;
+};
+Object.defineProperties(ρσ_unpack_asarray, {
+    __argnames__ : {value: ["num", "iterable"]}
+});
+
 function ρσ_extends(child, parent) {
     child.prototype = Object.create(parent.prototype);
     child.prototype.constructor = child;
@@ -2619,6 +2653,7 @@ define_str_func("format", function () {
         }
         try {
             ρσ_unpack = format_spec.match(ρσ_str.format._template_format_pat).slice(1);
+ρσ_unpack = ρσ_unpack_asarray(9, ρσ_unpack);
             fill = ρσ_unpack[0];
             align = ρσ_unpack[1];
             sign = ρσ_unpack[2];
@@ -2814,6 +2849,7 @@ define_str_func("format", function () {
     function render_markup(markup) {
         var ρσ_unpack, key, transformer, format_spec, lkey, nvalue, object, ans;
         ρσ_unpack = parse_markup(markup);
+ρσ_unpack = ρσ_unpack_asarray(3, ρσ_unpack);
         key = ρσ_unpack[0];
         transformer = ρσ_unpack[1];
         format_spec = ρσ_unpack[2];
@@ -3070,10 +3106,10 @@ define_str_func("rindex", (function() {
     return ρσ_anonfunc;
 })());
 define_str_func("islower", function () {
-    return this.length > 0 && this.toUpperCase() !== this;
+    return this.length > 0 && this.toLowerCase() === this.toString();
 });
 define_str_func("isupper", function () {
-    return this.length > 0 && this.toLowerCase() !== this;
+    return this.length > 0 && this.toUpperCase() === this.toString();
 });
 define_str_func("isspace", function () {
     return this.length > 0 && /^\s+$/.test(this);
