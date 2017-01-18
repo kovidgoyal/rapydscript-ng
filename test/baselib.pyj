@@ -255,3 +255,7 @@ a = {1:1}
 b = None
 assrt.equal(a == b, False)
 assrt.equal(b == a, False)
+
+a, b = range(1111111111)
+assrt.equal(a, 0)
+assrt.equal(b, 1)

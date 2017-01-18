@@ -56,6 +56,18 @@ def ρσ_flatten(arr):
             ans.push(value)
     return ans
 
+def ρσ_unpack_asarray(num, iterable):
+    if ρσ_arraylike(iterable):
+        return iterable
+    ans = v'[]'
+    if jstype(iterable[ρσ_iterator_symbol]) is 'function':
+        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        result = iterator.next()
+        while not result.done and ans.length < num:
+            ans.push(result.value)
+            result = iterator.next()
+    return ans
+
 def ρσ_extends(child, parent):
     child.prototype = Object.create(parent.prototype)
     child.prototype.constructor = child
