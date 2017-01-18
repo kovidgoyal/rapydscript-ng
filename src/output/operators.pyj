@@ -241,9 +241,10 @@ def print_assignment(self, output):
         self.right.print(output)
     if is_node_type(left, AST_Array):
         output.end_statement()
-        output.assign('ρσ_unpack')
-        output.print('ρσ_unpack_asarray(' + flat.length), output.comma(), output.print('ρσ_unpack)')
-        output.end_statement()
+        if not is_node_type(self.right, AST_Seq) and not is_node_type(self.right, AST_Array):
+            output.assign('ρσ_unpack')
+            output.print('ρσ_unpack_asarray(' + flat.length), output.comma(), output.print('ρσ_unpack)')
+            output.end_statement()
         unpack_tuple(flat, output, True)
 
 def print_assign(self, output):
