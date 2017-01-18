@@ -1,3 +1,10 @@
+version 0.7.12
+==================
+
+  * Fix == failing when one of the arguments is None and the other is an object
+  * Make the range() function return an object that behaves like the python range() object
+  * Fix de-structuring assignment not working with iterators
+
 version 0.7.11
 ==================
 
