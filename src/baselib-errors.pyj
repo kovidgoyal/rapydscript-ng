@@ -32,3 +32,6 @@ class UnicodeDecodeError(Exception):
 
 class AssertionError(Exception):
     pass
+
+class ZeroDivisionError(Exception):
+    pass
