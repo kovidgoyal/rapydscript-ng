@@ -163,6 +163,27 @@ def ρσ_range(start, stop, step):
         it[ρσ_iterator_symbol] = def():
             return this
         return it
+    ans.count = def(val):
+        if not this._cached:
+            this._cached = list(this)
+        return this._cached.count(val)
+    ans.index = def(val):
+        if not this._cached:
+            this._cached = list(this)
+        return this._cached.index(val)
+    if jstype(Proxy) is 'function':
+        ans = new Proxy(ans, {
+            'get': def(obj, prop):
+                if jstype(prop) is 'string':
+                    iprop = parseInt(prop)
+                    if not isNaN(iprop):
+                        prop = iprop
+                if jstype(prop) is 'number':
+                    if not obj._cached:
+                        obj._cached = list(obj)
+                    return obj._cached[prop]
+                return obj[prop]
+        })
     return ans
 
 def ρσ_getattr(obj, name, defval):

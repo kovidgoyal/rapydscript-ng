@@ -66,6 +66,7 @@ NATIVE_CLASSES = {
     'Uint8ClampedArray': {},
     'Map': {},
     'WeakMap': {},
+    'Proxy': {},
     'Set': {},
     'WeakSet': {},
     'WebSocket': {},

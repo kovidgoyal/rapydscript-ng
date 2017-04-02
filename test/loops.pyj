@@ -69,3 +69,12 @@ for outer in r:
     for b in r:
         items.push(b)
 assrt.deepEqual(items, [0, 0, 1, 2, 1, 0, 1, 2, 2, 0, 1, 2])
+r = range(3)
+if jstype(Proxy) is 'function':
+    assrt.equal(r[1], 1)
+    assrt.equal(r[1], 1)
+    assrt.equal(r[2], 2)
+assrt.equal(r.count(0), 1)
+assrt.equal(r.count(4), 0)
+assrt.equal(r.index(1), 1)
+assrt.throws(def(): r.index(4);, ValueError)
