@@ -240,7 +240,26 @@ def ρσ_divmod(x, y):
     d = Math.floor(x / y)
     return d, x - d * y
 
-v'var abs = Math.abs, max = Math.max, min = Math.min, bool = ρσ_bool, type = ρσ_type'
+
+def ρσ_max(*args, **kwargs):
+    if args.length is 0:
+        if kwargs.defval is not undefined:
+            return kwargs.defval
+        raise TypeError('expected at least one argument')
+    if args.length is 1:
+        args = args[0]
+    if kwargs.key:
+        args = [kwargs.key(x) for x in args]
+    if not Array.isArray(args):
+        args = list(args)
+    if args.length:
+        return this.apply(None, args)
+    if kwargs.defval is not undefined:
+        return kwargs.defval
+    raise TypeError('expected at least one argument')
+
+
+v'var abs = Math.abs, max = ρσ_max.bind(Math.max), min = ρσ_max.bind(Math.min), bool = ρσ_bool, type = ρσ_type'
 v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
 v'var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow, divmod = ρσ_divmod'
 v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'
