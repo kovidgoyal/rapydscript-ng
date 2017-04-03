@@ -1,3 +1,11 @@
+version 0.7.13
+==================
+
+  * A uuid module for the standard library
+  * Implement the full python interface for the min() and max() functions
+  * Implement the full python interface for rangeobjects
+  * Implement the divmod function from python
+
 version 0.7.12
 ==================
 
