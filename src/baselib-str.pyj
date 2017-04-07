@@ -363,6 +363,8 @@ define_str_func('format', def ():
                     markup = ''
             else:
                 ans += ch
+                if ch is '}' and template[pos+1] is '}':
+                    pos += 1
 
         pos += 1
 
