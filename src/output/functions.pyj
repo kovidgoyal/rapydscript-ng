@@ -166,7 +166,11 @@ def function_annotation(self, output, strip_first, name):
 
     names = Object.keys(props)
     if names.length:
-        output.indent(), output.print('Object.defineProperties(' + fname), output.comma()
+        output.indent()
+        # Only define the properties if they were not already defined, which
+        # can happen if the function definition is inside a loop, for example.
+        output.spaced('if', '(!' + fname + '.' + names[0] + ')', 'Object.defineProperties(' + fname)
+        output.comma()
         output.with_block(def():
             for v'var i = 0; i < names.length; i++':
                 name = names[i]
