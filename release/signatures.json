@@ -5,14 +5,14 @@
     "baselib-errors": "f2423e1e2489bdd7fb8c8725bb76436898c8008c",
     "baselib-internal": "dab57c2bfc07bf761e46dc7469969668fefe7a7c",
     "baselib-itertools": "ab1f3257642c8d26fab1ff9d392814a459a60cdb",
-    "baselib-str": "c22ffb3431d68e66f3444b82c98b1c6e5f49096b",
+    "baselib-str": "e32f2ee8e67e571c289ef74c997b94653ed862e5",
     "compiler": "cfbfceb0439fed3302f78d80b303dca713b25e7b",
     "errors": "d1b33848d19b141e19cc079cf78421f29b6d2c05",
     "output/__init__": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
     "output/classes": "dd1ac2387a01da170b0c984ba33b6994d702db80",
     "output/codegen": "10f03e051106e967bf2bf7449f450ddfe209e1f4",
     "output/exceptions": "e4e29f8df8db8b417cc4e369df5293e01685b00d",
-    "output/functions": "e2b2e9b55d8b597c5c42cbcfad65527a5d96fee9",
+    "output/functions": "9067d5c2b22277a65e9653d0f6ebdeb4dd2027f9",
     "output/literals": "00d446b3590fda39ad8276f3c410560674ddb0a3",
     "output/loops": "7be5375fa57a5a5533ca0b526906ec4e5000e0d1",
     "output/modules": "70295148831a69e78f1099a2e2f27a20e1d7cd39",
@@ -25,6 +25,6 @@
     "tokenizer": "13784423d20b5bdeb1b929e0e4c1bc310e4e6e5f",
     "unicode_aliases": "79ac6eaa5e6be44a5397d62c561f854a8fe7528e",
     "utils": "c1666db819aa7c8db38697e34e18362e3cb45869",
-    "#compiler#": "812f0097b53d5f1cbf9e369fc1f7582c097c70ad",
-    "#compiled_with#": "812f0097b53d5f1cbf9e369fc1f7582c097c70ad"
+    "#compiler#": "9669124ead906f9ffe8d02c69667049db4ae92c9",
+    "#compiled_with#": "9669124ead906f9ffe8d02c69667049db4ae92c9"
 }
