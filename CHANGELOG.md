@@ -1,3 +1,10 @@
+version 0.7.14
+==================
+
+  * Fix }} escapes not being processed correctly in format strings
+  * Fix function definitions inside loops causing errors on ancient JS engines
+  * Fix --js-version command line argument not working
+
 version 0.7.13
 ==================
 
