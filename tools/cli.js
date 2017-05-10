@@ -498,6 +498,13 @@ Use fuzzy translations, they are ignored by default.
 
 
 var argv = module.exports.argv = parse_args();
+if (typeof argv.js_version === 'string') {
+    argv.js_version = parseInt(argv.js_version);
+    if (isNaN(argv.js_version)) {
+        console.log('--js-version must be a number');
+        process.exit(1);
+    }
+}
 
 if (argv.help) {
 	print_usage((!argv.auto_mode) ? groups[argv.mode]: undefined);
