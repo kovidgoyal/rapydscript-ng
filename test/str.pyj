@@ -175,3 +175,5 @@ assrt.equal(','.join([1,2,3]), str.join(',', [1,2,3]))
 assrt.equal('11111'.count('1', start=1, end=1), str.count('11111', '1', start=1, end=1))
 assrt.equal('{{}}'.format(), '{}')
 assrt.equal('{x}}}'.format(x=1), '1}')
+a = 1
+assrt.equal(f'{{ {a} }}', '{ 1 }')

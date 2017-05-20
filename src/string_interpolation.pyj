@@ -43,6 +43,12 @@ def interpolate(template, raise_error):
                 else:
                     in_brace = 1
                     markup = ''
+            elif ch is '}':
+                if template[pos+1] is '}':
+                    pos += 1
+                    ans[-1] += '}'
+                else:
+                    raise_error("f-string: single '}' is not allowed")
             else:
                 ans[-1] += ch
 
