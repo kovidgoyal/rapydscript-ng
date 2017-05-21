@@ -1421,7 +1421,7 @@ Making RapydScript even more pythonic
 RapydScript has three main goals: To be as fast as possible, to be as close to
 python as possible, to interoperate with external javascript libraries.
 Sometimes these goals conflict and RapydScript chooses to be less pythonic in
-service to the other two goals. Fortunately, there are many optionals flags you
+service to the other two goals. Fortunately, there are many optional flags you
 can use to reverse these compromises. The most important of these are called
 *scoped flags*. 
 
