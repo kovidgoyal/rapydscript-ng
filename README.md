@@ -1369,9 +1369,9 @@ One of Python's main strengths is the number of libraries available to the devel
 
 It is for that reason that I try to keep RapydScript bells and whistles to a minimum. RapydScript's main strength is easy integration with JavaScript and DOM, which allows me to stay sane and not rewrite my own versions of the libraries that are already available. That doesn't mean, however, that pythonic libraries can't be written for RapydScript. To prove that, I have implemented lightweight clones of several popular Python libraries and bundled them into RapydScript, you can find them in `src` directory. The following libraries are included:
 
-	math				# replicates almost all of the functionality from Python's math library
-	re					# replicates almost all of the functionality from Python's re library
-	random				# replicates most of the functionality from Python's random library
+	math                # replicates almost all of the functionality from Python's math library
+	re                  # replicates almost all of the functionality from Python's re library
+	random              # replicates most of the functionality from Python's random library
 	elementmaker        # easily construct DOM trees
 	aes                 # Implement AES symmetric encryption
 	encodings           # Convert to/from UTF-8 bytearrays, base64 strings and native strings
