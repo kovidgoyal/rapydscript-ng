@@ -41,7 +41,11 @@ NATIVE_CLASSES = {
     'TypeError': {},
     'URIError': {},
     'Object': {
-        'static': [ "getOwnPropertyNames", 'getOwnPropertyDescriptor', 'getOwnPropertySymbols', "keys", "create", 'defineProperty', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign' ]
+        'static': [
+            "getOwnPropertyNames", 'getOwnPropertyDescriptor',
+            'getOwnPropertySymbols', "keys", 'entries', 'values', "create", 'defineProperty',
+            'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign'
+        ]
     },
     'String': {
         'static': [ "fromCharCode" ]
@@ -53,7 +57,9 @@ NATIVE_CLASSES = {
     'Date': {
         'static': [ "UTC", "now", "parse" ]
     },
-    'ArrayBuffer': {},
+    'ArrayBuffer': {
+        'static': ['isView', 'transfer'],
+    },
     'DataView': {},
     'Float32Array': {},
     'Float64Array': {},
@@ -69,6 +75,9 @@ NATIVE_CLASSES = {
     'Proxy': {},
     'Set': {},
     'WeakSet': {},
+    'Promise': {
+        'static': ['all', 'race', 'reject', 'resolve']
+    },
     'WebSocket': {},
     'XMLHttpRequest': {},
     'TextEncoder': {},
