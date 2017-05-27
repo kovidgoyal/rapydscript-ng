@@ -29,7 +29,7 @@ def ρσ_float():
 def ρσ_arraylike_creator():
     names = 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.split(' ')
     if jstype(HTMLCollection) is 'function':
-        names = names.concat('HTMLCollection NodeList NamedNodeMap'.split(' '))
+        names = names.concat('HTMLCollection NodeList NamedNodeMap TouchList'.split(' '))
     return def(x):
         if Array.isArray(x) or v'typeof x' is 'string' or names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1:
             return True
