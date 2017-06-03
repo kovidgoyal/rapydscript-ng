@@ -1,3 +1,10 @@
+version 0.7.15
+==================
+
+  * Fix , flag for str.format thousands grouping not working
+  * Fix iteration over TouchList not working in Safari
+  * Fix }} escapes not being converted to } in f-strings
+
 version 0.7.14
 ==================
 
