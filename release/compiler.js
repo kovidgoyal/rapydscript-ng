@@ -48,7 +48,7 @@ function ρσ_arraylike_creator() {
     var names;
     names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
     if (typeof HTMLCollection === "function") {
-        names = names.concat("HTMLCollection NodeList NamedNodeMap".split(" "));
+        names = names.concat("HTMLCollection NodeList NamedNodeMap TouchList".split(" "));
     }
     return (function() {
         var ρσ_anonfunc = function (x) {
@@ -2773,13 +2773,57 @@ define_str_func("format", function () {
         __argnames__ : {value: ["format_spec"]}
     });
 
+    function set_comma(ans, comma) {
+        var sep;
+        if (comma !== ",") {
+            sep = 1234;
+            sep = sep.toLocaleString(undefined, {useGrouping: true})[1];
+            ans = str.replace(ans, sep, comma);
+        }
+        return ans;
+    };
+    if (!set_comma.__argnames__) Object.defineProperties(set_comma, {
+        __argnames__ : {value: ["ans", "comma"]}
+    });
+
+    function safe_comma(value, comma) {
+        try {
+            return set_comma(value.toLocaleString(undefined, {useGrouping: true}), comma);
+        } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            {
+                return value.toString(10);
+            } 
+        }
+    };
+    if (!safe_comma.__argnames__) Object.defineProperties(safe_comma, {
+        __argnames__ : {value: ["value", "comma"]}
+    });
+
+    function safe_fixed(value, precision, comma) {
+        if (!comma) {
+            return value.toFixed(precision);
+        }
+        try {
+            return set_comma(value.toLocaleString(undefined, {useGrouping: true, minimumFractionDigits: precision, maximumFractionDigits: precision}), comma);
+        } catch (ρσ_Exception) {
+            ρσ_last_exception = ρσ_Exception;
+            {
+                return value.toFixed(precision);
+            } 
+        }
+    };
+    if (!safe_fixed.__argnames__) Object.defineProperties(safe_fixed, {
+        __argnames__ : {value: ["value", "precision", "comma"]}
+    });
+
     function apply_formatting(value, format_spec) {
-        var ρσ_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, exp, nval, is_positive, left, right;
+        var ρσ_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, prec, exp, nval, is_positive, left, right;
         if (format_spec.indexOf("{") !== -1) {
             format_spec = resolve_format_spec(format_spec);
         }
         if (ρσ_str.format._template_format_pat === undefined) {
-            ρσ_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?(,)?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
+            ρσ_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?([,_])?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
         }
         try {
             ρσ_unpack = format_spec.match(ρσ_str.format._template_format_pat).slice(1);
@@ -2840,7 +2884,7 @@ define_str_func("format", function () {
                     }
                 } else if (ftype === "d") {
                     if (comma) {
-                        value = value.toLocaleString("en-US");
+                        value = safe_comma(value, comma);
                     } else {
                         value = value.toString(10);
                     }
@@ -2860,25 +2904,23 @@ define_str_func("format", function () {
         } else if (['e','f','g','%'].indexOf(lftype) !== -1) {
             is_numeric = true;
             value = parseFloat(value);
+            prec = (isNaN(precision)) ? 6 : precision;
             if (lftype === "e") {
-                value = value.toExponential((isNaN(precision)) ? 6 : precision);
+                value = value.toExponential(prec);
                 value = (ftype === "E") ? value.toUpperCase() : value.toLowerCase();
             } else if (lftype === "f") {
-                value = value.toFixed((isNaN(precision)) ? 6 : precision);
+                value = safe_fixed(value, prec, comma);
                 value = (ftype === "F") ? value.toUpperCase() : value.toLowerCase();
-            } else if (ftype === "%") {
+            } else if (lftype === "%") {
                 value *= 100;
-                value = value.toFixed((isNaN(precision)) ? 6 : precision) + "%";
+                value = safe_fixed(value, prec, comma) + "%";
             } else if (lftype === "g") {
-                if (isNaN(precision)) {
-                    precision = 6;
-                }
-                precision = max(1, precision);
-                exp = parseInt(split(value.toExponential(precision - 1).toLowerCase(), "e")[1], 10);
-                if (-4 <= exp && exp < precision) {
-                    value = value.toFixed(precision - 1 - exp);
+                prec = max(1, prec);
+                exp = parseInt(split(value.toExponential(prec - 1).toLowerCase(), "e")[1], 10);
+                if (-4 <= exp && exp < prec) {
+                    value = safe_fixed(value, prec - 1 - exp, comma);
                 } else {
-                    value = value.toExponential(precision - 1);
+                    value = value.toExponential(prec - 1);
                 }
                 value = value.replace(/0+$/g, "");
                 if (value[value.length-1] === ".") {
@@ -2889,6 +2931,13 @@ define_str_func("format", function () {
                 }
             }
         } else {
+            if (comma) {
+                value = parseInt(value, 10);
+                if (isNaN(value)) {
+                    throw new ValueError("Must use numbers with , or _");
+                }
+                value = safe_comma(value, comma);
+            }
             value += "";
             if (!isNaN(precision)) {
                 value = value.slice(0, precision);
@@ -7479,6 +7528,13 @@ return this.__repr__();
                             in_brace = 1;
                             markup = "";
                         }
+                    } else if (ch === "}") {
+                        if (template[ρσ_bound_index(pos + 1, template)] === "}") {
+                            pos += 1;
+                            ans[ans.length-1] += "}";
+                        } else {
+                            raise_error("f-string: single '}' is not allowed");
+                        }
                     } else {
                         ans[ans.length-1] += ch;
                     }
@@ -8485,7 +8541,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "8422d7fe5f1a0d447dcdd3834e2c6390a0db2358";
+        COMPILER_VERSION = "ea4809cc692147763d700672f77e1ba1f38f24e3";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -8508,7 +8564,7 @@ return this.__repr__();
             ρσ_d["URIError"] = Object.create(null);
             ρσ_d["Object"] = (function(){
                 var ρσ_d = Object.create(null);
-                ρσ_d["static"] = ρσ_list_decorate([ "getOwnPropertyNames", "getOwnPropertyDescriptor", "getOwnPropertySymbols", "keys", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ]);
+                ρσ_d["static"] = ρσ_list_decorate([ "getOwnPropertyNames", "getOwnPropertyDescriptor", "getOwnPropertySymbols", "keys", "entries", "values", "create", "defineProperty", "defineProperties", "getPrototypeOf", "setPrototypeOf", "assign" ]);
                 return ρσ_d;
             }).call(this);
             ρσ_d["String"] = (function(){
@@ -8527,7 +8583,11 @@ return this.__repr__();
                 ρσ_d["static"] = ρσ_list_decorate([ "UTC", "now", "parse" ]);
                 return ρσ_d;
             }).call(this);
-            ρσ_d["ArrayBuffer"] = Object.create(null);
+            ρσ_d["ArrayBuffer"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "isView", "transfer" ]);
+                return ρσ_d;
+            }).call(this);
             ρσ_d["DataView"] = Object.create(null);
             ρσ_d["Float32Array"] = Object.create(null);
             ρσ_d["Float64Array"] = Object.create(null);
@@ -8543,6 +8603,11 @@ return this.__repr__();
             ρσ_d["Proxy"] = Object.create(null);
             ρσ_d["Set"] = Object.create(null);
             ρσ_d["WeakSet"] = Object.create(null);
+            ρσ_d["Promise"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = ρσ_list_decorate([ "all", "race", "reject", "resolve" ]);
+                return ρσ_d;
+            }).call(this);
             ρσ_d["WebSocket"] = Object.create(null);
             ρσ_d["XMLHttpRequest"] = Object.create(null);
             ρσ_d["TextEncoder"] = Object.create(null);
