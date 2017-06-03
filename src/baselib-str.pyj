@@ -141,6 +141,29 @@ define_str_func('format', def ():
             return '' + kwargs[key]
         )
 
+    def set_comma(ans, comma):
+        if comma is not ',':
+            sep = 1234
+            sep = sep.toLocaleString(undefined, v'{useGrouping: true}')[1]
+            ans = str.replace(ans, sep, comma)
+        return ans
+
+    def safe_comma(value, comma):
+        try:
+            return set_comma(value.toLocaleString(undefined, v'{useGrouping: true}'), comma)
+        except:
+            return value.toString(10)
+
+
+    def safe_fixed(value, precision, comma):
+        if not comma:
+            return value.toFixed(precision)
+        try:
+            return set_comma(value.toLocaleString(undefined, v'{useGrouping: true, minimumFractionDigits: precision, maximumFractionDigits: precision}'), comma)
+        except:
+            return value.toFixed(precision)
+
+
     def apply_formatting(value, format_spec):
         if format_spec.indexOf('{') is not -1:
             format_spec = resolve_format_spec(format_spec)
@@ -151,7 +174,7 @@ define_str_func('format', def ():
                 (\#)? # integer base specifier
                 (0)? # zero-padding
                 (\d+)? # width
-                (,)? # use a comma thousands-seperator
+                ([,_])? # use a comma thousands-seperator
                 (?:\.(\d+))? # precision
                 ([bcdeEfFgGnosxX%])? # type
             ///
@@ -196,7 +219,7 @@ define_str_func('format', def ():
                         value = String.fromCharCode(value)
                 elif ftype is 'd':
                     if comma:
-                        value = value.toLocaleString('en-US')
+                        value = safe_comma(value, comma)
                     else:
                         value = value.toString(10)
                 elif ftype is 'o':
@@ -212,24 +235,23 @@ define_str_func('format', def ():
         elif v"['e','f','g','%']".indexOf(lftype) is not -1:
             is_numeric = True
             value = parseFloat(value)
+            prec = 6 if isNaN(precision) else precision
             if lftype is 'e':
-                value = value.toExponential(6 if isNaN(precision) else precision)
+                value = value.toExponential(prec)
                 value = value.toUpperCase() if ftype is 'E' else value.toLowerCase()
             elif lftype is 'f':
-                value = value.toFixed(6 if isNaN(precision) else precision)
+                value = safe_fixed(value, prec, comma)
                 value = value.toUpperCase() if ftype is 'F' else value.toLowerCase()
-            elif ftype is '%':
+            elif lftype is '%':
                 value *= 100
-                value = value.toFixed(6 if isNaN(precision) else precision) + '%'
+                value = safe_fixed(value, prec, comma) + '%'
             elif lftype is 'g':
-                if isNaN(precision):
-                    precision = 6
-                precision = max(1, precision)
-                exp = parseInt(split(value.toExponential(precision - 1).toLowerCase(), 'e')[1], 10)
-                if -4 <= exp < precision:
-                    value = value.toFixed(precision - 1 - exp)
+                prec = max(1, prec)
+                exp = parseInt(split(value.toExponential(prec - 1).toLowerCase(), 'e')[1], 10)
+                if -4 <= exp < prec:
+                    value = safe_fixed(value, prec - 1 - exp, comma)
                 else:
-                    value = value.toExponential(precision - 1)
+                    value = value.toExponential(prec - 1)
                 value = value.replace(/0+$/g, '')
                 if value[-1] is '.':
                     value = value[:-1]
@@ -237,6 +259,11 @@ define_str_func('format', def ():
                     value = value.toUpperCase()
 
         else:
+            if comma:
+                value = parseInt(value, 10)
+                if isNaN(value):
+                    raise ValueError('Must use numbers with , or _')
+                value = safe_comma(value, comma)
             value += ''  # Ensure we have a string
             if not isNaN(precision):
                 value = value[:precision]
