@@ -150,7 +150,9 @@ var crypto = null, fs = require('fs');
 
 function uglify(x) {
     if (!UglifyJS) UglifyJS = vrequire("uglify-js");
-    return UglifyJS.minify(ans, {fromString:true}).code;
+    ans = UglifyJS.minify(x);
+    if (ans.error) throw ans.error;
+    return ans.code;
 }
 
 function regenerate(code, beautify) {

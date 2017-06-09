@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "regenerator": ">= 0.8.32",
-    "uglify-js": ">= 2.4.23"
+    "uglify-js": ">= 3.0.15"
   },
   "optionalDependencies": {
       "v8-profiler": ">= 5.2.9"

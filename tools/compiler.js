@@ -31,19 +31,26 @@ function path_exists(path) {
     }
 }
 
+function uglify(code) {
+    var ans = UglifyJS.minify(code);
+    if (ans.error) throw ans.error;
+    return ans.code;
+}
+
+
 function regenerate(code, beautify) {
     var ans;
     if (code) {
         ans = regenerator.compile(code).code;
         if (!beautify) {
-            ans = UglifyJS.minify(ans, {fromString:true}).code;
+            ans = uglify(ans);
         }
     } else {
         // Return the runtime
         ans = regenerator.compile('', {includeRuntime:true}).code;
         ans = ans.slice(ans.indexOf('!'), ans.lastIndexOf(')(')) + ')';
         if (!beautify) {
-            ans = UglifyJS.minify(ans+'();', {fromString:true}).code.slice(0, -3);
+            ans = uglify(ans).slice(0, -3);
         }
     }
     return ans;
