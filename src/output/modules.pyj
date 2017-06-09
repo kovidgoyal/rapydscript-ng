@@ -52,7 +52,7 @@ def write_imports(module, output):
             print_module(module_, output)
 
 def write_main_name(output):
-    if output.option('write_name'):
+    if output.options.write_name:
         output.newline()
         output.indent()
         output.print('var __name__ = "__main__"')
@@ -68,7 +68,7 @@ def const_decl(js_version):
 
 def declare_exports(module_id, exports, output, docstrings):
     seen = {}
-    if output.option('keep_docstrings') and docstrings and docstrings.length:
+    if output.options.keep_docstrings and docstrings and docstrings.length:
         exports.push({'name':'__doc__', 'refname': 'ρσ_module_doc__'})
         output.newline(), output.indent()
         v = const_decl(output.js_version)
@@ -119,13 +119,13 @@ def print_top_level(self, output):
     is_main = output.is_main()
 
     def write_docstrings():
-        if is_main and output.option('keep_docstrings') and self.docstrings and self.docstrings.length:
+        if is_main and output.options.keep_docstrings and self.docstrings and self.docstrings.length:
             output.newline(), output.indent()
             v = const_decl(output.js_version)
             output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(self.docstrings)))
             output.end_statement()
 
-    if output.option("private_scope") and is_main:
+    if output.options.private_scope and is_main:
         output.with_parens(def():
             output.print("function()")
             output.with_block(def():
@@ -178,7 +178,7 @@ def print_module(self, output):
         output.print("function()")
         output.with_block(def():
             # dump the logic of this module
-            if output.option('write_name'):
+            if output.options.write_name:
                 output.indent()
                 output.print('var ')
                 output.assign('__name__')
@@ -187,7 +187,7 @@ def print_module(self, output):
                 output.newline()
             def output_key(beautify, keep_docstrings, js_version):
                 return 'beautify:' + beautify + ' keep_docstrings:' + keep_docstrings + ' js_version:' + js_version
-            okey = output_key(output.option('beautify'), output.option('keep_docstrings'), output.option('js_version'))
+            okey = output_key(output.options.beautify, output.options.keep_docstrings, output.options.js_version)
             if self.is_cached and okey in self.outputs:
                 output.print(self.outputs[okey])
             else:

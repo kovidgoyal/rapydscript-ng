@@ -57,7 +57,7 @@ def generate_code():
 
     # -----[ comments ]-----
     AST_Node.prototype.add_comments = def(output):
-        c = output.option("comments")
+        c = output.options.comments
         self = this
         if c:
             start = self.start
@@ -319,7 +319,7 @@ def generate_code():
 
     # -----[ if ]-----
     def make_then(self, output):
-        if output.option("bracketize"):
+        if output.options.bracketize:
             make_block(self.body, output)
             return
 
@@ -333,7 +333,7 @@ def generate_code():
         if not self.body:
             return output.force_semicolon()
 
-        if is_node_type(self.body, AST_Do) and output.option("ie_proof"):
+        if is_node_type(self.body, AST_Do) and output.options.ie_proof:
             # https://github.com/mishoo/RapydScript/issues/#issue/57 IE
             # croaks with "syntax error" on code like this: if (foo)
             # do ... while(cond); else ...  we need block brackets

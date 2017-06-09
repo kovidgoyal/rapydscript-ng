@@ -65,7 +65,7 @@ def print_for_loop_body(output):
         if not (self.simple_for_index or is_simple_for_in(self)):
             # if we're using multiple iterators, unpack them
             output.indent()
-            if output.option('js_version') is 5:
+            if output.options.js_version is 5:
                 itervar = "ρσ_Iter" + output.index_counter + "[ρσ_Index" + output.index_counter + "]"
             else:
                 itervar = "ρσ_Index" + output.index_counter
@@ -209,7 +209,7 @@ def print_list_comprehension(self, output):
     tname = self.constructor.name.slice(4)
     result_obj = {'ListComprehension':'[]', 'DictComprehension':('Object.create(null)' if self.is_jshash else '{}'), 'SetComprehension':'ρσ_set()'}[tname]
     is_generator = tname is 'GeneratorComprehension'
-    es5 = output.option('js_version') is 5
+    es5 = output.options.js_version is 5
     if tname is 'DictComprehension':
         if self.is_pydict:
             result_obj = 'ρσ_dict()'

@@ -285,9 +285,6 @@ class OutputStream:
     def is_main(self):
         return self.OUTPUT.length is 0
 
-    def option(self, opt):
-        return self.options[opt]
-
     def line(self):
         return self.current_line
 

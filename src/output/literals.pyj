@@ -90,7 +90,7 @@ def print_set(self, output):
 
 def print_regexp(self, output):
     str_ = self.value.toString()
-    if output.option("ascii_only"):
+    if output.options.ascii_only:
         str_ = output.to_ascii(str_)
     output.print(str_)
     p = output.parent()

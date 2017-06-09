@@ -9,7 +9,7 @@ from ast import (
 )
 
 def force_statement(stat, output):
-    if output.option("bracketize"):
+    if output.options.bracketize:
         if not stat or is_node_type(stat, AST_EmptyStatement):
             output.print("{}")
         elif is_node_type(stat, AST_BlockStatement):
