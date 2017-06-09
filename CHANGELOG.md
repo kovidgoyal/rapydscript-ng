@@ -1,3 +1,9 @@
+version 0.7.16
+==================
+
+  * Fix using function generators not working if installed version of uglify-js >= 3
+  * Speedup the compiler slightly by making reading options more efficient
+
 version 0.7.15
 ==================
 
