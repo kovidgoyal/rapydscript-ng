@@ -1,0 +1,9 @@
+install:
+    - npm install --no-optional
+
+test_script:
+    - node --version
+    - npm --version
+    - npm test
+
+build: off

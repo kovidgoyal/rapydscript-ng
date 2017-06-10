@@ -10,9 +10,9 @@
   ],
   "main": "tools/compiler.js",
   "scripts": {
-    "test": "./build",
-    "start": "bin/rapydscript",
-    "build-self": "bin/rapydscript self --complete"
+    "test": "node bin/rapydscript self --complete --test",
+    "start": "node bin/rapydscript",
+    "build-self": "node bin/rapydscript self --complete"
   },
   "version": "0.7.16",
   "license": "BSD-2-Clause",
