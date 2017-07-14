@@ -1999,15 +1999,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         ans = AST_Assign(data)
         if S.in_class.length and S.in_class[-1]:
             class_name = S.in_class[-1]
-            if is_node_type(ans.left, AST_SymbolRef):
-                if S.classes.length > 1:
-                    c = S.classes[-2][class_name]
-                    if c:
-                        if ans.is_chained():
-                            for lhs in ans.traverse_chain()[0]:
-                                c.provisional_classvars[lhs.name] = True
-                        else:
-                            c.provisional_classvars[ans.left.name] = True
+            if is_node_type(ans.left, AST_SymbolRef) and S.classes.length > 1:
+                c = S.classes[-2][class_name]
+                if c:
+                    if ans.is_chained():
+                        for lhs in ans.traverse_chain()[0]:
+                            c.provisional_classvars[lhs.name] = True
+                    else:
+                        c.provisional_classvars[ans.left.name] = True
         return ans
 
     def maybe_assign(no_in, only_plain_assignment):
