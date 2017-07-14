@@ -1,3 +1,10 @@
+version 0.7.17
+==================
+
+  * Fix attempts to access calss variables from inside instance methods not
+    working
+  * Fix stdlib random.random() method not working in the Edge browser
+
 version 0.7.16
 ==================
 
