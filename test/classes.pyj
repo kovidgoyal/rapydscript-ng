@@ -401,3 +401,28 @@ class B2(B1):
     def two(self):
         return self.b2
 assrt.equal(B2().two(), 2)
+
+
+class Cvar:
+    a = b = 0
+    def __init__(self):
+        Cvar.a += 1
+
+    def inc(self):
+        Cvar.a += 1
+
+    def val(self):
+        return Cvar.a
+
+    def incb(self):
+        Cvar.b += 1
+        return Cvar.b
+
+assrt.equal(Cvar.a, 0)
+c = Cvar()
+assrt.equal(Cvar.a, 1)
+c.inc()
+assrt.equal(Cvar.a, 2)
+assrt.equal(Cvar().val(), 3)
+assrt.equal(Cvar().incb(), 1)
+assrt.equal(Cvar().incb(), 2)

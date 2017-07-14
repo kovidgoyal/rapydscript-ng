@@ -880,6 +880,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             "static": [],
             'bound': v'[]',
             'classvars': {},
+            'processing': name.name,
+            'provisional_classvars': {},
         }
         bases = v'[]'
         class_parent = None
@@ -943,6 +945,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return a
             )(S.in_loop, S.labels)
         })
+        class_details.processing = False
         # find the constructor
         for stmt in definition.body:
             if is_node_type(stmt, AST_Method):
@@ -1852,8 +1855,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         next()
         prop = as_name()
         c = get_class_in_scope(expr)
-        if c and c.classvars and v'c.classvars[prop]':
-            prop = 'prototype.' + prop
+        if c:
+            classvars = c.provisional_classvars if c.processing else c.classvars
+            if classvars and v'classvars[prop]':
+                prop = 'prototype.' + prop
+
         return subscripts(new AST_Dot({
             'start': expr.start,
             'expression': expr,
@@ -1990,7 +1996,19 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 is_node_type(data.right.car, AST_Assign) or
                 is_node_type(data.right.cdr, AST_Assign)) and data.operator is not '=':
             token_error(data.start, 'Invalid assignment operator for chained assignment: ' + data.operator)
-        return new AST_Assign(data)
+        ans = AST_Assign(data)
+        if S.in_class.length and S.in_class[-1]:
+            class_name = S.in_class[-1]
+            if is_node_type(ans.left, AST_SymbolRef):
+                if S.classes.length > 1:
+                    c = S.classes[-2][class_name]
+                    if c:
+                        if ans.is_chained():
+                            for lhs in ans.traverse_chain()[0]:
+                                c.provisional_classvars[lhs.name] = True
+                        else:
+                            c.provisional_classvars[ans.left.name] = True
+        return ans
 
     def maybe_assign(no_in, only_plain_assignment):
         start = S.token
