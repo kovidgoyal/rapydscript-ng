@@ -30,7 +30,7 @@ var MESSAGES = {
 
 var BUILTINS = Object.create(null);
 ('this self window document chr ord iterator_symbol print len range dir' + 
- ' eval undefined arguments abs max min enumerate callable reversed sum' + 
+ ' eval undefined arguments abs max min enumerate pow callable reversed sum' + 
  ' getattr isFinite setattr hasattr parseInt parseFloat options_object' +
  ' isNaN JSON Math list set list_wrap ρσ_modules require bool int bin' +
  ' float iter Error EvalError set_wrap RangeError ReferenceError SyntaxError' +
@@ -434,7 +434,7 @@ function Linter(toplevel, filename, code, options) {
         this.current_node = node;
         var scope_count = this.scopes.length;
         var branch_count = this.branches.length;
-        if (node instanceof RapydScript.AST_If || node instanceof RapydScript.AST_Try || node instanceof RapydScript.AST_Catch || node instanceof RapydScript.AST_Except) {
+        if (node instanceof RapydScript.AST_If || node instanceof RapydScript.AST_Try || node instanceof RapydScript.AST_Catch || node instanceof RapydScript.AST_Except || node instanceof RapydScript.AST_Else) {
             this.branches.push(1);
         }
 
