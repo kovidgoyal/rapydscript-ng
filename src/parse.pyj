@@ -10,7 +10,7 @@ AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional,
 AST_Constant, AST_Continue, AST_DWLoop, AST_Debugger, AST_Decorator,
 AST_Definitions, AST_DictComprehension, AST_Directive, AST_Do, AST_Dot,
-AST_EmptyStatement, AST_Except, AST_ExpressiveObject, AST_False, AST_Finally,
+AST_Else, AST_EmptyStatement, AST_Except, AST_ExpressiveObject, AST_False, AST_Finally,
 AST_ForIn, AST_ForJS, AST_Function, AST_GeneratorComprehension, AST_Hole,
 AST_If, AST_Import, AST_ImportedVar, AST_Imports, AST_ListComprehension,
 AST_Method, AST_New, AST_Null, AST_Number, AST_Object, AST_ObjectKeyVal,
@@ -1237,6 +1237,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         body = block_()
         bcatch = v'[]'
         bfinally = None
+        belse = None
         while is_("keyword", "except"):
             start = S.token
             next()
@@ -1260,6 +1261,15 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'end': prev()
             }))
 
+        if is_("keyword", "else"):
+            start = S.token
+            next()
+            belse = new AST_Else({
+                'start': start,
+                'body': block_(),
+                'end': prev()
+            })
+
         if is_("keyword", "finally"):
             start = S.token
             next()
@@ -1275,7 +1285,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return new AST_Try({
             'body': body,
             'bcatch': (new AST_Catch({ 'body': bcatch }) if bcatch.length else None),
-            'bfinally': bfinally
+            'bfinally': bfinally,
+            'belse': belse
         })
 
     def vardefs(symbol_class):

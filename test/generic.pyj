@@ -257,12 +257,60 @@ def stackf():
     return traceback.format_stack()
 assrt.ok(str.strip(stackf()[-1]).startsWith('at stackf'))
 
+
+def else_without_finally(fail):
+    ans = []
+    try:
+        if fail:
+            raise Exception('a')
+        ans.push('ok')
+    except:
+        ans.append('ex')
+    else:
+        ans.append('el')
+    return ans
+
+def else_with_finally(fail):
+    ans = []
+    try:
+        if fail:
+            raise Exception('a')
+        ans.push('ok')
+    except:
+        ans.push('ex')
+    else:
+        ans.push('el')
+    finally:
+        ans.push('fi')
+    return ans
+
+def exc_in_else():
+    ans = []
+    try:
+        try:
+            ans.push('ok')
+        except:
+            pass
+        else:
+            raise Exception('1')
+        finally:
+            ans.push('fi')
+    except:
+        ans.push('ex')
+    return ans
+
+assrt.deepEqual(else_without_finally(), ['ok', 'el'])
+assrt.deepEqual(else_without_finally(True), ['ex'])
+assrt.deepEqual(else_with_finally(), ['ok', 'el', 'fi'])
+assrt.deepEqual(else_with_finally(True), ['ex', 'fi'])
+assrt.deepEqual(exc_in_else(), ['ok', 'fi', 'ex'])
+
 # Existential operator
 
 assrt.ok(not gfsgs?)
 assrt.equal(gfsgs ? 1, 1)
 assrt.equal(gfsgs?.b, undefined)
-assrt.equal(gfsgs?(), undefined)
+assrt.equal(gfsgs?(), undefined)  # noqa: undef
 undef = undefined
 assrt.ok(not undef?)
 undef = None

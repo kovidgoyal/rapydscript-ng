@@ -104,16 +104,28 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
 
     display_body(node.body, is_toplevel, output)
 
-def print_bracketed(node, output, complex, function_preamble):
+def print_bracketed(node, output, complex, function_preamble, before, after):
     if node.body.length > 0:
         output.with_block(def():
+            if before:
+                before(output)
             if complex:
                 display_complex_body(node, False, output, function_preamble)
             else:
                 display_body(node.body, False, output, function_preamble)
+            if after:
+                after(output)
         )
     else:
-        output.print("{}")
+        if before or after:
+            output.with_block(def():
+                if before:
+                    before(output)
+                if after:
+                    after(output)
+            )
+        else:
+            output.print("{}")
 
 def print_with(self, output):
     exits = v'[]'

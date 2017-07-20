@@ -71,6 +71,11 @@ class OutputStream:
         self._stack = []
         self.index_counter = 0
         self.with_counter = 0
+        self.try_else_counter = 0
+
+    def new_try_else_counter(self):
+        self.try_else_counter += 1
+        return 'ρσ_try_else_' + self.try_else_counter
 
     def make_name(self, name):
         name = name.toString()

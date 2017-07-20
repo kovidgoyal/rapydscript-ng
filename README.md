@@ -1270,14 +1270,7 @@ to the RapydScript compiler. See the documentation of the option for details.
 Exception Handling
 ------------------
 
-Exception handling in RapydScript works just like it does in python. The only
-differences are:
-
-	- There is no traceback module. To get tracebacks for exception, just use
-	  the `.stack` property on the exception object
-
-	- There is no support for an `else:` clause. There is no fundamental reason
-	  for this, it's just something I haven't got around to.
+Exception handling in RapydScript works just like it does in python. 
 
 An example:
 
@@ -1285,7 +1278,10 @@ An example:
 try:
 	somefunc()
 except Exception as e:
-	print(e.stack)  # Equivalent to traceback.print_exc()
+	import traceback
+	traceback.print_exc()
+else:
+    print('no exception occurred')
 finally:
     cleanup()
 ```

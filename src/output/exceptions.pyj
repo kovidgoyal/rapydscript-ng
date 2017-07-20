@@ -4,17 +4,28 @@ from __python__ import hash_literals
 
 from output.statements import print_bracketed
 
+
 def print_try(self, output):
+    else_var_name = None
+    def update_output_var(output):
+        output.indent(), output.assign(else_var_name), output.print('true'), output.end_statement()
+    if self.belse:
+        else_var_name = output.new_try_else_counter()
+        output.assign('var ' + else_var_name), output.print('false'), output.end_statement(), output.indent()
     output.print("try")
     output.space()
-    print_bracketed(self, output)
+    print_bracketed(self, output, False, None, None, update_output_var if else_var_name else None)
     if self.bcatch:
         output.space()
-        self.bcatch.print(output)
+        print_catch(self.bcatch, output)
 
     if self.bfinally:
         output.space()
-        self.bfinally.print(output)
+        print_finally(self.bfinally, output, self.belse, else_var_name)
+    elif self.belse:
+        output.newline()
+        print_else(self.belse, else_var_name, output)
+
 
 def print_catch(self, output):
     output.print("catch")
@@ -71,8 +82,24 @@ def print_catch(self, output):
         output.newline()
     )
 
-def print_finally(self, output):
+
+def print_finally(self, output, belse, else_var_name):
     output.print("finally")
     output.space()
-    print_bracketed(self, output)
+    if else_var_name:
+        output.with_block(def():
+            output.indent(), output.print("try")
+            output.space()
+            output.with_block(def():
+                print_else(belse, else_var_name, output)
+            )
+            print_finally(self, output)
+        )
+    else:
+        print_bracketed(self, output)
 
+
+def print_else(self, else_var_name, output):
+    output.indent(), output.spaced('if', '(' + else_var_name + ')')
+    output.space()
+    print_bracketed(self, output)

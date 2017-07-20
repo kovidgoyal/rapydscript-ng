@@ -502,7 +502,8 @@ class AST_Try(AST_Block):
     "A `try` statement"
     properties = {
         'bcatch': "[AST_Catch?] the catch block, or null if not present",
-        'bfinally': "[AST_Finally?] the finally block, or null if not present"
+        'bfinally': "[AST_Finally?] the finally block, or null if not present",
+        'belse': '[AST_Else?] the else block for null if not present',
     }
 
     def _walk(self, visitor):
@@ -510,6 +511,9 @@ class AST_Try(AST_Block):
             walk_body(self, visitor)
             if self.bcatch:
                 self.bcatch._walk(visitor)
+
+            if self.belse:
+                self.belse._walk(visitor)
 
             if self.bfinally:
                 self.bfinally._walk(visitor)
@@ -536,6 +540,10 @@ class AST_Except(AST_Block):
 
 class AST_Finally(AST_Block):
     "A `finally` node; only makes sense as part of a `try` statement"
+
+class AST_Else(AST_Block):
+    'An `else` node; only makes sense as part of `try` statement'
+
 # }}}
 
 # VAR/CONST {{{
