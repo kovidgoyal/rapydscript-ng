@@ -79,6 +79,8 @@ throw_test('a += [1, 2] += b')
 throw_test('function = 1')
 throw_test('def function():\n pass')
 throw_test('class function:\n pass')
+throw_test('while 1:\npass')
+throw_test('def f():\n while 1:\n pass')
 
 # object literals
 {1:

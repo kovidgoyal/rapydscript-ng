@@ -1205,6 +1205,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return False
 
     def block_(docstrings):
+        T = S.input.context()
+        prev_whitespace = T.whitespace_before.slice()
         expect(":")
         a = v'[]'
         if not S.token.nlb:
@@ -1219,6 +1221,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         continue
                 a.push(stmt)
         else:
+            current_whitespace = T.whitespace_before
+            if current_whitespace.length is 0 or prev_whitespace.join('') is current_whitespace.join(''):
+                croak('Expected an indented block')
             while not is_("punc", "}"):
                 if is_("eof"):
                     # end of file, terminate block automatically
