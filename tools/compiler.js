@@ -39,7 +39,7 @@ function uglify(code) {
 
 
 function regenerate(code, beautify) {
-    var ans;
+    var ans, start, end;
     if (code) {
         ans = regenerator.compile(code).code;
         if (!beautify) {
@@ -48,8 +48,13 @@ function regenerate(code, beautify) {
     } else {
         // Return the runtime
         ans = regenerator.compile('', {includeRuntime:true}).code;
+        start = ans.indexOf('!');
+        end = ans.lastIndexOf('})(');
+        end = ans.lastIndexOf('})(', end - 1);
+        ans = ans.slice(start + 1, end);
         if (!beautify) {
-            ans = uglify(ans).slice(0, -3);
+            var extra = '})()';
+            ans = uglify(ans + extra).slice(0, extra.length);
         }
     }
     return ans;

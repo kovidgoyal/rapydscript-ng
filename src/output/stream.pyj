@@ -254,10 +254,6 @@ class OutputStream:
             code = code.replace(/\/\/.*$/mg, '\n').replace(/^\s*$/gm, '')  # strip comments
             ci = self.make_indent(0)
             code = [ci + x for x in code.split('\n')].join('\n')
-        start = code.indexOf('!')
-        end = code.lastIndexOf('})(')
-        end = code.lastIndexOf('})(', end - 1)
-        code = code.slice(start + 1, end)
         self.print(code + '})(ρσ_regenerator)')
         self.end_statement()
 

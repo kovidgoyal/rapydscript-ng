@@ -176,7 +176,14 @@ function regenerate(code, beautify) {
     } else {
         // Return the runtime
         ans = regenerator.compile('', {includeRuntime:true}).code;
-        if (!beautify) ans = uglify(ans+'();').slice(0, -3);
+        start = ans.indexOf('!');
+        end = ans.lastIndexOf('})(');
+        end = ans.lastIndexOf('})(', end - 1);
+        ans = ans.slice(start + 1, end);
+        if (!beautify) {
+            var extra = '})()';
+            ans = uglify(ans + extra).slice(0, extra.length);
+        }
     }
     fs.readFileSync = orig;
     return ans;
