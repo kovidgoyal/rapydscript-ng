@@ -302,8 +302,7 @@ def tokenizer(raw_text, filename):
             else:
                 # indent mismatch, inconsistent indentation
                 parse_error("Inconsistent indentation")
-        else:
-            return 0
+        return 0
 
     def read_while(pred):
         ret = ""
@@ -600,8 +599,8 @@ def tokenizer(raw_text, filename):
     def next_token():
 
         indent = parse_whitespace()
-        #        if (indent is 1)
-        #            return token("punc", "{")
+        # if indent is 1:
+        #     return token("punc", "{")
         if indent is -1:
             return token("punc", "}", False, True)
 
