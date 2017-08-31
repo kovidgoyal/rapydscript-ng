@@ -48,7 +48,6 @@ function regenerate(code, beautify) {
     } else {
         // Return the runtime
         ans = regenerator.compile('', {includeRuntime:true}).code;
-        ans = ans.slice(ans.indexOf('!'), ans.lastIndexOf(')(')) + ')';
         if (!beautify) {
             ans = uglify(ans).slice(0, -3);
         }
