@@ -1426,6 +1426,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     ex.parens = True
                 if not is_node_type(ex, AST_GeneratorComprehension):
                     expect(")")
+                if is_node_type(ex, AST_UnaryPrefix):
+                    ex.parenthesized = True
                 S.in_parenthesized_expr = False
                 return subscripts(ex, allow_calls)
             elif tmp_ is "[":

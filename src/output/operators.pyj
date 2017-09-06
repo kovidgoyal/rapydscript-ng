@@ -180,7 +180,7 @@ def print_binary_op(self, output):
             self.right.print(output)
         )
     elif self.operator is '**':
-        if is_node_type(self.left, AST_Unary):
+        if is_node_type(self.left, AST_Unary) and not self.left.parenthesized:
             output.print(self.left.operator + 'Math.pow(')
             self.left.expression.print(output), output.comma()
             self.right.print(output), output.print(')')
