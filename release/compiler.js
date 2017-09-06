@@ -4328,6 +4328,7 @@ return this.__repr__();
             ρσ_d["nlb"] = "True iff there was a newline before this token";
             ρσ_d["comments_before"] = "True iff there were comments before this token";
             ρσ_d["file"] = "The filename in which this token occurs";
+            ρσ_d["leading_whitespace"] = "The leading whitespace for the line on which this token occurs";
             return ρσ_d;
         }).call(this);
 
@@ -5603,6 +5604,9 @@ return this.__repr__();
                 if (self.bcatch) {
                     self.bcatch._walk(visitor);
                 }
+                if (self.belse) {
+                    self.belse._walk(visitor);
+                }
                 if (self.bfinally) {
                     self.bfinally._walk(visitor);
                 }
@@ -5624,6 +5628,7 @@ return this.__repr__();
             var ρσ_d = Object.create(null);
             ρσ_d["bcatch"] = "[AST_Catch?] the catch block, or null if not present";
             ρσ_d["bfinally"] = "[AST_Finally?] the finally block, or null if not present";
+            ρσ_d["belse"] = "[AST_Else?] the else block for null if not present";
             return ρσ_d;
         }).call(this);
 
@@ -5706,6 +5711,24 @@ return this.__repr__();
 return this.__repr__();
         };
         Object.defineProperty(AST_Finally.prototype, "__bases__", {value: [AST_Block]});
+
+        function AST_Else() {
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+            AST_Else.prototype.__init__.apply(this, arguments);
+        }
+        ρσ_extends(AST_Else, AST_Block);
+        AST_Else.prototype.__init__ = function __init__ () {
+            AST_Block.prototype.__init__ && AST_Block.prototype.__init__.apply(this, arguments);
+        };
+        AST_Else.prototype.__repr__ = function __repr__ () {
+            if(AST_Block.prototype.__repr__) return AST_Block.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+        };
+        AST_Else.prototype.__str__ = function __str__ () {
+            if(AST_Block.prototype.__str__) return AST_Block.prototype.__str__.call(this);
+return this.__repr__();
+        };
+        Object.defineProperty(AST_Else.prototype, "__bases__", {value: [AST_Block]});
 
         function AST_Definitions() {
             if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
@@ -6230,6 +6253,7 @@ return this.__repr__();
             var ρσ_d = Object.create(null);
             ρσ_d["operator"] = "[string] the operator";
             ρσ_d["expression"] = "[AST_Node] expression that this unary operator applies to";
+            ρσ_d["parenthesized"] = "[bool] Whether this unary expression was parenthesized";
             return ρσ_d;
         }).call(this);
 
@@ -7411,6 +7435,7 @@ return this.__repr__();
         ρσ_modules.ast.AST_Catch = AST_Catch;
         ρσ_modules.ast.AST_Except = AST_Except;
         ρσ_modules.ast.AST_Finally = AST_Finally;
+        ρσ_modules.ast.AST_Else = AST_Else;
         ρσ_modules.ast.AST_Definitions = AST_Definitions;
         ρσ_modules.ast.AST_Var = AST_Var;
         ρσ_modules.ast.AST_VarDef = AST_VarDef;
@@ -7813,6 +7838,7 @@ return this.__repr__();
                     ρσ_d["endpos"] = S.pos;
                     ρσ_d["nlb"] = S.newline_before;
                     ρσ_d["file"] = filename;
+                    ρσ_d["leading_whitespace"] = (ρσ_expr_temp = S.whitespace_before)[ρσ_expr_temp.length-1] || "";
                     return ρσ_d;
                 }).call(this);
                 if (!is_comment) {
@@ -7895,9 +7921,8 @@ return this.__repr__();
                     } else {
                         parse_error("Inconsistent indentation");
                     }
-                } else {
-                    return 0;
                 }
+                return 0;
             };
             if (!test_indent_token.__argnames__) Object.defineProperties(test_indent_token, {
                 __argnames__ : {value: ["leading_whitespace"]}
@@ -8477,6 +8502,7 @@ return this.__repr__();
         var AST_Directive = ρσ_modules.ast.AST_Directive;
         var AST_Do = ρσ_modules.ast.AST_Do;
         var AST_Dot = ρσ_modules.ast.AST_Dot;
+        var AST_Else = ρσ_modules.ast.AST_Else;
         var AST_EmptyStatement = ρσ_modules.ast.AST_EmptyStatement;
         var AST_Except = ρσ_modules.ast.AST_Except;
         var AST_ExpressiveObject = ρσ_modules.ast.AST_ExpressiveObject;
@@ -8541,7 +8567,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "757353727bdf63b7ca13e334d962444b6b90ba53";
+        COMPILER_VERSION = "11f4892304465d65e022681312abc87bd57b6b4f";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -9065,12 +9091,16 @@ return this.__repr__();
 
             
             var statement = embed_tokens(function statement() {
-                var tmp_, start, func, chain, cond, msg, tmp;
+                var tmp_, p, start, func, chain, cond, msg, tmp;
                 if (S.token.type === "operator" && S.token.value.substr(0, 1) === "/") {
                     token_error(S.token, "RapydScript does not support statements starting with regexp literals");
                 }
                 S.statement_starting_token = S.token;
                 tmp_ = S.token.type;
+                p = prev();
+                if (p && !S.token.nlb && ATOMIC_START_TOKEN[ρσ_bound_index(p.type, ATOMIC_START_TOKEN)] && !is_("punc", ":")) {
+                    unexpected();
+                }
                 if (tmp_ === "string") {
                     return simple_statement();
                 } else if (tmp_ === "shebang") {
@@ -10197,7 +10227,8 @@ return this.__repr__();
             });
 
             function block_(docstrings) {
-                var a, stmt, ds;
+                var prev_whitespace, a, stmt, ds, current_whitespace;
+                prev_whitespace = S.token.leading_whitespace;
                 expect(":");
                 a = [];
                 if (!S.token.nlb) {
@@ -10216,6 +10247,10 @@ return this.__repr__();
                         a.push(stmt);
                     }
                 } else {
+                    current_whitespace = S.token.leading_whitespace;
+                    if (current_whitespace.length === 0 || prev_whitespace === current_whitespace) {
+                        croak("Expected an indented block");
+                    }
                     while (!is_("punc", "}")) {
                         if (is_("eof")) {
                             return a;
@@ -10239,10 +10274,11 @@ return this.__repr__();
             });
 
             function try_() {
-                var body, bcatch, bfinally, start, exceptions, name;
+                var body, bcatch, bfinally, belse, start, exceptions, name;
                 body = block_();
                 bcatch = [];
                 bfinally = null;
+                belse = null;
                 while (is_("keyword", "except")) {
                     start = S.token;
                     next();
@@ -10269,6 +10305,17 @@ return this.__repr__();
                         return ρσ_d;
                     }).call(this)));
                 }
+                if (is_("keyword", "else")) {
+                    start = S.token;
+                    next();
+                    belse = new AST_Else((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = block_();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
+                }
                 if (is_("keyword", "finally")) {
                     start = S.token;
                     next();
@@ -10292,6 +10339,7 @@ return this.__repr__();
                         return ρσ_d;
                     }).call(this)) : null;
                     ρσ_d["bfinally"] = bfinally;
+                    ρσ_d["belse"] = belse;
                     return ρσ_d;
                 }).call(this));
             };
@@ -10487,6 +10535,9 @@ return this.__repr__();
                         }
                         if (!is_node_type(ex, AST_GeneratorComprehension)) {
                             expect(")");
+                        }
+                        if (is_node_type(ex, AST_UnaryPrefix)) {
+                            ex.parenthesized = true;
                         }
                         S.in_parenthesized_expr = false;
                         return subscripts(ex, allow_calls);
@@ -11797,12 +11848,21 @@ return this.__repr__();
             self._stack = ρσ_list_decorate([]);
             self.index_counter = 0;
             self.with_counter = 0;
+            self.try_else_counter = 0;
         };
         if (!OutputStream.prototype.__init__.__argnames__) Object.defineProperties(OutputStream.prototype.__init__, {
             __argnames__ : {value: ["options"]}
         });
         OutputStream.__argnames__ = OutputStream.prototype.__init__.__argnames__;
         OutputStream.__handles_kwarg_interpolation__ = OutputStream.prototype.__init__.__handles_kwarg_interpolation__;
+        OutputStream.prototype.new_try_else_counter = function new_try_else_counter() {
+            var self = this;
+            self.try_else_counter += 1;
+            return "ρσ_try_else_" + self.try_else_counter;
+        };
+        if (!OutputStream.prototype.new_try_else_counter.__argnames__) Object.defineProperties(OutputStream.prototype.new_try_else_counter, {
+            __argnames__ : {value: []}
+        });
         OutputStream.prototype.make_name = function make_name(name) {
             var self = this;
             name = name.toString();
@@ -12092,7 +12152,7 @@ return this.__repr__();
                     return ρσ_Result;
                 })().join("\n");
             }
-            self.print(code + "(ρσ_regenerator)");
+            self.print(code + "})(ρσ_regenerator)");
             self.end_statement();
         };
         if (!OutputStream.prototype.dump_yield.__argnames__) Object.defineProperties(OutputStream.prototype.dump_yield, {
@@ -12378,21 +12438,38 @@ return this.__repr__();
             __argnames__ : {value: ["node", "is_toplevel", "output", "function_preamble"]}
         });
 
-        function print_bracketed(node, output, complex, function_preamble) {
+        function print_bracketed(node, output, complex, function_preamble, before, after) {
             if (node.body.length > 0) {
                 output.with_block(function () {
+                    if (before) {
+                        before(output);
+                    }
                     if (complex) {
                         display_complex_body(node, false, output, function_preamble);
                     } else {
                         display_body(node.body, false, output, function_preamble);
                     }
+                    if (after) {
+                        after(output);
+                    }
                 });
             } else {
-                output.print("{}");
+                if (before || after) {
+                    output.with_block(function () {
+                        if (before) {
+                            before(output);
+                        }
+                        if (after) {
+                            after(output);
+                        }
+                    });
+                } else {
+                    output.print("{}");
+                }
             }
         };
         if (!print_bracketed.__argnames__) Object.defineProperties(print_bracketed, {
-            __argnames__ : {value: ["node", "output", "complex", "function_preamble"]}
+            __argnames__ : {value: ["node", "output", "complex", "function_preamble", "before", "after"]}
         });
 
         function print_with(self, output) {
@@ -12484,16 +12561,33 @@ return this.__repr__();
         var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
 
         function print_try(self, output) {
+            var else_var_name;
+            else_var_name = null;
+            function update_output_var(output) {
+                [output.indent(), output.assign(else_var_name), output.print("true"), output.end_statement()];
+            };
+            if (!update_output_var.__argnames__) Object.defineProperties(update_output_var, {
+                __argnames__ : {value: ["output"]}
+            });
+
+            if (self.belse) {
+                else_var_name = output.new_try_else_counter();
+                [output.assign("var " + else_var_name), output.print("false"), output.end_statement(), 
+                output.indent()];
+            }
             output.print("try");
             output.space();
-            print_bracketed(self, output);
+            print_bracketed(self, output, false, null, null, (else_var_name) ? update_output_var : null);
             if (self.bcatch) {
                 output.space();
-                self.bcatch.print(output);
+                print_catch(self.bcatch, output);
             }
             if (self.bfinally) {
                 output.space();
-                self.bfinally.print(output);
+                print_finally(self.bfinally, output, self.belse, else_var_name);
+            } else if (self.belse) {
+                output.newline();
+                print_else(self.belse, else_var_name, output);
             }
         };
         if (!print_try.__argnames__) Object.defineProperties(print_try, {
@@ -12574,18 +12668,39 @@ return this.__repr__();
             __argnames__ : {value: ["self", "output"]}
         });
 
-        function print_finally(self, output) {
+        function print_finally(self, output, belse, else_var_name) {
             output.print("finally");
+            output.space();
+            if (else_var_name) {
+                output.with_block(function () {
+                    [output.indent(), output.print("try")];
+                    output.space();
+                    output.with_block(function () {
+                        print_else(belse, else_var_name, output);
+                    });
+                    print_finally(self, output);
+                });
+            } else {
+                print_bracketed(self, output);
+            }
+        };
+        if (!print_finally.__argnames__) Object.defineProperties(print_finally, {
+            __argnames__ : {value: ["self", "output", "belse", "else_var_name"]}
+        });
+
+        function print_else(self, else_var_name, output) {
+            [output.indent(), output.spaced("if", "(" + else_var_name + ")")];
             output.space();
             print_bracketed(self, output);
         };
-        if (!print_finally.__argnames__) Object.defineProperties(print_finally, {
-            __argnames__ : {value: ["self", "output"]}
+        if (!print_else.__argnames__) Object.defineProperties(print_else, {
+            __argnames__ : {value: ["self", "else_var_name", "output"]}
         });
 
         ρσ_modules["output.exceptions"].print_try = print_try;
         ρσ_modules["output.exceptions"].print_catch = print_catch;
         ρσ_modules["output.exceptions"].print_finally = print_finally;
+        ρσ_modules["output.exceptions"].print_else = print_else;
     })();
 
     (function(){
@@ -13428,7 +13543,7 @@ return this.__repr__();
         });
 
         function print_binary_op(self, output) {
-            var comparators, function_ops, leftvar;
+            var comparators, function_ops, leftvar, left;
             comparators = (function(){
                 var ρσ_d = Object.create(null);
                 ρσ_d["<"] = true;
@@ -13484,12 +13599,16 @@ return this.__repr__();
                     self.right.print(output);
                 });
             } else if (self.operator === "**") {
-                if (is_node_type(self.left, AST_Unary)) {
-                    output.print(self.left.operator + "Math.pow(");
-                    [self.left.expression.print(output), output.comma()];
-                    [self.right.print(output), output.print(")")];
+                left = self.left;
+                if (is_node_type(self.left, AST_Unary) && !self.left.parenthesized) {
+                    left = self.left.expression;
+                    output.print(self.left.operator);
+                }
+                if (output.options.js_version > 5) {
+                    [output.print("(("), left.print(output), output.spaced(")", "**", "("), self.right.print(output), 
+                    output.print("))")];
                 } else {
-                    [output.print("Math.pow("), self.left.print(output), output.comma(), self.right.print(output), 
+                    [output.print("Math.pow("), left.print(output), output.comma(), self.right.print(output), 
                     output.print(")")];
                 }
             } else if (self.operator === "==" || self.operator === "!=") {
@@ -15267,8 +15386,6 @@ return this.__repr__();
         var AST_Existential = ρσ_modules.ast.AST_Existential;
 
         var print_try = ρσ_modules["output.exceptions"].print_try;
-        var print_catch = ρσ_modules["output.exceptions"].print_catch;
-        var print_finally = ρσ_modules["output.exceptions"].print_finally;
 
         var print_class = ρσ_modules["output.classes"].print_class;
 
@@ -15850,8 +15967,6 @@ return this.__repr__();
                 return ρσ_anonfunc;
             })());
             DEFPRINT(AST_Try, print_try);
-            DEFPRINT(AST_Catch, print_catch);
-            DEFPRINT(AST_Finally, print_finally);
             AST_Definitions.prototype._do_print = (function() {
                 var ρσ_anonfunc = function (output, kind) {
                     var ρσ_unpack, i, def_, p, in_for, avoid_semicolon;
