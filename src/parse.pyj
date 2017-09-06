@@ -419,6 +419,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         S.statement_starting_token = S.token
         tmp_ = S.token.type
+        p = prev()
+        if p and not S.token.nlb and ATOMIC_START_TOKEN[p.type] and not is_('punc', ':'):
+            unexpected()
         if tmp_ is "string":
             return simple_statement()
         elif tmp_ is "shebang":
