@@ -2,7 +2,7 @@ cache:
     - node_modules -> package.json
 
 install:
-    - Install-Product node ''
+    - ps: Install-Product node ''
     - npm install --no-optional
 
 test_script:
