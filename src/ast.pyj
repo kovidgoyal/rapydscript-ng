@@ -40,7 +40,8 @@ class AST_Token(AST):
         'endpos': '',
         'nlb':'True iff there was a newline before this token',
         'comments_before':'True iff there were comments before this token',
-        'file':'The filename in which this token occurs'
+        'file':'The filename in which this token occurs',
+        'leading_whitespace': 'The leading whitespace for the line on which this token occurs',
     }
 
 class AST_Node(AST):

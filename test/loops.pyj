@@ -78,3 +78,8 @@ assrt.equal(r.count(0), 1)
 assrt.equal(r.count(4), 0)
 assrt.equal(r.index(1), 1)
 assrt.throws(def(): r.index(4);, ValueError)
+
+dest = []
+for al in 'a', 'b', 'c':
+    dest.push(al)
+assrt.equal(dest.join(''), 'abc')

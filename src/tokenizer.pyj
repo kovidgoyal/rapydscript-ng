@@ -226,7 +226,8 @@ def tokenizer(raw_text, filename):
             'pos': S.tokpos,
             'endpos': S.pos,
             'nlb': S.newline_before,
-            'file': filename
+            'file': filename,
+            'leading_whitespace': S.whitespace_before[-1] or '',
         }
         if not is_comment:
             ret.comments_before = S.comments_before
@@ -262,7 +263,7 @@ def tokenizer(raw_text, filename):
                 S.indentation_matters.pop()
             elif value is "}" or value is ")":
                 S.indentation_matters.pop()
-        S.prev = new AST_Token(ret)
+        S.prev = AST_Token(ret)
         return S.prev
 
     # this will transform leading whitespace to block tokens unless
