@@ -1,3 +1,14 @@
+version 0.7.18
+==================
+
+  * Support the else: clause for try: statements
+  * Use the JS ** operator instead of Math.pow() when --js-version > 5
+  * Detect syntax errors of the form atomic token followed by atomic token
+  * Fix ** operator not working with parenthesized unary expressions
+  * Handle changed output from newer version of regenerator
+  * Detect missing indentation for blocks as a syntax error
+  * Linter: recognize pow() as a global function
+
 version 0.7.17
 ==================
 
