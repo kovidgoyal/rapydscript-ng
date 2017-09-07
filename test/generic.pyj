@@ -330,3 +330,14 @@ assrt.equal(undef ? 1, 0)
 ml = 1, '''
 '''
 assrt.deepEqual(ml, [1, '\n'])
+
+
+# localvars in conditions
+
+gv = 1
+(def ():
+    if (gv = 2):
+        pass
+    assrt.equal(gv, 2)
+)()
+assrt.equal(gv, 1)

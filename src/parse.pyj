@@ -320,7 +320,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
-                for option in ('body', 'alternative', 'bcatch'):
+                for option in ('body', 'alternative', 'bcatch', 'condition'):
                     opt = stmt[option]
                     if opt:
                         extend(scan_for_local_vars(opt))
