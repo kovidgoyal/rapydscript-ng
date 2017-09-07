@@ -148,7 +148,7 @@ def function_annotation(self, output, strip_first, name):
             output.print('true')
 
     # Create __argnames__
-    if self.argnames.length:
+    if self.argnames.length > (1 if strip_first else 0):
         props.__argnames__ = def():
             output.print('[')
             for i, arg in enumerate(self.argnames):
