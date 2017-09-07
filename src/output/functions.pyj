@@ -184,7 +184,8 @@ def function_annotation(self, output, strip_first, name):
 
 def function_definition(self, output, strip_first, as_expression):
     as_expression = as_expression or self.is_expression or self.is_anonymous
-    if not self.argnames.length and not self.return_annotation and (not output.options.keep_docstrings or not self.docstrings or not self.docstrings.length):
+    has_argnames = self.argnames.length > (1 if strip_first else 0)
+    if not has_argnames and not self.return_annotation and (not output.options.keep_docstrings or not self.docstrings or not self.docstrings.length):
         # This function has no annotations so dont wrap it needlessly
         as_expression = False
     if as_expression:
