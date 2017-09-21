@@ -29,6 +29,9 @@ from tokenizer import tokenizer, is_token, RESERVED_WORDS
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
 
+def static_predicate(names):
+    return {k:True for k in names.split(' ')}
+
 NATIVE_CLASSES = {
     'Image': {},
     'RegExp': {},
@@ -41,26 +44,26 @@ NATIVE_CLASSES = {
     'TypeError': {},
     'URIError': {},
     'Object': {
-        'static': [
-            "getOwnPropertyNames", 'getOwnPropertyDescriptor', 'getOwnPropertyDescriptors',
-            'getOwnPropertySymbols', "keys", 'entries', 'values', "create", 'defineProperty',
-            'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign',
-            'seal', 'isSealed', 'is', 'preventExtensions', 'isExtensible',
-            'freeze', 'isFrozen',
-        ]
+        'static': static_predicate(
+            'getOwnPropertyNames getOwnPropertyDescriptor getOwnPropertyDescriptors'
+            ' getOwnPropertySymbols keys entries values create defineProperty'
+            ' defineProperties getPrototypeOf setPrototypeOf assign'
+            ' seal isSealed is preventExtensions isExtensible'
+            ' freeze isFrozen'
+        )
     },
     'String': {
-        'static': [ "fromCharCode" ]
+        'static': static_predicate("fromCharCode")
     },
     'Array': {
-        'static': [ "isArray", "from", "of" ]
+        'static': static_predicate("isArray from of")
     },
     'Function': {},
     'Date': {
-        'static': [ "UTC", "now", "parse" ]
+        'static': static_predicate("UTC now parse")
     },
     'ArrayBuffer': {
-        'static': ['isView', 'transfer'],
+        'static': static_predicate('isView transfer')
     },
     'DataView': {},
     'Float32Array': {},
@@ -78,7 +81,7 @@ NATIVE_CLASSES = {
     'Set': {},
     'WeakSet': {},
     'Promise': {
-        'static': ['all', 'race', 'reject', 'resolve']
+        'static': static_predicate('all race reject resolve')
     },
     'WebSocket': {},
     'XMLHttpRequest': {},
@@ -99,7 +102,7 @@ ERROR_CLASSES = {
     'AssertionError': {},
     'ZeroDivisionError': {},
 }
-COMMON_STATIC = [ "call", "apply", "bind", "toString" ]
+COMMON_STATIC = static_predicate('call apply bind toString')
 FORBIDDEN_CLASS_VARS = 'prototype constructor'.split(' ')
 
 # -----[ Parser (constants) ]-----
@@ -882,7 +885,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         externaldecorator = has_simple_decorator(S.decorators, 'external')
 
         class_details = {
-            "static": [],
+            "static": {},
             'bound': v'[]',
             'classvars': {},
             'processing': name.name,
@@ -1004,7 +1007,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if staticloc:
                 if property_getter or property_setter:
                     croak('A method cannot be both static and a property getter/setter')
-                S.classes[S.classes.length - 2][in_class].static.push(name.name)
+                S.classes[S.classes.length - 2][in_class].static[name.name] = True
                 staticmethod = True
             elif name.name is not "__init__" and S.scoped_flags.get('bound_methods'):
                 S.classes[S.classes.length - 2][in_class].bound.push(name.name)
@@ -1691,7 +1694,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return sym
 
     def is_static_method(cls, method):
-        if COMMON_STATIC.indexOf(method) is not -1 or cls.static and cls.static.indexOf(method) is not -1:
+        if COMMON_STATIC[method] or (cls.static and cls.static[method]):
             return True
         else:
             return False

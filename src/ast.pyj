@@ -411,7 +411,7 @@ class AST_Class(AST_Scope):
         'init': "[AST_Function] constructor for the class",
         'parent': "[AST_Symbol?] parent class this class inherits from",
         'bases': "[AST_Symbol*] list of base classes this class inherits from",
-        "static": "[string*] list of static methods",
+        "static": "[dict] A hash whose keys are names of static methods for this class",
         'external': "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
         'bound': "[string*] list of methods that need to be bound to self",
         'decorators': "[AST_Decorator*] function decorators, if any",

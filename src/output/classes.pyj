@@ -14,7 +14,7 @@ def print_class(output):
     def class_def(method, is_var):
         output.indent()
         self.name.print(output)
-        if not is_var and method and self.static.indexOf(method) is not -1:
+        if not is_var and method and self.static[method]:
             output.assign("." + method)
         else:
             if is_var:
@@ -27,7 +27,7 @@ def print_class(output):
         if not is_property:
             class_def(name)
         # only strip first argument if the method is static
-        is_static = self.static.indexOf(name) is not -1
+        is_static = self.static[name]
         strip_first = not is_static
 
         # decorate the method
