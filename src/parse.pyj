@@ -1694,7 +1694,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return sym
 
     def is_static_method(cls, method):
-        if COMMON_STATIC[method] or (cls.static and cls.static[method]):
+        if has_prop(COMMON_STATIC, method) or (cls.static and has_prop(cls.static, method)):
             return True
         else:
             return False
