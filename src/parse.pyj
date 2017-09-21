@@ -42,9 +42,11 @@ NATIVE_CLASSES = {
     'URIError': {},
     'Object': {
         'static': [
-            "getOwnPropertyNames", 'getOwnPropertyDescriptor',
+            "getOwnPropertyNames", 'getOwnPropertyDescriptor', 'getOwnPropertyDescriptors',
             'getOwnPropertySymbols', "keys", 'entries', 'values', "create", 'defineProperty',
-            'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign'
+            'defineProperties', 'getPrototypeOf', 'setPrototypeOf', 'assign',
+            'seal', 'isSealed', 'is', 'preventExtensions', 'isExtensible',
+            'freeze', 'isFrozen',
         ]
     },
     'String': {
