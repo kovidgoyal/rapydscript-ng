@@ -458,7 +458,10 @@ def tokenizer(raw_text, filename):
             else:
                 return token(tok_type, '')
 
-        while ch = next(True, True):
+        while True:
+            ch = next(True, True)
+            if not ch:
+                break
             if ch is "\n" and not is_multiline:
                 parse_error("End of line while scanning string literal")
 
@@ -529,7 +532,10 @@ def tokenizer(raw_text, filename):
             else: # empty regexp (//)
                 mods = read_name()
                 return token("regexp", RegExp(regexp, mods))
-        while (ch = next(True)):
+        while True:
+            ch = next(True)
+            if not ch:
+                break
             if in_comment:
                 if ch is '\n':
                     in_comment = False

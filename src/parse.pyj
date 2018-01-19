@@ -472,13 +472,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         expect(".")
                         expect_token("keyword", "while")
                         tmp = expression(True)
+                        if is_node_type(tmp, AST_Assign):
+                            croak('Assignments in do loop conditions are not allowed')
                         semicolon()
                         return tmp
                     )()
                 })
             elif tmp_ is "while":
+                while_cond = expression(True)
+                if is_node_type(while_cond, AST_Assign):
+                    croak('Assignments in while loop conditions are not allowed')
                 return new AST_While({
-                    'condition': expression(True),
+                    'condition': while_cond,
                     'body': in_loop(statement)
                 })
             elif tmp_ is "for":
