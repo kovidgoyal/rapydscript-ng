@@ -69,6 +69,13 @@ assrt.deepEqual(a, [3,2,1])
 a.pysort()
 assrt.deepEqual(a, [1,2,3])
 
+# misc interface
+a = [1,2,3]
+assrt.equal(a.pypop(), 3)
+assrt.deepEqual(a, [1,2])
+assrt.equal(a.pypop(0), 1)
+assrt.deepEqual(a, [2])
+
 # strings
 assrt.ok("tes" in "this is a test")
 

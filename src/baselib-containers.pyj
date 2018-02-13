@@ -81,6 +81,8 @@ def ρσ_list_index(val, start, stop):
 def ρσ_list_pop(index):
     if this.length is 0:
         raise IndexError('list is empty')
+    if index is undefined:
+        index = -1
     ans = this.splice(index, 1)
     if not ans.length:
         raise IndexError('pop index out of range')
