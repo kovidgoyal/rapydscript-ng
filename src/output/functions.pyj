@@ -269,8 +269,10 @@ def print_this(expression, output):
         output.print('this')
 
 def print_function_call(self, output):
+    is_prototype_call = False
 
     def print_function_name(no_call):
+        nonlocal is_prototype_call
         if is_node_type(self, AST_ClassCall):
             # class methods are called through the prototype unless static
             if self.static:
@@ -278,6 +280,7 @@ def print_function_call(self, output):
                 output.print(".")
                 output.print(self.method)
             else:
+                is_prototype_call = True
                 self.class.print(output)
                 output.print(".prototype.")
                 output.print(self.method)
@@ -396,6 +399,9 @@ def print_function_call(self, output):
             print_function_name(True)
             output.print('.apply(')
             do_print_this()
+
+    if is_prototype_call and self.args.length > 1:
+        self.args.shift()
 
     print_positional_args()
 

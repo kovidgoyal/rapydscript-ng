@@ -401,6 +401,7 @@ class B2(B1):
     def two(self):
         return self.b2
 assrt.equal(B2().two(), 2)
+assrt.equal(B2().b1, 1)
 
 
 class Cvar:

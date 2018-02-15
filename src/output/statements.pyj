@@ -112,7 +112,7 @@ def print_bracketed(node, output, complex, function_preamble, before, after):
             if complex:
                 display_complex_body(node, False, output, function_preamble)
             else:
-                display_body(node.body, False, output, function_preamble)
+                display_body(node.body, False, output)
             if after:
                 after(output)
         )
