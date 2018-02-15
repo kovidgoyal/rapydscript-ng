@@ -1,3 +1,12 @@
+version 0.7.19 [future]
+========================
+
+  * Fix calling super-class methods in a method accepting `*args` not working
+  * Fix list.pypop() removing the first instead of the last element
+  * Fix exponentiation operator being used when js-version >= 6 rather than 7
+  * Disallow assignments in while conditionals
+  * Avoid unnecessary function annotations for functions that have mepty signatures
+
 version 0.7.18
 ==================
 
