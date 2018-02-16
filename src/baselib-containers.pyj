@@ -466,7 +466,7 @@ Object.defineProperties(ρσ_set.prototype, {
             s.add(r.value)
             r = iterator.next()
 
-ρσ_set.prototype.toString = ρσ_set.prototype.inspect = def():
+ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = def():
     return '{' + list(this).join(', ') + '}'
 
 ρσ_set.prototype.__eq__ = def(other):
