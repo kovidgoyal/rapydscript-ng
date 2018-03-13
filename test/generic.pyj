@@ -23,6 +23,7 @@ assrt.equal(0b11, 3)
 
 # comparisons
 assrt.ok(3<5<7)
+assrt.equal(-1 < 0 == 1 < 0, False)
 
 # Empty tuple
 assrt.deepEqual((), [])

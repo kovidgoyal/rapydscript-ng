@@ -1,13 +1,14 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
-
 from ast import (
-    AST_Number, AST_Unary, AST_Seq, AST_Array, AST_Binary, AST_Set, AST_Object,
-    AST_Statement, AST_Conditional, AST_BaseCall, AST_Symbol, AST_SymbolRef, AST_Assign,
-    AST_Return, AST_SimpleStatement, AST_String, AST_Sub, AST_ItemAccess, is_node_type
+    AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_Conditional,
+    AST_ItemAccess, AST_Number, AST_Object, AST_Return, AST_Seq, AST_Set,
+    AST_SimpleStatement, AST_Statement, AST_String, AST_Sub, AST_Symbol,
+    AST_SymbolRef, AST_Unary, is_node_type
 )
 from output.loops import unpack_tuple
+
 
 def print_getattr(self, output, skip_expression):  # AST_Dot
     if not skip_expression:
@@ -123,19 +124,20 @@ def write_smart_equality(self, output):
         output.print('ρσ_' + ('equals(' if self.operator is '==' else 'not_equals('))
         self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')')
 
-def print_binary_op(self, output):
-    comparators = {
-        "<": True,
-        ">": True,
-        "<=": True,
-        ">=": True,
-        "==": True,
-        "!=": True
-    }
-    function_ops = {
-        "in": "ρσ_in",
-    }
 
+comparators = {
+    "<": True,
+    ">": True,
+    "<=": True,
+    ">=": True,
+}
+
+function_ops = {
+    "in": "ρσ_in",
+}
+
+
+def print_binary_op(self, output):
     if function_ops[self.operator]:
         output.print(function_ops[self.operator])
         output.with_parens(def():
@@ -144,6 +146,7 @@ def print_binary_op(self, output):
             self.right.print(output)
         )
     elif comparators[self.operator] and is_node_type(self.left, AST_Binary) and comparators[self.left.operator]:
+        # A chained comparison such as a < b < c
         if is_node_type(self.left.right, AST_Symbol):
             # left side compares against a regular variable,
             # no caching needed
