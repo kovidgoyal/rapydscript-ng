@@ -133,6 +133,9 @@ for v'var i = 0; i < 1; i++':
     a[i] = 1  # noqa: undef
 assrt.deepEqual(a, [1])
 
+# String literals
+a = '\u00ad'
+assrt.equal(a.charCodeAt(0), 0xad)
 # String literal concatenation
 
 assrt.equal('1' '2', '12')

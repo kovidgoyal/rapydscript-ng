@@ -8,25 +8,27 @@ from tokenizer import is_identifier_char
 
 DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g
 
+
+def as_hex(code, sz):
+    val = code.toString(16)
+    if val.length < sz:
+        val = '0'.repeat(sz - val.length) + val
+    return val
+
+
 def to_ascii(str_, identifier):
     return str_.replace(/[\u0080-\uffff]/g, def(ch):
         code = ch.charCodeAt(0).toString(16)
         if code.length <= 2 and not identifier:
-            while code.length < 2:
-                code = "0" + code
-
-            return "\\x" + code
+            return "\\x" + as_hex(code, 2)
         else:
-            while code.length < 4:
-                code = "0" + code
-
-            return "\\u" + code
+            return '\\u' + as_hex(code, 4)
 
     )
 
 def encode_string(str_):
     return JSON.stringify(str_).replace(DANGEROUS, def(a):
-            return '\\u' + a.charCodeAt(0).toString(16)
+            return '\\u' + as_hex(a.charCodeAt(0), 4)
     )
 require_semi_colon_chars = make_predicate("( [ + * / - , .")
 
