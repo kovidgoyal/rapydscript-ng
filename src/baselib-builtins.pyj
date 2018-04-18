@@ -15,13 +15,19 @@ def ρσ_print():
         console.log(parts.join(' '))
 
 def ρσ_int(val, base):
-    ans = parseInt(val, base or 10)
+    if jstype(val) is "number":
+        ans = val | 0
+    else:
+        ans = parseInt(val, base or 10)
     if isNaN(ans):
         raise ValueError('Invalid literal for int with base ' + (base or 10) + ': ' + val)
     return ans
 
-def ρσ_float():
-    ans = parseFloat.apply(None, arguments)
+def ρσ_float(val):
+    if jstype(val) is "number":
+        ans = val
+    else:
+        ans = parseFloat(val)
     if isNaN(ans):
         raise ValueError('Could not convert string to float: ' + arguments[0])
     return ans
