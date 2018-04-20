@@ -22,7 +22,7 @@ test_string('''a = _("""one
 two""")''', '#: <test>:1\nmsgid "one\\ntwo"\nmsgstr ""')
 test_string('a = _("{}one")', '#: <test>:1\n#, python-brace-format\nmsgid "{}one"\nmsgstr ""')
 test_string('a = _("{one}")', '#: <test>:1\n#, python-brace-format\nmsgid "{one}"\nmsgstr ""')
-test_string('ngettext("one", "two", 1)', '#: <test>:1\nmsgid "one"\nmsgid_plural "two"\nmsgstr ""')
+test_string('ngettext("one", "two", 1)', '#: <test>:1\nmsgid "one"\nmsgid_plural "two"\nmsgstr[0] ""\nmsgstr[1] ""')
 test_string('''_('o"ne')''', '#: <test>:1\nmsgid "o\\"ne"\nmsgstr ""')
 
 m = require('../tools/msgfmt.js')
