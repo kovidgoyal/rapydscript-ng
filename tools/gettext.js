@@ -82,8 +82,11 @@ function entry_to_string(msgid, data) {
     data.locations.forEach(function (loc) { ans.push('#: ' + loc); });
     if (data.format) ans.push('#, ' + data.format);
     ans.push('msgid "' + esc(msgid) + '"');
-    if (data.plural) ans.push('msgid_plural "' + esc(data.plural) + '"');
-    ans.push('msgstr ""');
+    if (data.plural) {
+        ans.push('msgid_plural "' + esc(data.plural) + '"');
+        ans.push('msgstr[0] ""');
+        ans.push('msgstr[1] ""');
+    } else ans.push('msgstr ""');
     return ans.join('\n');
 }
 
