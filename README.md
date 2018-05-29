@@ -10,7 +10,7 @@ RapydScript
 This is a fork of the original RapydScript that adds many new (not always
 backwards compatible) features. For more on the forking, [see the bottom of this file](#reasons-for-the-fork)
 
-[Try RapydScript-ng live via an in-browser REPL!](https://kovidgoyal.github.io/rapydscript/repl/)
+[Try RapydScript-ng live via an in-browser REPL!](https://sw.kovidgoyal.net/rapydscript/repl/)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -100,7 +100,7 @@ learn a new language/framework is to dive in.
 Installation
 ------------
 
-[Try RapydScript-ng live via an in-browser REPL!](https://kovidgoyal.github.io/rapydscript/repl/)
+[Try RapydScript-ng live via an in-browser REPL!](https://sw.kovidgoyal.net/rapydscript/repl/)
 
 First make sure you have installed the latest version of [node.js](https://nodejs.org/) (You may need to restart your computer after this step). 
 
@@ -1472,7 +1472,7 @@ may be more verbose:
 
 You can embed the RapydScript compiler in your webpage so that you can have
 your webapp directly compile user supplied RapydScript code into JavaScript.
-To do so, simply include the [embeddable rapydscript compiler](https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js) 
+To do so, simply include the [embeddable rapydscript compiler](https://sw.kovidgoyal.net/rapydscript/repl/rapydscript.js) 
 in your page, and use it to compile arbitrary RapydScript code. 
 
 You create the compiler by calling: `RapydScript.create_embedded_compiler()` and compile
@@ -1486,7 +1486,7 @@ HTML below for an example.
     <head>
         <meta charset="UTF-8">
         <title>Test embedded RapydScript</title>
-        <script charset="UTF-8" src="https://kovidgoyal.github.io/rapydscript/repl/rapydscript.js"></script>
+        <script charset="UTF-8" src="https://sw.kovidgoyal.net/rapydscript/repl/rapydscript.js"></script>
         <script>
 var compiler = RapydScript.create_embedded_compiler();
 var js = compiler.compile("def hello_world():\n a='RapydScript is cool!'\n print(a)\n alert(a)");

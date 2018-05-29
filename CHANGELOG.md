@@ -333,7 +333,7 @@ Major new features:
 --------------------
 
 * There is now an in browser REPL (Read-Eval-Print-Loop) for RapydScript,
-  available at: https://kovidgoyal.github.io/rapydscript/repl/
+  available at: https://sw.kovidgoyal.net/rapydscript/repl/
 
 * There is now a linter that performs pyflakes style of undefined/unused
   checks.
