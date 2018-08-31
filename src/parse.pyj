@@ -980,7 +980,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if is_node_type(node, AST_Method):
                     class_var_names[node.name.name] = True
                     return
-                elif is_node_type(node, AST_Assign) and is_node_type(node.left, AST_SymbolRef):
+                if is_node_type(node, AST_Function):
+                    return
+                if is_node_type(node, AST_Assign) and is_node_type(node.left, AST_SymbolRef):
                     varname = node.left.name
                     if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
                         token_error(node.left.start, varname + ' is not allowed as a class variable name')

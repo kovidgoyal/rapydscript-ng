@@ -427,3 +427,16 @@ assrt.equal(Cvar.a, 2)
 assrt.equal(Cvar().val(), 3)
 assrt.equal(Cvar().incb(), 1)
 assrt.equal(Cvar().incb(), 2)
+
+class anon_func_in_class:
+
+    f = def():
+        func_var = 1
+        return func_var
+
+    def func_var(self):
+        pass
+
+assrt.equal(jstype(anon_func_in_class.prototype.func_var), 'function')
+anon_func_in_class.prototype.f()
+assrt.equal(jstype(anon_func_in_class.prototype.func_var), 'function')
