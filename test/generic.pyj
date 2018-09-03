@@ -20,6 +20,10 @@ a = 100
 a //= 3
 assrt.equal(a, 33)
 assrt.equal(0b11, 3)
+assrt.ok(42 / "x" is NaN)
+assrt.ok(42 is not NaN)
+assrt.ok(NaN is parseInt('asd', 10))
+assrt.ok('NaN' is not 42 / 'x')
 
 # comparisons
 assrt.ok(3<5<7)

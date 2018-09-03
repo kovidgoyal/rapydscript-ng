@@ -197,6 +197,18 @@ def print_binary_op(self, output):
         write_instanceof(self.left, self.right, output)
     elif self.operator is '*' and is_node_type(self.left, AST_String):
         self.left.print(output), output.print('.repeat('), self.right.print(output), output.print(')')
+    elif self.operator is '===' or self.operator is '!==':
+        nan_check = None
+        if is_node_type(self.right, AST_Symbol) and self.right.name is 'NaN':
+            nan_check = self.left
+        if is_node_type(self.left, AST_Symbol) and self.left.name is 'NaN':
+            nan_check = self.right
+        if nan_check is not None:
+            # We use the fact that NaN is the only object that is not equal to
+            # itself
+            output.spaced(nan_check, '!==' if self.operator is '===' else '===', nan_check)
+        else:
+            output.spaced(self.left, self.operator, self.right)
     else:
         output.spaced(self.left, self.operator, self.right)
 
