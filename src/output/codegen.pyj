@@ -58,7 +58,8 @@ def generate_code():
 
     # -----[ comments ]-----
     AST_Node.prototype.add_comments = def(output):
-        print_comments(this, output)
+        if not is_node_type(this, AST_Toplevel):
+            print_comments(this, output)
 
     # -----[ PARENTHESES ]-----
     def PARENS(nodetype, func):

@@ -6,6 +6,7 @@ from __python__ import hash_literals
 from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
+from output.comments import print_comments
 from parse import COMPILER_VERSION
 from utils import cache_file_name
 
@@ -179,6 +180,7 @@ def print_module(self, output):
         output.print("function()")
         output.with_block(def():
             # dump the logic of this module
+            print_comments(self, output)
             if output.options.write_name:
                 output.indent()
                 output.print('var ')
