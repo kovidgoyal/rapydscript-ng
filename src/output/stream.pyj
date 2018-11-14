@@ -284,9 +284,6 @@ class OutputStream:
     def print_string(self, str_):
         self.print(encode_string(str_))
 
-    def is_main(self):
-        return self.OUTPUT.length is 0
-
     def line(self):
         return self.current_line
 

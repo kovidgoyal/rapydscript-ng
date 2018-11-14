@@ -116,7 +116,7 @@ def prologue(module, output):
 
 
 def print_top_level(self, output):
-    is_main = output.is_main()
+    is_main = self.module_id is '__main__'
 
     def write_docstrings():
         if is_main and output.options.keep_docstrings and self.docstrings and self.docstrings.length:
