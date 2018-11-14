@@ -66,7 +66,6 @@ class OutputStream:
         self.current_line = 1
         self.current_pos = 0
         self.OUTPUT = ""
-        self.IMPORTED = {}
         self.might_need_space = False
         self.might_need_semicolon = False
         self._last = None
@@ -261,9 +260,7 @@ class OutputStream:
 
     def get(self):
         return self.OUTPUT
-
-    def toString(self):
-        return self.OUTPUT
+    toString = get
 
     def assign(self, name):
         # generates: '[name] = '
@@ -286,10 +283,6 @@ class OutputStream:
 
     def print_string(self, str_):
         self.print(encode_string(str_))
-
-    def import_(self, module):
-        if not Object.prototype.hasOwnProperty.call(self.IMPORTED, module.key):
-            self.IMPORTED[module.key] = module
 
     def is_main(self):
         return self.OUTPUT.length is 0

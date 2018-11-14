@@ -246,7 +246,6 @@ def print_imports(container, output):
         output.end_statement()
 
     for self in container.imports:
-        output.import_(self.module)
         if self.argnames:
             # A from import
             for argname in self.argnames:
