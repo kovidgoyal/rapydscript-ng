@@ -326,6 +326,7 @@ class AST_Toplevel(AST_Scope):
         'classes': "[Object/S] a map of class names to AST_Class for classes defined in this module",
         'filename': "[string] The absolute path to the file from which this module was read",
         'srchash': "[string] SHA1 hash of source code, used for caching",
+        'comments_after': '[array] True iff there were comments before this token',
     }
 
 class AST_Import(AST_Statement):

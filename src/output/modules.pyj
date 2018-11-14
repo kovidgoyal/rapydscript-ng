@@ -6,7 +6,7 @@ from __python__ import hash_literals
 from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
-from output.comments import print_comments
+from output.comments import print_comments, output_comments
 from parse import COMPILER_VERSION
 from utils import cache_file_name
 
@@ -150,6 +150,10 @@ def print_top_level(self, output):
                         display_body(self.body, True, output)
                         output.newline()
                         write_docstrings()
+                        if self.comments_after and self.comments_after.length:
+                            output.indent()
+                            output_comments(self.comments_after, output)
+                            output.newline()
                     )
                 )
                 output.print("();")
@@ -166,6 +170,8 @@ def print_top_level(self, output):
 
         declare_vars(self.localvars, output)
         display_body(self.body, True, output)
+        if self.comments_after and self.comments_after.length:
+            output_comments(self.comments_after, output)
 
 def print_module(self, output):
 

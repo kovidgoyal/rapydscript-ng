@@ -2179,6 +2179,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         toplevel.baselib = baselib_items
         toplevel.scoped_flags = S.scoped_flags.stack[0]
         importing_modules[module_id] = False
+        toplevel.comments_after = S.token.comments_before or v'[]'
         return toplevel
 
     return run_parser

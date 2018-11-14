@@ -5,6 +5,20 @@ from __python__ import hash_literals
 from ast import AST_Exit, is_node_type
 
 
+def output_comments(comments, output, nlb):
+    for comm in comments:
+        if comm.type is "comment1":
+            output.print("//" + comm.value + "\n")
+            output.indent()
+        elif comm.type is "comment2":
+            output.print("/*" + comm.value + "*/")
+            if nlb:
+                output.print("\n")
+                output.indent()
+            else:
+                output.space()
+
+
 def print_comments(self, output):
     c = output.options.comments
     if c:
@@ -28,14 +42,4 @@ def print_comments(self, output):
                     return c(self, comment)
                 )
 
-            for comm in comments:
-                if comm.type is "comment1":
-                    output.print("//" + comm.value + "\n")
-                    output.indent()
-                elif comm.type is "comment2":
-                    output.print("/*" + comm.value + "*/")
-                    if start.nlb:
-                        output.print("\n")
-                        output.indent()
-                    else:
-                        output.space()
+            output_comments(comments, output, start.nlb)
