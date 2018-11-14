@@ -25,6 +25,7 @@ from output.classes import print_class
 from output.literals import print_array, print_obj_literal, print_object, print_set, print_regexp
 from output.loops import print_do_loop, print_while_loop, print_for_loop_body, print_for_in, print_list_comprehension
 from output.modules import print_top_level, print_imports
+from output.comments import print_comments
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_binary_op, print_assign,
@@ -57,42 +58,7 @@ def generate_code():
 
     # -----[ comments ]-----
     AST_Node.prototype.add_comments = def(output):
-        c = output.options.comments
-        self = this
-        if c:
-            start = self.start
-            if start and not start._comments_dumped:
-                start._comments_dumped = True
-                comments = start.comments_before
-                # XXX: ugly fix for https://github.com/mishoo/RapydScript2/issues/112
-                #      if this node is `return` or `throw`, we cannot allow comments before
-                #      the returned or thrown value.
-                if is_node_type(self, AST_Exit) and self.value and self.value.start.comments_before and self.value.start.comments_before.length > 0:
-                    comments = (comments or []).concat(self.value.start.comments_before)
-                    self.value.start.comments_before = v'[]'
-
-                if c.test:
-                    comments = comments.filter(def(comment):
-                        return c.test(comment.value)
-                    )
-                elif jstype(c) is "function":
-                    comments = comments.filter(def(comment):
-                        return c(self, comment)
-                    )
-
-                for comm in comments:
-                    if comm.type is "comment1":
-                        output.print("//" + comm.value + "\n")
-                        output.indent()
-                    elif comm.type is "comment2":
-                        output.print("/*" + comm.value + "*/")
-                        if start.nlb:
-                            output.print("\n")
-                            output.indent()
-                        else:
-                            output.space()
-
-
+        print_comments(this, output)
 
     # -----[ PARENTHESES ]-----
     def PARENS(nodetype, func):

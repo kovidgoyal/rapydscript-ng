@@ -3,11 +3,12 @@
 # globals: writefile
 from __python__ import hash_literals
 
-from parse import COMPILER_VERSION
-from utils import cache_file_name
 from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
+from parse import COMPILER_VERSION
+from utils import cache_file_name
+
 
 def write_imports(module, output):
     imports = []
