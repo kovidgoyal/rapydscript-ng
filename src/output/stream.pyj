@@ -250,7 +250,7 @@ class OutputStream:
         self.indent()
         self.spaced('var', 'ρσ_regenerator', '=', '{}')
         self.end_statement()
-        code = regenerate(False, self.options.beautify)
+        code = 'ρσ_regenerator.regeneratorRuntime = ' + regenerate(False, self.options.beautify)
         if self.options.beautify:
             code = code.replace(/\/\/.*$/mg, '\n').replace(/^\s*$/gm, '')  # strip comments
             ci = self.make_indent(0)

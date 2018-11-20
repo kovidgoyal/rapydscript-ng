@@ -48,9 +48,9 @@ function regenerate(code, beautify) {
     } else {
         // Return the runtime
         ans = regenerator.compile('', {includeRuntime:true}).code;
-        start = ans.indexOf('!');
-        end = ans.lastIndexOf('})(');
-        end = ans.lastIndexOf('})(', end - 1);
+        start = ans.indexOf('=') + 1;
+        end = ans.lastIndexOf('typeof');
+        end = ans.lastIndexOf('}(', end);
         ans = ans.slice(start + 1, end);
         if (!beautify) {
             var extra = '})()';

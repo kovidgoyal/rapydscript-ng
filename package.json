@@ -30,7 +30,7 @@
     "url": "https://github.com/kovidgoyal/rapydscript-ng.git"
   },
   "dependencies": {
-    "regenerator": ">= 0.10.1",
+    "regenerator": ">= 0.12.1",
     "uglify-js": ">= 3.0.15"
   },
   "optionalDependencies": {
