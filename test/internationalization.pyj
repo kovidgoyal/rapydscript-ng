@@ -43,11 +43,14 @@ msgid_plural "three"
 msgstr[0] "a"
 "bc"
 msgstr[1] "def"
+
+msgid "test \"quote\" escape"
+msgstr "good"
 ''')
 
 assrt.equal(2, catalog['nplurals'])
 assrt.equal('en', catalog['language'])
-assrt.equal(catalog['entries'].length, 2)
+assrt.equal(catalog['entries'].length, 3)
 item = catalog['entries'][0]
 assrt.equal(item['msgid'], 'one\ncontinued')
 assrt.deepEqual(item['msgstr'], v"['ONE']")
@@ -56,6 +59,9 @@ item = catalog['entries'][1]
 assrt.equal(item['msgid'], 'two')
 assrt.deepEqual(item['msgstr'], v"['abc', 'def']")
 assrt.ok(not item['fuzzy'], 'item not fuzzy')
+item = catalog['entries'][2]
+assrt.equal(item['msgid'], 'test "quote" escape')
+assrt.deepEqual(item['msgstr'], v"['good']")
 
 install({'entries': {
     'one':['ONE'],

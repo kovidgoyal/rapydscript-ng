@@ -7,7 +7,7 @@
 "use strict";  /*jshint node:true */
 
 function unesc(string) {
-    return string.replace('\\"', '"').replace('\\n', '\n').replace('\\r', '\r').replace('\\t', '\t').replace('\\\\', '\\');
+    return string.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\\\/g, '\\');
 }
 
 function parse(data, on_error) {
