@@ -90,6 +90,8 @@ throw_test('def f():\n while 1:\n pass')
 throw_test('1 1')
 throw_test('z = x y')
 throw_test('while a = 1: pass')
+throw_test('while 1\n   pass')
+throw_test('for a in [1]\n   pass')
 
 # object literals
 {1:

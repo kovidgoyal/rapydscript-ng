@@ -483,6 +483,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 while_cond = expression(True)
                 if is_node_type(while_cond, AST_Assign):
                     croak('Assignments in while loop conditions are not allowed')
+                if not is_('punc', ':'):
+                    croak('Expected a colon after the while statement')
                 return new AST_While({
                     'condition': while_cond,
                     'body': in_loop(statement)
