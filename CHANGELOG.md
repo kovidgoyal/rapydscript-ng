@@ -5,7 +5,22 @@ version 0.7.19 [future]
   * Fix list.pypop() removing the first instead of the last element
   * Fix exponentiation operator being used when js-version >= 6 rather than 7
   * Disallow assignments in while conditionals
-  * Avoid unnecessary function annotations for functions that have mepty signatures
+  * Avoid unnecessary function annotations for functions that have empty signatures
+  * Fix handing of "not in" operator when LHS is also a binary operator with higher precedence
+  * Dont accept while statements without a trailing colon
+  * msgfmt: fix parsing of escapes in msg strings
+  * Fix missing enclosing brackets when translating an assert to an AssertionError
+  * Fix comments at the bottom of the file not being output
+  * Fix comments before first statement not being output for imported modules
+  * Fix outputting top-level comments preventing output of baselib
+  * Allow using NaN with the is operator
+  * Fix anonymous function definitions inside class definitions hoisting their variables into the class prototype.
+  * Fix gettext catalog generation when plurals are present
+  * Fix int() not working correctly on floating point numbers which have exponential string representations.
+  * Fix encoding of \u00ad
+  * Fir repeated calls to random.seed() with the same seed not fully resetting the RNG.
+  * Fix an error in handling chained binary operators involving comparison operators and an equality operator.
+  * Ensure repr() of set is always correct
 
 version 0.7.18
 ==================
