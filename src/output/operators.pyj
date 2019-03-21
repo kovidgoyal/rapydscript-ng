@@ -134,6 +134,7 @@ comparators = {
 
 function_ops = {
     "in": "ρσ_in",
+    'nin': '!ρσ_in',
 }
 
 

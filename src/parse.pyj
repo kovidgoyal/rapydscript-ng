@@ -125,7 +125,7 @@ PRECEDENCE = (def(a, ret):
     [ "^" ],
     [ "&" ],
     [ "==", "===", "!=", "!==" ],
-    [ "<", ">", "<=", ">=", "in", "instanceof" ],
+    [ "<", ">", "<=", ">=", "in", "nin", "instanceof" ],
     [ ">>", "<<", ">>>" ],
     [ "+", "-" ],
     [ "*", "/", "//", "%" ],
@@ -1975,15 +1975,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def expr_op(left, min_prec, no_in):
         op = S.token.value if is_('operator') else None
-        not_in = False
         if op is "!" and peek().type is "operator" and peek().value is "in":
             next()
-            op = "in"
-            not_in = True
+            S.token.value = op = 'nin'
 
-        if op is "in":
-            if no_in:
-                op = None
+        if no_in and (op is "in" or op is 'nin'):
+            op = None
 
         prec = PRECEDENCE[op] if op is not None else None
         if prec is not None and prec > min_prec:
@@ -1996,13 +1993,6 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'right': right,
                 'end': right.end
             })
-            if not_in:
-                ret = new AST_UnaryPrefix({
-                    'start': left.start,
-                    'operator': "!",
-                    'expression': ret,
-                    'end': right.end
-                })
             return expr_op(ret, min_prec, no_in)
         return left
 

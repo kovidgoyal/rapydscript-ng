@@ -352,3 +352,12 @@ gv = 1
     assrt.equal(gv, 2)
 )()
 assrt.equal(gv, 1)
+
+assrt.ok(1 not in [2, 3])
+assrt.ok(1 in [1, 2])
+assrt.ok("1" + "2" in ["12", "x"])
+assrt.ok("1" + "2" not in ["1", "2"])
+if "1" + "2" not in ["1", "2"]:
+    assrt.ok(1)
+else:
+    assrt.ok(0)
