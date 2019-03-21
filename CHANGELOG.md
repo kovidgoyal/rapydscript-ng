@@ -1,4 +1,4 @@
-version 0.7.19 [future]
+version 0.7.19 
 ========================
 
   * Fix calling super-class methods in a method accepting `*args` not working
