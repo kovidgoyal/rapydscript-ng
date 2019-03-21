@@ -19,7 +19,11 @@ function ρσ_print() {
 
 function ρσ_int(val, base) {
     var ans;
-    ans = parseInt(val, base || 10);
+    if (typeof val === "number") {
+        ans = val | 0;
+    } else {
+        ans = parseInt(val, base || 10);
+    }
     if (isNaN(ans)) {
         throw new ValueError("Invalid literal for int with base " + (base || 10) + ": " + val);
     }
@@ -29,14 +33,21 @@ if (!ρσ_int.__argnames__) Object.defineProperties(ρσ_int, {
     __argnames__ : {value: ["val", "base"]}
 });
 
-function ρσ_float() {
+function ρσ_float(val) {
     var ans;
-    ans = parseFloat.apply(null, arguments);
+    if (typeof val === "number") {
+        ans = val;
+    } else {
+        ans = parseFloat(val);
+    }
     if (isNaN(ans)) {
         throw new ValueError("Could not convert string to float: " + arguments[0]);
     }
     return ans;
 };
+if (!ρσ_float.__argnames__) Object.defineProperties(ρσ_float, {
+    __argnames__ : {value: ["val"]}
+});
 
 function ρσ_arraylike_creator() {
     var names;
@@ -604,6 +615,9 @@ function ρσ_list_pop(index) {
     var ans;
     if (this.length === 0) {
         throw new IndexError("list is empty");
+    }
+    if (index === undefined) {
+        index = -1;
     }
     ans = this.splice(index, 1);
     if (!ans.length) {
@@ -1299,7 +1313,7 @@ Object.defineProperties(ρσ_set.prototype, (function(){
         }
     }
 };
-ρσ_set.prototype.toString = ρσ_set.prototype.inspect = function () {
+ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = function () {
     return "{" + list(this).join(", ") + "}";
 };
 ρσ_set.prototype.__eq__ = (function() {
@@ -1775,7 +1789,8 @@ if (!ρσ_dict_wrap.__argnames__) Object.defineProperties(ρσ_dict_wrap, {
     __argnames__ : {value: ["x"]}
 });
 
-var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;var NameError;
+var dict = ρσ_dict, dict_wrap = ρσ_dict_wrap;// }}}
+var NameError;
 NameError = ReferenceError;
 function Exception() {
     if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
@@ -1797,9 +1812,6 @@ Exception.prototype.__repr__ = function __repr__() {
     var self = this;
     return self.name + ": " + self.message;
 };
-if (!Exception.prototype.__repr__.__argnames__) Object.defineProperties(Exception.prototype.__repr__, {
-    __argnames__ : {value: []}
-});
 Exception.prototype.__str__ = function __str__ () {
     if(Error.prototype.__str__) return Error.prototype.__str__.call(this);
 return this.__repr__();
