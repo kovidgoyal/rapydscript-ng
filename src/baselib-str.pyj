@@ -4,6 +4,12 @@
 
 # globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol, HTMLElement
 
+# Locale can’t be changed in-flight, so we just retrieve this once.
+decimal_sep = Intl.NumberFormat() \
+    .formatToParts(1.1) \
+    .find(def(part): return part.type == 'decimal';) \
+    .value
+
 def ρσ_repr_js_builtin(x, as_array):
     ans = v'[]'
     b = '{}'
@@ -174,7 +180,7 @@ define_str_func('format', def ():
                 (\#)? # integer base specifier
                 (0)? # zero-padding
                 (\d+)? # width
-                ([,_])? # use a comma thousands-seperator
+                ([,_])? # use a grouping (thousands) seperator
                 (?:\.(\d+))? # precision
                 ([bcdeEfFgGnosxX%])? # type
             ///
@@ -253,7 +259,7 @@ define_str_func('format', def ():
                 else:
                     value = value.toExponential(prec - 1)
                 value = value.replace(/0+$/g, '')
-                if value[-1] is '.':
+                if value[-1] == decimal_sep:
                     value = value[:-1]
                 if ftype is 'G':
                     value = value.toUpperCase()

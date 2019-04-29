@@ -6,4 +6,10 @@ node_js:
 os:
     - linux
     - osx
+env:
+    - LANG=en_US.UTF-8
+    # Number formatting: 1.000.000,01
+    - LANG=de_DE.UTF-8
+    # Number formatting: 10,00,000.01
+    - LANG=hi_IN.UTF-8
 sudo: false
