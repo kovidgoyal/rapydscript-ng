@@ -5,10 +5,12 @@
 # globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol, HTMLElement
 
 # Locale can’t be changed in-flight, so we just retrieve this once.
-decimal_sep = Intl.NumberFormat() \
-    .formatToParts(1.1) \
-    .find(def(part): return part.type == 'decimal';) \
-    .value
+# Sadly older node version don’t support formatToParts
+# decimal_sep = Intl.NumberFormat() \
+#     .formatToParts(1.1) \
+#     .find(def(part): return part.type == 'decimal';) \
+#     .value
+decimal_sep = (1.1).toLocaleString()[1]
 
 def ρσ_repr_js_builtin(x, as_array):
     ans = v'[]'
