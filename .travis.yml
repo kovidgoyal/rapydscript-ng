@@ -6,4 +6,14 @@ node_js:
 os:
     - linux
     - osx
+matrix:
+    include:
+        - node_js: node
+          env: LANG=en_US.UTF-8
+        # Number formatting: 1.000.000,01
+        - node_js: node
+          env: LANG=de_DE.UTF-8
+        # Number formatting: 10,00,000.01
+        - node_js: node
+          env: LANG=hi_IN.UTF-8
 sudo: false

@@ -59,6 +59,8 @@ test('x', '{}', def (): return 'x';)
 test('11', '{:b}', 3)
 test('0b11', '{:#b}', 3)
 test((30000).toLocaleString(), '{:,d}', 30000)
+# in e.g. the indian number system, this is 3,00,000
+test((300000).toLocaleString(), '{:,d}', 300000)
 test('1.234568e+8', '{:e}', 123456789)
 test('1.23E+8', '{:.2E}', 123456789)
 test('12.35%', '{:.2%}', .123456789)
@@ -69,8 +71,7 @@ test((1234).toLocaleString(undefined, {'minimumFractionDigits': 6}), '{:,f}', 12
 # 1234.0% or 1234,0%
 test((1234).toLocaleString(undefined, {'minimumFractionDigits': 1}) + '%', '{:,.1%}', 12.34)
 test((1234.57).toLocaleString(), '{:,g}', 1234.567)
-# this will get a trailing comma
-test((1234.1).toLocaleString().substr(0, 5), '{:,g}', 1234)
+test((1234).toLocaleString(), '{:,g}', 1234)
 fnum = 1234
 ae(f'{fnum:,}', (1234).toLocaleString())
 test('left aligned                  ', '{:<30}', 'left aligned')
