@@ -280,6 +280,18 @@ function Linter(toplevel, filename, code, options) {
     this.handle_assign = function() {
         var node = this.current_node;
 
+        var handle_destructured = function(self, flat) {
+            for (var i = 0; i < flat.length; i++) {
+                var cnode = flat[i];
+                if (cnode instanceof RapydScript.AST_SymbolRef) {
+                    self.current_node = cnode;
+                    cnode.lint_visited = true;
+                    self.add_binding(cnode.name);
+                    self.current_node = node;
+                }
+            }
+        };
+
         if (node.left instanceof RapydScript.AST_SymbolRef) {
             node.left.lint_visited = node.operator === '=';  // Could be compound assignment like: +=
             if (node.operator === '=') {
@@ -292,15 +304,10 @@ function Linter(toplevel, filename, code, options) {
         } else if (node.left instanceof RapydScript.AST_Array) {
             // destructuring assignment: a, b = 1, 2
             var flat = node.left.flatten();
-            for (var i = 0; i < flat.length; i++) {
-                var cnode = flat[i];
-                if (cnode instanceof RapydScript.AST_SymbolRef) {
-                    this.current_node = cnode;
-                    cnode.lint_visited = true;
-                    this.add_binding(cnode.name);
-                    this.current_node = node;
-                }
-            }
+            handle_destructured(this, node.left.flatten());
+
+        } else if (node.left instanceof RapydScript.AST_Seq && node.left.car instanceof RapydScript.AST_SymbolRef) {
+            handle_destructured(this, node.left.to_array());
         }
 
     };
