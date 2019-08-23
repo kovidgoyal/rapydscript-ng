@@ -68,7 +68,7 @@ rs += '// End embedded sha1 implementation }}}\n\n';
 rs += 'var exports = namespace;\n';
 rs += fs.readFileSync(path.join(base, 'tools', 'export.js'), {'encoding':'utf-8'});
 rs += 'external_namespace.RapydScript = namespace;\n';
-rs += '})(this)';
+rs += '})(this);\n';
 
 
 var base_dir = process.argv.slice(-1)[0];
