@@ -18,7 +18,7 @@ var manifest = {}, total = 0;
     total += manifest[x].length;
 });
 
-['web_repl.js', 'embedded_compiler.js', 'utils.js', 'completer.js'].forEach(function(x) {
+['web_repl.js', 'embedded_compiler.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js'].forEach(function(x) {
     x = 'tools/' + x;
     manifest[x] = fs.readFileSync(path.join(base, x), {'encoding':'utf-8'});
     total += manifest[x].length;
