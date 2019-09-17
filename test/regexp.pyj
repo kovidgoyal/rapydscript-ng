@@ -36,8 +36,10 @@ assrt.equal(re.sub('a(b)', r'\g<1>', 'ab'), r'b')
 assrt.equal(re.sub('a(b)', def(m):return m.group(1);, 'ab'), r'b')
 assrt.equal(']', re.match('[]]', ']').group())
 
-assrt.throws(def():re.search(r'(?<=a)b', 'ab');, re.error)
 assrt.throws(def():re.search(r'(?(1)a|b)b', 'ab');, re.error)
+
+# Test lookbehind assertions
+assrt.equal('acdb', re.sub(r'(?<=a)b', 'c', 'abdb'))
 
 # Test named groups
 assrt.equal('aa', re.sub(r'(?P<a>a)b', r'\g<a>\1', 'ab'))
@@ -51,4 +53,3 @@ assrt.equal(re.search(///
     .  # anything
     b
     ///, ' axb').group(), 'axb')
-
