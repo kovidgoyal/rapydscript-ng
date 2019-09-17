@@ -187,8 +187,6 @@ def transform_regex(source, flags):
                         flags |= flag_map[q]
                     pos = close + 1
                     continue
-                if extension is '<':
-                    raise SyntaxError('Look behind assertions are not supported in JavaScript')
                 if extension is '(':
                     raise SyntaxError('Group existence assertions are not supported in JavaScript')
                 if extension is 'P':
