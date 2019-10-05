@@ -29,6 +29,11 @@ from tokenizer import tokenizer, is_token, RESERVED_WORDS
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
 
+
+def get_compiler_version():
+    return COMPILER_VERSION
+
+
 def static_predicate(names):
     return {k:True for k in names.split(' ')}
 
@@ -752,7 +757,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cached = None
 
         srchash = sha1sum(src_code)  # noqa:undef
-        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash and cached.discard_asserts is options.discard_asserts:
+        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash and cached.discard_asserts is v'!!options.discard_asserts':
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             imported_modules[key] = {

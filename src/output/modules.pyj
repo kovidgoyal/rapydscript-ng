@@ -7,7 +7,7 @@ from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
 from output.comments import print_comments, output_comments
-from parse import COMPILER_VERSION
+from parse import get_compiler_version
 from utils import cache_file_name
 
 
@@ -203,9 +203,9 @@ def print_module(self, output):
                 output_module(output)
                 if self.srchash and self.filename:
                     cached = {
-                        'version':COMPILER_VERSION, 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
+                        'version':get_compiler_version(), 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
                         'nonlocalvars':self.nonlocalvars, 'imported_module_ids':self.imported_module_ids, 'exports':[],
-                        'outputs':{}, 'discard_asserts': output.options.discard_asserts
+                        'outputs':{}, 'discard_asserts': v'!!output.options.discard_asserts'
                     }
                     for cname in Object.keys(self.classes):
                         cobj = self.classes[cname]
