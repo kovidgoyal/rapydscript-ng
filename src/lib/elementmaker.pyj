@@ -3,7 +3,7 @@
 
 html_elements = {
     'a', 'abbr', 'acronym', 'address', 'area',
-    'article', 'aside', 'audio', 'b', 'big', 'body', 'blockquote', 'br', 'button',
+    'article', 'aside', 'audio', 'b', 'base', 'big', 'body', 'blockquote', 'br', 'button',
     'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup',
     'command', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn',
     'dialog', 'dir', 'div', 'dl', 'dt', 'em', 'event-source', 'fieldset',
