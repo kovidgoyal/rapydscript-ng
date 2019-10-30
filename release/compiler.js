@@ -2558,7 +2558,8 @@ function all(iterable) {
 if (!all.__argnames__) Object.defineProperties(all, {
     __argnames__ : {value: ["iterable"]}
 });
-var define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
+var decimal_sep, define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
+decimal_sep = 1.1.toLocaleString()[1];
 function ρσ_repr_js_builtin(x, as_array) {
     var ans, b, keys, key;
     ans = [];
@@ -2935,7 +2936,7 @@ define_str_func("format", function () {
                     value = value.toExponential(prec - 1);
                 }
                 value = value.replace(/0+$/g, "");
-                if (value[value.length-1] === ".") {
+                if (value[value.length-1] === decimal_sep) {
                     value = value.slice(0, -1);
                 }
                 if (ftype === "G") {
@@ -8562,7 +8563,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "bf5b87d018fe25aaf400652a9a5a61bb74bac993";
+        COMPILER_VERSION = "4fa001e8b93136aee10e290cb7dcc7613bf3499e";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -8571,6 +8572,10 @@ return this.__repr__();
             ρσ_d["hash_literals"] = true;
             return ρσ_d;
         }).call(this);
+        function get_compiler_version() {
+            return COMPILER_VERSION;
+        };
+
         function static_predicate(names) {
             return (function() {
                 var ρσ_Iter = ρσ_Iterable(names.split(" ")), ρσ_Result = Object.create(null), k;
@@ -9587,7 +9592,7 @@ return this.__repr__();
                     } 
                 }
                 srchash = sha1sum(src_code);
-                if (cached && cached.version === COMPILER_VERSION && cached.signature === srchash && cached.discard_asserts === options.discard_asserts) {
+                if (cached && cached.version === COMPILER_VERSION && cached.signature === srchash && cached.discard_asserts === !!options.discard_asserts) {
                     var ρσ_Iter56 = ρσ_Iterable(cached.imported_module_ids);
                     for (var ρσ_Index56 = 0; ρσ_Index56 < ρσ_Iter56.length; ρσ_Index56++) {
                         ikey = ρσ_Iter56[ρσ_Index56];
@@ -11750,6 +11755,7 @@ return this.__repr__();
         ρσ_modules.parse.STATEMENTS_WITH_LABELS = STATEMENTS_WITH_LABELS;
         ρσ_modules.parse.ATOMIC_START_TOKEN = ATOMIC_START_TOKEN;
         ρσ_modules.parse.compile_time_decorators = compile_time_decorators;
+        ρσ_modules.parse.get_compiler_version = get_compiler_version;
         ρσ_modules.parse.static_predicate = static_predicate;
         ρσ_modules.parse.has_simple_decorator = has_simple_decorator;
         ρσ_modules.parse.has_setter_decorator = has_setter_decorator;
@@ -14916,7 +14922,7 @@ return this.__repr__();
         var print_comments = ρσ_modules["output.comments"].print_comments;
         var output_comments = ρσ_modules["output.comments"].output_comments;
 
-        var COMPILER_VERSION = ρσ_modules.parse.COMPILER_VERSION;
+        var get_compiler_version = ρσ_modules.parse.get_compiler_version;
 
         var cache_file_name = ρσ_modules.utils.cache_file_name;
 
@@ -15184,7 +15190,7 @@ return this.__repr__();
                         if (self.srchash && self.filename) {
                             cached = (function(){
                                 var ρσ_d = Object.create(null);
-                                ρσ_d["version"] = COMPILER_VERSION;
+                                ρσ_d["version"] = get_compiler_version();
                                 ρσ_d["signature"] = self.srchash;
                                 ρσ_d["classes"] = Object.create(null);
                                 ρσ_d["baselib"] = self.baselib;
@@ -15192,7 +15198,7 @@ return this.__repr__();
                                 ρσ_d["imported_module_ids"] = self.imported_module_ids;
                                 ρσ_d["exports"] = ρσ_list_decorate([]);
                                 ρσ_d["outputs"] = Object.create(null);
-                                ρσ_d["discard_asserts"] = output.options.discard_asserts;
+                                ρσ_d["discard_asserts"] = !!output.options.discard_asserts;
                                 return ρσ_d;
                             }).call(this);
                             var ρσ_Iter117 = ρσ_Iterable(Object.keys(self.classes));
