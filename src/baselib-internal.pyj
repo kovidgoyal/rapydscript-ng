@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains, ρσ_list_constructor, ρσ_str
+# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains, ρσ_list_constructor, ρσ_str, ρσ_int, ρσ_float
 
 def ρσ_eslice(arr, step, start, end):
     if jstype(arr) is 'string' or v'arr instanceof String':
@@ -260,6 +260,16 @@ def ρσ_instanceof():
         if (q is Array or q is ρσ_list_constructor) and Array.isArray(obj):
             return True
         if q is ρσ_str and (jstype(obj) is 'string' or v'obj instanceof String'):
+            return True
+        if q is ρσ_int and (
+            (jstype(obj) is 'number' and Number.isInteger(obj)) or
+            (v'obj instanceof Number' and Number.isInteger(obj.valueOf()))
+        ):
+            return True
+        if q is ρσ_float and (
+            (jstype(obj) is 'number' and not Number.isInteger(obj)) or
+            (v'obj instanceof Number' and not Number.isInteger(obj.valueOf()))
+        ):
             return True
         if bases.length > 1:
             for v'var c = 1; c < bases.length; c++':
