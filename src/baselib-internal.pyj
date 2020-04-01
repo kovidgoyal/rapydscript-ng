@@ -261,15 +261,9 @@ def ρσ_instanceof():
             return True
         if q is ρσ_str and (jstype(obj) is 'string' or v'obj instanceof String'):
             return True
-        if q is ρσ_int and (
-            (jstype(obj) is 'number' and Number.isInteger(obj)) or
-            (v'obj instanceof Number' and Number.isInteger(obj.valueOf()))
-        ):
+        if q is ρσ_int and (jstype(obj) is 'number' and Number.isInteger(obj)):
             return True
-        if q is ρσ_float and (
-            (jstype(obj) is 'number' and not Number.isInteger(obj)) or
-            (v'obj instanceof Number' and not Number.isInteger(obj.valueOf()))
-        ):
+        if q is ρσ_float and (jstype(obj) is 'number' and not Number.isInteger(obj)):
             return True
         if bases.length > 1:
             for v'var c = 1; c < bases.length; c++':
