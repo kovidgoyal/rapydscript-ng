@@ -7,6 +7,7 @@ from output.statements import declare_vars, display_body
 from output.stream import OutputStream
 from output.utils import create_doctring
 from output.comments import print_comments, output_comments
+from output.functions import set_module_name
 from parse import get_compiler_version
 from utils import cache_file_name
 
@@ -118,6 +119,7 @@ def prologue(module, output):
 
 
 def print_top_level(self, output):
+    set_module_name(self.module_id)
     is_main = self.module_id is '__main__'
 
     def write_docstrings():
@@ -172,8 +174,10 @@ def print_top_level(self, output):
         display_body(self.body, True, output)
         if self.comments_after and self.comments_after.length:
             output_comments(self.comments_after, output)
+    set_module_name()
 
 def print_module(self, output):
+    set_module_name(self.module_id)
 
     def output_module(output):
         declare_vars(self.localvars, output)
@@ -234,6 +238,7 @@ def print_module(self, output):
     output.print("()")
     output.semicolon()
     output.newline()
+    set_module_name()
 
 def print_imports(container, output):
     is_first_aname = True

@@ -10,6 +10,12 @@ from output.utils import create_doctring
 from output.operators import print_getattr
 
 anonfunc = 'ρσ_anonfunc'
+module_name = 'null'
+
+def set_module_name(x):
+    nonlocal module_name
+    module_name = '"' + x + '"' if x else 'null'
+
 
 # Function definition {{{
 
@@ -164,22 +170,24 @@ def function_annotation(self, output, strip_first, name):
         props.__doc__ = def():
             output.print(JSON.stringify(create_doctring(self.docstrings)))
 
+    props.__module__ = def():
+        output.print(module_name)
+
     names = Object.keys(props)
-    if names.length:
-        output.indent()
-        # Only define the properties if they were not already defined, which
-        # can happen if the function definition is inside a loop, for example.
-        output.spaced('if', '(!' + fname + '.' + names[0] + ')', 'Object.defineProperties(' + fname)
-        output.comma()
-        output.with_block(def():
-            for v'var i = 0; i < names.length; i++':
-                name = names[i]
-                output.indent(), output.spaced(name, ':', '{value:', ''), props[name](), output.print('}')
-                if i < names.length - 1:
-                    output.print(',')
-                output.newline()
-        )
-        output.print(')'), output.end_statement()
+    output.indent()
+    # Only define the properties if they were not already defined, which
+    # can happen if the function definition is inside a loop, for example.
+    output.spaced('if', '(!' + fname + '.' + names[0] + ')', 'Object.defineProperties(' + fname)
+    output.comma()
+    output.with_block(def():
+        for v'var i = 0; i < names.length; i++':
+            name = names[i]
+            output.indent(), output.spaced(name, ':', '{value:', ''), props[name](), output.print('}')
+            if i < names.length - 1:
+                output.print(',')
+            output.newline()
+    )
+    output.print(')'), output.end_statement()
 
 
 def function_definition(self, output, strip_first, as_expression):
