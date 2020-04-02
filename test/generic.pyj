@@ -267,7 +267,9 @@ def errf():
 try:
     errf()
 except MyException as e:
-    assrt.ok(str.strip(traceback.format_exception(ρσ_last_exception)[-2]).startsWith('at errf'))
+    fe = traceback.format_exception()
+    assrt.ok(str.strip(fe[-2]).startsWith('at errf'))
+
 
 def stackf():
     return traceback.format_stack()

@@ -2,15 +2,25 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: ρσ_str, ρσ_last_exception
 
+
 def _get_internal_traceback(err):
     if isinstance(err, Exception) and err.stack:
         lines = ρσ_str.splitlines(err.stack)
+        final_lines = v'[]'
+        found_sentinel = False
         for i, line in enumerate(lines):
-            line = ρσ_str.strip(line)
+            sline = ρσ_str.strip(line)
+            if i is 0:
+                final_lines.push(line)
+                continue
+            if found_sentinel:
+                final_lines.push(line)
+                continue
             # These two conditions work on desktop Chrome and Firefox to identify the correct
             # line in the traceback.
-            if line.startsWith('at new ' + err.name) or line.startsWith(err.name + '@'):
-                return err.__repr__() + '\n' +  lines.slice(i+1).join('\n')
+            if sline.startsWith('at new ' + err.name) or sline.startsWith(err.name + '@'):
+                found_sentinel = True
+        return final_lines.join('\n')
     return err and err.stack
 
 def format_exception(exc, limit):
@@ -24,7 +34,7 @@ def format_exception(exc, limit):
     if tb:
         lines = ρσ_str.splitlines(tb)
         e = lines[0]
-        lines = [l for l in lines[1:]]
+        lines = lines[1:]
         if limit:
             lines = lines[:limit+1] if limit > 0 else lines[limit:]
         lines.reverse()
