@@ -14,6 +14,8 @@ def _get_internal_traceback(err):
     return err and err.stack
 
 def format_exception(exc, limit):
+    if jstype(exc) is 'undefined':
+        exc = ρσ_last_exception
     if not isinstance(exc, Error):
         if exc and exc.toString:
             return [exc.toString()]
