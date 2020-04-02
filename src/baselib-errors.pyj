@@ -9,14 +9,7 @@ class Exception(Error):
 
     def __init__(self, message):
         self.message = message
-        Error.prepareStackTrace = def(e, a):
-            return a
         self.stack = Error().stack
-        self.structured_stack_trace = None
-        if jstype(self.stack) is not 'string':
-            self.structured_stack_trace = self.stack
-            v'delete Error.prepareStackTrace'
-            self.stack = Error().stack
         self.name = self.constructor.name
 
     def __repr__(self):
