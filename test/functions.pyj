@@ -105,7 +105,23 @@ def hello(something):
     return "hello " + something
 
 assrt.equal(hello("world"), "<b><i>hello world</i></b>")
+assrt.equal(hello.__module__, '__main__')
+assrt.equal(hello.__argnames__.length, 1)
+assrt.equal(hello.__argnames__[0], 'arg')
 
+
+def simple_wrapper(f):
+    f.test_attr = 'test'
+    return f
+
+
+@simple_wrapper
+def fw(x):
+    pass
+
+assrt.equal(fw.__module__, '__main__')
+assrt.equal(fw.__argnames__.length, 1)
+assrt.equal(fw.__argnames__[0], 'x')
 # just because something is a reserved keyword in RapydScript, doesn't mean other libraries won't attempt to use it
 # let's make sure we parse that correctly
 five = {}
