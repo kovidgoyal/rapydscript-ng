@@ -7,6 +7,11 @@ def throw_test(code):
         RapydScript.parse(code, {'filename':code}).body[0]
     , RapydScript.SyntaxError)
 
+# unary operators
+assrt.equal(-(1), -1)
+assrt.equal(-(-1), 1)
+assrt.equal(+(+1), 1)
+
 # arithmetic
 assrt.equal(3**4, Math.pow(3, 4))
 assrt.equal(100**-2, Math.pow(100, -2))

@@ -1961,10 +1961,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return new AST_EmptyStatement({'stype':'@', 'start':prev(), 'end':prev()})
         if is_("operator") and UNARY_PREFIX[start.value]:
             next()
+            is_parenthesized = is_('punc', '(')
             S.in_delete = start.value is 'delete'
             expr = maybe_unary(allow_calls)
             S.in_delete = False
-            ex = make_unary(AST_UnaryPrefix, start.value, expr)
+            ex = make_unary(AST_UnaryPrefix, start.value, expr, is_parenthesized)
             ex.start = start
             ex.end = prev()
             return ex
@@ -1972,10 +1973,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         val = expr_atom(allow_calls)
         return val
 
-    def make_unary(ctor, op, expr):
+    def make_unary(ctor, op, expr, is_parenthesized):
         return new ctor({
             'operator': op,
-            'expression': expr
+            'expression': expr,
+            'parenthesized': is_parenthesized
         })
 
     def expr_op(left, min_prec, no_in):

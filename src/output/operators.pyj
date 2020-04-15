@@ -83,7 +83,12 @@ def print_unary_prefix(self, output):
     output.print(op)
     if /^[a-z]/i.test(op):
         output.space()
-    self.expression.print(output)
+    if self.parenthesized:
+        output.with_parens(def():
+            self.expression.print(output)
+        )
+    else:
+        self.expression.print(output)
 
 def write_instanceof(left, right, output):
 
