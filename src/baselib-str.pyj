@@ -342,6 +342,9 @@ define_str_func('format', def ():
         key, transformer, format_spec = parse_markup(markup)
         if transformer and v"['a', 'r', 's']".indexOf(transformer) is -1:
             raise ValueError('Unknown conversion specifier: ' + transformer)
+        ends_with_equal = key.endsWith('=')
+        if ends_with_equal:
+            key = key[:-1]
         lkey = key.length and split(key, /[.\[]/, 1)[0]
         if lkey:
             explicit = True
@@ -367,6 +370,8 @@ define_str_func('format', def ():
         ans = '' + object
         if format_spec:
             ans = apply_formatting(ans, format_spec)
+        if ends_with_equal:
+            ans = f'{key}={ans}'
         return ans
 
 

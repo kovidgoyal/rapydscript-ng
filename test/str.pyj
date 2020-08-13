@@ -46,7 +46,14 @@ def test_interpolation():
     ae(f'\n', '\n')
     ae(f'{a}\\{b[0]}', '1\\x')
     ae(f'x\n\ny', 'x\n\ny')
+    ae(f'{a=}', 'a=1')
+    somevar = {'x': 1}
+    ae(f'{somevar.x=}', 'somevar.x=1')
 
+somevar = 33
+test('somevar=33', '{somevar=}', somevar=somevar)
+somevar = {'v': 'x'}
+test('somevar.v=x', '{somevar.v=}', somevar=somevar)
 test(' 1 2', ' {} {}', 1, 2)
 test('{ a ', '{{ {0} ', 'a')
 test('11', '{0}{0}', 1)

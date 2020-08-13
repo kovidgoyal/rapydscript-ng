@@ -14,7 +14,12 @@ def render_markup(markup):
         key += ch
         pos += 1
     fmtspec = markup[pos:]
-    return 'ρσ_str.format("{' + fmtspec + '}", ' + key + ')'
+    prefix = ''
+    if key.endsWith('='):
+        prefix=key
+        key = key[:-1]
+    return 'ρσ_str.format("' + prefix + '{' + fmtspec + '}", ' + key + ')'
+
 
 def interpolate(template, raise_error):
     pos = in_brace = 0
