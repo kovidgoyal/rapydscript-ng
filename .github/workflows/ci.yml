@@ -5,7 +5,7 @@ env:
 
 jobs:
     test:
-        name: Test on ${{ matrix.os }} Node ${{ matrix.node }} LANG: ${{ matrix.lang }}
+        name: Test on ${{ matrix.os }} Node ${{ matrix.node }} LANG ${{ matrix.lang }}
         runs-on: ${{ matrix.os }}
         env:
           LANG: ${{ matrix.lang }}
