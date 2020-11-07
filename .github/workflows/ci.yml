@@ -1,0 +1,40 @@
+name: CI
+on: [push, pull_request]
+env:
+    CI: 'true'
+
+jobs:
+    test:
+        name: Test on ${{ matrix.os }} Node ${{ matrix.node }} LANG: ${{ matrix.lang }}
+        runs-on: ${{ matrix.os }}
+        env:
+          LANG: ${{ matrix.lang }}
+          LC_ALL: ${{ matrix.lang }}
+        strategy:
+            matrix:
+                include:
+                    - { node: 10.x, os: ubuntu-latest, lang: en_US.UTF-8 }
+                    - { node: 12.x, os: ubuntu-latest, lang: de_DE.UTF-8}
+                    - { node: 15.x, os: ubuntu-latest, lang: hi_IN.UTF-8 }
+
+                    - { node: 15.x, os: macos-latest, lang: en_US.UTF-8 }
+                    - { node: 15.x, os: windows-latest, lang: en_US.UTF-8 }
+
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@master
+              with:
+                fetch-depth: 10
+
+            - name: Set up Node ${{ matrix.node }}
+              uses: actions/setup-node@master
+              with:
+                node-version: ${{ matrix.node }}
+
+            - name: Install deps
+              run:
+                npm install --no-optional
+
+            - name: Test
+              run:
+                npm test

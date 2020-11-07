@@ -1,8 +1,8 @@
 RapydScript
 ===========
 
-[![Build Status](https://api.travis-ci.org/kovidgoyal/rapydscript-ng.svg)](https://travis-ci.org/kovidgoyal/rapydscript-ng)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/kovidgoyal/rapydscript-ng?svg=true)](https://ci.appveyor.com/project/kovidgoyal/rapydscript-ng)
+
+[![Build Status](https://github.com/ebook-utils/kovidgoyal/rapydscript-ng/CI/badge.svg)](https://github.com/kovidgoyal/rapydscript-ng/actions?query=workflow%3ACI)
 [![Downloads](https://img.shields.io/npm/dm/rapydscript-ng.svg)](https://www.npmjs.com/package/rapydscript-ng)
 [![Current Release](https://img.shields.io/npm/v/rapydscript-ng.svg)](https://www.npmjs.com/package/rapydscript-ng)
 [![Known Vulnerabilities](https://snyk.io/test/github/kovidgoyal/rapydscript-ng/badge.svg)](https://snyk.io/test/github/kovidgoyal/rapydscript-ng)
