@@ -177,6 +177,11 @@ def ρσ_range(start, stop, step):
         if not this._cached:
             this._cached = list(this)
         return this._cached.index(val)
+    ans.__len__ = def():
+        return length
+    ans.__repr__ = def():
+        return f'range({start}, {stop}, {step})'
+    ans.__str__ = ans.toString = ans.__repr__
     if jstype(Proxy) is 'function':
         ans = new Proxy(ans, {
             'get': def(obj, prop):

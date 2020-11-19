@@ -267,6 +267,8 @@ assrt.equal(b == a, False)
 a, b = range(1111111111)
 assrt.equal(a, 0)
 assrt.equal(b, 1)
+assrt.equal(len(range(10)), 10)
+assrt.equal(str(range(10)), 'range(0, 10, 1)')
 
 assrt.deepEqual(divmod(7, 3), [2, 1])
 assrt.deepEqual(divmod(-7, 3), [-3, 2])
