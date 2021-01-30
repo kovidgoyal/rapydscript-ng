@@ -33,4 +33,5 @@ gh_pages = os.path.join(os.path.dirname(base), 'kovidgoyal.github.io')
 subprocess.check_call([os.path.join(gh_pages, 'update-rapyd-repl.py')])
 
 # Publish to NPM
+subprocess.check_call(['npm', 'login'])
 subprocess.check_call(['npm', 'publish', base])
