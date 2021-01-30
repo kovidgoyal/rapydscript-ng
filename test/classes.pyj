@@ -440,3 +440,13 @@ class anon_func_in_class:
 assrt.equal(jstype(anon_func_in_class.prototype.func_var), 'function')
 anon_func_in_class.prototype.f()
 assrt.equal(jstype(anon_func_in_class.prototype.func_var), 'function')
+
+
+def decorate(cls):
+    assrt.equal(cls.prototype.somevar, 1)
+    return cls
+
+
+@decorate
+class decorated:
+    somevar = 1
