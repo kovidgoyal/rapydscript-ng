@@ -1,3 +1,13 @@
+version 0.7.21
+=======================
+
+  * class decorators are now called after the class prototype is populated
+  * Fix len(range()) giving incorrect results
+  * Add support for {var=} to format strings
+  * Fix unary operators discarding parentheses
+  * Add a __module__ property to function objects
+  * Get isinstance working for int and float
+
 version 0.7.20
 ========================
 
@@ -5,7 +15,6 @@ version 0.7.20
   * Add head and body and base to elementmaker
   * Make the gettext tools available in the embedded compiler
   * re.pyj: Allow lookbehind assertions since they are supported in modern JS engines
-  * class decorators are now called after the class prototype is populated
 
 version 0.7.19 
 ========================
