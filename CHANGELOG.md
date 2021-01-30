@@ -5,6 +5,7 @@ version 0.7.20
   * Add head and body and base to elementmaker
   * Make the gettext tools available in the embedded compiler
   * re.pyj: Allow lookbehind assertions since they are supported in modern JS engines
+  * class decorators are now called after the class prototype is populated
 
 version 0.7.19 
 ========================

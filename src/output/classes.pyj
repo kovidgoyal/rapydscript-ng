@@ -75,15 +75,19 @@ def print_class(output):
             output.end_statement()
         )
 
-    # decorate the class
-    if self.decorators and self.decorators.length:
-        output.print('var ')
-        output.assign(self.name)
-        decorate(self.decorators, output, write_constructor)
-        output.semicolon()
-    else:
-        write_constructor()
+    write_constructor()
     output.newline()
+    decorators = self.decorators or v'[]'
+    if decorators.length:
+        output.indent()
+        self.name.print(output)
+        output.spaced('.ρσ_decorators', '=', '[')
+        num = decorators.length
+        for i in range(num):
+            decorators[i].expression.print(output)
+            output.spaced(',' if i < num - 1 else ']')
+        output.semicolon()
+        output.newline()
 
     # inheritance
     if self.parent:
@@ -234,3 +238,17 @@ def print_class(output):
             output.indent()
             stmt.print(output)
             output.newline()
+
+    if decorators.length:
+        output.indent()
+        for di in range(decorators.length):
+            self.name.print(output)
+            output.print(f'.ρσ_decorators[{di}](')
+        self.name.print(output)
+        output.print(')' * decorators.length)
+        output.semicolon()
+        output.spaced(' delete ')
+        self.name.print(output)
+        output.print('.ρσ_decorators')
+        output.semicolon()
+        output.newline()
