@@ -358,7 +358,7 @@ the example in the previous section).
 
 Decorators
 ----------
-Like Python, RapydScript supports function decorators. 
+Like Python, RapydScript supports decorators. 
 
 ```py
 def makebold(fn):
@@ -377,6 +377,21 @@ def hello():
 	return "hello world"
 
 hello() # returns "<b><i>hello world</i></b>"
+```
+
+Class decorators are also supported with the caveat that the class properties
+must be accessed via the prototype property. For example:
+
+```py
+
+def add_x(cls):
+	cls.prototype.x = 1
+
+@add_x
+class A:
+   pass
+
+print(A.x)  # will print 1
 ```
 
 
