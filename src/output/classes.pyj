@@ -75,9 +75,15 @@ def print_class(output):
             output.end_statement()
         )
 
-    write_constructor()
-    output.newline()
     decorators = self.decorators or v'[]'
+    if decorators.length:
+        output.print('var ')
+        output.assign(self.name)
+        write_constructor()
+        output.semicolon()
+    else:
+        write_constructor()
+    output.newline()
     if decorators.length:
         output.indent()
         self.name.print(output)
@@ -241,13 +247,16 @@ def print_class(output):
 
     if decorators.length:
         output.indent()
+        output.assign(self.name)
         for di in range(decorators.length):
             self.name.print(output)
             output.print(f'.ρσ_decorators[{di}](')
         self.name.print(output)
         output.print(')' * decorators.length)
         output.semicolon()
-        output.spaced(' delete ')
+        output.newline()
+        output.indent()
+        output.spaced('delete ')
         self.name.print(output)
         output.print('.ρσ_decorators')
         output.semicolon()
