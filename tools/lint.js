@@ -564,7 +564,7 @@ function lint_code(code, options) {
 // CLI {{{
 
 function read_whole_file(filename, cb) {
-    if (!filename) {
+    if (!filename || filename === '-') {
         var chunks = [];
         process.stdin.setEncoding('utf-8');
         process.stdin.on('data', function (chunk) {
@@ -653,6 +653,10 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
     if (argv.globals) argv.globals.split(',').forEach(function(sym) { builtins[sym] = true; });
     if (argv.noqa) argv.noqa.split(',').forEach(function(sym) { noqa[sym] = true; });
 
+    function path_for_filename(x) {
+        return x === '-' ? argv.stdin_filename : x;
+    }
+
     function lint_single_file(err, code) {
         var output, final_builtins = merge(builtins), final_noqa = merge(noqa), rl;
         if (err) {
@@ -661,7 +665,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         }
 
         // Read setup.cfg
-        rl = get_ini(path.dirname(files[0]));
+        rl = get_ini(path.dirname(path_for_filename(files[0])));
         var g = {};
         (rl.globals || rl.builtins || '').split(',').forEach(function (x) { g[x.trim()] = true; });
         final_builtins = merge(final_builtins, g);
@@ -681,7 +685,7 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         });
 
         // Lint!
-        if (lint_code(code, {filename:files[0], builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
+        if (lint_code(code, {filename:path_for_filename(files[0]), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
 
         files = files.slice(1);
         if (files.length) {

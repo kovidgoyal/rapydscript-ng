@@ -350,7 +350,7 @@ it.
 create_group('lint', "[input1.pyj input2.pyj ...]", function(){/*
 Run the RapydScript linter. This will find various 
 possible problems in the .pyj files you specify and 
-write messages about them to stdout.
+write messages about them to stdout. Use - to read from STDIN.
 The main check it performs is for unused/undefined 
 symbols, like pyflakes does for python.
 */}, function() {/*
@@ -419,6 +419,11 @@ undef - output only the names of undefined symbols in a form that
 opt("noqa_list", '', 'bool', false, function(){/*
 List all available linter checks, with a brief
 description, and exit.
+*/});
+
+opt('stdin_filename', '', 'string', 'STDIN', function(){/*
+The filename for data read from STDIN. If not specified
+STDIN is used. 
 */});
 
 create_group('test', '[test1 test2...]', function(){/*
