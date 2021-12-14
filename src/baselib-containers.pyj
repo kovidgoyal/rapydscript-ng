@@ -632,11 +632,16 @@ Object.defineProperties(ρσ_dict.prototype, {
     return ans
 
 ρσ_dict.prototype.popitem = def ():
-    r = this.jsmap.entries().next()
-    if r.done:
-        raise KeyError('dict is empty')
-    this.jsmap.delete(r.value[0])
-    return r.value
+    last = None
+    e = this.jsmap.entries()
+    while True:
+        r = e.next()
+        if r.done:
+            if last is None:
+                raise KeyError('dict is empty')
+            this.jsmap.delete(last.value[0])
+            return last.value
+        last = r
 
 ρσ_dict.prototype.update = def ():
     if arguments.length is 0:

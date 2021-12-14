@@ -111,6 +111,7 @@ assrt.equal(d1.fun2(3), 4)
 assrt.equal(len(d0), 3)
 assrt.equal(d2.get(1), 2)
 assrt.equal(d2.get('a'), 'b')
+assrt.deepEqual(d2.popitem(), ['a', 'b'])
 
 # assignment
 d1["bar"] += "!"
