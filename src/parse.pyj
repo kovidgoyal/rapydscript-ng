@@ -1802,7 +1802,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             # regular index (arr[index])
             if is_py_sub:
                 assignment = None
-                if is_("operator") and S.token.value is "=":
+                assign_operator = ''
+                if is_("operator") and ASSIGNMENT[S.token.value]:
+                    assign_operator = S.token.value[:-1]
                     next()
                     assignment = expression(True)
                 return subscripts(new AST_ItemAccess({
@@ -1812,6 +1814,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         'value': 0
                     }),
                     'assignment':assignment,
+                    'assign_operator': assign_operator,
                     'end': prev()
                 }), allow_calls)
 

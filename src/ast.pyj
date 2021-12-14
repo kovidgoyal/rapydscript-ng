@@ -719,6 +719,7 @@ class AST_ItemAccess(AST_PropAccess):
     'Python index-style property access, i.e. `a.__getitem__("foo")`'
     properties = {
         'assignment': "[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access",
+        'assign_operator': "[String] The operator for a assignment like += or empty string if plain assignment",
     }
 
     def _walk(self, visitor):

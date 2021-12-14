@@ -1,3 +1,8 @@
+version 0.7.22
+=======================
+
+  * Fix assignment operators other than the plain = not working with overload_getitem
+
 version 0.7.21
 =======================
 

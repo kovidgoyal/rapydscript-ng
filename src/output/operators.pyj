@@ -55,7 +55,17 @@ def print_rich_getitem(self, output):  # AST_ItemAccess
     output.print(func + '(')
     self.expression.print(output), output.comma(), self.property.print(output)
     if self.assignment:
-        output.comma(), self.assignment.print(output)
+        output.comma()
+        asg = self.assignment
+        as_op = self.assign_operator
+        if as_op.length > 0:
+            self.assignment = None
+            print_rich_getitem(self, output)
+            self.assignment = asg
+            output.space()
+            output.print(as_op)
+            output.space()
+        self.assignment.print(output)
     output.print(')')
 
 def print_splice_assignment(self, output):  # AST_Splice

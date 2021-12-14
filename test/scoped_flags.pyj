@@ -10,6 +10,8 @@ assrt.ok(isinstance(a, dict))
 assrt.equal(a[1], 1)
 a[2] = 2
 assrt.equal(a[2], 2)
+a[2] += 4
+assrt.equal(a[2], 6)
 assrt.deepEqual(list(a.keys()), [1, 2])
 from __python__ import no_dict_literals, no_overload_getitem
 
