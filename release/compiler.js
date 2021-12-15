@@ -2072,13 +2072,20 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
 })();
 ρσ_dict.prototype.popitem = (function() {
     var ρσ_anonfunc = function () {
-        var r;
-        r = this.jsmap.entries().next();
-        if (r.done) {
-            throw new KeyError("dict is empty");
+        var last, e, r;
+        last = null;
+        e = this.jsmap.entries();
+        while (true) {
+            r = e.next();
+            if (r.done) {
+                if (last === null) {
+                    throw new KeyError("dict is empty");
+                }
+                this.jsmap.delete(last.value[0]);
+                return last.value;
+            }
+            last = r;
         }
-        this.jsmap.delete(r.value[0]);
-        return r.value;
     };
     if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
         __module__ : {value: "__main__"}
@@ -7090,6 +7097,7 @@ return this.__repr__();
         AST_ItemAccess.prototype.properties = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["assignment"] = "[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access";
+            ρσ_d["assign_operator"] = "[String] The operator for a assignment like += or empty string if plain assignment";
             return ρσ_d;
         }).call(this);
 
@@ -9646,7 +9654,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "eb857dad74098b17e1abd5c68b2fed35a74ea3d0";
+        COMPILER_VERSION = "63e1fdf4fbac5bd6a6c811d2112bdba68ad9e213";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -12207,7 +12215,7 @@ return this.__repr__();
             });
 
             function getitem(expr, allow_calls) {
-                var start, is_py_sub, slice_bounds, is_slice, i, assignment;
+                var start, is_py_sub, slice_bounds, is_slice, i, assignment, assign_operator;
                 start = expr.start;
                 next();
                 is_py_sub = S.scoped_flags.get("overload_getitem", false);
@@ -12326,7 +12334,9 @@ return this.__repr__();
                 } else {
                     if (is_py_sub) {
                         assignment = null;
-                        if (is_("operator") && S.token.value === "=") {
+                        assign_operator = "";
+                        if (is_("operator") && ASSIGNMENT[ρσ_bound_index(S.token.value, ASSIGNMENT)]) {
+                            assign_operator = S.token.value.slice(0, -1);
                             next();
                             assignment = expression(true);
                         }
@@ -12340,6 +12350,7 @@ return this.__repr__();
                                 return ρσ_d;
                             }).call(this));
                             ρσ_d["assignment"] = assignment;
+                            ρσ_d["assign_operator"] = assign_operator;
                             ρσ_d["end"] = prev();
                             return ρσ_d;
                         }).call(this)), allow_calls);
@@ -14984,12 +14995,23 @@ return this.__repr__();
         });
 
         function print_rich_getitem(self, output) {
-            var func;
+            var func, asg, as_op;
             func = "ρσ_" + ((self.assignment) ? "setitem" : "getitem");
             output.print(func + "(");
             [self.expression.print(output), output.comma(), self.property.print(output)];
             if (self.assignment) {
-                [output.comma(), self.assignment.print(output)];
+                output.comma();
+                asg = self.assignment;
+                as_op = self.assign_operator;
+                if (as_op.length > 0) {
+                    self.assignment = null;
+                    print_rich_getitem(self, output);
+                    self.assignment = asg;
+                    output.space();
+                    output.print(as_op);
+                    output.space();
+                }
+                self.assignment.print(output);
             }
             output.print(")");
         };

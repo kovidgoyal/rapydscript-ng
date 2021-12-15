@@ -2066,13 +2066,20 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
 })();
 ρσ_dict.prototype.popitem = (function() {
     var ρσ_anonfunc = function () {
-        var r;
-        r = this.jsmap.entries().next();
-        if (r.done) {
-            throw new KeyError("dict is empty");
+        var last, e, r;
+        last = null;
+        e = this.jsmap.entries();
+        while (true) {
+            r = e.next();
+            if (r.done) {
+                if (last === null) {
+                    throw new KeyError("dict is empty");
+                }
+                this.jsmap.delete(last.value[0]);
+                return last.value;
+            }
+            last = r;
         }
-        this.jsmap.delete(r.value[0]);
-        return r.value;
     };
     if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
         __module__ : {value: "__main__"}
