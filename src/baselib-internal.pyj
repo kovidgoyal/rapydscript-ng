@@ -175,6 +175,7 @@ def ρσ_setitem(obj, key, val):
         if jstype(key) is 'number' and key < 0:
             key += obj.length
         obj[key] = val
+    return val
 
 def ρσ_delitem(obj, key):
     if obj.__delitem__:

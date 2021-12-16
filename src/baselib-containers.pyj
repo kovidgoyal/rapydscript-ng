@@ -606,7 +606,7 @@ Object.defineProperties(ρσ_dict.prototype, {
         return None if defval is undefined else defval
     return ans
 
-ρσ_dict.prototype.set_default = def (key, defval):
+ρσ_dict.prototype.set_default = ρσ_dict.prototype.setdefault = def (key, defval):
     j = this.jsmap
     if not j.has(key):
         j.set(key, defval)

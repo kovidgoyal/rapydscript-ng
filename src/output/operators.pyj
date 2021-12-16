@@ -296,7 +296,7 @@ def print_assign(self, output):
         left_hand_sides, rhs = self.traverse_chain()
         is_compound_assign = False
         for lhs in left_hand_sides:
-            if is_node_type(lhs, AST_Seq) or is_node_type(lhs, AST_Array):
+            if is_node_type(lhs, AST_Seq) or is_node_type(lhs, AST_Array) or is_node_type(lhs, AST_ItemAccess):
                 is_compound_assign = True
                 break
         if is_compound_assign:

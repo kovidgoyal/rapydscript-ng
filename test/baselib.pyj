@@ -234,6 +234,8 @@ def test_dicts():
     assrt.ok(a is not a.copy()), assrt.deepEqual(a, a.copy())
     a.clear()
     assrt.equal(a.length, 0), assrt.deepEqual(list(a), [])
+    a[1] = a[2] = 19
+    assrt.deepEqual(a, {1:19, 2:19})
     assrt.deepEqual(set({1:9, 2:8}.keys()), {1, 2})
     assrt.deepEqual(set({1:9, 2:8}.values()), {8, 9})
     items = [list_wrap(x) for x in {1:9, 2:8}.items()]
@@ -241,8 +243,8 @@ def test_dicts():
     assrt.deepEqual(items, [[1,9], [2, 8]])
     a = {1:1, 2:2}
     assrt.equal(a.get(1), 1), assrt.equal(a.get(3), None)
-    assrt.equal(a.set_default(2, 2), 2)
-    assrt.equal(a.set_default(3, 3), 3), assrt.equal(a[3], 3)
+    assrt.equal(a.setdefault(2, 2), 2)
+    assrt.equal(a.setdefault(3, 3), 3), assrt.equal(a[3], 3)
     assrt.deepEqual(dict.fromkeys([1, 2], 3), {1:3, 2:3})
     a = {1:3, 2:3}
     assrt.equal(a.pop(2, 2), 3), assrt.equal(a.pop(2, 2), 2)
