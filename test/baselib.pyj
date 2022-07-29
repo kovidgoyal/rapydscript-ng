@@ -59,6 +59,14 @@ assrt.deepEqual(['y', 'x'], [x for x in reversed('xy')])
 # Test that the iterator created by iter() is itself iterable
 assrt.deepEqual(s, set(iter(s)))
 
+# Test list index/remove/in use the same notion of equality
+a = [1, 2]
+b = [list(a), 3, 4]
+assrt.ok(a in b)
+assrt.equal(b.index(a), 0)
+b.remove(a)
+assrt.equal(len(b), 2)
+
 assrt.ok('a' in m)
 assrt.ok(1 in s)
 assrt.ok('1' not in s)

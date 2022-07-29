@@ -67,10 +67,7 @@ def ρσ_list_index(val, start, stop):
     if start < 0:
         raise ValueError(val + ' is not in list')
     if stop is undefined:
-        idx = this.indexOf(val, start)
-        if idx is -1:
-            raise ValueError(val + ' is not in list')
-        return idx
+        stop = this.length
     if stop < 0:
         stop = this.length + stop
     for v'var i = start; i < stop; i++':
@@ -89,10 +86,11 @@ def ρσ_list_pop(index):
     return ans[0]
 
 def ρσ_list_remove(value):
-    idx = this.indexOf(value)
-    if idx is -1:
-        raise ValueError(value + ' not in list')
-    this.splice(idx, 1)
+    for v'var i = 0; i < this.length; i++':
+        if this[i] == value:
+            this.splice(i, 1)
+            return
+    raise ValueError(value + ' not in list')
 
 def ρσ_list_to_string():
     return '[' + this.join(', ') + ']'
