@@ -51,9 +51,30 @@ def random():
         m *= 256
     return v'n / 0x10000000000000000'
 
-# unlike the python version, this DOES build a range object, feel free to reimplement
 def randrange():
-    return choice(range.apply(this, arguments))
+    if arguments.length is 1:
+        return randbelow(int(arguments[0]))
+    start = int(arguments[0])
+    stop = int(arguments[1])
+    if arguments.length < 3:
+        step = 1
+    else:
+        step = int(arguments[2])
+    width = stop - start
+    if step is 1:
+        if width > 0:
+            return start + randbelow(width)
+        raise ValueError("empty range for randrange()")
+    if step > 0:
+        n = (width + step - 1) // step
+    elif step < 0:
+        n = (width + step + 1) // step
+    else:
+        raise ValueError("zero step for randrange()")
+    if n <= 0:
+        raise ValueError(f"empty range in randrange({start}, {stop}, {step})")
+    return start + step * randbelow(n)
+
 
 def randint(a, b):
     return int(random()*(b-a+1) + a)
@@ -61,9 +82,12 @@ def randint(a, b):
 def uniform(a, b):
     return random()*(b-a) + a
 
+def randbelow(n):
+    return Math.floor(random()*n)
+
 def choice(seq):
     if seq.length > 0:
-        return seq[Math.floor(random()*seq.length)]
+        return seq[randbelow(seq.length)]
     else:
         raise IndexError()
 
