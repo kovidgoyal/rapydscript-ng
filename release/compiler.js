@@ -712,7 +712,6 @@ if (!ρσ_list_extend.__argnames__) Object.defineProperties(ρσ_list_extend, {
 });
 
 function ρσ_list_index(val, start, stop) {
-    var idx;
     start = start || 0;
     if (start < 0) {
         start = this.length + start;
@@ -721,11 +720,7 @@ function ρσ_list_index(val, start, stop) {
         throw new ValueError(val + " is not in list");
     }
     if (stop === undefined) {
-        idx = this.indexOf(val, start);
-        if (idx === -1) {
-            throw new ValueError(val + " is not in list");
-        }
-        return idx;
+        stop = this.length;
     }
     if (stop < 0) {
         stop = this.length + stop;
@@ -762,12 +757,13 @@ if (!ρσ_list_pop.__argnames__) Object.defineProperties(ρσ_list_pop, {
 });
 
 function ρσ_list_remove(value) {
-    var idx;
-    idx = this.indexOf(value);
-    if (idx === -1) {
-        throw new ValueError(value + " not in list");
+    for (var i = 0; i < this.length; i++) {
+        if (((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === value || typeof (ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i] === "object" && ρσ_equals((ρσ_expr_temp = this)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i], value))) {
+            this.splice(i, 1);
+            return;
+        }
     }
-    this.splice(idx, 1);
+    throw new ValueError(value + " not in list");
 };
 if (!ρσ_list_remove.__argnames__) Object.defineProperties(ρσ_list_remove, {
     __argnames__ : {value: ["value"]},
@@ -2008,7 +2004,7 @@ Object.defineProperties(ρσ_dict.prototype, (function(){
     });
     return ρσ_anonfunc;
 })();
-ρσ_dict.prototype.set_default = (function() {
+ρσ_dict.prototype.set_default = ρσ_dict.prototype.setdefault = (function() {
     var ρσ_anonfunc = function (key, defval) {
         var j;
         j = this.jsmap;
@@ -2710,6 +2706,7 @@ function ρσ_setitem(obj, key, val) {
         }
         obj[(typeof key === "number" && key < 0) ? obj.length + key : key] = val;
     }
+    return val;
 };
 if (!ρσ_setitem.__argnames__) Object.defineProperties(ρσ_setitem, {
     __argnames__ : {value: ["obj", "key", "val"]},
@@ -8609,6 +8606,7 @@ return this.__repr__();
         var SyntaxError = ρσ_modules.errors.SyntaxError;
 
         var interpolate = ρσ_modules.string_interpolation.interpolate;
+        var quoted_string = ρσ_modules.string_interpolation.quoted_string;
 
         RE_HEX_NUMBER = /^0x[0-9a-f]+$/i;
         RE_OCT_NUMBER = /^0[0-7]+$/;
@@ -9255,6 +9253,7 @@ return this.__repr__();
                 return ρσ_anonfunc;
             })());
             function handle_interpolated_string(string, start_tok) {
+                var parts, ch, stok, j, potential_mod, mods, is_raw, combined;
                 function raise_error(err) {
                     throw new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, false);
                 };
@@ -9263,7 +9262,50 @@ return this.__repr__();
                     __module__ : {value: "tokenizer"}
                 });
 
-                S.text = S.text.slice(0, S.pos) + "(" + interpolate(string, raise_error) + ")" + S.text.slice(S.pos);
+                parts = [interpolate(string, raise_error)];
+                while (true) {
+                    while (S.pos < S.text.length && (S.text.charAt(S.pos) === " " || S.text.charAt(S.pos) === "\t")) {
+                        next();
+                    }
+                    ch = S.text.charAt(S.pos);
+                    if (!ch) {
+                        break;
+                    }
+                    if (ch === "'" || ch === "\"") {
+                        stok = read_string(false, false);
+                        parts.push(quoted_string(stok.value));
+                    } else if (is_identifier_start(ch.charCodeAt(0))) {
+                        j = S.pos;
+                        while (j < S.text.length && is_identifier_char(S.text.charAt(j))) {
+                            j += 1;
+                        }
+                        potential_mod = S.text.substring(S.pos, j);
+                        if (!is_string_modifier(potential_mod)) {
+                            break;
+                        }
+                        if (j >= S.text.length || "'\"".indexOf(S.text.charAt(j)) === -1) {
+                            break;
+                        }
+                        mods = potential_mod.toLowerCase();
+                        if (mods.indexOf("v") !== -1) {
+                            break;
+                        }
+                        while (S.pos < j) {
+                            next();
+                        }
+                        is_raw = mods.indexOf("r") !== -1;
+                        stok = read_string(is_raw, false);
+                        if (mods.indexOf("f") !== -1) {
+                            parts.push(interpolate(stok.value, raise_error));
+                        } else {
+                            parts.push(quoted_string(stok.value));
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                combined = parts.join("+");
+                S.text = S.text.slice(0, S.pos) + "(" + combined + ")" + S.text.slice(S.pos);
                 return token("punc", next());
             };
             if (!handle_interpolated_string.__argnames__) Object.defineProperties(handle_interpolated_string, {
@@ -9654,7 +9696,7 @@ return this.__repr__();
         var is_token = ρσ_modules.tokenizer.is_token;
         var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
 
-        COMPILER_VERSION = "63e1fdf4fbac5bd6a6c811d2112bdba68ad9e213";
+        COMPILER_VERSION = "33bc40d444e2a542a0577a3a3b0549d8381795ff";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -15378,7 +15420,7 @@ return this.__repr__();
                 var ρσ_Iter89 = ρσ_Iterable(left_hand_sides);
                 for (var ρσ_Index89 = 0; ρσ_Index89 < ρσ_Iter89.length; ρσ_Index89++) {
                     lhs = ρσ_Iter89[ρσ_Index89];
-                    if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
+                    if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array) || is_node_type(lhs, AST_ItemAccess)) {
                         is_compound_assign = true;
                         break;
                     }
