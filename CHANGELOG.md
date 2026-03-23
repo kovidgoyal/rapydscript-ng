@@ -1,3 +1,8 @@
+version 0.7.23
+=======================
+
+  * Fix consecutive of f-strings without concatenation operator causing a syntax error
+ 
 version 0.7.22
 =======================
 
