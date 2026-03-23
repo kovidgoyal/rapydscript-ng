@@ -6,7 +6,7 @@ from unicode_aliases import ALIAS_MAP
 from utils import make_predicate, characters
 from ast import AST_Token
 from errors import SyntaxError
-from string_interpolation import interpolate
+from string_interpolation import interpolate, quoted_string
 
 RE_HEX_NUMBER = /^0x[0-9a-f]+$/i
 RE_OCT_NUMBER = /^0[0-7]+$/
@@ -486,7 +486,45 @@ def tokenizer(raw_text, filename):
     def handle_interpolated_string(string, start_tok):
         def raise_error(err):
             raise new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, False)
-        S.text = S.text[:S.pos] + '(' + interpolate(string, raise_error) + ')' + S.text[S.pos:]
+        parts = v'[interpolate(string, raise_error)]'
+        # Look ahead for consecutive string literals to concatenate (e.g. f'a'f'b' or f'a''b')
+        while True:
+            # Skip horizontal whitespace (spaces and tabs, not newlines)
+            while S.pos < S.text.length and (S.text.charAt(S.pos) is ' ' or S.text.charAt(S.pos) is '\t'):
+                next()
+            ch = S.text.charAt(S.pos)
+            if not ch:
+                break
+            if ch is "'" or ch is '"':
+                # A plain string literal follows; read it and append its quoted value
+                stok = read_string(False, False)
+                parts.push(quoted_string(stok.value))
+            elif is_identifier_start(ch.charCodeAt(0)):
+                # Peek ahead (without consuming) to check if it is a string modifier followed by a quote
+                j = S.pos
+                while j < S.text.length and is_identifier_char(S.text.charAt(j)):
+                    j += 1
+                potential_mod = S.text.substring(S.pos, j)
+                if not is_string_modifier(potential_mod):
+                    break
+                if j >= S.text.length or '\'"'.indexOf(S.text.charAt(j)) is -1:
+                    break
+                mods = potential_mod.toLowerCase()
+                if mods.indexOf('v') is not -1:
+                    break  # Do not concatenate with verbatim JS literals
+                # Consume the modifier characters via next() to keep position tracking correct
+                while S.pos < j:
+                    next()
+                is_raw = mods.indexOf('r') is not -1
+                stok = read_string(is_raw, False)
+                if mods.indexOf('f') is not -1:
+                    parts.push(interpolate(stok.value, raise_error))
+                else:
+                    parts.push(quoted_string(stok.value))
+            else:
+                break
+        combined = parts.join('+')
+        S.text = S.text[:S.pos] + '(' + combined + ')' + S.text[S.pos:]
         return token('punc', next())
 
     def read_line_comment(shebang):

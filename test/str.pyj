@@ -49,6 +49,13 @@ def test_interpolation():
     ae(f'{a=}', 'a=1')
     somevar = {'x': 1}
     ae(f'{somevar.x=}', 'somevar.x=1')
+    # Test consecutive f-string concatenation
+    ae(f'a'f'b', 'ab')
+    ae(f'a'f'{a}', 'a1')
+    ae(f'{a}'f'b', '1b')
+    ae(f'{a}'f'{a}', '11')
+    ae(f'a''b', 'ab')
+    ae(f'{a}''b', '1b')
 
 somevar = 33
 test('somevar=33', '{somevar=}', somevar=somevar)

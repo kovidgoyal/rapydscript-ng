@@ -7,3 +7,4 @@
 node_modules
 dev
 self.cpuprofile
+package-lock.json
