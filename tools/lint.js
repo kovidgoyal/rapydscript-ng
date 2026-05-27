@@ -508,24 +508,24 @@ function Linter(toplevel, filename, code, options) {
             // Track triple-quoted multiline string state so we can skip
             // eol-semicolon checks for lines that are inside string literals.
             var line_starts_in_multiline = in_multiline_str;
-            var pos = 0;
+            var pos = 0, close_pos;
             while (pos < line.length) {
                 if (!in_multiline_str) {
                     var dq = line.indexOf('"""', pos);
                     var sq = line.indexOf("'''", pos);
                     var first, quote;
-                    if (dq !== -1 && (sq === -1 || dq <= sq)) { first = dq; quote = '"""'; }
+                    if (dq !== -1 && (sq === -1 || dq < sq)) { first = dq; quote = '"""'; }
                     else if (sq !== -1) { first = sq; quote = "'''"; }
                     else break;
                     in_multiline_str = true;
                     ml_quote = quote;
                     pos = first + 3;
-                    var close = line.indexOf(ml_quote, pos);
-                    if (close !== -1) { in_multiline_str = false; ml_quote = null; pos = close + 3; }
+                    close_pos = line.indexOf(ml_quote, pos);
+                    if (close_pos !== -1) { in_multiline_str = false; ml_quote = null; pos = close_pos + 3; }
                     else break;
                 } else {
-                    var close = line.indexOf(ml_quote, pos);
-                    if (close !== -1) { in_multiline_str = false; ml_quote = null; pos = close + 3; }
+                    close_pos = line.indexOf(ml_quote, pos);
+                    if (close_pos !== -1) { in_multiline_str = false; ml_quote = null; pos = close_pos + 3; }
                     else break;
                 }
             }
