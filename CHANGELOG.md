@@ -1,3 +1,8 @@
+version 0.7.24
+=======================
+
+  * Fix linter warning about end of line semi colons inside multiline string literals
+ 
 version 0.7.23
 =======================
 
