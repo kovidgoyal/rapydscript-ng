@@ -83,6 +83,8 @@ err_test('def f():\n a = 1\n for a in "":\n  a', 'loop-shadowed', 3, 'a', 2)
 # Semi-colons
 err_test('a=1;;a', 'extra-semicolon', 1, ';')
 err_test('a=1;', 'eol-semicolon', 1, ';')
+ok_test('a = """\nhello;\n"""')
+ok_test("a = '''\nhello;\n'''")
 
 # Builtins
 for k in 'String Symbol this self window Map arguments print len range dir undefined'.split(' '):
