@@ -175,6 +175,11 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         }
     }
 
+    if (argv.source_map && !argv.output) {
+        console.error("ERROR: --source-map requires --output to be set so the source map URL can be computed");
+        process.exit(1);
+    }
+
     if (!argv.omit_baselib) {
         var which = (OUTPUT_OPTIONS.beautify) ? 'pretty' : 'ugly';
         OUTPUT_OPTIONS.baselib_plain = fs.readFileSync(path.join(lib_path, 'baselib-plain-' + which + '.js'), 'utf-8');

@@ -16,7 +16,7 @@ var VLQ_BASE_MASK = VLQ_BASE - 1;             // 31
 var VLQ_CONTINUATION_BIT = VLQ_BASE;          // 32
 
 function to_vlq_signed(value) {
-    return (value < 0) ? ((-value) << 1) + 1 : (value << 1) + 0;
+    return (value < 0) ? ((-value) << 1) + 1 : (value << 1);
 }
 
 function encode_vlq(value) {

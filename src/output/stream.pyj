@@ -308,13 +308,13 @@ class OutputStream:
 
     def add_mapping(self, node):
         if self._source_map_segments is not None and node.start and node.start.file:
-            self._source_map_segments.push(v'[this.current_line - 1, this.current_col, node.start.file, node.start.line - 1, node.start.col]')
+            self._source_map_segments.push([self.current_line - 1, self.current_col, node.start.file, node.start.line - 1, node.start.col])
 
     def add_cached_mappings(self, segments, line_offset):
         if self._source_map_segments is None:
             return
         for seg in segments:
-            self._source_map_segments.push(v'[seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]')
+            self._source_map_segments.push([seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]])
 
     def get_source_map_segments(self):
         return self._source_map_segments
