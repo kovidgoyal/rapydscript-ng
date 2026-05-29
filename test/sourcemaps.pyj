@@ -38,7 +38,7 @@ def compile_source_map(code, filename):
 def has_seg_for(segments, src_line, src_col, filename):
     """Return True if there is a segment mapping (src_line, src_col, filename)."""
     for seg in segments:
-        if seg[3] is src_line and seg[4] is src_col and seg[2] is filename:
+        if seg[3] == src_line and seg[4] == src_col and seg[2] == filename:
             return True
     return False
 
@@ -46,7 +46,7 @@ def has_seg_for(segments, src_line, src_col, filename):
 def has_seg_for_line(segments, src_line, filename):
     """Return True if any segment maps to src_line of filename."""
     for seg in segments:
-        if seg[3] is src_line and seg[2] is filename:
+        if seg[3] == src_line and seg[2] == filename:
             return True
     return False
 
@@ -171,7 +171,7 @@ for i in range(segs.length - 1):
     cur = segs[i]
     nxt = segs[i + 1]
     assrt.ok(
-        cur[0] < nxt[0] or (cur[0] is nxt[0] and cur[1] <= nxt[1]),
+        cur[0] < nxt[0] or (cur[0] == nxt[0] and cur[1] <= nxt[1]),
         'segments are sorted by (gen_line, gen_col)'
     )
 
