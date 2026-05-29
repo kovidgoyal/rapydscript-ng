@@ -202,14 +202,17 @@ def print_module(self, output):
                 return 'beautify:' + beautify + ' keep_docstrings:' + keep_docstrings + ' js_version:' + js_version
             okey = output_key(output.options.beautify, output.options.keep_docstrings, output.options.js_version)
             if self.is_cached and okey in self.outputs:
+                line_before = output.current_line - 1
                 output.print(self.outputs[okey])
+                if output.options.source_map and self.source_maps and okey in self.source_maps:
+                    output.add_cached_mappings(self.source_maps[okey], line_before)
             else:
                 output_module(output)
                 if self.srchash and self.filename:
                     cached = {
                         'version':get_compiler_version(), 'signature':self.srchash, 'classes': {}, 'baselib':self.baselib,
                         'nonlocalvars':self.nonlocalvars, 'imported_module_ids':self.imported_module_ids, 'exports':[],
-                        'outputs':{}, 'discard_asserts': v'!!output.options.discard_asserts'
+                        'outputs':{}, 'source_maps':{}, 'discard_asserts': v'!!output.options.discard_asserts'
                     }
                     for cname in Object.keys(self.classes):
                         cobj = self.classes[cname]
@@ -222,13 +225,15 @@ def print_module(self, output):
                                 co = OutputStream({
                                     'beautify':beautify, 'keep_docstrings':keep_docstrings,
                                     'js_version':js_version, 'private_scope':False,
-                                    'write_name':False, 'discard_asserts':output.options.discard_asserts
+                                    'write_name':False, 'discard_asserts':output.options.discard_asserts,
+                                    'source_map':True
                                 })
                                 co.with_indent(output.indentation(), def():
                                     output_module(co)
                                 )
                                 raw = co.get()
                                 cached.outputs[output_key(beautify, keep_docstrings, js_version)] = raw
+                                cached.source_maps[output_key(beautify, keep_docstrings, js_version)] = co.get_source_map_segments()
                     try:
                         writefile(cache_file_name(self.filename, output.options.module_cache_dir), JSON.stringify(cached, None, '\t'))
                     except Error as e:

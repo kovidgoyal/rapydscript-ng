@@ -763,7 +763,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             imported_modules[key] = {
                 'is_cached':True, 'classes':cached.classes, 'outputs':cached.outputs, 'module_id':key, 'import_order':Object.keys(imported_modules).length,
                 'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports, 'discard_asserts':options.discard_asserts,
-                'imported_module_ids':cached.imported_module_ids,
+                'imported_module_ids':cached.imported_module_ids, 'source_maps':cached.source_maps,
             }
         else:
             parse(src_code, {

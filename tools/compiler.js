@@ -81,4 +81,10 @@ function create_compiler() {
     return compiler_exports;
 }
 
+function create_embedded_compiler(compiler, baselib, runjs, name) {
+    return require('./embedded_compiler')(compiler || create_compiler(), baselib, runjs, name);
+}
+
 exports.create_compiler = create_compiler;
+exports.create_embedded_compiler = create_embedded_compiler;
+exports.generate_source_map = require('./sourcemap').generate_source_map;
