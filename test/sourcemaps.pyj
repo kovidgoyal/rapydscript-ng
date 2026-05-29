@@ -1,0 +1,313 @@
+# globals: assrt, RapydScript, require, compiler_dir, test_path
+
+# Comprehensive tests for source map generation.
+# Tests cover:
+#   1. VLQ encoding and generate_source_map output format (via tools/sourcemap.js)
+#   2. Source map segment generation for a wide range of RapydScript constructs
+#   3. Accuracy of source line and column numbers in segments
+
+path_module = require('path')
+sourcemap_module = require(path_module.join(path_module.dirname(compiler_dir), 'tools', 'sourcemap.js'))
+generate_source_map = sourcemap_module.generate_source_map
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def new_output_stream(opts):
+    """Wrapper so that RapydScript.OutputStream is called with new."""
+    return v'new RapydScript.OutputStream(opts)'
+
+
+def compile_source_map(code, filename):
+    """Compile RapydScript *code* and return {code, segments}."""
+    ast = RapydScript.parse(code, {'filename': filename})
+    output = new_output_stream({
+        'omit_baselib': True,
+        'beautify': True,
+        'js_version': 6,
+        'source_map': True,
+    })
+    ast.print(output)
+    return {
+        'code': output.get(),
+        'segments': output.get_source_map_segments(),
+    }
+
+
+def has_seg_for(segments, src_line, src_col, filename):
+    """Return True if there is a segment mapping (src_line, src_col, filename)."""
+    for seg in segments:
+        if seg[3] is src_line and seg[4] is src_col and seg[2] is filename:
+            return True
+    return False
+
+
+def has_seg_for_line(segments, src_line, filename):
+    """Return True if any segment maps to src_line of filename."""
+    for seg in segments:
+        if seg[3] is src_line and seg[2] is filename:
+            return True
+    return False
+
+
+FN = 'test_sm.pyj'
+
+# ---------------------------------------------------------------------------
+# Part 1: generate_source_map / VLQ encoding unit tests
+# ---------------------------------------------------------------------------
+
+# Empty segment list → empty mappings with correct structure
+m = JSON.parse(generate_source_map([], 'out.js', ''))
+assrt.strictEqual(m.version, 3, 'version must be 3')
+assrt.strictEqual(m.mappings, '', 'empty segments → empty mappings')
+assrt.strictEqual(m.file, 'out.js', 'file basename preserved')
+assrt.deepEqual(m.sources, [], 'no sources for empty segments')
+
+# Single segment at origin: all deltas are 0, encodes as AAAA
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA', 'origin segment encodes as AAAA')
+assrt.deepEqual(m.sources, ['a.pyj'], 'source file name is recorded')
+
+# Two segments on the same generated line
+# Seg1 [0,0,'a.pyj',0,0] → AAAA; Seg2 [0,4,'a.pyj',0,3] → delta=[4,0,0,3] → IAAG
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [0, 4, 'a.pyj', 0, 3]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA,IAAG', 'two segs on same line: comma-separated VLQ')
+
+# Segments on two separate generated lines: semicolon separator, prev_col resets per line
+# Seg1 [0,0,'a.pyj',0,0] → AAAA; Seg2 [1,0,'a.pyj',1,0] → prev_col=0, delta=[0,0,1,0] → AACA
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [1, 0, 'a.pyj', 1, 0]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA;AACA', 'two lines: semicolon-separated, col resets')
+
+# Three generated lines → two semicolons
+m = JSON.parse(generate_source_map(
+    [[0, 0, 'a.pyj', 0, 0], [1, 0, 'a.pyj', 1, 0], [2, 0, 'a.pyj', 2, 0]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA;AACA;AACA', 'three lines: two semicolons')
+
+# Gap in generated lines → empty group between semicolons
+# [0,…] and [2,…]: line 1 is empty → ';;'
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [2, 0, 'a.pyj', 2, 0]], 'out.js', ''))
+assrt.ok(m.mappings.indexOf(';;') >= 0, 'gap generates empty group (two consecutive semicolons)')
+
+# Negative source column delta (reverse mapping within same line)
+# Seg1 [0,0,'a.pyj',0,5] → delta=[0,0,0,5]='AAAK'
+# Seg2 [0,4,'a.pyj',0,2] → delta=[4,0,0,-3]='IAAH'
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 5], [0, 4, 'a.pyj', 0, 2]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAK,IAAH', 'negative source column delta encodes correctly')
+
+# Two source files on the same generated line
+# Seg1: AAAA; Seg2: delta=[10,1,0,0]='UCAA'; Line1: delta=[0,-1,1,0]='ADCA'
+m = JSON.parse(generate_source_map(
+    [[0, 0, 'f1.pyj', 0, 0], [0, 10, 'f2.pyj', 0, 0], [1, 0, 'f1.pyj', 1, 0]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA,UCAA;ADCA', 'two source files encode correctly')
+assrt.deepEqual(m.sources, ['f1.pyj', 'f2.pyj'], 'sources list preserves insertion order')
+
+# Multi-byte VLQ: col delta of 50 encodes as kD
+m = JSON.parse(generate_source_map(
+    [[0, 0, 'a.pyj', 0, 0], [0, 50, 'a.pyj', 0, 50]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA,kDAAkD', 'multi-byte VLQ for col delta 50')
+
+# Deduplication: two segments at identical generated position → only first kept
+m = JSON.parse(generate_source_map(
+    [[0, 0, 'a.pyj', 0, 0], [0, 0, 'a.pyj', 1, 0]], 'out.js', ''))
+assrt.strictEqual(m.mappings, 'AAAA', 'duplicate gen position: first segment wins')
+
+# output_file basename is extracted from full path
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], '/path/to/out.js', ''))
+assrt.strictEqual(m.file, 'out.js', 'file basename extracted from path')
+
+# source_root is passed through unchanged
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], 'out.js', 'https://example.com/src/'))
+assrt.strictEqual(m.sourceRoot, 'https://example.com/src/', 'sourceRoot preserved')
+
+# names array is always empty (RapydScript does not emit symbol names)
+m = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], 'out.js', ''))
+assrt.deepEqual(m.names, [], 'names array is empty')
+
+# ---------------------------------------------------------------------------
+# Part 2: OutputStream source_map option / segment format
+# ---------------------------------------------------------------------------
+
+# source_map=False → get_source_map_segments() returns a falsy value (null/undefined)
+ast_no_map = RapydScript.parse('x = 1\n', {'filename': FN})
+out_no_map = new_output_stream({'omit_baselib': True, 'beautify': True, 'js_version': 6, 'source_map': False})
+ast_no_map.print(out_no_map)
+assrt.ok(not out_no_map.get_source_map_segments(), 'source_map=False → no segments')
+
+# source_map not set → same as False
+ast_no_map2 = RapydScript.parse('x = 1\n', {'filename': FN})
+out_no_map2 = new_output_stream({'omit_baselib': True, 'beautify': True, 'js_version': 6})
+ast_no_map2.print(out_no_map2)
+assrt.ok(not out_no_map2.get_source_map_segments(), 'source_map unset → no segments')
+
+# source_map=True → segments is an array
+r = compile_source_map('x = 1\n', FN)
+assrt.ok(Array.isArray(r['segments']), 'source_map=True → segments is an array')
+assrt.ok(r['segments'].length > 0, 'segments array is non-empty for non-empty input')
+
+# Each segment is a 5-element array of numbers/string
+r = compile_source_map('x = 1\ny = 2\n', FN)
+for seg in r['segments']:
+    assrt.strictEqual(seg.length, 5, 'each segment has 5 elements')
+    assrt.strictEqual(jstype(seg[0]), 'number', 'gen_line is a number')
+    assrt.strictEqual(jstype(seg[1]), 'number', 'gen_col is a number')
+    assrt.strictEqual(jstype(seg[2]), 'string', 'src_file is a string')
+    assrt.strictEqual(jstype(seg[3]), 'number', 'src_line is a number')
+    assrt.strictEqual(jstype(seg[4]), 'number', 'src_col is a number')
+    assrt.ok(seg[0] >= 0, 'gen_line is non-negative')
+    assrt.ok(seg[1] >= 0, 'gen_col is non-negative')
+    assrt.ok(seg[3] >= 0, 'src_line is non-negative')
+    assrt.ok(seg[4] >= 0, 'src_col is non-negative')
+
+# Source file name matches the filename passed to parse
+r = compile_source_map('x = 1\n', FN)
+for seg in r['segments']:
+    assrt.strictEqual(seg[2], FN, 'src_file matches filename in parse options')
+
+# Segments are sorted by generated position
+r = compile_source_map('a = 1\nb = 2\nc = 3\n', FN)
+segs = r['segments']
+for i in range(segs.length - 1):
+    cur = segs[i]
+    nxt = segs[i + 1]
+    assrt.ok(
+        cur[0] < nxt[0] or (cur[0] is nxt[0] and cur[1] <= nxt[1]),
+        'segments are sorted by (gen_line, gen_col)'
+    )
+
+# ---------------------------------------------------------------------------
+# Part 3: Correct mappings for specific source constructs
+# ---------------------------------------------------------------------------
+
+# -- Simple variable assignment --
+r = compile_source_map('x = 1\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'assignment: maps line 0 col 0')
+
+# -- Two sequential assignments --
+r = compile_source_map('x = 1\ny = 2\n', FN)
+assrt.ok(has_seg_for_line(r['segments'], 0, FN), '2 assignments: line 0 mapped')
+assrt.ok(has_seg_for_line(r['segments'], 1, FN), '2 assignments: line 1 mapped')
+
+# -- Function definition with return --
+r = compile_source_map('def add(a, b):\n    return a + b\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'def: maps def keyword (line 0, col 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 4, FN), 'def: maps return statement (line 1, col 4)')
+
+# -- Nested function --
+code = 'def outer():\n    def inner():\n        return 1\n    return inner()\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'nested def: outer def mapped (line 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 4, FN), 'nested def: inner def mapped (line 1, col 4)')
+assrt.ok(has_seg_for_line(r['segments'], 2, FN), 'nested def: inner return mapped (line 2)')
+assrt.ok(has_seg_for_line(r['segments'], 3, FN), 'nested def: outer return mapped (line 3)')
+
+# -- If / else --
+code = 'x = 5\nif x > 0:\n    y = 1\nelse:\n    y = -1\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'if/else: assignment before if (line 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 0, FN), 'if/else: if keyword (line 1, col 0)')
+assrt.ok(has_seg_for(r['segments'], 2, 4, FN), 'if/else: true branch (line 2, col 4)')
+assrt.ok(has_seg_for(r['segments'], 4, 4, FN), 'if/else: else branch (line 4, col 4)')
+
+# -- Elif chain --
+code = 'x = 2\nif x is 1:\n    y = 1\nelif x is 2:\n    y = 2\nelse:\n    y = 0\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for_line(r['segments'], 1, FN), 'elif: if branch mapped')
+assrt.ok(has_seg_for_line(r['segments'], 2, FN), 'elif: first body mapped')
+assrt.ok(has_seg_for_line(r['segments'], 3, FN), 'elif: elif branch mapped')
+assrt.ok(has_seg_for_line(r['segments'], 4, FN), 'elif: second body mapped')
+assrt.ok(has_seg_for_line(r['segments'], 6, FN), 'elif: else body mapped')
+
+# -- For loop --
+r = compile_source_map('for i in range(5):\n    x = i * 2\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'for: loop header (line 0, col 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 4, FN), 'for: loop body (line 1, col 4)')
+
+# -- While loop --
+r = compile_source_map('x = 0\nwhile x < 10:\n    x += 1\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'while: init assignment (line 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 0, FN), 'while: while keyword (line 1, col 0)')
+assrt.ok(has_seg_for(r['segments'], 2, 4, FN), 'while: loop body (line 2, col 4)')
+
+# -- Class definition with method --
+code = 'class Counter:\n    def __init__(self, start):\n        self.n = start\n\n    def inc(self):\n        self.n += 1\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'class: class keyword (line 0, col 0)')
+assrt.ok(has_seg_for(r['segments'], 1, 8, FN), 'class: __init__ method name (line 1, col 8)')
+assrt.ok(has_seg_for(r['segments'], 2, 8, FN), 'class: __init__ body (line 2, col 8)')
+assrt.ok(has_seg_for(r['segments'], 4, 8, FN), 'class: inc method name (line 4, col 8)')
+assrt.ok(has_seg_for(r['segments'], 5, 8, FN), 'class: inc body (line 5, col 8)')
+
+# -- Class with inheritance --
+code = 'class Animal:\n    def speak(self):\n        return "..."\n\nclass Dog(Animal):\n    def speak(self):\n        return "woof"\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'inheritance: base class (line 0)')
+assrt.ok(has_seg_for(r['segments'], 4, 0, FN), 'inheritance: derived class (line 4)')
+
+# -- Try / except --
+code = 'try:\n    x = int("abc")\nexcept:\n    x = 0\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for_line(r['segments'], 1, FN), 'try/except: try body (line 1)')
+assrt.ok(has_seg_for_line(r['segments'], 3, FN), 'try/except: except body (line 3)')
+
+# -- Try / except with specific exception --
+code = 'try:\n    raise ValueError("oops")\nexcept ValueError as e:\n    msg = str(e)\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for_line(r['segments'], 1, FN), 'try/except ValueError: try body')
+assrt.ok(has_seg_for_line(r['segments'], 3, FN), 'try/except ValueError: handler body')
+
+# -- Function call expression --
+r = compile_source_map('result = len("hello")\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'function call: expression at line 0 col 0')
+
+# -- Return statement --
+r = compile_source_map('def f():\n    return 42\n', FN)
+assrt.ok(has_seg_for(r['segments'], 1, 4, FN), 'return: return at line 1, col 4')
+
+# -- Lambda / anonymous function --
+r = compile_source_map('double = def(x): return x * 2\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'lambda: maps lambda expression')
+
+# -- List comprehension --
+r = compile_source_map('xs = [i * 2 for i in range(5)]\n', FN)
+assrt.ok(has_seg_for_line(r['segments'], 0, FN), 'list comprehension: maps line 0')
+
+# -- Conditional expression (ternary) --
+r = compile_source_map('y = 1 if True else 0\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'ternary: maps at line 0 col 0')
+
+# -- Augmented assignment --
+r = compile_source_map('x = 1\nx += 5\n', FN)
+assrt.ok(has_seg_for_line(r['segments'], 0, FN), 'augmented assign: first line')
+assrt.ok(has_seg_for_line(r['segments'], 1, FN), 'augmented assign: second line')
+
+# -- Binary operators --
+r = compile_source_map('a = 2\nb = 3\nc = a * b + 1\n', FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'binop: line 0')
+assrt.ok(has_seg_for(r['segments'], 1, 0, FN), 'binop: line 1')
+assrt.ok(has_seg_for(r['segments'], 2, 0, FN), 'binop: line 2')
+
+# -- Multi-line function with several statements --
+code = 'def process(items):\n    result = []\n    for item in items:\n        result.append(item * 2)\n    return result\n'
+r = compile_source_map(code, FN)
+assrt.ok(has_seg_for(r['segments'], 0, 0, FN), 'multi-stmt func: def line')
+assrt.ok(has_seg_for(r['segments'], 1, 4, FN), 'multi-stmt func: result = []')
+assrt.ok(has_seg_for(r['segments'], 2, 4, FN), 'multi-stmt func: for loop')
+assrt.ok(has_seg_for(r['segments'], 3, 8, FN), 'multi-stmt func: append call')
+assrt.ok(has_seg_for(r['segments'], 4, 4, FN), 'multi-stmt func: return')
+
+# -- generate_source_map round-trip with real compiler output --
+r = compile_source_map('x = 1\ny = x + 1\n', FN)
+map_json = generate_source_map(r['segments'], 'out.js', '')
+m = JSON.parse(map_json)
+assrt.strictEqual(m.version, 3, 'round-trip: version=3')
+assrt.deepEqual(m.sources, [FN], 'round-trip: sources=[FN]')
+assrt.strictEqual(m.file, 'out.js', 'round-trip: file=out.js')
+assrt.ok(m.mappings.length > 0, 'round-trip: mappings non-empty')
+# All semicolons count should match (max_gen_line - 1 separators minimum)
+max_gen_line = 0
+for seg in r['segments']:
+    if seg[0] > max_gen_line:
+        max_gen_line = seg[0]
+semicolons = m.mappings.split(';').length - 1
+assrt.ok(semicolons >= max_gen_line, 'round-trip: enough semicolons for all generated lines')
