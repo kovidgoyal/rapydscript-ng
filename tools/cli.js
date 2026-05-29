@@ -336,6 +336,16 @@ should not specify the -m option to omit the baselib, or
 execution will fail.
 */});
 
+opt("source_map", 'S,sm', 'string', '', function(){/*
+Generate a source map and write it to the specified
+file path. A source map allows debuggers to map
+positions in the compiled JavaScript back to the
+original RapydScript source. A //# sourceMappingURL
+comment is automatically appended to the JavaScript
+output. Requires the --output option to be set so
+that the source map URL can be computed correctly.
+*/});
+
 create_group('repl', '', function(){/*
 Run a Read-Eval-Print-Loop (REPL). This allows
 you to type and run RapydScript at a live

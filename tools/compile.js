@@ -11,6 +11,7 @@ var path = require('path');
 var vm = require('vm');
 var RapydScript = require("./compiler").create_compiler();
 var utils = require('./utils');
+var sourcemap = require('./sourcemap');
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -54,6 +55,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         keep_docstrings: argv.keep_docstrings,
         discard_asserts: argv.discard_asserts,
         module_cache_dir: cache_dir,
+        source_map: !!argv.source_map,
     };
 
     var files = argv.files.slice();
@@ -72,17 +74,24 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         });
     }
 
-    function write_output(output) {
+    function write_output(js_output, output_stream) {
+        if (argv.source_map && output_stream) {
+            var segments = output_stream.get_source_map_segments();
+            var map_json = sourcemap.generate_source_map(segments, argv.output, '');
+            fs.writeFileSync(argv.source_map, map_json, 'utf8');
+            var map_url = path.relative(path.dirname(path.resolve(argv.output || '.')), path.resolve(argv.source_map));
+            js_output = js_output + '\n//# sourceMappingURL=' + map_url + '\n';
+        }
         if (argv.output) {
             // Node's filesystem module cannot write directly to /dev/stdout
-            if (argv.output == '/dev/stdout') console.log(output);
-            else if (argv.output == '/dev/stderr') console.error(output);
-            else fs.writeFileSync(argv.output, output, "utf8");
+            if (argv.output == '/dev/stdout') console.log(js_output);
+            else if (argv.output == '/dev/stderr') console.error(js_output);
+            else fs.writeFileSync(argv.output, js_output, "utf8");
         } else if (!argv.execute){
-            console.log(output);
+            console.log(js_output);
         }
         if (argv.execute) {
-            vm.runInNewContext(output, {'console':console, 'require':require}, {'filename':files[0]});
+            vm.runInNewContext(js_output, {'console':console, 'require':require}, {'filename':files[0]});
         }
     }
 
@@ -98,7 +107,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     }
 
     function compile_single_file(err, code) {
-        var output;
+        var output_stream;
         if (err) {
             console.error("ERROR: can't read file: " + files[0]);
             process.exit(1);
@@ -115,7 +124,7 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         });
 
         try {
-            output = new RapydScript.OutputStream(OUTPUT_OPTIONS);
+            output_stream = new RapydScript.OutputStream(OUTPUT_OPTIONS);
         } catch(ex) {
             if (ex instanceof RapydScript.DefaultsError) {
                 console.error(ex.message);
@@ -125,12 +134,10 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
         }
 
         time_it("generate", function(){
-            TOPLEVEL.print(output);
+            TOPLEVEL.print(output_stream);
         });
 
-        output = output.get();
-
-        write_output(output);
+        write_output(output_stream.get(), output_stream);
 
         files = files.slice(1);
         if (files.length) {

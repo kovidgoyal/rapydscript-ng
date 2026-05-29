@@ -48,10 +48,12 @@ def generate_code():
         if force_parens or self.needs_parens(stream):
             stream.with_parens(def():
                 self.add_comments(stream)
+                stream.add_mapping(self)
                 generator(self, stream)
             )
         else:
             self.add_comments(stream)
+            stream.add_mapping(self)
             generator(self, stream)
 
         stream.pop_node()

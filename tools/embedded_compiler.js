@@ -14,11 +14,12 @@ module.exports = function(compiler, baselib, runjs, name) {
     runjs(print_ast(compiler.parse(''), true));
     runjs('var __name__ = "' + (name || '__embedded__') + '";');
 
-    function print_ast(ast, keep_baselib, keep_docstrings, js_version, private_scope, write_name) {
-        var output_options = {omit_baselib:!keep_baselib, write_name:!!write_name, private_scope:!!private_scope, beautify:true, js_version: (js_version || 6), keep_docstrings:keep_docstrings};
+    function print_ast(ast, keep_baselib, keep_docstrings, js_version, private_scope, write_name, source_map) {
+        var output_options = {omit_baselib:!keep_baselib, write_name:!!write_name, private_scope:!!private_scope, beautify:true, js_version: (js_version || 6), keep_docstrings:keep_docstrings, source_map:!!source_map};
         if (keep_baselib) output_options.baselib_plain = baselib;
         var output = new compiler.OutputStream(output_options);
         ast.print(output);
+        if (source_map) return {code: output.get(), source_map_segments: output.get_source_map_segments()};
         return output.get();
     }
 
@@ -36,7 +37,7 @@ module.exports = function(compiler, baselib, runjs, name) {
                 'scoped_flags': scoped_flags,
                 'discard_asserts': opts.discard_asserts,
             });
-            var ans = print_ast(this.toplevel, opts.keep_baselib, opts.keep_docstrings, opts.js_version, opts.private_scope, opts.write_name);
+            var ans = print_ast(this.toplevel, opts.keep_baselib, opts.keep_docstrings, opts.js_version, opts.private_scope, opts.write_name, opts.source_map);
             if (classes) {
                 var exports = {};
                 var self = this;
@@ -53,4 +54,3 @@ module.exports = function(compiler, baselib, runjs, name) {
 
     };
 };
-
