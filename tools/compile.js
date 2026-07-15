@@ -12,6 +12,7 @@ var vm = require('vm');
 var RapydScript = require("./compiler").create_compiler();
 var utils = require('./utils');
 var sourcemap = require('./sourcemap');
+var shake_tree = require('./tree_shaking');
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -122,6 +123,12 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
                 process.exit(1);
             }
         });
+
+        if (argv.tree_shaking) {
+            time_it("tree_shaking", function(){
+                shake_tree(TOPLEVEL);
+            });
+        }
 
         try {
             output_stream = new RapydScript.OutputStream(OUTPUT_OPTIONS);

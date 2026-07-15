@@ -336,6 +336,13 @@ should not specify the -m option to omit the baselib, or
 execution will fail.
 */});
 
+opt("tree_shaking", 'T,tree-shaking', 'bool', false, function(){/*
+Enable tree shaking to eliminate unused top-level
+function and class definitions from the output.
+This can reduce the size of the generated JavaScript
+by removing dead code. Defaults to off.
+*/});
+
 opt("source_map", 'S,sm', 'string', '', function(){/*
 Generate a source map and write it to the specified
 file path. A source map allows debuggers to map

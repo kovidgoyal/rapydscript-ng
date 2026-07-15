@@ -1,0 +1,176 @@
+# globals: assrt, RapydScript, require, compiler_dir, test_path
+
+# Test tree shaking functionality
+# Tree shaking removes unused top-level function and class definitions
+
+shake_tree = require(compiler_dir + '/../tools/tree_shaking')
+
+def parse_code(code):
+    return RapydScript.parse(code, {'filename': 'test_tree_shaking.pyj'})
+
+def get_names(ast):
+    """Get all top-level definition names from the AST body."""
+    names = []
+    for node in ast.body:
+        if node.name:
+            names.push(node.name.name)
+        elif node.body and node.body.left and node.body.left.name:
+            names.push(node.body.left.name)
+    return names
+
+# Test 1: Unused function is removed
+code = 'def used():\n    return 1\ndef unused():\n    return 2\nused()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('used') != -1, 'used function should be kept')
+assrt.ok(names.indexOf('unused') == -1, 'unused function should be removed')
+
+# Test 2: Transitively used functions are kept
+code = 'def helper():\n    return 42\ndef main_func():\n    return helper()\nmain_func()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('helper') != -1, 'transitively used function should be kept')
+assrt.ok(names.indexOf('main_func') != -1, 'directly called function should be kept')
+
+# Test 3: Unused class is removed
+code = 'class Used:\n    def __init__(self):\n        self.x = 1\nclass Unused:\n    def __init__(self):\n        self.y = 2\nUsed()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('Used') != -1, 'used class should be kept')
+assrt.ok(names.indexOf('Unused') == -1, 'unused class should be removed')
+
+# Test 4: Parent class is kept when child is used (inheritance)
+code = 'class Base:\n    def __init__(self):\n        self.x = 1\nclass Child(Base):\n    pass\nChild()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('Base') != -1, 'parent class should be kept when child is used')
+assrt.ok(names.indexOf('Child') != -1, 'used child class should be kept')
+
+# Test 5: Unused variable assignment is removed
+code = 'x = 5\ny = 10\ndef foo():\n    return x\nfoo()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('x') != -1, 'used variable should be kept')
+assrt.ok(names.indexOf('y') == -1, 'unused variable should be removed')
+assrt.ok(names.indexOf('foo') != -1, 'used function should be kept')
+
+# Test 6: All code kept when everything is used
+code = 'def a():\n    return 1\ndef b():\n    return a()\ndef c():\n    return b()\nc()\n'
+ast = parse_code(code)
+original_len = ast.body.length
+shake_tree(ast)
+assrt.equal(ast.body.length, original_len, 'all nodes should be kept when all are used')
+
+# Test 7: Multiple unused functions removed
+code = 'def used1():\n    return 1\ndef unused1():\n    return 2\ndef unused2():\n    return 3\ndef used2():\n    return used1()\nused2()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('used1') != -1, 'used1 should be kept')
+assrt.ok(names.indexOf('used2') != -1, 'used2 should be kept')
+assrt.ok(names.indexOf('unused1') == -1, 'unused1 should be removed')
+assrt.ok(names.indexOf('unused2') == -1, 'unused2 should be removed')
+
+# Test 8: Function used via another function's body reference
+code = 'def helper():\n    return "help"\ndef wrapper():\n    return helper()\ndef caller():\n    return wrapper()\ncaller()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('helper') != -1, 'deeply transitive helper should be kept')
+assrt.ok(names.indexOf('wrapper') != -1, 'intermediate wrapper should be kept')
+assrt.ok(names.indexOf('caller') != -1, 'top-level caller should be kept')
+
+# Test 9: Non-definition statements are always preserved
+code = 'def unused():\n    return 1\nprint("hello")\nx = 5\n'
+ast = parse_code(code)
+body_before = ast.body.length
+shake_tree(ast)
+# print("hello") is a non-definition, always kept
+# x = 5 is a definition but is not used by any non-definition
+# Actually print("hello") doesn't reference x, so x can be removed
+# but print("hello") is not a definition so it stays
+found_print = False
+for node in ast.body:
+    if node.constructor.name == 'AST_SimpleStatement':
+        if node.body.constructor.name == 'AST_Call':
+            found_print = True
+assrt.ok(found_print, 'non-definition statements like function calls should be preserved')
+names = get_names(ast)
+assrt.ok(names.indexOf('unused') == -1, 'unused function should be removed even with other statements')
+
+# Test 10: Empty body - no crash
+code = '\n'
+ast = parse_code(code)
+shake_tree(ast)  # should not throw
+assrt.ok(True, 'empty body should not cause errors')
+
+# Test 11: Function that references itself (recursive) but is unused should be removed
+code = 'def recursive(n):\n    if n <= 0:\n        return 0\n    return recursive(n - 1)\ndef used():\n    return 1\nused()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('recursive') == -1, 'unused recursive function should be removed')
+assrt.ok(names.indexOf('used') != -1, 'used function should be kept')
+
+# Test 12: Class used as argument to a function call
+code = 'class MyClass:\n    pass\nclass UnusedClass:\n    pass\ndef process(cls):\n    return cls()\nprocess(MyClass)\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('MyClass') != -1, 'class used as argument should be kept')
+assrt.ok(names.indexOf('process') != -1, 'function that uses class should be kept')
+assrt.ok(names.indexOf('UnusedClass') == -1, 'class not used anywhere should be removed')
+
+# Test 13: Variable used in another variable definition
+code = 'x = 10\ny = x + 5\nprint(y)\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('x') != -1, 'variable referenced by used variable should be kept')
+assrt.ok(names.indexOf('y') != -1, 'variable used in print should be kept')
+
+# Test 14: Decorator-like pattern - function passed to another
+code = 'def decorator(f):\n    return f\ndef unused_decorator(f):\n    return f\ndef my_func():\n    return 1\nresult = decorator(my_func)\nprint(result)\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('decorator') != -1, 'used decorator should be kept')
+assrt.ok(names.indexOf('my_func') != -1, 'function passed as argument should be kept')
+assrt.ok(names.indexOf('unused_decorator') == -1, 'unused decorator should be removed')
+
+# Test 15: Only definitions at top level are shaken, not nested ones
+code = 'def outer():\n    def inner():\n        return 1\n    return inner()\nouter()\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('outer') != -1, 'outer function should be kept')
+# inner is not a top-level definition, so it should not be affected
+assrt.equal(ast.body.length, 2, 'body should have outer + the call statement')
+
+# Test 16: Function used in a conditional expression
+code = 'def get_value():\n    return 42\ndef unused_func():\n    return 0\nresult = get_value() if True else 0\nprint(result)\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('get_value') != -1, 'function in conditional should be kept')
+assrt.ok(names.indexOf('unused_func') == -1, 'unused function should be removed')
+
+# Test 17: Verify tree shaking doesn't break when there are no definitions
+code = 'print("hello")\nprint("world")\n'
+ast = parse_code(code)
+original_len = ast.body.length
+shake_tree(ast)
+assrt.equal(ast.body.length, original_len, 'no definitions means nothing to shake')
+
+# Test 18: Variable used inside a class that is used
+code = 'DEFAULT_VAL = 99\nclass MyObj:\n    def __init__(self):\n        self.val = DEFAULT_VAL\nobj = MyObj()\nprint(obj.val)\n'
+ast = parse_code(code)
+shake_tree(ast)
+names = get_names(ast)
+assrt.ok(names.indexOf('DEFAULT_VAL') != -1, 'variable used inside used class should be kept')
+assrt.ok(names.indexOf('MyObj') != -1, 'used class should be kept')
