@@ -436,6 +436,12 @@ The filename for data read from STDIN. If not specified
 STDIN is used. 
 */});
 
+opt('input_list', 'l', 'string', '', function(){/*
+Read the list of input files from the specified file,
+one filename per line. Use - to read the list from STDIN.
+Cannot be combined with - as an input file.
+*/});
+
 create_group('test', '[test1 test2...]', function(){/*
 Run RapydScript tests. You can specify the name of 
 individual test files to only run tests from those 
