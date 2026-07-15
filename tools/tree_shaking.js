@@ -104,6 +104,10 @@ function shake_tree(toplevel) {
     }
 
     // Also mark class parents as used (inheritance)
+    function extract_name(node) {
+        return node.name || (node.end && node.end.value);
+    }
+
     changed = true;
     while (changed) {
         changed = false;
@@ -113,7 +117,7 @@ function shake_tree(toplevel) {
             if (used[dn]) {
                 var dnode = definitions[dn].node;
                 if (dnode.constructor.name === 'AST_Class' && dnode.parent) {
-                    var parent_name = dnode.parent.name || (dnode.parent.end && dnode.parent.end.value);
+                    var parent_name = extract_name(dnode.parent);
                     if (parent_name && !used[parent_name]) {
                         used[parent_name] = true;
                         changed = true;
@@ -122,8 +126,7 @@ function shake_tree(toplevel) {
                 // Also check bases array for multiple inheritance
                 if (dnode.constructor.name === 'AST_Class' && dnode.bases) {
                     for (var bi = 0; bi < dnode.bases.length; bi++) {
-                        var base = dnode.bases[bi];
-                        var base_name = base.name || (base.end && base.end.value);
+                        var base_name = extract_name(dnode.bases[bi]);
                         if (base_name && !used[base_name]) {
                             used[base_name] = true;
                             changed = true;
