@@ -174,3 +174,157 @@ shake_tree(ast)
 names = get_names(ast)
 assrt.ok(names.indexOf('DEFAULT_VAL') != -1, 'variable used inside used class should be kept')
 assrt.ok(names.indexOf('MyObj') != -1, 'used class should be kept')
+
+# =========================================================
+# Tests for tree shaking of imported modules and stdlib
+# =========================================================
+
+path = require('path')
+
+def parse_with_imports(code, basedir):
+    if not basedir:
+        basedir = test_path
+    return RapydScript.parse(code, {
+        'filename': path.join(basedir, 'test_shake.pyj'),
+        'basedir': basedir,
+        'libdir': path.join(compiler_dir, '..', 'src', 'lib'),
+    })
+
+def get_module_body_names(mod):
+    """Get names defined in a module's body."""
+    names = []
+    if not mod or not mod.body:
+        return names
+    for node in mod.body:
+        if node.name:
+            names.push(node.name.name)
+        elif node.body and node.body.left and node.body.left.name:
+            names.push(node.body.left.name)
+    return names
+
+def get_module_export_names(mod):
+    """Get exported names from a module."""
+    if not mod or not mod.exports:
+        return []
+    return [e.name for e in mod.exports]
+
+# Test 19: stdlib - from math import sin - only sin is kept
+code = 'from math import sin, cos, factorial\nprint(sin(1.0))\n'
+ast = parse_with_imports(code, None)
+math_mod = ast.imports['math']
+if math_mod and math_mod.body:
+    # Only test if not cached (cached modules have no body to shake)
+    original_body_len = math_mod.body.length
+    shake_tree(ast)
+    mod_names = get_module_body_names(math_mod)
+    assrt.ok(mod_names.indexOf('sin') != -1, 'stdlib: used function sin should be kept')
+    assrt.ok(mod_names.indexOf('cos') == -1, 'stdlib: unused imported cos should be removed')
+    assrt.ok(mod_names.indexOf('factorial') == -1, 'stdlib: unused imported factorial should be removed')
+    assrt.ok(math_mod.body.length < original_body_len, 'stdlib: body should be smaller after shaking')
+
+# Test 20: stdlib - import math, use math.sin and math.cos
+code = 'import math\nx = math.sin(1.0) + math.cos(0.5)\nprint(x)\n'
+ast = parse_with_imports(code, None)
+math_mod = ast.imports['math']
+if math_mod and math_mod.body:
+    shake_tree(ast)
+    mod_names = get_module_body_names(math_mod)
+    assrt.ok(mod_names.indexOf('sin') != -1, 'stdlib full import: sin should be kept')
+    assrt.ok(mod_names.indexOf('cos') != -1, 'stdlib full import: cos should be kept')
+    assrt.ok(mod_names.indexOf('factorial') == -1, 'stdlib full import: unused factorial should be removed')
+    assrt.ok(mod_names.indexOf('floor') == -1, 'stdlib full import: unused floor should be removed')
+
+# Test 21: stdlib - transitive dependency in stdlib module
+# math.factorial doesn't depend on anything else in math, but let's test
+# a case where one function might use another
+code = 'from math import factorial\nprint(factorial(5))\n'
+ast = parse_with_imports(code, None)
+math_mod = ast.imports['math']
+if math_mod and math_mod.body:
+    shake_tree(ast)
+    mod_names = get_module_body_names(math_mod)
+    assrt.ok(mod_names.indexOf('factorial') != -1, 'stdlib: used factorial should be kept')
+    assrt.ok(mod_names.indexOf('sin') == -1, 'stdlib: unrelated sin should be removed')
+
+# Test 22: User module - only imported and used names are kept
+code = 'from _import_one import toplevel_func\ntoplevel_func("hello")\n'
+ast = parse_with_imports(code, None)
+imp_one = ast.imports['_import_one']
+if imp_one and imp_one.body:
+    original_exports = get_module_export_names(imp_one).length
+    shake_tree(ast)
+    mod_names = get_module_body_names(imp_one)
+    assrt.ok(mod_names.indexOf('toplevel_func') != -1, 'user module: used function should be kept')
+    # AClass and TopLevel are not imported/used, should be removed
+    assrt.ok(mod_names.indexOf('AClass') == -1, 'user module: unused class AClass should be removed')
+    assrt.ok(mod_names.indexOf('TopLevel') == -1, 'user module: unused class TopLevel should be removed')
+
+# Test 23: User module - class with parent, parent kept when child is used
+code = 'from _import_one import AClass\nobj = AClass("test")\n'
+ast = parse_with_imports(code, None)
+imp_one = ast.imports['_import_one']
+if imp_one and imp_one.body:
+    shake_tree(ast)
+    mod_names = get_module_body_names(imp_one)
+    assrt.ok(mod_names.indexOf('AClass') != -1, 'user module: used AClass should be kept')
+    assrt.ok(mod_names.indexOf('TopLevel') != -1, 'user module: parent TopLevel should be kept when AClass is used')
+    assrt.ok(mod_names.indexOf('toplevel_func') == -1, 'user module: unused toplevel_func should be removed')
+
+# Test 24: Cached modules are gracefully skipped (no crash)
+# Force a parse that might produce cached modules, then shake
+code = 'from math import sin\nprint(sin(0.5))\n'
+ast = parse_with_imports(code, None)
+math_mod = ast.imports['math']
+if math_mod and math_mod.is_cached:
+    # Should not crash on cached modules
+    shake_tree(ast)
+    assrt.ok(True, 'cached modules should be gracefully skipped without crash')
+
+# Test 25: Multiple modules - each is shaken independently
+code = 'from _import_one import toplevel_func\nfrom _import_two import toplevel_func2\ntoplevel_func("x")\n'
+ast = parse_with_imports(code, None)
+imp_one = ast.imports['_import_one']
+imp_two = ast.imports['_import_two']
+if imp_one and imp_one.body and imp_two and imp_two.body:
+    shake_tree(ast)
+    one_names = get_module_body_names(imp_one)
+    two_names = get_module_body_names(imp_two)
+    assrt.ok(one_names.indexOf('toplevel_func') != -1, 'multi-module: used func in module 1 kept')
+    # toplevel_func2 is imported but not used
+    assrt.ok(two_names.indexOf('toplevel_func2') == -1, 'multi-module: imported but unused func in module 2 removed')
+
+# Test 26: from module import with alias - alias is what's referenced
+code = 'from _import_one import toplevel_func as tf\ntf("y")\n'
+ast = parse_with_imports(code, None)
+imp_one = ast.imports['_import_one']
+if imp_one and imp_one.body:
+    shake_tree(ast)
+    mod_names = get_module_body_names(imp_one)
+    assrt.ok(mod_names.indexOf('toplevel_func') != -1, 'aliased import: original name should be kept when alias is used')
+
+# Test 27: stdlib - export list is also trimmed
+code = 'from math import sin\nprint(sin(0.5))\n'
+ast = parse_with_imports(code, None)
+math_mod = ast.imports['math']
+if math_mod and math_mod.body:
+    shake_tree(ast)
+    export_names = get_module_export_names(math_mod)
+    assrt.ok(export_names.indexOf('sin') != -1, 'stdlib exports: sin should remain in exports')
+    assrt.ok(export_names.indexOf('cos') == -1, 'stdlib exports: unused cos should be removed from exports')
+    assrt.ok(export_names.indexOf('factorial') == -1, 'stdlib exports: unused factorial should be removed from exports')
+
+# Test 28: User module nonlocalvars and conditionals (non-definitions) are preserved
+code = 'from _import_one import toplevel_func\ntoplevel_func("z")\n'
+ast = parse_with_imports(code, None)
+imp_one = ast.imports['_import_one']
+if imp_one and imp_one.body:
+    shake_tree(ast)
+    # Non-definition statements like AST_If, AST_Var, AST_Imports should be kept
+    non_def_types = []
+    for node in imp_one.body:
+        cname = node.constructor.name
+        if cname != 'AST_Function' and cname != 'AST_Class':
+            if not (cname == 'AST_SimpleStatement' and node.body and node.body.constructor.name == 'AST_Assign'):
+                non_def_types.push(cname)
+    assrt.ok(non_def_types.length > 0, 'user module: non-definition statements should be preserved')
+
