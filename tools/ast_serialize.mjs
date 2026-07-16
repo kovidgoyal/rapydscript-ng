@@ -32,6 +32,8 @@ const SKIP_PROPS = new Set(['scope', 'globals', 'exports']);
 const SKIP_PER_TYPE = {
     AST_Import:    new Set(['body']),
     AST_Toplevel:  new Set(['imports']),
+    // file is redundant on every token — filled in from AST_Toplevel.filename at load time
+    AST_Token:     new Set(['file']),
 };
 const RE_TAG = '[object RegExp]';
 
@@ -188,7 +190,14 @@ export function make_ast_serializer(compiler_exports) {
         }
         const built = new Array(data.nodes.length).fill(null);
         const bn = make_deserializer(compiler_exports, data.nodes, built);
-        return bn(data.root);
+        const root = bn(data.root);
+        const filename = (root && root.filename) || null;
+        for (const node of built) {
+            if (node !== null && node.constructor && node.constructor.name === 'AST_Token') {
+                node.file = filename;
+            }
+        }
+        return root;
     }
 
     return { ast_to_json, ast_from_json };
