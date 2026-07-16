@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { generate_source_map } from './sourcemap.mjs';
 import embedded_compiler_factory from './embedded_compiler.mjs';
+import { make_ast_serializer } from './ast_serialize.mjs';
 
 const _cjs_require = createRequire(import.meta.url);
 
@@ -84,6 +85,9 @@ function create_compiler() {
     var compiler_file = path.join(compiler_dir, 'compiler.js');
     var compilerjs = fs.readFileSync(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
+    const { ast_to_json, ast_from_json } = make_ast_serializer(compiler_exports);
+    compiler_exports.ast_to_json = ast_to_json;
+    compiler_exports.ast_from_json = ast_from_json;
     return compiler_exports;
 }
 

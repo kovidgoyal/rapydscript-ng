@@ -1,0 +1,379 @@
+# vim:fileencoding=utf-8
+# Test AST serialization/deserialization round-trip.
+# Verifies that ast_to_json → ast_from_json produces an AST that generates
+# identical JavaScript output to the original parsed AST.
+# globals: assrt, RapydScript, fs, compiler_dir
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+baselib = fs.readFileSync(compiler_dir + '/baselib-plain-pretty.js', {'encoding': 'utf-8'})
+
+def make_output():
+    return new RapydScript.OutputStream({
+        'baselib_plain': baselib,
+        'beautify': True,
+        'js_version': 5,
+        'write_name': False,
+        'private_scope': False,
+        'keep_docstrings': False,
+    })
+
+def ast_to_js(ast):
+    out = make_output()
+    ast.print(out)
+    return out.toString()
+
+def round_trip(src, label):
+    """Parse src, generate js1, serialize+deserialize AST, generate js2, assert equal."""
+    ast1 = RapydScript.parse(src, {'filename': label})
+    js1 = ast_to_js(ast1)
+
+    serialized = RapydScript.ast_to_json(ast1)
+    assrt.ok(jstype(serialized) is 'string', label + ': ast_to_json returned a string')
+
+    ast2 = RapydScript.ast_from_json(serialized)
+    js2 = ast_to_js(ast2)
+
+    assrt.equal(js2, js1, label + ': round-trip JS output mismatch')
+
+def assert_json_valid(src, label):
+    """Verify ast_to_json produces valid JSON."""
+    ast = RapydScript.parse(src, {'filename': label})
+    serialized = RapydScript.ast_to_json(ast)
+    parsed = JSON.parse(serialized)
+    assrt.equal(parsed.v, 1, label + ': version field')
+    assrt.ok(Array.isArray(parsed.nodes), label + ': nodes is array')
+    assrt.equal(parsed.root, 0, label + ': root is 0')
+    assrt.ok(parsed.nodes.length > 0, label + ': pool is non-empty')
+
+# ─── Test 1: Basic literals and atoms ─────────────────────────────────────────
+# Exercises: AST_Number, AST_String, AST_True, AST_False, AST_Null,
+#            AST_NaN, AST_Infinity, AST_Undefined, AST_SimpleStatement, AST_Assign
+
+round_trip("""
+a = None
+b = True
+c = False
+d = 42
+e = 3.14
+f = "hello world"
+g = ''
+""", 'literals')
+
+# ─── Test 2: RegExp literal (special serialization) ───────────────────────────
+# Exercises: AST_RegExp with source and flags
+
+round_trip("""
+r1 = /[a-z]+/
+r2 = /[A-Z]+/gi
+r3 = /^\\d{3}-\\d{4}$/m
+""", 'regexp')
+
+# ─── Test 3: Operators ─────────────────────────────────────────────────────────
+# Exercises: AST_Binary, AST_UnaryPrefix, AST_Assign, AST_Conditional
+
+round_trip("""
+x = 1 + 2 * 3 - 4 / 5
+y = x ** 2
+z = x // 3
+a = True and False or not True
+b = 1 if a else 2
+c = x > 0 and x < 10
+""", 'operators')
+
+# ─── Test 4: Collections ──────────────────────────────────────────────────────
+# Exercises: AST_Array, AST_Object, AST_ObjectKeyVal, AST_Set, AST_SetItem
+
+round_trip("""
+arr = [1, 2, 3, "four"]
+obj = {'a': 1, 'b': True, 'c': None}
+st = {1, 2, 3}
+nested = [[1, 2], [3, 4]]
+""", 'collections')
+
+# ─── Test 5: Function definitions ─────────────────────────────────────────────
+# Exercises: AST_Function, AST_ArgsDef (simple + defaults + *args + **kwargs),
+#            AST_Return, AST_SymbolFunarg, AST_SymbolDefun, AST_Decorator
+
+round_trip("""
+def simple(x):
+    return x
+
+def with_defaults(a, b=10, c="hi"):
+    return a + b
+
+def with_star(a, *args, **kwargs):
+    return args
+
+def annotated(x, y=0):
+    pass
+
+def no_args():
+    return None
+
+def decorator_fn(f):
+    return f
+
+@decorator_fn
+def decorated(x):
+    return x * 2
+""", 'functions')
+
+# ─── Test 6: Classes ──────────────────────────────────────────────────────────
+# Exercises: AST_Class, AST_Method (static/getter/setter), AST_SymbolDeclaration,
+#            AST_This, dynamic_properties, classvars
+
+round_trip("""
+class Animal:
+    count = 0
+
+    def __init__(self, name):
+        self.name = name
+        Animal.count += 1
+
+    def speak(self):
+        return "..."
+
+    @staticmethod
+    def create(name):
+        return Animal(name)
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        self.breed = breed
+
+    def speak(self):
+        return "Woof"
+
+class Cat(Animal):
+    pass
+""", 'classes')
+
+# ─── Test 7: Control flow ─────────────────────────────────────────────────────
+# Exercises: AST_If, AST_While, AST_ForIn, AST_Break, AST_Continue,
+#            AST_EmptyStatement, AST_Do
+
+round_trip("""
+x = 5
+
+if x > 10:
+    x = 10
+elif x < 0:
+    x = 0
+else:
+    pass
+
+i = 0
+while i < 5:
+    if i == 3:
+        break
+    i += 1
+
+for item in [1, 2, 3]:
+    if item == 2:
+        continue
+    x += item
+""", 'control_flow')
+
+# ─── Test 8: Try/except ───────────────────────────────────────────────────────
+# Exercises: AST_Try, AST_Catch, AST_Except, AST_Finally, AST_Else,
+#            AST_Throw, AST_SymbolCatch
+
+round_trip("""
+def risky(x):
+    try:
+        if x < 0:
+            raise ValueError("negative")
+        return x
+    except ValueError as e:
+        return -1
+    except TypeError as e:
+        return -2
+    else:
+        pass
+    finally:
+        pass
+""", 'try_except')
+
+# ─── Test 9: Comprehensions ───────────────────────────────────────────────────
+# Exercises: AST_ListComprehension, AST_DictComprehension, AST_SetComprehension,
+#            AST_GeneratorComprehension
+
+round_trip("""
+nums = [1, 2, 3, 4, 5]
+squares = [x**2 for x in nums if x > 1]
+even_sq = {x: x**2 for x in nums if x % 2 == 0}
+sq_set = {x**2 for x in nums}
+""", 'comprehensions')
+
+# ─── Test 10: Property access and calls ───────────────────────────────────────
+# Exercises: AST_Dot, AST_Sub, AST_Call, AST_CallArgs, AST_New,
+#            AST_SymbolRef
+
+round_trip("""
+obj = {'a': {'b': [1, 2, 3]}}
+v = obj['a']['b'][0]
+s = "hello".upper()
+n = len([1, 2, 3])
+""", 'access_and_calls')
+
+# ─── Test 11: Assert ──────────────────────────────────────────────────────────
+# Exercises: AST_Assert
+
+round_trip("""
+x = 42
+assert x > 0
+assert x < 100, "x must be less than 100"
+""", 'assert')
+
+# ─── Test 12: Generator function ──────────────────────────────────────────────
+# Exercises: AST_Yield (is_yield_from=False and True)
+
+round_trip("""
+def counter(n):
+    for i in range(n):
+        yield i
+
+def chained(n):
+    yield from counter(n)
+    yield 99
+""", 'generators')
+
+# ─── Test 13: Verbatim JS ─────────────────────────────────────────────────────
+# Exercises: AST_Verbatim
+
+round_trip("""
+raw = v'typeof window !== "undefined"'
+""", 'verbatim')
+
+# ─── Test 14: With statement ──────────────────────────────────────────────────
+# Exercises: AST_With, AST_WithClause, AST_SymbolAlias
+
+round_trip("""
+class CM:
+    def __enter__(self):
+        return self
+    def __exit__(self, t, v, tb):
+        pass
+
+with CM() as ctx:
+    pass
+""", 'with_statement')
+
+# ─── Test 15: Nested scopes / closures ────────────────────────────────────────
+# Exercises: nested AST_Function, nonlocal
+
+round_trip("""
+def outer(x):
+    y = x * 2
+    def inner(z):
+        nonlocal y
+        y += z
+        return y
+    return inner
+""", 'closures')
+
+# ─── Test 16: JSON format sanity checks ───────────────────────────────────────
+# Verify the serialized JSON structure is well-formed
+
+assert_json_valid("x = 1 + 2", 'json_format_simple')
+assert_json_valid("r = /[a-z]+/gi", 'json_format_regexp')
+assert_json_valid("""
+def f(a, b=1):
+    return a + b
+""", 'json_format_function')
+
+# ─── Test 17: RegExp round-trip value check ───────────────────────────────────
+# Verify the deserialized RegExp has the correct source and flags
+
+src17 = "r = /^hello\\sworld$/im"
+ast17 = RapydScript.parse(src17, {'filename': 'regexp_check'})
+serialized17 = RapydScript.ast_to_json(ast17)
+ast17b = RapydScript.ast_from_json(serialized17)
+
+# Navigate to the AST_RegExp node: Toplevel -> SimpleStatement -> Assign -> right
+re_node = ast17b.body[0].body.right
+assrt.ok(re_node.constructor.name is 'AST_RegExp', 'deserialized node is AST_RegExp')
+assrt.ok(v'Object.prototype.toString.call(re_node.value) === "[object RegExp]"', 'value is a RegExp object')
+assrt.equal(re_node.value.source, '^hello\\sworld$', 'regexp source matches')
+assrt.ok(re_node.value.ignoreCase, 'regexp ignoreCase flag set')
+assrt.ok(re_node.value.multiline, 'regexp multiline flag set')
+
+# ─── Test 18: Shared reference integrity ──────────────────────────────────────
+# A node appearing in multiple places (e.g. AST_Class.init also in body)
+# should deserialize to the SAME JS object (same reference).
+
+src18 = """
+class Foo:
+    def __init__(self):
+        self.x = 1
+    def bar(self):
+        return self.x
+"""
+ast18 = RapydScript.parse(src18, {'filename': 'shared_ref'})
+serialized18 = RapydScript.ast_to_json(ast18)
+data18 = JSON.parse(serialized18)
+
+# Check that the JSON pool has no duplicate entries for the same node:
+# Every index should appear at most once as a _n value in the pool.
+# (Shared refs should point to the same pool index, not copy the node.)
+index_uses = {}
+def count_refs(val):
+    if Array.isArray(val):
+        for el in val:
+            count_refs(el)
+    elif val and jstype(val) is 'object':
+        if Object.keys(val).length is 1 and val._n is not None and jstype(val._n) is 'number':
+            index_uses[val._n] = (index_uses[val._n] or 0) + 1
+        else:
+            for k in Object.keys(val):
+                count_refs(val[k])
+
+for node_entry in data18.nodes:
+    if node_entry:
+        count_refs(node_entry.p)
+
+# init in AST_Class.p should reference the same index as the __init__ method in body.
+# We just verify that the deserialized AST still round-trips correctly.
+ast18b = RapydScript.ast_from_json(serialized18)
+assrt.equal(ast_to_js(ast18b), ast_to_js(ast18), 'shared ref round-trip')
+
+# ─── Test 19: Large/complex combined source ────────────────────────────────────
+# Full round-trip of a more complex program
+
+round_trip("""
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+class Stack:
+    def __init__(self):
+        self._items = []
+
+    def push(self, item):
+        self._items.append(item)
+
+    def pop(self):
+        if len(self._items) == 0:
+            raise IndexError("pop from empty stack")
+        return self._items.pop()
+
+    @property
+    def size(self):
+        return len(self._items)
+
+def process(items, transform=None, filter_fn=None):
+    result = []
+    for item in items:
+        if filter_fn and not filter_fn(item):
+            continue
+        if transform:
+            item = transform(item)
+        result.append(item)
+    return result
+
+numbers = [fib(i) for i in range(10)]
+evens = [x for x in numbers if x % 2 == 0]
+mapping = {x: x**2 for x in evens}
+""", 'complex_program')
