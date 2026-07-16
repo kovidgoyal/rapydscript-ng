@@ -326,6 +326,15 @@ opt("stats", undefined, 'bool', false, function(){/*
 Display operations run time on STDERR.
 */});
 
+opt("tree_shaking", 'T,tree-shake', 'bool', false, function(){/*
+Enable tree shaking (dead code elimination). Removes
+unused top-level functions and classes from the compiled
+output. If an imported module is referenced only from
+dead code, its import is removed entirely. Stdlib
+modules that are not used are also removed.
+Defaults to off.
+*/});
+
 opt("execute", 'x,exec', 'bool', false, function(){/*
 Compile and execute the RapydScript code, all in
 one invocation. Useful if you wish to use RapydScript for

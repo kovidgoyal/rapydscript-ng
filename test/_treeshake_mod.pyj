@@ -1,0 +1,30 @@
+# Helper module for tree shaking tests
+
+def func_used():
+    return 'used'
+
+def func_unused():
+    return 'unused'
+
+class ClassUsed:
+    def __init__(self):
+        self.val = 'used_class'
+
+class ClassUnused:
+    def __init__(self):
+        self.val = 'unused_class'
+
+module_var = 'module_var_value'
+
+def helper_a():
+    return 'a'
+
+def helper_b():
+    return helper_a()
+
+@no_prune
+def pinned_in_mod():
+    return 'pinned'
+
+def not_pinned_in_mod():
+    return 'not_pinned'

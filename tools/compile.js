@@ -12,6 +12,7 @@ var vm = require('vm');
 var RapydScript = require("./compiler").create_compiler();
 var utils = require('./utils');
 var sourcemap = require('./sourcemap');
+var tree_shake = require('./treeshake');
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -131,6 +132,12 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
                 process.exit(1);
             }
             throw ex;
+        }
+
+        if (argv.tree_shaking) {
+            time_it("tree_shaking", function(){
+                TOPLEVEL = tree_shake(TOPLEVEL);
+            });
         }
 
         time_it("generate", function(){

@@ -1,0 +1,199 @@
+# vim:fileencoding=utf-8
+# globals: test_path, compiler_dir, assrt
+
+path = require('path')
+vm = require('vm')
+
+tree_shake = require('./treeshake')
+baselib = fs.readFileSync(path.join(compiler_dir, 'baselib-plain-pretty.js'), 'utf-8')
+src_lib = path.join(compiler_dir, '..', 'src', 'lib')
+
+eq = assrt.equal
+ok = assrt.ok
+
+def new_output_stream(opts):
+    return v'new RapydScript.OutputStream(opts)'
+
+def make_output_stream(omit_baselib):
+    opts = {
+        'js_version': 5,
+        'beautify': False,
+        'private_scope': False,
+        'write_name': False,
+        'keep_docstrings': False,
+    }
+    if omit_baselib:
+        opts['omit_baselib'] = True
+    else:
+        opts['baselib_plain'] = baselib
+    return new_output_stream(opts)
+
+def parse_code(code, extra_opts):
+    opts = {
+        'filename': '<test>',
+        'basedir': test_path,
+        'libdir': src_lib,
+    }
+    if extra_opts:
+        for k in extra_opts:
+            opts[k] = extra_opts[k]
+    return RapydScript.parse(code, opts)
+
+def js_of(ast, omit_baselib):
+    output = make_output_stream(omit_baselib)
+    ast.print(output)
+    return output.get()
+
+def compile_shaken(code, extra_opts):
+    ast = parse_code(code, extra_opts)
+    tree_shake(ast)
+    return js_of(ast, True)
+
+def run_shaken(code, extra_opts):
+    ast = parse_code(code, extra_opts)
+    tree_shake(ast)
+    output = make_output_stream(False)
+    ast.print(output)
+    js = output.get()
+    sandbox = {'console': console}
+    vm.runInNewContext(js, sandbox, {'filename': '<treeshake-test>'})
+    return sandbox
+
+# ── dead top-level function removed ──────────────────────────────────────────
+js = compile_shaken('def live():\n    return 1\ndef dead():\n    return 2\nx = live()')
+ok(js.indexOf('function dead') < 0, 'dead function must be removed')
+ok(js.indexOf('function live') >= 0, 'live function must be kept')
+
+# ── dead top-level class removed ─────────────────────────────────────────────
+js = compile_shaken('class Live:\n    def __init__(self):\n        self.x = 1\nclass Dead:\n    def __init__(self):\n        self.y = 2\nu = Live()')
+ok(js.indexOf('function Dead') < 0, 'dead class must be removed')
+ok(js.indexOf('function Live') >= 0, 'live class must be kept')
+
+# ── transitively dead code removed ───────────────────────────────────────────
+js = compile_shaken('def helper():\n    return 42\ndef dead_caller():\n    return helper()\ndef live():\n    return 1\nx = live()')
+ok(js.indexOf('function helper') < 0, 'transitively dead helper must be removed')
+ok(js.indexOf('function dead_caller') < 0, 'dead caller must be removed')
+ok(js.indexOf('function live') >= 0, 'live function must be kept')
+
+# ── transitively live code preserved ─────────────────────────────────────────
+js = compile_shaken('def helper():\n    return 42\ndef live_caller():\n    return helper()\nx = live_caller()')
+ok(js.indexOf('function helper') >= 0, 'transitively live helper must be kept')
+ok(js.indexOf('function live_caller') >= 0, 'live caller must be kept')
+
+# ── circular references: both live ───────────────────────────────────────────
+js = compile_shaken('def a():\n    return b()\ndef b():\n    return a()\na()')
+ok(js.indexOf('function a') >= 0, 'circular-dep a must be kept')
+ok(js.indexOf('function b') >= 0, 'circular-dep b must be kept')
+
+# ── function used as value stays live ─────────────────────────────────────────
+js = compile_shaken('def foo():\n    return 1\ncallback = foo')
+ok(js.indexOf('function foo') >= 0, 'function used as value must be kept')
+
+# ── class used as base class stays live ──────────────────────────────────────
+js = compile_shaken('class Base:\n    def method(self):\n        return 1\nclass Derived(Base):\n    pass\nx = Derived()')
+ok(js.indexOf('function Base') >= 0, 'base class must be kept')
+ok(js.indexOf('function Derived') >= 0, 'derived class must be kept')
+
+# ── decorator marks function as live ─────────────────────────────────────────
+js = compile_shaken('def my_dec(f):\n    return f\n@my_dec\ndef foo():\n    return 1\nfoo()')
+ok(js.indexOf('function my_dec') >= 0, 'decorator must be kept when decorated function is live')
+
+# ── completely unused module import removed ───────────────────────────────────
+js = compile_shaken('from _treeshake_mod import func_used\nx = 1')
+ok(js.indexOf('_treeshake_mod') < 0, 'unused module must be removed from output')
+ok(js.indexOf('ρσ_modules') < 0 or js.indexOf('_treeshake_mod') < 0, 'module IIFE must not be emitted')
+
+# ── module used only in dead code is removed ─────────────────────────────────
+js = compile_shaken('from _treeshake_mod import func_used\ndef dead():\n    return func_used()\nx = 1')
+ok(js.indexOf('_treeshake_mod') < 0, 'module only referenced from dead code must be removed')
+
+# ── partially used module: only used function imported ───────────────────────
+js = compile_shaken('from _treeshake_mod import func_used, func_unused\nx = func_used()')
+ok(js.indexOf('func_unused') < 0, 'unused import binding must be removed')
+ok(js.indexOf('func_used') >= 0, 'used import binding must be kept')
+
+# ── used module kept, unused function in it removed ──────────────────────────
+js = compile_shaken('from _treeshake_mod import func_used\nx = func_used()')
+ok(js.indexOf('func_unused') < 0, 'unused function in used module must be removed')
+ok(js.indexOf('module_var') >= 0, 'module variable (non-def) must always be kept')
+
+# ── transitive liveness: helper_b calls helper_a ─────────────────────────────
+js = compile_shaken('from _treeshake_mod import helper_b\nx = helper_b()')
+ok(js.indexOf('helper_a') >= 0, 'transitively needed helper_a must be kept')
+ok(js.indexOf('helper_b') >= 0, 'directly imported helper_b must be kept')
+ok(js.indexOf('func_unused') < 0, 'unrelated func_unused must be removed')
+
+# ── stdlib module removed when unused ────────────────────────────────────────
+js = compile_shaken('from math import sin\ndef dead():\n    return sin(1.0)\nx = 1')
+ok(js.indexOf('math') < 0 or js.indexOf('ρσ_modules.math') < 0,
+   'stdlib module only used from dead code must be removed')
+
+# ── stdlib: only used function kept (when module not cached) ─────────────────
+js = compile_shaken('from math import sin\nx = sin(1.0)')
+ok(js.indexOf('sin') >= 0, 'used stdlib function must be present')
+
+# ── namespace import: module without side-effect calls removed when unused ────
+# _treeshake_mod has only a simple scalar assignment at module level (no calls)
+js = compile_shaken('import _treeshake_mod\nx = 1')
+ok(js.indexOf('_treeshake_mod') < 0, 'namespace import of module with no side-effect calls must be removed when unused')
+
+# ── namespace import: module kept when namespace is used ─────────────────────
+js = compile_shaken('import _treeshake_mod\nx = _treeshake_mod.func_used()')
+ok(js.indexOf('_treeshake_mod') >= 0, 'namespace import of used module must be kept')
+
+# ── side-effect namespace import: module with module-level call must be kept ──
+# Mirrors calibre's "import initialize" pattern where the module patches a global
+js = compile_shaken('import _treeshake_side_effect\nx = 1')
+ok(js.indexOf('_treeshake_side_effect') >= 0, 'namespace import of module with side-effect calls must not be removed')
+
+# ── side-effect namespace import: the side effect must actually run ───────────
+ctx = run_shaken('import _treeshake_side_effect\nresult = "x".__treeshake_test()')
+eq(ctx['result'], 'side_effect_ran', 'side-effect namespace import must execute module-level calls')
+
+# ── behavior: tree-shaken code runs correctly ─────────────────────────────────
+ctx = run_shaken('def live():\n    return 42\ndef dead():\n    return 99\nresult = live()')
+eq(ctx['result'], 42, 'tree-shaken code must return correct result')
+ok(not (ctx['dead'] if ctx['dead'] else False), 'dead function must not be defined after tree shaking')
+
+# ── behavior: class instantiation survives tree shaking ──────────────────────
+ctx = run_shaken('class MyClass:\n    def __init__(self, v):\n        self.v = v\nobj = MyClass(7)')
+eq(ctx['obj'].v, 7, 'instantiated object must have correct attribute')
+
+# ── behavior: decorator works after tree shaking ─────────────────────────────
+ctx = run_shaken('def identity(f):\n    return f\n@identity\ndef compute():\n    return 55\nresult = compute()')
+eq(ctx['result'], 55, 'decorated function must work correctly after tree shaking')
+
+# ── variable at top level not removed by tree shaking ────────────────────────
+ctx = run_shaken('my_var = 123\ndef unused():\n    return 0')
+eq(ctx['my_var'], 123, 'top-level variable must not be removed')
+
+# ── @no_prune: function never called directly is preserved ────────────────────
+js = compile_shaken('@no_prune\ndef pinned():\n    return 1\ndef unpinned():\n    return 2\nx = 1')
+ok(js.indexOf('function pinned') >= 0, '@no_prune function must not be pruned')
+ok(js.indexOf('function unpinned') < 0, 'non-annotated unused function must still be pruned')
+
+# ── @no_prune: class never referenced is preserved ───────────────────────────
+js = compile_shaken('@no_prune\nclass PinnedClass:\n    def __init__(self):\n        self.x = 1\nclass UnpinnedClass:\n    def __init__(self):\n        self.y = 2\nx = 1')
+ok(js.indexOf('function PinnedClass') >= 0, '@no_prune class must not be pruned')
+ok(js.indexOf('function UnpinnedClass') < 0, 'non-annotated unused class must still be pruned')
+
+# ── @no_prune combined with another decorator ─────────────────────────────────
+js = compile_shaken('def my_dec(f):\n    return f\n@no_prune\n@my_dec\ndef pinned_decorated():\n    return 1\nx = 1')
+ok(js.indexOf('function pinned_decorated') >= 0, '@no_prune + other decorator: function must be kept')
+ok(js.indexOf('my_dec') >= 0, '@no_prune + other decorator: other decorator must still be applied')
+ok(js.indexOf('no_prune') < 0, '@no_prune must be stripped from compiled output')
+
+# ── @no_prune in imported module: pinned def preserved when module is live ────
+js = compile_shaken('from _treeshake_mod import func_used\nx = func_used()')
+ok(js.indexOf('pinned_in_mod') >= 0, '@no_prune def in imported module must be kept')
+ok(js.indexOf('not_pinned_in_mod') < 0, 'non-annotated unused def in imported module must be pruned')
+
+# ── behavior: @no_prune function is callable at runtime ──────────────────────
+ctx = run_shaken('@no_prune\ndef pinned_fn():\n    return 77\nresult = pinned_fn()')
+eq(ctx['result'], 77, '@no_prune function must work correctly when called')
+
+# ── behavior: @no_prune function stored in dict via decorator is accessible ──
+# Mirrors the calibre from_python pattern: decorator stores the function in a
+# registry dict keyed by name; it is never called directly by the live code.
+ctx = run_shaken('registry = {}\ndef register(f):\n    registry[f.name] = f\n    return f\n@no_prune\n@register\ndef registered_fn():\n    return 88\nresult = registry["registered_fn"]()')
+eq(ctx['result'], 88, '@no_prune function registered via decorator must be accessible')

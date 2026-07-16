@@ -1,0 +1,9 @@
+# vim:fileencoding=utf-8
+# Helper module for tree shaking side-effect import tests.
+# Mirrors the calibre initialize.pyj pattern: a module-level function call
+# that patches a global object (here String.prototype) as a side effect.
+
+def apply_patch():
+    v'String.prototype.__treeshake_test = function() { return "side_effect_ran"; }'
+
+apply_patch()
