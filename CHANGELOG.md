@@ -1,3 +1,11 @@
+version 0.8.0
+=======================
+
+  * Implement generation of source maps via the --source-map option
+  * Implement dead code removal iva the --tree-shaking option
+  * Change the cache format to cache only the AST and not final output so that
+    the cache can be re-used regardles of output and tree shaking options
+ 
 version 0.7.24
 =======================
 
