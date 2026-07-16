@@ -39,7 +39,7 @@ def is_simple_for_in(self):
     # return true if this loop can be simplified into a basic for (i in j) loop
     if is_node_type(self.object, AST_BaseCall)
     and is_node_type(self.object.expression, AST_SymbolRef)
-    and self.object.expression.name is "dir" and self.object.args.length is 1:
+    and self.object.expression.name is "dir" and self.object.args.args.length is 1:
         return True
     return False
 
@@ -49,7 +49,7 @@ def is_simple_for(self):
             is_node_type(self.object.expression, AST_SymbolRef) and
             self.object.expression.name is "range" and
             not (is_node_type(self.init, AST_Array))):
-        a = self.object.args
+        a = self.object.args.args
         l = a.length
         if l < 3 or (
             is_node_type(a[2], AST_Number) or (
@@ -112,7 +112,7 @@ def print_for_in(self, output):
     if is_simple_for(self):
         # optimize range() into a simple for loop
         increment = None
-        args = self.object.args
+        args = self.object.args.args
         tmp_ = args.length
         if tmp_ is 1:
             start = 0
@@ -164,7 +164,7 @@ def print_for_in(self, output):
             output.space()
             output.print('in')
             output.space()
-            self.object.args[0].print(output)
+            self.object.args.args[0].print(output)
         )
     else:
         # regular loop

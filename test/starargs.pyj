@@ -11,7 +11,7 @@ def get(obj, name):
 
 def basic_test(code, arglen, starargs, kwargs, defaults):
     func = RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
-    eq(func.argnames.length, arglen)
+    eq(func.argnames.args.length, arglen)
     eq(get(func.argnames.starargs, 'name'), starargs)
     eq(get(func.argnames.kwargs, 'name'), kwargs)
     eq(func.argnames.is_simple_func, bool(not starargs and not kwargs and not defaults))
@@ -51,9 +51,9 @@ throw_test('*a, **a')
 def parse_call_test(code, arglen, opts):
     func = RapydScript.parse('f(' + code + ')', {'filename':code}).body[0].body
     opts = opts or {}
-    eq(func.args.length, arglen, 'Incorrect len for: ' + code)
+    eq(func.args.args.length, arglen, 'Incorrect len for: ' + code)
     if (opts.starargs != undefined):
-        si = [[i, x.name] for i, x in enumerate(func.args) if x.is_array]
+        si = [[i, x.name] for i, x in enumerate(func.args.args) if x.is_array]
         de(opts.starargs, si, 'starargs wrong for: ' + code + ': ' + si + ' != ' + opts.starargs)
     if (opts.kwargs != undefined):
         de(opts.kwargs, [x[0].name for x in func.args.kwargs])

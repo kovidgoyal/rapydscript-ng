@@ -373,11 +373,32 @@ class AST_Decorator(AST_Node):
                 self.expression.walk(visitor)
         )
 
+class AST_ArgsDef(AST_Node):
+    "The formal argument definition list for a function"
+    properties = {
+        'args': "[AST_SymbolFunarg*] formal positional parameters",
+        'starargs': "[AST_SymbolFunarg?] *args parameter, or None",
+        'kwargs': "[AST_SymbolFunarg?] **kwargs parameter, or None",
+        'defaults': "[Object] map of parameter name to default value expression",
+        'has_defaults': "[bool] True if any parameter has a default value",
+        'is_simple_func': "[bool] True if no starargs, no kwargs, and no defaults",
+    }
+
+    def _walk(self, visitor):
+        return visitor._visit(self, def():
+            for arg in self.args:
+                arg._walk(visitor)
+            if self.starargs:
+                self.starargs._walk(visitor)
+            if self.kwargs:
+                self.kwargs._walk(visitor)
+        )
+
 class AST_Lambda(AST_Scope):
     "Base class for functions"
     properties = {
         'name': "[AST_SymbolDeclaration?] the name of this function",
-        'argnames': "[AST_SymbolFunarg*] array of function arguments",
+        'argnames': "[AST_ArgsDef] the function argument definitions",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'is_generator': "[bool*] True iff this function is a generator",
         'is_expression': "[bool*] True iff this function is a function expression",
@@ -392,13 +413,7 @@ class AST_Lambda(AST_Scope):
                     d.walk(visitor)
             if self.name:
                 self.name._walk(visitor)
-
-            for arg in self.argnames:
-                arg._walk(visitor)
-            if self.argnames.starargs:
-                self.argnames.starargs._walk(visitor)
-            if self.argnames.kwargs:
-                self.argnames.kwargs._walk(visitor)
+            self.argnames._walk(visitor)
             walk_body(self, visitor)
         )
 
@@ -581,10 +596,32 @@ class AST_VarDef(AST_Node):
 
 # Miscellaneous {{{
 
+class AST_CallArgs(AST_Node):
+    "The argument list for a function call"
+    properties = {
+        'args': "[AST_Node*] positional arguments",
+        'kwargs': "[pair*] keyword argument pairs [key_node, value_node]",
+        'kwarg_items': "[AST_SymbolRef*] **kwargs symbol references",
+        'starargs': "[bool] True if *args were used in this call",
+    }
+
+    def _walk(self, visitor):
+        return visitor._visit(self, def():
+            for arg in self.args:
+                arg._walk(visitor)
+            if self.kwargs:
+                for pair in self.kwargs:
+                    pair[0]._walk(visitor)
+                    pair[1]._walk(visitor)
+            if self.kwarg_items:
+                for arg in self.kwarg_items:
+                    arg._walk(visitor)
+        )
+
 class AST_BaseCall(AST_Node):
     "A base class for function calls"
     properties = {
-        'args': "[AST_Node*] array of arguments"
+        'args': "[AST_CallArgs] the function call argument list"
     }
 
 class AST_Call(AST_BaseCall):
@@ -596,15 +633,7 @@ class AST_Call(AST_BaseCall):
     def _walk(self, visitor):
         return visitor._visit(self, def():
             self.expression._walk(visitor)
-            for arg in self.args:
-                arg._walk(visitor)
-            if self.args.kwargs:
-                for arg in self.args.kwargs:
-                    arg[0]._walk(visitor)
-                    arg[1]._walk(visitor)
-            if self.args.kwarg_items:
-                for arg in self.args.kwarg_items:
-                    arg._walk(visitor)
+            self.args._walk(visitor)
         )
 
 
@@ -619,13 +648,7 @@ class AST_ClassCall(AST_BaseCall):
     def _walk(self, visitor):
         return visitor._visit(self, def():
             if (self.expression) self.expression._walk(visitor)
-            for arg in self.args:
-                arg._walk(visitor)
-            for arg in self.args.kwargs:
-                arg[0]._walk(visitor)
-                arg[1]._walk(visitor)
-            for arg in self.args.kwarg_items:
-                arg._walk(visitor)
+            self.args._walk(visitor)
         )
 
 class AST_New(AST_Call):

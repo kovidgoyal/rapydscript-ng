@@ -35,8 +35,8 @@ def decorate(decorators, output, func):
 
 def function_args(argnames, output, strip_first):
     output.with_parens(def():
-        if argnames and argnames.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
-            for i, arg in enumerate((argnames.slice(1) if strip_first else argnames)):
+        if argnames and argnames.args.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
+            for i, arg in enumerate((argnames.args.slice(1) if strip_first else argnames.args)):
                 if i:
                     output.comma()
                 arg.print(output)
@@ -51,7 +51,7 @@ def function_preamble(node, output, offset):
     fname = node.name.name if node.name else anonfunc
     kw = 'arguments[arguments.length-1]'
     # Define all formal parameters
-    for c, arg in enumerate(a):
+    for c, arg in enumerate(a.args):
         i = c - offset
         if i >= 0:
             output.indent()
@@ -97,7 +97,7 @@ def function_preamble(node, output, offset):
 
     if a.starargs is not undefined:
         # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
-        nargs = a.length - offset
+        nargs = a.args.length - offset
         output.indent()
         output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs + ')')
         output.end_statement()
@@ -110,7 +110,7 @@ def function_preamble(node, output, offset):
 def has_annotations(self):
     if self.return_annotation:
         return True
-    for arg in self.argnames:
+    for arg in self.argnames.args:
         if arg.annotation:
             return True
     return False
@@ -123,13 +123,13 @@ def function_annotation(self, output, strip_first, name):
     if has_annotations(self):
         props.__annotations__ = def():
             output.print('{')
-            if self.argnames and self.argnames.length:
-                for i, arg in enumerate(self.argnames):
+            if self.argnames and self.argnames.args.length:
+                for i, arg in enumerate(self.argnames.args):
                     if arg.annotation:
                         arg.print(output)
                         output.print(':'), output.space()
                         arg.annotation.print(output)
-                        if i < self.argnames.length - 1 or self.return_annotation:
+                        if i < self.argnames.args.length - 1 or self.return_annotation:
                             output.comma()
             if self.return_annotation:
                 output.print('return:'), output.space()
@@ -154,14 +154,14 @@ def function_annotation(self, output, strip_first, name):
             output.print('true')
 
     # Create __argnames__
-    if self.argnames.length > (1 if strip_first else 0):
+    if self.argnames.args.length > (1 if strip_first else 0):
         props.__argnames__ = def():
             output.print('[')
-            for i, arg in enumerate(self.argnames):
+            for i, arg in enumerate(self.argnames.args):
                 if strip_first and i is 0:
                     continue
                 output.print(JSON.stringify(arg.name))
-                if i is not self.argnames.length - 1:
+                if i is not self.argnames.args.length - 1:
                     output.comma()
             output.print(']')
 
@@ -338,8 +338,9 @@ def print_function_call(self, output):
     def print_positional_args():
         # basic arguments
         i = 0
-        while i < self.args.length:
-            expr = self.args[i]
+        pargs = self.args.args
+        while i < pargs.length:
+            expr = pargs[i]
             is_first = i is 0
             if not is_first:
                 output.print('.concat(')
@@ -348,9 +349,9 @@ def print_function_call(self, output):
                 i += 1
             else:
                 output.print('[')
-                while i < self.args.length and not self.args[i].is_array:
-                    self.args[i].print(output)
-                    if i + 1 < self.args.length and not self.args[i+1].is_array:
+                while i < pargs.length and not pargs[i].is_array:
+                    pargs[i].print(output)
+                    if i + 1 < pargs.length and not pargs[i+1].is_array:
                         output.print(',')
                         output.space()
                     i += 1
@@ -364,7 +365,7 @@ def print_function_call(self, output):
     is_new = is_node_type(self, AST_New)
     is_repeatable = True
 
-    if is_new and not self.args.length and not has_kwargs and not self.args.starargs:
+    if is_new and not self.args.args.length and not has_kwargs and not self.args.starargs:
         output.print('new'), output.space()
         print_function_name()
         return # new A is the same as new A() in javascript
@@ -375,7 +376,7 @@ def print_function_call(self, output):
             output.print('new'), output.space()
         print_function_name()
         output.with_parens(def():
-            for i, a in enumerate(self.args):
+            for i, a in enumerate(self.args.args):
                 if i:
                     output.comma()
                 a.print(output)
@@ -404,18 +405,18 @@ def print_function_call(self, output):
             output.print('.apply(')
             do_print_this()
 
-    if is_prototype_call and self.args.length > 1:
-        self.args.shift()
+    if is_prototype_call and self.args.args.length > 1:
+        self.args.args.shift()
 
     print_positional_args()
 
     if has_kwargs:
-        if self.args.length:
+        if self.args.args.length:
             output.print('.concat(')
         output.print('[')
         print_kwargs()
         output.print(']')
-        if self.args.length:
+        if self.args.args.length:
             output.print(')')
 
     output.print(')')

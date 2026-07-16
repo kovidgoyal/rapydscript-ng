@@ -136,7 +136,7 @@ def generate_code():
     )
     PARENS(AST_New, def(output):
         p = output.parent()
-        if this.args.length is 0 and (is_node_type(p, AST_PropAccess) or is_node_type(p, AST_BaseCall) and p.expression is this):
+        if this.args.args.length is 0 and (is_node_type(p, AST_PropAccess) or is_node_type(p, AST_BaseCall) and p.expression is this):
             # (new foo)(bar)
             return True
     )

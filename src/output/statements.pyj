@@ -82,7 +82,7 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
         output.indent()
         output.print("var")
         output.space()
-        output.assign(node.argnames[0])
+        output.assign(node.argnames.args[0])
         output.print("this")
         output.semicolon()
         output.newline()
