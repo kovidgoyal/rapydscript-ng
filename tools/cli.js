@@ -274,10 +274,10 @@ you could import one of the baselib-plain-*.js files directly
 into the global namespace.
 */});
 
-opt("js_version", 'js,j', 'string', '5', function(){/*
-The JavaScript version to output. By default, ES 5 
-compatible JavaScript is output. You can specify 6 
-to output ES 6 compatible JavaScript instead. The ES 6
+opt("js_version", 'js,j', 'string', '6', function(){/*
+The JavaScript version to output. By default, ES 6
+compatible JavaScript is output. You can specify 5
+to output ES 5 compatible JavaScript instead. The ES 6
 version of the code will be smaller and faster by making
 use of some ES 6 only features, such as iterators and
 generators.
