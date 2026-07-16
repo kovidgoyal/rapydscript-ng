@@ -296,7 +296,9 @@ function compile(code, filename, options) {
 
 function create_embedded_compiler(runjs) {
     var c = vrequire('tools/embedded_compiler');
-    return c(create_compiler(), data['baselib-plain-pretty.js'], runjs);
+    var ts = vrequire('tools/treeshake');
+    var sm = vrequire('tools/sourcemap');
+    return c(create_compiler(), data['baselib-plain-pretty.js'], runjs, undefined, ts, sm.generate_source_map);
 }
 
 function web_repl() {

@@ -8,7 +8,7 @@
 
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
-export default function(compiler, baselib, runjs, name) {
+export default function(compiler, baselib, runjs, name, tree_shake, generate_source_map) {
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
     runjs(print_ast(compiler.parse(''), true));
@@ -19,7 +19,7 @@ export default function(compiler, baselib, runjs, name) {
         if (keep_baselib) output_options.baselib_plain = baselib;
         var output = new compiler.OutputStream(output_options);
         ast.print(output);
-        if (source_map) return {code: output.get(), source_map_segments: output.get_source_map_segments()};
+        if (source_map && generate_source_map) return {code: output.get(), source_map: generate_source_map(output.get_source_map_segments(), '', '')};
         return output.get();
     }
 
@@ -37,6 +37,9 @@ export default function(compiler, baselib, runjs, name) {
                 'scoped_flags': scoped_flags,
                 'discard_asserts': opts.discard_asserts,
             });
+            if (opts.tree_shaking && tree_shake) {
+                this.toplevel = tree_shake(this.toplevel);
+            }
             var ans = print_ast(this.toplevel, opts.keep_baselib, opts.keep_docstrings, opts.js_version, opts.private_scope, opts.write_name, opts.source_map);
             if (classes) {
                 var exports = {};

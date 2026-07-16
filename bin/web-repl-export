@@ -19,7 +19,7 @@ var manifest = {}, total = 0;
     total += manifest[x].length;
 });
 
-['web_repl.js', 'embedded_compiler.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js'].forEach(function(x) {
+['web_repl.js', 'embedded_compiler.js', 'treeshake.js', 'sourcemap.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js'].forEach(function(x) {
     var mjs = x.replace(/\.js$/, '.mjs');
     var mjs_path = path.join(base, 'tools', mjs);
     var js_path = path.join(base, 'tools', x);

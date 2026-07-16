@@ -8,12 +8,14 @@
 
 import vm from 'vm';
 import embedded_compiler from './embedded_compiler.mjs';
+import tree_shake from './treeshake.mjs';
+import { generate_source_map } from './sourcemap.mjs';
 
 export default function(compiler, baselib) {
     var ctx = vm.createContext();
     var LINE_CONTINUATION_CHARS = ':\\';
     var find_completions = null;
-    var streaming_compiler = embedded_compiler(compiler, baselib, function(js) { return vm.runInContext(js, ctx); }, '__repl__');
+    var streaming_compiler = embedded_compiler(compiler, baselib, function(js) { return vm.runInContext(js, ctx); }, '__repl__', tree_shake, generate_source_map);
 
     return {
         'in_block_mode': false,
