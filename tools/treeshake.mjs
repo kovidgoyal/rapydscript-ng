@@ -4,7 +4,6 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
 
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
@@ -329,4 +328,4 @@ function tree_shake(toplevel) {
     return toplevel;
 }
 
-module.exports = tree_shake;
+export default tree_shake;

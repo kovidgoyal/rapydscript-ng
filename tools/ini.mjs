@@ -1,16 +1,15 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
 
-var fs = require('fs');
-var path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 function parse_ini_data(data) {
-    // Based on MIT licensed code from: 
+    // Based on MIT licensed code from:
     // https://github.com/shockie/node-iniparser/blob/master/lib/node-iniparser.js
     var ans = {}, match;
 	var lines = data.split(/\r\n|\r|\n/);
@@ -62,4 +61,4 @@ function read_config(toplevel_dir) {
 }
 
 
-exports.read_config = read_config;
+export { read_config };

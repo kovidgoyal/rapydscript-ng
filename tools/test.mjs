@@ -4,19 +4,23 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
-var path = require('path');
-var fs = require('fs');
-var RapydScript = require('./compiler').create_compiler();
-var utils = require('./utils');
+
+import path from 'path';
+import fs from 'fs';
+import assert from 'assert';
+import os from 'os';
+import vm from 'vm';
+import { createRequire } from 'module';
+import compilerModule from './compiler.js';
+import utils from './utils.js';
+
+const require = createRequire(import.meta.url);
+const RapydScript = compilerModule.create_compiler();
 var colored = utils.safe_colored;
 
-module.exports = function(argv, base_path, src_path, lib_path) {
+export default function(argv, base_path, src_path, lib_path) {
     // run all tests and exit
-    var assert = require("assert");
-    var os = require('os');
     var failures = [];
-    var vm = require('vm');
     var compiler_dir = path.join(base_path, 'dev');
     if (!utils.path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base_path, 'release');
     var test_dir = path.join(base_path, 'test');
@@ -76,11 +80,11 @@ module.exports = function(argv, base_path, src_path, lib_path) {
             var code = output.toString();
             try {
                 vm.runInNewContext(code, {
-                    'assrt':assert, 
+                    'assrt':assert,
                     '__name__': jsfile,
-                    'require':require, 
+                    'require':require,
                     'fs':fs,
-                    'RapydScript':RapydScript, 
+                    'RapydScript':RapydScript,
                     'console':console,
                     'compiler_dir': compiler_dir,
                     'test_path':test_dir,
@@ -91,9 +95,9 @@ module.exports = function(argv, base_path, src_path, lib_path) {
                 failed = true;
                 fs.writeFileSync(jsfile, code);
                 console.error('Failed running: ' + colored(jsfile, 'red'));
-                if (e.stack) 
+                if (e.stack)
                     console.error(colored(file, 'red') + ":\n" + e.stack + "\n\n");
-                else 
+                else
                     console.error(colored(file, 'red') + ": " + e + "\n\n");
                 js_version = 1000;
             }
@@ -107,4 +111,4 @@ module.exports = function(argv, base_path, src_path, lib_path) {
         console.log.apply(console, failures);
     } else console.log(colored('All tests passed!', 'green'));
     process.exit((failures.length) ? 1 : 0);
-};
+}

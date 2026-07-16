@@ -1,13 +1,14 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 // vim:ft=javascript:ts=4:et
 
-"use strict";
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
 
-var fs = require('fs');
-var path = require('path');
-var crypto = require('crypto');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-var base = path.join(path.dirname(__dirname));
+var base = path.dirname(__dirname);
 var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
 var compiler_dir = path.join(base, 'dev');
 if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
@@ -27,16 +28,16 @@ var manifest = {}, total = 0;
 
 var dedup = {};
 
-function path_exists(path) {
+function path_exists(p) {
     try {
-        fs.statSync(path);
+        fs.statSync(p);
         return true;
     } catch(e) {
         if (e.code != 'ENOENT') throw e;
     }
 }
 
-function sha1sum(data) { 
+function sha1sum(data) {
     var h = crypto.createHash('sha1');
     h.update(data);
     return h.digest('hex');

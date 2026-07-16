@@ -1,12 +1,13 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 // vim:ft=javascript:ts=4:et
 
-"use strict";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-var fs = require('fs');
-var path = require('path');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-var base = path.normalize(path.resolve(path.join(path.dirname(__dirname))));
+var base = path.normalize(path.resolve(path.dirname(__dirname)));
 var meta = JSON.parse(fs.readFileSync(path.join(base, 'package.json'), {'encoding':'utf-8'}));
 var commit_sha = fs.readFileSync(path.join(base, '.git', 'refs', 'heads', 'master'), {'encoding':'utf-8'}).trim();
 var compiler_dir = path.join(base, 'dev');
@@ -26,9 +27,9 @@ var manifest = {}, total = 0;
 
 var stdlib = path.join(base, 'src', 'lib');
 
-function path_exists(path) {
+function path_exists(p) {
     try {
-        fs.statSync(path);
+        fs.statSync(p);
         return true;
     } catch(e) {
         if (e.code != 'ENOENT') throw e;

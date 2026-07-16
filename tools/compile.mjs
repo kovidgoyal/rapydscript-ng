@@ -4,15 +4,18 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
 
-var fs = require('fs');
-var path = require('path');
-var vm = require('vm');
-var RapydScript = require("./compiler").create_compiler();
-var utils = require('./utils');
-var sourcemap = require('./sourcemap');
-var tree_shake = require('./treeshake');
+import fs from 'fs';
+import path from 'path';
+import vm from 'vm';
+import { createRequire } from 'module';
+import compilerModule from './compiler.js';
+import utils from './utils.js';
+import sourcemap from './sourcemap.js';
+import tree_shake from './treeshake.mjs';
+
+const require = createRequire(import.meta.url);
+const RapydScript = compilerModule.create_compiler();
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -45,7 +48,7 @@ function process_cache_dir(dir) {
     return dir;
 }
 
-module.exports = function(start_time, argv, base_path, src_path, lib_path) {
+export default function(start_time, argv, base_path, src_path, lib_path) {
     // configure settings for the output
     var cache_dir = argv.cache_dir ? process_cache_dir(argv.cache_dir) : '';
     var OUTPUT_OPTIONS = {
@@ -198,6 +201,4 @@ module.exports = function(start_time, argv, base_path, src_path, lib_path) {
     }
 
     setImmediate(read_whole_file, files[0], compile_single_file);
-
-};
-
+}

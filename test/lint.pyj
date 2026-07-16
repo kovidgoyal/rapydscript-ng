@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-linter = require('../tools/lint.js')
+linter = require('../tools/lint.mjs')
 
 def lint(code):
     return linter.lint_code(code, {'filename':'<test>', 'report':def():

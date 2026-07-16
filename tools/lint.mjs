@@ -1,19 +1,21 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
 
-var fs = require('fs');
-var RapydScript = require("./compiler").create_compiler();
-var path = require('path');
-var utils = require('./utils');
+import fs from 'fs';
+import path from 'path';
+import { read_config } from './ini.mjs';
+import compilerModule from './compiler.js';
+import utils from './utils.js';
+
+const RapydScript = compilerModule.create_compiler();
 var colored = utils.safe_colored;
 
-var WARN = 1, ERROR = 2;
-var MESSAGES = {
+export var WARN = 1, ERROR = 2;
+export var MESSAGES = {
     'undef': 'undefined symbol: "{name}"',
     'unused-import': '"{name}" is imported but not used',
     'unused-local' : '"{name}" is defined but not used',
@@ -29,8 +31,8 @@ var MESSAGES = {
 };
 
 var BUILTINS = Object.create(null);
-('this self window document chr ord iterator_symbol print len range dir' + 
- ' eval undefined arguments abs max min enumerate pow callable reversed sum' + 
+('this self window document chr ord iterator_symbol print len range dir' +
+ ' eval undefined arguments abs max min enumerate pow callable reversed sum' +
  ' getattr isFinite setattr hasattr parseInt parseFloat options_object' +
  ' isNaN JSON Math list set list_wrap ρσ_modules require bool int bin' +
  ' float iter Error EvalError set_wrap RangeError ReferenceError SyntaxError' +
@@ -70,7 +72,7 @@ function msg_from_node(filename, ident, name, node, level, line) {
     if (node instanceof RapydScript.AST_Lambda && node.name) name = node.name.name;
     var msg = MESSAGES[ident].replace('{name}', name || '').replace('{line}', line || '');
     return {
-        filename: filename, 
+        filename: filename,
         start_line: (node.start) ? node.start.line : undefined,
         start_col: (node.start) ? node.start.col : undefined,
         end_line: (node.end) ? node.end.line : undefined,
@@ -157,7 +159,7 @@ function Scope(is_toplevel, parent_scope, filename, is_class) {
             this.for_descendants(function (scope) {
                 if (has_prop(scope.undefined_references, name)) {
                     found = true;
-                    // Remove from childs' undefined references 
+                    // Remove from childs' undefined references
                     delete scope.undefined_references[name];
                 } else if (has_prop(scope.nonlocals, name) && has_prop(scope.bindings, name)) found = true;
             });
@@ -295,7 +297,7 @@ function Linter(toplevel, filename, code, options) {
         if (node.left instanceof RapydScript.AST_SymbolRef) {
             node.left.lint_visited = node.operator === '=';  // Could be compound assignment like: +=
             if (node.operator === '=') {
-                // Only create a binding if the operator is not 
+                // Only create a binding if the operator is not
                 // a compound assignment operator
                 this.current_node = node.left;
                 this.add_binding(node.left.name);
@@ -374,7 +376,7 @@ function Linter(toplevel, filename, code, options) {
                     }
                 }
             }
- 
+
         }
     };
 
@@ -419,7 +421,7 @@ function Linter(toplevel, filename, code, options) {
         (node.properties || []).forEach(function (prop) {
             if (prop.key instanceof RapydScript.AST_Constant) {
                 var val = prop.key.value;
-                if (has_prop(seen, val)) 
+                if (has_prop(seen, val))
                     this.messages.push(msg_from_node(filename, 'dup-key', val, prop));
                 seen[val] = true;
             }
@@ -483,7 +485,7 @@ function Linter(toplevel, filename, code, options) {
 
         if (node instanceof RapydScript.AST_Scope) {
             this.handle_scope();
-        } 
+        }
 
         if (cont !== undefined) cont();
 
@@ -563,7 +565,7 @@ function Linter(toplevel, filename, code, options) {
 
 }
 
-function lint_code(code, options) {
+export function lint_code(code, options) {
     options = options || {};
     var reportcb = {'json':cli_json_report, 'vim': cli_vim_report, 'undef': cli_undef_report}[options.errorformat] || (options.report || cli_report);
     var filename = options.filename || '<eval>';
@@ -649,14 +651,13 @@ var ini_cache = {};
 
 function get_ini(toplevel_dir) {
     if (has_prop(ini_cache, toplevel_dir)) return ini_cache[toplevel_dir];
-    var rl = require('./ini').read_config(toplevel_dir).rapydscript || {};
+    var rl = read_config(toplevel_dir).rapydscript || {};
     ini_cache[toplevel_dir] = rl;
     return rl;
 }
 
-module.exports.cli = function(argv, base_path, src_path, lib_path) {
+export function cli(argv, base_path, src_path, lib_path) {
     var files = argv.files.slice();
-    var read_config = require('./ini');
 
     if (argv.noqa_list) {
         Object.keys(MESSAGES).forEach(function(ident) {
@@ -746,10 +747,5 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
         start_linting();
     }
 
-};
-
-module.exports.lint_code = lint_code;
-module.exports.WARN = WARN;
-module.exports.ERROR = ERROR;
-module.exports.MESSAGES = MESSAGES;
+}
 // }}}

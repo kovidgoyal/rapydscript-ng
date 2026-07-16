@@ -1,13 +1,15 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 // vim:ft=javascript:ts=4:et
 
-"use strict";
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { spawn } from 'child_process';
 
-function load(mod) {
-    return require('../tools/' + mod);
-}
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
 
-var utils = load('utils');
+var utils = require('../tools/utils');
 
 // We need ES 6 generators so relaunch with the --harmony flag
 if (!utils.generators_available()) {
@@ -15,18 +17,17 @@ if (!utils.generators_available()) {
         console.error('RapydScript needs ES 6 generators, update your version of nodejs');
         process.exit(1);
     }
-    var args = ['--harmony', module.filename].concat(process.argv.slice(2));
-    require('child_process').spawn(process.execPath, args, {stdio:'inherit'}).on('exit', function(code, signal) {
+    var args = ['--harmony', __filename].concat(process.argv.slice(2));
+    spawn(process.execPath, args, {stdio:'inherit'}).on('exit', function(code, signal) {
         process.exit(code);
     });
 } else {
 
     var start_time = new Date().getTime();
-    var path = require('path');
 
-    var argv = load('cli').argv;
+    var { argv } = await import('../tools/cli.mjs');
 
-    var base_path = path.normalize(path.join(path.dirname(module.filename), ".."));
+    var base_path = path.normalize(path.join(path.dirname(__filename), ".."));
     var src_path = path.join(base_path, 'src');
     var lib_path = path.join(base_path, 'dev');
     if (!utils.path_exists(path.join(lib_path, 'compiler.js'))) lib_path = path.join(base_path, 'release');
@@ -35,36 +36,36 @@ if (!utils.generators_available()) {
         if (argv.files.length > 0) {
             console.error("WARN: Ignoring input files since --self was passed");
         }
-        load('self')(base_path, src_path, lib_path, argv.complete, argv.profile);
+        (await import('../tools/self.mjs')).default(base_path, src_path, lib_path, argv.complete, argv.profile);
         if (argv.test) {
             console.log('\nRunning test suite...\n');
             argv.files = [];  // Ensure all tests are run
-            load('test')(argv, base_path, src_path, path.join(base_path, 'dev'));
+            (await import('../tools/test.mjs')).default(argv, base_path, src_path, path.join(base_path, 'dev'));
         }
         process.exit(0);
-    } else 
+    } else
 
     if (argv.mode === 'test') {
-        load('test')(argv, base_path, src_path, lib_path);
-    } else 
+        (await import('../tools/test.mjs')).default(argv, base_path, src_path, lib_path);
+    } else
 
     if (argv.mode === 'lint') {
-        load('lint').cli(argv, base_path, src_path, lib_path);
+        (await import('../tools/lint.mjs')).cli(argv, base_path, src_path, lib_path);
     } else
 
     if (argv.mode === 'repl') {
-        load('repl')({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
-    } else 
-    
+        require('../tools/repl')({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
+    } else
+
     if (argv.mode === 'gettext') {
-        load('gettext').cli(argv, base_path, src_path, lib_path);
+        require('../tools/gettext').cli(argv, base_path, src_path, lib_path);
     } else
-    
+
     if (argv.mode === 'msgfmt') {
-        load('msgfmt').cli(argv, base_path, src_path, lib_path);
+        require('../tools/msgfmt').cli(argv, base_path, src_path, lib_path);
     } else
-    
+
     {
-        load('compile')(start_time, argv, base_path, src_path, lib_path);
+        (await import('../tools/compile.mjs')).default(start_time, argv, base_path, src_path, lib_path);
     }
 }

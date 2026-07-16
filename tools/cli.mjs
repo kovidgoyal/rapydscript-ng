@@ -4,10 +4,11 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
 
-var path = require('path');
-var utils = require('./utils');
+import path from 'path';
+import utils from './utils.js';
+import packageJson from '../package.json' with { type: 'json' };
+
 var colored = utils.safe_colored;
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
@@ -529,7 +530,7 @@ Use fuzzy translations, they are ignored by default.
 */});
 
 
-var argv = module.exports.argv = parse_args();
+export var argv = parse_args();
 if (typeof argv.js_version === 'string') {
     argv.js_version = parseInt(argv.js_version);
     if (isNaN(argv.js_version)) {
@@ -544,7 +545,6 @@ if (argv.help) {
 }
 
 if (argv.version) {
-    var json = require("../package.json");
-    console.log(json.name + ' ' + json.version);
+    console.log(packageJson.name + ' ' + packageJson.version);
     process.exit(0);
 }

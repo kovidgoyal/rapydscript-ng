@@ -4,13 +4,18 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
 
-var path = require('path');
-var crypto = require('crypto');
-var fs = require('fs');
-var vm = require('vm');
-var zlib = require('zlib');
+import path from 'path';
+import crypto from 'crypto';
+import fs from 'fs';
+import vm from 'vm';
+import zlib from 'zlib';
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import compilerModule from './compiler.js';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
 
 function compile_baselib(RapydScript, src_path) {
     var items = fs.readdirSync(src_path).filter(function(name) {
@@ -30,7 +35,7 @@ function compile_baselib(RapydScript, src_path) {
         }
         [true, false].forEach(function (beautify) {
             var output = new RapydScript.OutputStream({
-                beautify: beautify, write_name: false, private_scope:false, omit_baselib: true,  
+                beautify: beautify, write_name: false, private_scope:false, omit_baselib: true,
             });
             ast.print(output);
             ans[(beautify) ? 'pretty' : 'ugly'] += output.get();
@@ -72,8 +77,8 @@ function check_for_changes(base_path, src_path, signatures) {
         h.update(sources[src]);
         hashes[fname.split('.')[0]] = h.digest('hex');
     });
-    var compiler_files = [module.filename, path.join(base_path, 'tools', 'compiler.js')];
-    compiler_files.forEach(function(fpath) { 
+    var compiler_files = [__filename, path.join(base_path, 'tools', 'compiler.js')];
+    compiler_files.forEach(function(fpath) {
         compiler_hash.update(fs.readFileSync(fpath, 'utf-8'));
     });
     hashes['#compiler#'] = compiler_hash.digest('hex');
@@ -94,7 +99,7 @@ function check_for_changes(base_path, src_path, signatures) {
 function compile(src_path, lib_path, sources, source_hash, profile) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
-    var RapydScript = require('./compiler').create_compiler();
+    var RapydScript = compilerModule.create_compiler();
     var output_options, profiler, cpu_profile;
     var compiled_baselib = compile_baselib(RapydScript, src_path);
     var out_path = path.join(path.dirname(lib_path), 'dev');
@@ -145,7 +150,7 @@ function run_single_compile(base_path, src_path, lib_path, profile) {
     var signatures = path.join(out_path, 'signatures.json');
     var temp = check_for_changes(base_path, src_path, signatures);
     var source_hash = temp[0], compiler_changed = temp[1], sources = temp[2], hashes = temp[3];
-    
+
     if (compiler_changed) {
         compile(src_path, lib_path, sources, source_hash, profile);
         fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
@@ -153,10 +158,10 @@ function run_single_compile(base_path, src_path, lib_path, profile) {
     return compiler_changed;
 }
 
-module.exports = function compile_self(base_path, src_path, lib_path, complete, profile) {
+export default function compile_self(base_path, src_path, lib_path, complete, profile) {
     var changed;
     do {
         changed = run_single_compile(base_path, src_path, lib_path, profile);
         lib_path = path.join(path.dirname(lib_path), 'dev');
     } while (changed && complete);
-};
+}
