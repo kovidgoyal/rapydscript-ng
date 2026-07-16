@@ -83,8 +83,10 @@ export default function(start_time, argv, base_path, src_path, lib_path) {
             var segments = output_stream.get_source_map_segments();
             var map_json = generate_source_map(segments, argv.output, '');
             fs.writeFileSync(argv.source_map, map_json, 'utf8');
-            var map_url = path.relative(path.dirname(path.resolve(argv.output || '.')), path.resolve(argv.source_map));
-            js_output = js_output + '\n//# sourceMappingURL=' + map_url + '\n';
+            if (argv.output) {
+                var map_url = path.relative(path.dirname(path.resolve(argv.output)), path.resolve(argv.source_map));
+                js_output = js_output + '\n//# sourceMappingURL=' + map_url + '\n';
+            }
         }
         if (argv.output) {
             // Node's filesystem module cannot write directly to /dev/stdout
@@ -185,10 +187,7 @@ export default function(start_time, argv, base_path, src_path, lib_path) {
         }
     }
 
-    if (argv.source_map && !argv.output) {
-        console.error("ERROR: --source-map requires --output to be set so the source map URL can be computed");
-        process.exit(1);
-    }
+
 
     if (!argv.omit_baselib) {
         var which = (OUTPUT_OPTIONS.beautify) ? 'pretty' : 'ugly';

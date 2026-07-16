@@ -352,10 +352,11 @@ opt("source_map", 'S,sm', 'string', '', function(){/*
 Generate a source map and write it to the specified
 file path. A source map allows debuggers to map
 positions in the compiled JavaScript back to the
-original RapydScript source. A //# sourceMappingURL
-comment is automatically appended to the JavaScript
-output. Requires the --output option to be set so
-that the source map URL can be computed correctly.
+original RapydScript source. When --output is set,
+a //# sourceMappingURL comment is automatically
+appended to the JavaScript output. When outputting
+to stdout, the comment is omitted since no output
+path is available to compute the URL.
 */});
 
 create_group('repl', '', function(){/*
