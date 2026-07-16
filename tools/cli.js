@@ -65,9 +65,9 @@ function print_usage(group) {  // {{{
 	console.log(colored('Usage:', COL1), colored(path.basename(process.argv[1]), COL2), usage, '\n');
     if (!group) {
         // Overall usage
-        help = ('RapydScript can perform many actions, depending on which' + 
+        help = ('RapydScript can perform many actions, depending on which' +
                 '\nsub-command is invoked. With no arguments, it will start a REPL,' +
-                '\nunless STDIN is a pipe, in which case it will compile whatever' + 
+                '\nunless STDIN is a pipe, in which case it will compile whatever' +
                 '\nyou pass on STDIN and write the output to STDOUT. See the full' +
                 '\nlist of sub-commands below.');
         console.log(help, '\n');
@@ -129,7 +129,7 @@ function opt(name, aliases, type, default_val, help_text, choices) {
         options.string[name] = true;
         if (choices) options.choices[name] = choices;
     }
-	
+
 	if (default_val !== undefined) options.default[name] = default_val;
 
 	if (aliases && aliases.length) {
@@ -208,7 +208,7 @@ function parse_args() {  // {{{
 
 	Object.getOwnPropertyNames(options.default).forEach(function(name) { ans[name] = options['default'][name]; });
 
-	Object.getOwnPropertyNames(options.alias).forEach(function(name) { 
+	Object.getOwnPropertyNames(options.alias).forEach(function(name) {
 		name_map[name] = name;
 		options.alias[name].forEach(function (alias) { name_map[alias] = name; });
 	});
@@ -238,7 +238,7 @@ function parse_args() {  // {{{
 
 create_group('compile', "[input1.pyj input2.pyj ...]", function(){/*
 Compile RapydScript source code into JavaScript
-output. You can also pipe the source code into 
+output. You can also pipe the source code into
 stdin.
 */});
 
@@ -247,8 +247,8 @@ Output file (default STDOUT)
 */});
 
 opt("bare", 'b', 'bool', false, function(){/*
-Remove the module wrapper that prevents RapydScript 
-scope from bleeding into other JavaScript logic 
+Remove the module wrapper that prevents RapydScript
+scope from bleeding into other JavaScript logic
 */});
 
 opt("keep_docstrings", 'd', 'bool', false, function(){/*
@@ -268,7 +268,7 @@ Minify the output instead of pretty printing it.
 */});
 
 opt("omit_baselib", 'm', 'bool', false, function(){/*
-Omit baselib functions. Use this if you have a 
+Omit baselib functions. Use this if you have a
 different way of ensuring they're imported. For example,
 you could import one of the baselib-plain-*.js files directly
 into the global namespace.
@@ -285,7 +285,7 @@ generators.
 
 opt("import_path", "p", 'string', '', function(){/*
 A list of paths in which to look for imported modules.
-Multiple paths must be separated by the path separator 
+Multiple paths must be separated by the path separator
 (: on Unix and ; on Windows). You can also use the
 environment variable RAPYDSCRIPT_IMPORT_PATH for this,
 with identical syntax. Note that these directories
@@ -309,16 +309,16 @@ option allows them to be consolidated in a single directory.
 
 opt("comments", undefined, 'string', '', function(){/*
 Preserve copyright comments in the output.
-By default this works like Google Closure, keeping 
-JSDoc-style comments that contain "@license" or 
-"@preserve". You can optionally pass one of the 
+By default this works like Google Closure, keeping
+JSDoc-style comments that contain "@license" or
+"@preserve". You can optionally pass one of the
 following arguments to this flag:
 - "all" to keep all comments
-- a valid JS regexp (needs to start with a slash) to 
+- a valid JS regexp (needs to start with a slash) to
 keep only comments that match.
 
-Note that currently not *all* comments can be kept 
-when compression is on, because of dead code removal 
+Note that currently not *all* comments can be kept
+when compression is on, because of dead code removal
 or cascading statements into sequences.
 */});
 
@@ -332,7 +332,9 @@ unused top-level functions and classes from the compiled
 output. If an imported module is referenced only from
 dead code, its import is removed entirely. Stdlib
 modules that are not used are also removed.
-Defaults to off.
+Defaults to off. You can use the @no_prune decorator
+to prevent functions or classes from being pruned
+even when they are unused.
 */});
 
 opt("execute", 'x,exec', 'bool', false, function(){/*
@@ -341,7 +343,7 @@ one invocation. Useful if you wish to use RapydScript for
 scripting. Note that you can also use the -o option to
 have the compiled JavaScript written out to a file
 before being executed. If you specify this option you
-should not specify the -m option to omit the baselib, or 
+should not specify the -m option to omit the baselib, or
 execution will fail.
 */});
 
@@ -367,10 +369,10 @@ it.
 */});
 
 create_group('lint', "[input1.pyj input2.pyj ...]", function(){/*
-Run the RapydScript linter. This will find various 
-possible problems in the .pyj files you specify and 
+Run the RapydScript linter. This will find various
+possible problems in the .pyj files you specify and
 write messages about them to stdout. Use - to read from STDIN.
-The main check it performs is for unused/undefined 
+The main check it performs is for unused/undefined
 symbols, like pyflakes does for python.
 */}, function() {/*
 In addition to the command line options listed below,
@@ -395,11 +397,11 @@ of the file, for example:
 
 # globals:assert,myglobalvar
 
-This will prevent the linter form treating these names as 
+This will prevent the linter form treating these names as
 undefined symbols.
 
 Finally, the linter looks for a setup.cfg file in the
-directory containing the file being linted or any of its 
+directory containing the file being linted or any of its
 parent directories. You can both turn off individual checks
 and define project specific global symbols in the setup.cfg
 file, like this:
@@ -428,7 +430,7 @@ opt("errorformat", 'f,s,style', 'string', 'human', function(){/*
 Output the results in the specified format. Valid formats are:
 human - output is suited for reading by humans (the default)
 json  - output is in JSON format
-vim   - output can be consumed easily by vim's errorformat 
+vim   - output can be consumed easily by vim's errorformat
         directive. Format is:
         filename:line:col:errortype:token:message [identifier]
 undef - output only the names of undefined symbols in a form that
@@ -442,7 +444,7 @@ description, and exit.
 
 opt('stdin_filename', '', 'string', 'STDIN', function(){/*
 The filename for data read from STDIN. If not specified
-STDIN is used. 
+STDIN is used.
 */});
 
 opt('input_list', 'l', 'string', '', function(){/*
@@ -452,16 +454,16 @@ Cannot be combined with - as an input file.
 */});
 
 create_group('test', '[test1 test2...]', function(){/*
-Run RapydScript tests. You can specify the name of 
-individual test files to only run tests from those 
+Run RapydScript tests. You can specify the name of
+individual test files to only run tests from those
 files. For example:
 test baselib functions
 */});
 
 create_group('self', '', function(){/*
-Compile the compiler itself. It will only actually 
-compile if something has changed since the last time 
-it was called. To force a recompilation, simply 
+Compile the compiler itself. It will only actually
+compile if something has changed since the last time
+it was called. To force a recompilation, simply
 delete lib/signatures.json
 */});
 
@@ -477,19 +479,19 @@ Run the test suite after building completes.
 
 opt("profile", 'p', 'bool', false, function(){/*
 Run a CPU profiler which will output its data to
-self.cpuprofile. The data can then be analysed with 
+self.cpuprofile. The data can then be analysed with
 node-inspector.
 */});
 
 create_group('gettext', "[input1.pyj input_dir ...]", function(){/*
 Extract strings marked for translation from the specified
-source files and directories. 
+source files and directories.
 */}, function() {/*
-Directories are scanned recursively for .pyj files. If no 
+Directories are scanned recursively for .pyj files. If no
 arguments are specified, the source code is read from stdin.
 
 Translatable string are output on stdout in the .po format.
-Translatable strings are detected in the input as literal 
+Translatable strings are detected in the input as literal
 string arguments to the functions _(), gettext() and ngettext().
 */
 });
@@ -517,7 +519,7 @@ be used to load translations in a browser.
 The .po file is read from
 stdin and the .json file written to stdout. Note
 that it is assumed the .po file is encoded in UTF-8.
-If you .po file is in some other encoding, you will need to 
+If you .po file is in some other encoding, you will need to
 convert it to UTF-8 first.
 */
 });
