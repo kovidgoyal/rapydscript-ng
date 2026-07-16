@@ -29,7 +29,7 @@ def round_trip(src, label):
     js1 = ast_to_js(ast1)
 
     serialized = RapydScript.ast_to_json(ast1)
-    assrt.ok(jstype(serialized) is 'string', label + ': ast_to_json returned a string')
+    assrt.ok(serialized and jstype(serialized) is 'object', label + ': ast_to_json returned an object')
 
     ast2 = RapydScript.ast_from_json(serialized)
     js2 = ast_to_js(ast2)
@@ -37,14 +37,13 @@ def round_trip(src, label):
     assrt.equal(js2, js1, label + ': round-trip JS output mismatch')
 
 def assert_json_valid(src, label):
-    """Verify ast_to_json produces valid JSON."""
+    """Verify ast_to_json produces a well-formed AST object."""
     ast = RapydScript.parse(src, {'filename': label})
-    serialized = RapydScript.ast_to_json(ast)
-    parsed = JSON.parse(serialized)
-    assrt.equal(parsed.v, 1, label + ': version field')
-    assrt.ok(Array.isArray(parsed.nodes), label + ': nodes is array')
-    assrt.equal(parsed.root, 0, label + ': root is 0')
-    assrt.ok(parsed.nodes.length > 0, label + ': pool is non-empty')
+    data = RapydScript.ast_to_json(ast)
+    assrt.equal(data.v, 1, label + ': version field')
+    assrt.ok(Array.isArray(data.nodes), label + ': nodes is array')
+    assrt.equal(data.root, 0, label + ': root is 0')
+    assrt.ok(data.nodes.length > 0, label + ': pool is non-empty')
 
 # ─── Test 1: Basic literals and atoms ─────────────────────────────────────────
 # Exercises: AST_Number, AST_String, AST_True, AST_False, AST_Null,
@@ -311,8 +310,7 @@ class Foo:
         return self.x
 """
 ast18 = RapydScript.parse(src18, {'filename': 'shared_ref'})
-serialized18 = RapydScript.ast_to_json(ast18)
-data18 = JSON.parse(serialized18)
+data18 = RapydScript.ast_to_json(ast18)
 
 # Check that the JSON pool has no duplicate entries for the same node:
 # Every index should appear at most once as a _n value in the pool.
@@ -335,7 +333,7 @@ for node_entry in data18.nodes:
 
 # init in AST_Class.p should reference the same index as the __init__ method in body.
 # We just verify that the deserialized AST still round-trips correctly.
-ast18b = RapydScript.ast_from_json(serialized18)
+ast18b = RapydScript.ast_from_json(data18)
 assrt.equal(ast_to_js(ast18b), ast_to_js(ast18), 'shared ref round-trip')
 
 # ─── Test 19: Large/complex combined source ────────────────────────────────────

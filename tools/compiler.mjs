@@ -88,6 +88,9 @@ function create_compiler() {
     const { ast_to_json, ast_from_json } = make_ast_serializer(compiler_exports);
     compiler_exports.ast_to_json = ast_to_json;
     compiler_exports.ast_from_json = ast_from_json;
+    // Inject into the VM context so parse.pyj compiled code can call them as globals.
+    compiler_context.ast_to_json = ast_to_json;
+    compiler_context.ast_from_json = ast_from_json;
     return compiler_exports;
 }
 

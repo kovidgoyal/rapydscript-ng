@@ -36,11 +36,9 @@ function node_is_pinned(stmt) {
 
 // Returns true when a module's immediately-executing body contains at least one
 // function call — a conservative signal that the module has externally
-// observable side effects (e.g. patching String.prototype).  Cached modules
-// cannot be inspected, so we conservatively return true for them.
+// observable side effects (e.g. patching String.prototype).
 function has_side_effect_calls(mod) {
     if (!mod) return false;
-    if (mod.is_cached) return true;
     if (!mod.body) return false;
     var found = false;
     mod.body.forEach(function(stmt) {
@@ -267,7 +265,6 @@ function tree_shake(toplevel) {
 
         var mod = all_modules[mid];
         if (!mod || !mod.body) return;
-        if (mod.is_cached) return;  // pre-built output; cannot prune individual defs
 
         var new_body = [];
         mod.body.forEach(function(stmt) {
@@ -312,10 +309,6 @@ function tree_shake(toplevel) {
                 return !!live_defs[mid][name];
             });
         }
-
-        // Prevent cache poisoning: null srchash so the printer skips writing
-        // the tree-shaken body back to the .pyj-cached file.
-        if (mod.srchash) mod.srchash = null;
     });
 
     // ── 7. Remove dead modules from the shared imports map ───────────────

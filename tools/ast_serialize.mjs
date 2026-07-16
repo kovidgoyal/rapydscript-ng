@@ -26,7 +26,13 @@
 'use strict';
 
 const SKIP_PROPS = new Set(['scope', 'globals', 'exports']);
-const SKIP_PER_TYPE = { AST_Import: new Set(['body']) };
+// AST_Toplevel.imports is the global shared imported_modules dict (all modules
+// across the entire compilation, including back-references to itself).  It is
+// rebuilt at load time and must not be serialized.
+const SKIP_PER_TYPE = {
+    AST_Import:    new Set(['body']),
+    AST_Toplevel:  new Set(['imports']),
+};
 const RE_TAG = '[object RegExp]';
 
 function is_ast_node(val) {
@@ -152,6 +158,14 @@ function make_deserializer(compiler_exports, pool, built) {
         const node = Object.create(cls.prototype);
         built[idx] = node;  // register BEFORE filling props (handles shared/self refs)
         for (const k of Object.keys(p)) node[k] = dv(p[k]);
+        // imports is the global shared dict, skipped during serialization.
+        // Set a minimal self-referential default so print() works in standalone
+        // contexts (e.g. tests).  The module-cache loader overwrites this with
+        // the full imported_modules dict after calling ast_from_json.
+        if (t === 'AST_Toplevel' && !node.imports) {
+            node.imports = {};
+            if (node.module_id) node.imports[node.module_id] = node;
+        }
         return node;
     }
 
@@ -165,11 +179,10 @@ export function make_ast_serializer(compiler_exports) {
         const pool = [];
         const seen = new WeakMap();
         ser_node(root, pool, seen);
-        return JSON.stringify({ v: 1, nodes: pool, root: 0 });
+        return { v: 1, nodes: pool, root: 0 };
     }
 
-    function ast_from_json(json_str) {
-        const data = JSON.parse(json_str);
+    function ast_from_json(data) {
         if (data.v !== 1) {
             throw new Error('ast_from_json: unsupported version ' + data.v);
         }

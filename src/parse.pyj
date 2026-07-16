@@ -757,14 +757,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cached = None
 
         srchash = sha1sum(src_code)  # noqa:undef
-        if cached and cached.version is COMPILER_VERSION and cached.signature is srchash and cached.discard_asserts is v'!!options.discard_asserts':
+        if cached and cached.v is 3 and cached.compiler_version is COMPILER_VERSION and cached.signature is srchash:
             for ikey in cached.imported_module_ids:
                 do_import(ikey)  # Ensure all modules imported by the cached module are also imported
-            imported_modules[key] = {
-                'is_cached':True, 'classes':cached.classes, 'outputs':cached.outputs, 'module_id':key, 'import_order':Object.keys(imported_modules).length,
-                'nonlocalvars':cached.nonlocalvars, 'baselib':cached.baselib, 'exports':cached.exports, 'discard_asserts':options.discard_asserts,
-                'imported_module_ids':cached.imported_module_ids, 'source_maps':cached.source_maps,
-            }
+            module = ast_from_json(cached.ast)  # noqa:undef
+            module.import_order = Object.keys(imported_modules).length
+            module.imports = imported_modules
+            module.exports = [{'name': n} for n in cached.exported_names]
+            imported_modules[key] = module
         else:
             parse(src_code, {
                 'filename': filename,
@@ -2188,6 +2188,21 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         toplevel.scoped_flags = S.scoped_flags.stack[0]
         importing_modules[module_id] = False
         toplevel.comments_after = S.token.comments_before or v'[]'
+
+        if options._src_hash and options.filename and module_id is not '__main__':
+            try:
+                cache_data = {
+                    'v': 3,
+                    'signature': options._src_hash,
+                    'compiler_version': COMPILER_VERSION,
+                    'imported_module_ids': toplevel.imported_module_ids,
+                    'exported_names': [sym.name for sym in toplevel.exports],
+                    'ast': ast_to_json(toplevel),  # noqa:undef
+                }
+                writefile(cache_file_name(options.filename, options.module_cache_dir), JSON.stringify(cache_data, None, '\t'))  # noqa:undef
+            except Error as e:
+                console.error('Failed to write AST cache file:', options.filename, 'with error:', e)
+
         return toplevel
 
     return run_parser
@@ -2254,5 +2269,8 @@ def parse(text, options):
         for cname in options.classes:
             obj = options.classes[cname]
             S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound, 'classvars': obj.classvars }
+
+    if options.module_cache_dir and jstype(text) is 'string':
+        options._src_hash = sha1sum(text)  # noqa:undef
 
     return create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)()
