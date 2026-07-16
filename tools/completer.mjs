@@ -1,15 +1,15 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
 
+import vm from 'vm';
 
-module.exports = function(compiler, options) {
+export default function(compiler, options) {
     "use strict";
     var all_keywords = compiler.ALL_KEYWORDS.split(' ');
-    var vm = require('vm');
     options = options || {};
     if (!options.enum_global) options.enum_global = "var global = Function('return this')(); Object.getOwnPropertyNames(global);";
 
@@ -19,7 +19,7 @@ module.exports = function(compiler, options) {
             ans = ans.concat(all_keywords);
             ans.sort();
             var seen = {};
-            ans.filter(function (item) { 
+            ans.filter(function (item) {
                 if (Object.prototype.hasOwnProperty.call(seen, item)) return false;
                 seen[item] = true;
                 return true;
@@ -45,7 +45,7 @@ module.exports = function(compiler, options) {
         if (typeof obj === 'object' || typeof obj === 'function') {
             add(obj);
             p = Object.getPrototypeOf(obj);
-        } else p = obj.constructor ? obj.constructor.prototype : null; 
+        } else p = obj.constructor ? obj.constructor.prototype : null;
 
         // Walk the prototype chain
         try {
@@ -128,4 +128,4 @@ module.exports = function(compiler, options) {
     }
 
     return find_completions;
-};
+}

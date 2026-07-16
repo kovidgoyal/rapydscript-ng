@@ -1,10 +1,10 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
 function unesc(string) {
     return string.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\\\/g, '\\');
@@ -41,7 +41,7 @@ function parse(data, on_error) {
                 var match = /^nplurals\s*=\s*(\d+)\s*;/.exec(plural_forms);
                 if (!match || match[1] === undefined) fatal('Invalid Plural-Forms header:', plural_forms);
                 nplurals = parseInt(match[1]);
-            } 
+            }
             else if (line.startsWith('Language:')) {
                 language = line.slice('Language:'.length).trim();
             }
@@ -87,7 +87,7 @@ function parse(data, on_error) {
         } else if (line.startsWith('msgid ')) {
             current_entry.msgid = read_string(line.slice('msgid '.length));
             current_entry.lnum = lnum;
-            state = function(line, lines) { 
+            state = function(line, lines) {
                 continuation(line, lines, function(x) { current_entry.msgid += x; }, after_msgid);
             };
         } else {
@@ -98,16 +98,16 @@ function parse(data, on_error) {
     function after_msgid(line, lines) {
         if (line.startsWith('msgid_plural ')) {
             current_entry.msgid_plural = read_string(line.slice('msgid_plural '.length));
-            state = function(line, lines) { 
+            state = function(line, lines) {
                 continuation(line, lines, function(x) { current_entry.msgid_plural += x; }, msgstr);
             };
-        } 
-        
+        }
+
         else if (line.startsWith('msgstr ') || line.startsWith('msgstr[')) {
             state = msgstr;
             msgstr(line, lines);
-        } 
-        
+        }
+
         else fatal('Expecting either msgstr or msgid_plural at line number:', lnum);
 
     }
@@ -116,10 +116,10 @@ function parse(data, on_error) {
         if (line.startsWith('msgstr ')) {
             if (current_entry.msgid_plural !== null) fatal('Expecting msgstr[0] at line number:', lnum);
             current_entry.msgstr.push(read_string(line.slice('msgstr '.length)));
-            state = function(line, lines) { 
+            state = function(line, lines) {
                 continuation(line, lines, function(x) { current_entry.msgstr[current_entry.msgstr.length - 1] += x; }, msgstr);
             };
-        } 
+        }
 
         else if (line[0] === '#' || line.startsWith('msgid ')) {
             if (!current_entry.msgstr.length) fatal('Expecting msgstr at line number:', lnum);
@@ -134,7 +134,7 @@ function parse(data, on_error) {
             if (!pnum || pnum[1] === undefined) fatal('Malformed msgstr at line number:', lnum);
             var idx = parseInt(pnum[1]);
             current_entry.msgstr[idx] = read_string(line.slice(pnum[0].length));
-            state = function(line, lines) { 
+            state = function(line, lines) {
                 continuation(line, lines, function(x) { current_entry.msgstr[idx] += x; }, msgstr);
             };
         }
@@ -159,9 +159,9 @@ function read_stdin(cont) {
     var chunks = [];
     process.stdin.setEncoding('utf8');
 
-    process.stdin.on('readable', function () { 
+    process.stdin.on('readable', function () {
         var chunk = process.stdin.read();
-        if (chunk) chunks.push(chunk); 
+        if (chunk) chunks.push(chunk);
     });
 
     process.stdin.on('end', function() { cont(chunks.join('')); });
@@ -176,12 +176,12 @@ function serialize_catalog(catalog, options) {
     return JSON.stringify({'plural_forms':catalog.plural_forms, 'entries':entries, 'language':catalog.language});
 }
 
-module.exports.cli = function(argv, base_path, src_path, lib_path) {
+export function cli(argv, base_path, src_path, lib_path) {
     read_stdin(function process(data) {
         var catalog = parse(data);
         console.log(serialize_catalog(catalog, argv));
     });
-};
+}
 
-module.exports.parse = parse;
-module.exports.build = function(data, options) { return serialize_catalog(parse(data), options); };
+export { parse };
+export function build(data, options) { return serialize_catalog(parse(data), options); }

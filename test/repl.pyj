@@ -1,4 +1,4 @@
-# globals: compiler_dir
+# globals: compiler_dir, rs_repl
 stdout = []
 def clear():
     stdout.length = 0
@@ -42,7 +42,7 @@ class FakeReadline:
     def send_line(self, text):
         self.listeners['line'](text)
 
-repl = require('./repl')
+repl = rs_repl
 rl = FakeReadline()
 
 send_line = rl.send_line.bind(rl)

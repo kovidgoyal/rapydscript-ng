@@ -1,22 +1,28 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
 // Thin wrapper around (release|dev)/compiler.js to setup some global facilities and
 // export the compiler's symbols safely.
 
-var path = require("path");
-var fs = require("fs");
-var crypto = require('crypto');
-var vm = require("vm");
-var regenerator = require('regenerator');
-var UglifyJS = require("uglify-js");
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import vm from 'vm';
+import regenerator from 'regenerator';
+import UglifyJS from 'uglify-js';
+import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+import { generate_source_map } from './sourcemap.mjs';
+import embedded_compiler_factory from './embedded_compiler.mjs';
 
-function sha1sum(data) { 
+const _cjs_require = createRequire(import.meta.url);
+
+function sha1sum(data) {
     var h = crypto.createHash('sha1');
     h.update(data);
     return h.digest('hex');
@@ -67,12 +73,12 @@ function create_compiler() {
         readfile      : fs.readFileSync,
         writefile     : fs.writeFileSync,
         sha1sum       : sha1sum,
-        require       : require,
+        require       : _cjs_require,
         regenerate    : regenerate,
         exports       : compiler_exports,
     });
 
-    var base = path.dirname(path.dirname(module.filename));
+    var base = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
     var compiler_dir = path.join(base, 'dev');
     if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
     var compiler_file = path.join(compiler_dir, 'compiler.js');
@@ -82,9 +88,7 @@ function create_compiler() {
 }
 
 function create_embedded_compiler(compiler, baselib, runjs, name) {
-    return require('./embedded_compiler')(compiler || create_compiler(), baselib, runjs, name);
+    return embedded_compiler_factory(compiler || create_compiler(), baselib, runjs, name);
 }
 
-exports.create_compiler = create_compiler;
-exports.create_embedded_compiler = create_embedded_compiler;
-exports.generate_source_map = require('./sourcemap').generate_source_map;
+export { create_compiler, create_embedded_compiler, generate_source_map };

@@ -11,11 +11,15 @@ import assert from 'assert';
 import os from 'os';
 import vm from 'vm';
 import { createRequire } from 'module';
-import compilerModule from './compiler.js';
-import utils from './utils.js';
+import { create_compiler } from './compiler.mjs';
+import * as utils from './utils.mjs';
+import { gettext as rs_gettext, entry_to_string as rs_entry_to_string } from './gettext.mjs';
+import { parse as rs_msgfmt_parse, build as rs_msgfmt_build } from './msgfmt.mjs';
+import rs_repl_fn from './repl.mjs';
+import { generate_source_map as rs_generate_source_map } from './sourcemap.mjs';
 
 const require = createRequire(import.meta.url);
-const RapydScript = compilerModule.create_compiler();
+const RapydScript = create_compiler();
 var colored = utils.safe_colored;
 
 export default function(argv, base_path, src_path, lib_path) {
@@ -89,6 +93,11 @@ export default function(argv, base_path, src_path, lib_path) {
                     'compiler_dir': compiler_dir,
                     'test_path':test_dir,
                     'Buffer': Buffer,
+                    'rs_gettext': rs_gettext,
+                    'rs_entry_to_string': rs_entry_to_string,
+                    'rs_msgfmt': { parse: rs_msgfmt_parse, build: rs_msgfmt_build },
+                    'rs_repl': rs_repl_fn,
+                    'rs_generate_source_map': rs_generate_source_map,
                 }, {'filename':jsfile});
             } catch (e) {
                 failures.push(file);

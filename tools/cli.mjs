@@ -6,7 +6,7 @@
  */
 
 import path from 'path';
-import utils from './utils.js';
+import * as utils from './utils.mjs';
 import packageJson from '../package.json' with { type: 'json' };
 
 var colored = utils.safe_colored;

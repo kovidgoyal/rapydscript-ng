@@ -1,14 +1,14 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
-module.exports = function(compiler, baselib, runjs, name) {
+export default function(compiler, baselib, runjs, name) {
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
     runjs(print_ast(compiler.parse(''), true));
@@ -48,9 +48,9 @@ module.exports = function(compiler, baselib, runjs, name) {
                 });
             }
             scoped_flags = this.toplevel.scoped_flags;
-    
+
             return ans;
         },
 
     };
-};
+}

@@ -58,6 +58,70 @@ function basename(path) {
     return path;
 }
 
+function esm_to_cjs(content) {
+    var pending_exports = [];
+
+    // import X from 'Y'
+    content = content.replace(/^import\s+(\w+)\s+from\s+(['"][^'"]*['"]);?\s*$/mg,
+        'var $1 = require($2);');
+
+    // import { A, B } from 'Y'
+    content = content.replace(/^import\s+\{([^}]*)\}\s+from\s+(['"][^'"]*['"]);?\s*$/mg,
+        function(_, names, src) { return 'var {' + names + '} = require(' + src + ');'; });
+
+    // import * as X from 'Y'
+    content = content.replace(/^import\s+\*\s+as\s+(\w+)\s+from\s+(['"][^'"]*['"]);?\s*$/mg,
+        'var $1 = require($2);');
+
+    // import 'Y' (side-effect only)
+    content = content.replace(/^import\s+(['"][^'"]*['"]);?\s*$/mg, 'require($1);');
+
+    // export default function/class name (named - add to exports at end)
+    content = content.replace(/^export\s+default\s+(function|class)\s+(\w+)/mg,
+        function(_, kw, name) { pending_exports.push(['default', name]); return kw + ' ' + name; });
+
+    // export default function/class (anonymous)
+    content = content.replace(/^export\s+default\s+((?:async\s+)?function\b|class\b)/mg,
+        'module.exports = $1');
+
+    // export default <expression>
+    content = content.replace(/^export\s+default\s+/mg, 'module.exports = ');
+
+    // export async function X / export function X
+    content = content.replace(/^export\s+(async\s+)?function\s+(\w+)/mg,
+        function(_, async_, name) { pending_exports.push(name); return (async_ || '') + 'function ' + name; });
+
+    // export class X
+    content = content.replace(/^export\s+class\s+(\w+)/mg,
+        function(_, name) { pending_exports.push(name); return 'class ' + name; });
+
+    // export var/let/const X
+    content = content.replace(/^export\s+(var|let|const)\s+(\w+)/mg,
+        function(_, kw, name) { pending_exports.push(name); return kw + ' ' + name; });
+
+    // export { A, B as C }
+    content = content.replace(/^export\s+\{([^}]+)\}\s*;?\s*$/mg,
+        function(_, names) {
+            names.split(',').forEach(function(spec) {
+                spec = spec.trim();
+                if (!spec) return;
+                var m = spec.match(/^(\w+)\s+as\s+(\w+)$/);
+                if (m) pending_exports.push([m[2], m[1]]);
+                else pending_exports.push(spec);
+            });
+            return '';
+        });
+
+    if (pending_exports.length) {
+        content += '\n';
+        pending_exports.forEach(function(spec) {
+            content += '\nexports.' + (Array.isArray(spec) ? spec[0] + ' = ' + spec[1] : spec + ' = ' + spec) + ';';
+        });
+    }
+
+    return content;
+}
+
 var cache = {};
 
 function load(filepath) {
@@ -71,6 +135,7 @@ function load(filepath) {
     if (!content) throw 'Failed to load: ' + JSON.stringify(filepath);
 
     if (filepath.slice(-5) == '.json') { module.exports = JSON.parse(content); return module.exports; }
+    if (filepath.slice(-4) == '.mjs') content = esm_to_cjs(content);
 
     var base = dirname(filepath);
     function mrequire(x) {
@@ -94,6 +159,7 @@ function has(x, y) { return Object.prototype.hasOwnProperty.call(x, y); }
 function try_files(candidate) {
     if (has(data, candidate)) return candidate;
     if (has(data, candidate + '.js')) return candidate + '.js';
+    if (has(data, candidate + '.mjs')) return candidate + '.mjs';
     if (has(data, candidate + '.json')) return candidate + '.json';
     return null;
 }
@@ -229,38 +295,38 @@ function compile(code, filename, options) {
 }
 
 function create_embedded_compiler(runjs) {
-    var c = vrequire('tools/embedded_compiler.js');
+    var c = vrequire('tools/embedded_compiler');
     return c(create_compiler(), data['baselib-plain-pretty.js'], runjs);
 }
 
 function web_repl() {
-    var repl = vrequire('tools/web_repl.js');
+    var repl = vrequire('tools/web_repl');
     return repl(create_compiler(), data['baselib-plain-pretty.js']);
 }
 
 function init_repl(options) {
-    var repl = vrequire('tools/repl.js');
+    var repl = vrequire('tools/repl');
     options.baselib = data['baselib-plain-pretty.js'];
     return repl(options);
 }
 
 function gettext_parse(catalog, code, filename) {
-    g = vrequire('tools/gettext.js');
+    g = vrequire('tools/gettext');
     g.gettext(catalog, code, filename);
 }
 
 function gettext_output(catalog, options, write) {
-    g = vrequire('tools/gettext.js');
+    g = vrequire('tools/gettext');
     g.write_output(catalog, options, write);
 }
 
 function msgfmt(data, options) {
-    m = vrequire('tools/msgfmt.js');
+    m = vrequire('tools/msgfmt');
     return m.build(data, options);
 }
 
 function completer(compiler, options) {
-    m = vrequire('tools/completer.js');
+    m = vrequire('tools/completer');
     return m(compiler, options);
 }
 

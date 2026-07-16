@@ -1,10 +1,13 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
+"use strict";
+
+import fs from 'fs';
+import path from 'path';
 
 var comment_contents = /\/\*!?(?:\@preserve)?[ \t]*(?:\r\n|\n)([\s\S]*?)(?:\r\n|\n)[ \t]*\*\//;
 var colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
@@ -14,10 +17,9 @@ function ansi(code) {
     return String.fromCharCode(27) + '[' + code + 'm';
 }
 
-function path_exists(path) {
-    var fs = require('fs');
+function path_exists(p) {
     try {
-        fs.statSync(path);
+        fs.statSync(p);
         return true;
     } catch(e) {
         if (e.code != 'ENOENT') throw e;
@@ -57,7 +59,7 @@ function supports_color(stdout) {
 
 }
 
-function safe_colored(string) {
+function passthrough_colored(string) {
     return string;
 }
 
@@ -86,7 +88,7 @@ function wrap(lines, width) {
             if (prev) prev += ' ';
 			line = line.substr(0, width - 1);
 			if (line.substr(line.length - 1 !== ' ')) line += '-';
-		} 
+		}
 		ans.push(line);
 	});
 	if (prev) ans = ans.concat(wrap([prev]));
@@ -105,24 +107,26 @@ function merge() {
 }
 
 function get_import_dirs(paths_string, ignore_env) {
-    var path = require('path');
     var paths = [];
-    function merge(new_path) {
+    function add(new_path) {
         if (paths.indexOf(new_path) == -1) paths.push(new_path);
     }
     if (!ignore_env && process && process.env && process.env.RAPYDSCRIPT_IMPORT_PATH) {
-        process.env.RAPYDSCRIPT_IMPORT_PATH.split(path.delimiter).forEach(merge);
+        process.env.RAPYDSCRIPT_IMPORT_PATH.split(path.delimiter).forEach(add);
     }
-    if (paths_string) paths_string.split(path.delimiter).forEach(merge);
+    if (paths_string) paths_string.split(path.delimiter).forEach(add);
     return paths;
 }
 
-exports.comment_contents = comment_contents;
-exports.repeat = repeat;
-exports.wrap = wrap;
-exports.merge = merge;
-exports.colored = colored;
-exports.safe_colored = (supports_color()) ? colored : safe_colored;
-exports.generators_available = generators_available;
-exports.get_import_dirs = get_import_dirs;
-exports.path_exists = path_exists;
+export {
+    comment_contents,
+    repeat,
+    wrap,
+    merge,
+    colored,
+    generators_available,
+    get_import_dirs,
+    path_exists,
+};
+
+export var safe_colored = (supports_color()) ? colored : passthrough_colored;

@@ -4,20 +4,26 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
-var fs = require('fs');
-var path = require('path');
-var vm = require('vm');
-var util = require('util');
-var utils = require('./utils');
-var completelib = require('./completer');
+import fs from 'fs';
+import path from 'path';
+import vm from 'vm';
+import util from 'util';
+import { createRequire } from 'module';
+import * as utils from './utils.mjs';
+import completelib from './completer.mjs';
+
 var colored = utils.safe_colored;
-var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
+var _rapydscript_compiler = typeof create_rapydscript_compiler !== 'undefined' ? create_rapydscript_compiler : globalThis.create_rapydscript_compiler;
+var RapydScript = _rapydscript_compiler();
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
+// In Node.js ESM context, require is not available; use createRequire.
+var _cjs_require = typeof require !== 'undefined' ? require : createRequire(process.cwd() + '/');
+
 function create_ctx(baselib, show_js, console) {
-    var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':require});
+    var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':_cjs_require});
 	vm.runInContext(baselib, ctx, {'filename':'baselib-plain-pretty.js'});
     vm.runInContext('var __name__ = "__repl__";', ctx);
     return ctx;
@@ -42,10 +48,10 @@ function repl_defaults(options) {
     if (!options.ps1) options.ps1 = '>>> ';
     if (!options.ps2) options.ps2 = '... ';
     if (!options.console) options.console = console;
-    if (!options.readline) options.readline = require('readline');
+    if (!options.readline) options.readline = _cjs_require('readline');
     if (options.terminal === undefined) options.terminal = options.output.isTTY;
     if (options.histfile === undefined) options.histfile = path.join(cachedir, 'rapydscript-repl.history');
-        
+
     options.colored = (options.terminal) ? colored : (function (string) { return string; });
     options.historySize = options.history_size || 1000;
     return options;
@@ -69,7 +75,7 @@ function write_history(options, history) {
 }
 
 
-module.exports = function(options) {
+export default function(options) {
     options = repl_defaults(options);
     options.completer = completer;
     var rl = options.readline.createInterface(options);
@@ -188,7 +194,7 @@ module.exports = function(options) {
 
 	rl.on('line', function(line) {
         if (more) {
-            // We are in a block 
+            // We are in a block
             var line_is_empty = !line.trimLeft();
             if (line_is_empty && buffer.length && !buffer[buffer.length - 1].trimLeft()) {
                 // We have two empty lines, evaluate the block
@@ -197,7 +203,7 @@ module.exports = function(options) {
         } else more = push(line);  // Not in a block, evaluate line
 		prompt();
 	})
-	
+
 	.on('close', function() {
 		options.console.log('Bye!');
         if (rl.history) write_history(options, rl.history);
@@ -218,4 +224,4 @@ module.exports = function(options) {
 
     rl.history = read_history(options);
 	prompt();
-};
+}

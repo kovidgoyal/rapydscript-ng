@@ -1,14 +1,16 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
-var fs = require('fs');
-var RapydScript = (typeof create_rapydscript_compiler === 'function') ? create_rapydscript_compiler() : require('./compiler').create_compiler();
-var path = require('path');
+import fs from 'fs';
+import path from 'path';
+
+var _rapydscript_compiler = typeof create_rapydscript_compiler !== 'undefined' ? create_rapydscript_compiler : globalThis.create_rapydscript_compiler;
+var RapydScript = _rapydscript_compiler();
 
 function parse_file(code, filename) {
     return RapydScript.parse(code, {
@@ -49,7 +51,7 @@ function Gettext(catalog, filename) {
                 if (name === 'ngettext') catalog[msgid].plural = node.args[1].value;
                 if (filename) catalog[msgid].locations.push(filename + ':' + line);
             }
-            
+
         }
         if (cont !== undefined) cont();
     };
@@ -140,7 +142,7 @@ function read_whole_file(filename, cb) {
     }
 }
 
-module.exports.cli = function(argv, base_path, src_path, lib_path) {
+export function cli(argv, base_path, src_path, lib_path) {
     var files = [];
     var num_of_files = files.length || 1;
     var catalog = {};
@@ -174,12 +176,10 @@ module.exports.cli = function(argv, base_path, src_path, lib_path) {
             process.exit(0);
         }
     }
- 
+
     setImmediate(read_whole_file, files[0], process_single_file);
 
-};
+}
 
-module.exports.gettext = gettext;
-module.exports.entry_to_string = entry_to_string;
-module.exports.write_output = write_output;
+export { gettext, entry_to_string, write_output };
 // }}}

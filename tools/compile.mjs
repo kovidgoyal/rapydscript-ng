@@ -9,13 +9,13 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import { createRequire } from 'module';
-import compilerModule from './compiler.js';
-import utils from './utils.js';
-import sourcemap from './sourcemap.js';
+import { create_compiler } from './compiler.mjs';
+import * as utils from './utils.mjs';
+import { generate_source_map } from './sourcemap.mjs';
 import tree_shake from './treeshake.mjs';
 
 const require = createRequire(import.meta.url);
-const RapydScript = compilerModule.create_compiler();
+const RapydScript = create_compiler();
 
 function read_whole_file(filename, cb) {
     if (!filename) {
@@ -81,7 +81,7 @@ export default function(start_time, argv, base_path, src_path, lib_path) {
     function write_output(js_output, output_stream) {
         if (argv.source_map && output_stream) {
             var segments = output_stream.get_source_map_segments();
-            var map_json = sourcemap.generate_source_map(segments, argv.output, '');
+            var map_json = generate_source_map(segments, argv.output, '');
             fs.writeFileSync(argv.source_map, map_json, 'utf8');
             var map_url = path.relative(path.dirname(path.resolve(argv.output || '.')), path.resolve(argv.source_map));
             js_output = js_output + '\n//# sourceMappingURL=' + map_url + '\n';

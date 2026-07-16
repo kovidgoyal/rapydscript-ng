@@ -8,10 +8,10 @@
 import fs from 'fs';
 import path from 'path';
 import { read_config } from './ini.mjs';
-import compilerModule from './compiler.js';
-import utils from './utils.js';
+import { create_compiler } from './compiler.mjs';
+import * as utils from './utils.mjs';
 
-const RapydScript = compilerModule.create_compiler();
+const RapydScript = create_compiler();
 var colored = utils.safe_colored;
 
 export var WARN = 1, ERROR = 2;

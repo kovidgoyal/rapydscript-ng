@@ -1,4 +1,4 @@
-# globals: assrt, RapydScript, require, compiler_dir, test_path
+# globals: assrt, RapydScript, require, compiler_dir, test_path, rs_generate_source_map
 
 # Comprehensive tests for source map generation.
 # Tests cover:
@@ -6,9 +6,7 @@
 #   2. Source map segment generation for a wide range of RapydScript constructs
 #   3. Accuracy of source line and column numbers in segments
 
-path_module = require('path')
-sourcemap_module = require(path_module.join(path_module.dirname(compiler_dir), 'tools', 'sourcemap.js'))
-generate_source_map = sourcemap_module.generate_source_map
+generate_source_map = rs_generate_source_map
 
 # ---------------------------------------------------------------------------
 # Helpers

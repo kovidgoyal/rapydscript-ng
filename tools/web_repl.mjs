@@ -1,14 +1,15 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
  */
-"use strict";  /*jshint node:true */
-var vm = require('vm');
-var embedded_compiler = require('tools/embedded_compiler.js');
+"use strict";
 
-module.exports = function(compiler, baselib) {
+import vm from 'vm';
+import embedded_compiler from './embedded_compiler.mjs';
+
+export default function(compiler, baselib) {
     var ctx = vm.createContext();
     var LINE_CONTINUATION_CHARS = ':\\';
     var find_completions = null;
@@ -20,7 +21,7 @@ module.exports = function(compiler, baselib) {
         'replace_print': function replace_print(write_line_func) {
             ctx.print = function() {
                 var parts = [];
-                for (var i = 0; i < arguments.length; i++) 
+                for (var i = 0; i < arguments.length; i++)
                     parts.push(ctx.ρσ_str(arguments[i]));
                 write_line_func(parts.join(' '));
             };
@@ -83,5 +84,4 @@ module.exports = function(compiler, baselib) {
         },
 
     };
-};
-
+}

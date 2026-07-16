@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 // vim:ft=javascript:ts=4:et
 
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { spawn } from 'child_process';
+import * as utils from '../tools/utils.mjs';
+import { create_compiler } from '../tools/compiler.mjs';
 
-const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 
-var utils = require('../tools/utils');
+globalThis.create_rapydscript_compiler = create_compiler;
 
 // We need ES 6 generators so relaunch with the --harmony flag
 if (!utils.generators_available()) {
@@ -54,15 +54,15 @@ if (!utils.generators_available()) {
     } else
 
     if (argv.mode === 'repl') {
-        require('../tools/repl')({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
+        (await import('../tools/repl.mjs')).default({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
     } else
 
     if (argv.mode === 'gettext') {
-        require('../tools/gettext').cli(argv, base_path, src_path, lib_path);
+        (await import('../tools/gettext.mjs')).cli(argv, base_path, src_path, lib_path);
     } else
 
     if (argv.mode === 'msgfmt') {
-        require('../tools/msgfmt').cli(argv, base_path, src_path, lib_path);
+        (await import('../tools/msgfmt.mjs')).cli(argv, base_path, src_path, lib_path);
     } else
 
     {

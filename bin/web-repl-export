@@ -20,9 +20,13 @@ var manifest = {}, total = 0;
 });
 
 ['web_repl.js', 'embedded_compiler.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js'].forEach(function(x) {
-    x = 'tools/' + x;
-    manifest[x] = fs.readFileSync(path.join(base, x), {'encoding':'utf-8'});
-    total += manifest[x].length;
+    var mjs = x.replace(/\.js$/, '.mjs');
+    var mjs_path = path.join(base, 'tools', mjs);
+    var js_path = path.join(base, 'tools', x);
+    var use_mjs = path_exists(mjs_path);
+    var key = 'tools/' + (use_mjs ? mjs : x);
+    manifest[key] = fs.readFileSync(use_mjs ? mjs_path : js_path, {'encoding':'utf-8'});
+    total += manifest[key].length;
 });
 
 var stdlib = path.join(base, 'src', 'lib');

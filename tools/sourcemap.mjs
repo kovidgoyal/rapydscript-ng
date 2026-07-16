@@ -4,9 +4,9 @@
  *
  * Distributed under terms of the BSD license.
  */
-"use strict";  /*jshint node:true */
+"use strict";
 
-var path = require('path');
+import path from 'path';
 
 // Base64 VLQ encoding for source maps (see http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/)
 var BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -120,4 +120,4 @@ function generate_source_map(segments, output_file, source_root) {
     });
 }
 
-exports.generate_source_map = generate_source_map;
+export { generate_source_map };

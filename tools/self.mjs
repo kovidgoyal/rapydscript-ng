@@ -12,7 +12,7 @@ import vm from 'vm';
 import zlib from 'zlib';
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
-import compilerModule from './compiler.js';
+import { create_compiler } from './compiler.mjs';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
@@ -77,7 +77,7 @@ function check_for_changes(base_path, src_path, signatures) {
         h.update(sources[src]);
         hashes[fname.split('.')[0]] = h.digest('hex');
     });
-    var compiler_files = [__filename, path.join(base_path, 'tools', 'compiler.js')];
+    var compiler_files = [__filename, path.join(base_path, 'tools', 'compiler.mjs')];
     compiler_files.forEach(function(fpath) {
         compiler_hash.update(fs.readFileSync(fpath, 'utf-8'));
     });
@@ -99,7 +99,7 @@ function check_for_changes(base_path, src_path, signatures) {
 function compile(src_path, lib_path, sources, source_hash, profile) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
-    var RapydScript = compilerModule.create_compiler();
+    var RapydScript = create_compiler();
     var output_options, profiler, cpu_profile;
     var compiled_baselib = compile_baselib(RapydScript, src_path);
     var out_path = path.join(path.dirname(lib_path), 'dev');
