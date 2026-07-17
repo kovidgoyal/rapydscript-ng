@@ -7,6 +7,16 @@ from tokenizer import is_identifier_char
 
 DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g
 
+# Pre-computed ASCII lookup for identifier characters used in the space-emission
+# hot path. Avoids the full unicode-aware is_identifier_char() for the common case.
+_IDENT_CHARS = v'(function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})()'
+
+def _is_ident_char(ch):
+    code = ch.charCodeAt(0)
+    if code < 128:
+        return v'_IDENT_CHARS[code]'
+    return is_identifier_char(ch)
+
 
 def as_hex(code, sz):
     val = code.toString(16)
@@ -65,15 +75,22 @@ class OutputStream:
         self.current_col = 0
         self.current_line = 1
         self.current_pos = 0
-        self.OUTPUT = ""
+        self._fragments = v'[]'
         self.might_need_space = False
         self.might_need_semicolon = False
         self._last = None
-        self._stack = []
+        self._stack = v'[]'
         self.index_counter = 0
         self.with_counter = 0
         self.try_else_counter = 0
-        self._source_map_segments = [] if self.options.source_map else None
+        self._source_map_segments = v'[]' if self.options.source_map else None
+        # Indentation string cache: avoids repeat_string() on every indent() call
+        self._indent_cache_val = -1
+        self._indent_cache_str = ""
+        # Install no-op add_mapping on the instance when source maps are disabled,
+        # avoiding a null check and array push per node in the hot output walk.
+        if not self.options.source_map:
+            self.add_mapping = def(node): pass
 
     def new_try_else_counter(self):
         self.try_else_counter += 1
@@ -90,7 +107,13 @@ class OutputStream:
         self.print(self.make_name(name))
 
     def make_indent(self, back):
-        return repeat_string(" ", self.options.indent_start + self._indentation - back * self.options.indent_level)
+        target = self.options.indent_start + self._indentation - (back or 0) * self.options.indent_level
+        if target == self._indent_cache_val:
+            return self._indent_cache_str
+        s = repeat_string(" ", target)
+        self._indent_cache_val = target
+        self._indent_cache_str = s
+        return s
 
     # -----[ beautification/minification ]-----
     def last_char(self):
@@ -106,11 +129,11 @@ class OutputStream:
         if self.might_need_semicolon:
             if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(self._last):
                 if self.options.semicolons or require_semi_colon_chars[ch]:
-                    self.OUTPUT += ";"
+                    self._fragments.push(";")
                     self.current_col += 1
                     self.current_pos += 1
                 else:
-                    self.OUTPUT += "\n"
+                    self._fragments.push("\n")
                     self.current_pos += 1
                     self.current_line += 1
                     self.current_col = 0
@@ -125,7 +148,7 @@ class OutputStream:
         if not self.options.beautify and self.options.preserve_line and self._stack[self._stack.length - 1]:
             target_line = self._stack[self._stack.length - 1].start.line
             while self.current_line < target_line:
-                self.OUTPUT += "\n"
+                self._fragments.push("\n")
                 self.current_pos += 1
                 self.current_line += 1
                 self.current_col = 0
@@ -134,25 +157,27 @@ class OutputStream:
 
         if self.might_need_space:
             prev = self.last_char()
-            if is_identifier_char(prev) and (is_identifier_char(ch) or ch is "\\")
+            if _is_ident_char(prev) and (_is_ident_char(ch) or ch is "\\")
             or /^[\+\-\/]$/.test(ch) and ch is prev:
-                self.OUTPUT += " "
+                self._fragments.push(" ")
                 self.current_col += 1
                 self.current_pos += 1
 
             self.might_need_space = False
 
-        a = str_.split(/\r?\n/)
-        n = a.length - 1
-        self.current_line += n
-        if n is 0:
-            self.current_col += a[n].length
-        else:
-            self.current_col = a[n].length
-
+        # Fast path: no newlines (the vast majority of tokens).
+        # Avoids regex allocation and array creation for single-line fragments.
         self.current_pos += str_.length
+        if str_.indexOf('\n') < 0:
+            self.current_col += str_.length
+        else:
+            a = str_.split('\n')
+            n = a.length - 1
+            self.current_line += n
+            self.current_col = v'a[n].length'
+
         self._last = str_
-        self.OUTPUT += str_
+        self._fragments.push(str_)
 
     def space(self):
         if self.options.beautify:
@@ -248,7 +273,7 @@ class OutputStream:
             self.space()
 
     def get(self):
-        return self.OUTPUT
+        return self._fragments.join('')
     toString = get
 
     def assign(self, name):
@@ -296,13 +321,13 @@ class OutputStream:
 
     def add_mapping(self, node):
         if self._source_map_segments is not None and node.start and node.start.file:
-            self._source_map_segments.push([self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col])
+            self._source_map_segments.push(v'[self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col]')
 
     def add_cached_mappings(self, segments, line_offset):
         if self._source_map_segments is None:
             return
         for seg in segments:
-            self._source_map_segments.push([seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]])
+            self._source_map_segments.push(v'[seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]')
 
     def get_source_map_segments(self):
         return self._source_map_segments
