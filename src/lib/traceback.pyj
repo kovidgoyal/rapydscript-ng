@@ -103,17 +103,17 @@ def _find_mapping(decoded, gen_line, gen_col):
 
 def _parse_stack_frame(line):
     # Chrome/Node: "    at functionName (file:line:col)"
-    m = /\((.+):(\d+):(\d+)\)/.exec(line)
+    m = /^\s*at\s+(.*?)\s+\((.+):(\d+):(\d+)\)/.exec(line)
     if m:
-        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+        return {'func': m[1] or None, 'file': m[2], 'line': parseInt(m[3], 10) - 1, 'col': parseInt(m[4], 10) - 1}
     # Chrome/Node: "    at file:line:col"
     m = /^\s*at (.+):(\d+):(\d+)$/.exec(line)
     if m:
-        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+        return {'func': None, 'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
     # Firefox: "functionName@file:line:col"
-    m = /@(.+):(\d+):(\d+)$/.exec(line)
+    m = /^(.*?)@(.+):(\d+):(\d+)$/.exec(line)
     if m:
-        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+        return {'func': m[1] or None, 'file': m[2], 'line': parseInt(m[3], 10) - 1, 'col': parseInt(m[4], 10) - 1}
     return None
 
 
@@ -152,7 +152,10 @@ def _get_internal_traceback(err):
             if frame:
                 mapping = _find_mapping(decoded, frame.line, frame.col)
                 if mapping:
-                    mapped_lines.push('  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1))
+                    loc = '  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1)
+                    if frame.func:
+                        loc += ', in ' + frame.func
+                    mapped_lines.push(loc)
     return lines[0], final_lines, mapped_lines
 
 

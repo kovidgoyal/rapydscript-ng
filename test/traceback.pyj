@@ -136,6 +136,7 @@ assrt.ok(f, 'parsed Chrome frame with function name')
 assrt.strictEqual(f.file, 'script.js', 'file from Chrome frame')
 assrt.strictEqual(f.line, 9, 'line is 0-based (10 → 9)')
 assrt.strictEqual(f.col, 4, 'col is 0-based (5 → 4)')
+assrt.strictEqual(f.func, 'foo', 'func captured for named Chrome frame')
 
 # Chrome/Node with method name (dot notation)
 f = traceback._parse_stack_frame('    at Object.bar (app.js:3:1)')
@@ -143,6 +144,7 @@ assrt.ok(f, 'parsed Chrome frame with method name')
 assrt.strictEqual(f.file, 'app.js', 'file from method Chrome frame')
 assrt.strictEqual(f.line, 2, 'line 0-based')
 assrt.strictEqual(f.col, 0, 'col 0-based')
+assrt.strictEqual(f.func, 'Object.bar', 'func captured for method Chrome frame')
 
 # Chrome/Node bare (no function name)
 f = traceback._parse_stack_frame('    at script.js:3:1')
@@ -150,6 +152,7 @@ assrt.ok(f, 'parsed bare Chrome frame')
 assrt.strictEqual(f.file, 'script.js', 'file from bare frame')
 assrt.strictEqual(f.line, 2, 'line 0-based from bare frame')
 assrt.strictEqual(f.col, 0, 'col 0-based from bare frame')
+assrt.ok(not f.func, 'func is falsy for bare Chrome frame')
 
 # Firefox format with function name
 f = traceback._parse_stack_frame('bar@script.js:7:12')
@@ -157,12 +160,14 @@ assrt.ok(f, 'parsed Firefox frame with function name')
 assrt.strictEqual(f.file, 'script.js', 'file from Firefox frame')
 assrt.strictEqual(f.line, 6, 'line 0-based from Firefox frame')
 assrt.strictEqual(f.col, 11, 'col 0-based from Firefox frame')
+assrt.strictEqual(f.func, 'bar', 'func captured for Firefox frame')
 
 # Firefox anonymous frame
 f = traceback._parse_stack_frame('@/path/to/file.js:1:1')
 assrt.ok(f, 'parsed anonymous Firefox frame')
 assrt.strictEqual(f.line, 0, 'line 0-based anonymous Firefox')
 assrt.strictEqual(f.col, 0, 'col 0-based anonymous Firefox')
+assrt.ok(not f.func, 'func is falsy for anonymous Firefox frame')
 
 # Lines that are not stack frames → None
 assrt.ok(not traceback._parse_stack_frame('TypeError: some error'), 'error message → None')
@@ -239,6 +244,17 @@ assrt.ok(mapped_lines.join('\n').indexOf('"demo.pyj", line 2') >= 0, 'first fram
 
 # Frame at demo.js:10:1 → gen_line=9, gen_col=0 → src_line=4 → displayed as line 5
 assrt.ok(mapped_lines.join('\n').indexOf('"demo.pyj", line 5') >= 0, 'second frame maps to line 5 in demo.pyj')
+
+# Named frame includes "in <funcname>" in the mapped output
+assrt.ok(mapped_lines.join('\n').indexOf('in throw_me') >= 0, 'function name "throw_me" included in mapped frame')
+
+# Bare frame (no function name) does not produce a spurious "in" clause
+bare_mapped = v'[]'
+for ml in mapped_lines:
+    if ml.indexOf('line 5') >= 0:
+        bare_mapped.push(ml)
+assrt.ok(bare_mapped.length > 0, 'bare frame entry found')
+assrt.ok(bare_mapped[0].indexOf(', in ') < 0, 'bare frame has no "in" clause')
 
 # When source map is cleared, mapped_lines is empty
 traceback.set_source_map_data(None)
