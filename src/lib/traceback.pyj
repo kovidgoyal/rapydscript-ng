@@ -12,6 +12,21 @@ def set_source_map_data(data):
     _traceback_state['decoded'] = None
 
 
+def serialize_error_for_formatting(err):
+    return {
+        'name': err.name or 'Error',
+        'stack': err.stack or '',
+        'message': err.message or '',
+    }
+
+def unserialize_error_for_formatting(err):
+    ans = new Error()
+    ans.name = err.name
+    ans.stack = err.stack
+    ans.message = err.message
+    return ans
+
+
 def _vlq_decode(encoded):
     result = v'[]'
     i = 0
