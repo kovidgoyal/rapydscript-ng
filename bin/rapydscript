@@ -11,69 +11,56 @@ const __filename = fileURLToPath(import.meta.url);
 
 globalThis.create_rapydscript_compiler = create_compiler;
 
-// We need ES 6 generators so relaunch with the --harmony flag
-if (!utils.generators_available()) {
-    if (process.execArgv.indexOf('--harmony') != -1) {
-        console.error('RapydScript needs ES 6 generators, update your version of nodejs');
-        process.exit(1);
+var start_time = new Date().getTime();
+
+var { argv } = await import('../tools/cli.mjs');
+
+var base_path = path.normalize(path.join(path.dirname(__filename), ".."));
+var src_path = path.join(base_path, 'src');
+var lib_path = path.join(base_path, 'dev');
+if (!utils.path_exists(path.join(lib_path, 'compiler.js'))) lib_path = path.join(base_path, 'release');
+
+if (argv.mode === 'self') {
+    if (argv.files.length > 0) {
+        console.error("WARN: Ignoring input files since --self was passed");
     }
-    var args = ['--harmony', __filename].concat(process.argv.slice(2));
-    spawn(process.execPath, args, {stdio:'inherit'}).on('exit', function(code, signal) {
-        process.exit(code);
-    });
-} else {
-
-    var start_time = new Date().getTime();
-
-    var { argv } = await import('../tools/cli.mjs');
-
-    var base_path = path.normalize(path.join(path.dirname(__filename), ".."));
-    var src_path = path.join(base_path, 'src');
-    var lib_path = path.join(base_path, 'dev');
-    if (!utils.path_exists(path.join(lib_path, 'compiler.js'))) lib_path = path.join(base_path, 'release');
-
-    if (argv.mode === 'self') {
-        if (argv.files.length > 0) {
-            console.error("WARN: Ignoring input files since --self was passed");
-        }
-        (await import('../tools/self.mjs')).default(base_path, src_path, lib_path, argv.complete, argv.profile);
-        if (argv.test) {
-            console.log('\nRunning test suite...\n');
-            argv.files = [];  // Ensure all tests are run
-            (await import('../tools/test.mjs')).default(argv, base_path, src_path, path.join(base_path, 'dev'));
-        }
-        process.exit(0);
-    } else
-
-    if (argv.mode === 'test') {
-        (await import('../tools/test.mjs')).default(argv, base_path, src_path, lib_path);
-    } else
-
-    if (argv.mode === 'lint') {
-        (await import('../tools/lint.mjs')).cli(argv, base_path, src_path, lib_path);
-    } else
-
-    if (argv.mode === 'repl') {
-        (await import('../tools/repl.mjs')).default({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
-    } else
-
-    if (argv.mode === 'gettext') {
-        (await import('../tools/gettext.mjs')).cli(argv, base_path, src_path, lib_path);
-    } else
-
-    if (argv.mode === 'msgfmt') {
-        (await import('../tools/msgfmt.mjs')).cli(argv, base_path, src_path, lib_path);
-    } else
-
-    if (argv.mode === 'export') {
-        (await import('../tools/export_cmd.mjs')).default(base_path, lib_path);
-    } else
-
-    if (argv.mode === 'web-repl-export') {
-        (await import('../tools/web_repl_export.mjs')).default(base_path, lib_path, argv);
-    } else
-
-    {
-        (await import('../tools/compile.mjs')).default(start_time, argv, base_path, src_path, lib_path);
+    (await import('../tools/self.mjs')).default(base_path, src_path, lib_path, argv.complete, argv.profile);
+    if (argv.test) {
+        console.log('\nRunning test suite...\n');
+        argv.files = [];  // Ensure all tests are run
+        (await import('../tools/test.mjs')).default(argv, base_path, src_path, path.join(base_path, 'dev'));
     }
+    process.exit(0);
+} else
+
+if (argv.mode === 'test') {
+    (await import('../tools/test.mjs')).default(argv, base_path, src_path, lib_path);
+} else
+
+if (argv.mode === 'lint') {
+    (await import('../tools/lint.mjs')).cli(argv, base_path, src_path, lib_path);
+} else
+
+if (argv.mode === 'repl') {
+    (await import('../tools/repl.mjs')).default({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
+} else
+
+if (argv.mode === 'gettext') {
+    (await import('../tools/gettext.mjs')).cli(argv, base_path, src_path, lib_path);
+} else
+
+if (argv.mode === 'msgfmt') {
+    (await import('../tools/msgfmt.mjs')).cli(argv, base_path, src_path, lib_path);
+} else
+
+if (argv.mode === 'export') {
+    (await import('../tools/export_cmd.mjs')).default(base_path, lib_path);
+} else
+
+if (argv.mode === 'web-repl-export') {
+    (await import('../tools/web_repl_export.mjs')).default(base_path, lib_path, argv);
+} else
+
+{
+    (await import('../tools/compile.mjs')).default(start_time, argv, base_path, src_path, lib_path);
 }
