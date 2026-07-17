@@ -1254,10 +1254,6 @@ syntax.
 Generators create JavaScript iterator objects. For differences between python
 and JavaScript iterators, see the section on iterators above. 
 
-Currently, generators are down-converted to ES 5 switch statements. In the
-future, when ES 6 support is widespread, they will be converted to native
-JavaScript ES 6 generators.
-
 Modules
 -------
 

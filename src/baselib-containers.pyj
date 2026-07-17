@@ -204,9 +204,6 @@ def ρσ_list_decorate(ans):
     ans.__contains__ = ρσ_list_contains
     ans.__eq__ = ρσ_list_eq
     ans.constructor = ρσ_list_constructor
-    if jstype(ans[ρσ_iterator_symbol]) is not 'function':
-        # Happens on ES 5 runtimes
-        ans[ρσ_iterator_symbol] = ρσ_list_iterator
     return ans
 
 def ρσ_list_constructor(iterable):
