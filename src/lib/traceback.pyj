@@ -126,25 +126,27 @@ def _get_decoded_map():
 def _get_internal_traceback(err):
     if isinstance(err, Error) and err.stack:
         lines = ρσ_str.splitlines(err.stack)
-        final_lines = v'[]'
-        found_sentinel = False
+        final_lines = v'[lines[0]]'
+        start_line_idx = -1
         for i, line in enumerate(lines):
-            sline = ρσ_str.strip(line)
-            if i is 0:
-                final_lines.push(line)
-                continue
-            if found_sentinel:
-                final_lines.push(line)
-                continue
-            # These two conditions work on desktop Chrome and Firefox to identify the correct
-            # line in the traceback.
-            if sline.startsWith('at new ' + err.name) or sline.startsWith(err.name + '@'):
-                found_sentinel = True
-
+            if i > 0:
+                line = line.trim()
+                if line.startsWith('at new ' + err.name) or line.startsWith(err.name + '@'):
+                    # this is the constructor for a RapydScript Exception
+                    start_line_idx = i + 1
+                    break
+        if start_line_idx < 0:
+            start_line_idx = 1
+            for i, xline in enumerate(lines):
+                if i > 0:
+                    line = xline.trim()
+                    if v"line.startsWith('at ') || line.includes('@') || /:\d+:\d+$/.test(line)":
+                        start_line_idx = i
+        frame_lines = lines[start_line_idx:]
+        final_lines = final_lines.concat(frame_lines)
         decoded = _get_decoded_map()
         if decoded:
             mapped_lines = v'[]'
-            frame_lines = v'final_lines.slice(1)'
             for frame_line in frame_lines:
                 frame = _parse_stack_frame(frame_line)
                 if frame:
@@ -154,11 +156,11 @@ def _get_internal_traceback(err):
             if mapped_lines.length:
                 final_lines.push('')
                 final_lines.push('Mapped traceback (RapydScript source):')
-                for ml in mapped_lines:
-                    final_lines.push(ml)
+                final_lines = final_lines.concat(mapped_lines)
 
         return final_lines.join('\n')
     return err and err.stack
+
 
 def format_exception(exc, limit):
     if jstype(exc) is 'undefined':
