@@ -47,9 +47,11 @@ var builtin_modules = {
 
     'fs': {
         'readFileSync': function readfile(name) {
-            if (namespace.virtual_file_system && namespace.virtual_file_system.read_file_sync) {
-                data = namespace.virtual_file_system.read_file_sync(name);
-                if (data !== null) return data;
+            if (namespace.virtual_file_system && namespace.virtual_file_system.read_file) {
+                var data = namespace.virtual_file_system.read_file(name);
+                // read_file may return a string directly (for synchronous in-memory VFS)
+                if (data !== null && data !== undefined && typeof data !== 'object') return data;
+                // Fall through if null/undefined (file not found in VFS)
             }
             var data = namespace.file_data[name];
             if (data) return data;
@@ -61,8 +63,8 @@ var builtin_modules = {
         },
 
         'writeFileSync': function writefile(name, data) {
-            if (namespace.virtual_file_system && namespace.virtual_file_system.write_file_sync) {
-                namespace.virtual_file_system.write_file_sync(name, data);
+            if (namespace.virtual_file_system && namespace.virtual_file_system.write_file) {
+                namespace.virtual_file_system.write_file(name, data);
             } else write_cache[name] = data;
         },
 

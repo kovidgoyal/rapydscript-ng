@@ -16,14 +16,13 @@ import completelib from './completer.mjs';
 
 var colored = utils.safe_colored;
 var _rapydscript_compiler = typeof create_rapydscript_compiler !== 'undefined' ? create_rapydscript_compiler : globalThis.create_rapydscript_compiler;
-var RapydScript = _rapydscript_compiler();
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
 // In Node.js ESM context, require is not available; use createRequire.
 var _cjs_require = typeof require !== 'undefined' ? require : createRequire(process.cwd() + '/');
 
 function create_ctx(baselib, show_js, console) {
-    var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':RapydScript, 'require':_cjs_require});
+    var ctx = vm.createContext({'console':console, 'show_js': !!show_js, 'RapydScript':null, 'require':_cjs_require});
 	vm.runInContext(baselib, ctx, {'filename':'baselib-plain-pretty.js'});
     vm.runInContext('var __name__ = "__repl__";', ctx);
     return ctx;
@@ -57,31 +56,46 @@ function repl_defaults(options) {
     return options;
 }
 
-function read_history(options) {
+async function read_history(options) {
     if (options.histfile) {
         try {
-            return fs.readFileSync(options.histfile, 'utf-8').split('\n');
+            return (await fs.promises.readFile(options.histfile, 'utf-8')).split('\n');
         } catch (e) { return []; }
     }
+    return [];
 }
 
-function write_history(options, history) {
+async function write_history(options, history) {
     if (options.histfile) {
-        history = history.join('\n');
         try {
-            return fs.writeFileSync(options.histfile, history, 'utf-8');
+            await fs.promises.writeFile(options.histfile, history.join('\n'), 'utf-8');
         } catch (e) {}
     }
 }
 
 
 export default function(options) {
+    var RapydScript = _rapydscript_compiler();
     options = repl_defaults(options);
     options.completer = completer;
     var rl = options.readline.createInterface(options);
 	var ps1 = options.colored(options.ps1, 'green');
 	var ps2 = options.colored(options.ps2, 'yellow');
+
+    // Read baselib synchronously: the repl must initialize synchronously so
+    // that the readline interface and prompt are ready before returning.
+    var baselib_plain = fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
+
+    function print_ast(ast, keep_baselib) {
+        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, keep_docstrings:true};
+        if (keep_baselib) output_options.baselib_plain = baselib_plain;
+        var output = new RapydScript.OutputStream(output_options);
+        ast.print(output);
+        return output.get();
+    }
+
 	var ctx = create_ctx(print_ast(RapydScript.parse('(def ():\n yield 1\n)'), true), options.show_js, options.console);
+    ctx.RapydScript = RapydScript;
     var buffer = [];
     var more = false;
     var LINE_CONTINUATION_CHARS = ':\\';
@@ -95,15 +109,6 @@ export default function(options) {
     else
         options.console.log(options.colored('Use show_js=True to have the REPL show the compiled JavaScript before executing it.', 'green', true));
     options.console.log();
-
-    function print_ast(ast, keep_baselib) {
-        var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, keep_docstrings:true};
-        if (keep_baselib) output_options.baselib_plain = fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
-        var output = new RapydScript.OutputStream(output_options);
-        ast.print(output);
-        return output.get();
-    }
-
 
     function resetbuffer() { buffer = []; }
 
@@ -204,9 +209,9 @@ export default function(options) {
 		prompt();
 	})
 
-	.on('close', function() {
+	.on('close', async function() {
 		options.console.log('Bye!');
-        if (rl.history) write_history(options, rl.history);
+        if (rl.history) await write_history(options, rl.history);
 		process.exit(0);
 	})
 
@@ -222,6 +227,6 @@ export default function(options) {
 		prompt();
 	});
 
-    rl.history = read_history(options);
+    read_history(options).then(function(history) { rl.history = history; });
 	prompt();
 }

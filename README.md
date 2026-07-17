@@ -1485,9 +1485,9 @@ To do so, simply include the [embeddable rapydscript compiler](https://sw.kovidg
 in your page, and use it to compile arbitrary RapydScript code. 
 
 You create the compiler by calling: `RapydScript.create_embedded_compiler()` and compile
-code with `compiler.compile(code)`. You can execute the resulting JavaScript
-using the standard `eval()` function. See the sample
-HTML below for an example.
+code with `await compiler.compile(code)`. Both calls return Promises, so you must use
+`async`/`await` (or `.then()`) to get the results. You can execute the resulting JavaScript
+using the standard `eval()` function. See the sample HTML below for an example.
 
 ```html
 <!DOCTYPE html>
@@ -1497,9 +1497,9 @@ HTML below for an example.
         <title>Test embedded RapydScript</title>
         <script charset="UTF-8" src="https://sw.kovidgoyal.net/rapydscript/repl/rapydscript.js"></script>
         <script>
-var compiler = RapydScript.create_embedded_compiler();
-var js = compiler.compile("def hello_world():\n a='RapydScript is cool!'\n print(a)\n alert(a)");
-window.onload = function() {
+window.onload = async function() {
+    var compiler = await RapydScript.create_embedded_compiler();
+    var js = await compiler.compile("def hello_world():\n a='RapydScript is cool!'\n print(a)\n alert(a)");
     document.body.textContent = js;
     eval(js);
     eval('hello_world()');

@@ -39,11 +39,11 @@ function parse_ini_data(data) {
 	return ans;
 }
 
-function find_cfg_file(toplevel_dir) {
+async function find_cfg_file(toplevel_dir) {
     var current_dir = toplevel_dir, previous_dir = toplevel_dir;
     do {
         try {
-            return fs.readFileSync(path.join(current_dir, 'setup.cfg'), 'utf-8');
+            return await fs.promises.readFile(path.join(current_dir, 'setup.cfg'), 'utf-8');
         } catch (e) {
             if (e.code !== 'ENOENT') throw e;
         }
@@ -54,8 +54,8 @@ function find_cfg_file(toplevel_dir) {
     return null;
 }
 
-function read_config(toplevel_dir) {
-    var data = find_cfg_file(toplevel_dir);
+async function read_config(toplevel_dir) {
+    var data = await find_cfg_file(toplevel_dir);
     if (!data) return {};
     return parse_ini_data(data);
 }

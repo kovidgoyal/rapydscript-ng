@@ -16,12 +16,13 @@ function ansi(code) {
     return String.fromCharCode(27) + '[' + code + 'm';
 }
 
-function path_exists(p) {
+async function path_exists(p) {
     try {
-        fs.statSync(p);
+        await fs.promises.stat(p);
         return true;
     } catch(e) {
         if (e.code != 'ENOENT') throw e;
+        return false;
     }
 }
 

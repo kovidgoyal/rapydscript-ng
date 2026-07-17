@@ -8,10 +8,12 @@
 import fs from 'fs';
 import path from 'path';
 import { read_config } from './ini.mjs';
-import { create_compiler } from './compiler.mjs';
 import * as utils from './utils.mjs';
 
-const RapydScript = create_compiler();
+// Use the compiler instance pre-created by bin/rapydscript. It is set as a
+// synchronous global before any dynamic imports, so this module can be
+// require()'d without top-level await.
+const RapydScript = globalThis.create_rapydscript_compiler();
 var colored = utils.safe_colored;
 
 export var WARN = 1, ERROR = 2;
@@ -593,18 +595,19 @@ export function lint_code(code, options) {
 
 // CLI {{{
 
-function read_whole_file(filename, cb) {
+async function read_whole_file(filename) {
     if (!filename || filename === '-') {
         var chunks = [];
         process.stdin.setEncoding('utf-8');
-        process.stdin.on('data', function (chunk) {
-            chunks.push(chunk);
-        }).on('end', function () {
-            cb(null, chunks.join(""));
+        await new Promise((resolve, reject) => {
+            process.stdin.on('data', chunk => chunks.push(chunk));
+            process.stdin.on('end', resolve);
+            process.stdin.on('error', reject);
         });
         process.openStdin();
+        return chunks.join('');
     } else {
-        fs.readFile(filename, "utf-8", cb);
+        return await fs.promises.readFile(filename, 'utf-8');
     }
 }
 
@@ -649,14 +652,14 @@ function cli_vim_report(r) {
 
 var ini_cache = {};
 
-function get_ini(toplevel_dir) {
+async function get_ini(toplevel_dir) {
     if (has_prop(ini_cache, toplevel_dir)) return ini_cache[toplevel_dir];
-    var rl = read_config(toplevel_dir).rapydscript || {};
+    var rl = (await read_config(toplevel_dir)).rapydscript || {};
     ini_cache[toplevel_dir] = rl;
     return rl;
 }
 
-export function cli(argv, base_path, src_path, lib_path) {
+export async function cli(argv, base_path, src_path, lib_path) {
     var files = argv.files.slice();
 
     if (argv.noqa_list) {
@@ -670,82 +673,73 @@ export function cli(argv, base_path, src_path, lib_path) {
         process.exit(0);
     }
 
-    function start_linting() {
-        var num_of_files = files.length || 1;
-
-        if (files.filter(function(el){ return el === "-"; }).length > 1) {
-            console.error("ERROR: Can read a single file from STDIN (two or more dashes specified)");
-            process.exit(1);
-        }
-
-        var all_ok = true;
-        var builtins = {};
-        var noqa = {};
-        if (argv.globals) argv.globals.split(',').forEach(function(sym) { builtins[sym] = true; });
-        if (argv.noqa) argv.noqa.split(',').forEach(function(sym) { noqa[sym] = true; });
-
-        function path_for_filename(x) {
-            return x === '-' ? argv.stdin_filename : x;
-        }
-
-        function lint_single_file(err, code) {
-            var output, final_builtins = merge(builtins), final_noqa = merge(noqa), rl;
-            if (err) {
-                console.error("ERROR: can't read file: " + files[0]);
-                process.exit(1);
-            }
-
-            // Read setup.cfg
-            rl = get_ini(path.dirname(path_for_filename(files[0])));
-            var g = {};
-            (rl.globals || rl.builtins || '').split(',').forEach(function (x) { g[x.trim()] = true; });
-            final_builtins = merge(final_builtins, g);
-            g = {};
-            (rl.noqa || '').split(',').forEach(function (x) { g[x.trim()] = true; });
-            final_noqa = merge(final_noqa, g);
-
-            // Look for # globals: or # noqa: in the first few lines of the file
-            code.split('\n', 20).forEach(function (line) {
-                var lq = line.replace(/\s+/g, '');
-                if (lq.startsWith('#globals:')) {
-                    (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_builtins[item] = true; });
-                }
-                else if (lq.startsWith('#noqa:')) {
-                    (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_noqa[item] = true; });
-                }
-            });
-
-            // Lint!
-            if (lint_code(code, {filename:path_for_filename(files[0]), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
-
-            files = files.slice(1);
-            if (files.length) {
-                setImmediate(read_whole_file, files[0], lint_single_file);
-                return;
-            } else process.exit((all_ok) ? 0 : 1);
-        }
-
-        setImmediate(read_whole_file, files[0], lint_single_file);
-    }
-
     if (argv.input_list) {
         // Check for conflict: --input-list=- and - as an input file
         if (argv.input_list === '-' && files.indexOf('-') !== -1) {
             console.error("ERROR: Cannot use - as both --input-list source and an input file");
             process.exit(1);
         }
-        read_whole_file(argv.input_list === '-' ? '-' : argv.input_list, function(err, data) {
-            if (err) {
-                console.error("ERROR: can't read input list file: " + argv.input_list);
-                process.exit(1);
-            }
-            var list_files = data.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
-            files = files.concat(list_files);
-            start_linting();
-        });
-    } else {
-        start_linting();
+        var list_data;
+        try {
+            list_data = await read_whole_file(argv.input_list === '-' ? null : argv.input_list);
+        } catch(e) {
+            console.error("ERROR: can't read input list file: " + argv.input_list);
+            process.exit(1);
+        }
+        var list_files = list_data.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
+        files = files.concat(list_files);
     }
 
+    if (files.filter(function(el){ return el === "-"; }).length > 1) {
+        console.error("ERROR: Can read a single file from STDIN (two or more dashes specified)");
+        process.exit(1);
+    }
+
+    var all_ok = true;
+    var builtins = {};
+    var noqa = {};
+    if (argv.globals) argv.globals.split(',').forEach(function(sym) { builtins[sym] = true; });
+    if (argv.noqa) argv.noqa.split(',').forEach(function(sym) { noqa[sym] = true; });
+
+    function path_for_filename(x) {
+        return x === '-' ? argv.stdin_filename : x;
+    }
+
+    for (const filename of (files.length ? files : [null])) {
+        var code;
+        try {
+            code = await read_whole_file(filename === '-' ? null : filename);
+        } catch(e) {
+            console.error("ERROR: can't read file: " + filename);
+            process.exit(1);
+        }
+
+        var final_builtins = merge(builtins), final_noqa = merge(noqa);
+
+        // Read setup.cfg
+        var rl = await get_ini(path.dirname(path_for_filename(filename || '-')));
+        var g = {};
+        (rl.globals || rl.builtins || '').split(',').forEach(function (x) { g[x.trim()] = true; });
+        final_builtins = merge(final_builtins, g);
+        g = {};
+        (rl.noqa || '').split(',').forEach(function (x) { g[x.trim()] = true; });
+        final_noqa = merge(final_noqa, g);
+
+        // Look for # globals: or # noqa: in the first few lines of the file
+        code.split('\n', 20).forEach(function (line) {
+            var lq = line.replace(/\s+/g, '');
+            if (lq.startsWith('#globals:')) {
+                (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_builtins[item] = true; });
+            }
+            else if (lq.startsWith('#noqa:')) {
+                (lq.split(':', 2)[1] || '').split(',').forEach(function (item) { final_noqa[item] = true; });
+            }
+        });
+
+        // Lint!
+        if (lint_code(code, {filename:path_for_filename(filename || '-'), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
+    }
+
+    process.exit((all_ok) ? 0 : 1);
 }
 // }}}

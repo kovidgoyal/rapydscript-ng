@@ -19,16 +19,16 @@ import rs_repl_fn from './repl.mjs';
 import { generate_source_map as rs_generate_source_map } from './sourcemap.mjs';
 
 const require = createRequire(import.meta.url);
-const RapydScript = create_compiler();
+const RapydScript = await create_compiler();
 var colored = utils.safe_colored;
 
-export default function(argv, base_path, src_path, lib_path) {
+export default async function(argv, base_path, src_path, lib_path) {
     // run all tests and exit
     var failures = [];
     var compiler_dir = path.join(base_path, 'dev');
-    if (!utils.path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base_path, 'release');
+    if (!await utils.path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base_path, 'release');
     var test_dir = path.join(base_path, 'test');
-	var baselib = fs.readFileSync(path.join(lib_path, 'baselib-plain-pretty.js'), 'utf-8');
+    var baselib = await fs.promises.readFile(path.join(lib_path, 'baselib-plain-pretty.js'), 'utf-8');
     var files;
     var deep_eq = assert.deepEqual;
     assert.deepEqual = function(a, b, message) {
@@ -43,19 +43,21 @@ export default function(argv, base_path, src_path, lib_path) {
     };
 
     if (argv.files.length) {
-        files = [];
-		argv.files.forEach(function(fname) { files.push(fname + '.pyj'); });
-	} else {
-        files = fs.readdirSync(test_dir).filter(function(name){
+        files = argv.files.map(fname => fname + '.pyj');
+    } else {
+        files = (await fs.promises.readdir(test_dir)).filter(function(name){
             return /^[^_].*\.pyj$/.test(name);
         });
-	}
-    files.forEach(function(file){
-        var ast;
-        var filepath = path.join(test_dir, file);
-        var failed = false;
+    }
+
+    for (const file of files) {
+        let filepath = path.join(test_dir, file);
+        let failed = false;
+        let src;
+        let ast;
         try {
-            ast = RapydScript.parse(fs.readFileSync(filepath, "utf-8"), {
+            src = await fs.promises.readFile(filepath, "utf-8");
+            ast = RapydScript.parse(src, {
                 filename: file,
                 toplevel: ast,
                 basedir: test_dir,
@@ -65,7 +67,7 @@ export default function(argv, base_path, src_path, lib_path) {
             failures.push(file);
             failed = true;
             console.log(colored(file, 'red') + ': ' + e + "\n\n");
-            return;
+            continue;
         }
 
         // generate output
@@ -100,16 +102,16 @@ export default function(argv, base_path, src_path, lib_path) {
         } catch (e) {
             failures.push(file);
             failed = true;
-            fs.writeFileSync(jsfile, code);
+            await fs.promises.writeFile(jsfile, code);
             console.error('Failed running: ' + colored(jsfile, 'red'));
             if (e.stack)
                 console.error(colored(file, 'red') + ":\n" + e.stack + "\n\n");
             else
                 console.error(colored(file, 'red') + ": " + e + "\n\n");
         }
-		if (!failed) console.log(colored(file, 'green') + ": test completed successfully\n");
+        if (!failed) console.log(colored(file, 'green') + ": test completed successfully\n");
         else { console.log(colored(file, 'red') + ":\ttest failed\n"); }
-    });
+    }
     if (failures.length) {
         console.log(colored('There were ' + failures.length + ' test failure(s):', 'red'));
         console.log.apply(console, failures);

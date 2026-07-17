@@ -72,11 +72,11 @@
         output.lastChild.scrollIntoView();
     }
 
-    function read_eval(code) {
+    async function read_eval(code) {
         var js, obj, text;
         hide_completions();
         try {
-            js = compile(code);
+            js = await compile(code);
         } catch(e) {
             var text, line = null, col = null;
             if (e.message && e.line) {
@@ -98,11 +98,11 @@
         return false;
     }
 
-    function run_code() {
+    async function run_code() {
         var input = document.getElementById('input');
         var code = input.value;
         input.value = '';
-        if (code) read_eval(code);
+        if (code) await read_eval(code);
         document.getElementById('input').focus();
     }
 

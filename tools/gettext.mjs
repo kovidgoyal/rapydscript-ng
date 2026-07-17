@@ -128,58 +128,50 @@ function write_output(catalog, options, write) {
 
 // CLI {{{
 
-function read_whole_file(filename, cb) {
+async function read_whole_file(filename) {
     if (!filename) {
         var chunks = [];
         process.stdin.setEncoding('utf-8');
-        process.stdin.on('data', function (chunk) {
-            chunks.push(chunk);
-        }).on('end', function () {
-            cb(null, chunks.join(""));
+        await new Promise((resolve, reject) => {
+            process.stdin.on('data', chunk => chunks.push(chunk));
+            process.stdin.on('end', resolve);
+            process.stdin.on('error', reject);
         });
         process.openStdin();
+        return chunks.join('');
     } else {
-        fs.readFile(filename, "utf-8", cb);
+        return await fs.promises.readFile(filename, 'utf-8');
     }
 }
 
-export function cli(argv, base_path, src_path, lib_path) {
+export async function cli(argv, base_path, src_path, lib_path) {
     var files = [];
-    var num_of_files = files.length || 1;
     var catalog = {};
 
-    function read_files(src) {
-        src.forEach(function(f) {
-            if (fs.lstatSync(f).isDirectory()) {
-                var children = [];
-                fs.readdirSync(f).forEach(function(x) { children.push(path.join(f, x)); });
-                read_files(children);
-            }
-            else files.push(f);
-        });
+    async function read_files(src) {
+        for (const f of src) {
+            var stat = await fs.promises.lstat(f);
+            if (stat.isDirectory()) {
+                var children = (await fs.promises.readdir(f)).map(x => path.join(f, x));
+                await read_files(children);
+            } else files.push(f);
+        }
     }
-    read_files(argv.files);
+    await read_files(argv.files);
 
-    function process_single_file(err, code) {
-        if (err) {
-            console.error("ERROR: can't read file: " + files[0]);
+    for (const f of (files.length ? files : [null])) {
+        var code;
+        try {
+            code = await read_whole_file(f);
+        } catch(e) {
+            console.error("ERROR: can't read file: " + f);
             process.exit(1);
         }
-
-        gettext(catalog, code, files[0]);
-
-        files = files.slice(1);
-        if (files.length) {
-            setImmediate(read_whole_file, files[0], process_single_file);
-            return;
-        } else {
-            write_output(catalog, argv);
-            process.exit(0);
-        }
+        gettext(catalog, code, f);
     }
 
-    setImmediate(read_whole_file, files[0], process_single_file);
-
+    write_output(catalog, argv);
+    process.exit(0);
 }
 
 export { gettext, entry_to_string, write_output };

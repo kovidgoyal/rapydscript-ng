@@ -6,6 +6,8 @@ version 0.8.0
   * Drop support for ES5
   * Change the cache format to cache only the AST and not final output so that
     the cache can be re-used regardless of output and tree shaking options
+  * Make the compiler internal use async IO. THis means the embedded compiler
+    functions are also async.
  
 version 0.7.24
 =======================

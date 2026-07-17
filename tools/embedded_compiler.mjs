@@ -26,7 +26,7 @@ export default function(compiler, baselib, runjs, name, tree_shake, generate_sou
     return {
         'toplevel': null,
 
-        'compile': function streaming_compile(code, opts) {
+        'compile': async function streaming_compile(code, opts) {
             opts = opts || {};
             var classes = (this.toplevel) ? this.toplevel.classes : undefined;
             var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;

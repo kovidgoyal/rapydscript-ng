@@ -17,15 +17,16 @@ import { create_compiler } from './compiler.mjs';
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 
-function compile_baselib(RapydScript, src_path) {
-    var items = fs.readdirSync(src_path).filter(function(name) {
+async function compile_baselib(RapydScript, src_path) {
+    var items = (await fs.promises.readdir(src_path)).filter(function(name) {
         return name.slice(0, 'baselib-'.length) === 'baselib-' && name.slice(-4) == '.pyj';
     });
     var ans = {'pretty': '', 'ugly': ''};
 
-    items.sort().forEach(function(fname) {
+    items.sort();
+    for (const fname of items) {
         var name = fname.slice('baselib-'.length, -4), ast;
-        var raw = fs.readFileSync(path.join(src_path, fname), 'utf-8');
+        var raw = await fs.promises.readFile(path.join(src_path, fname), 'utf-8');
         try {
             ast = RapydScript.parse(raw, {filename:fname, basedir:src_path});
         } catch (e) {
@@ -40,47 +41,51 @@ function compile_baselib(RapydScript, src_path) {
             ast.print(output);
             ans[(beautify) ? 'pretty' : 'ugly'] += output.get();
         });
-    });
+    }
     return ans;
 }
 
-function check_for_changes(base_path, src_path, signatures) {
+async function check_for_changes(base_path, src_path, signatures) {
     // Check if any of the files involved in the build process have changed,
     // as compared to the saved sha1 hashes from the last build
     var saved_hashes = {}, hashes = {}, sources = {};
     var compiler_changed = false, compiler_hash, source_hash;
     try {
-        saved_hashes = JSON.parse(fs.readFileSync(signatures, 'utf-8'));
+        saved_hashes = JSON.parse(await fs.promises.readFile(signatures, 'utf-8'));
     } catch (e) {
         if (e.code != 'ENOENT') throw (e);
     }
 
     var src_file_names = [];
 
-    function process_dir(p) {
-        fs.readdirSync(p).forEach(function(name) {
+    async function process_dir(p) {
+        var entries = await fs.promises.readdir(p);
+        for (const name of entries) {
             var fp = path.join(p, name);
             if (name.substr(-4) === '.pyj') src_file_names.push(path.relative(src_path, fp));
-            else if (name != 'lib' && fs.statSync(fp).isDirectory()) process_dir(fp);
-        });
+            else if (name != 'lib') {
+                var stat = await fs.promises.stat(fp);
+                if (stat.isDirectory()) await process_dir(fp);
+            }
+        }
     }
-    process_dir(src_path);
+    await process_dir(src_path);
 
     compiler_hash = crypto.createHash('sha1');
     source_hash = crypto.createHash('sha1');
-    src_file_names.forEach(function(fname) {
+    for (const fname of src_file_names) {
         var src = path.join(src_path, fname);
-        sources[src] = fs.readFileSync(src, 'utf-8');
+        sources[src] = await fs.promises.readFile(src, 'utf-8');
         compiler_hash.update(sources[src]);
         source_hash.update(sources[src]);
         var h = crypto.createHash('sha1');
         h.update(sources[src]);
         hashes[fname.split('.')[0]] = h.digest('hex');
-    });
+    }
     var compiler_files = [__filename, path.join(base_path, 'tools', 'compiler.mjs')];
-    compiler_files.forEach(function(fpath) {
-        compiler_hash.update(fs.readFileSync(fpath, 'utf-8'));
-    });
+    for (const fpath of compiler_files) {
+        compiler_hash.update(await fs.promises.readFile(fpath, 'utf-8'));
+    }
     hashes['#compiler#'] = compiler_hash.digest('hex');
     hashes['#compiled_with#'] = saved_hashes['#compiler#'] || 'unknown';
     source_hash = source_hash.digest('hex');
@@ -96,15 +101,15 @@ function check_for_changes(base_path, src_path, signatures) {
 }
 
 
-function compile(src_path, lib_path, sources, source_hash, profile) {
+async function compile(src_path, lib_path, sources, source_hash, profile) {
     var file = path.join(src_path, 'compiler.pyj');
     var t1 = new Date().getTime();
-    var RapydScript = create_compiler();
+    var RapydScript = await create_compiler();
     var output_options, profiler, cpu_profile;
-    var compiled_baselib = compile_baselib(RapydScript, src_path);
+    var compiled_baselib = await compile_baselib(RapydScript, src_path);
     var out_path = path.join(path.dirname(lib_path), 'dev');
     try {
-        fs.mkdirSync(out_path);
+        await fs.promises.mkdir(out_path);
     } catch (e) {
         if (e.code != 'EEXIST') throw e;
     }
@@ -128,7 +133,7 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
         toplevel = parse_file(raw, file);
         if (profile) {
             cpu_profile = profiler.stopProfiling();
-            fs.writeFileSync('self.cpuprofile', JSON.stringify(cpu_profile), 'utf-8');
+            await fs.promises.writeFile('self.cpuprofile', JSON.stringify(cpu_profile), 'utf-8');
         }
     } catch (e) {
         if (!(e instanceof RapydScript.SyntaxError)) throw e;
@@ -138,30 +143,30 @@ function compile(src_path, lib_path, sources, source_hash, profile) {
     var output = new RapydScript.OutputStream(output_options);
     toplevel.print(output);
     output = output.get().replace('__COMPILER_VERSION__', source_hash);
-    fs.writeFileSync(path.join(out_path, 'compiler.js'), output, "utf8");
-    fs.writeFileSync(path.join(out_path, 'baselib-plain-pretty.js'), compiled_baselib.pretty, 'utf-8');
-    fs.writeFileSync(path.join(out_path, 'baselib-plain-ugly.js'), compiled_baselib.ugly, 'utf-8');
+    await fs.promises.writeFile(path.join(out_path, 'compiler.js'), output, "utf8");
+    await fs.promises.writeFile(path.join(out_path, 'baselib-plain-pretty.js'), compiled_baselib.pretty, 'utf-8');
+    await fs.promises.writeFile(path.join(out_path, 'baselib-plain-ugly.js'), compiled_baselib.ugly, 'utf-8');
     console.log('Compiler built in', (new Date().getTime() - t1)/1000, 'seconds\n');
     return output;
 }
 
-function run_single_compile(base_path, src_path, lib_path, profile) {
+async function run_single_compile(base_path, src_path, lib_path, profile) {
     var out_path = path.join(path.dirname(lib_path), 'dev');
     var signatures = path.join(out_path, 'signatures.json');
-    var temp = check_for_changes(base_path, src_path, signatures);
+    var temp = await check_for_changes(base_path, src_path, signatures);
     var source_hash = temp[0], compiler_changed = temp[1], sources = temp[2], hashes = temp[3];
 
     if (compiler_changed) {
-        compile(src_path, lib_path, sources, source_hash, profile);
-        fs.writeFileSync(signatures, JSON.stringify(hashes, null, 4));
+        await compile(src_path, lib_path, sources, source_hash, profile);
+        await fs.promises.writeFile(signatures, JSON.stringify(hashes, null, 4));
     } else console.log('Compiler is built with the up-to-date version of itself');
     return compiler_changed;
 }
 
-export default function compile_self(base_path, src_path, lib_path, complete, profile) {
+export default async function compile_self(base_path, src_path, lib_path, complete, profile) {
     var changed;
     do {
-        changed = run_single_compile(base_path, src_path, lib_path, profile);
+        changed = await run_single_compile(base_path, src_path, lib_path, profile);
         lib_path = path.join(path.dirname(lib_path), 'dev');
     } while (changed && complete);
 }

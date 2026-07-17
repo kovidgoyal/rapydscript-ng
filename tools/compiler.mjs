@@ -29,12 +29,13 @@ function sha1sum(data) {
     return h.digest('hex');
 }
 
-function path_exists(path) {
+async function path_exists(p) {
     try {
-        fs.statSync(path);
+        await fs.promises.stat(p);
         return true;
     } catch(e) {
         if (e.code != 'ENOENT') throw e;
+        return false;
     }
 }
 
@@ -45,12 +46,15 @@ function uglify(code) {
 }
 
 
-function create_compiler() {
+async function create_compiler() {
     var compiler_exports = {};
+    // readfile/writefile must be synchronous: the parser (compiled from parse.pyj) calls
+    // them synchronously during module import resolution and AST caching. Making them async
+    // would require adding async/await support to the RapydScript language itself.
     var compiler_context = vm.createContext({
         console       : console,
-        readfile      : fs.readFileSync,
-        writefile     : fs.writeFileSync,
+        readfile      : (p, enc) => fs.readFileSync(p, enc),
+        writefile     : (p, data) => fs.writeFileSync(p, data),
         sha1sum       : sha1sum,
         require       : _cjs_require,
         exports       : compiler_exports,
@@ -58,9 +62,9 @@ function create_compiler() {
 
     var base = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
     var compiler_dir = path.join(base, 'dev');
-    if (!path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
+    if (!await path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
     var compiler_file = path.join(compiler_dir, 'compiler.js');
-    var compilerjs = fs.readFileSync(compiler_file, 'utf-8');
+    var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
     const { ast_to_json, ast_from_json } = make_ast_serializer(compiler_exports);
     compiler_exports.ast_to_json = ast_to_json;
@@ -71,8 +75,8 @@ function create_compiler() {
     return compiler_exports;
 }
 
-function create_embedded_compiler(compiler, baselib, runjs, name) {
-    return embedded_compiler_factory(compiler || create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
+async function create_embedded_compiler(compiler, baselib, runjs, name) {
+    return embedded_compiler_factory(compiler || await create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
 }
 
 export { create_compiler, create_embedded_compiler, generate_source_map };
