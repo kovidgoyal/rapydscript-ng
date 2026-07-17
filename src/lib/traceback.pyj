@@ -124,42 +124,36 @@ def _get_decoded_map():
 
 
 def _get_internal_traceback(err):
-    if isinstance(err, Error) and err.stack:
-        lines = ρσ_str.splitlines(err.stack)
-        final_lines = v'[lines[0]]'
-        start_line_idx = -1
-        for i, line in enumerate(lines):
+    lines = ρσ_str.splitlines(err.stack or '')
+    final_lines = v'[]'
+    start_line_idx = -1
+    for i, line in enumerate(lines):
+        if i > 0:
+            line = line.trim()
+            if line.startsWith('at new ' + err.name) or line.startsWith(err.name + '@'):
+                # this is the constructor for a RapydScript Exception
+                start_line_idx = i + 1
+                break
+    if start_line_idx < 0:
+        start_line_idx = 1
+        for i, xline in enumerate(lines):
             if i > 0:
-                line = line.trim()
-                if line.startsWith('at new ' + err.name) or line.startsWith(err.name + '@'):
-                    # this is the constructor for a RapydScript Exception
-                    start_line_idx = i + 1
+                line = xline.trim()
+                if v"line.startsWith('at ') || line.includes('@') || /:\d+:\d+$/.test(line)":
+                    start_line_idx = i
                     break
-        if start_line_idx < 0:
-            start_line_idx = 1
-            for i, xline in enumerate(lines):
-                if i > 0:
-                    line = xline.trim()
-                    if v"line.startsWith('at ') || line.includes('@') || /:\d+:\d+$/.test(line)":
-                        start_line_idx = i
-        frame_lines = lines[start_line_idx:]
-        final_lines = final_lines.concat(frame_lines)
-        decoded = _get_decoded_map()
-        if decoded:
-            mapped_lines = v'[]'
-            for frame_line in frame_lines:
-                frame = _parse_stack_frame(frame_line)
-                if frame:
-                    mapping = _find_mapping(decoded, frame.line, frame.col)
-                    if mapping:
-                        mapped_lines.push('  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1))
-            if mapped_lines.length:
-                final_lines.push('')
-                final_lines.push('Mapped traceback (RapydScript source):')
-                final_lines = final_lines.concat(mapped_lines)
-
-        return final_lines.join('\n')
-    return err and err.stack
+    frame_lines = lines[start_line_idx:]
+    final_lines = final_lines.concat(frame_lines)
+    decoded = _get_decoded_map()
+    mapped_lines = v'[]'
+    if decoded:
+        for frame_line in frame_lines:
+            frame = _parse_stack_frame(frame_line)
+            if frame:
+                mapping = _find_mapping(decoded, frame.line, frame.col)
+                if mapping:
+                    mapped_lines.push('  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1))
+    return lines[0], final_lines, mapped_lines
 
 
 def format_exception(exc, limit):
@@ -169,17 +163,18 @@ def format_exception(exc, limit):
         if exc and exc.toString:
             return [exc.toString()]
         return []
-    tb = _get_internal_traceback(exc)
-    if tb:
-        lines = ρσ_str.splitlines(tb)
-        e = lines[0]
-        lines = lines[1:]
+    e, js_lines, rs_lines = _get_internal_traceback(exc)
+    if js_lines.length > 0:
         if limit:
-            lines = lines[:limit+1] if limit > 0 else lines[limit:]
-        lines.reverse()
-        lines.push(e)
-        lines.insert(0, 'Traceback (most recent call last):')
-        return [l+'\n' for l in lines]
+            js_lines = js_lines[:limit] if limit > 0 else js_lines[limit:]
+            rs_lines = rs_lines[:limit] if limit > 0 else rs_lines[limit:]
+        js_lines.reverse()
+        rs_lines.reverse()
+        js_lines.push(e)
+        js_lines = v"['Traceback (most recent call last):'].concat(js_lines)"
+        if rs_lines.length > 0:
+            js_lines = js_lines.concat(['', 'Mapped Traceback (RapydScript):']).concat(rs_lines)
+        return [l+'\n' for l in js_lines]
     return [exc.toString()]
 
 def format_exc(limit):

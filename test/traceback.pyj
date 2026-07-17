@@ -200,8 +200,6 @@ assrt.ok(d1 is not d3, 're-setting map clears cache and re-decodes')
 # generated positions back to "demo.pyj" source lines.  This lets us
 # test the full mapping pipeline without needing to eval compiled code.
 #
-# _get_internal_traceback checks isinstance(err, Exception), so we must
-# start with a real RapydScript exception and then replace its .stack.
 # ---------------------------------------------------------------------------
 
 # Source map: two user-code frames mapped to known pyj source positions.
@@ -224,26 +222,26 @@ mock_err.stack = (
     '    at demo.js:10:1'
 )
 
-tb = traceback._get_internal_traceback(mock_err)
+e, js_lines, mapped_lines = traceback._get_internal_traceback(mock_err)
 
-# The JS section must still be present
-assrt.ok(tb.indexOf('TestError: test error') >= 0, 'JS section: error message present')
-assrt.ok(tb.indexOf('throw_me') >= 0, 'JS section: user frame present')
+# The error message is the first return value
+assrt.strictEqual(e, 'TestError: test error', 'error message returned as first element')
 
-# The mapped section header must appear
-assrt.ok(tb.indexOf('Mapped traceback (RapydScript source):') >= 0, 'mapped section header present')
+# The JS frames array must include the user frame
+assrt.ok(js_lines.join('\n').indexOf('throw_me') >= 0, 'JS section: user frame present')
 
-# Mapped frames reference the original source file
-assrt.ok(tb.indexOf('demo.pyj') >= 0, 'mapped frames reference demo.pyj')
+# Mapped lines are returned as an array with entries for each mapped frame
+assrt.ok(mapped_lines.length > 0, 'mapped lines returned when source map is set')
+assrt.ok(mapped_lines.join('\n').indexOf('demo.pyj') >= 0, 'mapped frames reference demo.pyj')
 
 # Frame at demo.js:5:3 → gen_line=4, gen_col=2 → src_line=1 → displayed as line 2
-assrt.ok(tb.indexOf('"demo.pyj", line 2') >= 0, 'first frame maps to line 2 in demo.pyj')
+assrt.ok(mapped_lines.join('\n').indexOf('"demo.pyj", line 2') >= 0, 'first frame maps to line 2 in demo.pyj')
 
 # Frame at demo.js:10:1 → gen_line=9, gen_col=0 → src_line=4 → displayed as line 5
-assrt.ok(tb.indexOf('"demo.pyj", line 5') >= 0, 'second frame maps to line 5 in demo.pyj')
+assrt.ok(mapped_lines.join('\n').indexOf('"demo.pyj", line 5') >= 0, 'second frame maps to line 5 in demo.pyj')
 
-# When source map is cleared, no mapped section appears
+# When source map is cleared, mapped_lines is empty
 traceback.set_source_map_data(None)
-tb_no_map = traceback._get_internal_traceback(mock_err)
-assrt.ok(tb_no_map.indexOf('Mapped traceback') < 0, 'no mapped section without source map')
-assrt.ok(tb_no_map.indexOf('TestError: test error') >= 0, 'JS section still present without map')
+e_no_map, js_lines_no_map, mapped_lines_no_map = traceback._get_internal_traceback(mock_err)
+assrt.strictEqual(mapped_lines_no_map.length, 0, 'no mapped lines without source map')
+assrt.strictEqual(e_no_map, 'TestError: test error', 'JS error message still returned without map')

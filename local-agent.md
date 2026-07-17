@@ -1,4 +1,4 @@
-initialize_command: ./build
+initialize_command: bin/rapydscript self --complete
 copy_resource: node_modules
 prepend_to_path: bin
 
