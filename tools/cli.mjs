@@ -432,6 +432,15 @@ convert it to UTF-8 first.`);
 
 opt("use_fuzzy", 'f', 'bool', false, `Use fuzzy translations, they are ignored by default.`);
 
+create_group('export', '', `Bundle the compiler and all its dependencies into a
+single self-contained JavaScript file written to stdout.
+This is useful for distributing the compiler for embedding
+in web pages or other environments without a build step.`);
+
+create_group('web-repl-export', '<output-directory>', `Export the web REPL to a directory. Creates a
+self-contained set of files including index.html that
+you can open in a browser to use the RapydScript web REPL.`);
+
 
 export var argv = parse_args();
 if (typeof argv.js_version === 'string') {

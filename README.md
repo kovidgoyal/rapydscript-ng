@@ -1532,9 +1532,9 @@ There are a couple of caveats when using the embedded compiler:
 
 * To generate the embedded compiler yourself (rapydscript.js) from a source
   checkout of rapydscript, follow the instructions above for installing from
-  source, then run `bin/web-repl-export /path/to/export/directory`. Then you
-  can simply open the index.html file in that directory in a browser to see
-  the web REPL in action.
+  source, then run `rapydscript web-repl-export /path/to/export/directory`.
+  Then you can simply open the index.html file in that directory in a browser
+  to see the web REPL in action.
 
 Internationalization
 -------------------------
