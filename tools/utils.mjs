@@ -83,10 +83,10 @@ function wrap(lines, width) {
 		line = prev + line;
 		prev = '';
 		if (line.length > width) {
-			prev = line.substr(width);
+			prev = line.substr(width - 1);
             if (prev) prev += ' ';
 			line = line.substr(0, width - 1);
-			if (line.substr(line.length - 1 !== ' ')) line += '-';
+			if (line.substr(line.length - 1) !== ' ') line += '-';
 		}
 		ans.push(line);
 	});
