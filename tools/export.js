@@ -211,12 +211,12 @@ function vrequire(name, base) {
     return load(modpath);
 }
 
-var UglifyJS = null, regenerator = null;
+var Terser = null, regenerator = null;
 var crypto = null, fs = require('fs');
 
 function uglify(x) {
-    if (!UglifyJS) UglifyJS = vrequire("uglify-js");
-    ans = UglifyJS.minify(x);
+    if (!Terser) Terser = vrequire("terser");
+    var ans = Terser.minify_sync(x);
     if (ans.error) throw ans.error;
     return ans.code;
 }

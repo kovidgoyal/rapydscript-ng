@@ -14,7 +14,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import vm from 'vm';
 import regenerator from 'regenerator';
-import UglifyJS from 'uglify-js';
+import * as terser from 'terser';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { generate_source_map } from './sourcemap.mjs';
@@ -39,7 +39,7 @@ function path_exists(path) {
 }
 
 function uglify(code) {
-    var ans = UglifyJS.minify(code);
+    var ans = terser.minify_sync(code);
     if (ans.error) throw ans.error;
     return ans.code;
 }
