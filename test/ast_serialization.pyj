@@ -339,6 +339,21 @@ assrt.equal(ast_to_js(ast18b), ast_to_js(ast18), 'shared ref round-trip')
 # ─── Test 19: Large/complex combined source ────────────────────────────────────
 # Full round-trip of a more complex program
 
+# ─── Test 19: Splat args (*arg) round-trip ────────────────────────────────────
+# Exercises: is_array flag on call-site *arg nodes.
+# Without fix: is_array is lost in serialization, causing func(*arg) to
+# generate func.apply(self, [arg]) instead of func.apply(self, arg).
+
+round_trip("""
+def call_it(f, args, a, b):
+    f(*args)
+    f(a, *args)
+    f(a, b, *args)
+""", 'splat_args')
+
+# ─── Test 20: Large/complex combined source ───────────────────────────────────
+# Full round-trip of a more complex program
+
 round_trip("""
 def fib(n):
     if n <= 1:

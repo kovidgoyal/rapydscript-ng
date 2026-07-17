@@ -53,7 +53,7 @@ def parse_call_test(code, arglen, opts):
     opts = opts or {}
     eq(func.args.args.length, arglen, 'Incorrect len for: ' + code)
     if (opts.starargs != undefined):
-        si = [[i, x.name] for i, x in enumerate(func.args.args) if x.is_array]
+        si = [[i, x.value.name] for i, x in enumerate(func.args.args) if x.is_array]
         de(opts.starargs, si, 'starargs wrong for: ' + code + ': ' + si + ' != ' + opts.starargs)
     if (opts.kwargs != undefined):
         de(opts.kwargs, [x[0].name for x in func.args.kwargs])

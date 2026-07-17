@@ -51,10 +51,10 @@ def is_simple_for(self):
         a = self.object.args.args
         l = a.length
         if l < 3 or (
-            is_node_type(a[2], AST_Number) or (
-                is_node_type(a[2], AST_Unary) and a[2].operator is '-' and is_node_type(a[2].expression, AST_Number)
+            is_node_type(a[2].value, AST_Number) or (
+                is_node_type(a[2].value, AST_Unary) and a[2].value.operator is '-' and is_node_type(a[2].value.expression, AST_Number)
         )):
-            if (l is 1 and not has_calls(a[0])) or (l > 1 and not has_calls(a[1])):
+            if (l is 1 and not has_calls(a[0].value)) or (l > 1 and not has_calls(a[1].value)):
                 return True
     return False
 
@@ -112,14 +112,14 @@ def print_for_in(self, output):
         tmp_ = args.length
         if tmp_ is 1:
             start = 0
-            end = args[0]
+            end = args[0].value
         elif tmp_ is 2:
-            start = args[0]
-            end = args[1]
+            start = args[0].value
+            end = args[1].value
         elif tmp_ is 3:
-            start = args[0]
-            end = args[1]
-            increment = args[2]
+            start = args[0].value
+            end = args[1].value
+            increment = args[2].value
 
         self.simple_for_index = idx = 'ρσ_Index' + output.index_counter
         output.index_counter += 1
@@ -160,7 +160,7 @@ def print_for_in(self, output):
             output.space()
             output.print('in')
             output.space()
-            self.object.args.args[0].print(output)
+            self.object.args.args[0].value.print(output)
         )
     else:
         # regular loop

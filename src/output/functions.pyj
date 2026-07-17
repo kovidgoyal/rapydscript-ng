@@ -333,12 +333,12 @@ def print_function_call(self, output):
             if not is_first:
                 output.print('.concat(')
             if expr.is_array:
-                expr.print(output)
+                expr.value.print(output)
                 i += 1
             else:
                 output.print('[')
                 while i < pargs.length and not pargs[i].is_array:
-                    pargs[i].print(output)
+                    pargs[i].value.print(output)
                     if i + 1 < pargs.length and not pargs[i+1].is_array:
                         output.print(',')
                         output.space()
@@ -367,7 +367,7 @@ def print_function_call(self, output):
             for i, a in enumerate(self.args.args):
                 if i:
                     output.comma()
-                a.print(output)
+                a.value.print(output)
         )
         return
 

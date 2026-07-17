@@ -36,12 +36,12 @@ function Gettext(catalog, filename) {
                 var line = node.start.line;
                 var pargs = node.args.args;
                 for (var i = 0; i < nargs; i++) {
-                    if (!(pargs[i] instanceof RapydScript.AST_String)) {
+                    if (!(pargs[i].value instanceof RapydScript.AST_String)) {
                         console.error('Translation function: ' + name + ' does not have a string literal argument at line: ' + line + ' of ' + filename);
                         process.exit(1);
                     }
                 }
-                var msgid = pargs[0].value;
+                var msgid = pargs[0].value.value;
                 if (!Object.prototype.hasOwnProperty.call(catalog, msgid)) {
                     catalog[msgid] = {
                         'locations': [],
@@ -49,7 +49,7 @@ function Gettext(catalog, filename) {
                         'format': detect_format(msgid),
                     };
                 }
-                if (name === 'ngettext') catalog[msgid].plural = pargs[1].value;
+                if (name === 'ngettext') catalog[msgid].plural = pargs[1].value.value;
                 if (filename) catalog[msgid].locations.push(filename + ':' + line);
             }
 

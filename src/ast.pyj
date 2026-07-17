@@ -596,10 +596,22 @@ class AST_VarDef(AST_Node):
 
 # Miscellaneous {{{
 
+class AST_CallArg(AST_Node):
+    "A single positional argument in a function call"
+    properties = {
+        'value': "[AST_Node] the argument expression",
+        'is_array': "[bool] True if this is a *arg (already an array/iterable)",
+    }
+
+    def _walk(self, visitor):
+        return visitor._visit(self, def():
+            self.value._walk(visitor)
+        )
+
 class AST_CallArgs(AST_Node):
     "The argument list for a function call"
     properties = {
-        'args': "[AST_Node*] positional arguments",
+        'args': "[AST_CallArg*] positional arguments",
         'kwargs': "[pair*] keyword argument pairs [key_node, value_node]",
         'kwarg_items': "[AST_SymbolRef*] **kwargs symbol references",
         'starargs': "[bool] True if *args were used in this call",
