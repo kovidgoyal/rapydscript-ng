@@ -12,7 +12,7 @@ def make_output():
     return new RapydScript.OutputStream({
         'baselib_plain': baselib,
         'beautify': True,
-        'js_version': 5,
+        'js_version': 6,
         'write_name': False,
         'private_scope': False,
         'keep_docstrings': False,

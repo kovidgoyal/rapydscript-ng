@@ -244,12 +244,8 @@ different way of ensuring they're imported. For example,
 you could import one of the baselib-plain-*.js files directly
 into the global namespace.`);
 
-opt("js_version", 'js,j', 'string', '6', `The JavaScript version to output. By default, ES 6
-compatible JavaScript is output. You can specify 5
-to output ES 5 compatible JavaScript instead. The ES 6
-version of the code will be smaller and faster by making
-use of some ES 6 only features, such as iterators and
-generators.`, ['5', '6']);
+opt("js_version", 'js,j', 'string', '6', `The JavaScript version to output. ES 6
+compatible JavaScript is output. Only ES 6 is supported.`, ['6']);
 
 opt("import_path", "p", 'string', '', `A list of paths in which to look for imported modules.
 Multiple paths must be separated by the path separator

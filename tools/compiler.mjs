@@ -13,7 +13,6 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import vm from 'vm';
-import regenerator from 'regenerator';
 import * as terser from 'terser';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
@@ -45,28 +44,6 @@ function uglify(code) {
 }
 
 
-function regenerate(code, beautify) {
-    var ans, start, end;
-    if (code) {
-        ans = regenerator.compile(code).code;
-        if (!beautify) {
-            ans = uglify(ans);
-        }
-    } else {
-        // Return the runtime
-        ans = regenerator.compile('', {includeRuntime:true}).code;
-        start = ans.indexOf('=') + 1;
-        end = ans.lastIndexOf('typeof');
-        end = ans.lastIndexOf('}(', end);
-        ans = ans.slice(start + 1, end);
-        if (!beautify) {
-            var extra = '})()';
-            ans = uglify(ans + extra).slice(0, extra.length);
-        }
-    }
-    return ans;
-}
-
 function create_compiler() {
     var compiler_exports = {};
     var compiler_context = vm.createContext({
@@ -75,7 +52,6 @@ function create_compiler() {
         writefile     : fs.writeFileSync,
         sha1sum       : sha1sum,
         require       : _cjs_require,
-        regenerate    : regenerate,
         exports       : compiler_exports,
     });
 

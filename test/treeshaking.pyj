@@ -16,7 +16,7 @@ def new_output_stream(opts):
 
 def make_output_stream(omit_baselib):
     opts = {
-        'js_version': 5,
+        'js_version': 6,
         'beautify': False,
         'private_scope': False,
         'write_name': False,

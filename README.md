@@ -1454,11 +1454,9 @@ Advanced Usage Topics
 
 #### Browser Compatibility
 
-RapydScript compiles your code such that it will work on browsers that are
-compatible with the ES 5 JavaScript standard. The compiler has a 
-``--js-version`` option that can also be used to output ES 6 only code. This
-code is smaller and faster than the ES 5 version, but is not as widely
-compatible.
+RapydScript compiles your code to ES 6 compatible JavaScript. Any modern
+browser or Node.js version that supports ES 6 will run the output. The
+``--js-version`` option only accepts ``6``.
 
 #### Tabs vs Spaces
 
@@ -1519,13 +1517,7 @@ window.onload = function() {
 There are a couple of caveats when using the embedded compiler:
 
 * It only works when run in a modern browser (one that supports ES6) so no
-  Internet Explorer. You can have it work in an ES 5 runtime by passing
-  an option to the compile() method, like this:
-  ```
-  compiler.compile(code, {js_version:5})
-  ```
-  Note that doing this means that you cannot use generators and the
-  yield keyword in your RapydScript code.
+  Internet Explorer.
 
 * Importing of modules only works with the standard library modules. There is
   currently no way to make your own modules importable.

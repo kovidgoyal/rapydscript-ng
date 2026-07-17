@@ -2,7 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-# globals:console,regenerate,writefile
+# globals:console,writefile
 
 from utils import noop
 from parse import PRECEDENCE

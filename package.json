@@ -30,7 +30,6 @@
     "url": "https://github.com/kovidgoyal/rapydscript-ng.git"
   },
   "dependencies": {
-    "regenerator": ">= 0.12.1",
     "terser": ">=5.49.0"
   },
   "optionalDependencies": {

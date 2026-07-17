@@ -211,7 +211,7 @@ function vrequire(name, base) {
     return load(modpath);
 }
 
-var Terser = null, regenerator = null;
+var Terser = null;
 var crypto = null, fs = require('fs');
 
 function uglify(x) {
@@ -219,40 +219,6 @@ function uglify(x) {
     var ans = Terser.minify_sync(x);
     if (ans.error) throw ans.error;
     return ans.code;
-}
-
-function regenerate(code, beautify) {
-    var orig = fs.readFileSync;
-    fs.readFileSync = function(name) { 
-        if (!has(data, name)) {
-            throw {message: "Failed to readfile from data: " + name};
-        }
-        return data[name]; 
-    };
-    if (!regenerator) regenerator = vrequire('regenerator');
-    var ans;
-    if (code) {
-        try {
-            ans = regenerator.compile(code).code;
-        } catch (e) {
-            console.error('regenerator failed for code: ' + code + 'with error stack:\n' + e.stack);
-            throw e;
-        }
-        if (!beautify) ans = uglify(ans);
-    } else {
-        // Return the runtime
-        ans = regenerator.compile('', {includeRuntime:true}).code;
-        start = ans.indexOf('=') + 1;
-        end = ans.lastIndexOf('typeof');
-        end = ans.lastIndexOf('}(', end);
-        ans = ans.slice(start + 1, end);
-        if (!beautify) {
-            var extra = '})()';
-            ans = uglify(ans + extra).slice(0, extra.length);
-        }
-    }
-    fs.readFileSync = orig;
-    return ans;
 }
 
 if (typeof this != 'object' || typeof this.sha1sum !== 'function') {
@@ -267,8 +233,8 @@ if (typeof this != 'object' || typeof this.sha1sum !== 'function') {
 function create_compiler() {
     var compilerjs = data['compiler.js'];
     var module = {'id':'compiler', 'exports':{}};
-    var wrapped = '(function(module, exports, readfile, writefile, sha1sum, regenerate) {' + data['compiler.js'] + ';\n})';
-    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, fs.readFileSync, fs.writeFileSync, sha1sum, regenerate);
+    var wrapped = '(function(module, exports, readfile, writefile, sha1sum) {' + data['compiler.js'] + ';\n})';
+    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, fs.readFileSync, fs.writeFileSync, sha1sum);
     return module.exports;
 }
 
@@ -286,7 +252,7 @@ function compile(code, filename, options) {
         beautify: (options.beautify === undefined ? true : options.beautify),
         private_scope: !options.bare,
         omit_baselib: !!options.omit_baselib,
-        js_version: options.js_version || 5,
+        js_version: options.js_version || 6,
     };
     if (!out_ops.omit_baselib) out_ops.baselib_plain = data['baselib-plain-' + (out_ops.beautify ? 'pretty' : 'ugly') + '.js'];
     var out = new RapydScript.OutputStream(out_ops);
