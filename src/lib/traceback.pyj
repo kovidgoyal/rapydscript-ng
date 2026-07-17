@@ -2,9 +2,114 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: ρσ_str, ρσ_last_exception
 
+_traceback_state = {'source_map': None, 'decoded': None}
+
+_VLQ_BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+
+def set_source_map_data(data):
+    _traceback_state['source_map'] = data
+    _traceback_state['decoded'] = None
+
+
+def _vlq_decode(encoded):
+    result = v'[]'
+    i = 0
+    n = encoded.length
+    while i < n:
+        value = 0
+        shift = 0
+        has_more = True
+        while has_more:
+            digit = _VLQ_BASE64.indexOf(encoded[i])
+            i += 1
+            has_more = (digit & 32) != 0
+            value += (digit & 31) << shift
+            shift += 5
+        if value & 1:
+            value = -(value >> 1)
+        else:
+            value = value >> 1
+        result.push(value)
+    return result
+
+
+def _decode_source_map(smap):
+    sources = smap.sources or v'[]'
+    source_root = smap.sourceRoot or ''
+    mappings_str = smap.mappings or ''
+    mapping_lines = mappings_str.split(';')
+    decoded = v'[]'
+    prev_src_idx = 0
+    prev_src_line = 0
+    prev_src_col = 0
+    for gen_line in range(mapping_lines.length):
+        line_str = mapping_lines[gen_line]
+        line_entries = v'[]'
+        if line_str:
+            segments = line_str.split(',')
+            prev_col = 0
+            for seg_str in segments:
+                if not seg_str:
+                    continue
+                fields = _vlq_decode(seg_str)
+                if fields.length >= 4:
+                    gen_col = prev_col + fields[0]
+                    prev_col = gen_col
+                    src_idx = prev_src_idx + fields[1]
+                    prev_src_idx = src_idx
+                    src_line = prev_src_line + fields[2]
+                    prev_src_line = src_line
+                    src_col = prev_src_col + fields[3]
+                    prev_src_col = src_col
+                    src_file = sources[src_idx] if src_idx >= 0 and src_idx < sources.length else ''
+                    if source_root and src_file:
+                        src_file = source_root + src_file
+                    line_entries.push({'gen_col': gen_col, 'src_file': src_file, 'src_line': src_line, 'src_col': src_col})
+                elif fields.length >= 1:
+                    prev_col += fields[0]
+        decoded.push(line_entries)
+    return decoded
+
+
+def _find_mapping(decoded, gen_line, gen_col):
+    if not decoded or gen_line < 0 or gen_line >= decoded.length:
+        return None
+    line_entries = decoded[gen_line]
+    if not line_entries or not line_entries.length:
+        return None
+    best = None
+    for entry in line_entries:
+        if entry.gen_col <= gen_col:
+            if best is None or entry.gen_col > best.gen_col:
+                best = entry
+    return best
+
+
+def _parse_stack_frame(line):
+    # Chrome/Node: "    at functionName (file:line:col)"
+    m = /\((.+):(\d+):(\d+)\)/.exec(line)
+    if m:
+        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+    # Chrome/Node: "    at file:line:col"
+    m = /^\s*at (.+):(\d+):(\d+)$/.exec(line)
+    if m:
+        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+    # Firefox: "functionName@file:line:col"
+    m = /@(.+):(\d+):(\d+)$/.exec(line)
+    if m:
+        return {'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+    return None
+
+
+def _get_decoded_map():
+    if _traceback_state['decoded'] is None and _traceback_state['source_map']:
+        _traceback_state['decoded'] = _decode_source_map(_traceback_state['source_map'])
+    return _traceback_state['decoded']
+
 
 def _get_internal_traceback(err):
-    if isinstance(err, Exception) and err.stack:
+    if isinstance(err, Error) and err.stack:
         lines = ρσ_str.splitlines(err.stack)
         final_lines = v'[]'
         found_sentinel = False
@@ -20,6 +125,23 @@ def _get_internal_traceback(err):
             # line in the traceback.
             if sline.startsWith('at new ' + err.name) or sline.startsWith(err.name + '@'):
                 found_sentinel = True
+
+        decoded = _get_decoded_map()
+        if decoded:
+            mapped_lines = v'[]'
+            frame_lines = v'final_lines.slice(1)'
+            for frame_line in frame_lines:
+                frame = _parse_stack_frame(frame_line)
+                if frame:
+                    mapping = _find_mapping(decoded, frame.line, frame.col)
+                    if mapping:
+                        mapped_lines.push('  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1))
+            if mapped_lines.length:
+                final_lines.push('')
+                final_lines.push('Mapped traceback (RapydScript source):')
+                for ml in mapped_lines:
+                    final_lines.push(ml)
+
         return final_lines.join('\n')
     return err and err.stack
 

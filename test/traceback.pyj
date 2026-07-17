@@ -1,0 +1,249 @@
+# globals: assrt, rs_generate_source_map
+import traceback
+
+generate_source_map = rs_generate_source_map
+
+# ---------------------------------------------------------------------------
+# _vlq_decode
+# ---------------------------------------------------------------------------
+
+# All-zero segment: AAAA → [0, 0, 0, 0]
+assrt.deepEqual(traceback._vlq_decode('AAAA'), [0, 0, 0, 0], 'AAAA → all zeros')
+
+# Positive deltas: I=8→4, A=0, A=0, G=6→3
+assrt.deepEqual(traceback._vlq_decode('IAAG'), [4, 0, 0, 3], 'IAAG → [4,0,0,3]')
+
+# Source line delta of 1: AACA → [0, 0, 1, 0]
+assrt.deepEqual(traceback._vlq_decode('AACA'), [0, 0, 1, 0], 'AACA → [0,0,1,0]')
+
+# Single negative value: D=3 (odd) → -1
+assrt.deepEqual(traceback._vlq_decode('D'), [-1], 'D → [-1]')
+
+# Negative source column delta: H=7 (odd) → -3
+assrt.deepEqual(traceback._vlq_decode('IAAH'), [4, 0, 0, -3], 'IAAH → [4,0,0,-3]')
+
+# Multi-byte VLQ: k has continuation bit, kD → 50
+assrt.deepEqual(traceback._vlq_decode('kD'), [50], 'kD → [50] multi-byte')
+
+# Multi-byte VLQ in a full four-field segment
+assrt.deepEqual(traceback._vlq_decode('kDAAkD'), [50, 0, 0, 50], 'kDAAkD → [50,0,0,50]')
+
+# Empty string → empty array
+assrt.deepEqual(traceback._vlq_decode(''), v'[]', 'empty string → empty result')
+
+# ---------------------------------------------------------------------------
+# _decode_source_map
+# ---------------------------------------------------------------------------
+
+# Empty mappings → one line group with no entries
+decoded = traceback._decode_source_map({'version': 3, 'sources': v'[]', 'mappings': '', 'sourceRoot': ''})
+assrt.strictEqual(decoded.length, 1, 'empty mappings → 1 line group')
+assrt.strictEqual(decoded[0].length, 0, 'that group has no entries')
+
+# Single segment at origin
+smap = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+assrt.ok(decoded.length >= 1, 'single segment: at least one line group')
+e = decoded[0][0]
+assrt.strictEqual(e.gen_col, 0, 'gen_col 0')
+assrt.strictEqual(e.src_file, 'a.pyj', 'src_file a.pyj')
+assrt.strictEqual(e.src_line, 0, 'src_line 0')
+assrt.strictEqual(e.src_col, 0, 'src_col 0')
+
+# Two segments on separate generated lines — deltas accumulate across lines
+smap = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [1, 0, 'a.pyj', 1, 0]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+assrt.ok(decoded.length >= 2, 'two-line map: at least 2 line groups')
+assrt.strictEqual(decoded[1][0].src_line, 1, 'second line resolves to src_line 1')
+assrt.strictEqual(decoded[1][0].src_col, 0, 'second line resolves to src_col 0')
+
+# Two segments on same line — gen_col delta is relative within the line
+smap = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [0, 4, 'a.pyj', 0, 3]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+assrt.strictEqual(decoded[0].length, 2, 'two segs on same line → 2 entries')
+assrt.strictEqual(decoded[0][0].gen_col, 0, 'first entry gen_col=0')
+assrt.strictEqual(decoded[0][1].gen_col, 4, 'second entry gen_col=4')
+assrt.strictEqual(decoded[0][1].src_col, 3, 'second entry src_col=3')
+
+# Two source files — source index resolves correctly
+smap = JSON.parse(generate_source_map([[0, 0, 'f1.pyj', 0, 0], [0, 10, 'f2.pyj', 0, 0]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+assrt.strictEqual(decoded[0][0].src_file, 'f1.pyj', 'first seg → f1.pyj')
+assrt.strictEqual(decoded[0][1].src_file, 'f2.pyj', 'second seg → f2.pyj')
+
+# sourceRoot is prepended to src_file
+smap = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0]], 'out.js', 'src/'))
+decoded = traceback._decode_source_map(smap)
+assrt.strictEqual(decoded[0][0].src_file, 'src/a.pyj', 'sourceRoot prepended')
+
+# Gap in generated lines (line 1 empty) — line group count matches max line
+smap = JSON.parse(generate_source_map([[0, 0, 'a.pyj', 0, 0], [2, 0, 'a.pyj', 2, 0]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+assrt.ok(decoded.length >= 3, 'gap: at least 3 groups for lines 0..2')
+assrt.strictEqual(decoded[1].length, 0, 'gap: line 1 group is empty')
+assrt.strictEqual(decoded[2][0].src_line, 2, 'line 2 resolves to src_line 2')
+
+# ---------------------------------------------------------------------------
+# _find_mapping
+# ---------------------------------------------------------------------------
+
+# Build a decoded map with two entries on line 0 and one on line 1
+smap = JSON.parse(generate_source_map(
+    [[0, 0, 'a.pyj', 10, 0], [0, 5, 'a.pyj', 10, 4], [1, 0, 'a.pyj', 20, 0]], 'out.js', ''))
+decoded = traceback._decode_source_map(smap)
+
+# Exact gen_col match
+m = traceback._find_mapping(decoded, 0, 0)
+assrt.ok(m, 'exact match gen_col=0')
+assrt.strictEqual(m.src_line, 10, 'src_line 10 for gen_col=0')
+assrt.strictEqual(m.src_col, 0, 'src_col 0 for gen_col=0')
+
+# Between two entries — picks the one with largest gen_col not exceeding target
+m = traceback._find_mapping(decoded, 0, 7)
+assrt.ok(m, 'match between entries (gen_col=7)')
+assrt.strictEqual(m.gen_col, 5, 'picks gen_col=5 for target 7')
+assrt.strictEqual(m.src_col, 4, 'src_col 4 for that entry')
+
+# Target gen_col before all entries on the line → no match
+m = traceback._find_mapping(decoded, 0, -1)
+assrt.ok(not m, 'gen_col before first entry → None')
+
+# Line with a single entry
+m = traceback._find_mapping(decoded, 1, 0)
+assrt.ok(m, 'single entry on line 1 found')
+assrt.strictEqual(m.src_line, 20, 'src_line 20 on line 1')
+
+# gen_line beyond decoded range → None
+assrt.ok(not traceback._find_mapping(decoded, 99, 0), 'out-of-range gen_line → None')
+
+# Null/empty decoded → None
+assrt.ok(not traceback._find_mapping(None, 0, 0), 'null decoded → None')
+assrt.ok(not traceback._find_mapping(v'[]', 0, 0), 'empty decoded → None')
+
+# Line group with no entries → None
+smap2 = JSON.parse(generate_source_map([[2, 0, 'a.pyj', 5, 0]], 'out.js', ''))
+decoded2 = traceback._decode_source_map(smap2)
+assrt.ok(not traceback._find_mapping(decoded2, 0, 0), 'empty line group → None')
+assrt.ok(traceback._find_mapping(decoded2, 2, 0), 'populated line group → found')
+
+# ---------------------------------------------------------------------------
+# _parse_stack_frame
+# ---------------------------------------------------------------------------
+
+# Chrome/Node with function name in parentheses
+f = traceback._parse_stack_frame('    at foo (script.js:10:5)')
+assrt.ok(f, 'parsed Chrome frame with function name')
+assrt.strictEqual(f.file, 'script.js', 'file from Chrome frame')
+assrt.strictEqual(f.line, 9, 'line is 0-based (10 → 9)')
+assrt.strictEqual(f.col, 4, 'col is 0-based (5 → 4)')
+
+# Chrome/Node with method name (dot notation)
+f = traceback._parse_stack_frame('    at Object.bar (app.js:3:1)')
+assrt.ok(f, 'parsed Chrome frame with method name')
+assrt.strictEqual(f.file, 'app.js', 'file from method Chrome frame')
+assrt.strictEqual(f.line, 2, 'line 0-based')
+assrt.strictEqual(f.col, 0, 'col 0-based')
+
+# Chrome/Node bare (no function name)
+f = traceback._parse_stack_frame('    at script.js:3:1')
+assrt.ok(f, 'parsed bare Chrome frame')
+assrt.strictEqual(f.file, 'script.js', 'file from bare frame')
+assrt.strictEqual(f.line, 2, 'line 0-based from bare frame')
+assrt.strictEqual(f.col, 0, 'col 0-based from bare frame')
+
+# Firefox format with function name
+f = traceback._parse_stack_frame('bar@script.js:7:12')
+assrt.ok(f, 'parsed Firefox frame with function name')
+assrt.strictEqual(f.file, 'script.js', 'file from Firefox frame')
+assrt.strictEqual(f.line, 6, 'line 0-based from Firefox frame')
+assrt.strictEqual(f.col, 11, 'col 0-based from Firefox frame')
+
+# Firefox anonymous frame
+f = traceback._parse_stack_frame('@/path/to/file.js:1:1')
+assrt.ok(f, 'parsed anonymous Firefox frame')
+assrt.strictEqual(f.line, 0, 'line 0-based anonymous Firefox')
+assrt.strictEqual(f.col, 0, 'col 0-based anonymous Firefox')
+
+# Lines that are not stack frames → None
+assrt.ok(not traceback._parse_stack_frame('TypeError: some error'), 'error message → None')
+assrt.ok(not traceback._parse_stack_frame(''), 'empty string → None')
+assrt.ok(not traceback._parse_stack_frame('Traceback (most recent call last):'), 'header line → None')
+
+# ---------------------------------------------------------------------------
+# set_source_map_data / _get_decoded_map
+# ---------------------------------------------------------------------------
+
+# Clearing the source map
+traceback.set_source_map_data(None)
+assrt.ok(not traceback._get_decoded_map(), '_get_decoded_map returns falsy when no map set')
+
+# Setting a source map makes _get_decoded_map return a decoded object
+smap = JSON.parse(generate_source_map([[0, 0, 'test.pyj', 0, 0]], 'out.js', ''))
+traceback.set_source_map_data(smap)
+d1 = traceback._get_decoded_map()
+assrt.ok(d1, '_get_decoded_map returns decoded map after set')
+
+# Second call returns the same cached object
+d2 = traceback._get_decoded_map()
+assrt.ok(d1 is d2, '_get_decoded_map returns cached object on second call')
+
+# Re-setting the map invalidates the cache and produces a new decoded object
+traceback.set_source_map_data(smap)
+d3 = traceback._get_decoded_map()
+assrt.ok(d1 is not d3, 're-setting map clears cache and re-decodes')
+
+# ---------------------------------------------------------------------------
+# _get_internal_traceback — end-to-end with mock error
+#
+# We use a hand-crafted error.stack that represents a V8 stack trace for
+# a fictional "demo.js" file, paired with a source map that maps those
+# generated positions back to "demo.pyj" source lines.  This lets us
+# test the full mapping pipeline without needing to eval compiled code.
+#
+# _get_internal_traceback checks isinstance(err, Exception), so we must
+# start with a real RapydScript exception and then replace its .stack.
+# ---------------------------------------------------------------------------
+
+# Source map: two user-code frames mapped to known pyj source positions.
+#   demo.js:5:3  (gen_line=4, gen_col=2) → demo.pyj line 2 col 5 (src_line=1, src_col=4)
+#   demo.js:10:1 (gen_line=9, gen_col=0) → demo.pyj line 5 col 1 (src_line=4, src_col=0)
+segments = [
+    [4, 0, 'demo.pyj', 1, 0],
+    [4, 2, 'demo.pyj', 1, 4],
+    [9, 0, 'demo.pyj', 4, 0],
+]
+smap = JSON.parse(generate_source_map(segments, 'demo.js', ''))
+traceback.set_source_map_data(smap)
+
+mock_err = new Error('test error')
+mock_err.name = 'TestError'
+mock_err.stack = (
+    'TestError: test error\n'
+    '    at new TestError (baselib.js:1:1)\n'
+    '    at throw_me (demo.js:5:3)\n'
+    '    at demo.js:10:1'
+)
+
+tb = traceback._get_internal_traceback(mock_err)
+
+# The JS section must still be present
+assrt.ok(tb.indexOf('TestError: test error') >= 0, 'JS section: error message present')
+assrt.ok(tb.indexOf('throw_me') >= 0, 'JS section: user frame present')
+
+# The mapped section header must appear
+assrt.ok(tb.indexOf('Mapped traceback (RapydScript source):') >= 0, 'mapped section header present')
+
+# Mapped frames reference the original source file
+assrt.ok(tb.indexOf('demo.pyj') >= 0, 'mapped frames reference demo.pyj')
+
+# Frame at demo.js:5:3 → gen_line=4, gen_col=2 → src_line=1 → displayed as line 2
+assrt.ok(tb.indexOf('"demo.pyj", line 2') >= 0, 'first frame maps to line 2 in demo.pyj')
+
+# Frame at demo.js:10:1 → gen_line=9, gen_col=0 → src_line=4 → displayed as line 5
+assrt.ok(tb.indexOf('"demo.pyj", line 5') >= 0, 'second frame maps to line 5 in demo.pyj')
+
+# When source map is cleared, no mapped section appears
+traceback.set_source_map_data(None)
+tb_no_map = traceback._get_internal_traceback(mock_err)
+assrt.ok(tb_no_map.indexOf('Mapped traceback') < 0, 'no mapped section without source map')
+assrt.ok(tb_no_map.indexOf('TestError: test error') >= 0, 'JS section still present without map')
