@@ -10,8 +10,8 @@ def ρσ_bool(val):
 def ρσ_print():
     if v'typeof console' is 'object':
         parts = v'[]'
-        for v'var i = 0; i < arguments.length; i++':
-            parts.push(ρσ_str(arguments[i]))  # noqa: undef
+        for v'var i = 0; i < arguments.length; i++':  # noqa
+            parts.push(ρσ_str(v'arguments[i]'))  # noqa: undef
         console.log(parts.join(' '))
 
 def ρσ_int(val, base):
