@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { generate_source_map } from './sourcemap.mjs';
 import embedded_compiler_factory from './embedded_compiler.mjs';
+import tree_shake from './treeshake.mjs';
 import { make_ast_serializer } from './ast_serialize.mjs';
 
 const _cjs_require = createRequire(import.meta.url);
@@ -71,7 +72,7 @@ function create_compiler() {
 }
 
 function create_embedded_compiler(compiler, baselib, runjs, name) {
-    return embedded_compiler_factory(compiler || create_compiler(), baselib, runjs, name);
+    return embedded_compiler_factory(compiler || create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
 }
 
 export { create_compiler, create_embedded_compiler, generate_source_map };

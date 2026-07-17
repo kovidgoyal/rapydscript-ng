@@ -42,6 +42,7 @@ output_stream_defaults = {
     'ie_proof': True,
     'beautify': False,
     'source_map': None,
+    'source_map_line_offset': 0,
     'bracketize': False,
     'semicolons': True,
     'comments': False,
@@ -295,7 +296,7 @@ class OutputStream:
 
     def add_mapping(self, node):
         if self._source_map_segments is not None and node.start and node.start.file:
-            self._source_map_segments.push([self.current_line - 1, self.current_col, node.start.file, node.start.line - 1, node.start.col])
+            self._source_map_segments.push([self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col])
 
     def add_cached_mappings(self, segments, line_offset):
         if self._source_map_segments is None:

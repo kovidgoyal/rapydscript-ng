@@ -60,6 +60,7 @@ export default function(start_time, argv, base_path, src_path, lib_path) {
         discard_asserts: argv.discard_asserts,
         module_cache_dir: cache_dir,
         source_map: !!argv.source_map,
+        source_map_line_offset: parseInt(argv.source_map_line_offset) || 0,
     };
 
     var files = argv.files.slice();

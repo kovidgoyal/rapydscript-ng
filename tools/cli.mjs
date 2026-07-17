@@ -297,6 +297,11 @@ before being executed. If you specify this option you
 should not specify the -m option to omit the baselib, or
 execution will fail.`);
 
+opt("source_map_line_offset", '', 'number', 0, `Shift all generated line numbers in the source map by
+this many lines. Useful when the compiled JavaScript will
+be embedded inside a larger file (e.g. prepended with a
+header), so that debugger mappings remain accurate.`);
+
 opt("source_map", 'S,sm', 'string', '', `Generate a source map and write it to the specified
 file path. A source map allows debuggers to map
 positions in the compiled JavaScript back to the
