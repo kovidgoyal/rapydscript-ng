@@ -9,7 +9,6 @@
 import fs from 'fs';
 import path from 'path';
 
-var comment_contents = /\/\*!?(?:\@preserve)?[ \t]*(?:\r\n|\n)([\s\S]*?)(?:\r\n|\n)[ \t]*\*\//;
 var colors = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'];
 
 function ansi(code) {
@@ -119,7 +118,6 @@ function get_import_dirs(paths_string, ignore_env) {
 }
 
 export {
-    comment_contents,
     repeat,
     wrap,
     merge,

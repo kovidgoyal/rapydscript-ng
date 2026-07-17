@@ -32,26 +32,15 @@ var groups = {}, group;
 
 function create_group(name, usage, description, extra) {
     group = new OptionGroup(name);
-    var match = utils.comment_contents.exec(description.toString());
-    if (!match) {
-        throw new TypeError('Multiline comment missing for: ' + name);
-    }
-    group.description = match[1];
+    group.description = description;
     group.usage = name + ' [options] ' + usage;
     groups[name] = group;
 
-    if (extra) {
-        match = utils.comment_contents.exec(extra.toString());
-        if (match) group.extra = match[1];
-    }
+    if (extra) group.extra = extra;
 
-opt('help', 'h', 'bool', false, function(){/*
-show this help message and exit
-*/});
+opt('help', 'h', 'bool', false, 'show this help message and exit');
 
-opt('version', 'V', 'bool', false, function(){/*
-show the version and exit
-*/});
+opt('version', 'V', 'bool', false, 'show the version and exit');
 
 
 }
@@ -115,15 +104,9 @@ function print_usage(group) {  // {{{
 // Process options {{{
 
 function opt(name, aliases, type, default_val, help_text, choices) {
-	var match = utils.comment_contents.exec(help_text.toString());
     var options = group.options;
     var seen = group.seen;
     var help = group.help;
-
-	if (!match) {
-		throw new TypeError('Multiline comment missing for: ' + name);
-	}
-	help_text = match[1];
 
 	if (!type || type == 'bool') options.boolean[name] = true;
 	else if (type == 'string') {
@@ -237,79 +220,56 @@ function parse_args() {  // {{{
 	return ans;
 } // }}}
 
-create_group('compile', "[input1.pyj input2.pyj ...]", function(){/*
-Compile RapydScript source code into JavaScript
+create_group('compile', "[input1.pyj input2.pyj ...]", `Compile RapydScript source code into JavaScript
 output. You can also pipe the source code into
-stdin.
-*/});
+stdin.`);
 
-opt("output", 'o', 'string', '', function(){/*
-Output file (default STDOUT)
-*/});
+opt("output", 'o', 'string', '', `Output file (default STDOUT)`);
 
-opt("bare", 'b', 'bool', false, function(){/*
-Remove the module wrapper that prevents RapydScript
-scope from bleeding into other JavaScript logic
-*/});
+opt("bare", 'b', 'bool', false, `Remove the module wrapper that prevents RapydScript
+scope from bleeding into other JavaScript logic`);
 
-opt("keep_docstrings", 'd', 'bool', false, function(){/*
-Keep the docstrings in the generated JavaScript as __doc__
+opt("keep_docstrings", 'd', 'bool', false, `Keep the docstrings in the generated JavaScript as __doc__
 attributes on functions, classes and modules. Normally,
-the docstring are deleted to reduce download size.
-*/});
+the docstring are deleted to reduce download size.`);
 
-opt("discard_asserts", 'a', 'bool', false, function(){/*
-Discard any assert statements. If you use assert statements
+opt("discard_asserts", 'a', 'bool', false, `Discard any assert statements. If you use assert statements
 for debugging, then use this option to generate an optimized build
-without the assert statements.
-*/});
+without the assert statements.`);
 
-opt("uglify", 'u', 'bool', false, function(){/*
-Minify the output instead of pretty printing it.
-*/});
+opt("uglify", 'u', 'bool', false, `Minify the output instead of pretty printing it.`);
 
-opt("omit_baselib", 'm', 'bool', false, function(){/*
-Omit baselib functions. Use this if you have a
+opt("omit_baselib", 'm', 'bool', false, `Omit baselib functions. Use this if you have a
 different way of ensuring they're imported. For example,
 you could import one of the baselib-plain-*.js files directly
-into the global namespace.
-*/});
+into the global namespace.`);
 
-opt("js_version", 'js,j', 'string', '6', function(){/*
-The JavaScript version to output. By default, ES 6
+opt("js_version", 'js,j', 'string', '6', `The JavaScript version to output. By default, ES 6
 compatible JavaScript is output. You can specify 5
 to output ES 5 compatible JavaScript instead. The ES 6
 version of the code will be smaller and faster by making
 use of some ES 6 only features, such as iterators and
-generators.
-*/}, ['5', '6']);
+generators.`, ['5', '6']);
 
-opt("import_path", "p", 'string', '', function(){/*
-A list of paths in which to look for imported modules.
+opt("import_path", "p", 'string', '', `A list of paths in which to look for imported modules.
 Multiple paths must be separated by the path separator
 (: on Unix and ; on Windows). You can also use the
 environment variable RAPYDSCRIPT_IMPORT_PATH for this,
 with identical syntax. Note that these directories
 are searched before the builtin paths, which means you
-can use them to replace builtin modules.
-*/});
+can use them to replace builtin modules.`);
 
-opt("filename_for_stdin", "P", 'string', '', function(){/*
-filename to use for data piped into STDIN. Imports will
+opt("filename_for_stdin", "P", 'string', '', `filename to use for data piped into STDIN. Imports will
 be resolved relative to the directory this filename is in.
 Note, that you can also use the --import-path option to
-add directories to the import path.
-*/});
+add directories to the import path.`);
 
-opt("cache_dir", "C", 'string', '', function(){/*
-directory to use to store the cached files generated
+opt("cache_dir", "C", 'string', '', `directory to use to store the cached files generated
 by the compiler. Normally, these are stored right next to
 every compiled pyj file, with the extension pyj-cached. This
-option allows them to be consolidated in a single directory.
-*/});
+option allows them to be consolidated in a single directory.`);
 
-opt("comments", undefined, 'string', '', function(){/*
-Preserve copyright comments in the output.
+opt("comments", undefined, 'string', '', `Preserve copyright comments in the output.
 By default this works like Google Closure, keeping
 JSDoc-style comments that contain "@license" or
 "@preserve". You can optionally pass one of the
@@ -320,64 +280,49 @@ keep only comments that match.
 
 Note that currently not *all* comments can be kept
 when compression is on, because of dead code removal
-or cascading statements into sequences.
-*/});
+or cascading statements into sequences.`);
 
-opt("stats", undefined, 'bool', false, function(){/*
-Display operations run time on STDERR.
-*/});
+opt("stats", undefined, 'bool', false, `Display operations run time on STDERR.`);
 
-opt("tree_shaking", 'T,tree-shake', 'bool', false, function(){/*
-Enable tree shaking (dead code elimination). Removes
+opt("tree_shaking", 'T,tree-shake', 'bool', false, `Enable tree shaking (dead code elimination). Removes
 unused top-level functions and classes from the compiled
 output. If an imported module is referenced only from
 dead code, its import is removed entirely. Stdlib
 modules that are not used are also removed.
 Defaults to off. You can use the @no_prune decorator
 to prevent functions or classes from being pruned
-even when they are unused.
-*/});
+even when they are unused.`);
 
-opt("execute", 'x,exec', 'bool', false, function(){/*
-Compile and execute the RapydScript code, all in
+opt("execute", 'x,exec', 'bool', false, `Compile and execute the RapydScript code, all in
 one invocation. Useful if you wish to use RapydScript for
 scripting. Note that you can also use the -o option to
 have the compiled JavaScript written out to a file
 before being executed. If you specify this option you
 should not specify the -m option to omit the baselib, or
-execution will fail.
-*/});
+execution will fail.`);
 
-opt("source_map", 'S,sm', 'string', '', function(){/*
-Generate a source map and write it to the specified
+opt("source_map", 'S,sm', 'string', '', `Generate a source map and write it to the specified
 file path. A source map allows debuggers to map
 positions in the compiled JavaScript back to the
 original RapydScript source. When --output is set,
 a //# sourceMappingURL comment is automatically
 appended to the JavaScript output. When outputting
 to stdout, the comment is omitted since no output
-path is available to compute the URL.
-*/});
+path is available to compute the URL.`);
 
-create_group('repl', '', function(){/*
-Run a Read-Eval-Print-Loop (REPL). This allows
+create_group('repl', '', `Run a Read-Eval-Print-Loop (REPL). This allows
 you to type and run RapydScript at a live
-command prompt.
-*/});
+command prompt.`);
 
-opt("no_js", '', 'bool', false, function(){/*
-Do not display the compiled JavaScript before executing
-it.
-*/});
+opt("no_js", '', 'bool', false, `Do not display the compiled JavaScript before executing
+it.`);
 
-create_group('lint', "[input1.pyj input2.pyj ...]", function(){/*
-Run the RapydScript linter. This will find various
+create_group('lint', "[input1.pyj input2.pyj ...]", `Run the RapydScript linter. This will find various
 possible problems in the .pyj files you specify and
 write messages about them to stdout. Use - to read from STDIN.
 The main check it performs is for unused/undefined
-symbols, like pyflakes does for python.
-*/}, function() {/*
-In addition to the command line options listed below,
+symbols, like pyflakes does for python.`,
+`In addition to the command line options listed below,
 you can also control the linter in a couple of other ways.
 
 In the actual source files, you can turn off specific checks
@@ -410,125 +355,82 @@ file, like this:
 
 [rapydscript]
 globals=myglobalvar,otherglobalvar
-noqa=undef,eol-semicolon
+noqa=undef,eol-semicolon`);
 
-*/
-});
-
-opt("globals", 'g,b,builtins', 'string', '', function(){/*
-Comma separated list of additional names that the linter will
+opt("globals", 'g,b,builtins', 'string', '', `Comma separated list of additional names that the linter will
 treat as global symbols. It ignores undefined errors for
-global symbols.
-*/});
+global symbols.`);
 
-opt("noqa", 'e,ignore,exclude', 'string', '', function(){/*
-Comma separated list of linter checks to skip. The linter
+opt("noqa", 'e,ignore,exclude', 'string', '', `Comma separated list of linter checks to skip. The linter
 will not report errors corresponding to these checks.
 The check names are output in the linter's normal output, you
-can also list all check names with --noqa-list.
-*/});
+can also list all check names with --noqa-list.`);
 
-opt("errorformat", 'f,s,style', 'string', 'human', function(){/*
-Output the results in the specified format. Valid formats are:
+opt("errorformat", 'f,s,style', 'string', 'human', `Output the results in the specified format. Valid formats are:
 human - output is suited for reading by humans (the default)
 json  - output is in JSON format
 vim   - output can be consumed easily by vim's errorformat
         directive. Format is:
         filename:line:col:errortype:token:message [identifier]
 undef - output only the names of undefined symbols in a form that
-        can be easily copy/pasted
-*/}, ['human', 'json', 'vim', 'undef']);
+        can be easily copy/pasted`, ['human', 'json', 'vim', 'undef']);
 
-opt("noqa_list", '', 'bool', false, function(){/*
-List all available linter checks, with a brief
-description, and exit.
-*/});
+opt("noqa_list", '', 'bool', false, `List all available linter checks, with a brief
+description, and exit.`);
 
-opt('stdin_filename', '', 'string', 'STDIN', function(){/*
-The filename for data read from STDIN. If not specified
-STDIN is used.
-*/});
+opt('stdin_filename', '', 'string', 'STDIN', `The filename for data read from STDIN. If not specified
+STDIN is used.`);
 
-opt('input_list', 'l', 'string', '', function(){/*
-Read the list of input files from the specified file,
+opt('input_list', 'l', 'string', '', `Read the list of input files from the specified file,
 one filename per line. Use - to read the list from STDIN.
-Cannot be combined with - as an input file.
-*/});
+Cannot be combined with - as an input file.`);
 
-create_group('test', '[test1 test2...]', function(){/*
-Run RapydScript tests. You can specify the name of
+create_group('test', '[test1 test2...]', `Run RapydScript tests. You can specify the name of
 individual test files to only run tests from those
 files. For example:
-test baselib functions
-*/});
+test baselib functions`);
 
-create_group('self', '', function(){/*
-Compile the compiler itself. It will only actually
+create_group('self', '', `Compile the compiler itself. It will only actually
 compile if something has changed since the last time
 it was called. To force a recompilation, simply
-delete lib/signatures.json
-*/});
+delete lib/signatures.json`);
 
-opt("complete", 'c,f,full', 'bool', false, function(){/*
-Run the compilation repeatedly, as many times as neccessary,
+opt("complete", 'c,f,full', 'bool', false, `Run the compilation repeatedly, as many times as neccessary,
 so that the compiler is built with the most upto date version
-of itself.
-*/});
+of itself.`);
 
-opt("test", 't', 'bool', false, function(){/*
-Run the test suite after building completes.
-*/});
+opt("test", 't', 'bool', false, `Run the test suite after building completes.`);
 
-opt("profile", 'p', 'bool', false, function(){/*
-Run a CPU profiler which will output its data to
+opt("profile", 'p', 'bool', false, `Run a CPU profiler which will output its data to
 self.cpuprofile. The data can then be analysed with
-node-inspector.
-*/});
+node-inspector.`);
 
-create_group('gettext', "[input1.pyj input_dir ...]", function(){/*
-Extract strings marked for translation from the specified
-source files and directories.
-*/}, function() {/*
-Directories are scanned recursively for .pyj files. If no
+create_group('gettext', "[input1.pyj input_dir ...]", `Extract strings marked for translation from the specified
+source files and directories.`,
+`Directories are scanned recursively for .pyj files. If no
 arguments are specified, the source code is read from stdin.
 
 Translatable string are output on stdout in the .po format.
 Translatable strings are detected in the input as literal
-string arguments to the functions _(), gettext() and ngettext().
-*/
-});
+string arguments to the functions _(), gettext() and ngettext().`);
 
-opt("omit_header", 'm', 'bool', false, function(){/*
-Do not write header with 'msgid ""' entry.
-*/});
+opt("omit_header", 'm', 'bool', false, `Do not write header with 'msgid ""' entry.`);
 
-opt("package_name", '', 'string', 'XXX', function(){/*
-Set the package name in the header
-*/});
+opt("package_name", '', 'string', 'XXX', `Set the package name in the header`);
 
-opt("package_version", '', 'string', 'XXX', function(){/*
-Set the package version in the header
-*/});
+opt("package_version", '', 'string', 'XXX', `Set the package version in the header`);
 
-opt("bugs_address", 'bug_address', 'string', 'bugs@example.com', function(){/*
-Set the email address for bug reports in the header
-*/});
+opt("bugs_address", 'bug_address', 'string', 'bugs@example.com', `Set the email address for bug reports in the header`);
 
-create_group('msgfmt', "", function(){/*
-Compile a .po file into a .json file that can
-be used to load translations in a browser.
-*/}, function() {/*
-The .po file is read from
+create_group('msgfmt', "", `Compile a .po file into a .json file that can
+be used to load translations in a browser.`,
+`The .po file is read from
 stdin and the .json file written to stdout. Note
 that it is assumed the .po file is encoded in UTF-8.
 If you .po file is in some other encoding, you will need to
-convert it to UTF-8 first.
-*/
-});
+convert it to UTF-8 first.`);
 
-opt("use_fuzzy", 'f', 'bool', false, function(){/*
-Use fuzzy translations, they are ignored by default.
-*/});
+opt("use_fuzzy", 'f', 'bool', false, `Use fuzzy translations, they are ignored by default.`);
 
 
 export var argv = parse_args();
