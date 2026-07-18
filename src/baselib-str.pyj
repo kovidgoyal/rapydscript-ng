@@ -116,7 +116,7 @@ define_str_func('format', def ():
     template = this
     if template is undefined:
         raise TypeError("Template is required")
-    args = Array.prototype.slice.call(arguments)
+    args = Array.from(arguments)
     kwargs = {}
     if args[-1] and args[-1][ρσ_kwargs_symbol] is not undefined:
         kwargs = args[-1]

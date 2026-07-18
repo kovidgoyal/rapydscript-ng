@@ -47,7 +47,7 @@ def uuid4():
 def num_to_string(numbers, alphabet, pad_to_length):
     ans = v'[]'
     alphabet_len = alphabet.length
-    numbers = Array.prototype.slice.call(numbers)
+    numbers = Array.from(numbers)
     for v'var i = 0; i < numbers.length - 1; i++':
         x = divmod(numbers[i], alphabet_len)
         numbers[i] = x[0]

@@ -11,7 +11,7 @@ def strings():
     if not arguments.length:
         exclude = {'split', 'replace'}
     elif arguments[0]:
-        exclude = Array.prototype.slice.call(arguments)
+        exclude = Array.from(arguments)
     else:
         exclude = None
     if exclude:

@@ -403,7 +403,7 @@ def generate_tag(sz):
 
 def typed_array_as_js(x):
     name = x.constructor.name or 'Uint8Array'
-    return '(new ' + name + '(' + JSON.stringify(Array.prototype.slice.call(x)) + '))'
+    return '(new ' + name + '(' + JSON.stringify(Array.from(x)) + '))'
 
 class CBC(ModeOfOperation):  # {{{
 
