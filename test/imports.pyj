@@ -64,9 +64,11 @@ eq(GLOBAL_SYMBOL, 'i am global')
 # Import errors happen during parsing, so we cannot test them directly as they would
 # prevent this file from being parsed.
 
-assrt.throws(def():
-    RapydScript.parse('from _import_one import not_exported', {'basedir':test_path}).body[0]
-, /not exported/)
-assrt.throws(def():
-    RapydScript.parse('import xxxx', {'basedir':test_path}).body[0]
-, /doesn't exist/)
+Promise.all([
+    assrt.rejects(async def():
+        await RapydScript.parse('from _import_one import not_exported', {'basedir':test_path})
+    , /not exported/),
+    assrt.rejects(async def():
+        await RapydScript.parse('import xxxx', {'basedir':test_path})
+    , /doesn't exist/),
+])

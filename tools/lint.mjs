@@ -60,8 +60,8 @@ function cmp(a, b) {
     return (a < b) ? -1 : ((a > b) ? 1 : 0);
 }
 
-function parse_file(code, filename) {
-    return RapydScript.parse(code, {
+async function parse_file(code, filename) {
+    return await RapydScript.parse(code, {
         filename: filename,
         basedir: path.dirname(filename),
         libdir: path.dirname(filename),
@@ -567,7 +567,7 @@ function Linter(toplevel, filename, code, options) {
 
 }
 
-export function lint_code(code, options) {
+export async function lint_code(code, options) {
     options = options || {};
     var reportcb = {'json':cli_json_report, 'vim': cli_vim_report, 'undef': cli_undef_report}[options.errorformat] || (options.report || cli_report);
     var filename = options.filename || '<eval>';
@@ -575,7 +575,7 @@ export function lint_code(code, options) {
     var lines = code.split('\n');  // Can be used (in the future) to display extract from code corresponding to error location
 
     try {
-        toplevel = parse_file(code, filename);
+        toplevel = await parse_file(code, filename);
     } catch(e) {
         if (e instanceof RapydScript.ImportError) {
             messages = [{filename:filename, start_line:e.line, start_col:e.col, level:ERROR, ident:'import-err', message:e.message}];
@@ -737,7 +737,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
         });
 
         // Lint!
-        if (lint_code(code, {filename:path_for_filename(filename || '-'), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false}).length) all_ok = false;
+        if ((await lint_code(code, {filename:path_for_filename(filename || '-'), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false})).length) all_ok = false;
     }
 
     process.exit((all_ok) ? 0 : 1);

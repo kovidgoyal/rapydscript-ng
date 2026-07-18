@@ -74,7 +74,7 @@ async function write_history(options, history) {
 }
 
 
-export default function(options) {
+export default async function(options) {
     var RapydScript = _rapydscript_compiler();
     options = repl_defaults(options);
     options.completer = completer;
@@ -94,7 +94,7 @@ export default function(options) {
         return output.get();
     }
 
-	var ctx = create_ctx(print_ast(RapydScript.parse('(def ():\n yield 1\n)'), true), options.show_js, options.console);
+	var ctx = create_ctx(print_ast(await RapydScript.parse('(def ():\n yield 1\n)'), true), options.show_js, options.console);
     ctx.RapydScript = RapydScript;
     var buffer = [];
     var more = false;
@@ -153,11 +153,11 @@ export default function(options) {
         }
     }
 
-    function compile_source(source) {
+    async function compile_source(source) {
         var classes = (toplevel) ? toplevel.classes : undefined;
         var scoped_flags = (toplevel) ? toplevel.scoped_flags: undefined;
         try {
-            toplevel = RapydScript.parse(source, {
+            toplevel = await RapydScript.parse(source, {
                 'filename':'<repl>',
                 'basedir': process.cwd(),
                 'libdir': options.imp_path,
@@ -185,27 +185,27 @@ export default function(options) {
         return false;
     }
 
-    function push(line) {
+    async function push(line) {
         buffer.push(line);
         var ll = line.trimRight();
         if (ll && LINE_CONTINUATION_CHARS.indexOf(ll.substr(ll.length - 1)) > -1)
             return true;
         var source = buffer.join('\n');
         if (!source.trim()) { resetbuffer(); return false; }
-        var incomplete = compile_source(source);
+        var incomplete = await compile_source(source);
         if (!incomplete) resetbuffer();
         return incomplete;
     }
 
-	rl.on('line', function(line) {
+	rl.on('line', async function(line) {
         if (more) {
             // We are in a block
             var line_is_empty = !line.trimLeft();
             if (line_is_empty && buffer.length && !buffer[buffer.length - 1].trimLeft()) {
                 // We have two empty lines, evaluate the block
-                more = push(line.trimLeft());
+                more = await push(line.trimLeft());
             } else buffer.push(line);
-        } else more = push(line);  // Not in a block, evaluate line
+        } else more = await push(line);  // Not in a block, evaluate line
 		prompt();
 	})
 

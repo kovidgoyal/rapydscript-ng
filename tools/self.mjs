@@ -28,7 +28,7 @@ async function compile_baselib(RapydScript, src_path) {
         var name = fname.slice('baselib-'.length, -4), ast;
         var raw = await fs.promises.readFile(path.join(src_path, fname), 'utf-8');
         try {
-            ast = RapydScript.parse(raw, {filename:fname, basedir:src_path});
+            ast = await RapydScript.parse(raw, {filename:fname, basedir:src_path});
         } catch (e) {
             if (!(e instanceof RapydScript.SyntaxError)) throw e;
             console.error(e.toString());
@@ -117,8 +117,8 @@ async function compile(src_path, lib_path, sources, source_hash, profile) {
 
     var raw = sources[file], toplevel;
 
-	function parse_file(code, file) {
-		return RapydScript.parse(code, {
+	async function parse_file(code, file) {
+		return await RapydScript.parse(code, {
 			filename: file,
 			basedir: path.dirname(file),
 			libdir: path.join(src_path, 'lib'),
@@ -130,7 +130,7 @@ async function compile(src_path, lib_path, sources, source_hash, profile) {
             profiler = require('v8-profiler');
             profiler.startProfiling();
         }
-        toplevel = parse_file(raw, file);
+        toplevel = await parse_file(raw, file);
         if (profile) {
             cpu_profile = profiler.stopProfiling();
             await fs.promises.writeFile('self.cpuprofile', JSON.stringify(cpu_profile), 'utf-8');

@@ -48,13 +48,10 @@ function uglify(code) {
 
 async function create_compiler() {
     var compiler_exports = {};
-    // readfile/writefile must be synchronous: the parser (compiled from parse.pyj) calls
-    // them synchronously during module import resolution and AST caching. Making them async
-    // would require adding async/await support to the RapydScript language itself.
     var compiler_context = vm.createContext({
         console       : console,
-        readfile      : (p, enc) => fs.readFileSync(p, enc),
-        writefile     : (p, data) => fs.writeFileSync(p, data),
+        readfile      : async (p, enc) => fs.promises.readFile(p, enc),
+        writefile     : async (p, data) => fs.promises.writeFile(p, data),
         sha1sum       : sha1sum,
         require       : _cjs_require,
         exports       : compiler_exports,
@@ -76,7 +73,7 @@ async function create_compiler() {
 }
 
 async function create_embedded_compiler(compiler, baselib, runjs, name) {
-    return embedded_compiler_factory(compiler || await create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
+    return await embedded_compiler_factory(compiler || await create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
 }
 
 export { create_compiler, create_embedded_compiler, generate_source_map };

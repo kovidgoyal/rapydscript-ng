@@ -95,8 +95,8 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
         process.exit(1);
     }
 
-    function parse_file(code, file, toplevel) {
-        return RapydScript.parse(code, {
+    async function parse_file(code, file, toplevel) {
+        return await RapydScript.parse(code, {
             filename: file,
             toplevel: toplevel,
             basedir: (file !== '<stdin>') ? path.dirname(file) : undefined,
@@ -130,9 +130,9 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
         }
     }
 
-    function time_it(name, cont) {
+    async function time_it(name, cont) {
         var t1 = new Date().getTime();
-        var ret = cont();
+        var ret = await cont();
         if (argv.stats) {
             var spent = new Date().getTime() - t1;
             if (STATS[name]) STATS[name] += spent;
@@ -153,10 +153,10 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
         }
 
         var output_stream;
-        time_it("parse", function(){
+        await time_it("parse", async function(){
             var file = filename || argv.filename_for_stdin || '<stdin>';
             try {
-                TOPLEVEL = parse_file(code, file, TOPLEVEL);
+                TOPLEVEL = await parse_file(code, file, TOPLEVEL);
             } catch (e) {
                 if (!(e instanceof RapydScript.SyntaxError)) throw e;
                 console.error(e.toString());

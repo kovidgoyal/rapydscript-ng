@@ -12,8 +12,8 @@ import path from 'path';
 var _rapydscript_compiler = typeof create_rapydscript_compiler !== 'undefined' ? create_rapydscript_compiler : globalThis.create_rapydscript_compiler;
 var RapydScript = _rapydscript_compiler();
 
-function parse_file(code, filename) {
-    return RapydScript.parse(code, {
+async function parse_file(code, filename) {
+    return await RapydScript.parse(code, {
         filename: filename,
         basedir: path.dirname(filename),
         libdir: path.dirname(filename),
@@ -58,11 +58,11 @@ function Gettext(catalog, filename) {
     };
 }
 
-function gettext(catalog, code, filename) {
+async function gettext(catalog, code, filename) {
     var toplevel;
 
     try {
-        toplevel = parse_file(code, filename);
+        toplevel = await parse_file(code, filename);
     } catch(e) {
         if (e instanceof RapydScript.SyntaxError) {
             console.error('Failed to parse: ' + filename + ' with error: ' + e.line + ':' + e.col + ':' + e.message);
@@ -167,7 +167,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
             console.error("ERROR: can't read file: " + f);
             process.exit(1);
         }
-        gettext(catalog, code, f);
+        await gettext(catalog, code, f);
     }
 
     write_output(catalog, argv);

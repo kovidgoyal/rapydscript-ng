@@ -40,48 +40,49 @@ class FakeReadline:
         stdout.push(self._prompt)
 
     def send_line(self, text):
-        self.listeners['line'](text)
+        return self.listeners['line'](text)
 
 repl = rs_repl
 rl = FakeReadline()
-
-send_line = rl.send_line.bind(rl)
-
-def send_text(text):
-    for line in text.split('\n'):
-        send_line(line)
-
-def check(text, output):
-    send_text(text)
-    eq(output, stdout[0])
-    clear()
-
-def check_in(text, output):
-    send_text(text)
-    assrt.ok(output in stdout, output + ' not in ' + stdout)
-    clear()
-
-def check_not_in(text, output):
-    send_text(text)
-    assrt.ok(output not in stdout)
-    clear()
 
 readline = {
     'createInterface': def(options):
         rl.completer = options.completer
         return rl
 }
-repl({'lib_path':compiler_dir, 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
-eq = assrt.equal
-eq('>>> ', stdout[-1])
-clear()
-check('1', '1')
-check_in('if 1:\n  2\n  \n  ', '2')
-check_not_in('if 1:\n  2\n ', '2')
-check_in('1 +\n1\n\n', '2')
-check('max(1, 2)', '2')
-send_text(
-'''
+
+async def run_tests():
+    await repl({'lib_path':compiler_dir, 'console':FakeConsole(), 'readline':readline, 'terminal':False, 'show_js':False, 'histfile':False})
+    eq = assrt.equal
+
+    async def send_text(text):
+        for line in text.split('\n'):
+            await rl.send_line(line)
+
+    async def check(text, output):
+        await send_text(text)
+        eq(output, stdout[0])
+        clear()
+
+    async def check_in(text, output):
+        await send_text(text)
+        assrt.ok(output in stdout, output + ' not in ' + stdout)
+        clear()
+
+    async def check_not_in(text, output):
+        await send_text(text)
+        assrt.ok(output not in stdout)
+        clear()
+
+    eq('>>> ', stdout[-1])
+    clear()
+    await check('1', '1')
+    await check_in('if 1:\n  2\n  \n  ', '2')
+    await check_not_in('if 1:\n  2\n ', '2')
+    await check_in('1 +\n1\n\n', '2')
+    await check('max(1, 2)', '2')
+    await send_text(
+    '''
 class A:
 
     def __init__(self, a):
@@ -89,33 +90,37 @@ class A:
 
 
 ''')
-clear()
-check_in('b = A(1)\nb.a', '1')
-check_in('c = A(2)\nc.a', '2')
-send_text('from __python__ import dict_literals\nd={1:1}')
-check_in('isinstance(d, dict)', 'true')
-send_text('from __python__ import no_dict_literals\nd={1:1}')
-check_in('isinstance(d, dict)', 'false')
-# Test completions
-def completions(line):
-    return rl.completer(line)[0]
+    clear()
+    await check_in('b = A(1)\nb.a', '1')
+    await check_in('c = A(2)\nc.a', '2')
+    await send_text('from __python__ import dict_literals\nd={1:1}')
+    await check_in('isinstance(d, dict)', 'true')
+    await send_text('from __python__ import no_dict_literals\nd={1:1}')
+    await check_in('isinstance(d, dict)', 'false')
+    # Test completions
+    def completions(line):
+        return rl.completer(line)[0]
 
-def check_completions():
-    items = completions(arguments[0])
-    for x in Array.prototype.slice.call(arguments, 1):
-        assrt.ok(items and x in items, x + ' not in completions for: ' + arguments[0])
+    def check_completions():
+        items = completions(arguments[0])
+        for x in Array.prototype.slice.call(arguments, 1):
+            assrt.ok(items and x in items, x + ' not in completions for: ' + arguments[0])
 
-check_completions('', 'return', 'A')
-check_completions('Array.', 'isArray', 'apply')
-send_text('x = ""\ny = []'), clear()
-check_completions('x.', 'substr', 'trim')
-check_completions('y.', 'concat', 'push')
-check_completions('x.sl', 'slice')
-send_text('y = {"x":1}'), clear()
-check_completions('y.', 'x')
+    check_completions('', 'return', 'A')
+    check_completions('Array.', 'isArray', 'apply')
+    await send_text('x = ""\ny = []')
+    clear()
+    check_completions('x.', 'substr', 'trim')
+    check_completions('y.', 'concat', 'push')
+    check_completions('x.sl', 'slice')
+    await send_text('y = {"x":1}')
+    clear()
+    check_completions('y.', 'x')
 
-# Test docstrings
-clear()
-send_text('def ds():\n "xxx"\n\n')
-clear()
-check('ds.__doc__', "'xxx'")
+    # Test docstrings
+    clear()
+    await send_text('def ds():\n "xxx"\n\n')
+    clear()
+    await check('ds.__doc__', "'xxx'")
+
+run_tests()

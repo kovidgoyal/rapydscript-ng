@@ -2,10 +2,12 @@
 
 import traceback
 
+_throw_test_promises = []
+
 def throw_test(code):
-    assrt.throws(def():
-        RapydScript.parse(code, {'filename':code}).body[0]
-    , RapydScript.SyntaxError)
+    _throw_test_promises.append(assrt.rejects(async def():
+        await RapydScript.parse(code, {'filename':code})
+    , RapydScript.SyntaxError))
 
 # unary operators
 assrt.equal(-(1), -1)
@@ -368,3 +370,5 @@ if "1" + "2" not in ["1", "2"]:
     assrt.ok(1)
 else:
     assrt.ok(0)
+
+Promise.all(_throw_test_promises)

@@ -8,10 +8,10 @@
 
 var has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 
-export default function(compiler, baselib, runjs, name, tree_shake, generate_source_map) {
+export default async function(compiler, baselib, runjs, name, tree_shake, generate_source_map) {
     var LINE_CONTINUATION_CHARS = ':\\';
     runjs = runjs || eval;
-    runjs(print_ast(compiler.parse(''), true));
+    runjs(print_ast(await compiler.parse(''), true));
     runjs('var __name__ = "' + (name || '__embedded__') + '";');
 
     function print_ast(ast, keep_baselib, keep_docstrings, js_version, private_scope, write_name, source_map, source_map_line_offset) {
@@ -30,7 +30,7 @@ export default function(compiler, baselib, runjs, name, tree_shake, generate_sou
             opts = opts || {};
             var classes = (this.toplevel) ? this.toplevel.classes : undefined;
             var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;
-            this.toplevel = compiler.parse(code, {
+            this.toplevel = await compiler.parse(code, {
                 'filename': opts.filename || '<embedded>',
                 'basedir': '__stdlib__',
                 'classes': classes,

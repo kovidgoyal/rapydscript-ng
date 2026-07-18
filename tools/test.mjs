@@ -57,7 +57,7 @@ export default async function(argv, base_path, src_path, lib_path) {
         let ast;
         try {
             src = await fs.promises.readFile(filepath, "utf-8");
-            ast = RapydScript.parse(src, {
+            ast = await RapydScript.parse(src, {
                 filename: file,
                 toplevel: ast,
                 basedir: test_dir,

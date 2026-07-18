@@ -9,8 +9,9 @@ def get(obj, name):
 
 # Test the parsing of function definitions {{{
 
-def basic_test(code, arglen, starargs, kwargs, defaults):
-    func = RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
+async def basic_test(code, arglen, starargs, kwargs, defaults):
+    result = await RapydScript.parse('def func(' + code + '): pass\n', {'filename':code})
+    func = result.body[0]
     eq(func.argnames.args.length, arglen)
     eq(get(func.argnames.starargs, 'name'), starargs)
     eq(get(func.argnames.kwargs, 'name'), kwargs)
@@ -22,34 +23,16 @@ def basic_test(code, arglen, starargs, kwargs, defaults):
         de(fd, defaults)
     return func
 
+_throw_test_promises = []
+
 def throw_test(code):
-    assrt.throws(def():
-        RapydScript.parse('def func(' + code + '): pass\n', {'filename':code}).body[0]
-    , RapydScript.SyntaxError)
+    _throw_test_promises.append(assrt.rejects(async def():
+        await RapydScript.parse('def func(' + code + '): pass\n', {'filename':code})
+    , RapydScript.SyntaxError))
 
-basic_test('a, b, c', 3)
-basic_test('*args', 0, 'args')
-basic_test('a, b, *args', 2, 'args')
-throw_test('*args, a')
-throw_test('*args, *a')
-basic_test('**kwargs', 0, undefined, 'kwargs')
-basic_test('*args, **kwargs', 0, 'args', 'kwargs')
-basic_test('a, b, *args, **kwargs', 2, 'args', 'kwargs')
-throw_test('**kw, *a')
-throw_test('**kw, **a')
-basic_test('a=1, b="2"', 2, None, None, {'a':1, 'b':"2"})
-basic_test('x, a=1, b="2", *args, **kw', 3, 'args', 'kw', {'a':1, 'b':"2"})
-throw_test('a=1, b')
-throw_test('**k, a=1')
-throw_test('a, a')
-throw_test('a, a=1')
-throw_test('*a, **a')
-# }}}
-
-# Test parsing of function calls {{{
-
-def parse_call_test(code, arglen, opts):
-    func = RapydScript.parse('f(' + code + ')', {'filename':code}).body[0].body
+async def parse_call_test(code, arglen, opts):
+    result = await RapydScript.parse('f(' + code + ')', {'filename':code})
+    func = result.body[0].body
     opts = opts or {}
     eq(func.args.args.length, arglen, 'Incorrect len for: ' + code)
     if (opts.starargs != undefined):
@@ -58,15 +41,37 @@ def parse_call_test(code, arglen, opts):
     if (opts.kwargs != undefined):
         de(opts.kwargs, [x[0].name for x in func.args.kwargs])
 
+async def run_parse_tests():
+    await basic_test('a, b, c', 3)
+    await basic_test('*args', 0, 'args')
+    await basic_test('a, b, *args', 2, 'args')
+    throw_test('*args, a')
+    throw_test('*args, *a')
+    await basic_test('**kwargs', 0, undefined, 'kwargs')
+    await basic_test('*args, **kwargs', 0, 'args', 'kwargs')
+    await basic_test('a, b, *args, **kwargs', 2, 'args', 'kwargs')
+    throw_test('**kw, *a')
+    throw_test('**kw, **a')
+    await basic_test('a=1, b="2"', 2, None, None, {'a':1, 'b':"2"})
+    await basic_test('x, a=1, b="2", *args, **kw', 3, 'args', 'kw', {'a':1, 'b':"2"})
+    throw_test('a=1, b')
+    throw_test('**k, a=1')
+    throw_test('a, a')
+    throw_test('a, a=1')
+    throw_test('*a, **a')
 
-parse_call_test('a, b, c', 3)
-parse_call_test('*args', 1, {'starargs':[[0, 'args']]})
-parse_call_test('a, b, *args', 3, {'starargs':[[2, 'args']]})
-parse_call_test('a, *args, b, *a2', 4, {'starargs':[[1, 'args'], [3, 'a2']]})
-parse_call_test('a=1', 0, {'kwargs':['a']})
-parse_call_test('a=1, b', 1, {'kwargs':['a']})
-parse_call_test('a=1, b, **kwargs, *args, **k2', 2, {'kwargs':['a'], 'kw':['kwargs', 'k2'], 'starargs':[[1,'args']]})
+    await parse_call_test('a, b, c', 3)
+    await parse_call_test('*args', 1, {'starargs':[[0, 'args']]})
+    await parse_call_test('a, b, *args', 3, {'starargs':[[2, 'args']]})
+    await parse_call_test('a, *args, b, *a2', 4, {'starargs':[[1, 'args'], [3, 'a2']]})
+    await parse_call_test('a=1', 0, {'kwargs':['a']})
+    await parse_call_test('a=1, b', 1, {'kwargs':['a']})
+    await parse_call_test('a=1, b, **kwargs, *args, **k2', 2, {'kwargs':['a'], 'kw':['kwargs', 'k2'], 'starargs':[[1,'args']]})
+
+    await Promise.all(_throw_test_promises)
 # }}}
+
+_parse_tests_promise = run_parse_tests()
 
 # Test calling {{{
 
@@ -340,3 +345,5 @@ class Prnb1(Prnb):
 p = Prnb1(1, 2, x=1, y=2)
 de(p.a, [1, 2])
 de(p.k, {'x': 1, 'y':2})
+
+_parse_tests_promise

@@ -183,14 +183,14 @@
         return a1.substr(0, i);
     }
 
-    function on_input(ev) {
+    async function on_input(ev) {
         var input, source;
         var code = ev.keyCode || ev.which;
         if (code === 13 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey) {  // Enter
             input = document.getElementById('input');
             source = input.value;
             ev.preventDefault();
-            if (web_repl.is_input_complete(source)) {
+            if (await web_repl.is_input_complete(source)) {
                 setTimeout(run_code, 0);
                 return;
             }
@@ -220,8 +220,8 @@
 
     }
 
-    function on_load() {
-        web_repl = RapydScript.web_repl();
+    async function on_load() {
+        web_repl = await RapydScript.web_repl();
         web_repl.replace_print(println);
         web_repl.init_completions(RapydScript.completer);
         document.getElementById('loading').style.display = 'none';

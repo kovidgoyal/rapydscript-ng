@@ -234,16 +234,16 @@ function create_compiler() {
     var compilerjs = data['compiler.js'];
     var module = {'id':'compiler', 'exports':{}};
     var wrapped = '(function(module, exports, readfile, writefile, sha1sum) {' + data['compiler.js'] + ';\n})';
-    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, fs.readFileSync, fs.writeFileSync, sha1sum);
+    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, sha1sum);
     return module.exports;
 }
 
 var RapydScript = null;
 
-function compile(code, filename, options) {
+async function compile(code, filename, options) {
     if (!RapydScript) RapydScript = create_compiler();
     options = options || {};
-    var ast = RapydScript.parse(code, {
+    var ast = await RapydScript.parse(code, {
         filename: filename || '<eval>',
         basedir: options.basedir || dirname(filename || ''),
         libdir: options.libdir,
@@ -260,16 +260,16 @@ function compile(code, filename, options) {
     return out.get();
 }
 
-function create_embedded_compiler(runjs) {
+async function create_embedded_compiler(runjs) {
     var c = vrequire('tools/embedded_compiler');
     var ts = vrequire('tools/treeshake');
     var sm = vrequire('tools/sourcemap');
-    return c(create_compiler(), data['baselib-plain-pretty.js'], runjs, undefined, ts, sm.generate_source_map);
+    return await c(create_compiler(), data['baselib-plain-pretty.js'], runjs, undefined, ts, sm.generate_source_map);
 }
 
-function web_repl() {
+async function web_repl() {
     var repl = vrequire('tools/web_repl');
-    return repl(create_compiler(), data['baselib-plain-pretty.js']);
+    return await repl(create_compiler(), data['baselib-plain-pretty.js']);
 }
 
 function init_repl(options) {

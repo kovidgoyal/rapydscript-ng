@@ -11,11 +11,11 @@ import embedded_compiler from './embedded_compiler.mjs';
 import tree_shake from './treeshake.mjs';
 import { generate_source_map } from './sourcemap.mjs';
 
-export default function(compiler, baselib) {
+export default async function(compiler, baselib) {
     var ctx = vm.createContext();
     var LINE_CONTINUATION_CHARS = ':\\';
     var find_completions = null;
-    var streaming_compiler = embedded_compiler(compiler, baselib, function(js) { return vm.runInContext(js, ctx); }, '__repl__', tree_shake, generate_source_map);
+    var streaming_compiler = await embedded_compiler(compiler, baselib, function(js) { return vm.runInContext(js, ctx); }, '__repl__', tree_shake, generate_source_map);
 
     return {
         'in_block_mode': false,
@@ -29,7 +29,7 @@ export default function(compiler, baselib) {
             };
         },
 
-        'is_input_complete': function is_input_complete(source) {
+        'is_input_complete': async function is_input_complete(source) {
             if (!source || !source.trim()) return false;
             var lines = source.split('\n');
             var last_line = lines[lines.length - 1].trimRight();
@@ -48,7 +48,7 @@ export default function(compiler, baselib) {
                 return false;
             }
             try {
-                compiler.parse(source, {'filename': '<repl>', 'basedir': '__stdlib__'});
+                await compiler.parse(source, {'filename': '<repl>', 'basedir': '__stdlib__'});
             } catch(e) {
                 if (e.is_eof && e.line === lines.length && e.col > 0) {
                     return false;
