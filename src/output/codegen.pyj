@@ -18,7 +18,7 @@ from ast import (
     AST_Statement, AST_StatementWithBody, AST_String, AST_Sub, AST_ItemAccess,
     AST_Symbol, AST_This, AST_Throw, AST_Toplevel, AST_Try, AST_Unary,
     AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef, AST_Assert,
-    AST_Verbatim, AST_While, AST_With, AST_Yield, TreeWalker, AST_Existential
+    AST_Verbatim, AST_While, AST_With, AST_Yield, AST_Await, TreeWalker, AST_Existential
 )
 from output.exceptions import print_try
 from output.classes import print_class
@@ -262,6 +262,11 @@ def generate_code():
 
     DEFPRINT(AST_Yield, def(self, output):
         self._do_print(output, "yield" + ('*' if self.is_yield_from else ''))
+    )
+    DEFPRINT(AST_Await, def(self, output):
+        output.print("await")
+        output.space()
+        self.value.print(output)
     )
     DEFPRINT(AST_Return, def(self, output):
         self._do_print(output, "return")

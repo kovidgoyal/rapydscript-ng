@@ -83,7 +83,7 @@ export default async function(argv, base_path, src_path, lib_path) {
         var jsfile = path.join(os.tmpdir(), file + '-es6.js');
         var code = output.toString();
         try {
-            vm.runInNewContext(code, {
+            let result = vm.runInNewContext(code, {
                 'assrt':assert,
                 '__name__': jsfile,
                 'require':require,
@@ -99,6 +99,9 @@ export default async function(argv, base_path, src_path, lib_path) {
                 'rs_repl': rs_repl_fn,
                 'rs_generate_source_map': rs_generate_source_map,
             }, {'filename':jsfile});
+            if (result && typeof result.then === 'function') {
+                await result;
+            }
         } catch (e) {
             failures.push(file);
             failed = true;

@@ -3,10 +3,11 @@ version 0.8.0
 
   * Implement generation of source maps via the --source-map option
   * Implement dead code removal iva the --tree-shaking option
+  * Add support for async and await
   * Drop support for ES5
   * Change the cache format to cache only the AST and not final output so that
     the cache can be re-used regardless of output and tree shaking options
-  * Make the compiler internal use async IO. THis means the embedded compiler
+  * Make the compiler internal use async IO. This means the embedded compiler
     functions are also async.
  
 version 0.7.24

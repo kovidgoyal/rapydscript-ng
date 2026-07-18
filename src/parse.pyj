@@ -21,7 +21,7 @@ AST_SymbolCatch, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
-AST_Yield, AST_Assert, AST_Existential, is_node_type
+AST_Yield, AST_Await, AST_Assert, AST_Existential, is_node_type
 )
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
@@ -504,6 +504,23 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return import_(False)
             elif tmp_ is "class":
                 return class_()
+            elif tmp_ is "async":
+                if not is_('keyword', 'def'):
+                    croak("Expected 'def' after 'async'")
+                next()
+                start = prev()
+                func = function_(S.in_class[-1], False, True)
+                func.start = start
+                func.end = prev()
+                chain = subscripts(func, True)
+                if chain is func:
+                    return func
+                else:
+                    return new AST_SimpleStatement({
+                        'start': start,
+                        'body': chain,
+                        'end': prev()
+                    })
             elif tmp_ is "def":
                 start = prev()
                 func = function_(S.in_class[-1], False)
@@ -539,6 +556,13 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.functions[-1].is_generator = False
 
                 return new AST_Return({'value':return_()})
+            elif tmp_ is "await":
+                if S.in_function is 0 or not S.functions[-1].is_async:
+                    croak("'await' outside of async function")
+                value = expr_atom(True)
+                node = new AST_Await({'value': value})
+                semicolon()
+                return new AST_SimpleStatement({'body': node})
             elif tmp_ is "yield":
                 return yield_()
             elif tmp_ is "raise":
@@ -613,6 +637,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     def yield_():
         if S.in_function is 0:
             croak("'yield' outside of function")
+        if S.functions[-1].is_async:
+            croak("'yield' not allowed in an async function")
         if S.functions[-1].is_generator is False:
             croak("'yield' not allowed in a function with return")
         S.functions[-1].is_generator = True
@@ -1008,7 +1034,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 definition.statements.push(stmt)
         return definition
 
-    def function_(in_class, is_expression):
+    def function_(in_class, is_expression, is_async=False):
         name = as_symbol(AST_SymbolDefun if in_class else AST_SymbolLambda) if is_('name') else None
         if in_class and not name:
             croak('Cannot use anonymous function as class methods')
@@ -1168,7 +1194,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 S.classes.push({})
                 S.scoped_flags.push()
                 S.in_function += 1
-                S.functions.push({})
+                S.functions.push({'is_async': is_async})
                 S.in_loop = 0
                 S.labels = []
                 a = block_(docstrings)
@@ -1184,6 +1210,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         })
         definition.return_annotation = return_annotation
         definition.is_generator = is_generator[0]
+        definition.is_async = is_async
         if is_node_type(definition, AST_Method):
             definition.static = staticmethod
             definition.is_getter = property_getter
@@ -1193,8 +1220,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if definition.name and definition.name.name is '__init__':
                 if definition.is_generator:
                     croak('The __init__ method of a class cannot be a generator (yield not allowed)')
+                if definition.is_async:
+                    croak('The __init__ method of a class cannot be async')
                 if property_getter or property_setter:
                     croak('The __init__ method of a class cannot be a property getter/setter')
+        if definition.is_async and definition.is_generator:
+            croak('A function cannot be both async and a generator')
         if definition.is_generator:
             baselib_items['yield'] = True
 
@@ -1475,12 +1506,29 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cls.end = prev()
             return subscripts(cls, allow_calls)
 
+        if is_("keyword", "async"):
+            next()
+            if not is_("keyword", "def"):
+                croak("Expected 'def' after 'async'")
+            next()
+            func = function_(False, True, True)
+            func.start = start
+            func.end = prev()
+            return subscripts(func, allow_calls)
+
         if is_("keyword", "def"):
             next()
             func = function_(False, True)
             func.start = start
             func.end = prev()
             return subscripts(func, allow_calls)
+
+        if is_('keyword', 'await'):
+            next()
+            if S.in_function is 0 or not S.functions[-1].is_async:
+                croak("'await' outside of async function")
+            value = expr_atom(True)
+            return new AST_Await({'value': value})
 
         if is_('keyword', 'yield'):
             next()

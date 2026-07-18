@@ -42,6 +42,7 @@ backwards compatible) features. For more on the forking, [see the bottom of this
   - [Method Binding](#method-binding)
 - [Iterators](#iterators)
 - [Generators](#generators)
+- [Asnyc and Await](#async-and-await)
 - [Modules](#modules)
 - [Exception Handling](#exception-handling)
 - [Scope Control](#scope-control)
@@ -1253,6 +1254,13 @@ syntax.
 
 Generators create JavaScript iterator objects. For differences between python
 and JavaScript iterators, see the section on iterators above. 
+
+Async and Await
+------------------
+
+Python's ``async`` and ``await`` keywords are supported, but note that async
+functions return JavaScript Promise objects not co-routines. This is so that
+they interoperate with the JS ecosystem and browser APIs in particular.
 
 Modules
 -------

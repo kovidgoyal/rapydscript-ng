@@ -401,6 +401,7 @@ class AST_Lambda(AST_Scope):
         'argnames': "[AST_ArgsDef] the function argument definitions",
         'decorators': "[AST_Decorator*] function decorators, if any",
         'is_generator': "[bool*] True iff this function is a generator",
+        'is_async': "[bool*] True iff this function is an async function",
         'is_expression': "[bool*] True iff this function is a function expression",
         'is_anonymous': "[bool*] True iff this function is an anonymous function",
         "return_annotation": "[AST_Node?] The return type annotation provided (if any)",
@@ -482,6 +483,18 @@ class AST_Yield(AST_Return):
     properties = {
         'is_yield_from': "[bool] True iff this is a yield from, False otherwise"
     }
+
+class AST_Await(AST_Node):
+    "An await expression"
+    properties = {
+        'value': "[AST_Node] the expression being awaited"
+    }
+
+    def _walk(self, visitor):
+        return visitor._visit(self, def():
+            if self.value:
+                self.value._walk(visitor)
+        )
 
 class AST_Throw(AST_Exit):
     "A `throw` statement"

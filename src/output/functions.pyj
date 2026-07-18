@@ -196,6 +196,8 @@ def function_definition(self, output, strip_first, as_expression):
         output.set_indentation(output.next_indent())
         output.spaced('(function()', '{'), output.newline()
         output.indent(), output.spaced('var', anonfunc, '='), output.space()
+    if self.is_async:
+        output.print("async"), output.space()
     output.print("function"), output.space()
     if self.name:
         self.name.print(output)

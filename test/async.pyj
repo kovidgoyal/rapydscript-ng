@@ -1,0 +1,96 @@
+# Tests for async/await support
+
+async def async_identity(x):
+    return x
+
+async def async_add(x, y):
+    a = await async_identity(x)
+    b = await async_identity(y)
+    return a + b
+
+async def async_raises():
+    raise TypeError("async error")
+
+async def async_chain(n):
+    if n <= 0:
+        return 0
+    prev = await async_chain(n - 1)
+    return prev + n
+
+class AsyncCounter:
+    def __init__(self):
+        self.count = 0
+
+    async def increment(self, amount):
+        val = await async_identity(amount)
+        self.count += val
+        return self.count
+
+    async def reset(self):
+        self.count = 0
+        return self.count
+
+    async def get(self):
+        return await async_identity(self.count)
+
+async def run_tests():
+    # Basic async function returning a value
+    result = await async_identity(42)
+    assrt.equal(result, 42, "basic await identity")
+
+    # Multiple awaits in sequence
+    result = await async_add(3, 4)
+    assrt.equal(result, 7, "sequential awaits")
+
+    # Calling an async function without await returns a Promise
+    p = async_identity(10)
+    assrt.ok(v"p instanceof Promise", "async fn returns Promise")
+    resolved = await p
+    assrt.equal(resolved, 10, "awaiting stored Promise")
+
+    # Recursive async functions
+    result = await async_chain(5)
+    assrt.equal(result, 15, "recursive async (1+2+3+4+5)")
+
+    # Async class methods
+    counter = AsyncCounter()
+    result = await counter.increment(5)
+    assrt.equal(result, 5, "async method first increment")
+    result = await counter.increment(3)
+    assrt.equal(result, 8, "async method second increment")
+    result = await counter.get()
+    assrt.equal(result, 8, "async getter method")
+    result = await counter.reset()
+    assrt.equal(result, 0, "async reset method")
+
+    # Exception propagation through async boundaries
+    caught = False
+    try:
+        await async_raises()
+    except TypeError as e:
+        caught = True
+        assrt.ok(str(e).indexOf("async error") >= 0, "exception message preserved")
+    assrt.ok(caught, "exception propagated through await")
+
+    # async def as an expression (assigned to variable)
+    fn = async def(x): return x * 2
+    result = await fn(7)
+    assrt.equal(result, 14, "async lambda expression")
+
+    # Await in a nested async function
+    async def outer(x):
+        async def inner(y):
+            return await async_identity(y + 1)
+        return await inner(x)
+    result = await outer(9)
+    assrt.equal(result, 10, "nested async functions")
+
+    # Promise.all equivalent via verbatim JS
+    p1 = async_identity(100)
+    p2 = async_identity(200)
+    results = await v"Promise.all([p1, p2])"
+    assrt.equal(results[0], 100, "Promise.all first")
+    assrt.equal(results[1], 200, "Promise.all second")
+
+# Return the promise so the test runner can await it
+run_tests()

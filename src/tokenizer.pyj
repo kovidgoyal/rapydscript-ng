@@ -81,16 +81,16 @@ PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"))
 
 PUNC_CHARS = make_predicate(characters("[]{}(),;:?"))
 
-KEYWORDS = "as assert break class continue def del do elif else except finally for from global if import in is new nonlocal pass raise return yield try while with or and not"
+KEYWORDS = "as assert async await break class continue def del do elif else except finally for from global if import in is new nonlocal pass raise return yield try while with or and not"
 
 KEYWORDS_ATOM = "False None True"
 
 # see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar
 RESERVED_WORDS = ("break case class catch const continue debugger default delete do else export extends"
 " finally for function if import in instanceof new return super switch this throw try typeof var void"
-" while with yield enum implements static private package let public protected interface await null true false" )
+" while with yield enum implements static private package let public protected interface null true false" )
 
-KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if"
+KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if await"
 
 ALL_KEYWORDS = KEYWORDS + " " + KEYWORDS_ATOM
 
