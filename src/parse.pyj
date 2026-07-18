@@ -2375,7 +2375,7 @@ async def parse(text, options):
             obj = options.classes[cname]
             S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound, 'classvars': obj.classvars }
 
-    if options.module_cache_dir and jstype(text) is 'string':
+    if jstype(text) is 'string':
         options._src_hash = sha1sum(text)
 
     return await create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)()

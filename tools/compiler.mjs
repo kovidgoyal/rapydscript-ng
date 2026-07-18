@@ -69,7 +69,11 @@ async function create_compiler(opts) {
             return vfs.read_file(p, enc);
         };
         writefile = async (p, data) => {
-            if (p.startsWith('__vfs__/')) return vfs.write_file(p, data);
+            if (p.startsWith('__vfs__/')) {
+                if (typeof vfs.write_file === 'function') return vfs.write_file(p, data);
+                return;
+            }
+            if (p.startsWith('__stdlib__/')) return;
             return fs.promises.writeFile(p, data);
         };
     } else {
