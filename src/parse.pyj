@@ -28,6 +28,7 @@ from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
+CACHE_VERSION = 4
 
 
 def get_compiler_version():
@@ -791,7 +792,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             cached = None
 
         srchash = sha1sum(src_code)
-        if cached and cached.v is 3 and cached.compiler_version is COMPILER_VERSION and cached.signature is srchash:
+        if cached and cached.v is CACHE_VERSION and cached.compiler_version is COMPILER_VERSION and cached.signature is srchash:
             for ikey in cached.imported_module_ids:
                 await do_import(ikey)  # Ensure all modules imported by the cached module are also imported
             module = ast_from_json(cached.ast)
@@ -2297,14 +2298,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if options._src_hash and options.filename and module_id is not '__main__':
             try:
                 cache_data = {
-                    'v': 3,
+                    'v': CACHE_VERSION,
                     'signature': options._src_hash,
                     'compiler_version': COMPILER_VERSION,
                     'imported_module_ids': toplevel.imported_module_ids,
                     'exported_names': [sym.name for sym in toplevel.exports],
                     'ast': ast_to_json(toplevel),
                 }
-                await writefile(cache_file_name(options.filename, options.module_cache_dir), JSON.stringify(cache_data, None, '\t'))
+                await writefile(cache_file_name(options.filename, options.module_cache_dir), JSON.stringify(cache_data))
             except Error as e:
                 console.error('Failed to write AST cache file:', options.filename, 'with error:', e)
 
