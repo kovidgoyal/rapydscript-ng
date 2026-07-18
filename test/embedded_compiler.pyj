@@ -1,0 +1,37 @@
+# globals: assrt, rs_create_embedded_compiler, fs
+
+async def run_tests():
+    # Test that create_embedded_compiler() works with no arguments
+    compiler = await rs_create_embedded_compiler()
+
+    # compile must be callable and return non-empty JS
+    js = await compiler.compile('x = 1 + 2\n')
+    assrt.ok(js and js.length > 0, 'compile must return non-empty JS')
+
+    # Test compiling a class definition
+    js2 = await compiler.compile('class Foo:\n    def __init__(self, v):\n        self.v = v\n')
+    assrt.ok(js2 and js2.length > 0, 'compile must handle class definitions')
+
+    # Test that successive compile calls accumulate class knowledge (streaming mode)
+    compiler2 = await rs_create_embedded_compiler()
+    await compiler2.compile('class Bar:\n    def __init__(self, v):\n        self.v = v\n')
+    js3 = await compiler2.compile('b = Bar(42)\n')
+    assrt.ok(js3.indexOf('Bar') >= 0, 'subsequent compile should know about previously defined class Bar')
+
+    # Test virtual_file_system: compile code that imports from a virtual module
+    vfs_modules = {
+        '__stdlib__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
+    }
+    def vfs_read(path, enc):
+        if vfs_modules[path]:
+            return Promise.resolve(vfs_modules[path])
+        return fs.promises.readFile(path, enc)
+
+    vfs_compiler = await rs_create_embedded_compiler({
+        'virtual_file_system': {'read_file': vfs_read}
+    })
+    js4 = await vfs_compiler.compile('from testmod import add_one\nresult = add_one(5)\n')
+    assrt.ok(js4 and js4.length > 0, 'compile with vfs import must return JS')
+    assrt.ok(js4.indexOf('add_one') >= 0, 'compiled JS must reference the imported function')
+
+run_tests()

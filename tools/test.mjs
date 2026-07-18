@@ -12,6 +12,7 @@ import os from 'os';
 import vm from 'vm';
 import { createRequire } from 'module';
 import { create_compiler } from './compiler.mjs';
+import embedded_compiler_factory from './embedded_compiler.mjs';
 import * as utils from './utils.mjs';
 import { gettext as rs_gettext, entry_to_string as rs_entry_to_string } from './gettext.mjs';
 import { parse as rs_msgfmt_parse, build as rs_msgfmt_build } from './msgfmt.mjs';
@@ -98,6 +99,12 @@ export default async function(argv, base_path, src_path, lib_path) {
                 'rs_msgfmt': { parse: rs_msgfmt_parse, build: rs_msgfmt_build },
                 'rs_repl': rs_repl_fn,
                 'rs_generate_source_map': rs_generate_source_map,
+                'rs_create_embedded_compiler': async function(opts) {
+                    // Mirror what the browser bundle does: compiler + embedded baselib → factory.
+                    // Tests may pass { virtual_file_system } to override readfile/writefile.
+                    var compiler = await create_compiler(opts);
+                    return await embedded_compiler_factory(compiler, baselib, undefined, undefined, undefined, undefined);
+                },
             }, {'filename':jsfile});
             if (result && typeof result.then === 'function') {
                 await result;

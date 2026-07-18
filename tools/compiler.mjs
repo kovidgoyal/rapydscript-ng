@@ -46,20 +46,27 @@ function uglify(code) {
 }
 
 
-async function create_compiler() {
+async function find_compiler_dir() {
+    var base = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+    var compiler_dir = path.join(base, 'dev');
+    if (!await path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
+    return { base, compiler_dir };
+}
+
+async function create_compiler(opts) {
+    opts = opts || {};
+    var vfs = opts.virtual_file_system;
     var compiler_exports = {};
     var compiler_context = vm.createContext({
         console       : console,
-        readfile      : async (p, enc) => fs.promises.readFile(p, enc),
-        writefile     : async (p, data) => fs.promises.writeFile(p, data),
+        readfile      : vfs ? async (p, enc) => vfs.read_file(p, enc) : async (p, enc) => fs.promises.readFile(p, enc),
+        writefile     : vfs ? async (p, data) => vfs.write_file(p, data) : async (p, data) => fs.promises.writeFile(p, data),
         sha1sum       : sha1sum,
         require       : _cjs_require,
         exports       : compiler_exports,
     });
 
-    var base = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-    var compiler_dir = path.join(base, 'dev');
-    if (!await path_exists(path.join(compiler_dir, 'compiler.js'))) compiler_dir = path.join(base, 'release');
+    const { base, compiler_dir } = await find_compiler_dir();
     var compiler_file = path.join(compiler_dir, 'compiler.js');
     var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
