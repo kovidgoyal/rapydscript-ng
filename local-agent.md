@@ -1,5 +1,6 @@
 initialize_command: bin/rapydscript self --complete
 copy_resource: node_modules
+copy_resource: dev
 prepend_to_path: bin
 
 # System Instructions & Project Context
