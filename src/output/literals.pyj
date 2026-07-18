@@ -5,20 +5,17 @@ from __python__ import hash_literals
 from ast import AST_Binary, is_node_type
 
 def print_array(self, output):
-    output.print('ρσ_list_decorate')
-    output.with_parens(def():
-        output.with_square(def():
-            a = self.elements
-            len_ = a.length
-            if len_ > 0:
-                output.space()
-            for i, exp in enumerate(a):
-                if i:
-                    output.comma()
-                exp.print(output)
-            if len_ > 0:
-                output.space()
-        )
+    output.with_square(def():
+        a = self.elements
+        len_ = a.length
+        if len_ > 0:
+            output.space()
+        for i, exp in enumerate(a):
+            if i:
+                output.comma()
+            exp.print(output)
+        if len_ > 0:
+            output.space()
     )
 
 

@@ -13,7 +13,7 @@ class CustomIterable:
 t = []
 q = [1,2,3]
 for x in CustomIterable(q):
-    t.push(x)
+    t.append(x)
 assrt.deepEqual(q, t)
 
 assrt.deepEqual(['a', 'b'], list('ab'))
@@ -137,7 +137,6 @@ a.clear()
 assrt.equal(a.length, 0)
 assrt.deepEqual(a.as_array(), a)
 assrt.ok(a is not a.as_array())
-assrt.ok(a.as_array().extend == undefined)
 a = [1, 2, 1]
 assrt.equal(a.count(1), 2)
 a = [3, 2, 4, 1]

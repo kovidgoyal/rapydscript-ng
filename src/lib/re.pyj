@@ -3,7 +3,7 @@
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 # Copyright: 2013, Alexander Tsepkov
 
-# globals: ρσ_iterator_symbol, ρσ_list_decorate
+# globals: ρσ_iterator_symbol
 
 # basic implementation of Python's 're' library
 
@@ -384,7 +384,7 @@ class RegexObject:
 
     def findall(self, string):
         self._pattern.lastIndex = 0
-        return ρσ_list_decorate(string.match(self._pattern) or v'[]')
+        return string.match(self._pattern) or v'[]'
 
     def finditer(self, string):
         # We have to copy pat since lastIndex is mutable

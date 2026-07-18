@@ -46,112 +46,6 @@ v'var equals = ρσ_equals'
 
 # list {{{
 
-def ρσ_list_extend(iterable):
-    if Array.isArray(iterable) or jstype(iterable) is 'string':
-        # Allocate all new memory in one operation
-        start = this.length
-        this.length += iterable.length
-        for v'var i = 0; i < iterable.length; i++':
-            this[start + i] = iterable[i]  # noqa:undef
-    else:
-        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
-        result = iterator.next()
-        while not result.done:
-            this.push(result.value)
-            result = iterator.next()
-
-def ρσ_list_index(val, start, stop):
-    start = start or 0
-    if start < 0:
-        start = this.length + start
-    if start < 0:
-        raise ValueError(val + ' is not in list')
-    if stop is undefined:
-        stop = this.length
-    if stop < 0:
-        stop = this.length + stop
-    for v'var i = start; i < stop; i++':
-        if this[i] == val:
-            return i  # noqa:undef
-    raise ValueError(val + ' is not in list')
-
-def ρσ_list_pop(index):
-    if this.length is 0:
-        raise IndexError('list is empty')
-    if index is undefined:
-        index = -1
-    ans = this.splice(index, 1)
-    if not ans.length:
-        raise IndexError('pop index out of range')
-    return ans[0]
-
-def ρσ_list_remove(value):
-    for v'var i = 0; i < this.length; i++':
-        if this[i] == value:
-            this.splice(i, 1)
-            return
-    raise ValueError(value + ' not in list')
-
-def ρσ_list_to_string():
-    return '[' + this.join(', ') + ']'
-
-def ρσ_list_insert(index, val):
-    if index < 0:
-        index += this.length
-    index = min(this.length, max(index, 0))
-    if index is 0:
-        this.unshift(val)
-        return
-    for v'var i = this.length; i > index; i--':
-        this[i] = this[i - 1]  # noqa:undef
-    this[index] = val
-
-def ρσ_list_copy():
-    return ρσ_list_constructor(this)
-
-def ρσ_list_clear():
-    this.length = 0
-
-def ρσ_list_as_array():
-    return Array.prototype.slice.call(this)
-
-def ρσ_list_count(value):
-    return this.reduce(def(n, val): return n + (val is value);, 0)
-
-def ρσ_list_sort_key(value):
-    t = jstype(value)
-    if t is 'string' or t is 'number':
-        return value
-    return value.toString()
-
-def ρσ_list_sort_cmp(a, b, ap, bp):
-    if a < b:
-        return -1
-    if a > b:
-        return 1
-    return ap - bp
-
-def ρσ_list_sort(key=None, reverse=False):
-    key = key or ρσ_list_sort_key
-    mult = -1 if reverse else 1
-    keymap = dict()
-    posmap = dict()
-    for v'var i=0; i < this.length; i++':
-        k = this[i]  # noqa:undef
-        keymap.set(k, key(k))
-        posmap.set(k, i)
-    this.sort(def (a, b): return mult * ρσ_list_sort_cmp(keymap.get(a), keymap.get(b), posmap.get(a), posmap.get(b));)
-
-def ρσ_list_concat():  # ensure concat() returns an object of type list
-    ans = Array.prototype.concat.apply(this, arguments)
-    ρσ_list_decorate(ans)
-    return ans
-
-def ρσ_list_slice():  # ensure slice() returns an object of type list
-    ans = Array.prototype.slice.apply(this, arguments)
-    ρσ_list_decorate(ans)
-    return ans
-
 def ρσ_list_iterator(value):
     self = this
     return {
@@ -164,47 +58,6 @@ def ρσ_list_iterator(value):
             return {'done':False, 'value':this._list[this._i]}
         ,
     }
-
-def ρσ_list_len():
-    return this.length
-
-def ρσ_list_contains(val):
-    for v'var i = 0; i < this.length; i++':
-        if this[i] == val:
-            return True
-    return False
-
-def ρσ_list_eq(other):
-    if not ρσ_arraylike(other):
-        return False
-    if this.length != other.length:
-        return False
-    for v'var i = 0; i < this.length; i++':
-        if not (this[i] == other[i]):
-            return False
-    return True
-
-def ρσ_list_decorate(ans):
-    ans.append = Array.prototype.push
-    ans.toString = ρσ_list_to_string
-    ans.inspect = ρσ_list_to_string
-    ans.extend = ρσ_list_extend
-    ans.index = ρσ_list_index
-    ans.pypop = ρσ_list_pop
-    ans.remove = ρσ_list_remove
-    ans.insert = ρσ_list_insert
-    ans.copy = ρσ_list_copy
-    ans.clear = ρσ_list_clear
-    ans.count = ρσ_list_count
-    ans.concat = ρσ_list_concat
-    ans.pysort = ρσ_list_sort
-    ans.slice = ρσ_list_slice
-    ans.as_array = ρσ_list_as_array
-    ans.__len__ = ρσ_list_len
-    ans.__contains__ = ρσ_list_contains
-    ans.__eq__ = ρσ_list_eq
-    ans.constructor = ρσ_list_constructor
-    return ans
 
 def ρσ_list_constructor(iterable):
     if iterable is undefined:
@@ -225,8 +78,160 @@ def ρσ_list_constructor(iterable):
         ans = new Array(iterable)
     else:
         ans = Object.keys(iterable)
-    return ρσ_list_decorate(ans)
+    return ans
 ρσ_list_constructor.__name__ = 'list'
+
+if v'typeof Array.prototype.append' is not 'function':
+    Object.defineProperty(Array.prototype, 'append', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': Array.prototype.push,
+    });
+    Object.defineProperty(Array.prototype, 'extend', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(iterable):
+            if Array.isArray(iterable) or jstype(iterable) is 'string':
+                # Allocate all new memory in one operation
+                start = this.length
+                this.length += iterable.length
+                for v'var i = 0; i < iterable.length; i++':
+                    this[start + i] = iterable[i]  # noqa:undef
+            else:
+                iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+                result = iterator.next()
+                while not result.done:
+                    this.push(result.value)
+                    result = iterator.next()
+    });
+    Object.defineProperty(Array.prototype, 'index', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(val, start, stop):
+            start = start or 0
+            if start < 0:
+                start = this.length + start
+            if start < 0:
+                raise ValueError(val + ' is not in list')
+            if stop is undefined:
+                stop = this.length
+            if stop < 0:
+                stop = this.length + stop
+            for v'var i = start; i < stop; i++':
+                if this[i] == val:
+                    return i  # noqa:undef
+            raise ValueError(val + ' is not in list')
+    });
+    Object.defineProperty(Array.prototype, 'pypop', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(index):
+            if this.length is 0:
+                raise IndexError('list is empty')
+            if index is undefined:
+                index = -1
+            ans = this.splice(index, 1)
+            if not ans.length:
+                raise IndexError('pop index out of range')
+            return ans[0]
+    });
+    Object.defineProperty(Array.prototype, 'remove', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(value):
+            for v'var i = 0; i < this.length; i++':
+                if this[i] == value:
+                    this.splice(i, 1)
+                    return
+            raise ValueError(value + ' not in list')
+    });
+    Object.defineProperty(Array.prototype, 'toString', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): return '[' + this.join(', ') + ']'
+    });
+    Object.defineProperty(Array.prototype, 'inspect', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): return '[' + this.join(', ') + ']'
+    });
+    Object.defineProperty(Array.prototype, 'insert', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(index, val):
+            if index < 0:
+                index += this.length
+            index = min(this.length, max(index, 0))
+            if index is 0:
+                this.unshift(val)
+                return
+            for v'var i = this.length; i > index; i--':
+                this[i] = this[i - 1]  # noqa:undef
+            this[index] = val
+    });
+    Object.defineProperty(Array.prototype, 'copy', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): return ρσ_list_constructor(this)
+    });
+    Object.defineProperty(Array.prototype, 'clear', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): this.length = 0
+    });
+    Object.defineProperty(Array.prototype, 'count', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(value): return this.reduce(def(n, val): return n + (val is value);, 0)
+    });
+    Object.defineProperty(Array.prototype, 'pysort', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(key=None, reverse=False):
+            def _sort_key(value):
+                t = jstype(value)
+                if t is 'string' or t is 'number':
+                    return value
+                return value.toString()
+            def _sort_cmp(a, b, ap, bp):
+                if a < b:
+                    return -1
+                if a > b:
+                    return 1
+                return ap - bp
+            key = key or _sort_key
+            mult = -1 if reverse else 1
+            keymap = dict()
+            posmap = dict()
+            for v'var i=0; i < this.length; i++':
+                k = this[i]  # noqa:undef
+                keymap.set(k, key(k))
+                posmap.set(k, i)
+            this.sort(def (a, b): return mult * _sort_cmp(keymap.get(a), keymap.get(b), posmap.get(a), posmap.get(b));)
+    });
+    Object.defineProperty(Array.prototype, 'as_array', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): return Array.from(this)
+    });
+    Object.defineProperty(Array.prototype, '__len__', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(): return this.length
+    });
+    Object.defineProperty(Array.prototype, '__contains__', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(val):
+            for v'var i = 0; i < this.length; i++':
+                if this[i] == val:
+                    return True
+            return False
+    });
+    Object.defineProperty(Array.prototype, '__eq__', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': def(other):
+            if not ρσ_arraylike(other):
+                return False
+            if this.length != other.length:
+                return False
+            for v'var i = 0; i < this.length; i++':
+                if not (this[i] == other[i]):
+                    return False
+            return True
+    });
+    Object.defineProperty(Array.prototype, 'constructor', {
+        'writable': False, 'configurable': False, 'enumerable': False,
+        'value': ρσ_list_constructor,
+    });
+
+def ρσ_list_decorate(ans):
+    return ans
 
 v'var list = ρσ_list_constructor, list_wrap = ρσ_list_decorate'
 

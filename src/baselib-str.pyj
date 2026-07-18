@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: ρσ_kwargs_symbol, ρσ_list_decorate, ρσ_iterator_symbol, HTMLElement
+# globals: ρσ_kwargs_symbol, ρσ_iterator_symbol, HTMLElement
 
 # Locale can’t be changed in-flight, so we just retrieve this once.
 # Sadly older node versions (< 8) don’t support formatToParts
@@ -646,7 +646,7 @@ define_str_func('split', def(sep, maxsplit):
             extra = ans[maxsplit:].join(sep)
             ans = ans[:maxsplit]
             ans.push(extra)
-    return ρσ_list_decorate(ans)
+    return ans
 )
 
 define_str_func('rsplit', def(sep, maxsplit):
@@ -692,7 +692,7 @@ define_str_func('rsplit', def(sep, maxsplit):
             end = idx
         ans.push(this[:end])
         ans.reverse()
-    return ρσ_list_decorate(ans)
+    return ans
 )
 
 define_str_func('splitlines', def(keepends):
@@ -707,7 +707,7 @@ define_str_func('splitlines', def(keepends):
                 ans[-1] += parts[i]  # noqa:undef
     else:
         ans = split(this, /(?:\r?\n)|\r/)
-    return ρσ_list_decorate(ans)
+    return ans
 )
 
 define_str_func('swapcase', def():
