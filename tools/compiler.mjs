@@ -56,17 +56,37 @@ async function find_compiler_dir() {
 async function create_compiler(opts) {
     opts = opts || {};
     var vfs = opts.virtual_file_system;
+
+    const { base, compiler_dir } = await find_compiler_dir();
+
+    var readfile, writefile;
+    if (vfs) {
+        var stdlib_dir = path.join(base, 'src', 'lib');
+        readfile = async (p, enc) => {
+            if (p.startsWith('__stdlib__/')) {
+                try {
+                    return await fs.promises.readFile(path.join(stdlib_dir, p.slice('__stdlib__/'.length)), enc);
+                } catch(e) {
+                    if (e.code !== 'ENOENT' && e.code !== 'EPERM' && e.code !== 'EACCESS') throw e;
+                }
+            }
+            return vfs.read_file(p, enc);
+        };
+        writefile = async (p, data) => vfs.write_file(p, data);
+    } else {
+        readfile = async (p, enc) => fs.promises.readFile(p, enc);
+        writefile = async (p, data) => fs.promises.writeFile(p, data);
+    }
+
     var compiler_exports = {};
     var compiler_context = vm.createContext({
         console       : console,
-        readfile      : vfs ? async (p, enc) => vfs.read_file(p, enc) : async (p, enc) => fs.promises.readFile(p, enc),
-        writefile     : vfs ? async (p, data) => vfs.write_file(p, data) : async (p, data) => fs.promises.writeFile(p, data),
+        readfile      : readfile,
+        writefile     : writefile,
         sha1sum       : sha1sum,
         require       : _cjs_require,
         exports       : compiler_exports,
     });
-
-    const { base, compiler_dir } = await find_compiler_dir();
     var compiler_file = path.join(compiler_dir, 'compiler.js');
     var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));

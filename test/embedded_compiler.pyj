@@ -34,4 +34,24 @@ async def run_tests():
     assrt.ok(js4 and js4.length > 0, 'compile with vfs import must return JS')
     assrt.ok(js4.indexOf('add_one') >= 0, 'compiled JS must reference the imported function')
 
+    # Test that stdlib imports are served from the bundled stdlib, not from VFS.
+    # The strict VFS below throws ENOENT for any path it does not own, so if the
+    # compiler were to route a stdlib read through VFS the import would fail.
+    strict_vfs_modules = {
+        '__stdlib__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
+    }
+    def strict_vfs_read(path, enc):
+        if strict_vfs_modules[path]:
+            return Promise.resolve(strict_vfs_modules[path])
+        err = new Error('ENOENT: ' + path)
+        err.code = 'ENOENT'
+        return Promise.reject(err)
+
+    strict_vfs_compiler = await rs_create_embedded_compiler({
+        'virtual_file_system': {'read_file': strict_vfs_read}
+    })
+    js5 = await strict_vfs_compiler.compile('from math import sqrt\nresult = sqrt(4)\n')
+    assrt.ok(js5 and js5.length > 0, 'stdlib import must succeed when VFS is provided (served from bundled cache)')
+    assrt.ok(js5.indexOf('sqrt') >= 0, 'compiled JS must reference the stdlib sqrt function')
+
 run_tests()

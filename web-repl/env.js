@@ -10,13 +10,13 @@ var namespace = {}, jsSHA = {};
 var write_cache = {};
 
 async function readfile(name, encoding) {
-    if (namespace.virtual_file_system && namespace.virtual_file_system.read_file) {
-        return namespace.virtual_file_system.read_file(name, encoding);
-    }
     var data = namespace.file_data[name];
     if (data !== undefined) return data;
     data = write_cache[name];
     if (data !== undefined) return data;
+    if (namespace.virtual_file_system && namespace.virtual_file_system.read_file) {
+        return namespace.virtual_file_system.read_file(name, encoding);
+    }
     var err = new Error('ENOENT: no such file or directory: ' + name);
     err.code = 'ENOENT';
     throw err;
