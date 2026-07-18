@@ -50,8 +50,12 @@ function is_regexp(val) {
     return Object.prototype.toString.call(val) === RE_TAG;
 }
 
+const _declared_keys_cache = new Map();
+
 // Walk the prototype chain collecting all keys from each class's `properties` dict.
 function collect_declared_keys(node) {
+    const cls = node.constructor;
+    if (_declared_keys_cache.has(cls)) return _declared_keys_cache.get(cls);
     const keys = new Set();
     let proto = node;
     while ((proto = Object.getPrototypeOf(proto)) !== null) {
@@ -59,6 +63,7 @@ function collect_declared_keys(node) {
             for (const k of Object.keys(proto.properties)) keys.add(k);
         }
     }
+    _declared_keys_cache.set(cls, keys);
     return keys;
 }
 
