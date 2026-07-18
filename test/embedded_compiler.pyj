@@ -20,7 +20,7 @@ async def run_tests():
 
     # Test virtual_file_system: compile code that imports from a virtual module
     vfs_modules = {
-        '__stdlib__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
+        '__vfs__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
     }
     def vfs_read(path, enc):
         if vfs_modules[path]:
@@ -38,7 +38,7 @@ async def run_tests():
     # The strict VFS below throws ENOENT for any path it does not own, so if the
     # compiler were to route a stdlib read through VFS the import would fail.
     strict_vfs_modules = {
-        '__stdlib__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
+        '__vfs__/testmod.pyj': 'def add_one(x):\n    return x + 1\n'
     }
     def strict_vfs_read(path, enc):
         if strict_vfs_modules[path]:

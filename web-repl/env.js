@@ -10,20 +10,25 @@ var namespace = {}, jsSHA = {};
 var write_cache = {};
 
 async function readfile(name, encoding) {
+    if (name.startsWith('__vfs__/')) {
+        if (namespace.virtual_file_system && namespace.virtual_file_system.read_file) {
+            return namespace.virtual_file_system.read_file(name, encoding);
+        }
+        var err = new Error('ENOENT: no such file or directory: ' + name);
+        err.code = 'ENOENT';
+        throw err;
+    }
     var data = namespace.file_data[name];
     if (data !== undefined) return data;
     data = write_cache[name];
     if (data !== undefined) return data;
-    if (namespace.virtual_file_system && namespace.virtual_file_system.read_file) {
-        return namespace.virtual_file_system.read_file(name, encoding);
-    }
     var err = new Error('ENOENT: no such file or directory: ' + name);
     err.code = 'ENOENT';
     throw err;
 }
 
 async function writefile(name, data) {
-    if (namespace.virtual_file_system && namespace.virtual_file_system.write_file) {
+    if (name.startsWith('__vfs__/') && namespace.virtual_file_system && namespace.virtual_file_system.write_file) {
         return namespace.virtual_file_system.write_file(name, data);
     }
     write_cache[name] = data;

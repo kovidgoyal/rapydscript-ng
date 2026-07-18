@@ -64,15 +64,14 @@ async function create_compiler(opts) {
         var stdlib_dir = path.join(base, 'src', 'lib');
         readfile = async (p, enc) => {
             if (p.startsWith('__stdlib__/')) {
-                try {
-                    return await fs.promises.readFile(path.join(stdlib_dir, p.slice('__stdlib__/'.length)), enc);
-                } catch(e) {
-                    if (e.code !== 'ENOENT' && e.code !== 'EPERM' && e.code !== 'EACCESS') throw e;
-                }
+                return fs.promises.readFile(path.join(stdlib_dir, p.slice('__stdlib__/'.length)), enc);
             }
             return vfs.read_file(p, enc);
         };
-        writefile = async (p, data) => vfs.write_file(p, data);
+        writefile = async (p, data) => {
+            if (p.startsWith('__vfs__/')) return vfs.write_file(p, data);
+            return fs.promises.writeFile(p, data);
+        };
     } else {
         readfile = async (p, enc) => fs.promises.readFile(p, enc);
         writefile = async (p, data) => fs.promises.writeFile(p, data);

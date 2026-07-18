@@ -32,7 +32,8 @@ export default async function(compiler, baselib, runjs, name, tree_shake, genera
             var scoped_flags = (this.toplevel) ? this.toplevel.scoped_flags: undefined;
             this.toplevel = await compiler.parse(code, {
                 'filename': opts.filename || '<embedded>',
-                'basedir': '__stdlib__',
+                'libdir': '__stdlib__',
+                'basedir': '__vfs__',
                 'classes': classes,
                 'scoped_flags': scoped_flags,
                 'discard_asserts': opts.discard_asserts,
