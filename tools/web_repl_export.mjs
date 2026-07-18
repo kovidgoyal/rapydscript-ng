@@ -25,7 +25,7 @@ export default async function run_web_repl_export(base_path, lib_path, argv) {
         total += manifest[x].length;
     }
 
-    for (const x of ['web_repl.js', 'embedded_compiler.js', 'treeshake.js', 'sourcemap.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js']) {
+    for (const x of ['web_repl.js', 'embedded_compiler.js', 'treeshake.js', 'sourcemap.js', 'utils.js', 'completer.js', 'msgfmt.js', 'gettext.js', 'ast_serialize.mjs']) {
         var mjs = x.replace(/\.js$/, '.mjs');
         var mjs_path = path.join(base_path, 'tools', mjs);
         var js_path = path.join(base_path, 'tools', x);

@@ -231,10 +231,20 @@ if (typeof this != 'object' || typeof this.sha1sum !== 'function') {
 } else var sha1sum = this.sha1sum;
 
 function create_compiler() {
-    var compilerjs = data['compiler.js'];
     var module = {'id':'compiler', 'exports':{}};
-    var wrapped = '(function(module, exports, readfile, writefile, sha1sum) {' + data['compiler.js'] + ';\n})';
-    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, sha1sum);
+    // _sh (serializer holder) is populated after the compiler loads, solving the
+    // chicken-and-egg: ast_to_json needs compiler_exports, which aren't ready yet.
+    var _sh = {};
+    var wrapped = '(function(module, exports, readfile, writefile, sha1sum, _sh) {' +
+        'var ast_to_json = function(r) { return _sh.ast_to_json(r); };' +
+        'var ast_from_json = function(d) { return _sh.ast_from_json(d); };' +
+        data['compiler.js'] + ';\n})';
+    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, sha1sum, _sh);
+    var s = vrequire('tools/ast_serialize.mjs').make_ast_serializer(module.exports);
+    _sh.ast_to_json = s.ast_to_json;
+    _sh.ast_from_json = s.ast_from_json;
+    module.exports.ast_to_json = s.ast_to_json;
+    module.exports.ast_from_json = s.ast_from_json;
     return module.exports;
 }
 
