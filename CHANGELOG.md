@@ -2,9 +2,11 @@ version 0.8.0
 =======================
 
   * Implement generation of source maps via the --source-map option
-  * Implement dead code removal iva the --tree-shaking option
+  * Implement dead code removal via the --tree-shaking option
   * Add support for async and await
   * Drop support for ES5
+  * List objects are now unmodified JS Arrays for greater performance. Python
+    list methods continue to work.
   * Change the cache format to cache only the AST and not final output so that
     the cache can be re-used regardless of output and tree shaking options
   * Make the compiler internal use async IO. This means the embedded compiler
