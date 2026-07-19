@@ -1,0 +1,102 @@
+==================
+existence check
+==================
+
+yes = True if no? else False
+
+---
+
+(module
+  (conditional_expression
+    (assignment
+      left: (pattern
+        (identifier))
+      right: (true))
+    (existential
+      object: (identifier))
+    (false)))
+
+==================
+safe attribute access
+==================
+
+a = obj?.prop
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (existential
+      object: (identifier)
+      attribute: (identifier))))
+
+==================
+safe subscript
+==================
+
+a = obj?[0]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (existential
+      object: (identifier)
+      subscript: (number))))
+
+==================
+safe call
+==================
+
+a = fn?()
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (existential
+      object: (identifier)
+      default: (tuple))))
+
+==================
+existential chain
+==================
+
+ans = a?.b?[1]?()
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (existential
+      object: (existential
+        object: (existential
+          object: (identifier)
+          attribute: (identifier))
+        subscript: (number))
+      default: (tuple))))
+
+==================
+default operator
+==================
+
+a = b ? c
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (existential
+      object: (identifier)
+      default: (identifier))))
+

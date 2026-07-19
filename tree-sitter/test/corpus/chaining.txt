@@ -1,0 +1,99 @@
+==================
+leading dot method chaining
+==================
+
+$(element)
+.css('color', 'red')
+.show()
+
+---
+
+(module
+  (call
+    function: (attribute
+      object: (call
+        function: (attribute
+          object: (call
+            function: (identifier)
+            arguments: (argument_list
+              (identifier)))
+          attribute: (identifier))
+        arguments: (argument_list
+          (string)
+          (string)))
+      attribute: (identifier))
+    arguments: (argument_list)))
+
+==================
+backslash continuation chaining
+==================
+
+x = obj\
+    .css("a", "b")\
+    .show()
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (call
+      function: (attribute
+        object: (call
+          function: (attribute
+            object: (identifier)
+            attribute: (identifier))
+          arguments: (argument_list
+            (string)
+            (string)))
+        attribute: (identifier))
+      arguments: (argument_list))))
+
+==================
+self executing function
+==================
+
+(def(args):
+    log(args)
+)(x)
+
+---
+
+(module
+  (call
+    function: (parenthesized_expression
+      (anonymous_function
+        parameters: (parameters
+          (identifier))
+        body: (block
+          (call
+            function: (identifier)
+            arguments: (argument_list
+              (identifier))))))
+    arguments: (argument_list
+      (identifier))))
+
+==================
+self executing with call
+==================
+
+def():
+    setup()
+.call(this)
+
+---
+
+(module
+  (call
+    function: (attribute
+      object: (anonymous_function
+        parameters: (parameters)
+        body: (block
+          (call
+            function: (identifier)
+            arguments: (argument_list))))
+      attribute: (identifier))
+    arguments: (argument_list
+      (this))))
+

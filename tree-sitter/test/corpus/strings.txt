@@ -1,0 +1,90 @@
+==================
+single and double quoted
+==================
+
+a = "hello"
+b = "world"
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string)))
+
+==================
+triple quoted string
+==================
+
+a = """multi
+line"""
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string)))
+
+==================
+string modifiers r u f
+==================
+
+a = r'x'
+b = u'y'
+c = f'val {x}'
+
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (string)))
+
+==================
+verbatim javascript literal
+==================
+
+a = v'js literal'
+
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (verbatim)))
+
+==================
+concatenated strings
+==================
+
+a = "foo" "bar"
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (concatenated_string
+      (string)
+      (string))))
+

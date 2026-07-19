@@ -1,0 +1,11 @@
+# Build artifacts (the generated parser sources in src/ ARE committed so the
+# grammar can be built directly, e.g. by nvim-treesitter).
+*.wasm
+*.o
+*.so
+*.dylib
+*.dll
+build/
+node_modules/
+.build/
+package-lock.json

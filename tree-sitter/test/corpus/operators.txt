@@ -1,0 +1,296 @@
+==================
+arithmetic operators
+==================
+
+a = 1 + 2 - 3 * 4 / 5 % 6
+b = 7 // 8
+c = 2 ** 10
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (binary_operator
+        left: (number)
+        right: (number))
+      right: (binary_operator
+        left: (binary_operator
+          left: (binary_operator
+            left: (number)
+            right: (number))
+          right: (number))
+        right: (number))))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (number)
+      right: (number)))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (number)
+      right: (number))))
+
+==================
+boolean operators
+==================
+
+x = a and b or not c
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (boolean_operator
+      left: (boolean_operator
+        left: (identifier)
+        right: (identifier))
+      right: (not_operator
+        argument: (identifier)))))
+
+==================
+comparison chaining
+==================
+
+r = 3 < 5 < 7
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (comparison_operator
+      (number)
+      (comparison_operator
+        (number)
+        (number)))))
+
+==================
+is and is not
+==================
+
+a = x is None
+b = y is not None
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (comparison_operator
+      (identifier)
+      (none)))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (comparison_operator
+      (identifier)
+      (not_operator
+        argument: (none)))))
+
+==================
+in and not in
+==================
+
+a = x in items
+b = y not in items
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (comparison_operator
+      (identifier)
+      (identifier)))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (comparison_operator
+      (identifier)
+      (identifier))))
+
+==================
+bitwise operators
+==================
+
+a = x & y | z ^ w
+b = ~a
+c = x << 2 >> 1
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (binary_operator
+        left: (identifier)
+        right: (identifier))
+      right: (binary_operator
+        left: (identifier)
+        right: (identifier))))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (unary_operator
+      argument: (identifier)))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (binary_operator
+        left: (identifier)
+        right: (number))
+      right: (number))))
+
+==================
+unary operators
+==================
+
+a = -x
+b = not w
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (unary_operator
+      argument: (identifier)))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (not_operator
+      argument: (identifier))))
+
+==================
+augmented assignment
+==================
+
+a += 1
+b //= 4
+c **= 5
+
+---
+
+(module
+  (augmented_assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (augmented_assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (augmented_assignment
+    left: (pattern
+      (identifier))
+    right: (number)))
+
+==================
+assignment as expression
+==================
+
+node = a[i -= 1]
+r = (x += 1)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (augmented_assignment
+        left: (pattern
+          (identifier))
+        right: (number))))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (parenthesized_expression
+      (augmented_assignment
+        left: (pattern
+          (identifier))
+        right: (number)))))
+
+==================
+ternary conditional
+==================
+
+a = 1 if cond else 2
+
+---
+
+(module
+  (conditional_expression
+    (assignment
+      left: (pattern
+        (identifier))
+      right: (number))
+    (identifier)
+    (number)))
+
+==================
+power right associative
+==================
+
+a = 2 ** 3 ** 4
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (binary_operator
+      left: (number)
+      right: (binary_operator
+        left: (number)
+        right: (number)))))
+
+==================
+tuple packing and unpacking
+==================
+
+a, b = b, a
+x, y, z = fun()
+
+---
+
+(module
+  (assignment
+    left: (pattern_list
+      (pattern
+        (identifier))
+      (pattern
+        (identifier)))
+    right: (expression_list
+      (identifier)
+      (identifier)))
+  (assignment
+    left: (pattern_list
+      (pattern
+        (identifier))
+      (pattern
+        (identifier))
+      (pattern
+        (identifier)))
+    right: (call
+      function: (identifier)
+      arguments: (argument_list))))
+

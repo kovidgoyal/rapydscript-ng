@@ -1,0 +1,117 @@
+==================
+import module
+==================
+
+import re
+
+---
+
+(module
+  (import_statement
+    name: (dotted_name
+      (identifier))))
+
+==================
+import multiple with alias
+==================
+
+import re, os as myos
+
+---
+
+(module
+  (import_statement
+    name: (dotted_name
+      (identifier))
+    name: (aliased_import
+      name: (dotted_name
+        (identifier))
+      alias: (identifier))))
+
+==================
+import dotted
+==================
+
+import mypackage.mymodule
+
+---
+
+(module
+  (import_statement
+    name: (dotted_name
+      (identifier)
+      (identifier))))
+
+==================
+from import
+==================
+
+from mypackage.mymodule import something, something_else
+
+---
+
+(module
+  (import_from_statement
+    module_name: (dotted_name
+      (identifier)
+      (identifier))
+    name: (identifier)
+    name: (identifier)))
+
+==================
+from import with alias
+==================
+
+from gettext import gettext as _
+
+---
+
+(module
+  (import_from_statement
+    module_name: (dotted_name
+      (identifier))
+    name: (aliased_import_name
+      name: (identifier)
+      alias: (identifier))))
+
+==================
+from import parenthesized
+==================
+
+from mod import (a, b, c)
+
+---
+
+(module
+  (import_from_statement
+    module_name: (dotted_name
+      (identifier))
+    name: (identifier)
+    name: (identifier)
+    name: (identifier)))
+
+==================
+scoped flags
+==================
+
+from __python__ import dict_literals, overload_getitem
+
+---
+
+(module
+  (scoped_flag_statement
+    flag: (identifier)
+    flag: (identifier)))
+
+==================
+negated scoped flags
+==================
+
+from __python__ import no_dict_literals
+
+---
+
+(module
+  (scoped_flag_statement
+    flag: (identifier)))
+

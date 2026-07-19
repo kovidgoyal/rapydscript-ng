@@ -1,0 +1,155 @@
+==================
+list comprehension
+==================
+
+a = [i*i for i in range(20)]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list_comprehension
+      body: (binary_operator
+        left: (identifier)
+        right: (identifier))
+      (for_in_clause
+        left: (pattern
+          (identifier))
+        right: (call
+          function: (identifier)
+          arguments: (argument_list
+            (number)))))))
+
+==================
+list comprehension with condition
+==================
+
+a = [i*i for i in range(1,20) if i*i%3 == 0]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list_comprehension
+      body: (binary_operator
+        left: (identifier)
+        right: (identifier))
+      (for_in_clause
+        left: (pattern
+          (identifier))
+        right: (call
+          function: (identifier)
+          arguments: (argument_list
+            (number)
+            (number))))
+      (if_clause
+        (comparison_operator
+          (binary_operator
+            left: (binary_operator
+              left: (identifier)
+              right: (identifier))
+            right: (number))
+          (number))))))
+
+==================
+set comprehension
+==================
+
+a = {i*i for i in range(1,20)}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (set_comprehension
+      body: (binary_operator
+        left: (identifier)
+        right: (identifier))
+      (for_in_clause
+        left: (pattern
+          (identifier))
+        right: (call
+          function: (identifier)
+          arguments: (argument_list
+            (number)
+            (number)))))))
+
+==================
+dict comprehension
+==================
+
+a = {x: x+1 for x in range(20) if x > 2}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (dictionary_comprehension
+      body: (pair
+        key: (identifier)
+        value: (binary_operator
+          left: (identifier)
+          right: (number)))
+      (for_in_clause
+        left: (pattern
+          (identifier))
+        right: (call
+          function: (identifier)
+          arguments: (argument_list
+            (number))))
+      (if_clause
+        (comparison_operator
+          (identifier)
+          (number))))))
+
+==================
+generator expression
+==================
+
+a = (x for x in items)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (generator_expression
+      body: (identifier)
+      (for_in_clause
+        left: (pattern
+          (identifier))
+        right: (identifier)))))
+
+==================
+comprehension with tuple target
+==================
+
+a = [(x, y) for x, y in pairs]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list_comprehension
+      body: (tuple
+        (identifier)
+        (identifier))
+      (for_in_clause
+        left: (pattern_list
+          (pattern
+            (identifier))
+          (pattern
+            (identifier)))
+        right: (identifier)))))
+

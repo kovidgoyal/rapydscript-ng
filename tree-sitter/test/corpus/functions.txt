@@ -1,0 +1,293 @@
+==================
+simple function
+==================
+
+def greet():
+    alert("Hello World!")
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (string))))))
+
+==================
+function with arguments and return
+==================
+
+def factorial(n):
+    if n == 0:
+        return 1
+    return n * factorial(n-1)
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (identifier))
+    body: (block
+      (if_statement
+        condition: (comparison_operator
+          (identifier)
+          (number))
+        consequence: (block
+          (return_statement
+            (number))))
+      (return_statement
+        (binary_operator
+          left: (identifier)
+          right: (call
+            function: (identifier)
+            arguments: (argument_list
+              (binary_operator
+                left: (identifier)
+                right: (number)))))))))
+
+==================
+default and typed parameters
+==================
+
+def f(a, b=2, c: int = 3):
+    return a
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (identifier)
+      (default_parameter
+        name: (identifier)
+        value: (number))
+      (typed_default_parameter
+        name: (identifier)
+        type: (identifier)
+        value: (number)))
+    body: (block
+      (return_statement
+        (identifier)))))
+
+==================
+star args and kwargs
+==================
+
+def f4(*args, **kwargs):
+    return [args, kwargs]
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (list_splat_parameter
+        name: (identifier))
+      (dictionary_splat_parameter
+        name: (identifier)))
+    body: (block
+      (return_statement
+        (list
+          (identifier)
+          (identifier))))))
+
+==================
+typed star args
+==================
+
+def kw(*args: list, **kwargs: dict) -> int:
+    return 1
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (list_splat_parameter
+        name: (identifier)
+        type: (identifier))
+      (dictionary_splat_parameter
+        name: (identifier)
+        type: (identifier)))
+    return_type: (identifier)
+    body: (block
+      (return_statement
+        (number)))))
+
+==================
+return type annotation
+==================
+
+def add(a, b) -> int:
+    return a + b
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (identifier)
+      (identifier))
+    return_type: (identifier)
+    body: (block
+      (return_statement
+        (binary_operator
+          left: (identifier)
+          right: (identifier))))))
+
+==================
+anonymous function assignment
+==================
+
+factorial = def(n):
+    return n
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (anonymous_function
+      parameters: (parameters
+        (identifier))
+      body: (block
+        (return_statement
+          (identifier))))))
+
+==================
+inline anonymous function
+==================
+
+add = def(a, b): return a + b
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (anonymous_function
+      parameters: (parameters
+        (identifier)
+        (identifier))
+      body: (block
+        (return_statement
+          (binary_operator
+            left: (identifier)
+            right: (identifier)))))))
+
+==================
+named function expression
+==================
+
+x = assrt.equal(def named(a):
+    return a
+, 1)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (call
+      function: (attribute
+        object: (identifier)
+        attribute: (identifier))
+      arguments: (argument_list
+        (anonymous_function
+          name: (identifier)
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (return_statement
+              (identifier))))
+        (number)))))
+
+==================
+async function definition
+==================
+
+async def fetch(url):
+    await get(url)
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters
+      (identifier))
+    body: (block
+      (await
+        (call
+          function: (identifier)
+          arguments: (argument_list
+            (identifier)))))))
+
+==================
+nested block anonymous function
+==================
+
+def outer():
+    inner = def(event):
+        return 1
+    div.mousedown(inner)
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (block_tailed_statement
+        left: (pattern
+          (identifier))
+        value: (anonymous_function
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (return_statement
+              (number)))))
+      (call
+        function: (attribute
+          object: (identifier)
+          attribute: (identifier))
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+anonymous function inside call multiline
+==================
+
+E.a(onclick=def():
+    pass
+)
+
+---
+
+(module
+  (call
+    function: (attribute
+      object: (identifier)
+      attribute: (identifier))
+    arguments: (argument_list
+      (keyword_argument
+        name: (identifier)
+        value: (anonymous_function
+          parameters: (parameters)
+          body: (block
+            (pass_statement)))))))
+

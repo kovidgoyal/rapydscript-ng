@@ -1,0 +1,147 @@
+==================
+simple class
+==================
+
+class ColorfulTextField:
+    def __init__(self):
+        self.widget = field
+
+---
+
+(module
+  (class_definition
+    name: (identifier)
+    body: (block
+      (function_definition
+        name: (identifier)
+        parameters: (parameters
+          (identifier))
+        body: (block
+          (assignment
+            left: (pattern
+              (attribute
+                object: (identifier)
+                attribute: (identifier)))
+            right: (identifier)))))))
+
+==================
+class with inheritance
+==================
+
+class Child(Parent):
+    def __init__(self):
+        Parent.__init__(self)
+
+---
+
+(module
+  (class_definition
+    name: (identifier)
+    superclasses: (argument_list
+      (identifier))
+    body: (block
+      (function_definition
+        name: (identifier)
+        parameters: (parameters
+          (identifier))
+        body: (block
+          (call
+            function: (attribute
+              object: (identifier)
+              attribute: (identifier))
+            arguments: (argument_list
+              (identifier))))))))
+
+==================
+class multiple inheritance
+==================
+
+class C(A, B):
+    pass
+
+---
+
+(module
+  (class_definition
+    name: (identifier)
+    superclasses: (argument_list
+      (identifier)
+      (identifier))
+    body: (block
+      (pass_statement))))
+
+==================
+static method
+==================
+
+class Test:
+    @staticmethod
+    def staticMethod(a):
+        return a + 1
+
+---
+
+(module
+  (class_definition
+    name: (identifier)
+    body: (block
+      (decorated_definition
+        (decorator
+          (identifier))
+        definition: (function_definition
+          name: (identifier)
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (return_statement
+              (binary_operator
+                left: (identifier)
+                right: (number)))))))))
+
+==================
+external class decorator
+==================
+
+@external
+class Alpha:
+    pass
+
+---
+
+(module
+  (decorated_definition
+    (decorator
+      (identifier))
+    definition: (class_definition
+      name: (identifier)
+      body: (block
+        (pass_statement)))))
+
+==================
+class with scoped flag
+==================
+
+class AutoBound:
+    from __python__ import bound_methods
+
+    def val(self):
+        return self.a
+
+---
+
+(module
+  (class_definition
+    name: (identifier)
+    body: (block
+      (scoped_flag_statement
+        flag: (identifier))
+      (function_definition
+        name: (identifier)
+        parameters: (parameters
+          (identifier))
+        body: (block
+          (return_statement
+            (attribute
+              object: (identifier)
+              attribute: (identifier))))))))
+

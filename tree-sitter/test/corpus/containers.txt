@@ -1,0 +1,242 @@
+==================
+list literal
+==================
+
+a = [1, 2, 3]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list
+      (number)
+      (number)
+      (number))))
+
+==================
+empty list
+==================
+
+a = []
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list)))
+
+==================
+nested lists
+==================
+
+a = [[1, 2], [3, 4]]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list
+      (list
+        (number)
+        (number))
+      (list
+        (number)
+        (number)))))
+
+==================
+dictionary literal
+==================
+
+styles = {"color": "red", "width": 50}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (dictionary
+      (pair
+        key: (string)
+        value: (string))
+      (pair
+        key: (string)
+        value: (number)))))
+
+==================
+empty dict
+==================
+
+a = {}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (dictionary)))
+
+==================
+set literal
+==================
+
+a = {1, 2, 3}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (set
+      (number)
+      (number)
+      (number))))
+
+==================
+tuple literal
+==================
+
+a = (1, 2, 3)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (tuple
+      (number)
+      (number)
+      (number))))
+
+==================
+empty tuple
+==================
+
+a = ()
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (tuple)))
+
+==================
+single element tuple
+==================
+
+a = (1,)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (tuple
+      (number))))
+
+==================
+parenthesized grouping
+==================
+
+a = (1 + 2)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (parenthesized_expression
+      (binary_operator
+        left: (number)
+        right: (number)))))
+
+==================
+dict with inline function value
+==================
+
+params = {"onclick": def(event): alert("hi")}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (dictionary
+      (pair
+        key: (string)
+        value: (anonymous_function
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (call
+              function: (identifier)
+              arguments: (argument_list
+                (string)))))))))
+
+==================
+leading comma dict with block values
+==================
+
+d = {
+    "a": def(e):
+        return 1
+    ,"b": def(e):
+        return 2
+}
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (dictionary
+      (pair
+        key: (string)
+        value: (anonymous_function
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (return_statement
+              (number)))))
+      (pair
+        key: (string)
+        value: (anonymous_function
+          parameters: (parameters
+            (identifier))
+          body: (block
+            (return_statement
+              (number))))))))
+
+==================
+list with splat
+==================
+
+a = [1, *rest, 2]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (list
+      (number)
+      (list_splat_argument
+        (identifier))
+      (number))))
+

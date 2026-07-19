@@ -1,0 +1,227 @@
+==================
+index access
+==================
+
+a = arr[0]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (number))))
+
+==================
+attribute access
+==================
+
+a = obj.prop.nested
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (attribute
+      object: (attribute
+        object: (identifier)
+        attribute: (identifier))
+      attribute: (identifier))))
+
+==================
+full slice
+==================
+
+a = arr[:]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (slice))))
+
+==================
+slice with start stop
+==================
+
+a = arr[1:2]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (slice
+        (number)
+        (number)))))
+
+==================
+slice with step
+==================
+
+a = arr[1:2:3]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (slice
+        (number)
+        (number)
+        (number)))))
+
+==================
+slice start only
+==================
+
+a = arr[1:]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (slice
+        (number)))))
+
+==================
+negative index
+==================
+
+a = arr[-1]
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (subscript
+      object: (identifier)
+      subscript: (unary_operator
+        argument: (number)))))
+
+==================
+method chaining
+==================
+
+result = obj.css("x").show().hide()
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (call
+      function: (attribute
+        object: (call
+          function: (attribute
+            object: (call
+              function: (attribute
+                object: (identifier)
+                attribute: (identifier))
+              arguments: (argument_list
+                (string)))
+            attribute: (identifier))
+          arguments: (argument_list))
+        attribute: (identifier))
+      arguments: (argument_list))))
+
+==================
+call with keyword args
+==================
+
+E.div(id="container", class_="xxx")
+
+---
+
+(module
+  (call
+    function: (attribute
+      object: (identifier)
+      attribute: (identifier))
+    arguments: (argument_list
+      (keyword_argument
+        name: (identifier)
+        value: (string))
+      (keyword_argument
+        name: (identifier)
+        value: (string)))))
+
+==================
+call with star args
+==================
+
+f(a, *args, **kwargs)
+
+---
+
+(module
+  (call
+    function: (identifier)
+    arguments: (argument_list
+      (identifier)
+      (list_splat_argument
+        (identifier))
+      (dictionary_splat_argument
+        (identifier)))))
+
+==================
+generator as sole argument
+==================
+
+total = sum(x for x in items)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (call
+      function: (identifier)
+      arguments: (argument_list
+        body: (identifier)
+        (for_in_clause
+          left: (pattern
+            (identifier))
+          right: (identifier))))))
+
+==================
+new expression
+==================
+
+x = new Foo(1, 2)
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (new_expression
+      constructor: (call
+        function: (identifier)
+        arguments: (argument_list
+          (number)
+          (number))))))
+

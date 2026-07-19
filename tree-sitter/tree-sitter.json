@@ -1,0 +1,36 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "rapydscript",
+      "camelcase": "RapydScript",
+      "scope": "source.rapydscript",
+      "path": ".",
+      "file-types": [
+        "pyj"
+      ],
+      "highlights": [
+        "queries/highlights.scm"
+      ],
+      "injection-regex": "^(rapydscript|pyj)$"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "BSD-2-Clause",
+    "description": "RapydScript grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "rapydscript-ng contributors"
+      }
+    ]
+  },
+  "bindings": {
+    "c": false,
+    "go": false,
+    "node": true,
+    "python": false,
+    "rust": false,
+    "swift": false
+  }
+}

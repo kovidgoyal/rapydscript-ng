@@ -1,0 +1,135 @@
+==================
+integers
+==================
+
+a = 42
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number)))
+
+==================
+hex octal binary
+==================
+
+a = 0xff
+b = 0o17
+c = 0b101
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number)))
+
+==================
+floats and scientific
+==================
+
+a = 3.14
+b = 1e10
+c = 2.5e-3
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number)))
+
+==================
+booleans and none
+==================
+
+a = True
+b = False
+c = None
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (true))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (false))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (none)))
+
+==================
+this and undefined
+==================
+
+a = this
+b = undefined
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (this))
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (identifier)))
+
+==================
+regex literal
+==================
+
+r = /a(b)c/gi
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (regex)))
+
+==================
+verbose regex literal
+==================
+
+r = /// a # comment
+  b ///
+
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (regex)))
+

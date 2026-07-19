@@ -1,0 +1,64 @@
+==================
+single decorator
+==================
+
+@makebold
+def hello():
+    return "hi"
+
+---
+
+(module
+  (decorated_definition
+    (decorator
+      (identifier))
+    definition: (function_definition
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (return_statement
+          (string))))))
+
+==================
+stacked decorators
+==================
+
+@makebold
+@makeitalic
+def hello():
+    return "hi"
+
+---
+
+(module
+  (decorated_definition
+    (decorator
+      (identifier))
+    (decorator
+      (identifier))
+    definition: (function_definition
+      name: (identifier)
+      parameters: (parameters)
+      body: (block
+        (return_statement
+          (string))))))
+
+==================
+decorated class
+==================
+
+@add_x
+class A:
+    pass
+
+---
+
+(module
+  (decorated_definition
+    (decorator
+      (identifier))
+    definition: (class_definition
+      name: (identifier)
+      body: (block
+        (pass_statement)))))
+

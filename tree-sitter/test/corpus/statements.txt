@@ -1,0 +1,189 @@
+==================
+assignment
+==================
+
+x = 1
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (number)))
+
+==================
+chained assignment
+==================
+
+a = b = c
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (assignment
+      left: (pattern
+        (identifier))
+      right: (identifier))))
+
+==================
+pass statement
+==================
+
+def f():
+    pass
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (pass_statement))))
+
+==================
+assert statement
+==================
+
+assert x == 1
+
+---
+
+(module
+  (assert_statement
+    (comparison_operator
+      (identifier)
+      (number))))
+
+==================
+assert with message
+==================
+
+assert x, "must be set"
+
+---
+
+(module
+  (assert_statement
+    (identifier)
+    (string)))
+
+==================
+global and nonlocal
+==================
+
+def f():
+    global a
+    nonlocal b, c
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (global_statement
+        (identifier))
+      (nonlocal_statement
+        (identifier)
+        (identifier)))))
+
+==================
+delete statement
+==================
+
+del x
+
+---
+
+(module
+  (delete_statement
+    (identifier)))
+
+==================
+debugger statement
+==================
+
+debugger
+
+---
+
+(module
+  (debugger_statement))
+
+==================
+expression statement
+==================
+
+foo()
+
+---
+
+(module
+  (call
+    function: (identifier)
+    arguments: (argument_list)))
+
+==================
+yield
+==================
+
+def gen():
+    yield 1
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (yield_statement
+        (yield
+          (number))))))
+
+==================
+yield from
+==================
+
+def gen():
+    yield from other()
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (yield_statement
+        (yield
+          from: (call
+            function: (identifier)
+            arguments: (argument_list)))))))
+
+==================
+return multiple values
+==================
+
+def f():
+    return 1, 2, 3
+
+---
+
+(module
+  (anonymous_function
+    name: (identifier)
+    parameters: (parameters)
+    body: (block
+      (return_statement
+        (expression_list
+          (number)
+          (number)
+          (number))))))
+

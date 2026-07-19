@@ -1,0 +1,361 @@
+==================
+if elif else
+==================
+
+if a:
+    x()
+elif b:
+    y()
+else:
+    z()
+
+---
+
+(module
+  (if_statement
+    condition: (identifier)
+    consequence: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list)))
+    alternative: (elif_clause
+      condition: (identifier)
+      consequence: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list))))
+    alternative: (else_clause
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list))))))
+
+==================
+if with assignment condition
+==================
+
+if m = re.exec(x):
+    use(m)
+
+---
+
+(module
+  (if_statement
+    condition: (assignment
+      left: (pattern
+        (identifier))
+      right: (call
+        function: (attribute
+          object: (identifier)
+          attribute: (identifier))
+        arguments: (argument_list
+          (identifier))))
+    consequence: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+for in loop
+==================
+
+for animal in animals:
+    print(animal)
+
+---
+
+(module
+  (for_statement
+    left: (pattern
+      (identifier))
+    right: (identifier)
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+for with tuple unpacking
+==================
+
+for index, value in enumerate(items):
+    print(index)
+
+---
+
+(module
+  (for_statement
+    left: (pattern_list
+      (pattern
+        (identifier))
+      (pattern
+        (identifier)))
+    right: (call
+      function: (identifier)
+      arguments: (argument_list
+        (identifier)))
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+for with nested destructuring
+==================
+
+for x, (y, z) in items:
+    print(x)
+
+---
+
+(module
+  (for_statement
+    left: (pattern_list
+      (pattern
+        (identifier))
+      (pattern
+        (tuple_pattern
+          (pattern
+            (identifier))
+          (pattern
+            (identifier)))))
+    right: (identifier)
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+for else
+==================
+
+for x in y:
+    pass
+else:
+    done()
+
+---
+
+(module
+  (for_statement
+    left: (pattern
+      (identifier))
+    right: (identifier)
+    body: (block
+      (pass_statement))
+    alternative: (else_clause
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list))))))
+
+==================
+while loop
+==================
+
+while a < 10:
+    a += 1
+
+---
+
+(module
+  (while_statement
+    condition: (comparison_operator
+      (identifier)
+      (number))
+    body: (block
+      (augmented_assignment
+        left: (pattern
+          (identifier))
+        right: (number)))))
+
+==================
+do while loop
+==================
+
+do:
+    print(a)
+    a += 1
+.while a < 1
+
+---
+
+(module
+  (do_statement
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier)))
+      (augmented_assignment
+        left: (pattern
+          (identifier))
+        right: (number)))
+    condition: (comparison_operator
+      (identifier)
+      (number))))
+
+==================
+native javascript for loop
+==================
+
+for v'i = 0; i < 5; i++':
+    print(i)
+
+
+---
+
+(module
+  (for_js_statement
+    condition: (verbatim)
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list
+          (identifier))))))
+
+==================
+try except else finally
+==================
+
+try:
+    somefunc()
+except Exception as e:
+    handle(e)
+else:
+    ok()
+finally:
+    cleanup()
+
+---
+
+(module
+  (try_statement
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list)))
+    (except_clause
+      (identifier)
+      alias: (identifier)
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list
+            (identifier)))))
+    (else_clause
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list))))
+    (finally_clause
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list))))))
+
+==================
+try multiple exceptions
+==================
+
+try:
+    foo()
+except ReferenceError, TypeError as e:
+    print(e)
+
+---
+
+(module
+  (try_statement
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list)))
+    (except_clause
+      (identifier)
+      (identifier)
+      alias: (identifier)
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list
+            (identifier)))))))
+
+==================
+except as without type
+==================
+
+try:
+    foo()
+except as ex:
+    log(ex)
+
+---
+
+(module
+  (try_statement
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list)))
+    (except_clause
+      alias: (identifier)
+      body: (block
+        (call
+          function: (identifier)
+          arguments: (argument_list
+            (identifier)))))))
+
+==================
+with multiple clauses
+==================
+
+with a() as x, b() as y:
+    run()
+
+---
+
+(module
+  (with_statement
+    (with_clause
+      value: (call
+        function: (identifier)
+        arguments: (argument_list))
+      alias: (identifier))
+    (with_clause
+      value: (call
+        function: (identifier)
+        arguments: (argument_list))
+      alias: (identifier))
+    body: (block
+      (call
+        function: (identifier)
+        arguments: (argument_list)))))
+
+==================
+break and continue
+==================
+
+for x in y:
+    if x:
+        break
+    continue
+
+---
+
+(module
+  (for_statement
+    left: (pattern
+      (identifier))
+    right: (identifier)
+    body: (block
+      (if_statement
+        condition: (identifier)
+        consequence: (block
+          (break_statement)))
+      (continue_statement))))
+
