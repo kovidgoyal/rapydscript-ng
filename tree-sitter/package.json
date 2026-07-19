@@ -36,7 +36,7 @@
         "pyj"
       ],
       "highlights": [
-        "queries/highlights.scm"
+        "queries/rapydscript/highlights.scm"
       ]
     }
   ]

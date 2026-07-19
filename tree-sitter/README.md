@@ -81,19 +81,21 @@ With [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter),
 register the parser and map the `.pyj` extension to it:
 
 ```lua
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-parser_config.rapydscript = {
-  install_info = {
-    url = "/path/to/rapydscript-ng/tree-sitter", -- or a git URL
-    files = { "src/parser.c", "src/scanner.c" },
-    branch = "master",
-  },
-  filetype = "pyj",
-}
-
+local rapyd_repo_path = vim.fn.expand("/path/to/rapydscript/tree-sitter")
+vim.api.nvim_create_autocmd('User', {
+    pattern = 'TSUpdate',
+    callback = function()
+        require("nvim-treesitter.parsers").rapydscript = {
+            install_info = {
+                path = rapyd_repo_path,
+                files = { "src/parser.c", "src/scanner.c" },
+            },
+            filetype = "rapydscript",
+        }
+    end
+})
+vim.opt.rtp:append(rapyd_repo_path)
 vim.filetype.add({ extension = { pyj = "rapydscript" } })
 ```
 
-Then `:TSInstall rapydscript`, and copy (or symlink) the `queries/` directory to
-`queries/rapydscript/` inside your nvim-treesitter runtime path so the
-`highlights.scm` and `injections.scm` queries are picked up.
+Then `:TSInstall rapydscript`.
