@@ -176,6 +176,36 @@ async def test_parser_recovery_flag():
     assrt.ok(top, 'recover_errors parse should return a toplevel')
     assrt.ok(top.recovered_errors and top.recovered_errors.length >= 1, 'recovered_errors should be populated')
 
+async def test_configuration_change():
+    ctx = lsp.create_server_context({'line_length': 80, 'preferred_quote': 'single', 'import_dirs': []})
+
+    # Basic updates.
+    lsp.apply_configuration(ctx, {'lineLength': 120, 'preferredQuote': 'double', 'importPath': '/tmp/mylibs'})
+    assrt.equal(ctx.line_length, 120, 'lineLength should update line_length')
+    assrt.equal(ctx.preferred_quote, 'double', 'preferredQuote should update preferred_quote')
+    assrt.ok(ctx.import_dirs.length > 0, 'string importPath should populate import_dirs')
+
+    # Array-form importPath.
+    lsp.apply_configuration(ctx, {'importPath': ['/tmp/lib1', '/tmp/lib2']})
+    assrt.equal(ctx.import_dirs.length, 2, 'array importPath should yield 2 entries')
+
+    # Invalid values must be silently ignored.
+    lsp.apply_configuration(ctx, {'lineLength': 'bogus', 'preferredQuote': 'wrong'})
+    assrt.equal(ctx.line_length, 120, 'bogus lineLength must be ignored')
+    assrt.equal(ctx.preferred_quote, 'double', 'invalid preferredQuote must be ignored')
+
+    # Empty/absent settings must be a no-op.
+    lsp.apply_configuration(ctx, {})
+    assrt.equal(ctx.line_length, 120, 'empty settings must not reset line_length')
+
+    # Numeric lineLength (number type, not string).
+    lsp.apply_configuration(ctx, {'lineLength': 100})
+    assrt.equal(ctx.line_length, 100, 'numeric lineLength should be accepted')
+
+    # Empty importPath string clears the dirs.
+    lsp.apply_configuration(ctx, {'importPath': ''})
+    assrt.equal(ctx.import_dirs.length, 0, 'empty importPath string should clear import_dirs')
+
 async def run_tests():
     await test_diagnostics()
     await test_hover_and_definition()
@@ -187,5 +217,6 @@ async def run_tests():
     await test_formatting()
     await test_error_recovery_still_analyzes()
     await test_parser_recovery_flag()
+    await test_configuration_change()
 
 __test_async_done__ = run_tests()

@@ -79,6 +79,44 @@ export function create_server_context(opts) {
     };
 }
 
+// Apply a workspace/didChangeConfiguration settings object to ctx.
+// Returns {import_dirs: true} if import_dirs changed (caller should re-run diagnostics).
+export function apply_configuration(ctx, settings) {
+    if (!settings) return {};
+    var changed = {};
+
+    if (settings.lineLength !== undefined && settings.lineLength !== null) {
+        var ll = typeof settings.lineLength === 'number'
+            ? Math.floor(settings.lineLength)
+            : parseInt(settings.lineLength, 10);
+        if (!isNaN(ll) && ll > 0) ctx.line_length = ll;
+    }
+
+    if (settings.preferredQuote === 'single' || settings.preferredQuote === 'double') {
+        ctx.preferred_quote = settings.preferredQuote;
+    }
+
+    if (settings.importPath !== undefined && settings.importPath !== null) {
+        var new_dirs;
+        if (Array.isArray(settings.importPath)) {
+            new_dirs = settings.importPath
+                .filter(function (p) { return p && typeof p === 'string'; })
+                .map(function (p) { return path.resolve(p); });
+        } else if (typeof settings.importPath === 'string') {
+            new_dirs = utils.get_import_dirs(settings.importPath)
+                .map(function (p) { return path.resolve(p); });
+        }
+        if (new_dirs !== undefined) {
+            ctx.import_dirs = new_dirs;
+            ctx.analysis_cache = Object.create(null);
+            invalidate_workspace_scan(ctx);
+            changed.import_dirs = true;
+        }
+    }
+
+    return changed;
+}
+
 // Import search dirs for a given file: user dirs + stdlib + the file's directory.
 function import_dirs_for(ctx, file_path) {
     var dirs = ctx.import_dirs.slice();
@@ -763,6 +801,13 @@ export async function cli(argv, base_path, src_path, lib_path) {
         };
     });
     connection.on_notification('initialized', function () {});
+    connection.on_notification('workspace/didChangeConfiguration', function (params) {
+        var settings = (params && params.settings && params.settings.rapydscript) || {};
+        var changed = apply_configuration(ctx, settings);
+        if (changed.import_dirs) {
+            ctx.docs.all().forEach(function (doc) { schedule_diagnostics(doc.uri); });
+        }
+    });
     connection.on_request('shutdown', function () { return null; });
     connection.on_notification('exit', function () { process.exit(0); });
 
