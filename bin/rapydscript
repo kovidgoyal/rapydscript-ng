@@ -44,6 +44,10 @@ if (argv.mode === 'lint') {
     await (await import('../tools/lint.mjs')).cli(argv, base_path, src_path, lib_path);
 } else
 
+if (argv.mode === 'fmt') {
+    await (await import('../tools/fmt.mjs')).cli(argv, base_path, src_path, lib_path);
+} else
+
 if (argv.mode === 'repl') {
     await (await import('../tools/repl.mjs')).default({'lib_path':lib_path, 'imp_path':path.join(src_path, 'lib'), show_js:!argv.no_js});
 } else

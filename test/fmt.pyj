@@ -1,0 +1,201 @@
+# globals: assrt, fs, require, test_path, compiler_dir, console, RapydScript
+
+# Tests for the "fmt" sub-command (tools/fmt.mjs), the PEP8 style formatter for
+# RapydScript source code.
+
+fmt = require('./fmt.mjs')
+path = require('path')
+os = require('os')
+
+base_path = path.resolve(compiler_dir, '..')
+libdir = path.join(base_path, 'src', 'lib')
+
+async def parses(code):
+    ok = True
+    try:
+        await RapydScript.parse(code, {
+            'filename': 'fmt_test.pyj', 'basedir': test_path,
+            'libdir': libdir, 'for_linting': True
+        })
+    except:
+        ok = False
+        console.log('Formatted output failed to parse:\n' + code)
+    return ok
+
+nchecks = {'n': 0}
+
+async def check(name, src, expected, opts):
+    opts = opts or {}
+    out = fmt.format_string(src, opts)
+    assrt.equal(out, expected, 'format output mismatch for: ' + name)
+    # The formatter must be idempotent.
+    assrt.equal(fmt.format_string(out, opts), out, 'formatter not idempotent for: ' + name)
+    # The formatted output must remain valid RapydScript.
+    ok = await parses(out)
+    assrt.ok(ok, 'formatted output does not parse for: ' + name)
+    nchecks.n += 1
+
+
+async def run_tests():
+
+    # --- Whitespace / operator normalization -------------------------------
+    await check('binary-ops', 'x=1+2*3\n', 'x = 1 + 2 * 3\n')
+    await check('collapse-spaces', 'y  =   f( a ,b )\n', 'y = f(a, b)\n')
+    await check('unary-minus', 'x = -1\ny = a - 1\n', 'x = -1\ny = a - 1\n')
+    await check('unary-not', 'z = not  x\n', 'z = not x\n')
+    await check('word-ops', 'q=a and b or c\n', 'q = a and b or c\n')
+    await check('is-not', 'r = a is not b\n', 'r = a is not b\n')
+    await check('power', 'p = a**b\n', 'p = a ** b\n')
+    await check('attribute', 'v = a . b . c\n', 'v = a.b.c\n')
+
+    # --- kwargs / defaults vs assignment -----------------------------------
+    await check('kwargs', 'f( a=1, b = 2 )\n', 'f(a=1, b=2)\n')
+    await check('defaults', 'def g(a, b=3, c = 4):\n    return a\n',
+                'def g(a, b=3, c=4):\n    return a\n')
+    await check('assignment-spaces', 'x=1\n', 'x = 1\n')
+    await check('augmented', 'x+=1\n', 'x += 1\n')
+
+    # --- splat / unpacking --------------------------------------------------
+    await check('splat', 'f( *args, **kwargs )\n', 'f(*args, **kwargs)\n')
+
+    # --- slices / index / dict / list --------------------------------------
+    await check('slice', 'a = b[ 1 : 2 ]\n', 'a = b[1:2]\n')
+    await check('slice-step', 'a = b[::2]\n', 'a = b[::2]\n')
+    await check('index', 'c = d[ x ]\n', 'c = d[x]\n')
+    await check('negative-index', 'c = d[-1]\n', 'c = d[-1]\n')
+    await check('dict', 'e = {"a":1,"b":2}\n', "e = {'a': 1, 'b': 2}\n")
+    await check('list', 'l = [ 1,2,3 ]\n', 'l = [1, 2, 3]\n')
+
+    # --- comprehensions -----------------------------------------------------
+    await check('list-comp', 'a=[i*i for i in range(1,20) if i*i%3==0]\n',
+                'a = [i * i for i in range(1, 20) if i * i % 3 == 0]\n')
+    await check('dict-comp', 'd={x:x+1 for x in range(20) if x>2}\n',
+                'd = {x: x + 1 for x in range(20) if x > 2}\n')
+
+    # --- quote normalization -----------------------------------------------
+    await check('quote-to-single', 'a = "hi"\n', "a = 'hi'\n")
+    await check('quote-to-double', "a = 'hi'\n", 'a = "hi"\n', {'preferred_quote': 'double'})
+    # Do not re-quote when it would add escapes.
+    await check('quote-keep-apostrophe', 'a = "it\'s"\n', 'a = "it\'s"\n')
+    await check('quote-keep-embedded-double', 'a = \'say "hi"\'\n', 'a = \'say "hi"\'\n')
+    # Raw / f / verbatim strings are never re-quoted.
+    await check('quote-raw-untouched', 'a = r"\\d+"\n', 'a = r"\\d+"\n')
+    await check('quote-fstring-untouched', 'a = f"x{y}"\n', 'a = f"x{y}"\n')
+
+    # --- indentation normalization (tabs and 2-space -> 4-space) -----------
+    await check('tab-indent', 'if True:\n\tx = 1\n', 'if True:\n    x = 1\n')
+    await check('two-space-indent', 'if True:\n  x = 1\n  if x:\n    y = 2\n',
+                'if True:\n    x = 1\n    if x:\n        y = 2\n')
+
+    # --- blank line policy --------------------------------------------------
+    await check('cap-blank-lines', 'a = 1\n\n\n\n\nb = 2\n', 'a = 1\n\n\nb = 2\n')
+    await check('two-blanks-between-defs',
+                'def f():\n    pass\ndef g():\n    pass\n',
+                'def f():\n    pass\n\n\ndef g():\n    pass\n')
+    await check('one-blank-between-methods',
+                'class A:\n    def f(self):\n        pass\n    def g(self):\n        pass\n',
+                'class A:\n    def f(self):\n        pass\n\n    def g(self):\n        pass\n')
+    await check('collapse-def-blanks',
+                'def f():\n    pass\n\n\n\n\ndef g():\n    pass\n',
+                'def f():\n    pass\n\n\ndef g():\n    pass\n')
+
+    # --- comments -----------------------------------------------------------
+    await check('comment-space', '#hello\nx = 1\n', '# hello\nx = 1\n')
+    await check('trailing-comment', 'x = 1 #note\n', 'x = 1  # note\n')
+    await check('comment-before-def',
+                '# a helper\ndef f():\n    pass\n',
+                '# a helper\ndef f():\n    pass\n')
+
+    # --- decorators ---------------------------------------------------------
+    await check('decorators',
+                '@makebold\n@makeitalic\ndef hello():\n    return "hi"\n',
+                "@makebold\n@makeitalic\ndef hello():\n    return 'hi'\n")
+
+    # --- line wrapping ------------------------------------------------------
+    await check('wrap-call',
+                'result = fn(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee)\n',
+                'result = fn(\n    aaaaaaaa,\n    bbbbbbbb,\n    cccccccc,\n    dddddddd,\n    eeeeeeee\n)\n',
+                {'line_length': 30})
+    await check('wrap-list-trailing-comma',
+                'data = [11111111, 22222222, 33333333, 44444444]\n',
+                'data = [\n    11111111,\n    22222222,\n    33333333,\n    44444444,\n]\n',
+                {'line_length': 20})
+    # Short lines are left alone.
+    await check('no-wrap-short', 'x = f(a, b)\n', 'x = f(a, b)\n', {'line_length': 80})
+    # Comprehensions must never be wrapped on their (tuple-unpacking) commas.
+    await check('no-wrap-comprehension',
+                'result = [transform(it) for it, index in enumerate(collection) if it.is_valid]\n',
+                'result = [transform(it) for it, index in enumerate(collection) if it.is_valid]\n',
+                {'line_length': 40})
+
+    # --- reflow of simple multi-line statements ----------------------------
+    await check('reflow-simple-call',
+                'x = fn(\n    a,\n    b,\n    c\n)\n',
+                'x = fn(a, b, c)\n')
+
+    # --- RapydScript specific constructs are preserved ----------------------
+    await check('preserve-anon-function',
+                "params = {\n    'onclick': def(event):\n        alert('hi')\n    ,\n    'x': 5\n}\n",
+                "params = {\n    'onclick': def(event):\n        alert('hi')\n    ,\n    'x': 5\n}\n")
+    await check('preserve-chain',
+                "$(element)\n.css('background-color', 'red')\n.show()\n",
+                "$(element)\n.css('background-color', 'red')\n.show()\n")
+    await check('preserve-verbatim-js', "a = v'var x = {foo: 1};'\n", "a = v'var x = {foo: 1};'\n")
+    await check('preserve-regex', 'b = /a(b)/g\n', 'b = /a(b)/g\n')
+    await check('preserve-verbose-regex',
+                "c = re.match(///\n  a  # comment\n  b\n///, 'ab')\n",
+                "c = re.match(///\n  a  # comment\n  b\n///, 'ab')\n")
+    await check('preserve-fstring', "msg = f'hello {name} world'\n", "msg = f'hello {name} world'\n")
+    await check('preserve-triple-string',
+                "text = '''\nline one\n    line two\n'''\n",
+                "text = '''\nline one\n    line two\n'''\n")
+    await check('preserve-existential',
+                'ans = a?.b?[1]?()\nv = b ? c\n',
+                'ans = a?.b?[1]?()\nv = b ? c\n')
+
+    # --- backslash continuation is preserved --------------------------------
+    await check('preserve-backslash',
+                'x = a + \\\n    b + \\\n    c\n',
+                'x = a + \\\n    b + \\\n    c\n')
+
+    # --- inline anonymous function on a single line -------------------------
+    await check('inline-anon', 'add = def(a,b): return a+b\n',
+                'add = def(a, b): return a + b\n')
+
+    # --- shebang preserved --------------------------------------------------
+    await check('shebang', '#!/usr/bin/env rapydscript\nx=1\n',
+                '#!/usr/bin/env rapydscript\nx = 1\n')
+
+    # --- empty / whitespace only input --------------------------------------
+    assrt.equal(fmt.format_string('', {}), '', 'empty input -> empty output')
+    assrt.equal(fmt.format_string('\n\n\n', {}), '', 'blank input -> empty output')
+
+    # --- check_report -------------------------------------------------------
+    errs = fmt.check_report('a.pyj', 'x=1\n', fmt.format_string('x=1\n', {}), {})
+    assrt.ok(errs.length >= 1, 'check_report must flag files that would be reformatted')
+    assrt.ok(errs[0].indexOf('would be reformatted') >= 0, 'check_report message content')
+
+    errs2 = fmt.check_report('a.pyj', 'x = 1\n', 'x = 1\n', {})
+    assrt.equal(errs2.length, 0, 'check_report must be silent for already-formatted, short files')
+
+    longline = 'x = ' + "'" + Array(90).join('a') + "'" + '\n'
+    errs3 = fmt.check_report('a.pyj', longline, longline, {'line_length': 80})
+    assrt.ok(errs3.length >= 1, 'check_report must flag over-length lines')
+    assrt.ok(errs3.join('\n').indexOf('exceeds') >= 0, 'check_report over-length message content')
+
+    # --- collect_pyj_files (directory recursion) ----------------------------
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-fmt-'))
+    fs.mkdirSync(path.join(tmp, 'sub'))
+    fs.writeFileSync(path.join(tmp, 'a.pyj'), 'x=1\n')
+    fs.writeFileSync(path.join(tmp, 'sub', 'b.pyj'), 'y=2\n')
+    fs.writeFileSync(path.join(tmp, 'c.txt'), 'not rapydscript\n')
+    collected = await fmt.collect_pyj_files([tmp])
+    assrt.equal(collected.length, 2, 'collect_pyj_files must recurse and find 2 .pyj files')
+    for f in collected:
+        assrt.ok(f.indexOf('.txt') < 0, 'collect_pyj_files must skip non .pyj files in directories')
+    # An explicitly named non .pyj file is still included.
+    collected2 = await fmt.collect_pyj_files([path.join(tmp, 'c.txt')])
+    assrt.equal(collected2.length, 1, 'explicitly named files are always included')
+    fs.rmSync(tmp, {'recursive': True})
+
+run_tests()

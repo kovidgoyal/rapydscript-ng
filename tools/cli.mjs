@@ -437,6 +437,30 @@ create_group('web-repl-export', '<output-directory>', `Export the web REPL to a 
 self-contained set of files including index.html that
 you can open in a browser to use the RapydScript web REPL.`);
 
+create_group('fmt', "[input1.pyj dir1 ...]", `Format RapydScript source code according to PEP8
+style guidelines (adapted sensibly for RapydScript
+specific syntax such as multi-line anonymous functions).`,
+`If files and/or directories are specified, they are formatted in place.
+Directories are scanned recursively for .pyj files. Use the --check-only
+option to instead report files that would be reformatted without changing
+them.
+
+If no files or directories are specified, the source code is read from
+STDIN and the formatted result is written to STDOUT.`);
+
+opt("line_length", 'l', 'string', '80', `The maximum allowed line length. Lines longer than this
+are wrapped where it is safe to do so. Defaults to 80.`);
+
+opt("preferred_quote", 'q', 'string', 'single', `The preferred quote character for string literals. Either
+"single" or "double". A string is only re-quoted when doing
+so does not increase the number of backslash escapes.
+Defaults to single.`, ['single', 'double']);
+
+opt("check_only", 'c', 'bool', false, `Do not modify files. Instead, print the names of files that
+would be reformatted (and any lines that exceed the maximum
+length) to STDERR. Exit with a status of 1 if any issues are
+found, otherwise 0.`);
+
 
 export var argv = parse_args();
 if (typeof argv.js_version === 'string') {
