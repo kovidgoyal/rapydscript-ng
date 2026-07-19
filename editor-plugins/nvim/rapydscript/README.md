@@ -142,12 +142,6 @@ When `import_path` changes the server immediately re-runs diagnostics on all
 open files using the new search directories.  Changes to `line_length` and
 `preferred_quote` take effect on the next format operation.
 
-## Optional: Tree-sitter syntax highlighting
-
-For richer syntax highlighting install the tree-sitter grammar from the
-`tree-sitter/` directory of the RapydScript repository.  See
-[`tree-sitter/README.md`](../tree-sitter/README.md) for instructions.
-
 ## Keymaps
 
 The plugin does not define any keymaps — it relies on the standard Neovim LSP
