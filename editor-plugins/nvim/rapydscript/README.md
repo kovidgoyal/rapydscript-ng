@@ -49,7 +49,6 @@ Provided by the LSP server — no extra plugins required:
     dir = "/path/to/editor-plugins/nvim/rapydscript",
     ft = "rapydscript",
     opts = {
-        import_path   = "src:vendor",
         line_length   = 100,
         preferred_quote = "double",
     },
@@ -63,9 +62,7 @@ Add the plugin directory to your runtime path and call `setup()`:
 ```lua
 -- in ~/.config/nvim/init.lua
 vim.opt.rtp:prepend("/path/to/rapydscript/nvim-lsp-plugin")
-require("rapydscript").setup({
-    import_path = "src:vendor",  -- optional
-})
+require("rapydscript").setup()
 ```
 
 ## Configuration reference
@@ -73,22 +70,46 @@ require("rapydscript").setup({
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `cmd` | `string[]` | `{"rapydscript","lsp"}` | Command used to start the server |
-| `import_path` | `string\|nil` | `nil` | Colon-separated import directories, passed as `--import-path` |
+| `import_path_patterns` | `string[]` | `{".", "src", "src/pyj"}` | Glob patterns relative to the project root; matching directories that contain `.pyj` files are passed automatically as `--import-path` |
 | `line_length` | `number\|nil` | `nil` | Max line length for the formatter, passed as `--line-length` |
 | `preferred_quote` | `string\|nil` | `nil` | `"single"` or `"double"`, passed as `--preferred-quote` |
 | `filetypes` | `string[]` | `{"rapydscript"}` | Filetypes that trigger server attachment |
 | `root_markers` | `string[]` | `{".git","package.json","rapydscript.json"}` | Files/dirs used to detect the project root |
 
+### Automatic import path detection
+
+When a project root is found (via `root_markers`), the plugin expands each pattern in
+`import_path_patterns` as a glob relative to that root.  Any matching directory that
+contains at least one `.pyj` file is added to the server's import search path
+automatically — no manual configuration needed for standard project layouts.
+
+If no project root is detected the setting has no effect.
+
+To add custom search locations alongside the defaults:
+
+```lua
+opts = {
+    import_path_patterns = { ".", "src", "src/pyj", "vendor/pyj" },
+}
+```
+
+To disable auto-detection entirely, pass an empty list:
+
+```lua
+opts = {
+    import_path_patterns = {},
+}
+```
+
 ## Changing settings at runtime
 
 The server accepts live setting updates via the LSP
 `workspace/didChangeConfiguration` notification — no restart needed.  Call
-`require("rapydscript").update_settings(opts)` with any subset of the three
+`require("rapydscript").update_settings(opts)` with any subset of the two
 settings keys:
 
 ```lua
 require("rapydscript").update_settings({
-    import_path    = "src:vendor:lib",  -- new colon-separated search path
     line_length    = 100,               -- new max line length for the formatter
     preferred_quote = "double",         -- "single" or "double"
 })
@@ -102,11 +123,6 @@ A convenient way to expose this as editor commands — add to your config after
 `setup()`:
 
 ```lua
--- :RapydImportPath src:vendor
-vim.api.nvim_create_user_command("RapydImportPath", function(args)
-    require("rapydscript").update_settings({ import_path = args.args })
-end, { nargs = 1, desc = "Set RapydScript LSP import path" })
-
 -- :RapydLineLength 100
 vim.api.nvim_create_user_command("RapydLineLength", function(args)
     require("rapydscript").update_settings({ line_length = tonumber(args.args) })
@@ -127,13 +143,9 @@ function:
 {
     dir = "/path/to/rapydscript/nvim-lsp-plugin",
     ft = "rapydscript",
-    opts = { import_path = "src:vendor" },
+    opts = { line_length = 100 },
     config = function(_, opts)
         require("rapydscript").setup(opts)
-
-        vim.api.nvim_create_user_command("RapydImportPath", function(args)
-            require("rapydscript").update_settings({ import_path = args.args })
-        end, { nargs = 1 })
 
         vim.api.nvim_create_user_command("RapydLineLength", function(args)
             require("rapydscript").update_settings({ line_length = tonumber(args.args) })
@@ -146,9 +158,7 @@ function:
 }
 ```
 
-When `import_path` changes the server immediately re-runs diagnostics on all
-open files using the new search directories.  Changes to `line_length` and
-`preferred_quote` take effect on the next format operation.
+Changes to `line_length` and `preferred_quote` take effect on the next format operation.
 
 ## Keymaps
 

@@ -109,9 +109,31 @@ local function _default_lsp_cmd()
     return { "rapydscript", "lsp" }
 end
 
+-- Expand glob patterns relative to root, keep only dirs that contain .pyj files,
+-- and return them colon-separated.  Returns nil when nothing matches.
+local function _resolve_import_paths(root, patterns)
+    local seen = {}
+    local dirs = {}
+    for _, pat in ipairs(patterns) do
+        local matches = vim.fn.glob(root .. "/" .. pat, false, true)
+        for _, path in ipairs(matches) do
+            local norm = vim.fn.fnamemodify(path, ":p"):gsub("/$", "")
+            if not seen[norm] and vim.fn.isdirectory(norm) == 1 then
+                if #vim.fn.glob(norm .. "/*.pyj", false, true) > 0 then
+                    seen[norm] = true
+                    dirs[#dirs + 1] = norm
+                end
+            end
+        end
+    end
+    return #dirs > 0 and table.concat(dirs, ":") or nil
+end
+
 M.defaults = {
     cmd = _default_lsp_cmd(),
-    import_path = nil,
+    -- Glob patterns relative to the project root; matching dirs that contain
+    -- .pyj files are passed automatically as --import-path to the LSP server.
+    import_path_patterns = { ".", "src", "src/pyj" },
     line_length = nil,
     preferred_quote = nil,
     filetypes = { "rapydscript" },
@@ -121,10 +143,10 @@ M.defaults = {
 -- Current runtime settings, kept in sync whenever update_settings() is called.
 M._settings = {}
 
-local function build_cmd(opts)
+local function build_cmd(opts, import_path)
     local cmd = vim.deepcopy(opts.cmd)
-    if opts.import_path then
-        vim.list_extend(cmd, { "--import-path", opts.import_path })
+    if import_path then
+        vim.list_extend(cmd, { "--import-path", import_path })
     end
     if opts.line_length then
         vim.list_extend(cmd, { "--line-length", tostring(opts.line_length) })
@@ -146,16 +168,12 @@ end
 
 -- Send workspace/didChangeConfiguration to every active rapydscript client.
 -- `new_settings` is a table with any subset of:
---   import_path     (string)  -- colon-separated list of directories
 --   line_length     (number)
 --   preferred_quote (string)  -- "single" | "double"
 function M.update_settings(new_settings)
     new_settings = new_settings or {}
 
     -- Merge into the module-level settings table.
-    if new_settings.import_path ~= nil then
-        M._settings.importPath = new_settings.import_path
-    end
     if new_settings.line_length ~= nil then
         M._settings.lineLength = new_settings.line_length
     end
@@ -182,7 +200,6 @@ function M.setup(opts)
     -- Seed the runtime settings table from the initial opts so that partial
     -- update_settings() calls later always send the full current state.
     M._settings = {
-        importPath    = opts.import_path,
         lineLength    = opts.line_length,
         preferredQuote = opts.preferred_quote,
     }
@@ -191,11 +208,14 @@ function M.setup(opts)
         pattern = opts.filetypes,
         callback = function(ev)
             _start_treesitter(ev.buf)
-            local root = vim.fs.root(ev.buf, opts.root_markers) or vim.fn.getcwd()
+            local root = vim.fs.root(ev.buf, opts.root_markers)
+            local import_path = root
+                and _resolve_import_paths(root, opts.import_path_patterns)
+                or nil
             vim.lsp.start({
                 name = "rapydscript",
-                cmd = build_cmd(opts),
-                root_dir = root,
+                cmd = build_cmd(opts, import_path),
+                root_dir = root or vim.fn.getcwd(),
                 capabilities = make_capabilities(),
                 settings = {
                     rapydscript = M._settings,
