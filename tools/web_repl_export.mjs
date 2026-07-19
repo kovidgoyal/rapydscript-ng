@@ -80,19 +80,13 @@ export default async function run_web_repl_export(base_path, lib_path, argv) {
         if (e.code !== 'EEXIST') throw e;
     }
 
-    try {
-        process.chdir(base_dir);
-    } catch(e) {
-        if (e.code === 'ENOTDIR') { console.error(base_dir + ' is not a directory'); process.exit(1); }
-        throw e;
-    }
-    await fs.promises.writeFile('rapydscript.js', rs, 'utf-8');
+    await fs.promises.writeFile(path.join(base_dir, 'rapydscript.js'), rs, 'utf-8');
     var web_repl_dir = path.join(base_path, 'web-repl');
     var web_repl_files = await fs.promises.readdir(web_repl_dir);
     for (const x of web_repl_files) {
         if (['sha1.js', 'env.js'].indexOf(x) !== -1) continue;
         var file_data = await fs.promises.readFile(path.join(web_repl_dir, x), 'utf-8');
-        await fs.promises.writeFile(x, file_data, 'utf-8');
+        await fs.promises.writeFile(path.join(base_dir, x), file_data, 'utf-8');
     }
     console.log('RapydScript compiler (uncompressed) size: ' + (total/(1024)).toFixed(1) + ' KB');
     console.log('web-repl exported to: ' + base_dir);

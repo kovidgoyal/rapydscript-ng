@@ -1,0 +1,88 @@
+# globals: assrt, fs, require, test_path, compiler_dir, console
+
+async def run_tests():
+    os = require('os')
+    path = require('path')
+    vm = require('vm')
+
+    run_export = require('./web_repl_export.mjs').default
+    base_path = path.resolve(compiler_dir, '..')
+    lib_path = compiler_dir
+
+    tmpdir = os.mkdtempSync(path.join(os.tmpdir(), 'rs-web-repl-test-'))
+    await run_export(base_path, lib_path, {'files': [tmpdir]})
+
+    rs_path = path.join(tmpdir, 'rapydscript.js')
+    assrt.ok(fs.existsSync(rs_path), 'web-repl-export must create rapydscript.js')
+
+    # Load rapydscript.js into a vm context; the IIFE does (function(external_namespace){...})(this)
+    # so this === ctx and ctx.RapydScript is set to the namespace object
+    rs_code = fs.readFileSync(rs_path, 'utf-8')
+    ctx = {'console': console}
+    vm.runInNewContext(rs_code, ctx)
+    RS = ctx.RapydScript
+
+    assrt.ok(RS, 'RapydScript namespace must be defined after loading rapydscript.js')
+    assrt.ok(RS.compile, 'compile must be defined on the namespace')
+    assrt.ok(RS.create_embedded_compiler, 'create_embedded_compiler must be defined on the namespace')
+    assrt.ok(RS.file_data, 'file_data must be present on the namespace')
+
+    # Verify basic compilation works
+    js = await RS.compile('x = 1 + 2\n', 'test.pyj', {})
+    assrt.ok(js and js.length > 0, 'compile must return non-empty JS for basic code')
+
+    # Set up a virtual file system that records stat and write calls so each hook
+    # can be verified independently.  Cache path for __vfs__/mymod.pyj is
+    # __vfs__/mymod.pyj-cached (cache_file_name with empty module_cache_dir).
+    vfs_source = 'def greet(name):\n    return "Hello, " + name\n'
+    vfs_written = {}
+    stat_calls = []
+    write_calls = []
+
+    def vfs_read(vfs_path, enc):
+        if vfs_path == '__vfs__/mymod.pyj':
+            return Promise.resolve(vfs_source)
+        err = new Error('ENOENT: ' + vfs_path)
+        err.code = 'ENOENT'
+        return Promise.reject(err)
+
+    def vfs_write(vfs_path, data):
+        write_calls.push(vfs_path)
+        vfs_written[vfs_path] = data
+        return Promise.resolve()
+
+    def vfs_stat(vfs_path):
+        stat_calls.push(vfs_path)
+        if vfs_path == '__vfs__/mymod.pyj':
+            # Return content so the compiler avoids a separate readfile call
+            return Promise.resolve({'mtimeMs': 1000, 'content': vfs_source})
+        err = new Error('ENOENT: ' + vfs_path)
+        err.code = 'ENOENT'
+        return Promise.reject(err)
+
+    RS.virtual_file_system = {
+        'read_file': vfs_read,
+        'write_file': vfs_write,
+        'stat_file': vfs_stat,
+    }
+
+    # create_embedded_compiler sets basedir=__vfs__ and libdir=__stdlib__, routing
+    # all user imports through VFS
+    embedded = await RS.create_embedded_compiler()
+    js2 = await embedded.compile('from mymod import greet\nresult = greet("World")\n')
+    assrt.ok(js2 and js2.length > 0, 'embedded compiler with VFS must return non-empty JS')
+    assrt.ok(js2.indexOf('greet') >= 0, 'compiled output must reference the function imported via VFS')
+
+    # stat_file must be called when the compiler resolves the VFS module path
+    assrt.ok(stat_calls.length > 0, 'stat_file must be called during compilation of VFS imports')
+    assrt.ok(stat_calls.indexOf('__vfs__/mymod.pyj') >= 0,
+             'stat_file must be called with the imported module path')
+
+    # write_file must be called when the compiler writes the parsed-AST cache
+    assrt.ok(write_calls.length > 0, 'write_file must be called to persist the compiled VFS module cache')
+    assrt.ok(write_calls.indexOf('__vfs__/mymod.pyj-cached') >= 0,
+             'write_file must be called with the cache path derived from the VFS module')
+
+    fs.rmSync(tmpdir, {'recursive': True})
+
+run_tests()
