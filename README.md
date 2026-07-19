@@ -1559,13 +1559,25 @@ There are a couple of caveats when using the embedded compiler:
 * It only works when run in a modern browser (one that supports ES6) so no
   Internet Explorer.
 
-* Importing of modules only works with the standard library modules. There is
-  currently no way to make your own modules importable.
+* To implement importing of modules you need to create a virtual file system
+  like this, before calling ``create_embedded_compiler()``:
 
-* To generate the embedded compiler yourself (rapydscript.js) from a source
-  checkout of rapydscript, follow the instructions above for installing from
-  source, then run `rapydscript web-repl-export /path/to/export/directory`.
-  Then you can simply open the index.html file in that directory in a browser
+  ```
+  RapydScript.virtual_file_system = {
+    read_file: my_read_file,
+    write_file: my_write_file,
+    stat_file: my_stat_file
+  }
+  ```
+  These functions should have the same signature and semantics as the 
+  ``fs.promises.readFile, fs.promises.writeFile and fs.promises.statFile``
+  functions from Node. Currently only the ``mtimeMs`` field from the stat
+  result is needed. They will be passed file paths starting with ``__vfs__/``
+  and should read/write/stat them as needed.
+
+* To generate the embedded compiler yourself (rapydscript.js) 
+  run `rapydscript web-repl-export /path/to/export/directory`.
+  Then you can simply open the ``index.html`` file in that directory in a browser
   to see the web REPL in action.
 
 Internationalization

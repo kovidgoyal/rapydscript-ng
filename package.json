@@ -14,10 +14,10 @@
     "start": "node bin/rapydscript",
     "build-self": "node bin/rapydscript self --complete"
   },
-  "version": "0.7.24",
+  "version": "0.8.0",
   "license": "BSD-2-Clause",
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=0.14.0"
   },
   "maintainers": [
     {

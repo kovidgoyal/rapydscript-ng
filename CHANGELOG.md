@@ -4,12 +4,17 @@ version 0.8.0
   * Implement generation of source maps via the --source-map option
   * Implement dead code removal via the --tree-shaking option
   * Add support for async and await
+  * Implement a ``fmt`` command for code formatting and an ``lsp`` command for a Language Server
+  * Implement a tree sitter grammar so that robust syntax highlighting is potentially available in all editors
+  * Implement a neovim plugin that enables treesitter based syntax highlighting and LSP server for ``.pyj`` files
+  * Implement support for importing user modules in the embedded compiler
+  * Double the compilation speed, especially useful for large projects
   * Drop support for ES5
   * List objects are now unmodified JS Arrays for greater performance. Python
     list methods continue to work.
   * Change the cache format to cache only the AST and not final output so that
     the cache can be re-used regardless of output and tree shaking options
-  * Make the compiler internal use async IO. This means the embedded compiler
+  * Make the compiler internally use async IO. This means the embedded compiler
     functions are also async.
  
 version 0.7.24
