@@ -20,7 +20,15 @@ Provided by the LSP server — no extra plugins required:
 ## Requirements
 
 - Neovim ≥ 0.10
-- `rapydscript` on your `$PATH` (install with `npm install -g rapydscript-ng`)
+- `rapydscript` on your `$PATH` (install with `npm install -g rapydscript-ng`), or the
+  plugin directory must be inside a RapydScript repository checkout (the repo's own
+  `bin/rapydscript` is used automatically as a fallback)
+- **Syntax highlighting only**: a C compiler on your `$PATH` is required to compile the
+  tree-sitter parser the first time the plugin loads.  On Linux/macOS any `cc`-compatible
+  compiler works (gcc, clang, etc.).  On Windows, `cl` (MSVC) or `clang-cl` must be
+  available — run Neovim from a Visual Studio Developer Command Prompt, or add the
+  compiler to your `PATH` manually.  LSP features work regardless of whether compilation
+  succeeds.
 
 ## Installation
 

@@ -8,7 +8,7 @@ local _plugin_root = vim.fn.fnamemodify(
 local _repo_root = vim.fn.fnamemodify(_plugin_root, ":h:h:h")
 
 -- Compile the tree-sitter parser once per nvim instance at require() time.
--- Stores the .so path on success, nil if sources are absent or compilation fails.
+-- Stores the .so/.dll path on success, nil if sources are absent or compilation fails.
 local _ts_so = (function()
     local ts_src = _repo_root .. "/tree-sitter/src"
     local parser_c = ts_src .. "/parser.c"
@@ -17,7 +17,10 @@ local _ts_so = (function()
 
     local bin_dir = _plugin_root .. "/bin"
     vim.fn.mkdir(bin_dir, "p")
-    local so = bin_dir .. "/rapydscript.so"
+
+    local is_win = vim.fn.has("win32") == 1
+    local lib_ext = is_win and ".dll" or ".so"
+    local so = bin_dir .. "/rapydscript" .. lib_ext
 
     local so_mtime = vim.fn.getftime(so)
     local needs = so_mtime < 0
@@ -25,15 +28,38 @@ local _ts_so = (function()
         or vim.fn.getftime(scanner_c) > so_mtime
 
     if needs then
-        local uname = vim.fn.system("uname -s"):gsub("%s+", "")
-        local shared = uname == "Darwin" and "-dynamiclib" or "-shared"
-        local cmd = table.concat({
-            "cc", shared, "-fPIC", "-Os",
-            "-I", vim.fn.shellescape(ts_src),
-            "-o", vim.fn.shellescape(so),
-            vim.fn.shellescape(parser_c),
-            vim.fn.shellescape(scanner_c),
-        }, " ")
+        local cmd
+        if is_win then
+            local compiler
+            if vim.fn.exepath("cl") ~= "" then
+                compiler = "cl"
+            elseif vim.fn.exepath("clang-cl") ~= "" then
+                compiler = "clang-cl"
+            else
+                vim.notify(
+                    "rapydscript: tree-sitter syntax highlighting requires cl or clang-cl on PATH",
+                    vim.log.levels.ERROR
+                )
+                return nil
+            end
+            -- /LD = build DLL, /nologo = suppress banner, /O2 = optimize,
+            -- /I = include path, /Fe: = output DLL path
+            cmd = string.format(
+                '"%s" /LD /nologo /O2 /I"%s" /Fe:"%s" "%s" "%s"',
+                compiler, ts_src, so, parser_c, scanner_c
+            )
+        else
+            local uname = vim.fn.system("uname -s"):gsub("%s+", "")
+            local shared = uname == "Darwin" and "-dynamiclib" or "-shared"
+            cmd = table.concat({
+                "cc", shared, "-fPIC", "-Os",
+                "-I", vim.fn.shellescape(ts_src),
+                "-o", vim.fn.shellescape(so),
+                vim.fn.shellescape(parser_c),
+                vim.fn.shellescape(scanner_c),
+            }, " ")
+        end
+
         vim.notify("rapydscript: compiling tree-sitter parser…", vim.log.levels.INFO)
         local out = vim.fn.system(cmd)
         if vim.v.shell_error ~= 0 then
@@ -67,8 +93,24 @@ local function _start_treesitter(bufnr)
     end
 end
 
+-- Prefer rapydscript on PATH; fall back to the copy in the repo checkout.
+local function _default_lsp_cmd()
+    if vim.fn.exepath("rapydscript") ~= "" then
+        return { "rapydscript", "lsp" }
+    end
+    local bin = _repo_root .. "/bin/rapydscript"
+    if vim.fn.filereadable(bin) == 1 then
+        if vim.fn.has("win32") == 1 then
+            -- On Windows the shebang is not honoured; invoke via node explicitly.
+            return { "node", bin, "lsp" }
+        end
+        return { bin, "lsp" }
+    end
+    return { "rapydscript", "lsp" }
+end
+
 M.defaults = {
-    cmd = { "rapydscript", "lsp" },
+    cmd = _default_lsp_cmd(),
     import_path = nil,
     line_length = nil,
     preferred_quote = nil,
