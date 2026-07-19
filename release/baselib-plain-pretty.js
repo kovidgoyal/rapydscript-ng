@@ -2644,7 +2644,7 @@ if (!ρσ_extends.__argnames__) Object.defineProperties(ρσ_extends, {
                         return arr.has(val);
                     }
                     if (ρσ_arraylike(arr)) {
-                        return ρσ_list_contains.call(arr, val);
+                        return Array.prototype.__contains__.call(arr, val);
                     }
                     return Object.prototype.hasOwnProperty.call(arr, val);
                 };
@@ -2664,7 +2664,7 @@ if (!ρσ_extends.__argnames__) Object.defineProperties(ρσ_extends, {
                     return arr.__contains__(val);
                 }
                 if (ρσ_arraylike(arr)) {
-                    return ρσ_list_contains.call(arr, val);
+                    return Array.prototype.__contains__.call(arr, val);
                 }
                 return Object.prototype.hasOwnProperty.call(arr, val);
             };
