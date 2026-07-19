@@ -239,15 +239,21 @@ function create_compiler() {
         'var ast_to_json = function(r) { return _sh.ast_to_json(r); };' +
         'var ast_from_json = function(d) { return _sh.ast_from_json(d); };' +
         'var make_lazy_ast_module = function(a, b) { return _sh.make_lazy_ast_module(a, b); };' +
+        'var encode_cache = function(m, r) { return _sh.encode_cache(m, r); };' +
+        'var decode_cache = function(d) { return _sh.decode_cache(d); };' +
         data['compiler.js'] + ';\n})';
     vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, stat_file, sha1sum, _sh);
     var s = vrequire('tools/ast_serialize.mjs').make_ast_serializer(module.exports);
     _sh.ast_to_json = s.ast_to_json;
     _sh.ast_from_json = s.ast_from_json;
     _sh.make_lazy_ast_module = s.make_lazy_ast_module;
+    _sh.encode_cache = s.encode_cache;
+    _sh.decode_cache = s.decode_cache;
     module.exports.ast_to_json = s.ast_to_json;
     module.exports.ast_from_json = s.ast_from_json;
     module.exports.make_lazy_ast_module = s.make_lazy_ast_module;
+    module.exports.encode_cache = s.encode_cache;
+    module.exports.decode_cache = s.decode_cache;
     return module.exports;
 }
 

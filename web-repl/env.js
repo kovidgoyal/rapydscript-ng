@@ -18,9 +18,9 @@ async function readfile(name, encoding) {
         err.code = 'ENOENT';
         throw err;
     }
-    var data = namespace.file_data[name];
+    var data = write_cache[name];
     if (data !== undefined) return data;
-    data = write_cache[name];
+    data = namespace.file_data[name];
     if (data !== undefined) return data;
     var err = new Error('ENOENT: no such file or directory: ' + name);
     err.code = 'ENOENT';

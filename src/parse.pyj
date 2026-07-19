@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-# globals: readfile, writefile, sha1sum, ast_from_json, ast_to_json, make_lazy_ast_module
+# globals: readfile, writefile, stat_file, sha1sum, ast_from_json, ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
 from __python__ import hash_literals
 
 from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
@@ -28,7 +28,7 @@ from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
-CACHE_VERSION = 8
+CACHE_VERSION = 1
 
 
 def get_compiler_version():
@@ -785,7 +785,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             # stat_file returns {mtimeMs, content?}.  For real filesystems mtimeMs is a
             # number and content is absent; for virtual filesystems content holds the
             # already-read source to avoid a double read.
-            async def safe_stat(base_path):
+            async def safe_stat(base_path):  # noqa
                 for i, path in enumerate([base_path + '.pyj', base_path + '/__init__.pyj']):
                     try:
                         st = await stat_file(path)
@@ -810,22 +810,15 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
             # Read the cache file.  I/O starts here; any CPU work done before the
             # await can overlap with the disk read.
-            cache_read = readfile(cache_file_name(filename, options.module_cache_dir), 'utf-8')
+            cache_read = readfile(cache_file_name(filename, options.module_cache_dir))
 
             cached = None
             ast_json_str = None
             try:
-                cache_content = await cache_read
-                # v8+ format: two sections separated by '\n'.
-                # Section 1: metadata JSON (small).  Section 2: AST JSON (large).
-                # Parsing only the metadata section defers the expensive JSON.parse of
-                # the AST pool until the module body is actually needed (ensure_loaded).
-                nl_idx = cache_content.indexOf('\n')
-                if nl_idx >= 0:
-                    cached = JSON.parse(cache_content.slice(0, nl_idx))
-                    ast_json_str = cache_content.slice(nl_idx + 1)
-                else:
-                    cached = JSON.parse(cache_content)
+                _split = decode_cache(await cache_read)
+                if _split is not None:
+                    cached = JSON.parse(_split.meta)
+                    ast_json_str = _split.ast
             except:
                 cached = None
 
@@ -2390,8 +2383,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 idx_import_bindings = {}
                 idx_top_defs = {}
 
-                def _collect_refs_into(node, refs_set):
-                    def _rv(n):
+                def _collect_refs_into(node, refs_set):  # noqa
+                    def _rv(n):  # noqa
                         if is_node_type(n, AST_SymbolRef):
                             refs_set[n.name] = True
                     node.walk(new TreeWalker(_rv))
@@ -2420,7 +2413,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     else:
                         if not has_se:
                             se_found = v'[false]'
-                            def se_check(se_node, se_descend):
+                            def se_check(se_node, se_descend):  # noqa
                                 if is_node_type(se_node, AST_Call):
                                     se_found[0] = True
                                     return True
@@ -2446,11 +2439,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 }
                 if options._file_mtime is not None and options._file_mtime is not undefined:
                     cache_meta['mtime'] = options._file_mtime
-                # Two-section format: metadata JSON on line 1, AST JSON on line 2.
-                # This lets do_import JSON.parse only the small metadata section
-                # and defer parsing the large AST JSON until the module body is needed.
-                cache_content = JSON.stringify(cache_meta) + '\n' + JSON.stringify(ast_to_json(toplevel))
-                await writefile(cache_file_name(options.filename, options.module_cache_dir), cache_content)
+                # Binary format: metadata JSON followed by newline and binary AST pool.
+                await writefile(cache_file_name(options.filename, options.module_cache_dir), encode_cache(JSON.stringify(cache_meta), toplevel))
             except as e:
                 console.error('Failed to write AST cache file:', options.filename, 'with error:', e)
 

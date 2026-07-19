@@ -105,14 +105,18 @@ async function create_compiler(opts) {
     var compiler_file = path.join(compiler_dir, 'compiler.js');
     var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
-    const { ast_to_json, ast_from_json, make_lazy_ast_module } = make_ast_serializer(compiler_exports);
+    const { ast_to_json, ast_from_json, make_lazy_ast_module, encode_cache, decode_cache } = make_ast_serializer(compiler_exports);
     compiler_exports.ast_to_json = ast_to_json;
     compiler_exports.ast_from_json = ast_from_json;
     compiler_exports.make_lazy_ast_module = make_lazy_ast_module;
+    compiler_exports.encode_cache = encode_cache;
+    compiler_exports.decode_cache = decode_cache;
     // Inject into the VM context so parse.pyj compiled code can call them as globals.
     compiler_context.ast_to_json = ast_to_json;
     compiler_context.ast_from_json = ast_from_json;
     compiler_context.make_lazy_ast_module = make_lazy_ast_module;
+    compiler_context.encode_cache = encode_cache;
+    compiler_context.decode_cache = decode_cache;
     return compiler_exports;
 }
 
