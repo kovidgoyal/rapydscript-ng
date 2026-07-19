@@ -52,6 +52,21 @@ function M.check()
         h.warn("Tree-sitter parser not compiled (syntax highlighting unavailable)")
     end
 
+    -- LSP clients --------------------------------------------------------------
+    h.start("rapydscript LSP")
+    local clients = vim.lsp.get_clients({ name = "rapydscript" })
+    if #clients == 0 then
+        h.warn("No active rapydscript LSP client")
+    else
+        for _, client in ipairs(clients) do
+            local cmd_str = type(client.config.cmd) == "table"
+                and table.concat(client.config.cmd, " ")
+                or tostring(client.config.cmd)
+            h.ok(string.format("Client #%d  root: %s", client.id, client.config.root_dir or "?"))
+            h.info("cmd: " .. cmd_str)
+        end
+    end
+
     -- Settings -----------------------------------------------------------------
     h.start("rapydscript settings")
     local opts = rs._active_opts
