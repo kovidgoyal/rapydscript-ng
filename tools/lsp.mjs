@@ -767,6 +767,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
     function log(msg) { process.stderr.write('[rapydscript-lsp] ' + msg + '\n'); }
 
     var connection = create_connection(process.stdin, process.stdout, log);
+    var client_capabilities = {};
 
     function schedule_diagnostics(uri) {
         if (diag_timers[uri]) clearTimeout(diag_timers[uri]);
@@ -782,6 +783,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
     }
 
     connection.on_request('initialize', function (params) {
+        client_capabilities = (params && params.capabilities) || {};
         if (params && params.workspaceFolders) params.workspaceFolders.forEach(function (f) { if (f.uri) ctx.workspace_roots.push(uri_to_path(f.uri)); });
         else if (params && params.rootUri) ctx.workspace_roots.push(uri_to_path(params.rootUri));
         else if (params && params.rootPath) ctx.workspace_roots.push(params.rootPath);
@@ -800,7 +802,34 @@ export async function cli(argv, base_path, src_path, lib_path) {
             serverInfo: { name: 'rapydscript-lsp', version: '1.0.0' },
         };
     });
-    connection.on_notification('initialized', function () {});
+    connection.on_notification('initialized', async function () {
+        var registrations = [];
+        var ws = client_capabilities.workspace || {};
+        if (ws.didChangeConfiguration && ws.didChangeConfiguration.dynamicRegistration) {
+            registrations.push({
+                id: 'rapydscript-config',
+                method: 'workspace/didChangeConfiguration',
+                registerOptions: {},
+            });
+        }
+        if (ws.didChangeWatchedFiles && ws.didChangeWatchedFiles.dynamicRegistration) {
+            registrations.push({
+                id: 'rapydscript-file-watcher',
+                method: 'workspace/didChangeWatchedFiles',
+                registerOptions: { watchers: [{ globPattern: '**/*.pyj' }] },
+            });
+        }
+        if (registrations.length) {
+            try {
+                await connection.send_request('client/registerCapability', { registrations: registrations });
+            } catch (e) {
+                log('client/registerCapability failed: ' + (e && e.message ? e.message : e));
+            }
+        }
+    });
+    connection.on_notification('workspace/didChangeWatchedFiles', function () {
+        invalidate_workspace_scan(ctx);
+    });
     connection.on_notification('workspace/didChangeConfiguration', function (params) {
         var settings = (params && params.settings && params.settings.rapydscript) || {};
         var changed = apply_configuration(ctx, settings);

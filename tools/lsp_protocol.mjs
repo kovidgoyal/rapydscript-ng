@@ -96,11 +96,26 @@ export function create_connection(input, output, log) {
     var request_handlers = Object.create(null);
     var notification_handlers = Object.create(null);
     var cancelled = Object.create(null);  // request id -> true
+    var pending_requests = Object.create(null);  // id -> {resolve, reject}
+    var next_request_id = 1;
 
     function send(msg) { write_message(output, msg); }
 
     function send_error(id, code, message, data) {
         send({ jsonrpc: '2.0', id: id, error: { code: code, message: message, data: data } });
+    }
+
+    function handle_response(msg) {
+        var pending = pending_requests[msg.id];
+        if (!pending) return;
+        delete pending_requests[msg.id];
+        if (msg.error) {
+            var err = new Error(msg.error.message || 'Request failed');
+            err.code = msg.error.code;
+            pending.reject(err);
+        } else {
+            pending.resolve(msg.result);
+        }
     }
 
     async function handle_request(msg) {
@@ -143,7 +158,7 @@ export function create_connection(input, output, log) {
         if (!msg || msg.jsonrpc !== '2.0') return;
         if (msg.method !== undefined && msg.id !== undefined) handle_request(msg);
         else if (msg.method !== undefined) handle_notification(msg);
-        // responses to server->client requests are unused for now
+        else if (msg.id !== undefined) handle_response(msg);
     }
 
     MessageReader(input, on_message, function (e) { if (log) log('Message parse error: ' + e); });
@@ -152,6 +167,13 @@ export function create_connection(input, output, log) {
         on_request: function (method, handler) { request_handlers[method] = handler; },
         on_notification: function (method, handler) { notification_handlers[method] = handler; },
         send_notification: function (method, params) { send({ jsonrpc: '2.0', method: method, params: params }); },
+        send_request: function (method, params) {
+            return new Promise(function (resolve, reject) {
+                var id = next_request_id++;
+                pending_requests[id] = { resolve: resolve, reject: reject };
+                send({ jsonrpc: '2.0', id: id, method: method, params: params });
+            });
+        },
         dispose: function () { request_handlers = Object.create(null); notification_handlers = Object.create(null); },
     };
 }
