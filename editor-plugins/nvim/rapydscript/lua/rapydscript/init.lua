@@ -78,8 +78,6 @@ function M.setup(opts)
         preferredQuote = opts.preferred_quote,
     }
 
-    vim.filetype.add({ extension = { pyj = "rapydscript" } })
-
     vim.api.nvim_create_autocmd("FileType", {
         pattern = opts.filetypes,
         callback = function(ev)

@@ -28,18 +28,9 @@ Provided by the LSP server — no extra plugins required:
 
 ```lua
 {
-    "rapydscript/rapydscript",            -- or the path/URL where this plugin lives
-    dir = "/path/to/rapydscript/nvim-lsp-plugin",  -- if using a local checkout
-    ft = "rapydscript",
-    opts = {
-        -- all fields are optional; shown here with their defaults
-        import_path   = nil,      -- passed as --import-path (e.g. "src:vendor")
-        line_length   = nil,      -- passed as --line-length (default 80)
-        preferred_quote = nil,    -- "single" or "double" (default "single")
-    },
-    config = function(_, opts)
-        require("rapydscript").setup(opts)
-    end,
+    dir = '/path/to/editor-plugins/nvim/rapydscript',
+    ft = 'rapydscript',
+    opts = {},
 }
 ```
 
@@ -47,16 +38,13 @@ Provided by the LSP server — no extra plugins required:
 
 ```lua
 {
-    dir = "/path/to/rapydscript/nvim-lsp-plugin",
+    dir = "/path/to/editor-plugins/nvim/rapydscript",
     ft = "rapydscript",
     opts = {
         import_path   = "src:vendor",
         line_length   = 100,
         preferred_quote = "double",
     },
-    config = function(_, opts)
-        require("rapydscript").setup(opts)
-    end,
 }
 ```
 
