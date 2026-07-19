@@ -84,30 +84,41 @@ export default async function(argv, base_path, src_path, lib_path) {
         var jsfile = path.join(os.tmpdir(), file + '-es6.js');
         var code = output.toString();
         try {
-            let result = vm.runInNewContext(code, {
-                'assrt':assert,
-                '__name__': jsfile,
-                'require':require,
-                'fs':fs,
-                'RapydScript':RapydScript,
-                'console':console,
-                'compiler_dir': compiler_dir,
-                'test_path':test_dir,
-                'Buffer': Buffer,
-                'rs_gettext': rs_gettext,
-                'rs_entry_to_string': rs_entry_to_string,
-                'rs_msgfmt': { parse: rs_msgfmt_parse, build: rs_msgfmt_build },
-                'rs_repl': rs_repl_fn,
-                'rs_generate_source_map': rs_generate_source_map,
-                'rs_create_embedded_compiler': async function(opts) {
-                    // Mirror what the browser bundle does: compiler + embedded baselib → factory.
-                    // Tests may pass { virtual_file_system } to override readfile/writefile.
-                    var compiler = await create_compiler(opts);
-                    return await embedded_compiler_factory(compiler, baselib, undefined, undefined, undefined, undefined);
-                },
-            }, {'filename':jsfile});
-            if (result && typeof result.then === 'function') {
-                await result;
+            const unhandled = [];
+            const on_rejection = (reason) => unhandled.push(reason);
+            process.on('unhandledRejection', on_rejection);
+            try {
+                let result = vm.runInNewContext(code, {
+                    'assrt':assert,
+                    '__name__': jsfile,
+                    'require':require,
+                    'fs':fs,
+                    'RapydScript':RapydScript,
+                    'console':console,
+                    'compiler_dir': compiler_dir,
+                    'test_path':test_dir,
+                    'Buffer': Buffer,
+                    'rs_gettext': rs_gettext,
+                    'rs_entry_to_string': rs_entry_to_string,
+                    'rs_msgfmt': { parse: rs_msgfmt_parse, build: rs_msgfmt_build },
+                    'rs_repl': rs_repl_fn,
+                    'rs_generate_source_map': rs_generate_source_map,
+                    'rs_create_embedded_compiler': async function(opts) {
+                        // Mirror what the browser bundle does: compiler + embedded baselib → factory.
+                        // Tests may pass { virtual_file_system } to override readfile/writefile.
+                        var compiler = await create_compiler(opts);
+                        return await embedded_compiler_factory(compiler, baselib, undefined, undefined, undefined, undefined);
+                    },
+                }, {'filename':jsfile});
+                if (result && typeof result.then === 'function') {
+                    await result;
+                }
+                // Drain one event-loop tick so Node.js can fire unhandledRejection
+                // for any async work that was not returned as the script's completion value.
+                await new Promise(resolve => setImmediate(resolve));
+                if (unhandled.length) throw unhandled[0];
+            } finally {
+                process.removeListener('unhandledRejection', on_rejection);
             }
         } catch (e) {
             failures.push(file);
