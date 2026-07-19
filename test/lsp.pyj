@@ -188,4 +188,4 @@ async def run_tests():
     await test_error_recovery_still_analyzes()
     await test_parser_recovery_flag()
 
-run_tests()
+__test_async_done__ = run_tests()

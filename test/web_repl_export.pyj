@@ -85,4 +85,4 @@ async def run_tests():
 
     fs.rmSync(tmpdir, {'recursive': True})
 
-run_tests()
+__test_async_done__ = run_tests()

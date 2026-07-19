@@ -178,4 +178,4 @@ async def run_tests():
     ok(js.indexOf('function PinnedClass') >= 0, '@no_prune class must not be pruned')
     ok(js.indexOf('function UnpinnedClass') < 0, 'non-annotated unused class must still be pruned')
 
-run_tests()
+__test_async_done__ = run_tests()

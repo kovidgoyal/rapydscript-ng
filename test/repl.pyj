@@ -123,4 +123,4 @@ class A:
     clear()
     await check('ds.__doc__', "'xxx'")
 
-run_tests()
+__test_async_done__ = run_tests()

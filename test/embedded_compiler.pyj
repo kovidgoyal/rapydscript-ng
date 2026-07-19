@@ -54,4 +54,4 @@ async def run_tests():
     assrt.ok(js5 and js5.length > 0, 'stdlib import must succeed when VFS is provided (served from bundled cache)')
     assrt.ok(js5.indexOf('sqrt') >= 0, 'compiled JS must reference the stdlib sqrt function')
 
-run_tests()
+__test_async_done__ = run_tests()

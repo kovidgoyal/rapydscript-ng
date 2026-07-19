@@ -166,4 +166,4 @@ def f():
 ''')
     await err_test('with a:\n pass', 'undef', '1', 'a')
 
-run_tests()
+__test_async_done__ = run_tests()

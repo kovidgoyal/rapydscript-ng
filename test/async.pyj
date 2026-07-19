@@ -92,5 +92,4 @@ async def run_tests():
     assrt.equal(results[0], 100, "Promise.all first")
     assrt.equal(results[1], 200, "Promise.all second")
 
-# Return the promise so the test runner can await it
-run_tests()
+__test_async_done__ = run_tests()

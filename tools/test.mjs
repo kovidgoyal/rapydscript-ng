@@ -88,7 +88,12 @@ export default async function(argv, base_path, src_path, lib_path) {
             const on_rejection = (reason) => unhandled.push(reason);
             process.on('unhandledRejection', on_rejection);
             try {
-                let result = vm.runInNewContext(code, {
+                // __test_async_done__ is a sandbox global that async test files can assign
+                // their top-level Promise to (e.g. `__test_async_done__ = run_tests()`).
+                // Assigning to an existing global inside a strict-mode IIFE is legal, so
+                // this lets us properly await tests whose async Promise is otherwise buried
+                // inside a synchronous wrapper IIFE and never returned from the script.
+                const sandbox = {
                     'assrt':assert,
                     '__name__': jsfile,
                     'require':require,
@@ -109,12 +114,18 @@ export default async function(argv, base_path, src_path, lib_path) {
                         var compiler = await create_compiler(opts);
                         return await embedded_compiler_factory(compiler, baselib, undefined, undefined, undefined, undefined);
                     },
-                }, {'filename':jsfile});
+                    '__test_async_done__': null,
+                };
+                let result = vm.runInNewContext(code, sandbox, {'filename':jsfile});
                 if (result && typeof result.then === 'function') {
                     await result;
                 }
+                // Await any async Promise that the test file registered via __test_async_done__.
+                if (sandbox.__test_async_done__ && typeof sandbox.__test_async_done__.then === 'function') {
+                    await sandbox.__test_async_done__;
+                }
                 // Drain one event-loop tick so Node.js can fire unhandledRejection
-                // for any async work that was not returned as the script's completion value.
+                // for any async work that was not captured by either mechanism above.
                 await new Promise(resolve => setImmediate(resolve));
                 if (unhandled.length) throw unhandled[0];
             } finally {
