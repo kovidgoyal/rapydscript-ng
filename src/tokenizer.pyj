@@ -153,10 +153,12 @@ def is_token(token, type, val):
 
 EX_EOF = {}
 
-def tokenizer(raw_text, filename):
+def tokenizer(raw_text, filename, recover_errors):
     S = {
         'text': raw_text.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, ""),
         'filename': filename,
+        'recover_errors': not not recover_errors,  # LSP error-recovery mode (see parse())
+        'recovered_errors': v'[]',  # collected errors when recover_errors is on
         'pos': 0,
         'tokpos': 0,
         'line': 1,
@@ -703,6 +705,16 @@ def tokenizer(raw_text, filename):
                 tok.type = stok.type
             return tok
 
+        if S.recover_errors:
+            # In error-recovery mode (used by the LSP) an unrecognized character
+            # must not raise, because re-tokenizing from the same position would
+            # loop forever (parse_error is raised before the character is
+            # consumed). Record it and skip the single offending character so the
+            # tokenizer always makes forward progress.
+            S.recovered_errors.push({'message': "Unexpected character «" + ch + "»",
+                                     'line': S.tokline, 'col': S.tokcol, 'pos': S.tokpos, 'is_eof': False})
+            next()
+            return next_token()
         parse_error("Unexpected character «" + ch + "»")
 
     next_token.context = def(nc):

@@ -567,6 +567,17 @@ function Linter(toplevel, filename, code, options) {
 
 }
 
+// Run only the linter analysis over an already parsed toplevel. Used by both
+// lint_code and the LSP (which parses once, in error-recovery mode, and reuses
+// the resulting AST for all of its services).
+export function lint_parsed(toplevel, code, options) {
+    options = options || {};
+    var filename = options.filename || '<eval>';
+    var linter = new Linter(toplevel, filename, code, options);
+    toplevel.walk(linter);
+    return linter.resolve();
+}
+
 export async function lint_code(code, options) {
     options = options || {};
     var reportcb = {'json':cli_json_report, 'vim': cli_vim_report, 'undef': cli_undef_report}[options.errorformat] || (options.report || cli_report);
@@ -585,13 +596,13 @@ export async function lint_code(code, options) {
     }
 
     if (toplevel) {
-        var linter = new Linter(toplevel, filename, code, options);
-        toplevel.walk(linter);
-        messages = linter.resolve();
+        messages = lint_parsed(toplevel, code, options);
     }
     messages.forEach(function(msg, i) { msg.code_lines = lines; reportcb(msg, i, messages); });
     return messages;
 }
+
+export { BUILTINS };
 
 // CLI {{{
 

@@ -209,6 +209,41 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             token = S.token
         token_error(token, "Unexpected token: " + token.type + " «" + token.value + "»")
 
+    # --- Error recovery (only active when options.recover_errors is True) --------
+    # These helpers let the LSP obtain a usable AST from a file that contains
+    # syntax errors. They are never invoked on the normal compile path, so they
+    # cannot introduce a performance or behavior regression there.
+
+    def is_recoverable_error(e):
+        return v'e instanceof SyntaxError'
+
+    def record_recovery(e):
+        S.recovered_errors.push({
+            'message': e.message, 'line': e.line, 'col': e.col, 'pos': e.pos,
+            'endpos': e.endpos, 'is_eof': e.is_eof,
+        })
+
+    async def skip_to_recovery_point():
+        # Resynchronize after a syntax error: always consume at least one token
+        # (guaranteeing forward progress) then stop at the start of the next
+        # logical line, a block dedent, or eof. next() may itself raise a
+        # tokenizer level SyntaxError (e.g. an unterminated string on the skipped
+        # line); such errors are recorded and skipping continues. The tokenizer
+        # advances its position for every such error (and never raises for an
+        # unexpected character in recover mode), so this loop always terminates.
+        while not is_("eof"):
+            try:
+                next()
+            except as e:
+                if is_recoverable_error(e):
+                    record_recovery(e)
+                    if is_("eof"):
+                        return
+                    continue
+                raise
+            if is_("eof") or is_("punc", "}") or S.token.nlb:
+                return
+
     def expect_token(type, val):
         if is_(type, val):
             return next()
@@ -1367,8 +1402,20 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if not S.token.nlb:
             while not S.token.nlb:
                 if is_("eof"):
+                    if options.recover_errors:
+                        break
                     unexpected()
-                stmt = await statement()
+                if options.recover_errors:
+                    try:
+                        stmt = await statement()
+                    except as berr:
+                        if is_recoverable_error(berr):
+                            record_recovery(berr)
+                            await skip_to_recovery_point()
+                            continue
+                        raise
+                else:
+                    stmt = await statement()
                 if docstrings:
                     ds = is_docstring(stmt)
                     if ds:
@@ -1383,7 +1430,17 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if is_("eof"):
                     # end of file, terminate block automatically
                     return a
-                stmt = await statement()
+                if options.recover_errors:
+                    try:
+                        stmt = await statement()
+                    except as berr:
+                        if is_recoverable_error(berr):
+                            record_recovery(berr)
+                            await skip_to_recovery_point()
+                            continue
+                        raise
+                else:
+                    stmt = await statement()
                 if docstrings:
                     ds = is_docstring(stmt)
                     if ds:
@@ -2311,7 +2368,17 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         first_token = True
         toplevel = options.toplevel
         while not is_("eof"):
-            element = await statement()
+            if options.recover_errors:
+                try:
+                    element = await statement()
+                except as rerr:
+                    if is_recoverable_error(rerr):
+                        record_recovery(rerr)
+                        await skip_to_recovery_point()
+                        continue
+                    raise
+            else:
+                element = await statement()
             if first_token and is_node_type(element, AST_Directive) and element.value.indexOf('#!') is 0:
                 shebang = element.value
             else:
@@ -2335,6 +2402,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'end': end,
                 'docstrings': docstrings,
             })
+
+        if options.recover_errors:
+            # Combine parser-level recovered errors with any collected by the
+            # tokenizer (e.g. skipped unexpected characters) for the LSP to report.
+            recovered = S.recovered_errors
+            try:
+                tok_ctx = S.input.context()
+                if tok_ctx and tok_ctx.recovered_errors and tok_ctx.recovered_errors.length:
+                    recovered = recovered.concat(tok_ctx.recovered_errors)
+            except:
+                pass
+            toplevel.recovered_errors = recovered
 
         toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body).concat(S.globals)
         toplevel.localvars = []
@@ -2459,6 +2538,7 @@ async def parse(text, options):
         'scoped_flags': {},   # Global scoped flags (used by the REPL)
         'discard_asserts': False,
         'module_cache_dir': '',
+        'recover_errors': False,  # When True, continue parsing past syntax errors (used by the LSP). See run_parser/block_.
     })
     import_dirs = [x for x in options.import_dirs]
     for location in v'[options.libdir, options.basedir]':
@@ -2477,7 +2557,8 @@ async def parse(text, options):
 
     # The internal state of the parser
     S = {
-        'input': tokenizer(text, options.filename) if jstype(text) is 'string' else text,
+        'input': tokenizer(text, options.filename, options.recover_errors) if jstype(text) is 'string' else text,
+        'recovered_errors': v'[]',  # syntax errors swallowed during recovery (recover_errors mode only)
         'token': None,
         'prev': None,
         'peeked': [],

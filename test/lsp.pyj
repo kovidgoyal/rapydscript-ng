@@ -1,0 +1,191 @@
+# globals: assrt, fs, require, test_path, compiler_dir, console, RapydScript
+
+# Tests for the "lsp" sub-command (tools/lsp.mjs), the RapydScript language
+# server. These drive the pure analysis functions directly (the same functions
+# the JSON-RPC layer calls) plus the parser's error-recovery mode.
+
+lsp = require('./lsp.mjs')
+path = require('path')
+os = require('os')
+url = require('url')
+
+base_path = path.resolve(compiler_dir, '..')
+libdir = path.join(base_path, 'src', 'lib')
+
+def uri_of(p):
+    return url.pathToFileURL(p).href
+
+def offset_of(text, needle, from_index):
+    return text.indexOf(needle, from_index or 0)
+
+def make_ctx(tmp):
+    return lsp.create_server_context({
+        'import_dirs': [tmp], 'libdir': libdir, 'workspace_roots': [tmp],
+        'line_length': 80, 'preferred_quote': 'single',
+    })
+
+def write_workspace():
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-lsp-'))
+    fs.writeFileSync(path.join(tmp, 'util.pyj'),
+        'def helper(x):\n    return x + 1\n\nclass Widget:\n    def __init__(self):\n        self.n = 0\n')
+    fs.writeFileSync(path.join(tmp, 'main.pyj'),
+        'from util import helper\nimport util\n\ndef run():\n    w = util.Widget()\n    return helper(w)\n\nunused_var = 5\nmissing = undefined_thing()\nimport nonexistent_module\n')
+    return tmp
+
+def codes(diags):
+    ans = {}
+    for d in diags:
+        ans[d.code] = (ans[d.code] or 0) + 1
+    return ans
+
+async def test_diagnostics():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    diags = await lsp.compute_diagnostics(ctx, main_uri, text)
+    c = codes(diags)
+    assrt.ok(c['undef'], 'expected an undef diagnostic for undefined_thing')
+    assrt.ok(c['unused-import'], 'expected unused-import for nonexistent_module')
+    assrt.ok(c['import-unresolved'], 'expected import-unresolved for nonexistent_module')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_hover_and_definition():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    util_uri = uri_of(path.join(tmp, 'util.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    off = offset_of(text, 'helper(w)')
+    h = await lsp.hover(ctx, main_uri, text, off)
+    assrt.ok(h and h.contents.value.indexOf('helper') >= 0, 'hover should mention helper')
+
+    defs = await lsp.definition(ctx, main_uri, text, off)
+    assrt.ok(Array.isArray(defs) and defs.length >= 1, 'definition should return locations')
+    assrt.equal(defs[0].uri, util_uri, 'definition of helper should be in util.pyj')
+    assrt.equal(defs[0].range.start.line, 0, 'helper is defined on line 0 of util.pyj')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_cross_file_references():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    util_uri = uri_of(path.join(tmp, 'util.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    off = offset_of(text, 'helper(w)')
+    refs = await lsp.references(ctx, main_uri, text, off, True)
+    uris = {}
+    for r in refs:
+        uris[r.uri] = True
+    assrt.ok(uris[main_uri], 'references should include occurrences in main.pyj')
+    assrt.ok(uris[util_uri], 'references should include the definition file util.pyj')
+    assrt.ok(refs.length >= 3, 'expected at least 3 references to helper across files')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_cross_file_rename():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    util_uri = uri_of(path.join(tmp, 'util.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    off = offset_of(text, 'helper(w)')
+    we = await lsp.rename(ctx, main_uri, text, off, 'compute')
+    assrt.ok(we and we.changes, 'rename should return a workspace edit')
+    assrt.ok(we.changes[main_uri] and we.changes[main_uri].length >= 2, 'main.pyj should have >= 2 edits')
+    assrt.ok(we.changes[util_uri] and we.changes[util_uri].length >= 1, 'util.pyj should have the definition edit')
+    for e in we.changes[util_uri]:
+        assrt.equal(e.newText, 'compute', 'edit should insert the new name')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_invalid_rename():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    off = offset_of(text, 'helper(w)')
+    threw = False
+    try:
+        await lsp.rename(ctx, main_uri, text, off, 'not a name')
+    except:
+        threw = True
+    assrt.ok(threw, 'renaming to an invalid identifier must be rejected')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_local_rename():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    uri = uri_of(path.join(tmp, 'local.pyj'))
+    text = 'def f():\n    total = 0\n    total = total + 1\n    return total\n'
+    we = await lsp.rename(ctx, uri, text, offset_of(text, 'return total') + 'return '.length, 'sum')
+    assrt.ok(we and we.changes and we.changes[uri], 'local rename should return edits')
+    assrt.equal(we.changes[uri].length, 4, 'total is used 4 times (1 def + 3 refs)')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_completion():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    main_uri = uri_of(path.join(tmp, 'main.pyj'))
+    text = fs.readFileSync(path.join(tmp, 'main.pyj'), 'utf-8')
+    # After "util." we should be offered the module's exports.
+    dot_off = offset_of(text, 'util.Widget') + 'util.'.length
+    items = await lsp.completions(ctx, main_uri, text, dot_off)
+    labels = [it.label for it in items]
+    assrt.ok(labels.indexOf('Widget') >= 0, 'member completion should include Widget')
+    assrt.ok(labels.indexOf('helper') >= 0, 'member completion should include helper')
+
+    # Bare completion should include in-scope symbols, builtins and keywords.
+    bare = await lsp.completions(ctx, main_uri, text, offset_of(text, 'unused_var'))
+    blabels = [it.label for it in bare]
+    assrt.ok(blabels.indexOf('run') >= 0, 'completion should include the top-level function run')
+    assrt.ok(blabels.indexOf('print') >= 0, 'completion should include builtins')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_formatting():
+    ctx = lsp.create_server_context({'line_length': 80, 'preferred_quote': 'single'})
+    edits = lsp.format_document(ctx, 'x=1;y=2\n')
+    assrt.equal(edits.length, 1, 'formatting a mis-spaced document should yield one edit')
+    assrt.equal(edits[0].newText, 'x = 1; y = 2\n', 'formatter should normalize spacing')
+    # An already-formatted document yields no edits.
+    assrt.equal(lsp.format_document(ctx, 'x = 1\n').length, 0, 'well formatted input needs no edits')
+
+async def test_error_recovery_still_analyzes():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    uri = uri_of(path.join(tmp, 'broke.pyj'))
+    # alpha() has a syntax error but beta() must still be analyzable.
+    text = 'def alpha():\n    x = \n    return x\n\ndef beta():\n    y = 1\n    return y + y\n'
+    diags = await lsp.compute_diagnostics(ctx, uri, text)
+    assrt.ok(codes(diags)['syntax-err'], 'a syntax error should be reported')
+    off = offset_of(text, 'return y + y') + 'return '.length
+    h = await lsp.hover(ctx, uri, text, off)
+    assrt.ok(h and h.contents.value.indexOf('y') >= 0, 'hover must work in the healthy part of a broken file')
+    fs.rmSync(tmp, {'recursive': True})
+
+async def test_parser_recovery_flag():
+    # The recover_errors parser option must never regress the normal path: a
+    # broken file throws without it and yields recovered_errors with it.
+    code = 'def good():\n    return 1\n\ndef bad(:\n    pass\n\nx = 2\n'
+    threw = False
+    try:
+        await RapydScript.parse(code, {'filename': 'r.pyj', 'basedir': test_path, 'libdir': libdir, 'for_linting': True})
+    except:
+        threw = True
+    assrt.ok(threw, 'normal parse must still throw on syntax errors (no regression)')
+
+    top = await RapydScript.parse(code, {'filename': 'r.pyj', 'basedir': test_path, 'libdir': libdir, 'for_linting': True, 'recover_errors': True})
+    assrt.ok(top, 'recover_errors parse should return a toplevel')
+    assrt.ok(top.recovered_errors and top.recovered_errors.length >= 1, 'recovered_errors should be populated')
+
+async def run_tests():
+    await test_diagnostics()
+    await test_hover_and_definition()
+    await test_cross_file_references()
+    await test_cross_file_rename()
+    await test_invalid_rename()
+    await test_local_rename()
+    await test_completion()
+    await test_formatting()
+    await test_error_recovery_still_analyzes()
+    await test_parser_recovery_flag()
+
+run_tests()

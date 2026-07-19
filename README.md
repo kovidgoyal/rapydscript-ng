@@ -48,6 +48,7 @@ backwards compatible) features. For more on the forking, [see the bottom of this
 - [Scope Control](#scope-control)
 - [Available Libraries](#available-libraries)
 - [Linter](#linter)
+- [Language Server (LSP)](#language-server-lsp)
 - [Making RapydScript even more pythonic](#making-rapydscript-even-more-pythonic)
 - [Advanced Usage Topics](#advanced-usage-topics)
     - [Browser Compatibility](#browser-compatibility)
@@ -1430,6 +1431,41 @@ The linter is highly configurable, you can add to the list of built-in names
 that the linter will not raise undefined errors for. You can turn off
 individual checks that you do not find useful. See ``rapydscript lint -h`` for
 details.
+
+Language Server (LSP)
+-----------------------
+
+RapydScript ships with a Language Server Protocol server so that editors can
+offer rich language support for ``.pyj`` files. Start it with:
+
+	rapydscript lsp
+
+The server talks the standard LSP JSON-RPC protocol over stdin/stdout, so it is
+meant to be launched by an editor/LSP client rather than run interactively. It
+provides:
+
+- **Code completion** — in-scope symbols, builtins and keywords, plus member
+  completion for imported modules (``mod.<complete>``).
+- **Diagnostics** — the same checks as the ``lint`` sub-command, plus warnings
+  for imports that cannot be resolved in the import path. The parser recovers
+  from syntax errors, so a file that is being edited is still analysed (and
+  multiple errors can be reported at once).
+- **Hover** — the kind, origin and docstring of the symbol under the cursor.
+- **Code actions** — quick fixes such as removing an unused import/local,
+  silencing a check with a ``# noqa`` comment, and formatting the document.
+- **Document formatting** — the same formatter as the ``fmt`` sub-command,
+  controlled by ``--line-length`` and ``--preferred-quote``.
+- **Go to definition** — including jumping into imported modules.
+- **Find all references** — resolved across files through the import graph.
+- **Rename** — renames a symbol everywhere it is used across the workspace.
+
+Imports are resolved with the same ``--import-path`` (``-p``) option as the
+``compile`` sub-command, so point it at your project's import directories. For
+example:
+
+	rapydscript lsp --import-path src:vendor --line-length 100
+
+See ``rapydscript lsp -h`` for the full list of options.
 
 Making RapydScript even more pythonic
 ---------------------------------------

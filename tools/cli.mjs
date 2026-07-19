@@ -461,6 +461,34 @@ would be reformatted (and any lines that exceed the maximum
 length) to STDERR. Exit with a status of 1 if any issues are
 found, otherwise 0.`);
 
+create_group('lsp', "", `Run a Language Server Protocol (LSP) server for RapydScript.
+The server communicates over stdin/stdout using the standard
+LSP JSON-RPC framing and provides code completion, diagnostics,
+hover information, code actions, document formatting, go to
+definition, find all references and symbol renaming.`,
+`The server is meant to be launched by an LSP client (editor). It
+reads requests from STDIN and writes responses to STDOUT, so do
+not use it interactively.
+
+Imports are resolved using the same --import-path option as the
+compile sub-command. Diagnostics reuse the linter and add checks
+for unresolved imports. Document formatting reuses the fmt
+sub-command and is controlled by the --line-length and
+--preferred-quote options.`);
+
+opt("import_path", "p", 'string', '', `A list of paths in which to look for imported modules, used to
+resolve imports for diagnostics and go-to-definition. Multiple
+paths must be separated by the path separator (: on Unix and ; on
+Windows). You can also use the environment variable
+RAPYDSCRIPT_IMPORT_PATH for this, with identical syntax.`);
+
+opt("line_length", 'l', 'string', '80', `The maximum allowed line length used by the document formatter.
+Lines longer than this are wrapped where it is safe to do so.
+Defaults to 80.`);
+
+opt("preferred_quote", 'q', 'string', 'single', `The preferred quote character used by the document formatter.
+Either "single" or "double". Defaults to single.`, ['single', 'double']);
+
 
 export var argv = parse_args();
 if (typeof argv.js_version === 'string') {
