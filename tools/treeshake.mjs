@@ -39,6 +39,8 @@ function node_is_pinned(stmt) {
 // observable side effects (e.g. patching String.prototype).
 function has_side_effect_calls(mod) {
     if (!mod) return false;
+    // Use pre-computed flag if available (avoids body access for lazy modules).
+    if (typeof mod._has_side_effects === 'boolean') return mod._has_side_effects;
     if (!mod.body) return false;
     var found = false;
     mod.body.forEach(function(stmt) {
@@ -90,23 +92,50 @@ function tree_shake(toplevel) {
         all_modules[mid] = toplevel.imports[mid];
     });
 
-    // ── 2. Build per-module index tables ─────────────────────────────────
+    // ── 2. Per-module index tables (built lazily when a module is first marked live) ──
     //
     //  top_defs[mid]        : {name -> ast_node}  (top-level defs only)
     //  import_bindings[mid] : {local_name -> {source_module, imported_name, is_namespace}}
+    //
+    // Building lazily means dead modules' bodies are never accessed, enabling
+    // lazy AST deserialization: ast_from_json() is skipped for dead modules.
 
     var top_defs = {};
     var import_bindings = {};
     // pinned_defs[mid][name] = true  when the def carries @no_prune
     var pinned_defs = {};
 
-    Object.keys(all_modules).forEach(function(mid) {
-        var mod = all_modules[mid];
+    function ensure_module_indexed(mid) {
+        if (has_prop(top_defs, mid)) return;  // already indexed
         top_defs[mid] = {};
         import_bindings[mid] = {};
         pinned_defs[mid] = {};
-        if (!mod || !mod.body) return;
+        var mod = all_modules[mid];
+        if (!mod) return;
 
+        // Use precomputed index when available (v7+ caches): avoids body access,
+        // so ast_from_json is not triggered during the fixpoint iteration.
+        var idx = mod._cache_index;
+        if (idx) {
+            Object.keys(idx.top_defs || {}).forEach(function(name) {
+                var di = idx.top_defs[name];
+                // Store a plain index entry ({_idx:true, refs:[...]}) so mark_def_live
+                // can push refs directly without needing the AST node.
+                top_defs[mid][name] = {_idx: true, refs: di.refs || []};
+                if (di.pinned) pinned_defs[mid][name] = true;
+            });
+            Object.keys(idx.import_bindings || {}).forEach(function(local) {
+                var b = idx.import_bindings[local];
+                import_bindings[mid][local] = {
+                    source_module: b.source,
+                    imported_name: b.imported_name,
+                    is_namespace: b.is_namespace,
+                };
+            });
+            return;
+        }
+
+        if (!mod.body) return;
         mod.body.forEach(function(stmt) {
             if ((is_function(stmt) || is_class(stmt)) && stmt.name) {
                 top_defs[mid][stmt.name.name] = stmt;
@@ -142,38 +171,66 @@ function tree_shake(toplevel) {
                 });
             }
         });
-    });
+    }
 
     // ── 3. Liveness tracking ─────────────────────────────────────────────
     var live_modules  = {};   // {mid -> true}
-    var live_defs     = {};   // {mid -> {def_name -> true}}
-    var used_bindings = {};   // {mid -> {local_name -> true}}
-
-    Object.keys(all_modules).forEach(function(mid) {
-        live_defs[mid]     = {};
-        used_bindings[mid] = {};
-    });
+    var live_defs     = {};   // {mid -> {def_name -> true}}  (initialised lazily)
+    var used_bindings = {};   // {mid -> {local_name -> true}} (initialised lazily)
 
     var work_queue = [];
 
-    // Collect all AST_SymbolRef names reachable from `node`
+    // Collect all AST_SymbolRef names reachable from `node`.
+    // Reuse a single TreeWalker (JS is single-threaded; no re-entrancy risk).
+    var _collect_refs_target = null;
+    var _collect_refs_walker = new TreeWalker(function(n) {
+        if (is_symref(n)) _collect_refs_target[n.name] = true;
+    });
     function collect_refs(node, refs) {
-        var walker = new TreeWalker(function(n) {
-            if (is_symref(n)) refs[n.name] = true;
-        });
-        node.walk(walker);
+        _collect_refs_target = refs;
+        node.walk(_collect_refs_walker);
+        _collect_refs_target = null;
     }
 
     // Mark a module as live; seed its immediately-executing code into the queue
     function mark_module_live(mod_id) {
         if (live_modules[mod_id]) return;
         live_modules[mod_id] = true;
+        if (!live_defs[mod_id]) live_defs[mod_id] = {};
+        if (!used_bindings[mod_id]) used_bindings[mod_id] = {};
+        ensure_module_indexed(mod_id);
         var mod = all_modules[mod_id];
-        if (!mod || !mod.body) return;
+        if (!mod) return;
         // @no_prune defs are unconditionally live whenever their module is live
-        Object.keys(pinned_defs[mod_id] || {}).forEach(function(name) {
+        Object.keys(pinned_defs[mod_id]).forEach(function(name) {
             mark_def_live(mod_id, name);
         });
+
+        // Fast path: use precomputed index — no body access, no AST deserialization.
+        var idx = mod._cache_index;
+        if (idx) {
+            if (idx.exec_refs && idx.exec_refs.length) {
+                work_queue.push({mod_id: mod_id, refs: idx.exec_refs});
+            }
+            // Check namespace imports for side-effect-bearing modules.
+            // has_side_effect_calls uses mod._has_side_effects for v6+ modules,
+            // so this never triggers body access on cached modules.
+            Object.keys(import_bindings[mod_id]).forEach(function(local) {
+                var b = import_bindings[mod_id][local];
+                if (!b.is_namespace) return;
+                var parts = b.source_module.split('.');
+                var partial = '';
+                for (var p = 0; p < parts.length; p++) {
+                    partial = (p === 0) ? parts[0] : partial + '.' + parts[p];
+                    if (has_side_effect_calls(all_modules[partial])) {
+                        mark_module_live(partial);
+                    }
+                }
+            });
+            return;
+        }
+
+        if (!mod.body) return;
         mod.body.forEach(function(stmt) {
             if (!is_function(stmt) && !is_class(stmt) && !is_imports(stmt)) {
                 work_queue.push({mod_id: mod_id, node: stmt});
@@ -199,10 +256,17 @@ function tree_shake(toplevel) {
 
     // Mark a top-level def as live; enqueue its body for scanning
     function mark_def_live(mod_id, def_name) {
+        if (!live_defs[mod_id]) live_defs[mod_id] = {};
         if (live_defs[mod_id][def_name]) return;
         live_defs[mod_id][def_name] = true;
         if (top_defs[mod_id] && has_prop(top_defs[mod_id], def_name)) {
-            work_queue.push({mod_id: mod_id, node: top_defs[mod_id][def_name]});
+            var entry = top_defs[mod_id][def_name];
+            if (entry._idx) {
+                // Precomputed index entry: push refs directly, no AST walk needed.
+                work_queue.push({mod_id: mod_id, refs: entry.refs});
+            } else {
+                work_queue.push({mod_id: mod_id, node: entry});
+            }
         }
     }
 
@@ -225,6 +289,7 @@ function tree_shake(toplevel) {
         }
         // Import binding?
         if (import_bindings[mod_id] && has_prop(import_bindings[mod_id], name)) {
+            if (!used_bindings[mod_id]) used_bindings[mod_id] = {};
             used_bindings[mod_id][name] = true;
             var b = import_bindings[mod_id][name];
             // Mark every partial module in the path as live (e.g. A, A.B, A.B.C).
@@ -250,13 +315,21 @@ function tree_shake(toplevel) {
     mark_module_live('__main__');
 
     // ── 5. Fixed-point iteration ──────────────────────────────────────────
+    // Use pop() (O(1)) instead of shift() (O(n)) — order doesn't matter for correctness.
     while (work_queue.length > 0) {
-        var item = work_queue.shift();
-        var refs = {};
-        collect_refs(item.node, refs);
-        Object.keys(refs).forEach(function(name) {
-            process_ref(item.mod_id, name);
-        });
+        var item = work_queue.pop();
+        if (item.refs) {
+            // Precomputed ref list from the cache index — no AST walk needed.
+            item.refs.forEach(function(name) {
+                process_ref(item.mod_id, name);
+            });
+        } else {
+            var refs = {};
+            collect_refs(item.node, refs);
+            Object.keys(refs).forEach(function(name) {
+                process_ref(item.mod_id, name);
+            });
+        }
     }
 
     // ── 6. Prune dead code from live modules ──────────────────────────────
@@ -266,10 +339,13 @@ function tree_shake(toplevel) {
         var mod = all_modules[mid];
         if (!mod || !mod.body) return;
 
+        var ld = live_defs[mid] || {};
+        var ub = used_bindings[mid] || {};
+        var td = top_defs[mid] || {};
         var new_body = [];
         mod.body.forEach(function(stmt) {
             if ((is_function(stmt) || is_class(stmt)) && stmt.name) {
-                if (!live_defs[mid][stmt.name.name]) return;  // dead def
+                if (!ld[stmt.name.name]) return;  // dead def
                 // Strip @no_prune — it is a tree-shaking annotation, not a
                 // runtime function, so it must not appear in compiled output.
                 if (stmt.decorators && stmt.decorators.length) {
@@ -286,7 +362,7 @@ function tree_shake(toplevel) {
                         // "from X import a, b" – keep only used argnames
                         var live_args = imp.argnames.filter(function(arg) {
                             var local = arg.alias ? arg.alias.name : arg.name;
-                            return !!used_bindings[mid][local];
+                            return !!ub[local];
                         });
                         if (live_args.length === 0) return;  // no argnames used
                         imp.argnames = live_args;
@@ -305,8 +381,8 @@ function tree_shake(toplevel) {
         if (mod.exports) {
             mod.exports = mod.exports.filter(function(sym) {
                 var name = sym.name;
-                if (!has_prop(top_defs[mid], name)) return true;  // variable – always keep
-                return !!live_defs[mid][name];
+                if (!has_prop(td, name)) return true;  // variable – always keep
+                return !!ld[name];
             });
         }
     });

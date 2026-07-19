@@ -59,7 +59,7 @@ async function create_compiler(opts) {
 
     const { base, compiler_dir } = await find_compiler_dir();
 
-    var readfile, writefile;
+    var readfile, writefile, stat_file;
     if (vfs) {
         var stdlib_dir = path.join(base, 'src', 'lib');
         readfile = async (p, enc) => {
@@ -76,9 +76,20 @@ async function create_compiler(opts) {
             if (p.startsWith('__stdlib__/')) return;
             return fs.promises.writeFile(p, data);
         };
+        // VFS has no stat; read the file to check existence and return the content
+        // so do_import can reuse it without a second read (mtimeMs: null disables
+        // the mtime fast-path, but the content avoids a double-read).
+        stat_file = async (p) => {
+            const content = await readfile(p, 'utf-8');
+            return { mtimeMs: null, content };
+        };
     } else {
         readfile = async (p, enc) => fs.promises.readFile(p, enc);
         writefile = async (p, data) => fs.promises.writeFile(p, data);
+        stat_file = async (p) => {
+            const st = await fs.promises.stat(p);
+            return { mtimeMs: st.mtimeMs };
+        };
     }
 
     var compiler_exports = {};
@@ -86,6 +97,7 @@ async function create_compiler(opts) {
         console       : console,
         readfile      : readfile,
         writefile     : writefile,
+        stat_file     : stat_file,
         sha1sum       : sha1sum,
         require       : _cjs_require,
         exports       : compiler_exports,
@@ -93,12 +105,14 @@ async function create_compiler(opts) {
     var compiler_file = path.join(compiler_dir, 'compiler.js');
     var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
-    const { ast_to_json, ast_from_json } = make_ast_serializer(compiler_exports);
+    const { ast_to_json, ast_from_json, make_lazy_ast_module } = make_ast_serializer(compiler_exports);
     compiler_exports.ast_to_json = ast_to_json;
     compiler_exports.ast_from_json = ast_from_json;
+    compiler_exports.make_lazy_ast_module = make_lazy_ast_module;
     // Inject into the VM context so parse.pyj compiled code can call them as globals.
     compiler_context.ast_to_json = ast_to_json;
     compiler_context.ast_from_json = ast_from_json;
+    compiler_context.make_lazy_ast_module = make_lazy_ast_module;
     return compiler_exports;
 }
 

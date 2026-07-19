@@ -131,29 +131,22 @@ function make_deserializer(compiler_exports, pool, built) {
     function dv(val) {
         if (val === null || val === undefined) return null;
         const t = typeof val;
-        if (t === 'string' || t === 'boolean' || t === 'number') return val;
+        if (t !== 'object') return val;
         if (Array.isArray(val)) return val.map(dv);
-        if (t === 'object') {
-            const keys = Object.keys(val);
-            // Node reference sentinel: exactly {"_n": <non-negative integer>}
-            if (keys.length === 1 && keys[0] === '_n' && Number.isInteger(val._n) && val._n >= 0) {
-                return bn(val._n);
-            }
-            // RegExp sentinel: exactly {"_re": string, "_rf": string}
-            if (keys.length === 2 && Object.prototype.hasOwnProperty.call(val, '_re') &&
-                    Object.prototype.hasOwnProperty.call(val, '_rf')) {
-                return new RegExp(val._re, val._rf);
-            }
-            // SymbolDef stub: {"_td": 1, "_n": name_string, "_mn": mangled_name|null}
-            if (val._td === 1 && typeof val._n === 'string') {
-                return { name: val._n, mangled_name: val._mn || null };
-            }
-            // Plain object
-            const out = {};
-            for (const k of keys) out[k] = dv(val[k]);
-            return out;
+        // Fast sentinel detection without Object.keys allocation.
+        // Node ref: {_n: integer}  — most common case, check first
+        const vn = val._n;
+        if (vn !== undefined) {
+            if (typeof vn === 'number') return bn(vn);
+            // SymbolDef stub: {_td: 1, _n: string, _mn: string|null}
+            return { name: vn, mangled_name: val._mn || null };
         }
-        return val;
+        // RegExp sentinel: {_re: string, _rf: string}
+        if (val._re !== undefined) return new RegExp(val._re, val._rf || '');
+        // Plain object (defaults, classvars, baselib, etc.)
+        const out = {};
+        for (const k of Object.keys(val)) out[k] = dv(val[k]);
+        return out;
     }
 
     function bn(idx) {
@@ -205,5 +198,57 @@ export function make_ast_serializer(compiler_exports) {
         return root;
     }
 
-    return { ast_to_json, ast_from_json };
+    // Properties deferred until first access of any of them — these are needed
+    // by the code generator before or alongside body.
+    const LAZY_PROPS = ['body', 'localvars', 'nonlocalvars'];
+
+    // Create a lazy AST_Toplevel shell: metadata is available immediately,
+    // body (and the rest of the full AST) is deserialized on first access of
+    // any lazy prop.  Dead modules (never accessed by the tree-shaker) are
+    // never deserialized.
+    // ast_json_str: the raw AST JSON string (second section of the v8+ cache file).
+    function make_lazy_ast_module(ast_json_str, meta) {
+        const AST_Toplevel = compiler_exports['AST_Toplevel'];
+        const shell = Object.create(AST_Toplevel.prototype);
+        const preserve = new Set(Object.keys(meta));
+        for (const k of Object.keys(meta)) shell[k] = meta[k];
+
+        let _loaded = false;
+
+        function ensure_loaded() {
+            if (_loaded) return;
+            _loaded = true;
+            // ast_json_str is a raw JSON string (v8+ format) or already-parsed
+            // object (legacy path from old compiler.js during bootstrap).
+            const ast_data = typeof ast_json_str === 'string' ? JSON.parse(ast_json_str) : ast_json_str;
+            const full = ast_from_json(ast_data);
+            for (const k of Object.keys(full)) {
+                if (!preserve.has(k) && LAZY_PROPS.indexOf(k) === -1) shell[k] = full[k];
+            }
+            // Use defineProperty to atomically replace getter descriptors with values,
+            // bypassing the setters below (which would also replace them, but
+            // defineProperty is unconditional and handles the undefined case cleanly).
+            for (const p of LAZY_PROPS) {
+                Object.defineProperty(shell, p, {
+                    value: (full[p] !== undefined) ? full[p] : [],
+                    writable: true, configurable: true, enumerable: true,
+                });
+            }
+        }
+
+        for (const prop of LAZY_PROPS) {
+            Object.defineProperty(shell, prop, {
+                get() { ensure_loaded(); return shell[prop]; },
+                set(v) {
+                    Object.defineProperty(shell, prop, {value: v, writable: true, configurable: true, enumerable: true});
+                },
+                configurable: true,
+                enumerable: true,
+            });
+        }
+
+        return shell;
+    }
+
+    return { ast_to_json, ast_from_json, make_lazy_ast_module };
 }

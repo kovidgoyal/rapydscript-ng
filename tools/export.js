@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2015 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
@@ -222,7 +222,7 @@ function uglify(x) {
 }
 
 if (typeof this != 'object' || typeof this.sha1sum !== 'function') {
-    var sha1sum = function (data) { 
+    var sha1sum = function (data) {
         if (!crypto) crypto = require('crypto');
         var h = crypto.createHash('sha1');
         h.update(data);
@@ -235,16 +235,19 @@ function create_compiler() {
     // _sh (serializer holder) is populated after the compiler loads, solving the
     // chicken-and-egg: ast_to_json needs compiler_exports, which aren't ready yet.
     var _sh = {};
-    var wrapped = '(function(module, exports, readfile, writefile, sha1sum, _sh) {' +
+    var wrapped = '(function(module, exports, readfile, writefile, stat_file, sha1sum, _sh) {' +
         'var ast_to_json = function(r) { return _sh.ast_to_json(r); };' +
         'var ast_from_json = function(d) { return _sh.ast_from_json(d); };' +
+        'var make_lazy_ast_module = function(a, b) { return _sh.make_lazy_ast_module(a, b); };' +
         data['compiler.js'] + ';\n})';
-    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, sha1sum, _sh);
+    vm.runInThisContext(wrapped, {'filename': 'compiler.js'})(module, module.exports, readfile, writefile, stat_file, sha1sum, _sh);
     var s = vrequire('tools/ast_serialize.mjs').make_ast_serializer(module.exports);
     _sh.ast_to_json = s.ast_to_json;
     _sh.ast_from_json = s.ast_from_json;
+    _sh.make_lazy_ast_module = s.make_lazy_ast_module;
     module.exports.ast_to_json = s.ast_to_json;
     module.exports.ast_from_json = s.ast_from_json;
+    module.exports.make_lazy_ast_module = s.make_lazy_ast_module;
     return module.exports;
 }
 

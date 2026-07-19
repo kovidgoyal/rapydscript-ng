@@ -1,5 +1,5 @@
 /* vim:fileencoding=utf-8
- * 
+ *
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * Distributed under terms of the BSD license
@@ -32,6 +32,14 @@ async function writefile(name, data) {
         return namespace.virtual_file_system.write_file(name, data);
     }
     write_cache[name] = data;
+}
+
+async function stat_file(name) {
+    if (name.startsWith('__vfs__/') && namespace.virtual_file_system && namespace.virtual_file_system.stat_file) {
+        return namespace.virtual_file_system.stat_file(name);
+    }
+    const content = await readfile(name, 'utf-8');
+    return { mtimeMs: null, content: content };
 }
 
 var builtin_modules = {

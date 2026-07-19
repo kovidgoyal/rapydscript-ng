@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-# globals: readfile, writefile, sha1sum, ast_from_json, ast_to_json
+# globals: readfile, writefile, sha1sum, ast_from_json, ast_to_json, make_lazy_ast_module
 from __python__ import hash_literals
 
 from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
@@ -21,14 +21,14 @@ AST_SymbolCatch, AST_SymbolDefun, AST_SymbolFunarg,
 AST_SymbolLambda, AST_SymbolNonlocal, AST_SymbolRef, AST_SymbolVar, AST_This,
 AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
-AST_Yield, AST_Await, AST_Assert, AST_Existential, is_node_type
+AST_Yield, AST_Await, AST_Assert, AST_Existential, is_node_type, TreeWalker
 )
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
 PYTHON_FLAGS = {'dict_literals':True, 'overload_getitem':True, 'bound_methods':True, 'hash_literals':True}
-CACHE_VERSION = 4
+CACHE_VERSION = 8
 
 
 def get_compiler_version():
@@ -750,69 +750,148 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     async def do_import(key):
         if has_prop(imported_modules, key):
             return
+        # Circular import check must come BEFORE loading_promises so we detect cycles
+        # even when the same module is being loaded by a parallel chain.
         if has_prop(importing_modules, key) and importing_modules[key]:
             import_error('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
-
-        # Ensure that the package containing this module is also imported
-        package_module_id = key.split('.')[:-1].join('.')
-        if len(package_module_id) > 0:
-            await do_import(package_module_id)
-
-        if options.for_linting:
-            imported_modules[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
-                                     'nonlocalvars':[], 'baselib':{}, 'outputs':{}, 'discard_asserts':options.discard_asserts}
+        # If a parallel chain is already loading this module, wait for it instead of
+        # starting a duplicate load.  loading_promises is shared across the entire
+        # compilation via options.loading_promises.
+        loading_promises = options.loading_promises
+        if has_prop(loading_promises, key):
+            await loading_promises[key]
             return
 
-        async def safe_read(base_path):
-            for i, path in enumerate([base_path + '.pyj', base_path + '/__init__.pyj']):
-                try:
-                    return [await readfile(path, "utf-8"), path]
-                except as e:
-                    if e.code is 'ENOENT' or e.code is 'EPERM' or e.code is 'EACCESS':
-                        if i is 1:
-                            return None, None
-                    if i is 1:
-                        raise
-
-        src_code = filename = None
-        modpath = key.replace(/\./g, '/')
-
-        for location in import_dirs:
-            if location:
-                data, filename = await safe_read(location + '/' + modpath)
-                if data is not None:
-                    src_code = data
-                    break
-        if src_code is None:
-            import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(':'))
+        # Register this load BEFORE the first await so that any parallel caller
+        # that reaches this point sees the in-progress entry and waits.
+        # Use a single-element list to capture the resolve function from the Promise
+        # executor without needing nonlocal (mutating a container, not rebinding).
+        _rfn = v'[null]'
+        def _capture_resolve(resolve):
+            _rfn[0] = resolve
+        loading_promises[key] = new Promise(_capture_resolve)
 
         try:
-            cached = JSON.parse(await readfile(cache_file_name(filename, options.module_cache_dir), 'utf-8'))
-        except:
-            cached = None
+            # Ensure that the package containing this module is also imported
+            package_module_id = key.split('.')[:-1].join('.')
+            if len(package_module_id) > 0:
+                await do_import(package_module_id)
 
-        srchash = sha1sum(src_code)
-        if cached and cached.v is CACHE_VERSION and cached.compiler_version is COMPILER_VERSION and cached.signature is srchash:
-            for ikey in cached.imported_module_ids:
-                await do_import(ikey)  # Ensure all modules imported by the cached module are also imported
-            module = ast_from_json(cached.ast)
-            module.import_order = Object.keys(imported_modules).length
-            module.imports = imported_modules
-            module.exports = [{'name': n} for n in cached.exported_names]
-            imported_modules[key] = module
-        else:
-            await parse(src_code, {
-                'filename': filename,
-                'toplevel': None,
-                'basedir': options.basedir,
-                'libdir': options.libdir,
-                'import_dirs': options.import_dirs,
-                'module_id': key,
-                'imported_modules': imported_modules,
-                'importing_modules': importing_modules,
-                'discard_asserts': options.discard_asserts,
-                'module_cache_dir': options.module_cache_dir,
-            })  # This function will add the module to imported_modules itself
+            if options.for_linting:
+                imported_modules[key] = {'is_cached':True, 'classes':{}, 'module_id':key, 'exports':[],
+                                         'nonlocalvars':[], 'baselib':{}, 'outputs':{}, 'discard_asserts':options.discard_asserts}
+                return
+
+            # stat_file returns {mtimeMs, content?}.  For real filesystems mtimeMs is a
+            # number and content is absent; for virtual filesystems content holds the
+            # already-read source to avoid a double read.
+            async def safe_stat(base_path):
+                for i, path in enumerate([base_path + '.pyj', base_path + '/__init__.pyj']):
+                    try:
+                        st = await stat_file(path)
+                        return [st.mtimeMs, path, st.content if has_prop(st, 'content') else None]
+                    except as e:
+                        if e.code is 'ENOENT' or e.code is 'EPERM' or e.code is 'EACCESS':
+                            if i is 1:
+                                return None, None, None
+                        if i is 1:
+                            raise
+
+            file_mtime = filename = prefetched_src = None
+            modpath = key.replace(/\./g, '/')
+
+            for location in import_dirs:
+                if location:
+                    file_mtime, filename, prefetched_src = await safe_stat(location + '/' + modpath)
+                    if filename is not None:
+                        break
+            if filename is None:
+                import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(':'))
+
+            # Read the cache file.  I/O starts here; any CPU work done before the
+            # await can overlap with the disk read.
+            cache_read = readfile(cache_file_name(filename, options.module_cache_dir), 'utf-8')
+
+            cached = None
+            ast_json_str = None
+            try:
+                cache_content = await cache_read
+                # v8+ format: two sections separated by '\n'.
+                # Section 1: metadata JSON (small).  Section 2: AST JSON (large).
+                # Parsing only the metadata section defers the expensive JSON.parse of
+                # the AST pool until the module body is actually needed (ensure_loaded).
+                nl_idx = cache_content.indexOf('\n')
+                if nl_idx >= 0:
+                    cached = JSON.parse(cache_content.slice(0, nl_idx))
+                    ast_json_str = cache_content.slice(nl_idx + 1)
+                else:
+                    cached = JSON.parse(cache_content)
+            except:
+                cached = None
+
+            srchash = src_code = None
+            cache_ok = cached and cached.v is CACHE_VERSION and cached.compiler_version is COMPILER_VERSION
+            if cache_ok and file_mtime is not None and cached.mtime is not None and cached.mtime is file_mtime:
+                # Fast path: mtime matches — source file is unchanged, skip reading and hashing it
+                srchash = cached.signature
+            else:
+                # Need source content to validate with sha1sum (or to re-parse on miss)
+                src_code = prefetched_src or await readfile(filename, 'utf-8')
+                srchash = sha1sum(src_code)
+                if not cache_ok or cached.signature is not srchash:
+                    cached = None
+
+            if cached is not None:
+                # Load all deps in parallel — cached module deps have been pre-validated as
+                # non-circular so Promise.all is safe.  The loading_promises dict ensures
+                # that if two parallel chains try to load the same dep, only one actually
+                # does the work; the other waits.
+                pending = v'[]'
+                for ikey in cached.imported_module_ids:
+                    if not has_prop(imported_modules, ikey):
+                        pending.push(do_import(ikey))
+                if pending.length > 0:
+                    await Promise.all(pending)
+                # Reconstruct classes dict from the simplified cache (no full AST nodes).
+                classes = {}
+                for cname in Object.keys(cached.classes or {}):
+                    ci = cached.classes[cname]
+                    classes[cname] = {'name': {'name': cname}, 'static': ci.static or {}, 'bound': ci.bound or [], 'classvars': ci.classvars or {}}
+                meta = {
+                    'module_id': key,
+                    'filename': filename,
+                    'import_order': Object.keys(imported_modules).length,
+                    'imports': imported_modules,
+                    'exports': [{'name': n} for n in cached.exported_names],
+                    'baselib': cached.baselib or {},
+                    'classes': classes,
+                }
+                if cached.has_side_effects is not undefined:
+                    meta['_has_side_effects'] = cached.has_side_effects
+                if cached.index is not undefined:
+                    meta['_cache_index'] = cached.index
+                module = make_lazy_ast_module(ast_json_str, meta)
+                imported_modules[key] = module
+            else:
+                await parse(src_code, {
+                    'filename': filename,
+                    'toplevel': None,
+                    'basedir': options.basedir,
+                    'libdir': options.libdir,
+                    'import_dirs': options.import_dirs,
+                    'module_id': key,
+                    'imported_modules': imported_modules,
+                    'importing_modules': importing_modules,
+                    'discard_asserts': options.discard_asserts,
+                    'module_cache_dir': options.module_cache_dir,
+                    '_src_hash': srchash,
+                    '_file_mtime': file_mtime,
+                    'loading_promises': loading_promises,
+                })  # This function will add the module to imported_modules itself
+        finally:
+            del loading_promises[key]
+            if _rfn[0]:
+                _rfn[0](None)
 
         imported_modules[key].srchash = srchash
 
@@ -2297,16 +2376,82 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if options._src_hash and options.filename and module_id is not '__main__':
             try:
-                cache_data = {
+                # Simplified class info (no full AST nodes) for lazy-shell reconstruction.
+                classes_cache = {}
+                for cname in Object.keys(toplevel.classes or {}):
+                    cls = toplevel.classes[cname]
+                    classes_cache[cname] = {'static': cls.static or {}, 'bound': cls.bound or [], 'classvars': cls.classvars or {}}
+                # Single pass: compute has_side_effects + tree-shaking index.
+                # The index lets the tree-shaker resolve the fixpoint iteration
+                # (steps 4-5) without accessing mod.body — no AST deserialization
+                # until step 6 (pruning), which needs actual nodes anyway.
+                has_se = False
+                idx_exec_refs_set = {}
+                idx_import_bindings = {}
+                idx_top_defs = {}
+
+                def _collect_refs_into(node, refs_set):
+                    def _rv(n):
+                        if is_node_type(n, AST_SymbolRef):
+                            refs_set[n.name] = True
+                    node.walk(new TreeWalker(_rv))
+
+                for idx_stmt in toplevel.body:
+                    if is_node_type(idx_stmt, AST_Function) or is_node_type(idx_stmt, AST_Class):
+                        if idx_stmt.name:
+                            idx_pinned = False
+                            if idx_stmt.decorators:
+                                for idx_dec in idx_stmt.decorators:
+                                    if idx_dec.expression and is_node_type(idx_dec.expression, AST_SymbolRef) and idx_dec.expression.name == 'no_prune':
+                                        idx_pinned = True
+                                        break
+                            idx_def_refs = {}
+                            _collect_refs_into(idx_stmt, idx_def_refs)
+                            idx_top_defs[idx_stmt.name.name] = {'pinned': idx_pinned, 'refs': Object.keys(idx_def_refs)}
+                    elif is_node_type(idx_stmt, AST_Imports):
+                        for idx_imp in idx_stmt.imports:
+                            if idx_imp.argnames and idx_imp.argnames.length:
+                                for idx_arg in idx_imp.argnames:
+                                    idx_local = idx_arg.alias.name if idx_arg.alias else idx_arg.name
+                                    idx_import_bindings[idx_local] = {'source': idx_imp.key, 'imported_name': idx_arg.name, 'is_namespace': False}
+                            else:
+                                idx_local = idx_imp.alias.name if idx_imp.alias else idx_imp.key.split('.')[0]
+                                idx_import_bindings[idx_local] = {'source': idx_imp.key, 'imported_name': None, 'is_namespace': True}
+                    else:
+                        if not has_se:
+                            se_found = v'[false]'
+                            def se_check(se_node, se_descend):
+                                if is_node_type(se_node, AST_Call):
+                                    se_found[0] = True
+                                    return True
+                            idx_stmt.walk(new TreeWalker(se_check))
+                            if se_found[0]:
+                                has_se = True
+                        _collect_refs_into(idx_stmt, idx_exec_refs_set)
+
+                cache_meta = {
                     'v': CACHE_VERSION,
                     'signature': options._src_hash,
                     'compiler_version': COMPILER_VERSION,
                     'imported_module_ids': toplevel.imported_module_ids,
                     'exported_names': [sym.name for sym in toplevel.exports],
-                    'ast': ast_to_json(toplevel),
+                    'baselib': toplevel.baselib or {},
+                    'classes': classes_cache,
+                    'has_side_effects': has_se,
+                    'index': {
+                        'exec_refs': Object.keys(idx_exec_refs_set),
+                        'import_bindings': idx_import_bindings,
+                        'top_defs': idx_top_defs,
+                    },
                 }
-                await writefile(cache_file_name(options.filename, options.module_cache_dir), JSON.stringify(cache_data))
-            except Error as e:
+                if options._file_mtime is not None and options._file_mtime is not undefined:
+                    cache_meta['mtime'] = options._file_mtime
+                # Two-section format: metadata JSON on line 1, AST JSON on line 2.
+                # This lets do_import JSON.parse only the small metadata section
+                # and defer parsing the large AST JSON until the module body is needed.
+                cache_content = JSON.stringify(cache_meta) + '\n' + JSON.stringify(ast_to_json(toplevel))
+                await writefile(cache_file_name(options.filename, options.module_cache_dir), cache_content)
+            except as e:
                 console.error('Failed to write AST cache file:', options.filename, 'with error:', e)
 
         return toplevel
@@ -2334,6 +2479,10 @@ async def parse(text, options):
     imported_module_ids = []
     imported_modules = options.imported_modules or {}
     importing_modules = options.importing_modules or {}
+    # loading_promises tracks modules currently being loaded across the entire compilation.
+    # It is shared by passing it through options so parallel sub-parse() calls all see it.
+    if not options.loading_promises:
+        options.loading_promises = {}
     importing_modules[module_id] = True
 
     # The internal state of the parser
@@ -2376,7 +2525,7 @@ async def parse(text, options):
             obj = options.classes[cname]
             S.classes[0][cname] = { 'static':obj.static, 'bound':obj.bound, 'classvars': obj.classvars }
 
-    if jstype(text) is 'string':
+    if jstype(text) is 'string' and not options._src_hash:
         options._src_hash = sha1sum(text)
 
     return await create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)()
