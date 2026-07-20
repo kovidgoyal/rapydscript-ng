@@ -16,10 +16,11 @@ def print_getattr(self, output, skip_expression):  # AST_Dot
         expr.print(output)
     if is_node_type(expr, AST_Number) and expr.value >= 0:
         if not /[xa-f.]/i.test(output.last()):
-            output.print(".")
-    output.print(".")
+            output.print('.')
+    output.print('.')
     # the name after dot would be mapped about here.
     output.print_name(self.property)
+
 
 def print_getitem(self, output):  # AST_Sub
     expr = self.expression
@@ -28,13 +29,13 @@ def print_getitem(self, output):  # AST_Sub
         expr.print(output)
         output.print('['), prop.print(output), output.print(']')
         return
-    is_negative_number = is_node_type(prop, AST_Unary) and prop.operator is "-" and is_node_type(prop.expression, AST_Number)
+    is_negative_number = is_node_type(prop, AST_Unary) and prop.operator is '-' and is_node_type(prop.expression, AST_Number)
     is_repeatable = is_node_type(expr, AST_SymbolRef)
     if is_repeatable:
         expr.print(output)
     else:
         output.spaced('(ρσ_expr_temp', '=', expr), output.print(')')
-        expr = {'print': def(): output.print('ρσ_expr_temp');}
+        expr = {'print': def (): output.print('ρσ_expr_temp');}
 
     if is_negative_number:
         output.print('['), expr.print(output), output.print('.length'), prop.print(output), output.print(']')
@@ -45,7 +46,7 @@ def print_getitem(self, output):  # AST_Sub
     if is_repeatable:
         output.spaced('[(typeof', prop, '===', '"number"', '&&', prop)
         output.spaced('', '<', '0)', '?', expr), output.spaced('.length', '+', prop, ':', prop)
-        output.print("]")
+        output.print(']')
     else:
         output.print('[ρσ_bound_index('), prop.print(output), output.comma(), expr.print(output), output.print(')]')
 
@@ -68,6 +69,7 @@ def print_rich_getitem(self, output):  # AST_ItemAccess
         self.assignment.print(output)
     output.print(')')
 
+
 def print_splice_assignment(self, output):  # AST_Splice
     # splice assignment via pythonic array[start:end]
     output.print('ρσ_splice(')
@@ -78,6 +80,7 @@ def print_splice_assignment(self, output):  # AST_Splice
         self.property2.print(output)
     output.print(')')
 
+
 def print_delete(self, output):
     if is_node_type(self, AST_Symbol):
         output.assign(self), output.print('undefined')
@@ -85,6 +88,7 @@ def print_delete(self, output):
         output.print('ρσ_delitem('), self.expression.print(output), output.comma(), self.property.print(output), output.print(')')
     else:
         output.spaced('delete', self)
+
 
 def print_unary_prefix(self, output):
     op = self.operator
@@ -94,14 +98,14 @@ def print_unary_prefix(self, output):
     if /^[a-z]/i.test(op):
         output.space()
     if self.parenthesized:
-        output.with_parens(def():
+        output.with_parens(def ():
             self.expression.print(output)
         )
     else:
         self.expression.print(output)
 
-def write_instanceof(left, right, output):
 
+def write_instanceof(left, right, output):
     def do_many(vals):
         output.print('ρσ_instanceof.apply(null,'), output.space()
         output.print('['), left.print(output), output.comma()
@@ -118,6 +122,7 @@ def write_instanceof(left, right, output):
     else:
         output.print('ρσ_instanceof(')
         left.print(output), output.comma(), right.print(output), output.print(')')
+
 
 def write_smart_equality(self, output):
     def is_ok(x):
@@ -141,14 +146,14 @@ def write_smart_equality(self, output):
 
 
 comparators = {
-    "<": True,
-    ">": True,
-    "<=": True,
-    ">=": True,
+    '<': True,
+    '>': True,
+    '<=': True,
+    '>=': True,
 }
 
 function_ops = {
-    "in": "ρσ_in",
+    'in': 'ρσ_in',
     'nin': '!ρσ_in',
 }
 
@@ -156,7 +161,7 @@ function_ops = {
 def print_binary_op(self, output):
     if function_ops[self.operator]:
         output.print(function_ops[self.operator])
-        output.with_parens(def():
+        output.with_parens(def ():
             self.left.print(output)
             output.comma()
             self.right.print(output)
@@ -174,15 +179,15 @@ def print_binary_op(self, output):
             output.space()
             output.print(self.left.operator)
             output.space()
-            output.with_parens(def():
+            output.with_parens(def ():
                 nonlocal leftvar
-                output.assign("ρσ_cond_temp")
+                output.assign('ρσ_cond_temp')
                 self.left.right.print(output)
-                leftvar = "ρσ_cond_temp"
+                leftvar = 'ρσ_cond_temp'
             )
 
         output.space()
-        output.print("&&")
+        output.print('&&')
         output.space()
         output.print(leftvar)
         output.space()
@@ -191,7 +196,7 @@ def print_binary_op(self, output):
         self.right.print(output)
     elif self.operator is '//':
         output.print('Math.floor')
-        output.with_parens(def():
+        output.with_parens(def ():
             self.left.print(output)
             output.space()
             output.print('/')
@@ -228,7 +233,8 @@ def print_binary_op(self, output):
     else:
         output.spaced(self.left, self.operator, self.right)
 
-after_map = {'.':'d', '(':'c', '[':'d', 'g':'g', 'null':'n'}
+after_map = {'.': 'd', '(': 'c', '[': 'd', 'g': 'g', 'null': 'n'}
+
 
 def print_existential(self, output):
     key = after_map[self.after] if self.after is None or jstype(self.after) is 'string' else 'e'
@@ -253,15 +259,16 @@ def print_existential(self, output):
         output.comma(), self.after.print(output)
     output.print(')')
 
+
 def print_assignment(self, output):
     flattened = False
     left = self.left
     if is_node_type(left, AST_Seq):
-        left = new AST_Array({'elements':v'[left.car, left.cdr]'})
+        left = new AST_Array({'elements': v'[left.car, left.cdr]'})
     if is_node_type(left, AST_Array):
         flat = left.flatten()
         flattened = flat.length > left.elements.length
-        output.print("ρσ_unpack")
+        output.print('ρσ_unpack')
     else:
         left.print(output)
     output.space()
@@ -269,7 +276,7 @@ def print_assignment(self, output):
     output.space()
     if flattened:
         output.print('ρσ_flatten')
-        output.with_parens(def():self.right.print(output);)
+        output.with_parens(def (): self.right.print(output);)
     else:
         self.right.print(output)
     if is_node_type(left, AST_Array):
@@ -280,11 +287,12 @@ def print_assignment(self, output):
             output.end_statement()
         unpack_tuple(flat, output, True)
 
+
 def print_assign(self, output):
     if self.operator is '//=':
         output.assign(self.left)
         output.print('Math.floor')
-        output.with_parens(def():
+        output.with_parens(def ():
             self.left.print(output)
             output.space()
             output.print('/')
@@ -300,11 +308,11 @@ def print_assign(self, output):
                 is_compound_assign = True
                 break
         if is_compound_assign:
-            temp_rhs = new AST_SymbolRef({'name':'ρσ_chain_assign_temp'})
-            print_assignment(new AST_Assign({'left':temp_rhs, 'operator':'=', 'right':rhs}), output)
+            temp_rhs = new AST_SymbolRef({'name': 'ρσ_chain_assign_temp'})
+            print_assignment(new AST_Assign({'left': temp_rhs, 'operator': '=', 'right': rhs}), output)
             for lhs in left_hand_sides:
                 output.end_statement(), output.indent()
-                print_assignment(new AST_Assign({'left':lhs, 'right':temp_rhs, 'operator':self.operator}), output)
+                print_assignment(new AST_Assign({'left': lhs, 'right': temp_rhs, 'operator': self.operator}), output)
         else:
             for lhs in left_hand_sides:
                 output.spaced(lhs, '=', '')
@@ -312,21 +320,23 @@ def print_assign(self, output):
     else:
         print_assignment(self, output)
 
+
 def print_conditional(self, output, condition, consequent, alternative):
     condition, consequent, alternative = self.condition, self.consequent, self.alternative
-    output.with_parens(def():condition.print(output);)
+    output.with_parens(def (): condition.print(output);)
     output.space()
-    output.print("?")
+    output.print('?')
     output.space()
     consequent.print(output)
     output.space()
     output.colon()
     alternative.print(output)
 
+
 def print_seq(output):
     self = this
     p = output.parent()
-    print_seq = def():
+    print_seq = def ():
         self.car.print(output)
         if self.cdr:
             output.comma()

@@ -19,6 +19,7 @@ def serialize_error_for_formatting(err):
         'message': err.message or '',
     }
 
+
 def unserialize_error_for_formatting(err):
     ans = new Error()
     ans.name = err.name
@@ -177,14 +178,17 @@ def format_exception(exc, limit):
         js_lines = v"['Traceback (most recent call last):'].concat(js_lines)"
         if rs_lines.length > 0:
             js_lines = js_lines.concat(['', 'Mapped Traceback (RapydScript):']).concat(rs_lines)
-        return [l+'\n' for l in js_lines]
+        return [l + '\n' for l in js_lines]
     return [exc.toString()]
+
 
 def format_exc(limit):
     return format_exception(ρσ_last_exception, limit).join('')
 
+
 def print_exc(limit):
     print(format_exc(limit))
+
 
 def format_stack(limit):
     stack = Error().stack
@@ -193,8 +197,9 @@ def format_stack(limit):
     lines = str.splitlines(stack)[2:]
     lines.reverse()
     if limit:
-        lines = lines[:limit+1] if limit > 0 else lines[limit:]
+        lines = lines[:limit + 1] if limit > 0 else lines[limit:]
     return [l + '\n' for l in lines]
+
 
 def print_stack(limit):
     print(format_stack(limit).join(''))

@@ -21,13 +21,14 @@
     'key_j': 0
 }
 
-ρσ_get_random_byte = def():
+ρσ_get_random_byte = def ():
     ρσ_seed_state.key_i = (ρσ_seed_state.key_i + 1) % 256
     ρσ_seed_state.key_j = (ρσ_seed_state.key_j + ρσ_seed_state.key[ρσ_seed_state.key_i]) % 256
     ρσ_seed_state.key[ρσ_seed_state.key_i], ρσ_seed_state.key[ρσ_seed_state.key_j] = \
             ρσ_seed_state.key[ρσ_seed_state.key_j], ρσ_seed_state.key[ρσ_seed_state.key_i]
     return ρσ_seed_state.key[(ρσ_seed_state.key[ρσ_seed_state.key_i] + \
             ρσ_seed_state.key[ρσ_seed_state.key_j]) % 256]
+
 
 def seed(x=Date().getTime()):
     ρσ_seed_state.key_i = ρσ_seed_state.key_j = 0
@@ -43,6 +44,7 @@ def seed(x=Date().getTime()):
         ρσ_seed_state.key[i], ρσ_seed_state.key[j] = ρσ_seed_state.key[j], ρσ_seed_state.key[i]
 seed()
 
+
 def random():
     n = 0
     m = 1
@@ -50,6 +52,7 @@ def random():
         n += ρσ_get_random_byte() * m
         m *= 256
     return v'n / 0x10000000000000000'
+
 
 def randrange():
     if arguments.length is 1:
@@ -64,26 +67,29 @@ def randrange():
     if step is 1:
         if width > 0:
             return start + randbelow(width)
-        raise ValueError("empty range for randrange()")
+        raise ValueError('empty range for randrange()')
     if step > 0:
         n = (width + step - 1) // step
     elif step < 0:
         n = (width + step + 1) // step
     else:
-        raise ValueError("zero step for randrange()")
+        raise ValueError('zero step for randrange()')
     if n <= 0:
         raise ValueError(f"empty range in randrange({start}, {stop}, {step})")
     return start + step * randbelow(n)
 
 
 def randint(a, b):
-    return int(random()*(b-a+1) + a)
+    return int(random() * (b - a + 1) + a)
+
 
 def uniform(a, b):
-    return random()*(b-a) + a
+    return random() * (b - a) + a
+
 
 def randbelow(n):
-    return Math.floor(random()*n)
+    return Math.floor(random() * n)
+
 
 def choice(seq):
     if seq.length > 0:
@@ -91,28 +97,29 @@ def choice(seq):
     else:
         raise IndexError()
 
+
 # uses Fisher-Yates algorithm to shuffle an array
 def shuffle(x, random_f=random):
     for i in range(x.length):
-        j = Math.floor(random_f() * (i+1))
+        j = Math.floor(random_f() * (i + 1))
         x[i], x[j] = x[j], x[i]
     return x
+
 
 # similar to shuffle, but only shuffles a subset and creates a copy
 def sample(population, k):
     x = population.slice()
-    for i in range(population.length-1, population.length-k-1, -1):
-        j = Math.floor(random() * (i+1))
+    for i in range(population.length - 1, population.length - k - 1, -1):
+        j = Math.floor(random() * (i + 1))
         x[i], x[j] = x[j], x[i]
-    return x.slice(population.length-k)
+    return x.slice(population.length - k)
 
-
-#import stdlib
-#a = range(50)
-#random.seed(5)
-#print(random.choice(a))
-#print(random.shuffle(a))
-#print(random.randrange(10))
-#print(random.randint(1,5))
-#print(random.uniform(1,5))
-#print(random.sample(range(20),5))
+    # import stdlib
+    # a = range(50)
+    # random.seed(5)
+    # print(random.choice(a))
+    # print(random.shuffle(a))
+    # print(random.randrange(10))
+    # print(random.randint(1,5))
+    # print(random.uniform(1,5))
+    # print(random.sample(range(20),5))

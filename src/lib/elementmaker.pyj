@@ -36,6 +36,7 @@ svg_elements = {
 
 html5_tags = html_elements.union(mathml_elements).union(svg_elements)
 
+
 def _makeelement(tag, *args, **kwargs):
     ans = this.createElement(tag)
 
@@ -57,26 +58,27 @@ def _makeelement(tag, *args, **kwargs):
         ans.appendChild(arg)
     return ans
 
+
 def maker_for_document(document):
     # Create an elementmaker to be used with the specified document
     E = _makeelement.bind(document)
     Object.defineProperties(E, {
         tag: {
-            'value':_makeelement.bind(document, tag)
+            'value': _makeelement.bind(document, tag)
         } for tag in html5_tags
     })
     return E
 
 if jstype(document) is 'undefined':
     E = maker_for_document({
-        'createTextNode': def(value): return value;,
-        'createElement': def(name):
-            return  {
-                'name':name,
-                'children':[],
-                'attributes':{},
-                'setAttribute': def(name, val): this.attributes[name] = val;,
-                'appendChild': def(child): this.children.push(child);,
+        'createTextNode': def (value): return value;,
+        'createElement': def (name):
+            return {
+                'name': name,
+                'children': [],
+                'attributes': {},
+                'setAttribute': def (name, val): this.attributes[name] = val;,
+                'appendChild': def (child): this.children.push(child);,
             }
     })
 else:

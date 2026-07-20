@@ -4,10 +4,11 @@
 
 # globals: ρσ_iterator_symbol, ρσ_bool
 
+
 def sum(iterable, start):
     if Array.isArray(iterable):
         return iterable.reduce(
-            def(prev, cur): return prev+cur
+            def (prev, cur): return prev + cur
             ,
             start or 0
         )
@@ -19,6 +20,7 @@ def sum(iterable, start):
         r = iterator.next()
     return ans
 
+
 def map():
     iterators = new Array(arguments.length - 1)
     func = arguments[0]  # noqa: unused-local
@@ -26,9 +28,9 @@ def map():
     for v'var i = 1; i < arguments.length; i++':
         iterators[i - 1] = iter(arguments[i])  # noqa:undef
     ans = v"{'_func':func, '_iterators':iterators, '_args':args}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         for v'var i = 0; i < this._iterators.length; i++':
             r = this._iterators[i].next()
             if r.done:
@@ -37,12 +39,13 @@ def map():
         return v"{'done':false, 'value':this._func.apply(undefined, this._args)}"
     return ans
 
+
 def filter(func_or_none, iterable):
     func = ρσ_bool if func_or_none is None else func_or_none  # noqa: unused-local
     ans = v"{'_func':func, '_iterator':ρσ_iter(iterable)}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         r = this._iterator.next()
         while not r.done:
             if this._func(r.value):
@@ -51,14 +54,15 @@ def filter(func_or_none, iterable):
         return v"{'done':true}"
     return ans
 
+
 def zip():
     iterators = new Array(arguments.length)
     for v'var i = 0; i < arguments.length; i++':
         iterators[i] = iter(arguments[i])  # noqa:undef
     ans = v"{'_iterators':iterators}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         args = new Array(this._iterators.length)
         for v'var i = 0; i < this._iterators.length; i++':
             r = this._iterators[i].next()
@@ -68,11 +72,13 @@ def zip():
         return v"{'done':false, 'value':args}"
     return ans
 
+
 def any(iterable):
     for i in iterable:
         if i:
             return True
     return False
+
 
 def all(iterable):
     for i in iterable:

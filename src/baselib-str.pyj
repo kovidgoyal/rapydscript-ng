@@ -12,6 +12,7 @@
 #     .value
 decimal_sep = (1.1).toLocaleString()[1]
 
+
 def ρσ_repr_js_builtin(x, as_array):
     ans = v'[]'
     b = '{}'
@@ -26,6 +27,7 @@ def ρσ_repr_js_builtin(x, as_array):
             ans.push(JSON.stringify(key) + ':' + ρσ_repr(x[key]))
     return b[0] + ans.join(', ') + b[1]
 
+
 def ρσ_html_element_to_string(elem):
     attrs = v'[]'
     for attr in elem.attributes:
@@ -38,6 +40,7 @@ def ρσ_html_element_to_string(elem):
     attrs = (' ' + attrs.join(' ')) if attrs.length else ''
     ans = f'<{elem.tagName}{attrs}>'
     return ans
+
 
 def ρσ_repr(x):
     if x is None:
@@ -58,8 +61,8 @@ def ρσ_repr(x):
         ans = ρσ_repr_js_builtin(x)
     else:
         name = Object.prototype.toString.call(x).slice(8, -1)
-        if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
-            return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
+        if 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.indexOf(name) != -1:
+            return name + '([' + x.map(def (i): return str.format('0x{:02x}', i);).join(', ') + '])'
         if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
             ans = ρσ_html_element_to_string(x)
         else:
@@ -72,6 +75,7 @@ def ρσ_repr(x):
         except:
             pass
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+
 
 def ρσ_str(x):
     if x is None:
@@ -89,8 +93,8 @@ def ρσ_str(x):
         ans = ρσ_repr_js_builtin(x, True)
     elif v'typeof x.toString === "function"':
         name = Object.prototype.toString.call(x).slice(8, -1)
-        if "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name) != -1:
-            return name + '([' + x.map(def(i): return str.format('0x{:02x}', i);).join(', ') + '])'
+        if 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.indexOf(name) != -1:
+            return name + '([' + x.map(def (i): return str.format('0x{:02x}', i);).join(', ') + '])'
         if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
             ans = ρσ_html_element_to_string(x)
         else:
@@ -103,11 +107,11 @@ def ρσ_str(x):
         ans = ρσ_repr_js_builtin(x)
     return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
 
-define_str_func = def(name, func):
+define_str_func = def (name, func):
     ρσ_str.prototype[name] = func
     ρσ_str[name] = f = func.call.bind(func)
     if func.__argnames__:
-        Object.defineProperty(f, '__argnames__', {'value':v"['string']".concat(func.__argnames__)})
+        Object.defineProperty(f, '__argnames__', {'value': v"['string']".concat(func.__argnames__)})
 
 ρσ_orig_split, ρσ_orig_replace = String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)
 
@@ -115,20 +119,17 @@ define_str_func = def(name, func):
 define_str_func('format', def ():
     template = this
     if template is undefined:
-        raise TypeError("Template is required")
-    args = Array.from(arguments)
+        raise TypeError('Template is required')
+    args = Array.from (arguments)
     kwargs = {}
     if args[-1] and args[-1][ρσ_kwargs_symbol] is not undefined:
         kwargs = args[-1]
         args = args[:-1]
-
     explicit = implicit = False
     idx = 0
     split = ρσ_orig_split
-
     if ρσ_str.format._template_resolve_pat is undefined:
         ρσ_str.format._template_resolve_pat = /[.\[]/
-
     def resolve(arg, object):
         if not arg:
             return object
@@ -139,7 +140,6 @@ define_str_func('format', def ():
         if ans is undefined:
             raise KeyError(key[:-1] if first is '[' else key)
         return resolve(rest, ans)
-
     def resolve_format_spec(format_spec):
         if ρσ_str.format._template_resolve_fs_pat is undefined:
             ρσ_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
@@ -148,21 +148,17 @@ define_str_func('format', def ():
                 return ''
             return '' + kwargs[key]
         )
-
     def set_comma(ans, comma):
         if comma is not ',':
             sep = 1234
             sep = sep.toLocaleString(undefined, v'{useGrouping: true}')[1]
             ans = str.replace(ans, sep, comma)
         return ans
-
     def safe_comma(value, comma):
         try:
             return set_comma(value.toLocaleString(undefined, v'{useGrouping: true}'), comma)
         except:
             return value.toString(10)
-
-
     def safe_fixed(value, precision, comma):
         if not comma:
             return value.toFixed(precision)
@@ -170,8 +166,6 @@ define_str_func('format', def ():
             return set_comma(value.toLocaleString(undefined, v'{useGrouping: true, minimumFractionDigits: precision, maximumFractionDigits: precision}'), comma)
         except:
             return value.toFixed(precision)
-
-
     def apply_formatting(value, format_spec):
         if format_spec.indexOf('{') is not -1:
             format_spec = resolve_format_spec(format_spec)
@@ -186,7 +180,6 @@ define_str_func('format', def ():
                 (?:\.(\d+))? # precision
                 ([bcdeEfFgGnosxX%])? # type
             ///
-
         try:
             fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(ρσ_str.format._template_format_pat)[1:]
         except TypeError:
@@ -201,7 +194,6 @@ define_str_func('format', def ():
         is_int = is_numeric and v'value % 1 === 0'
         precision = parseInt(precision, 10)
         lftype = (ftype or '').toLowerCase()
-
         if ftype is 'n':
             is_numeric = True
             if is_int:
@@ -210,7 +202,6 @@ define_str_func('format', def ():
                 value = parseInt(value, 10).toLocaleString()
             else:
                 value = parseFloat(value).toLocaleString()
-
         elif v"['b', 'c', 'd', 'o', 'x']".indexOf(lftype) is not -1:
             value = parseInt(value, 10)
             is_numeric = True
@@ -222,7 +213,7 @@ define_str_func('format', def ():
                 elif ftype is 'c':
                     if value > 0xFFFF:
                         code = value - 0x10000
-                        value = String.fromCharCode(0xD800+(code>>10), 0xDC00+(code&0x3FF))
+                        value = String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
                     else:
                         value = String.fromCharCode(value)
                 elif ftype is 'd':
@@ -239,7 +230,6 @@ define_str_func('format', def ():
                     value = value.toLowerCase() if ftype is 'x' else value.toUpperCase()
                     if fhash:
                         value = '0x' + value
-
         elif v"['e','f','g','%']".indexOf(lftype) is not -1:
             is_numeric = True
             value = parseFloat(value)
@@ -265,7 +255,6 @@ define_str_func('format', def ():
                     value = value[:-1]
                 if ftype is 'G':
                     value = value.toUpperCase()
-
         else:
             if comma:
                 value = parseInt(value, 10)
@@ -275,26 +264,20 @@ define_str_func('format', def ():
             value += ''  # Ensure we have a string
             if not isNaN(precision):
                 value = value[:precision]
-
         value += ''  # Ensure we have a string
-
         if is_numeric and sign:
             nval = v'Number(value)'
             is_positive = not isNaN(nval) and nval >= 0
             if is_positive and (sign is ' ' or sign is '+'):
                 value = sign + value
-
         def repeat(char, num):
             return v'(new Array(num+1)).join(char)'
-
         if is_numeric and width and width[0] is '0':
             width = width[1:]
             fill, align = '0', '='
-
         width = parseInt(width or '-1', 10)
         if isNaN(width):
             raise ValueError('Invalid width specification: ' + width)
-
         if fill and value.length < width:
             if align is '<':
                 value = value + repeat(fill, width - value.length)
@@ -305,15 +288,13 @@ define_str_func('format', def ():
                 right = width - left - value.length
                 value = repeat(fill, left) + value + repeat(fill, right)
             elif align is '=':
-                if value[0] in "+- ":
+                if value[0] in '+- ':
                     value = value[0] + repeat(fill, width - value.length) + value[1:]
                 else:
                     value = repeat(fill, width - value.length) + value
             else:
                 raise ValueError('Unrecognized alignment: ' + align)
-
         return value
-
     def parse_markup(markup):
         key = transformer = format_spec = ''
         pos = 0
@@ -336,7 +317,6 @@ define_str_func('format', def ():
                 format_spec += ch
             pos += 1
         return key, transformer, format_spec
-
     def render_markup(markup):
         nonlocal explicit, implicit, idx
         key, transformer, format_spec = parse_markup(markup)
@@ -373,8 +353,6 @@ define_str_func('format', def ():
         if ends_with_equal:
             ans = f'{key}={ans}'
         return ans
-
-
     ans = ''
     pos = 0
     in_brace = 0
@@ -395,7 +373,7 @@ define_str_func('format', def ():
                 markup += ch
         else:
             if ch is '{':
-                if template[pos+1] is '{':
+                if template[pos + 1] is '{':
                     pos += 1
                     ans += '{'
                 else:
@@ -403,14 +381,11 @@ define_str_func('format', def ():
                     markup = ''
             else:
                 ans += ch
-                if ch is '}' and template[pos+1] is '}':
+                if ch is '}' and template[pos + 1] is '}':
                     pos += 1
-
         pos += 1
-
     if in_brace:
         raise ValueError("expected '}' before end of string")
-
     return ans
 )
 # }}}
@@ -422,14 +397,14 @@ define_str_func('capitalize', def ():
     return string
 )
 
-define_str_func('center', def(width, fill):
+define_str_func('center', def (width, fill):
     left = (width - this.length) // 2
     right = width - left - this.length  # noqa:unused-local
     fill = fill or ' '
     return v'new Array(left+1).join(fill)' + this + v'new Array(right+1).join(fill)'
 )
 
-define_str_func('count', def(needle, start, end):
+define_str_func('count', def (needle, start, end):
     string = this
     start = start or 0
     end = end or string.length
@@ -449,7 +424,7 @@ define_str_func('count', def(needle, start, end):
     return ans
 )
 
-define_str_func('endswith', def(suffixes, start, end):
+define_str_func('endswith', def (suffixes, start, end):
     string = this
     start = start or 0
     if jstype(suffixes) is 'string':
@@ -463,7 +438,7 @@ define_str_func('endswith', def(suffixes, start, end):
     return False
 )
 
-define_str_func('startswith', def(prefixes, start, end):
+define_str_func('startswith', def (prefixes, start, end):
     start = start or 0
     if jstype(prefixes) is 'string':
         prefixes = v'[prefixes]'
@@ -475,7 +450,7 @@ define_str_func('startswith', def(prefixes, start, end):
     return False
 )
 
-define_str_func('find', def(needle, start, end):
+define_str_func('find', def (needle, start, end):
     while start < 0:
         start += this.length
     ans = this.indexOf(needle, start)
@@ -487,7 +462,7 @@ define_str_func('find', def(needle, start, end):
     return ans
 )
 
-define_str_func('rfind', def(needle, start, end):
+define_str_func('rfind', def (needle, start, end):
     while end < 0:
         end += this.length
     ans = this.lastIndexOf(needle, end - 1)
@@ -499,33 +474,33 @@ define_str_func('rfind', def(needle, start, end):
     return ans
 )
 
-define_str_func('index', def(needle, start, end):
+define_str_func('index', def (needle, start, end):
     ans = ρσ_str.prototype.find.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
 )
 
-define_str_func('rindex', def(needle, start, end):
+define_str_func('rindex', def (needle, start, end):
     ans = ρσ_str.prototype.rfind.apply(this, arguments)
     if ans is -1:
         raise ValueError('substring not found')
     return ans
 )
 
-define_str_func('islower', def():
+define_str_func('islower', def ():
     return this.length > 0 and this.toLowerCase() is this.toString()
 )
 
-define_str_func('isupper', def():
+define_str_func('isupper', def ():
     return this.length > 0 and this.toUpperCase() is this.toString()
 )
 
-define_str_func('isspace', def():
+define_str_func('isspace', def ():
     return this.length > 0 and /^\s+$/.test(this)
 )
 
-define_str_func('join', def(iterable):
+define_str_func('join', def (iterable):
     if Array.isArray(iterable):
         return iterable.join(this)
     ans = ''
@@ -538,7 +513,7 @@ define_str_func('join', def(iterable):
     return ans
 )
 
-define_str_func('ljust', def(width, fill):
+define_str_func('ljust', def (width, fill):
     string = this
     if width > string.length:
         fill = fill or ' '
@@ -546,7 +521,7 @@ define_str_func('ljust', def(width, fill):
     return string
 )
 
-define_str_func('rjust', def(width, fill):
+define_str_func('rjust', def (width, fill):
     string = this
     if width > string.length:
         fill = fill or ' '
@@ -554,15 +529,15 @@ define_str_func('rjust', def(width, fill):
     return string
 )
 
-define_str_func('lower', def():
+define_str_func('lower', def ():
     return this.toLowerCase()
 )
 
-define_str_func('upper', def():
+define_str_func('upper', def ():
     return this.toUpperCase()
 )
 
-define_str_func('lstrip', def(chars):
+define_str_func('lstrip', def (chars):
     string = this
     pos = 0
     chars = chars or ρσ_str.whitespace
@@ -573,7 +548,7 @@ define_str_func('lstrip', def(chars):
     return string
 )
 
-define_str_func('rstrip', def(chars):
+define_str_func('rstrip', def (chars):
     string = this
     pos = string.length - 1
     chars = chars or ρσ_str.whitespace
@@ -584,25 +559,25 @@ define_str_func('rstrip', def(chars):
     return string
 )
 
-define_str_func('strip', def(chars):
+define_str_func('strip', def (chars):
     return ρσ_str.prototype.lstrip.call(ρσ_str.prototype.rstrip.call(this, chars), chars)
 )
 
-define_str_func('partition', def(sep):
+define_str_func('partition', def (sep):
     idx = this.indexOf(sep)
     if idx is -1:
         return this, '', ''
     return this[:idx], sep, this[idx + sep.length:]
 )
 
-define_str_func('rpartition', def(sep):
+define_str_func('rpartition', def (sep):
     idx = this.lastIndexOf(sep)
     if idx is -1:
         return '', '', this
     return this[:idx], sep, this[idx + sep.length:]
 )
 
-define_str_func('replace', def(old, repl, count):
+define_str_func('replace', def (old, repl, count):
     string = this
     if count is 1:
         return ρσ_orig_replace(string, old, repl)
@@ -620,7 +595,7 @@ define_str_func('replace', def(old, repl, count):
     return string
 )
 
-define_str_func('split', def(sep, maxsplit):
+define_str_func('split', def (sep, maxsplit):
     if maxsplit is 0:
         return [this]
     split = ρσ_orig_split
@@ -649,7 +624,7 @@ define_str_func('split', def(sep, maxsplit):
     return ans
 )
 
-define_str_func('rsplit', def(sep, maxsplit):
+define_str_func('rsplit', def (sep, maxsplit):
     if not maxsplit:
         return ρσ_str.prototype.split.call(this, sep)
     split = ρσ_orig_split
@@ -695,7 +670,7 @@ define_str_func('rsplit', def(sep, maxsplit):
     return ans
 )
 
-define_str_func('splitlines', def(keepends):
+define_str_func('splitlines', def (keepends):
     split = ρσ_orig_split
     if keepends:
         parts = split(this, /((?:\r?\n)|\r)/)
@@ -710,7 +685,7 @@ define_str_func('splitlines', def(keepends):
     return ans
 )
 
-define_str_func('swapcase', def():
+define_str_func('swapcase', def ():
     ans = v'new Array(this.length)'
     for v'var i = 0; i < ans.length; i++':
         a = this[i]
@@ -722,21 +697,21 @@ define_str_func('swapcase', def():
     return ans.join('')
 )
 
-define_str_func('zfill', def(width):
+define_str_func('zfill', def (width):
     string = this
     if width > string.length:
         string = v'new Array(width - string.length + 1).join("0")' + string
     return string
 )
 
-ρσ_str.uchrs = def(string, with_positions):
+ρσ_str.uchrs = def (string, with_positions):
     # Return iterator over unicode chars in string. Will yield the unicode
     # replacement char U+FFFD for broken surrogate pairs
     return {
         '_string': string,
         '_pos': 0,
-        ρσ_iterator_symbol: def(): return this;,
-        'next' : def():
+        ρσ_iterator_symbol: def (): return this;,
+        'next': def ():
             length = this._string.length
             if this._pos >= length:
                 return {'done': True}
@@ -747,17 +722,17 @@ define_str_func('zfill', def(width):
                 if this._pos < length:
                     # high surrogate, and there is a next character
                     extra = v'this._string.charCodeAt(this._pos++)'
-                    if (extra & 0xDC00) is 0xDC00: # low surrogate
+                    if (extra & 0xDC00) is 0xDC00:  # low surrogate
                         ans = String.fromCharCode(value, extra)
-            elif (value & 0xDC00) is not 0xDC00: # not a low surrogate
+            elif (value & 0xDC00) is not 0xDC00:  # not a low surrogate
                 ans = String.fromCharCode(value)
             if with_positions:
-                return {'done':False, 'value':[pos, ans]}
+                return {'done': False, 'value': [pos, ans]}
             else:
-                return {'done':False, 'value':ans}
+                return {'done': False, 'value': ans}
     }
 
-ρσ_str.uslice = def(string, start, end):
+ρσ_str.uslice = def (string, start, end):
     items = v'[]'
     iterator = ρσ_str.uchrs(string)
     r = iterator.next()
@@ -766,7 +741,7 @@ define_str_func('zfill', def(width):
         r = iterator.next()
     return items[start or 0:items.length if end is undefined else end].join('')
 
-ρσ_str.ulen = def(string):
+ρσ_str.ulen = def (string):
     iterator = ρσ_str.uchrs(string)
     r = iterator.next()
     ans = 0
@@ -777,11 +752,11 @@ define_str_func('zfill', def(width):
 
 ρσ_str.ascii_lowercase = 'abcdefghijklmnopqrstuvwxyz'
 ρσ_str.ascii_uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-ρσ_str.ascii_letters   = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-ρσ_str.digits   = '0123456789'
+ρσ_str.ascii_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ρσ_str.digits = '0123456789'
 ρσ_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
 ρσ_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
-ρσ_str.whitespace   = ' \t\n\r\x0b\x0c'
+ρσ_str.whitespace = ' \t\n\r\x0b\x0c'
 
 v'define_str_func = undefined'
 v'var str = ρσ_str, repr = ρσ_repr'

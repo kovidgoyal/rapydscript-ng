@@ -5,12 +5,14 @@
 
 # Internal API {{{
 
+
 def string_to_bytes_encoder(string):
     return TextEncoder('utf-8').encode(string + '')
 
+
 def string_to_bytes_slow(string):
     escstr = encodeURIComponent(string)
-    binstr = escstr.replace(/%([0-9A-F]{2})/g, def(match, p1):
+    binstr = escstr.replace(/%([0-9A-F]{2})/g, def (match, p1):
         return String.fromCharCode('0x' + p1)
     )
     ua = Uint8Array(binstr.length)
@@ -18,16 +20,19 @@ def string_to_bytes_slow(string):
         ua[i] = ch.charCodeAt(0)
     return ua
 
+
 def as_hex(array, sep=''):
     num = array.BYTES_PER_ELEMENT or 1
     fmt = '{:0' + num * 2 + 'x}'
     return [str.format(fmt, x) for x in array].join(sep)
+
 
 def bytes_to_string_decoder(bytes, offset):
     offset = offset or 0
     if offset:
         bytes = bytes.subarray(offset)
     return TextDecoder('utf-8').decode(bytes)
+
 
 def bytes_to_string_slow(bytes, offset):
     ans = v'[]'
@@ -48,6 +53,7 @@ def bytes_to_string_slow(bytes, offset):
 string_to_bytes = string_to_bytes_encoder if jstype(TextEncoder) is 'function' else string_to_bytes_slow
 bytes_to_string = bytes_to_string_decoder if jstype(TextDecoder) is 'function' else bytes_to_string_slow
 
+
 def increment_counter(c):
     # c must be a Uint8Array of length 16
     for v'var i = 15; i >= 12; i--':
@@ -57,11 +63,13 @@ def increment_counter(c):
             c[i] += 1
             break
 
+
 def convert_to_int32(bytes, output, offset, length):
     offset = offset or 0
     length = length or bytes.length
     for v'var i = offset, j = 0; i < offset + length; i += 4, j++':
-        output[j] = (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] <<  8) | bytes[i + 3]
+        output[j] = (bytes[i] << 24) | (bytes[i + 1] << 16) | (bytes[i + 2] << 8) | bytes[i + 3]
+
 
 def convert_to_int32_pad(bytes):
     extra = bytes.length % 4
@@ -74,7 +82,7 @@ def convert_to_int32_pad(bytes):
     return ans
 
 if not Uint8Array.prototype.fill:
-    Uint8Array.prototype.fill = Uint32Array.prototype.fill = def(val, start, end):
+    Uint8Array.prototype.fill = Uint32Array.prototype.fill = def (val, start, end):
         start = start or 0
         if end is undefined:
             end = this.length
@@ -85,12 +93,13 @@ if not Uint8Array.prototype.fill:
         for v'var i = start; i < end; i++':
             this[i] = val
 
+
 def from_64_to_32(num):
-  # convert 64-bit number to two BE Int32s
-  ans = Uint32Array(2)
-  ans[0] = (num / 0x100000000) | 0
-  ans[1] = num & 0xFFFFFFFF
-  return ans
+    # convert 64-bit number to two BE Int32s
+    ans = Uint32Array(2)
+    ans[0] = (num / 0x100000000) | 0
+    ans[1] = num & 0xFFFFFFFF
+    return ans
 
 # Lookup tables for AES {{{
 # Number of rounds by keysize
@@ -122,8 +131,8 @@ U4 = v'new Uint32Array([0x00000000, 0x090d0b0e, 0x121a161c, 0x1b171d12, 0x24342c
 
 # }}}
 
-class AES: # {{{
 
+class AES:  # {{{
     def __init__(self, key):
         self.working_mem = [Uint32Array(4), Uint32Array(4)]
         rounds = number_of_rounds[key.length]
@@ -160,9 +169,9 @@ class AES: # {{{
         while t < round_key_count:
             tt = tk[KC - 1]
             tk[0] ^= ((S[(tt >> 16) & 0xFF] << 24) ^
-                      (S[(tt >>  8) & 0xFF] << 16) ^
-                      (S[ tt        & 0xFF] <<  8) ^
-                       S[(tt >> 24) & 0xFF]        ^
+                      (S[(tt >> 8) & 0xFF] << 16) ^
+                      (S[tt & 0xFF] << 8) ^
+                       S[(tt >> 24) & 0xFF] ^
                       (rcon[rconpointer] << 24))
             rconpointer += 1
 
@@ -177,8 +186,8 @@ class AES: # {{{
                     tk[i] ^= tk[i - 1]
                 tt = tk[(KC / 2) - 1]
 
-                tk[KC / 2] ^= (S[ tt        & 0xFF]        ^
-                              (S[(tt >>  8) & 0xFF] <<  8) ^
+                tk[KC / 2] ^= (S[tt & 0xFF] ^
+                              (S[(tt >> 8) & 0xFF] << 8) ^
                               (S[(tt >> 16) & 0xFF] << 16) ^
                               (S[(tt >> 24) & 0xFF] << 24))
 
@@ -200,8 +209,8 @@ class AES: # {{{
                 tt = self._Kd[r][c]
                 self._Kd[r][c] = (U1[(tt >> 24) & 0xFF] ^
                                   U2[(tt >> 16) & 0xFF] ^
-                                  U3[(tt >>  8) & 0xFF] ^
-                                  U4[ tt        & 0xFF])
+                                  U3[(tt >> 8) & 0xFF] ^
+                                  U4[tt & 0xFF])
 
     def _crypt(self, ciphertext, offset, encrypt):
         if encrypt:
@@ -227,8 +236,8 @@ class AES: # {{{
             for v'var i = 0; i < 4; i++':
                 a[i] = (R1[(t[i] >> 24) & 0xff] ^
                         R2[(t[(i + o1) % 4] >> 16) & 0xff] ^
-                        R3[(t[(i +  2) % 4] >>  8) & 0xff] ^
-                        R4[ t[(i + o3) % 4]        & 0xff] ^
+                        R3[(t[(i + 2) % 4] >> 8) & 0xff] ^
+                        R4[t[(i + o3) % 4] & 0xff] ^
                         K[r][i])
             t.set(a)
 
@@ -237,8 +246,8 @@ class AES: # {{{
             tt = K[rounds][i]
             ciphertext[offset + 4 * i] = (SB[(t[i] >> 24) & 0xff] ^ (tt >> 24)) & 0xff
             ciphertext[offset + 4 * i + 1] = (SB[(t[(i + o1) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff
-            ciphertext[offset + 4 * i + 2] = (SB[(t[(i +  2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff
-            ciphertext[offset + 4 * i + 3] = (SB[ t[(i + o3) % 4]        & 0xff] ^  tt       ) & 0xff
+            ciphertext[offset + 4 * i + 2] = (SB[(t[(i + 2) % 4] >> 8) & 0xff] ^ (tt >> 8)) & 0xff
+            ciphertext[offset + 4 * i + 3] = (SB[t[(i + o3) % 4] & 0xff] ^ tt) & 0xff
 
     def encrypt(self, plaintext, ciphertext, offset):
         convert_to_int32(plaintext, self.working_mem[1], offset, 16)
@@ -257,11 +266,13 @@ class AES: # {{{
         return self._crypt(plaintext, offset, False)
 # }}}
 
+
 def random_bytes_insecure(sz):
     ans = Uint8Array(sz)
     for v'var i = 0; i < sz; i++':
         ans[i] = Math.floor(Math.random() * 256)
     return ans
+
 
 def random_bytes_secure(sz):
     ans = Uint8Array(sz)
@@ -272,13 +283,13 @@ random_bytes = random_bytes_secure if jstype(crypto) is not 'undefined' and jsty
 if random_bytes is random_bytes_insecure:
     try:
         noderandom = require('crypto').randomBytes
-        random_bytes = def(sz):
+        random_bytes = def (sz):
             return Uint8Array(noderandom(sz))
     except:
         print('WARNING: Using insecure RNG for AES')
 
-class ModeOfOperation:  # {{{
 
+class ModeOfOperation:  # {{{
     def __init__(self, key):
         self.key = key or generate_key(32)
         self.aes = AES(self.key)
@@ -297,8 +308,8 @@ class ModeOfOperation:  # {{{
         raise TypeError('Invalid tag, must be a string or a Uint8Array')
 # }}}
 
-class GaloisField:  # {{{
 
+class GaloisField:  # {{{
     def __init__(self, sub_key):
         k32 = Uint32Array(4)
         convert_to_int32(sub_key, k32, 0)
@@ -362,7 +373,7 @@ class GaloisField:  # {{{
         ans = Array(size)
         for v'var i =0; i < size; ++i':
             tmp = Uint32Array(4)
-            idx = (i/ per_int) | 0
+            idx = (i / per_int) | 0
             shft = ((per_int - 1 - (i % per_int)) * bits)
             tmp[idx] = (1 << (bits - 1)) << shft
             ans[i] = self.generate_sub_hash_table(self.multiply(tmp, key_as_int32_array))
@@ -393,20 +404,23 @@ class GaloisField:  # {{{
 
 # }}}
 
+
 def generate_key(sz):
     if not number_of_rounds[sz]:
         raise ValueError('Invalid key size, must be: 16, 24 or 32')
     return random_bytes(sz)
 
+
 def generate_tag(sz):
     return random_bytes(sz or 32)
 
+
 def typed_array_as_js(x):
     name = x.constructor.name or 'Uint8Array'
-    return '(new ' + name + '(' + JSON.stringify(Array.from(x)) + '))'
+    return '(new ' + name + '(' + JSON.stringify(Array.from (x)) + '))'
+
 
 class CBC(ModeOfOperation):  # {{{
-
     def encrypt_bytes(self, bytes, tag_bytes, iv):
         iv = first_iv = iv or random_bytes(16)
         mlen = bytes.length + tag_bytes.length
@@ -424,7 +438,7 @@ class CBC(ModeOfOperation):  # {{{
             for v'var i = 0; i < 16; i++':
                 inputbytes[block + i] ^= iv[offset + i]
             self.aes.encrypt(inputbytes, outputbytes, block)
-        return {'iv':first_iv, 'cipherbytes':outputbytes}
+        return {'iv': first_iv, 'cipherbytes': outputbytes}
 
     def encrypt(self, plaintext, tag):
         return self.encrypt_bytes(string_to_bytes(plaintext), self.tag_as_bytes(tag))
@@ -449,8 +463,8 @@ class CBC(ModeOfOperation):  # {{{
         return str.rstrip(bytes_to_string(ans), '\0')
 # }}}
 
-class CTR(ModeOfOperation):  # {{{
 
+class CTR(ModeOfOperation):  # {{{
     # Note that this mode of operation requires the pair of (counterbytes,
     # secret key) to always be unique, for every block. Therefore, if you are
     # using it for bi-directional messaging it is best to use a different
@@ -483,7 +497,7 @@ class CTR(ModeOfOperation):  # {{{
             t.set(outbytes, tag_bytes.length)
             outbytes = t
         self._crypt(outbytes)
-        return {'cipherbytes':outbytes, 'counterbytes':counterbytes}
+        return {'cipherbytes': outbytes, 'counterbytes': counterbytes}
 
     def __enter__(self):
         self.before_index = self.counter_index
@@ -509,8 +523,8 @@ class CTR(ModeOfOperation):  # {{{
         return bytes_to_string(b, offset)
 # }}}
 
-class GCM(ModeOfOperation):  # {{{
 
+class GCM(ModeOfOperation):  # {{{
     # Note that this mode of operation requires the pair of (iv,
     # secret key) to always be unique, for every message. Therefore, if you are
     # using it for bi-directional messaging it is best to use a different
@@ -593,7 +607,7 @@ class GCM(ModeOfOperation):  # {{{
         tag = Uint32Array(4)
         for v'var i = 0; i < S.length; i++':
             tag[i] = S[i] ^ self.wmem[i]
-        return {'iv':iv, 'cipherbytes':outbytes, 'tag':tag}
+        return {'iv': iv, 'cipherbytes': outbytes, 'tag': tag}
 
     def _crypt(self, iv, bytes, additional_data, decrypt):
         ghash = self.galois.ghash.bind(self.galois)
@@ -643,4 +657,4 @@ class GCM(ModeOfOperation):  # {{{
         if ans.tag != output_from_encrypt.tag:
             raise ValueError('Corrupted message')
         return bytes_to_string(ans.cipherbytes)
-# }}}
+        # }}}

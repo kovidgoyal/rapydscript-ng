@@ -11,6 +11,7 @@ from output.operators import print_getattr
 anonfunc = 'ρσ_anonfunc'
 module_name = 'null'
 
+
 def set_module_name(x):
     nonlocal module_name
     module_name = '"' + x + '"' if x else 'null'
@@ -18,22 +19,25 @@ def set_module_name(x):
 
 # Function definition {{{
 
+
 def decorate(decorators, output, func):
     pos = 0
+
     def wrap():
         nonlocal pos
         if pos < decorators.length:
             decorators[pos].expression.print(output)
             pos += 1
-            output.with_parens(def():
+            output.with_parens(def ():
                 wrap()
             )
         else:
             func()
     wrap()
 
+
 def function_args(argnames, output, strip_first):
-    output.with_parens(def():
+    output.with_parens(def ():
         if argnames and argnames.args.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
             for i, arg in enumerate((argnames.args.slice(1) if strip_first else argnames.args)):
                 if i:
@@ -41,6 +45,7 @@ def function_args(argnames, output, strip_first):
                 arg.print(output)
     )
     output.space()
+
 
 def function_preamble(node, output, offset):
     a = node.argnames
@@ -54,7 +59,7 @@ def function_preamble(node, output, offset):
         i = c - offset
         if i >= 0:
             output.indent()
-            output.print("var")
+            output.print('var')
             output.space()
             output.assign(arg)
             if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
@@ -83,7 +88,7 @@ def function_preamble(node, output, offset):
             for dname in Object.keys(a.defaults):
                 output.indent()
                 output.spaced('if', '(Object.prototype.hasOwnProperty.call(' + kw + ',', '"' + dname + '"))')
-                output.with_block(def():
+                output.with_block(def ():
                     output.indent()
                     output.spaced(dname, '=', kw + '.' + dname)
                     output.end_statement()
@@ -106,6 +111,7 @@ def function_preamble(node, output, offset):
         output.print('.pop()')
         output.end_statement()
 
+
 def has_annotations(self):
     if self.return_annotation:
         return True
@@ -114,13 +120,14 @@ def has_annotations(self):
             return True
     return False
 
+
 def function_annotation(self, output, strip_first, name):
     fname = name or (self.name.name if self.name else anonfunc)
     props = Object.create(None)
 
     # Create __annotations__
     if has_annotations(self):
-        props.__annotations__ = def():
+        props.__annotations__ = def ():
             output.print('{')
             if self.argnames and self.argnames.args.length:
                 for i, arg in enumerate(self.argnames.args):
@@ -139,7 +146,7 @@ def function_annotation(self, output, strip_first, name):
     defaults = self.argnames.defaults
     dkeys = Object.keys(self.argnames.defaults)
     if dkeys.length:
-        props.__defaults__ = def():
+        props.__defaults__ = def ():
             output.print('{')
             for i, k in enumerate(dkeys):
                 output.print(k + ':'), defaults[k].print(output)
@@ -149,12 +156,12 @@ def function_annotation(self, output, strip_first, name):
 
     # Create __handles_kwarg_interpolation__
     if not self.argnames.is_simple_func:
-        props.__handles_kwarg_interpolation__ = def():
+        props.__handles_kwarg_interpolation__ = def ():
             output.print('true')
 
     # Create __argnames__
     if self.argnames.args.length > (1 if strip_first else 0):
-        props.__argnames__ = def():
+        props.__argnames__ = def ():
             output.print('[')
             for i, arg in enumerate(self.argnames.args):
                 if strip_first and i is 0:
@@ -166,10 +173,10 @@ def function_annotation(self, output, strip_first, name):
 
     # Create __doc__
     if output.options.keep_docstrings and self.docstrings and self.docstrings.length:
-        props.__doc__ = def():
+        props.__doc__ = def ():
             output.print(JSON.stringify(create_doctring(self.docstrings)))
 
-    props.__module__ = def():
+    props.__module__ = def ():
         output.print(module_name)
 
     names = Object.keys(props)
@@ -178,7 +185,7 @@ def function_annotation(self, output, strip_first, name):
     # can happen if the function definition is inside a loop, for example.
     output.spaced('if', '(!' + fname + '.' + names[0] + ')', 'Object.defineProperties(' + fname)
     output.comma()
-    output.with_block(def():
+    output.with_block(def ():
         for v'var i = 0; i < names.length; i++':
             name = names[i]
             output.indent(), output.spaced(name, ':', '{value:', ''), props[name](), output.print('}')
@@ -197,14 +204,14 @@ def function_definition(self, output, strip_first, as_expression):
         output.spaced('(function()', '{'), output.newline()
         output.indent(), output.spaced('var', anonfunc, '='), output.space()
     if self.is_async:
-        output.print("async"), output.space()
-    output.print("function"), output.space()
+        output.print('async'), output.space()
+    output.print('function'), output.space()
     if self.name:
         self.name.print(output)
 
     if self.is_generator:
         output.print('()'), output.space()
-        output.with_block(def():
+        output.with_block(def ():
             output.indent()
             output.print('function* js_generator')
             function_args(self.argnames, output, strip_first)
@@ -230,15 +237,16 @@ def function_definition(self, output, strip_first, as_expression):
         function_annotation(self, output, strip_first, anonfunc)
         output.indent(), output.spaced('return', anonfunc), output.end_statement()
         output.set_indentation(orig_indent)
-        output.indent(), output.print("})()")
+        output.indent(), output.print('})()')
+
 
 def print_function(output):
     self = this
     if self.decorators and self.decorators.length:
-        output.print("var")
+        output.print('var')
         output.space()
         output.assign(self.name.name)
-        decorate(self.decorators, output, def():function_definition(self, output, False, True);)
+        decorate(self.decorators, output, def (): function_definition(self, output, False, True);)
         output.end_statement()
     else:
         function_definition(self, output, False)
@@ -249,11 +257,13 @@ def print_function(output):
 
 # Function call {{{
 
+
 def find_this(expression):
     if is_node_type(expression, AST_Dot):
         return expression.expression
     if not is_node_type(expression, AST_SymbolRef):
         return expression
+
 
 def print_this(expression, output):
     obj = find_this(expression)
@@ -261,6 +271,7 @@ def print_this(expression, output):
         obj.print(output)
     else:
         output.print('this')
+
 
 def print_function_call(self, output):
     is_prototype_call = False
@@ -271,15 +282,15 @@ def print_function_call(self, output):
             # class methods are called through the prototype unless static
             if self.static:
                 self.class.print(output)
-                output.print(".")
+                output.print('.')
                 output.print(self.method)
             else:
                 is_prototype_call = True
                 self.class.print(output)
-                output.print(".prototype.")
+                output.print('.prototype.')
                 output.print(self.method)
                 if not no_call:
-                    output.print(".call")
+                    output.print('.call')
         else:
             if not is_repeatable:
                 output.print('ρσ_expr_temp')
@@ -341,7 +352,7 @@ def print_function_call(self, output):
                 output.print('[')
                 while i < pargs.length and not pargs[i].is_array:
                     pargs[i].value.print(output)
-                    if i + 1 < pargs.length and not pargs[i+1].is_array:
+                    if i + 1 < pargs.length and not pargs[i + 1].is_array:
                         output.print(',')
                         output.space()
                     i += 1
@@ -358,14 +369,14 @@ def print_function_call(self, output):
     if is_new and not self.args.args.length and not has_kwargs and not self.args.starargs:
         output.print('new'), output.space()
         print_function_name()
-        return # new A is the same as new A() in javascript
+        return  # new A is the same as new A() in javascript
 
     if not has_kwargs and not self.args.starargs:
         # A simple function call, do nothing special
         if is_new:
             output.print('new'), output.space()
         print_function_name()
-        output.with_parens(def():
+        output.with_parens(def ():
             for i, a in enumerate(self.args.args):
                 if i:
                     output.comma()
@@ -412,4 +423,4 @@ def print_function_call(self, output):
     output.print(')')
     if not is_repeatable:
         output.print(')')
-# }}}
+        # }}}

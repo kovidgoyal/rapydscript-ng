@@ -4,6 +4,7 @@
 
 # globals:ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_repr
 
+
 def ρσ_equals(a, b):
     if a is b:
         return True
@@ -21,17 +22,18 @@ def ρσ_equals(a, b):
     if jstype(a) is 'object' and jstype(b) is 'object' and a is not None and b is not None and (
         (a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)
     ):
-            # Do a dict like comparison as this is most likely either a JS has
-            # (Object.create(null) or a JS object used as a hash (v"{}"))
-            akeys, bkeys = Object.keys(a), Object.keys(b)
-            if akeys.length is not bkeys.length:
+        # Do a dict like comparison as this is most likely either a JS has
+        # (Object.create(null) or a JS object used as a hash (v"{}"))
+        akeys, bkeys = Object.keys(a), Object.keys(b)
+        if akeys.length is not bkeys.length:
+            return False
+        for v'var j=0; j < akeys.length; j++':
+            key = akeys[j]
+            if not (a[key] == b[key]):
                 return False
-            for v'var j=0; j < akeys.length; j++':
-                key = akeys[j]
-                if not (a[key] == b[key]):
-                    return False
-            return True
+        return True
     return False
+
 
 def ρσ_not_equals(a, b):
     if a is b:
@@ -46,18 +48,20 @@ v'var equals = ρσ_equals'
 
 # list {{{
 
+
 def ρσ_list_iterator(value):
     self = this
     return {
-        '_i':-1,
-        '_list':self,
-        'next':def():
+        '_i': -1,
+        '_list': self,
+        'next': def ():
             this._i += 1
             if this._i >= this._list.length:
-                return {'done':True}
-            return {'done':False, 'value':this._list[this._i]}
+                return {'done': True}
+            return {'done': False, 'value': this._list[this._i]}
         ,
     }
+
 
 def ρσ_list_constructor(iterable):
     if iterable is undefined:
@@ -88,7 +92,7 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'extend', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(iterable):
+        'value': def (iterable):
             if Array.isArray(iterable) or jstype(iterable) is 'string':
                 # Allocate all new memory in one operation
                 start = this.length
@@ -104,7 +108,7 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'index', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(val, start, stop):
+        'value': def (val, start, stop):
             start = start or 0
             if start < 0:
                 start = this.length + start
@@ -121,7 +125,7 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'pypop', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(index):
+        'value': def (index):
             if this.length is 0:
                 raise IndexError('list is empty')
             if index is undefined:
@@ -133,7 +137,7 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'remove', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(value):
+        'value': def (value):
             for v'var i = 0; i < this.length; i++':
                 if this[i] == value:
                     this.splice(i, 1)
@@ -142,15 +146,15 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'toString', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): return '[' + this.join(', ') + ']'
+        'value': def (): return '[' + this.join(', ') + ']'
     });
     Object.defineProperty(Array.prototype, 'inspect', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): return '[' + this.join(', ') + ']'
+        'value': def (): return '[' + this.join(', ') + ']'
     });
     Object.defineProperty(Array.prototype, 'insert', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(index, val):
+        'value': def (index, val):
             if index < 0:
                 index += this.length
             index = min(this.length, max(index, 0))
@@ -163,19 +167,19 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'copy', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): return ρσ_list_constructor(this)
+        'value': def (): return ρσ_list_constructor(this)
     });
     Object.defineProperty(Array.prototype, 'clear', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): this.length = 0
+        'value': def (): this.length = 0
     });
     Object.defineProperty(Array.prototype, 'count', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(value): return this.reduce(def(n, val): return n + (val is value);, 0)
+        'value': def (value): return this.reduce(def (n, val): return n + (val is value);, 0)
     });
     Object.defineProperty(Array.prototype, 'pysort', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(key=None, reverse=False):
+        'value': def (key = None, reverse = False):
             def _sort_key(value):
                 t = jstype(value)
                 if t is 'string' or t is 'number':
@@ -199,15 +203,15 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'as_array', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): return Array.from(this)
+        'value': def (): return Array.from (this)
     });
     Object.defineProperty(Array.prototype, '__len__', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(): return this.length
+        'value': def (): return this.length
     });
     Object.defineProperty(Array.prototype, '__contains__', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(val):
+        'value': def (val):
             for v'var i = 0; i < this.length; i++':
                 if this[i] == val:
                     return True
@@ -215,7 +219,7 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, '__eq__', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def(other):
+        'value': def (other):
             if not ρσ_arraylike(other):
                 return False
             if this.length != other.length:
@@ -230,10 +234,12 @@ if v'typeof Array.prototype.append' is not 'function':
         'value': ρσ_list_constructor,
     });
 
+
 def ρσ_list_decorate(ans):
     return ans
 
 v'var list = ρσ_list_constructor, list_wrap = ρσ_list_decorate'
+
 
 def sorted(iterable, key=None, reverse=False):
     ans = ρσ_list_constructor(iterable)
@@ -244,34 +250,36 @@ def sorted(iterable, key=None, reverse=False):
 # set {{{
 v'var ρσ_global_object_id = 0, ρσ_set_implementation'
 
+
 def ρσ_set_keyfor(x):
     t = jstype(x)
     if t is 'string' or t is 'number' or t is 'boolean':
         return '_' + t[0] + x
-    if v'x === null': # also matches undefined
-        return "__!@#$0"
+    if v'x === null':  # also matches undefined
+        return '__!@#$0'
     ans = x.ρσ_hash_key_prop
     if ans is undefined:
         v'ans = "_!@#$" + (++ρσ_global_object_id)'
-        Object.defineProperty(x, 'ρσ_hash_key_prop', { 'value': ans })
+        Object.defineProperty(x, 'ρσ_hash_key_prop', {'value': ans})
     return ans
+
 
 def ρσ_set_polyfill():
     this._store = {}
     this.size = 0
 
-ρσ_set_polyfill.prototype.add = def(x):
+ρσ_set_polyfill.prototype.add = def (x):
     key = ρσ_set_keyfor(x)
     if not Object.prototype.hasOwnProperty.call(this._store, key):
         this.size += 1
         this._store[key] = x
     return this
 
-ρσ_set_polyfill.prototype.clear = def(x):
+ρσ_set_polyfill.prototype.clear = def (x):
     this._store = {}
     this.size = 0
 
-ρσ_set_polyfill.prototype.delete = def(x):
+ρσ_set_polyfill.prototype.delete = def (x):
     key = ρσ_set_keyfor(x)
     if Object.prototype.hasOwnProperty.call(this._store, key):
         this.size -= 1
@@ -279,14 +287,14 @@ def ρσ_set_polyfill():
         return True
     return False
 
-ρσ_set_polyfill.prototype.has = def(x):
+ρσ_set_polyfill.prototype.has = def (x):
     return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
-ρσ_set_polyfill.prototype.values = def(x):
+ρσ_set_polyfill.prototype.values = def (x):
     ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         this._i += 1
         if this._i >= this._keys.length:
             return v"{'done': true}"
@@ -297,6 +305,7 @@ if jstype(Set) is not 'function' or jstype(Set.prototype.delete) is not 'functio
     v'ρσ_set_implementation = ρσ_set_polyfill'
 else:
     v'ρσ_set_implementation = Set'
+
 
 def ρσ_set(iterable):
     if v'this instanceof ρσ_set':
@@ -325,19 +334,19 @@ def ρσ_set(iterable):
 
 # These are for JavaScript users' convenience
 Object.defineProperties(ρσ_set.prototype, {
-    'length': { 'get': def(): return this.jsset.size; },
-    'size': { 'get': def(): return this.jsset.size; },
+    'length': {'get': def (): return this.jsset.size;},
+    'size': {'get': def (): return this.jsset.size;},
 })
 
-ρσ_set.prototype.__len__ = def(): return this.jsset.size
-ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = def(x): return this.jsset.has(x)
-ρσ_set.prototype.add = def(x): this.jsset.add(x)
-ρσ_set.prototype.clear = def(): this.jsset.clear()
-ρσ_set.prototype.copy = def(): return ρσ_set(this)
-ρσ_set.prototype.discard = def(x): this.jsset.delete(x)
-ρσ_set.prototype[ρσ_iterator_symbol] = def(): return this.jsset.values()
+ρσ_set.prototype.__len__ = def (): return this.jsset.size
+ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = def (x): return this.jsset.has(x)
+ρσ_set.prototype.add = def (x): this.jsset.add(x)
+ρσ_set.prototype.clear = def (): this.jsset.clear()
+ρσ_set.prototype.copy = def (): return ρσ_set(this)
+ρσ_set.prototype.discard = def (x): this.jsset.delete(x)
+ρσ_set.prototype[ρσ_iterator_symbol] = def (): return this.jsset.values()
 
-ρσ_set.prototype.difference = def():
+ρσ_set.prototype.difference = def ():
     ans = new ρσ_set()
     s = ans.jsset
     iterator = this.jsset.values()
@@ -354,7 +363,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return ans
 
-ρσ_set.prototype.difference_update = def():
+ρσ_set.prototype.difference_update = def ():
     s = this.jsset
     remove = v'[]'
     iterator = s.values()
@@ -369,7 +378,7 @@ Object.defineProperties(ρσ_set.prototype, {
     for v'var j = 0; j < remove.length; j++':
         s.delete(remove[j])  # noqa:undef
 
-ρσ_set.prototype.intersection = def():
+ρσ_set.prototype.intersection = def ():
     ans = new ρσ_set()
     s = ans.jsset
     iterator = this.jsset.values()
@@ -386,7 +395,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return ans
 
-ρσ_set.prototype.intersection_update = def():
+ρσ_set.prototype.intersection_update = def ():
     s = this.jsset
     remove = v'[]'
     iterator = s.values()
@@ -401,7 +410,7 @@ Object.defineProperties(ρσ_set.prototype, {
     for v'var j = 0; j < remove.length; j++':
         s.delete(remove[j])  # noqa:undef
 
-ρσ_set.prototype.isdisjoint = def(other):
+ρσ_set.prototype.isdisjoint = def (other):
     iterator = this.jsset.values()
     r = iterator.next()
     while not r.done:
@@ -411,7 +420,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return True
 
-ρσ_set.prototype.issubset = def(other):
+ρσ_set.prototype.issubset = def (other):
     iterator = this.jsset.values()
     r = iterator.next()
     while not r.done:
@@ -421,7 +430,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return True
 
-ρσ_set.prototype.issuperset = def(other):
+ρσ_set.prototype.issuperset = def (other):
     s = this.jsset
     iterator = other.jsset.values()
     r = iterator.next()
@@ -432,7 +441,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return True
 
-ρσ_set.prototype.pop = def():
+ρσ_set.prototype.pop = def ():
     iterator = this.jsset.values()
     r = iterator.next()
     if r.done:
@@ -440,24 +449,24 @@ Object.defineProperties(ρσ_set.prototype, {
     this.jsset.delete(r.value)
     return r.value
 
-ρσ_set.prototype.remove = def(x):
+ρσ_set.prototype.remove = def (x):
     if not this.jsset.delete(x):
         raise KeyError(x.toString())
 
-ρσ_set.prototype.symmetric_difference = def(other):
+ρσ_set.prototype.symmetric_difference = def (other):
     return this.union(other).difference(this.intersection(other))
 
-ρσ_set.prototype.symmetric_difference_update = def(other):
+ρσ_set.prototype.symmetric_difference_update = def (other):
     common = this.intersection(other)
     this.update(other)
     this.difference_update(common)
 
-ρσ_set.prototype.union = def():
+ρσ_set.prototype.union = def ():
     ans = ρσ_set(this)
     ans.update.apply(ans, arguments)
     return ans
 
-ρσ_set.prototype.update = def():
+ρσ_set.prototype.update = def ():
     s = this.jsset
     for v'var i=0; i < arguments.length; i++':
         iterator = arguments[i][ρσ_iterator_symbol]()  # noqa:undef
@@ -466,10 +475,10 @@ Object.defineProperties(ρσ_set.prototype, {
             s.add(r.value)
             r = iterator.next()
 
-ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = def():
+ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = def ():
     return '{' + list(this).join(', ') + '}'
 
-ρσ_set.prototype.__eq__ = def(other):
+ρσ_set.prototype.__eq__ = def (other):
     if not v'other instanceof this.constructor':
         return False
     if other.size is not this.size:
@@ -484,6 +493,7 @@ Object.defineProperties(ρσ_set.prototype, {
         r = iterator.next()
     return True
 
+
 def ρσ_set_wrap(x):
     ans = new ρσ_set()
     ans.jsset = x
@@ -495,22 +505,23 @@ v'var set = ρσ_set, set_wrap = ρσ_set_wrap'
 # dict {{{
 v'var ρσ_dict_implementation'
 
+
 def ρσ_dict_polyfill():
     this._store = {}
     this.size = 0
 
-ρσ_dict_polyfill.prototype.set = def(x, value):
+ρσ_dict_polyfill.prototype.set = def (x, value):
     key = ρσ_set_keyfor(x)
     if not Object.prototype.hasOwnProperty.call(this._store, key):
         this.size += 1
     this._store[key] = v'[x, value]'
     return this
 
-ρσ_dict_polyfill.prototype.clear = def(x):
+ρσ_dict_polyfill.prototype.clear = def (x):
     this._store = {}
     this.size = 0
 
-ρσ_dict_polyfill.prototype.delete = def(x):
+ρσ_dict_polyfill.prototype.delete = def (x):
     key = ρσ_set_keyfor(x)
     if Object.prototype.hasOwnProperty.call(this._store, key):
         this.size -= 1
@@ -518,42 +529,42 @@ def ρσ_dict_polyfill():
         return True
     return False
 
-ρσ_dict_polyfill.prototype.has = def(x):
+ρσ_dict_polyfill.prototype.has = def (x):
     return Object.prototype.hasOwnProperty.call(this._store, ρσ_set_keyfor(x))
 
-ρσ_dict_polyfill.prototype.get = def(x):
+ρσ_dict_polyfill.prototype.get = def (x):
     try:
         return this._store[ρσ_set_keyfor(x)][1]
     except TypeError:  # Key is not present
         return undefined
 
-ρσ_dict_polyfill.prototype.values = def(x):
+ρσ_dict_polyfill.prototype.values = def (x):
     ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         this._i += 1
         if this._i >= this._keys.length:
             return v"{'done': true}"
         return v"{'done':false, 'value':this._s[this._keys[this._i]][1]}"
     return ans
 
-ρσ_dict_polyfill.prototype.keys = def(x):
+ρσ_dict_polyfill.prototype.keys = def (x):
     ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         this._i += 1
         if this._i >= this._keys.length:
             return v"{'done': true}"
         return v"{'done':false, 'value':this._s[this._keys[this._i]][0]}"
     return ans
 
-ρσ_dict_polyfill.prototype.entries = def(x):
+ρσ_dict_polyfill.prototype.entries = def (x):
     ans = v"{'_keys': Object.keys(this._store), '_i':-1, '_s':this._store}"
-    ans[ρσ_iterator_symbol] = def():
+    ans[ρσ_iterator_symbol] = def ():
         return this
-    ans['next'] = def():
+    ans['next'] = def ():
         this._i += 1
         if this._i >= this._keys.length:
             return v"{'done': true}"
@@ -564,6 +575,7 @@ if jstype(Map) is not 'function' or jstype(Map.prototype.delete) is not 'functio
     v'ρσ_dict_implementation = ρσ_dict_polyfill'
 else:
     v'ρσ_dict_implementation = Map'
+
 
 def ρσ_dict(iterable, **kw):
     if v'this instanceof ρσ_dict':
@@ -579,20 +591,20 @@ def ρσ_dict(iterable, **kw):
 
 # These are for JavaScript users' convenience
 Object.defineProperties(ρσ_dict.prototype, {
-    'length': { 'get': def(): return this.jsmap.size; },
-    'size': { 'get': def(): return this.jsmap.size; },
+    'length': {'get': def (): return this.jsmap.size;},
+    'size': {'get': def (): return this.jsmap.size;},
 })
 
-ρσ_dict.prototype.__len__ = def(): return this.jsmap.size
-ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def(x): return this.jsmap.has(x)
-ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def(key, value): this.jsmap.set(key, value)
+ρσ_dict.prototype.__len__ = def (): return this.jsmap.size
+ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def (x): return this.jsmap.has(x)
+ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def (key, value): this.jsmap.set(key, value)
 ρσ_dict.prototype.__delitem__ = def (key): this.jsmap.delete(key)
-ρσ_dict.prototype.clear = def(): this.jsmap.clear()
-ρσ_dict.prototype.copy = def(): return ρσ_dict(this)
-ρσ_dict.prototype.keys = def(): return this.jsmap.keys()
-ρσ_dict.prototype.values = def(): return this.jsmap.values()
-ρσ_dict.prototype.items = ρσ_dict.prototype.entries = def(): return this.jsmap.entries()
-ρσ_dict.prototype[ρσ_iterator_symbol] = def(): return this.jsmap.keys()
+ρσ_dict.prototype.clear = def (): this.jsmap.clear()
+ρσ_dict.prototype.copy = def (): return ρσ_dict(this)
+ρσ_dict.prototype.keys = def (): return this.jsmap.keys()
+ρσ_dict.prototype.values = def (): return this.jsmap.values()
+ρσ_dict.prototype.items = ρσ_dict.prototype.entries = def (): return this.jsmap.entries()
+ρσ_dict.prototype[ρσ_iterator_symbol] = def (): return this.jsmap.keys()
 
 ρσ_dict.prototype.__getitem__ = def (key):
     ans = this.jsmap.get(key)
@@ -613,7 +625,7 @@ Object.defineProperties(ρσ_dict.prototype, {
         return defval
     return j.get(key)
 
-ρσ_dict.fromkeys = ρσ_dict.prototype.fromkeys = def (iterable, value=None):
+ρσ_dict.fromkeys = ρσ_dict.prototype.fromkeys = def (iterable, value = None):
     ans = ρσ_dict()
     iterator = iter(iterable)
     r = iterator.next()
@@ -677,7 +689,7 @@ Object.defineProperties(ρσ_dict.prototype, {
     if arguments.length > 1:
         ρσ_dict.prototype.update.call(this, arguments[1])
 
-ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = def():
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = def ():
     entries = v'[]'
     iterator = this.jsmap.entries()
     r = iterator.next()
@@ -686,7 +698,7 @@ Object.defineProperties(ρσ_dict.prototype, {
         r = iterator.next()
     return '{' + entries.join(', ') + '}'
 
-ρσ_dict.prototype.__eq__ = def(other):
+ρσ_dict.prototype.__eq__ = def (other):
     if not v'(other instanceof this.constructor)':
         return False
     if other.size is not this.size:
@@ -702,7 +714,7 @@ Object.defineProperties(ρσ_dict.prototype, {
         r = iterator.next()
     return True
 
-ρσ_dict.prototype.as_object = def(other):
+ρσ_dict.prototype.as_object = def (other):
     ans = {}
     iterator = this.jsmap.entries()
     r = iterator.next()
@@ -710,6 +722,7 @@ Object.defineProperties(ρσ_dict.prototype, {
         ans[r.value[0]] = r.value[1]
         r = iterator.next()
     return ans
+
 
 def ρσ_dict_wrap(x):
     ans = new ρσ_dict()

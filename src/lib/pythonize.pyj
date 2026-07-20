@@ -2,6 +2,7 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: ρσ_str
 
+
 def strings():
     string_funcs = set((
         'capitalize strip lstrip rstrip islower isupper isspace lower upper swapcase'
@@ -11,7 +12,7 @@ def strings():
     if not arguments.length:
         exclude = {'split', 'replace'}
     elif arguments[0]:
-        exclude = Array.from(arguments)
+        exclude = Array.from (arguments)
     else:
         exclude = None
     if exclude:

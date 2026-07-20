@@ -8,14 +8,15 @@ from ast import (
     AST_Conditional, AST_Binary, AST_BlockStatement, is_node_type
 )
 
+
 def force_statement(stat, output):
     if output.options.bracketize:
         if not stat or is_node_type(stat, AST_EmptyStatement):
-            output.print("{}")
+            output.print('{}')
         elif is_node_type(stat, AST_BlockStatement):
             stat.print(output)
         else:
-            output.with_block(def():
+            output.with_block(def ():
                 output.indent()
                 stat.print(output)
                 output.newline()
@@ -25,6 +26,7 @@ def force_statement(stat, output):
             output.force_semicolon()
         else:
             stat.print(output)
+
 
 # return true if the node at the top of the stack (that means the
 # innermost node in the current output) is lexically the first in
@@ -54,7 +56,7 @@ def declare_vars(vars, output):
     # declare all variables as local, unless explictly set otherwise
     if vars.length:
         output.indent()
-        output.print("var")
+        output.print('var')
         output.space()
         for i, arg in enumerate(vars):
             if i:
@@ -63,6 +65,7 @@ def declare_vars(vars, output):
             arg.print(output)
         output.semicolon()
         output.newline()
+
 
 def display_body(body, is_toplevel, output):
     last = body.length - 1
@@ -80,10 +83,10 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
     # this is a method, add 'var self = this'
     if is_node_type(node, AST_Method) and not node.static:
         output.indent()
-        output.print("var")
+        output.print('var')
         output.space()
         output.assign(node.argnames.args[0])
-        output.print("this")
+        output.print('this')
         output.semicolon()
         output.newline()
         offset += 1
@@ -95,18 +98,19 @@ def display_complex_body(node, is_toplevel, output, function_preamble):
     elif is_node_type(node, AST_Except):
         if node.argname:
             output.indent()
-            output.print("var")
+            output.print('var')
             output.space()
             output.assign(node.argname)
-            output.print("ρσ_Exception")
+            output.print('ρσ_Exception')
             output.semicolon()
             output.newline()
 
     display_body(node.body, is_toplevel, output)
 
+
 def print_bracketed(node, output, complex, function_preamble, before, after):
     if node.body.length > 0:
-        output.with_block(def():
+        output.with_block(def ():
             if before:
                 before(output)
             if complex:
@@ -118,14 +122,15 @@ def print_bracketed(node, output, complex, function_preamble, before, after):
         )
     else:
         if before or after:
-            output.with_block(def():
+            output.with_block(def ():
                 if before:
                     before(output)
                 if after:
                     after(output)
             )
         else:
-            output.print("{}")
+            output.print('{}')
+
 
 def print_with(self, output):
     exits = v'[]'
@@ -143,22 +148,22 @@ def print_with(self, output):
         output.print(clause_name + '.__enter__()')
         output.end_statement()
     output.indent(), output.print('try'), output.space()
-    output.with_block(def():
+    output.with_block(def ():
         output.indent()
         self._do_print_body(output)
         output.newline()
     )
     output.space(), output.print('catch(e)')
-    output.with_block(def():
+    output.with_block(def ():
         output.indent(), output.assign('ρσ_with_exception'), output.print('e'), output.end_statement()
     )
     output.newline(), output.indent(), output.spaced('if', '(ρσ_with_exception', '===', 'undefined)')
-    output.with_block(def():
+    output.with_block(def ():
         for clause in exits:
             output.indent(), output.print(clause + '.__exit__()'), output.end_statement()
     )
     output.space(), output.print('else'), output.space()
-    output.with_block(def():
+    output.with_block(def ():
         output.indent(), output.assign('ρσ_with_suppress'), output.print('false'), output.end_statement()
         for clause in exits:
             output.indent()
@@ -167,6 +172,7 @@ def print_with(self, output):
             output.end_statement()
         output.indent(), output.spaced('if', '(!ρσ_with_suppress)', 'throw ρσ_with_exception'), output.end_statement()
     )
+
 
 def print_assert(self, output):
     if output.options.discard_asserts:

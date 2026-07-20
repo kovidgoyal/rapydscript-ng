@@ -11,6 +11,7 @@ DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u2
 # hot path. Avoids the full unicode-aware is_identifier_char() for the common case.
 _IDENT_CHARS = v'(function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})()'
 
+
 def _is_ident_char(ch):
     code = ch.charCodeAt(0)
     if code < 128:
@@ -26,20 +27,20 @@ def as_hex(code, sz):
 
 
 def to_ascii(str_, identifier):
-    return str_.replace(/[\u0080-\uffff]/g, def(ch):
+    return str_.replace(/[\u0080-\uffff]/g, def (ch):
         code = ch.charCodeAt(0).toString(16)
         if code.length <= 2 and not identifier:
-            return "\\x" + as_hex(code, 2)
+            return '\\x' + as_hex(code, 2)
         else:
             return '\\u' + as_hex(code, 4)
-
     )
+
 
 def encode_string(str_):
-    return JSON.stringify(str_).replace(DANGEROUS, def(a):
+    return JSON.stringify(str_).replace(DANGEROUS, def (a):
             return '\\u' + as_hex(a.charCodeAt(0), 4)
     )
-require_semi_colon_chars = make_predicate("( [ + * / - , .")
+require_semi_colon_chars = make_predicate('( [ + * / - , .')
 
 output_stream_defaults = {
     'indent_start': 0,
@@ -63,12 +64,12 @@ output_stream_defaults = {
     'keep_docstrings': False,
     'discard_asserts': False,
     'module_cache_dir': '',
-    'js_version':6,
+    'js_version': 6,
     'write_name': True,
 }
 
-class OutputStream:
 
+class OutputStream:
     def __init__(self, options):
         self.options = defaults(options, output_stream_defaults, True)
         self._indentation = 0
@@ -86,11 +87,11 @@ class OutputStream:
         self._source_map_segments = v'[]' if self.options.source_map else None
         # Indentation string cache: avoids repeat_string() on every indent() call
         self._indent_cache_val = -1
-        self._indent_cache_str = ""
+        self._indent_cache_str = ''
         # Install no-op add_mapping on the instance when source maps are disabled,
         # avoiding a null check and array push per node in the hot output walk.
         if not self.options.source_map:
-            self.add_mapping = def(node): pass
+            self.add_mapping = def (node): pass
 
     def new_try_else_counter(self):
         self.try_else_counter += 1
@@ -110,7 +111,7 @@ class OutputStream:
         target = self.options.indent_start + self._indentation - (back or 0) * self.options.indent_level
         if target == self._indent_cache_val:
             return self._indent_cache_str
-        s = repeat_string(" ", target)
+        s = repeat_string(' ', target)
         self._indent_cache_val = target
         self._indent_cache_str = s
         return s
@@ -121,19 +122,19 @@ class OutputStream:
 
     def maybe_newline(self):
         if self.options.max_line_len and self.current_col > self.options.max_line_len:
-            self.print("\n")
+            self.print('\n')
 
     def print(self, str_):
         str_ = v"String(str_)"
         ch = str_.charAt(0)
         if self.might_need_semicolon:
-            if (not ch or ";}".indexOf(ch) < 0) and not /[;]$/.test(self._last):
+            if (not ch or ';}'.indexOf(ch) < 0) and not /[;]$/.test(self._last):
                 if self.options.semicolons or require_semi_colon_chars[ch]:
-                    self._fragments.push(";")
+                    self._fragments.push(';')
                     self.current_col += 1
                     self.current_pos += 1
                 else:
-                    self._fragments.push("\n")
+                    self._fragments.push('\n')
                     self.current_pos += 1
                     self.current_line += 1
                     self.current_col = 0
@@ -141,25 +142,23 @@ class OutputStream:
                 if not self.options.beautify:
                     self.might_need_space = False
 
-
             self.might_need_semicolon = False
             self.maybe_newline()
 
         if not self.options.beautify and self.options.preserve_line and self._stack[self._stack.length - 1]:
             target_line = self._stack[self._stack.length - 1].start.line
             while self.current_line < target_line:
-                self._fragments.push("\n")
+                self._fragments.push('\n')
                 self.current_pos += 1
                 self.current_line += 1
                 self.current_col = 0
                 self.might_need_space = False
 
-
         if self.might_need_space:
             prev = self.last_char()
-            if _is_ident_char(prev) and (_is_ident_char(ch) or ch is "\\")
+            if _is_ident_char(prev) and (_is_ident_char(ch) or ch is '\\')
             or /^[\+\-\/]$/.test(ch) and ch is prev:
-                self._fragments.push(" ")
+                self._fragments.push(' ')
                 self.current_col += 1
                 self.current_pos += 1
 
@@ -211,17 +210,17 @@ class OutputStream:
 
     def newline(self):
         if self.options.beautify:
-            self.print("\n")
+            self.print('\n')
 
     def semicolon(self):
         if self.options.beautify:
-            self.print(";")
+            self.print(';')
         else:
             self.might_need_semicolon = True
 
     def force_semicolon(self):
         self.might_need_semicolon = False
-        self.print(";")
+        self.print(';')
 
     def next_indent(self):
         return self._indentation + self.options.indent_level
@@ -241,34 +240,34 @@ class OutputStream:
 
     def with_block(self, cont):
         ret = None
-        self.print("{")
+        self.print('{')
         self.newline()
-        self.with_indent(self.next_indent(), def():
+        self.with_indent(self.next_indent(), def ():
             nonlocal ret
             ret = cont()
         )
         self.indent()
-        self.print("}")
+        self.print('}')
         return ret
 
     def with_parens(self, cont):
-        self.print("(")
+        self.print('(')
         ret = cont()
-        self.print(")")
+        self.print(')')
         return ret
 
     def with_square(self, cont):
-        self.print("[")
+        self.print('[')
         ret = cont()
-        self.print("]")
+        self.print(']')
         return ret
 
     def comma(self):
-        self.print(",")
+        self.print(',')
         self.space()
 
     def colon(self):
-        self.print(":")
+        self.print(':')
         if self.options.space_colon:
             self.space()
 
@@ -278,12 +277,12 @@ class OutputStream:
 
     def assign(self, name):
         # generates: '[name] = '
-        if jstype(name) is "string":
+        if jstype(name) is 'string':
             self.print(name)
         else:
             name.print(self)
         self.space()
-        self.print("=")
+        self.print('=')
         self.space()
 
     def current_width(self):

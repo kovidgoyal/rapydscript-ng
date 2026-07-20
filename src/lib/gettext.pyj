@@ -500,18 +500,22 @@ return parser;
 plural_forms_parser = Jed.PF
 # }}}
 
+
 def _get_plural_forms_function(plural_forms_string):
-    return plural_forms_parser.compile(plural_forms_string or "nplurals=2; plural=(n != 1);")
+    return plural_forms_parser.compile(plural_forms_string or 'nplurals=2; plural=(n != 1);')
 
-_gettext = def(text): return text
+_gettext = def (text): return text
 
-_ngettext = def(text, plural, n): return text if n is 1 else plural
+_ngettext = def (text, plural, n): return text if n is 1 else plural
+
 
 def gettext(text):
     return _gettext(text)
 
+
 def ngettext(text, plural, n):
     return _ngettext(text, plural, n)
+
 
 def install(translation_data):
     t = new Translations(translation_data)
@@ -525,6 +529,7 @@ def install(translation_data):
 
 has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
 
+
 def register_callback(func):
     # Register callbacks that will be called when new translation data is
     # installed
@@ -533,8 +538,8 @@ register_callback.install_callbacks = v'[]'
 
 empty_translation_data = {'entries': {}}
 
-class Translations:
 
+class Translations:
     def __init__(self, translation_data):
         translation_data = translation_data or empty_translation_data
         func = _get_plural_forms_function(translation_data.plural_forms)

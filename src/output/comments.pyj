@@ -7,13 +7,13 @@ from ast import AST_Exit, is_node_type
 
 def output_comments(comments, output, nlb):
     for comm in comments:
-        if comm.type is "comment1":
-            output.print("//" + comm.value + "\n")
+        if comm.type is 'comment1':
+            output.print('//' + comm.value + '\n')
             output.indent()
-        elif comm.type is "comment2":
-            output.print("/*" + comm.value + "*/")
+        elif comm.type is 'comment2':
+            output.print('/*' + comm.value + '*/')
             if nlb:
-                output.print("\n")
+                output.print('\n')
                 output.indent()
             else:
                 output.space()
@@ -34,11 +34,11 @@ def print_comments(self, output):
                 self.value.start.comments_before = v'[]'
 
             if c.test:
-                comments = comments.filter(def(comment):
+                comments = comments.filter(def (comment):
                     return c.test(comment.value)
                 )
-            elif jstype(c) is "function":
-                comments = comments.filter(def(comment):
+            elif jstype(c) is 'function':
+                comments = comments.filter(def (comment):
                     return c(self, comment)
                 )
 
