@@ -149,6 +149,16 @@ async def run_tests():
     await check('preserve-anon-function',
                 "params = {\n    'onclick': def(event):\n        alert('hi')\n    ,\n    'x': 5\n}\n",
                 "params = {\n    'onclick': def(event):\n        alert('hi')\n    ,\n    'x': 5\n}\n")
+    # Assignments inside an anonymous def passed as an argument must keep spaces
+    # around '='; they are not kwargs even though they are inside the outer call.
+    await check('anon-def-arg-assignment',
+                "window.addEventListener('beforeunload', def(event):\n    self.disable=True\n    self.ws.close()\n)\n",
+                "window.addEventListener('beforeunload', def(event):\n    self.disable = True\n    self.ws.close()\n)\n")
+    # Inline anonymous def inside a call: kwargs that follow the def must not
+    # gain spaces (they are not assignments in the def body).
+    await check('inline-anon-def-arg-kwargs',
+                "xhr = ajax('url', def():pass;, method='POST', flag=False)\n",
+                "xhr = ajax('url', def(): pass;, method='POST', flag=False)\n")
     await check('preserve-chain',
                 "$(element)\n.css('background-color', 'red')\n.show()\n",
                 "$(element)\n.css('background-color', 'red')\n.show()\n")

@@ -297,7 +297,7 @@ function separator(p, t, stack, prev_was_unary, sig_count, first_at) {
     if (pv === '@' && first_at && sig_count === 1) return false;  // decorator
     if (tv === '(' && is_call_paren(p)) return false;
     if (tv === '[' && is_index_bracket(p)) return false;
-    if ((tv === '=' || pv === '=') && top && top.kind === 'call') return false;  // kwarg / default
+    if ((tv === '=' || pv === '=') && top && top.kind === 'call' && !top.in_def_body) return false;  // kwarg / default
     if (prev_was_unary) return false;
     return true;
 }
@@ -350,6 +350,12 @@ function render(toks, honor_breaks, src_base, new_base, opts, initial_stack) {
     var out = '';
     var stack = initial_stack ? initial_stack.slice() : [];
     var prev_sig = null, prev_was_unary = false, sig_count = 0, first_at = false;
+    // after_def: true after seeing 'def' (and optionally a function name), so the
+    // next '(' can be identified as the def's parameter list.
+    // prev_closed_def_params: true when we just popped a def parameter list ')'.
+    // When the very next ':' is seen we mark the enclosing stack frame in_def_body
+    // so that '=' tokens inside the body are not suppressed as kwargs.
+    var after_def = false, prev_closed_def_params = false;
     for (var k = 0; k < toks.length; k++) {
         var t = toks[k];
         var did_break = false;
@@ -375,10 +381,43 @@ function render(toks, honor_breaks, src_base, new_base, opts, initial_stack) {
         out += token_text(t, opts);
         prev_was_unary = is_unary_here(prev_sig, t);
         if (t.type === 'punc') {
-            if (t.value === '(') stack.push({ kind: is_call_paren(prev_sig) ? 'call' : 'group' });
-            else if (t.value === '[') stack.push({ kind: is_index_bracket(prev_sig) ? 'index' : 'list' });
-            else if (t.value === '{') stack.push({ kind: 'dict' });
-            else if (t.value === ')' || t.value === ']' || t.value === '}') { if (stack.length) stack.pop(); }
+            if (t.value === '(') {
+                stack.push({ kind: is_call_paren(prev_sig) ? 'call' : 'group', is_def_params: after_def });
+                after_def = false; prev_closed_def_params = false;
+            } else if (t.value === '[') {
+                stack.push({ kind: is_index_bracket(prev_sig) ? 'index' : 'list' });
+                after_def = false; prev_closed_def_params = false;
+            } else if (t.value === '{') {
+                stack.push({ kind: 'dict' });
+                after_def = false; prev_closed_def_params = false;
+            } else if (t.value === ')' || t.value === ']' || t.value === '}') {
+                var popped = stack.length ? stack.pop() : null;
+                prev_closed_def_params = !!(popped && popped.is_def_params);
+                after_def = false;
+            } else if (t.value === ':') {
+                if (prev_closed_def_params && stack.length > 0) {
+                    // Only mark in_def_body for multi-line def bodies. For inline
+                    // defs (def():stmt; inside a call), the body is on the same
+                    // line and subsequent same-depth tokens are still kwargs.
+                    var next_is_newline = false;
+                    for (var nk = k + 1; nk < toks.length; nk++) {
+                        if (toks[nk].type === 'eof') break;
+                        if (toks[nk].type !== 'comment' && toks[nk].type !== 'shebang') {
+                            next_is_newline = toks[nk].nlb > 0; break;
+                        }
+                    }
+                    if (next_is_newline) stack[stack.length - 1].in_def_body = true;
+                }
+                prev_closed_def_params = false; after_def = false;
+            } else {
+                after_def = false; prev_closed_def_params = false;
+            }
+        } else if (t.type === 'keyword' && t.value === 'def') {
+            after_def = true; prev_closed_def_params = false;
+        } else if (after_def && t.type === 'name') {
+            prev_closed_def_params = false;  // named def: keep after_def for next '('
+        } else {
+            after_def = false; prev_closed_def_params = false;
         }
         if (sig_count === 0 && t.value === '@' && t.type === 'op') first_at = true;
         prev_sig = t; sig_count++;
