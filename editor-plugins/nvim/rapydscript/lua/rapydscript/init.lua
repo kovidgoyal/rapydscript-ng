@@ -12,18 +12,18 @@ local _ts_so = nil
 
 -- Tracks the async build lifecycle.
 local _build_state = {
-    started = false,  -- set when _build_async() is called
-    done    = false,  -- set when the job exits (success or failure)
-    waiters = {},     -- callbacks queued while the job is running
-    error   = nil,    -- stderr from a failed build, or a plain error string
+    started = false, -- set when _build_async() is called
+    done    = false, -- set when the job exits (success or failure)
+    waiters = {},    -- callbacks queued while the job is running
+    error   = nil,   -- stderr from a failed build, or a plain error string
 }
 
 -- Mark the build finished, optionally record the .so path, and fire any waiters.
 local function _build_finish(success, so, err)
     if success then _ts_so = so end
-    _build_state.done  = true
-    _build_state.error = err or nil
-    local ws = _build_state.waiters
+    _build_state.done    = true
+    _build_state.error   = err or nil
+    local ws             = _build_state.waiters
     _build_state.waiters = {}
     for _, cb in ipairs(ws) do
         vim.schedule(cb)
@@ -325,7 +325,7 @@ function M.setup(opts)
     -- Seed the runtime settings table from the initial opts so that partial
     -- update_settings() calls later always send the full current state.
     M._settings = {
-        lineLength    = opts.line_length,
+        lineLength     = opts.line_length,
         preferredQuote = opts.preferred_quote,
         joinLines      = opts.join_lines,
     }
@@ -334,7 +334,7 @@ function M.setup(opts)
     vim.api.nvim_create_autocmd("FileType", {
         pattern = opts.filetypes,
         callback = function(ev)
-            vim.bo[ev.buf].syntax = "off"  -- use treesitter for syntax highlighting
+            vim.bo[ev.buf].syntax = "off" -- use treesitter for syntax highlighting
             _start_treesitter(ev.buf)
             local root = vim.fs.root(ev.buf, opts.root_markers)
             local import_path = root
