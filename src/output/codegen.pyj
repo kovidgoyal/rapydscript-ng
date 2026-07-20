@@ -2,10 +2,6 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-# globals:console
-
-from utils import noop
-from parse import PRECEDENCE
 from ast import (
     AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_BlockStatement, AST_Break,
     AST_Class, AST_Conditional, AST_Constant, AST_Continue,
@@ -20,20 +16,22 @@ from ast import (
     AST_UnaryPrefix, AST_Undefined, AST_Var, AST_VarDef, AST_Assert,
     AST_Verbatim, AST_While, AST_With, AST_Yield, AST_Await, TreeWalker, AST_Existential
 )
-from output.exceptions import print_try
 from output.classes import print_class
+from output.comments import print_comments
+from output.exceptions import print_try
+from output.functions import print_function, print_function_call
 from output.literals import print_array, print_obj_literal, print_object, print_set, print_regexp
 from output.loops import print_do_loop, print_while_loop, print_for_loop_body, print_for_in, print_list_comprehension
 from output.modules import print_top_level, print_imports
-from output.comments import print_comments
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_binary_op, print_assign,
     print_conditional, print_seq, print_existential
 )
-from output.functions import print_function, print_function_call
 from output.statements import print_bracketed, first_in_statement, force_statement, print_with, print_assert
 from output.utils import make_block, make_num
+from parse import PRECEDENCE
+from utils import noop
 
 
 # -----[ code generators ]-----

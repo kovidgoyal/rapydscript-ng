@@ -206,6 +206,40 @@ async def test_configuration_change():
     lsp.apply_configuration(ctx, {'importPath': ''})
     assrt.equal(ctx.import_dirs.length, 0, 'empty importPath string should clear import_dirs')
 
+async def test_organize_imports():
+    tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-lsp-org-'))
+    ctx = lsp.create_server_context({
+        'import_dirs': [tmp], 'libdir': libdir, 'workspace_roots': [tmp],
+        'line_length': 80, 'preferred_quote': 'single',
+    })
+    # Unorganized: stdlib after other -> edits are produced.
+    unorganized = 'import my_module\nimport math\n\nx = 1\n'
+    edits = lsp.organize_imports_document(ctx, unorganized)
+    assrt.ok(Array.isArray(edits) and edits.length > 0,
+             'organize_imports_document must return edits for unorganized imports')
+    assrt.ok(edits[0].newText.indexOf('import math') < edits[0].newText.indexOf('import my_module'),
+             'stdlib import (math) must come before other import in organized output')
+    assrt.ok(edits[0].newText.indexOf('\n\n') >= 0,
+             'organized output must have a blank line between stdlib and other groups')
+    # from __python__ import ... goes first, before stdlib.
+    with_python = 'import math\nfrom __python__ import os\n\nx = 1\n'
+    edits_py = lsp.organize_imports_document(ctx, with_python)
+    assrt.ok(Array.isArray(edits_py) and edits_py.length > 0,
+             'organize_imports_document must return edits when __python__ import is out of place')
+    assrt.ok(edits_py[0].newText.indexOf('from __python__') < edits_py[0].newText.indexOf('import math'),
+             '__python__ group must come before stdlib group in organized output')
+    # Already organized: no edits.
+    organized = 'import math\n\nimport my_module\n\nx = 1\n'
+    edits2 = lsp.organize_imports_document(ctx, organized)
+    assrt.equal(edits2.length, 0,
+                'organize_imports_document must return no edits for already-organized imports')
+    # No imports: no edits.
+    no_imports = 'x = 1\ny = 2\n'
+    edits3 = lsp.organize_imports_document(ctx, no_imports)
+    assrt.equal(edits3.length, 0,
+                'organize_imports_document must return no edits when there are no imports')
+    fs.rmSync(tmp, {'recursive': True})
+
 async def run_tests():
     await test_diagnostics()
     await test_hover_and_definition()
@@ -218,5 +252,6 @@ async def run_tests():
     await test_error_recovery_still_analyzes()
     await test_parser_recovery_flag()
     await test_configuration_change()
+    await test_organize_imports()
 
 __test_async_done__ = run_tests()

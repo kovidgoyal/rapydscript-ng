@@ -2,10 +2,10 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from output.statements import declare_vars, display_body
-from output.utils import create_doctring
 from output.comments import print_comments, output_comments
 from output.functions import set_module_name
+from output.statements import declare_vars, display_body
+from output.utils import create_doctring
 
 
 def write_imports(module, output):

@@ -212,6 +212,67 @@ async def run_tests():
     assrt.ok(errs3.length >= 1, 'check_report must flag over-length lines')
     assrt.ok(errs3.join('\n').indexOf('exceeds') >= 0, 'check_report over-length message content')
 
+    # --- import organization ------------------------------------------------
+    # __python__ group is first; stdlib group is second; other group is third.
+    # Blank line separates each non-empty group from the next.
+    await check('import-organize-three-groups',
+                'import my_module\nimport math\nfrom __python__ import os\n',
+                'from __python__ import os\n\nimport math\n\nimport my_module\n')
+    # stdlib (math, re, ...) in group 2; other imports in group 3, blank line between.
+    await check('import-organize-two-groups',
+                'import my_module\nimport math\n',
+                'import math\n\nimport my_module\n')
+    # from-imports in stdlib group follow bare imports (isort convention).
+    await check('import-organize-from-after-bare',
+                'from re import match\nimport math\nimport my_module\n',
+                'import math\nfrom re import match\n\nimport my_module\n')
+    # Sorting within a group: alphabetical by module then by names.
+    await check('import-organize-sort-stdlib',
+                'import re\nimport math\n',
+                'import math\nimport re\n')
+    await check('import-organize-sort-other',
+                'import zebra\nimport apple\n',
+                'import apple\nimport zebra\n')
+    # Only stdlib: no blank-line separator.
+    await check('import-organize-stdlib-only',
+                'import re\nimport math\n',
+                'import math\nimport re\n')
+    # Only other: no blank-line separator.
+    await check('import-organize-other-only',
+                'import zebra\nimport apple\n',
+                'import apple\nimport zebra\n')
+    # Only __python__: no blank-line separator.
+    await check('import-organize-python-only',
+                'from __python__ import sys\nfrom __python__ import os\n',
+                'from __python__ import os\nfrom __python__ import sys\n')
+    # __python__ with stdlib only: blank line between them.
+    await check('import-organize-python-and-stdlib',
+                'import math\nfrom __python__ import os\n',
+                'from __python__ import os\n\nimport math\n')
+    # __python__ with other only: blank line between them.
+    await check('import-organize-python-and-other',
+                'import my_module\nfrom __python__ import os\n',
+                'from __python__ import os\n\nimport my_module\n')
+    # Already organized: idempotent (checked automatically by check()).
+    await check('import-organize-already-organized',
+                'import math\n\nimport my_module\n',
+                'import math\n\nimport my_module\n')
+    await check('import-organize-python-already-organized',
+                'from __python__ import os\n\nimport math\n\nimport my_module\n',
+                'from __python__ import os\n\nimport math\n\nimport my_module\n')
+    # Code after imports is untouched; blank line between imports and code is preserved.
+    await check('import-organize-with-code',
+                'import my_module\nimport math\n\nx = 1\n',
+                'import math\n\nimport my_module\n\nx = 1\n')
+    # from-imports within other group are sorted by module then names.
+    await check('import-organize-from-other',
+                'from zebra import z\nfrom apple import a\n',
+                'from apple import a\nfrom zebra import z\n')
+    # Mixed bare and from-imports across groups.
+    await check('import-organize-mixed',
+                'from my_mod import func\nimport re\nimport math\n',
+                'import math\nimport re\n\nfrom my_mod import func\n')
+
     # --- collect_pyj_files (directory recursion) ----------------------------
     tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-fmt-'))
     fs.mkdirSync(path.join(tmp, 'sub'))

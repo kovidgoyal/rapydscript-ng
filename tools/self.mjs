@@ -163,10 +163,25 @@ async function run_single_compile(base_path, src_path, lib_path, profile) {
     return compiler_changed;
 }
 
+async function write_stdlib_modules(src_path, out_path) {
+    var lib_dir = path.join(src_path, 'lib');
+    var entries = await fs.promises.readdir(lib_dir);
+    var modules = entries
+        .filter(function (name) { return name.slice(-4) === '.pyj'; })
+        .map(function (name) { return name.slice(0, -4); })
+        .sort();
+    await fs.promises.writeFile(
+        path.join(out_path, 'stdlib_modules.json'),
+        JSON.stringify(modules),
+        'utf-8'
+    );
+}
+
 export default async function compile_self(base_path, src_path, lib_path, complete, profile) {
     var changed;
     do {
         changed = await run_single_compile(base_path, src_path, lib_path, profile);
         lib_path = path.join(path.dirname(lib_path), 'dev');
     } while (changed && complete);
+    await write_stdlib_modules(src_path, lib_path);
 }

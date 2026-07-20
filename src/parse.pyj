@@ -3,8 +3,6 @@
 # globals: readfile, writefile, stat_file, sha1sum, ast_from_json, ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
 from __python__ import hash_literals
 
-from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
-from errors import SyntaxError, ImportError
 from ast import (
 AST_ArgsDef, AST_Array, AST_Assign, AST_Binary, AST_BlockStatement, AST_Break,
 AST_Call, AST_CallArg, AST_CallArgs, AST_Catch, AST_Class, AST_ClassCall, AST_Conditional,
@@ -23,7 +21,9 @@ AST_Throw, AST_Toplevel, AST_True, AST_Try, AST_UnaryPrefix,
 AST_Undefined, AST_Var, AST_VarDef, AST_Verbatim, AST_While, AST_With, AST_WithClause,
 AST_Yield, AST_Await, AST_Assert, AST_Existential, is_node_type, TreeWalker
 )
+from errors import SyntaxError, ImportError
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
+from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'

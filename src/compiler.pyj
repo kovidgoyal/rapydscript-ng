@@ -3,12 +3,12 @@
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: console
 
-from utils import DefaultsError, string_template
 from errors import ImportError, SyntaxError
-from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
-from parse import parse, NATIVE_CLASSES, compile_time_decorators
-from output.stream import OutputStream
 from output.codegen import generate_code
+from output.stream import OutputStream
+from parse import parse, NATIVE_CLASSES, compile_time_decorators
+from tokenizer import ALL_KEYWORDS, IDENTIFIER_PAT, tokenizer
+from utils import DefaultsError, string_template
 
 generate_code()  # create the print methods on the AST nodes
 

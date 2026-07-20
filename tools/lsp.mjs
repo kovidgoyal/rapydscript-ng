@@ -22,7 +22,7 @@ import crypto from 'crypto';
 import { pathToFileURL, fileURLToPath } from 'url';
 import * as utils from './utils.mjs';
 import { lint_parsed, BUILTINS, WARN, ERROR, MESSAGES } from './lint.mjs';
-import { format_string } from './fmt.mjs';
+import { format_string, organize_imports } from './fmt.mjs';
 import * as sym from './lsp_symbols.mjs';
 import { create_connection, DocumentStore, TextDocument, ResponseError, ErrorCodes } from './lsp_protocol.mjs';
 
@@ -37,7 +37,7 @@ var CompletionItemKind = {
     Class: 7, Interface: 8, Module: 9, Property: 10, Keyword: 14, Constant: 21,
 };
 var SymbolKindLSP = { File: 1, Module: 2, Class: 5, Method: 6, Property: 7, Field: 8, Function: 12, Variable: 13, Constant: 14 };
-var CodeActionKind = { QuickFix: 'quickfix', SourceFixAll: 'source.fixAll', Source: 'source' };
+var CodeActionKind = { QuickFix: 'quickfix', SourceFixAll: 'source.fixAll', Source: 'source', OrganizeImports: 'source.organizeImports' };
 
 function kind_to_completion(kind) {
     switch (kind) {
@@ -287,6 +287,18 @@ export function format_document(ctx, raw_text) {
     var doc = new TextDocument('inmem', 'rapydscript', 0, text);
     var end = doc.position_at(text.length);
     return [{ range: { start: { line: 0, character: 0 }, end: end }, newText: formatted }];
+}
+
+// ---------------------------------------------------------------------------
+// Organize imports
+// ---------------------------------------------------------------------------
+export function organize_imports_document(ctx, raw_text) {
+    var text = normalize(raw_text);
+    var organized = organize_imports(text, { line_length: ctx.line_length, preferred_quote: ctx.preferred_quote, join_lines: ctx.join_lines });
+    if (organized === text) return [];
+    var doc = new TextDocument('inmem', 'rapydscript', 0, text);
+    var end = doc.position_at(text.length);
+    return [{ range: { start: { line: 0, character: 0 }, end: end }, newText: organized }];
 }
 
 // ---------------------------------------------------------------------------
@@ -727,6 +739,9 @@ export async function code_actions(ctx, uri, raw_text, range, diagnostics) {
     // Source action: format the document.
     var fmt_edits = format_document(ctx, a.text);
     if (fmt_edits.length) actions.push({ title: 'Format document', kind: CodeActionKind.Source, edit: { changes: single_change(uri, fmt_edits) } });
+    // Source action: organize imports.
+    var org_edits = organize_imports_document(ctx, a.text);
+    if (org_edits.length) actions.push({ title: 'Organize imports', kind: CodeActionKind.OrganizeImports, edit: { changes: single_change(uri, org_edits) } });
     return actions;
 }
 
@@ -803,7 +818,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
                 renameProvider: true,
                 documentFormattingProvider: true,
                 documentSymbolProvider: true,
-                codeActionProvider: { codeActionKinds: [CodeActionKind.QuickFix, CodeActionKind.Source] },
+                codeActionProvider: { codeActionKinds: [CodeActionKind.QuickFix, CodeActionKind.Source, CodeActionKind.OrganizeImports] },
             },
             serverInfo: { name: 'rapydscript-lsp', version: '1.0.0' },
         };
