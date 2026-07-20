@@ -46,8 +46,9 @@ function M.check()
 
     -- Tree-sitter --------------------------------------------------------------
     h.start("rapydscript tree-sitter")
-    if rs._ts_so then
-        h.ok("Parser compiled: " .. rs._ts_so)
+    local so = rs._tree_sitter_path()
+    if so then
+        h.ok("Parser compiled: " .. so)
     else
         h.warn("Tree-sitter parser not compiled (syntax highlighting unavailable)")
     end

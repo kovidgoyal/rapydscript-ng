@@ -37,7 +37,7 @@ Provided by the LSP server — no extra plugins required:
 ```lua
 {
     dir = '/path/to/editor-plugins/nvim/rapydscript',
-    ft = 'rapydscript',
+    lazy = false,
     opts = {},
 }
 ```
@@ -47,7 +47,7 @@ Provided by the LSP server — no extra plugins required:
 ```lua
 {
     dir = "/path/to/editor-plugins/nvim/rapydscript",
-    ft = "rapydscript",
+    lazy = false,
     opts = {
         line_length   = 100,
         preferred_quote = "double",

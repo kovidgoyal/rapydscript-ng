@@ -7,10 +7,19 @@ local _plugin_root = vim.fn.fnamemodify(
 -- <plugin> is at <repo>/editor-plugins/nvim/rapydscript; 3 more :h steps reach <repo>/.
 local _repo_root = vim.fn.fnamemodify(_plugin_root, ":h:h:h")
 
--- Compile the tree-sitter parser once per nvim instance at require() time.
+-- Compile the tree-sitter parser once per nvim instance at setup() time.
 -- Stores the .so/.dll path on success, nil if sources are absent or compilation fails.
-local _ts_so = (function()
-    local ts_src = _repo_root .. "/tree-sitter/src"
+local _ts_so = nil
+
+function build()
+    -- Add tree-sitter dir to rtp so nvim resolves queries/rapydscript/*.scm.
+    local ts_root = _repo_root .. "/tree-sitter"
+    local rtp = vim.opt.rtp:get()
+    if not vim.tbl_contains(rtp, ts_root) then
+        vim.opt.rtp:append(ts_root)
+    end
+
+    local ts_src = ts_root .. "/src"
     local parser_c = ts_src .. "/parser.c"
     local scanner_c = ts_src .. "/scanner.c"
     if vim.fn.filereadable(parser_c) == 0 then return nil end
@@ -66,27 +75,20 @@ local _ts_so = (function()
             vim.notify("rapydscript: tree-sitter compile failed:\n" .. out, vim.log.levels.ERROR)
             return nil
         end
+        vim.treesitter.language.register("rapydscript", "rapydscript")
+        local ok, err = pcall(vim.treesitter.language.add, "rapydscript", { path = so })
+        if not ok then
+            vim.notify("rapydscript: failed to load tree-sitter parser: " .. tostring(err), vim.log.levels.ERROR)
+            return
+        end
     end
+    _ts_so = so
 
     return so
-end)()
+end
 
 local function _start_treesitter(bufnr)
     if not _ts_so then return end
-
-    -- Add tree-sitter dir to rtp so nvim resolves queries/rapydscript/*.scm.
-    local ts_root = _repo_root .. "/tree-sitter"
-    local rtp = vim.opt.rtp:get()
-    if not vim.tbl_contains(rtp, ts_root) then
-        vim.opt.rtp:append(ts_root)
-    end
-
-    local ok, err = pcall(vim.treesitter.language.add, "rapydscript", { path = _ts_so })
-    if not ok then
-        vim.notify("rapydscript: failed to load tree-sitter parser: " .. tostring(err), vim.log.levels.ERROR)
-        return
-    end
-
     local ts_ok, ts_err = pcall(vim.treesitter.start, bufnr, "rapydscript")
     if not ts_ok then
         vim.notify("rapydscript: tree-sitter start failed: " .. tostring(ts_err), vim.log.levels.ERROR)
@@ -155,7 +157,9 @@ local function _default_lsp_cmd()
 end
 
 -- Expose tree-sitter compilation result for checkhealth.
-M._ts_so = _ts_so
+M._tree_sitter_path = function ()
+    return _ts_so
+end
 
 -- Populated by _default_lsp_cmd() below; read by lua/rapydscript/health.lua.
 M._binary_info = { system = nil, repo = nil }
@@ -261,10 +265,12 @@ function M.setup(opts)
         preferredQuote = opts.preferred_quote,
         joinLines      = opts.join_lines,
     }
+    build()
 
     vim.api.nvim_create_autocmd("FileType", {
         pattern = opts.filetypes,
         callback = function(ev)
+            vim.bo[ev.buf].syntax = "off"  -- use treesitter for syntax highlighting
             _start_treesitter(ev.buf)
             local root = vim.fs.root(ev.buf, opts.root_markers)
             local import_path = root
