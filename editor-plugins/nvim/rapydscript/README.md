@@ -61,7 +61,7 @@ Add the plugin directory to your runtime path and call `setup()`:
 
 ```lua
 -- in ~/.config/nvim/init.lua
-vim.opt.rtp:prepend("/path/to/rapydscript/nvim-lsp-plugin")
+vim.opt.rtp:prepend("/path/to/editor-plugins/nvim/rapydscript")
 require("rapydscript").setup()
 ```
 
