@@ -205,6 +205,9 @@ local function build_cmd(opts, import_path)
     if opts.preferred_quote then
         vim.list_extend(cmd, { "--preferred-quote", opts.preferred_quote })
     end
+    if opts.join_lines then
+        vim.list_extend(cmd, { "--join-lines" })
+    end
     return cmd
 end
 
@@ -231,6 +234,9 @@ function M.update_settings(new_settings)
     if new_settings.preferred_quote ~= nil then
         M._settings.preferredQuote = new_settings.preferred_quote
     end
+    if new_settings.join_lines ~= nil then
+        M._settings.joinLines = new_settings.join_lines
+    end
 
     local clients = vim.lsp.get_clients({ name = "rapydscript" })
     if #clients == 0 then
@@ -253,6 +259,7 @@ function M.setup(opts)
     M._settings = {
         lineLength    = opts.line_length,
         preferredQuote = opts.preferred_quote,
+        joinLines      = opts.join_lines,
     }
 
     vim.api.nvim_create_autocmd("FileType", {

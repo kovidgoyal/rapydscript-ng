@@ -589,9 +589,21 @@ function render_stmt(el, opts) {
     }
     var comment = null, code = el.tokens;
     if (code.length && code[code.length - 1].type === 'comment') { comment = code[code.length - 1]; code = code.slice(0, -1); }
+    var comment_str = comment ? '  ' + format_comment(comment.value) : '';
+    if (!opts.join_lines) {
+        // Preserve source line breaks unless a resulting line exceeds the limit,
+        // in which case fall through to the collapse+wrap path below.
+        var preserved = base_indent + render(code, true, el.indent, base_indent, opts);
+        var preserved_full = preserved + comment_str;
+        var plines = preserved_full.split('\n');
+        var fits = true;
+        for (var pi = 0; pi < plines.length; pi++) {
+            if (plines[pi].length > opts.line_length) { fits = false; break; }
+        }
+        if (fits) return preserved_full;
+    }
     var line = render(code, false, el.indent, base_indent, opts);
     var full = base_indent + line;
-    var comment_str = comment ? '  ' + format_comment(comment.value) : '';
     if ((full.length + comment_str.length) > opts.line_length && el.wrappable) {
         var wrapped = wrap_line(code, el.level, opts);
         if (wrapped !== null) return comment_str ? wrapped + comment_str : wrapped;
@@ -640,7 +652,7 @@ function normalize_opts(options) {
         var pq = options.preferred_quote;
         pref = (pq === 'double' || pq === '"') ? '"' : "'";
     }
-    return { line_length: ll, preferred: pref };
+    return { line_length: ll, preferred: pref, join_lines: !!options.join_lines };
 }
 
 // ---------------------------------------------------------------------------
@@ -697,7 +709,7 @@ async function read_stdin() {
 }
 
 export async function cli(argv, base_path, src_path, lib_path) {
-    var opts = normalize_opts({ line_length: argv.line_length, preferred_quote: argv.preferred_quote });
+    var opts = normalize_opts({ line_length: argv.line_length, preferred_quote: argv.preferred_quote, join_lines: argv.join_lines });
     var inputs = (argv.files || []).slice();
 
     if (inputs.length === 0) {

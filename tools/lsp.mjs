@@ -72,6 +72,7 @@ export function create_server_context(opts) {
         libdir: opts.libdir || null,                  // stdlib dir (src/lib)
         line_length: opts.line_length || 80,
         preferred_quote: opts.preferred_quote || 'single',
+        join_lines: opts.join_lines || false,
         docs: new DocumentStore(),
         analysis_cache: Object.create(null),          // key -> analysis
         workspace_roots: opts.workspace_roots ? opts.workspace_roots.slice() : [],
@@ -94,6 +95,10 @@ export function apply_configuration(ctx, settings) {
 
     if (settings.preferredQuote === 'single' || settings.preferredQuote === 'double') {
         ctx.preferred_quote = settings.preferredQuote;
+    }
+
+    if (settings.joinLines !== undefined && settings.joinLines !== null) {
+        ctx.join_lines = !!settings.joinLines;
     }
 
     if (settings.importPath !== undefined && settings.importPath !== null) {
@@ -276,7 +281,7 @@ function lint_message_to_diagnostic(doc, m) {
 // ---------------------------------------------------------------------------
 export function format_document(ctx, raw_text) {
     var text = normalize(raw_text);
-    var formatted = format_string(text, { line_length: ctx.line_length, preferred_quote: ctx.preferred_quote });
+    var formatted = format_string(text, { line_length: ctx.line_length, preferred_quote: ctx.preferred_quote, join_lines: ctx.join_lines });
     if (formatted === text) return [];
     // Single edit that replaces the whole document.
     var doc = new TextDocument('inmem', 'rapydscript', 0, text);
@@ -760,6 +765,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
         libdir: path.join(src_path, 'lib'),
         line_length: parseInt(argv.line_length, 10) || 80,
         preferred_quote: argv.preferred_quote || 'single',
+        join_lines: argv.join_lines || false,
     });
 
     // Diagnostics are pushed to the client, debounced per document.

@@ -461,6 +461,11 @@ would be reformatted (and any lines that exceed the maximum
 length) to STDERR. Exit with a status of 1 if any issues are
 found, otherwise 0.`);
 
+opt("join_lines", 'j', 'bool', false, `Join multi-line statements that fit within the maximum line
+length onto a single line. Disabled by default: source line
+breaks inside statements are preserved as long as no line
+exceeds the maximum length.`);
+
 create_group('lsp', "", `Run a Language Server Protocol (LSP) server for RapydScript.
 The server communicates over stdin/stdout using the standard
 LSP JSON-RPC framing and provides code completion, diagnostics,
@@ -488,6 +493,11 @@ Defaults to 80.`);
 
 opt("preferred_quote", 'q', 'string', 'single', `The preferred quote character used by the document formatter.
 Either "single" or "double". Defaults to single.`, ['single', 'double']);
+
+opt("join_lines", 'j', 'bool', false, `Join multi-line statements that fit within the maximum line
+length onto a single line. Disabled by default: source line
+breaks inside statements are preserved as long as no line
+exceeds the maximum length.`);
 
 
 export var argv = parse_args();

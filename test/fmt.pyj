@@ -129,9 +129,21 @@ async def run_tests():
                 {'line_length': 40})
 
     # --- reflow of simple multi-line statements ----------------------------
+    # By default, source line breaks are preserved (no joining).
+    await check('no-join-default',
+                'x = fn(\n    a,\n    b,\n    c\n)\n',
+                'x = fn(\n    a,\n    b,\n    c\n)\n')
+    # With join_lines=True the statement is collapsed onto one line.
     await check('reflow-simple-call',
                 'x = fn(\n    a,\n    b,\n    c\n)\n',
-                'x = fn(a, b, c)\n')
+                'x = fn(a, b, c)\n',
+                {'join_lines': True})
+    # A multi-line statement that is too long even in source form gets wrapped
+    # regardless of join_lines.
+    await check('no-join-wrap-long',
+                'x = very_long_function_name(\n    argument_one,\n    argument_two,\n    argument_three\n)\n',
+                'x = very_long_function_name(\n    argument_one,\n    argument_two,\n    argument_three\n)\n',
+                {'line_length': 40})
 
     # --- RapydScript specific constructs are preserved ----------------------
     await check('preserve-anon-function',

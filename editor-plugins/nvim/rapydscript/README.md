@@ -73,6 +73,7 @@ require("rapydscript").setup()
 | `import_path_patterns` | `string[]` | `{".", "src", "src/pyj"}` | Glob patterns relative to the project root; matching directories that contain `.pyj` files are passed automatically as `--import-path` |
 | `line_length` | `number\|nil` | `nil` | Max line length for the formatter, passed as `--line-length` |
 | `preferred_quote` | `string\|nil` | `nil` | `"single"` or `"double"`, passed as `--preferred-quote` |
+| `join_lines` | `boolean\|nil` | `nil` | When `true`, multi-line statements that fit within `line_length` are joined onto one line, passed as `--join-lines`. Disabled by default. |
 | `filetypes` | `string[]` | `{"rapydscript"}` | Filetypes that trigger server attachment |
 | `root_markers` | `string[]` | `{".git","package.json","rapydscript.json"}` | Files/dirs used to detect the project root |
 
@@ -112,6 +113,7 @@ settings keys:
 require("rapydscript").update_settings({
     line_length    = 100,               -- new max line length for the formatter
     preferred_quote = "double",         -- "single" or "double"
+    join_lines      = true,             -- join short multi-line statements onto one line
 })
 ```
 
