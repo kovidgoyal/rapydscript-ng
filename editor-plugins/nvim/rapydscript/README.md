@@ -1,7 +1,8 @@
 # rapydscript.nvim
 
 Neovim plugin that wires up the RapydScript LSP server (`rapydscript lsp`) as a
-native Neovim LSP client for `.pyj` files.
+native Neovim LSP client for `.pyj` files. It also enables treesitter based
+syntax highlighting.
 
 ## Features
 
@@ -32,7 +33,8 @@ Provided by the LSP server — no extra plugins required:
 
 ## Installation
 
-Just add the following to your ``~/.config/nvim/init.lua``:
+Just add the following to your ``~/.config/nvim/init.lua``, changing the
+options to suit yourself:
 
 ```lua
 
@@ -42,8 +44,9 @@ vim.pack.add({ { src = "https://github.com/kovidgoyal/rapydscript-ng", name = "r
         for _, pack in ipairs(vim.pack.get({ plug_data.spec.name })) do
             vim.opt.rtp:append(pack.path .. "/editor-plugins/nvim/rapydscript")
             require('rapydscript').setup({ 
-                line_length = 160,
-                preferred_quote = "double",
+                -- options you should customize
+                line_length = 80,
+                preferred_quote = "single",
             })
         end
     end
