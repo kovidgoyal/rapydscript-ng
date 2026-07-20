@@ -1,11 +1,18 @@
+#!/usr/bin/env lua
+--
+-- nvim.lua
+-- Copyright (C) 2026 Kovid Goyal <kovid at kovidgoyal.net>
+--
+-- Distributed under terms of the MIT license.
+--
+
 local M = {}
 
--- init.lua lives at <plugin>/lua/rapydscript/init.lua; 3 :h steps reach <plugin>/.
 local _plugin_root = vim.fn.fnamemodify(
-    debug.getinfo(1, "S").source:sub(2), ":p:h:h:h"
+    debug.getinfo(1, "S").source:sub(2), ":p:h"
 )
--- <plugin> is at <repo>/editor-plugins/nvim/rapydscript; 3 more :h steps reach <repo>/.
-local _repo_root = vim.fn.fnamemodify(_plugin_root, ":h:h:h")
+local _repo_root = vim.fn.fnamemodify(_plugin_root, ":h")
+local ts_root = _repo_root .. '/tree-sitter'
 
 -- _ts_so holds the .so/.dll path once the background build succeeds, nil otherwise.
 local _ts_so = nil
@@ -41,6 +48,19 @@ end
 
 -- Register the compiled shared library with neovim's tree-sitter runtime.
 -- Returns true on success.
+local function _register_queries()
+    local queries_dir = ts_root .. '/queries/'
+    vim.treesitter.query.set(
+        'rapydscript', 'highlights', table.concat(vim.fn.readfile(queries_dir .. 'highlights.scm'), "\n"))
+    vim.treesitter.query.set(
+        'rapydscript', 'indents', table.concat(vim.fn.readfile(queries_dir .. 'indents.scm'), "\n"))
+    vim.treesitter.query.set(
+        'rapydscript', 'injections', table.concat(vim.fn.readfile(queries_dir .. 'injections.scm'), "\n"))
+    vim.treesitter.query.set(
+        'rapydscript', 'locals', table.concat(vim.fn.readfile(queries_dir .. 'locals.scm'), "\n"))
+end
+
+
 local function _load_parser(so)
     vim.treesitter.language.register("rapydscript", "rapydscript")
     local ok, err = pcall(vim.treesitter.language.add, "rapydscript", { path = so })
@@ -48,19 +68,13 @@ local function _load_parser(so)
         vim.notify("rapydscript: failed to load tree-sitter parser: " .. tostring(err), vim.log.levels.ERROR)
         return false
     end
+    _register_queries()
     return true
 end
 
 -- Compile the tree-sitter parser in a background job.
 local function _build_async()
     _build_state.started = true
-
-    -- Add tree-sitter dir to rtp so nvim resolves queries/rapydscript/*.scm.
-    local ts_root = _repo_root .. "/tree-sitter"
-    local rtp = vim.opt.rtp:get()
-    if not vim.tbl_contains(rtp, ts_root) then
-        vim.opt.rtp:append(ts_root)
-    end
 
     local ts_src = ts_root .. "/src"
     local parser_c = ts_src .. "/parser.c"

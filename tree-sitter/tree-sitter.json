@@ -10,7 +10,7 @@
         "pyj"
       ],
       "highlights": [
-        "queries/rapydscript/highlights.scm"
+        "queries/highlights.scm"
       ],
       "injection-regex": "^(rapydscript|pyj)$"
     }
