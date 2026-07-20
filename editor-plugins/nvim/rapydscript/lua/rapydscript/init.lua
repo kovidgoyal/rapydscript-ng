@@ -15,12 +15,14 @@ local _build_state = {
     started = false,  -- set when _build_async() is called
     done    = false,  -- set when the job exits (success or failure)
     waiters = {},     -- callbacks queued while the job is running
+    error   = nil,    -- stderr from a failed build, or a plain error string
 }
 
 -- Mark the build finished, optionally record the .so path, and fire any waiters.
-local function _build_finish(success, so)
+local function _build_finish(success, so, err)
     if success then _ts_so = so end
-    _build_state.done = true
+    _build_state.done  = true
+    _build_state.error = err or nil
     local ws = _build_state.waiters
     _build_state.waiters = {}
     for _, cb in ipairs(ws) do
@@ -64,7 +66,9 @@ local function _build_async()
     local parser_c = ts_src .. "/parser.c"
     local scanner_c = ts_src .. "/scanner.c"
     if vim.fn.filereadable(parser_c) == 0 then
-        _build_finish(false, nil)
+        local msg = "parser.c not found: " .. parser_c
+        vim.notify("rapydscript: " .. msg, vim.log.levels.ERROR)
+        _build_finish(false, nil, msg)
         return
     end
 
@@ -94,11 +98,9 @@ local function _build_async()
         elseif vim.fn.exepath("clang-cl") ~= "" then
             compiler = "clang-cl"
         else
-            vim.notify(
-                "rapydscript: tree-sitter syntax highlighting requires cl or clang-cl on PATH",
-                vim.log.levels.ERROR
-            )
-            _build_finish(false, nil)
+            local msg = "tree-sitter syntax highlighting requires cl or clang-cl on PATH"
+            vim.notify("rapydscript: " .. msg, vim.log.levels.ERROR)
+            _build_finish(false, nil, msg)
             return
         end
         -- /LD = build DLL, /nologo = suppress banner, /O2 = optimize,
@@ -114,25 +116,24 @@ local function _build_async()
 
     vim.notify("rapydscript: compiling tree-sitter parser…", vim.log.levels.INFO)
 
-    local output_lines = {}
+    local stderr_lines = {}
     vim.fn.jobstart(cmd, {
-        on_stdout = function(_, data)
-            if data then vim.list_extend(output_lines, data) end
-        end,
+        on_stdout = function(_, _data) end,
         on_stderr = function(_, data)
-            if data then vim.list_extend(output_lines, data) end
+            if data then vim.list_extend(stderr_lines, data) end
         end,
         on_exit = function(_, code)
             vim.schedule(function()
                 if code ~= 0 then
+                    local stderr = table.concat(stderr_lines, "\n")
                     vim.notify(
-                        "rapydscript: tree-sitter compile failed:\n" .. table.concat(output_lines, "\n"),
+                        "rapydscript: tree-sitter compile failed:\n" .. stderr,
                         vim.log.levels.ERROR
                     )
-                    _build_finish(false, nil)
+                    _build_finish(false, nil, stderr)
                     return
                 end
-                _build_finish(_load_parser(so), so)
+                _build_finish(_load_parser(so), so, nil)
             end)
         end,
     })
@@ -216,6 +217,12 @@ M._tree_sitter_path = function()
         vim.wait(30000, function() return _build_state.done end, 50)
     end
     return _ts_so
+end
+
+-- Expose the build error (if any) for checkhealth.
+-- Must be called after _tree_sitter_path() so the build is already settled.
+M._tree_sitter_error = function()
+    return _build_state.error
 end
 
 -- Populated by _default_lsp_cmd() below; read by lua/rapydscript/health.lua.

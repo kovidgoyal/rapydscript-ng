@@ -50,7 +50,12 @@ function M.check()
     if so then
         h.ok("Parser compiled: " .. so)
     else
-        h.warn("Tree-sitter parser not compiled (syntax highlighting unavailable)")
+        local err = rs._tree_sitter_error and rs._tree_sitter_error()
+        if err and err ~= "" then
+            h.error("Tree-sitter parser build failed (syntax highlighting unavailable)\n" .. err)
+        else
+            h.warn("Tree-sitter parser not compiled (syntax highlighting unavailable)")
+        end
     end
 
     -- LSP clients --------------------------------------------------------------
