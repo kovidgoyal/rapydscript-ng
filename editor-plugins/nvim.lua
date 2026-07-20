@@ -163,65 +163,15 @@ local function _start_treesitter(bufnr)
     end)
 end
 
-local _min_system_version = { 0, 8, 0 }
-
-local function _parse_version(str)
-    local a, b, c = str:match("(%d+)%.(%d+)%.(%d+)")
-    if not a then return nil end
-    return { tonumber(a), tonumber(b), tonumber(c) }
-end
-
-local function _version_str(v)
-    return v and table.concat(v, ".") or "unknown"
-end
-
-local function _version_gte(v, min)
-    for i = 1, 3 do
-        if v[i] > min[i] then return true end
-        if v[i] < min[i] then return false end
-    end
-    return true
-end
-
-local function _query_version(bin)
-    local out = vim.fn.system({ bin, "--version" })
-    if vim.v.shell_error ~= 0 then return nil end
-    return _parse_version(out)
-end
-
--- Prefer rapydscript on PATH; fall back to the copy in the repo checkout.
 -- Populates M._binary_info as a side-effect.
 local function _default_lsp_cmd()
-    local sys_path = vim.fn.exepath("rapydscript")
-    if sys_path ~= "" then
-        local ver = _query_version(sys_path)
-        local rejected = ver ~= nil and not _version_gte(ver, _min_system_version)
-        M._binary_info.system = { path = sys_path, version = ver, rejected = rejected }
-        if rejected then
-            vim.notify(
-                string.format(
-                    "rapydscript: system binary v%s is too old (minimum 0.8.0); using repo binary instead",
-                    _version_str(ver)
-                ),
-                vim.log.levels.WARN
-            )
-        else
-            return { "rapydscript", "lsp" }
-        end
-    end
-
     local repo_bin = _repo_root .. "/bin/rapydscript"
-    if vim.fn.filereadable(repo_bin) == 1 then
-        local ver = _query_version(repo_bin)
-        M._binary_info.repo = { path = repo_bin, version = ver }
-        if vim.fn.has("win32") == 1 then
-            -- On Windows the shebang is not honoured; invoke via node explicitly.
-            return { "node", repo_bin, "lsp" }
-        end
-        return { repo_bin, "lsp" }
+    M._binary_info.repo = { path = repo_bin }
+    if vim.fn.has("win32") == 1 then
+        -- On Windows the shebang is not honoured; invoke via node explicitly.
+        return { "node", repo_bin, "lsp" }
     end
-
-    return { "rapydscript", "lsp" }
+    return { repo_bin, "lsp" }
 end
 
 -- Expose tree-sitter compilation result for checkhealth.

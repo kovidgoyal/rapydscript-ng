@@ -20,9 +20,8 @@ Provided by the LSP server — no extra plugins required:
 
 ## Requirements
 
-- `rapydscript` on your `$PATH` (install with `npm install -g rapydscript-ng`), or the
-  plugin directory must be inside a RapydScript repository checkout (the repo's own
-  `bin/rapydscript` is used automatically as a fallback)
+- `node` (from nodejs) on your `$PATH` 
+
 - **Syntax highlighting only**: a C compiler on your `$PATH` is required to compile the
   tree-sitter parser the first time the plugin loads.  On Linux/macOS any `cc`-compatible
   compiler works (gcc, clang, etc.).  On Windows, `cl` (MSVC) or `clang-cl` must be
