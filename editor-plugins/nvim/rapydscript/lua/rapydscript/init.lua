@@ -312,7 +312,7 @@ function M.update_settings(new_settings)
         return
     end
     for _, client in ipairs(clients) do
-        client.notify("workspace/didChangeConfiguration", {
+        client:notify("workspace/didChangeConfiguration", {
             settings = { rapydscript = M._settings },
         })
     end

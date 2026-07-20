@@ -19,7 +19,7 @@ Provided by the LSP server — no extra plugins required:
 
 ## Requirements
 
-- Neovim ≥ 0.10
+- Neovim ≥ 0.12
 - `rapydscript` on your `$PATH` (install with `npm install -g rapydscript-ng`), or the
   plugin directory must be inside a RapydScript repository checkout (the repo's own
   `bin/rapydscript` is used automatically as a fallback)
@@ -32,37 +32,22 @@ Provided by the LSP server — no extra plugins required:
 
 ## Installation
 
-### lazy.nvim
+Just add the following to your ``~/.config/nvim/init.lua``:
 
 ```lua
-{
-    dir = '/path/to/editor-plugins/nvim/rapydscript',
-    lazy = false,
-    opts = {},
-}
-```
 
-**Example with options:**
-
-```lua
-{
-    dir = "/path/to/editor-plugins/nvim/rapydscript",
-    lazy = false,
-    opts = {
-        line_length   = 100,
-        preferred_quote = "double",
-    },
-}
-```
-
-### Manual (no plugin manager)
-
-Add the plugin directory to your runtime path and call `setup()`:
-
-```lua
--- in ~/.config/nvim/init.lua
-vim.opt.rtp:prepend("/path/to/editor-plugins/nvim/rapydscript")
-require("rapydscript").setup()
+vim.pack.add({ { src = "https://github.com/kovidgoyal/rapydscript-ng", name = "rapydscript" } }, {
+    load = function(plug_data)
+        vim.cmd.packadd(plug_data.spec.name)
+        for _, pack in ipairs(vim.pack.get({ plug_data.spec.name })) do
+            vim.opt.rtp:append(pack.path .. "/editor-plugins/nvim/rapydscript")
+            require('rapydscript').setup({ 
+                line_length = 160,
+                preferred_quote = "double",
+            })
+        end
+    end
+})
 ```
 
 ## Configuration reference
