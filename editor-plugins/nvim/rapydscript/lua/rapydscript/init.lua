@@ -319,6 +319,7 @@ function M.update_settings(new_settings)
 end
 
 function M.setup(opts)
+    vim.filetype.add({ extension = { pyj = 'rapydscript' } })
     opts = vim.tbl_deep_extend("force", M.defaults, opts or {})
     M._active_opts = opts
 
