@@ -265,7 +265,6 @@ function is_operand(p) {
 function is_call_paren(p) {
     if (!p) return false;
     if (p.type === 'name' || p.type === 'string' || p.type === 'atom') return true;
-    if (p.value === 'def') return true;
     return p.value === ')' || p.value === ']' || p.value === '}';
 }
 
