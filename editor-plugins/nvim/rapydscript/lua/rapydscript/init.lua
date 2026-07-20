@@ -7,11 +7,52 @@ local _plugin_root = vim.fn.fnamemodify(
 -- <plugin> is at <repo>/editor-plugins/nvim/rapydscript; 3 more :h steps reach <repo>/.
 local _repo_root = vim.fn.fnamemodify(_plugin_root, ":h:h:h")
 
--- Compile the tree-sitter parser once per nvim instance at setup() time.
--- Stores the .so/.dll path on success, nil if sources are absent or compilation fails.
+-- _ts_so holds the .so/.dll path once the background build succeeds, nil otherwise.
 local _ts_so = nil
 
-function build()
+-- Tracks the async build lifecycle.
+local _build_state = {
+    started = false,  -- set when _build_async() is called
+    done    = false,  -- set when the job exits (success or failure)
+    waiters = {},     -- callbacks queued while the job is running
+}
+
+-- Mark the build finished, optionally record the .so path, and fire any waiters.
+local function _build_finish(success, so)
+    if success then _ts_so = so end
+    _build_state.done = true
+    local ws = _build_state.waiters
+    _build_state.waiters = {}
+    for _, cb in ipairs(ws) do
+        vim.schedule(cb)
+    end
+end
+
+-- Run cb immediately if the build is already done; otherwise enqueue it.
+local function _when_built(cb)
+    if _build_state.done then
+        cb()
+    else
+        table.insert(_build_state.waiters, cb)
+    end
+end
+
+-- Register the compiled shared library with neovim's tree-sitter runtime.
+-- Returns true on success.
+local function _load_parser(so)
+    vim.treesitter.language.register("rapydscript", "rapydscript")
+    local ok, err = pcall(vim.treesitter.language.add, "rapydscript", { path = so })
+    if not ok then
+        vim.notify("rapydscript: failed to load tree-sitter parser: " .. tostring(err), vim.log.levels.ERROR)
+        return false
+    end
+    return true
+end
+
+-- Compile the tree-sitter parser in a background job.
+local function _build_async()
+    _build_state.started = true
+
     -- Add tree-sitter dir to rtp so nvim resolves queries/rapydscript/*.scm.
     local ts_root = _repo_root .. "/tree-sitter"
     local rtp = vim.opt.rtp:get()
@@ -22,7 +63,10 @@ function build()
     local ts_src = ts_root .. "/src"
     local parser_c = ts_src .. "/parser.c"
     local scanner_c = ts_src .. "/scanner.c"
-    if vim.fn.filereadable(parser_c) == 0 then return nil end
+    if vim.fn.filereadable(parser_c) == 0 then
+        _build_finish(false, nil)
+        return
+    end
 
     local bin_dir = _plugin_root .. "/bin"
     vim.fn.mkdir(bin_dir, "p")
@@ -36,63 +80,72 @@ function build()
         or vim.fn.getftime(parser_c) > so_mtime
         or vim.fn.getftime(scanner_c) > so_mtime
 
-    if needs then
-        local cmd
-        if is_win then
-            local compiler
-            if vim.fn.exepath("cl") ~= "" then
-                compiler = "cl"
-            elseif vim.fn.exepath("clang-cl") ~= "" then
-                compiler = "clang-cl"
-            else
-                vim.notify(
-                    "rapydscript: tree-sitter syntax highlighting requires cl or clang-cl on PATH",
-                    vim.log.levels.ERROR
-                )
-                return nil
-            end
-            -- /LD = build DLL, /nologo = suppress banner, /O2 = optimize,
-            -- /I = include path, /Fe: = output DLL path
-            cmd = string.format(
-                '"%s" /LD /nologo /O2 /I"%s" /Fe:"%s" "%s" "%s"',
-                compiler, ts_src, so, parser_c, scanner_c
-            )
-        else
-            local uname = vim.fn.system("uname -s"):gsub("%s+", "")
-            local shared = uname == "Darwin" and "-dynamiclib" or "-shared"
-            cmd = table.concat({
-                "cc", shared, "-fPIC", "-Os",
-                "-I", vim.fn.shellescape(ts_src),
-                "-o", vim.fn.shellescape(so),
-                vim.fn.shellescape(parser_c),
-                vim.fn.shellescape(scanner_c),
-            }, " ")
-        end
+    if not needs then
+        -- Already up-to-date; load the existing .so and mark done without spawning a job.
+        _build_finish(_load_parser(so), so)
+        return
+    end
 
-        vim.notify("rapydscript: compiling tree-sitter parser…", vim.log.levels.INFO)
-        local out = vim.fn.system(cmd)
-        if vim.v.shell_error ~= 0 then
-            vim.notify("rapydscript: tree-sitter compile failed:\n" .. out, vim.log.levels.ERROR)
-            return nil
-        end
-        vim.treesitter.language.register("rapydscript", "rapydscript")
-        local ok, err = pcall(vim.treesitter.language.add, "rapydscript", { path = so })
-        if not ok then
-            vim.notify("rapydscript: failed to load tree-sitter parser: " .. tostring(err), vim.log.levels.ERROR)
+    local cmd
+    if is_win then
+        local compiler
+        if vim.fn.exepath("cl") ~= "" then
+            compiler = "cl"
+        elseif vim.fn.exepath("clang-cl") ~= "" then
+            compiler = "clang-cl"
+        else
+            vim.notify(
+                "rapydscript: tree-sitter syntax highlighting requires cl or clang-cl on PATH",
+                vim.log.levels.ERROR
+            )
+            _build_finish(false, nil)
             return
         end
+        -- /LD = build DLL, /nologo = suppress banner, /O2 = optimize,
+        -- /I = include path, /Fe: = output DLL path
+        cmd = string.format(
+            '"%s" /LD /nologo /O2 /I"%s" /Fe:"%s" "%s" "%s"',
+            compiler, ts_src, so, parser_c, scanner_c
+        )
+    else
+        local shared = vim.loop.os_uname().sysname == "Darwin" and "-dynamiclib" or "-shared"
+        cmd = { "cc", shared, "-fPIC", "-Os", "-I", ts_src, "-o", so, parser_c, scanner_c }
     end
-    _ts_so = so
 
-    return so
+    vim.notify("rapydscript: compiling tree-sitter parser…", vim.log.levels.INFO)
+
+    local output_lines = {}
+    vim.fn.jobstart(cmd, {
+        on_stdout = function(_, data)
+            if data then vim.list_extend(output_lines, data) end
+        end,
+        on_stderr = function(_, data)
+            if data then vim.list_extend(output_lines, data) end
+        end,
+        on_exit = function(_, code)
+            vim.schedule(function()
+                if code ~= 0 then
+                    vim.notify(
+                        "rapydscript: tree-sitter compile failed:\n" .. table.concat(output_lines, "\n"),
+                        vim.log.levels.ERROR
+                    )
+                    _build_finish(false, nil)
+                    return
+                end
+                _build_finish(_load_parser(so), so)
+            end)
+        end,
+    })
 end
 
 local function _start_treesitter(bufnr)
-    if not _ts_so then return end
-    local ts_ok, ts_err = pcall(vim.treesitter.start, bufnr, "rapydscript")
-    if not ts_ok then
-        vim.notify("rapydscript: tree-sitter start failed: " .. tostring(ts_err), vim.log.levels.ERROR)
-    end
+    _when_built(function()
+        if not _ts_so then return end
+        local ts_ok, ts_err = pcall(vim.treesitter.start, bufnr, "rapydscript")
+        if not ts_ok then
+            vim.notify("rapydscript: tree-sitter start failed: " .. tostring(ts_err), vim.log.levels.ERROR)
+        end
+    end)
 end
 
 local _min_system_version = { 0, 8, 0 }
@@ -157,7 +210,11 @@ local function _default_lsp_cmd()
 end
 
 -- Expose tree-sitter compilation result for checkhealth.
-M._tree_sitter_path = function ()
+-- Blocks up to 30 s if the background build is still running.
+M._tree_sitter_path = function()
+    if _build_state.started and not _build_state.done then
+        vim.wait(30000, function() return _build_state.done end, 50)
+    end
     return _ts_so
 end
 
@@ -265,7 +322,7 @@ function M.setup(opts)
         preferredQuote = opts.preferred_quote,
         joinLines      = opts.join_lines,
     }
-    build()
+    _build_async()
 
     vim.api.nvim_create_autocmd("FileType", {
         pattern = opts.filetypes,
