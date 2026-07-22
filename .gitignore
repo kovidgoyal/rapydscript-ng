@@ -6,6 +6,7 @@
 *.pyj-cached
 node_modules
 dev
+dist
 self.cpuprofile
 package-lock.json
 *.local.md
