@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import { createRequire } from 'module';
-import { create_compiler } from './compiler.mjs';
+import { create_compiler, EMBEDDED_STDLIB_PREFIX } from './compiler.mjs';
 import * as utils from './utils.mjs';
 import { generate_source_map } from './sourcemap.mjs';
 import tree_shake from './treeshake.mjs';
@@ -83,7 +83,10 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
 
     if (!argv.omit_baselib) {
         var which = (OUTPUT_OPTIONS.beautify) ? 'pretty' : 'ugly';
-        OUTPUT_OPTIONS.baselib_plain = await fs.promises.readFile(path.join(lib_path, 'baselib-plain-' + which + '.js'), 'utf-8');
+        const baselib_key = 'baselib-plain-' + which + '.js';
+        const embedded = globalThis.__rapydscript_embedded__;
+        OUTPUT_OPTIONS.baselib_plain = embedded?.[baselib_key] ??
+            await fs.promises.readFile(path.join(lib_path, baselib_key), 'utf-8');
     }
 
     var files = argv.files.slice();
@@ -96,11 +99,12 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
     }
 
     async function parse_file(code, file, toplevel) {
+        const embedded = globalThis.__rapydscript_embedded__;
         return await RapydScript.parse(code, {
             filename: file,
             toplevel: toplevel,
             basedir: (file !== '<stdin>') ? path.dirname(file) : undefined,
-            libdir: path.join(src_path, 'lib'),
+            libdir: embedded ? EMBEDDED_STDLIB_PREFIX : path.join(src_path, 'lib'),
             import_dirs: utils.get_import_dirs(argv.import_path),
             discard_asserts: argv.discard_asserts,
             module_cache_dir: cache_dir,

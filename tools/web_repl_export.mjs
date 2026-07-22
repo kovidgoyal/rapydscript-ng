@@ -10,6 +10,10 @@ import path from 'path';
 import * as utils from './utils.mjs';
 
 export default async function run_web_repl_export(base_path, lib_path, argv) {
+    if (globalThis.__rapydscript_embedded__) {
+        console.error('web-repl-export requires the full source repository and cannot run from a standalone binary.');
+        process.exit(1);
+    }
     var output_dir = argv.files[0];
     if (!output_dir) {
         console.error('Usage: rapydscript web-repl-export /path/to/export/directory');

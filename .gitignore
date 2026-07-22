@@ -9,3 +9,4 @@ dev
 self.cpuprofile
 package-lock.json
 *.local.md
+bin/rapydscript.mjs

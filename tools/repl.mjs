@@ -12,6 +12,7 @@ import vm from 'vm';
 import util from 'util';
 import { createRequire } from 'module';
 import * as utils from './utils.mjs';
+import { EMBEDDED_STDLIB_PREFIX } from './compiler.mjs';
 import completelib from './completer.mjs';
 
 var colored = utils.safe_colored;
@@ -84,7 +85,9 @@ export default async function(options) {
 
     // Read baselib synchronously: the repl must initialize synchronously so
     // that the readline interface and prompt are ready before returning.
-    var baselib_plain = fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
+    const _embedded = globalThis.__rapydscript_embedded__;
+    var baselib_plain = _embedded?.['baselib-plain-pretty.js'] ??
+        fs.readFileSync(path.join(options.lib_path, 'baselib-plain-pretty.js'), 'utf-8');
 
     function print_ast(ast, keep_baselib) {
         var output_options = {omit_baselib:!keep_baselib, write_name:false, private_scope:false, beautify:true, keep_docstrings:true};
@@ -160,7 +163,7 @@ export default async function(options) {
             toplevel = await RapydScript.parse(source, {
                 'filename':'<repl>',
                 'basedir': process.cwd(),
-                'libdir': options.imp_path,
+                'libdir': globalThis.__rapydscript_embedded__ ? EMBEDDED_STDLIB_PREFIX : options.imp_path,
                 'import_dirs': import_dirs,
                 'classes': classes,
                 'scoped_flags': scoped_flags,

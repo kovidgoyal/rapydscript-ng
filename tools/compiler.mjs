@@ -53,9 +53,15 @@ async function find_compiler_dir() {
     return { base, compiler_dir };
 }
 
+// Sentinel libdir value used when stdlib files come from the embedded asset VFS
+// rather than the real filesystem.  The compiler's readfile/stat_file callbacks
+// intercept paths that start with this prefix.
+const EMBEDDED_STDLIB_PREFIX = '__stdlib__';
+
 async function create_compiler(opts) {
     opts = opts || {};
     var vfs = opts.virtual_file_system;
+    const embedded = globalThis.__rapydscript_embedded__;
 
     const { base, compiler_dir } = await find_compiler_dir();
 
@@ -83,6 +89,32 @@ async function create_compiler(opts) {
             const content = await readfile(p, 'utf-8');
             return { mtimeMs: null, content };
         };
+    } else if (embedded) {
+        // Compiled standalone binary: stdlib lives in the embedded asset VFS.
+        // Paths prefixed with EMBEDDED_STDLIB_PREFIX are served from memory;
+        // all other paths (user source files, cache) still hit the real filesystem.
+        readfile = async (p, enc) => {
+            if (p.startsWith('__stdlib__/')) {
+                const name = p.slice('__stdlib__/'.length);
+                if (embedded.stdlib && embedded.stdlib[name] !== undefined) return embedded.stdlib[name];
+            }
+            return fs.promises.readFile(p, enc);
+        };
+        // Silently drop writes that target embedded virtual paths (e.g. stdlib cache files).
+        writefile = async (p, data) => {
+            if (p.startsWith('__stdlib__/')) return;
+            return fs.promises.writeFile(p, data);
+        };
+        stat_file = async (p) => {
+            if (p.startsWith('__stdlib__/')) {
+                const name = p.slice('__stdlib__/'.length);
+                if (embedded.stdlib && embedded.stdlib[name] !== undefined) return { mtimeMs: null };
+                const err = Object.assign(new Error(`stdlib not found: ${name}`), { code: 'ENOENT' });
+                throw err;
+            }
+            const st = await fs.promises.stat(p);
+            return { mtimeMs: st.mtimeMs };
+        };
     } else {
         readfile = async (p, enc) => fs.promises.readFile(p, enc);
         writefile = async (p, data) => fs.promises.writeFile(p, data);
@@ -103,7 +135,7 @@ async function create_compiler(opts) {
         exports       : compiler_exports,
     });
     var compiler_file = path.join(compiler_dir, 'compiler.js');
-    var compilerjs = await fs.promises.readFile(compiler_file, 'utf-8');
+    var compilerjs = embedded?.['compiler.js'] ?? await fs.promises.readFile(compiler_file, 'utf-8');
     vm.runInContext(compilerjs, compiler_context, path.relative(base, compiler_file));
     const { ast_to_json, ast_from_json, make_lazy_ast_module, encode_cache, decode_cache } = make_ast_serializer(compiler_exports);
     compiler_exports.ast_to_json = ast_to_json;
@@ -124,4 +156,4 @@ async function create_embedded_compiler(compiler, baselib, runjs, name) {
     return await embedded_compiler_factory(compiler || await create_compiler(), baselib, runjs, name, tree_shake, generate_source_map);
 }
 
-export { create_compiler, create_embedded_compiler, generate_source_map };
+export { create_compiler, create_embedded_compiler, generate_source_map, EMBEDDED_STDLIB_PREFIX };
