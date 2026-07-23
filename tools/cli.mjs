@@ -449,12 +449,18 @@ If no files or directories are specified, the source code is read from
 STDIN and the formatted result is written to STDOUT.`);
 
 opt("line_length", 'l', 'string', '80', `The maximum allowed line length. Lines longer than this
-are wrapped where it is safe to do so. Defaults to 80.`);
+are wrapped where it is safe to do so. Defaults to 80.
+If not specified, the value is read from pyproject.toml
+(searched upward from the current directory) under
+[tool.ruff], [tool.black], or [tool.isort].`);
 
 opt("preferred_quote", 'q', 'string', 'single', `The preferred quote character for string literals. Either
 "single" or "double". A string is only re-quoted when doing
 so does not increase the number of backslash escapes.
-Defaults to single.`, ['single', 'double']);
+Defaults to single. If not specified, the value is read from
+pyproject.toml (searched upward from the current directory)
+under [tool.ruff.format], [tool.ruff.lint.flake8-quotes],
+or [tool.flake8].`, ['single', 'double']);
 
 opt("check_only", 'c', 'bool', false, `Do not modify files. Instead, print the names of files that
 would be reformatted (and any lines that exceed the maximum
@@ -489,10 +495,15 @@ RAPYDSCRIPT_IMPORT_PATH for this, with identical syntax.`);
 
 opt("line_length", 'l', 'string', '80', `The maximum allowed line length used by the document formatter.
 Lines longer than this are wrapped where it is safe to do so.
-Defaults to 80.`);
+Defaults to 80. If not specified, the value is read from
+pyproject.toml (searched upward from the working directory)
+under [tool.ruff], [tool.black], or [tool.isort].`);
 
 opt("preferred_quote", 'q', 'string', 'single', `The preferred quote character used by the document formatter.
-Either "single" or "double". Defaults to single.`, ['single', 'double']);
+Either "single" or "double". Defaults to single. If not
+specified, the value is read from pyproject.toml (searched
+upward from the working directory) under [tool.ruff.format],
+[tool.ruff.lint.flake8-quotes], or [tool.flake8].`, ['single', 'double']);
 
 opt("join_lines", 'j', 'bool', false, `Join multi-line statements that fit within the maximum line
 length onto a single line. Disabled by default: source line

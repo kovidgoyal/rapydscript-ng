@@ -25,6 +25,7 @@ import { lint_parsed, BUILTINS, WARN, ERROR, MESSAGES } from './lint.mjs';
 import { format_string, organize_imports } from './fmt.mjs';
 import * as sym from './lsp_symbols.mjs';
 import { create_connection, DocumentStore, TextDocument, ResponseError, ErrorCodes } from './lsp_protocol.mjs';
+import { read_pyproject_config } from './ini.mjs';
 
 const RapydScript = globalThis.create_rapydscript_compiler();
 
@@ -774,12 +775,40 @@ export async function document_symbols(ctx, uri, raw_text) {
 // ===========================================================================
 // Server / CLI
 // ===========================================================================
+function argv_has_flag(flag_names) {
+    var args = process.argv.slice(3);  // skip: node, script path, mode
+    for (var i = 0; i < args.length; i++) {
+        var a = args[i];
+        if (a === '--') break;
+        for (var j = 0; j < flag_names.length; j++) {
+            var f = flag_names[j];
+            if (a === f || a.startsWith(f + '=')) return true;
+        }
+    }
+    return false;
+}
+
 export async function cli(argv, base_path, src_path, lib_path) {
+    var ll_from_cli = argv_has_flag(['--line-length', '--line_length', '-l']);
+    var q_from_cli = argv_has_flag(['--preferred-quote', '--preferred_quote', '-q']);
+
+    var effective_ll = ll_from_cli ? (parseInt(argv.line_length, 10) || 80) : null;
+    var effective_quote = q_from_cli ? argv.preferred_quote : null;
+
+    if (!ll_from_cli || !q_from_cli) {
+        var pyconf = await read_pyproject_config(process.cwd());
+        if (!ll_from_cli && pyconf.line_length) effective_ll = pyconf.line_length;
+        if (!q_from_cli && pyconf.preferred_quote) effective_quote = pyconf.preferred_quote;
+    }
+
+    if (!effective_ll) effective_ll = 80;
+    if (!effective_quote) effective_quote = 'single';
+
     var ctx = create_server_context({
         import_dirs: utils.get_import_dirs(argv.import_path).map(function (p) { return path.resolve(p); }),
         libdir: path.join(src_path, 'lib'),
-        line_length: parseInt(argv.line_length, 10) || 80,
-        preferred_quote: argv.preferred_quote || 'single',
+        line_length: effective_ll,
+        preferred_quote: effective_quote,
         join_lines: argv.join_lines || false,
     });
 

@@ -28,6 +28,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { read_pyproject_config } from './ini.mjs';
 
 // ---------------------------------------------------------------------------
 // Lexer
@@ -864,9 +865,18 @@ export async function collect_pyj_files(inputs) {
             var f = list[i];
             var st;
             try { st = await fs.promises.lstat(f); }
-            catch (e) { throw new Error("can't access: " + f); }
+            catch (e) {
+                if (from_dir && (e.code === 'EACCES' || e.code === 'EPERM')) continue;
+                throw new Error("can't access: " + f);
+            }
             if (st.isDirectory()) {
-                var children = (await fs.promises.readdir(f)).sort().map(function (x) { return path.join(f, x); });
+                var children;
+                try {
+                    children = (await fs.promises.readdir(f)).sort().map(function (x) { return path.join(f, x); });
+                } catch (e) {
+                    if (from_dir && (e.code === 'EACCES' || e.code === 'EPERM')) continue;
+                    throw new Error("can't read directory: " + f);
+                }
                 await walk(children, true);
             } else if (st.isFile()) {
                 if (from_dir) { if (f.endsWith('.pyj')) files.push(f); }
@@ -889,8 +899,36 @@ async function read_stdin() {
     return chunks.join('');
 }
 
+function argv_has_flag(flag_names) {
+    var args = process.argv.slice(3);  // skip: node, script path, mode
+    for (var i = 0; i < args.length; i++) {
+        var a = args[i];
+        if (a === '--') break;
+        for (var j = 0; j < flag_names.length; j++) {
+            var f = flag_names[j];
+            if (a === f || a.startsWith(f + '=')) return true;
+        }
+    }
+    return false;
+}
+
 export async function cli(argv, base_path, src_path, lib_path) {
-    var opts = normalize_opts({ line_length: argv.line_length, preferred_quote: argv.preferred_quote, join_lines: argv.join_lines });
+    var ll_from_cli = argv_has_flag(['--line-length', '--line_length', '-l']);
+    var q_from_cli = argv_has_flag(['--preferred-quote', '--preferred_quote', '-q']);
+
+    var effective_ll = ll_from_cli ? (parseInt(argv.line_length, 10) || 80) : null;
+    var effective_quote = q_from_cli ? argv.preferred_quote : null;
+
+    if (!ll_from_cli || !q_from_cli) {
+        var pyconf = await read_pyproject_config(process.cwd());
+        if (!ll_from_cli && pyconf.line_length) effective_ll = pyconf.line_length;
+        if (!q_from_cli && pyconf.preferred_quote) effective_quote = pyconf.preferred_quote;
+    }
+
+    if (!effective_ll) effective_ll = 80;
+    if (!effective_quote) effective_quote = 'single';
+
+    var opts = normalize_opts({ line_length: effective_ll, preferred_quote: effective_quote, join_lines: argv.join_lines });
     var inputs = (argv.files || []).slice();
 
     if (inputs.length === 0) {
