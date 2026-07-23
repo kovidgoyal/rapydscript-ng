@@ -4495,26 +4495,104 @@ define_str_func("zfill", (function() {
 define_str_func = undefined;
 var str = ρσ_str, repr = ρσ_repr;;
     var ρσ_modules = {};
-    ρσ_modules.utils = {};
     ρσ_modules.errors = {};
-    ρσ_modules.unicode_aliases = {};
+    ρσ_modules.output = {};
+    ρσ_modules.utils = {};
     ρσ_modules.ast = {};
     ρσ_modules.string_interpolation = {};
+    ρσ_modules.unicode_aliases = {};
     ρσ_modules.tokenizer = {};
-    ρσ_modules.parse = {};
-    ρσ_modules.output = {};
     ρσ_modules["output.stream"] = {};
-    ρσ_modules["output.statements"] = {};
-    ρσ_modules["output.exceptions"] = {};
-    ρσ_modules["output.utils"] = {};
     ρσ_modules["output.loops"] = {};
     ρσ_modules["output.operators"] = {};
+    ρσ_modules["output.statements"] = {};
+    ρσ_modules["output.utils"] = {};
     ρσ_modules["output.functions"] = {};
     ρσ_modules["output.classes"] = {};
-    ρσ_modules["output.literals"] = {};
     ρσ_modules["output.comments"] = {};
+    ρσ_modules["output.exceptions"] = {};
+    ρσ_modules["output.literals"] = {};
     ρσ_modules["output.modules"] = {};
+    ρσ_modules.parse = {};
     ρσ_modules["output.codegen"] = {};
+
+    (function(){
+        var __name__ = "errors";
+        function SyntaxError() {
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+            SyntaxError.prototype.__init__.apply(this, arguments);
+        }
+        ρσ_extends(SyntaxError, Error);
+        SyntaxError.prototype.__init__ = function __init__(message, filename, line, col, pos, is_eof) {
+            var self = this;
+            self.stack = (new Error).stack;
+            self.message = message;
+            self.line = line;
+            self.col = col;
+            self.pos = pos;
+            self.is_eof = is_eof;
+            self.filename = filename;
+            self.lineNumber = line;
+            self.fileName = filename;
+        };
+        if (!SyntaxError.prototype.__init__.__argnames__) Object.defineProperties(SyntaxError.prototype.__init__, {
+            __argnames__ : {value: ["message", "filename", "line", "col", "pos", "is_eof"]},
+            __module__ : {value: "errors"}
+        });
+        SyntaxError.__argnames__ = SyntaxError.prototype.__init__.__argnames__;
+        SyntaxError.__handles_kwarg_interpolation__ = SyntaxError.prototype.__init__.__handles_kwarg_interpolation__;
+        SyntaxError.prototype.toString = function toString() {
+            var self = this;
+            var ans;
+            ans = self.message + " (line: " + self.line + ", col: " + self.col + ", pos: " + self.pos + ")";
+            if (self.filename) {
+                ans = self.filename + ":" + ans;
+            }
+            if (self.stack) {
+                ans += "\n\n" + self.stack;
+            }
+            return ans;
+        };
+        if (!SyntaxError.prototype.toString.__module__) Object.defineProperties(SyntaxError.prototype.toString, {
+            __module__ : {value: "errors"}
+        });
+        SyntaxError.prototype.__repr__ = function __repr__ () {
+            if(Error.prototype.__repr__) return Error.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+        };
+        SyntaxError.prototype.__str__ = function __str__ () {
+            if(Error.prototype.__str__) return Error.prototype.__str__.call(this);
+return this.__repr__();
+        };
+        Object.defineProperty(SyntaxError.prototype, "__bases__", {value: [Error]});
+
+        function ImportError() {
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+            ImportError.prototype.__init__.apply(this, arguments);
+        }
+        ρσ_extends(ImportError, SyntaxError);
+        ImportError.prototype.__init__ = function __init__ () {
+            SyntaxError.prototype.__init__ && SyntaxError.prototype.__init__.apply(this, arguments);
+        };
+        ImportError.prototype.__repr__ = function __repr__ () {
+            if(SyntaxError.prototype.__repr__) return SyntaxError.prototype.__repr__.call(this);
+            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+        };
+        ImportError.prototype.__str__ = function __str__ () {
+            if(SyntaxError.prototype.__str__) return SyntaxError.prototype.__str__.call(this);
+return this.__repr__();
+        };
+        Object.defineProperty(ImportError.prototype, "__bases__", {value: [SyntaxError]});
+        
+
+        ρσ_modules.errors.SyntaxError = SyntaxError;
+        ρσ_modules.errors.ImportError = ImportError;
+    })();
+
+    (function(){
+        var __name__ = "output";
+
+    })();
 
     (function(){
         var __name__ = "utils";
@@ -4980,114 +5058,6 @@ return this.__repr__();
     })();
 
     (function(){
-        var __name__ = "errors";
-        function SyntaxError() {
-            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
-            SyntaxError.prototype.__init__.apply(this, arguments);
-        }
-        ρσ_extends(SyntaxError, Error);
-        SyntaxError.prototype.__init__ = function __init__(message, filename, line, col, pos, is_eof) {
-            var self = this;
-            self.stack = (new Error).stack;
-            self.message = message;
-            self.line = line;
-            self.col = col;
-            self.pos = pos;
-            self.is_eof = is_eof;
-            self.filename = filename;
-            self.lineNumber = line;
-            self.fileName = filename;
-        };
-        if (!SyntaxError.prototype.__init__.__argnames__) Object.defineProperties(SyntaxError.prototype.__init__, {
-            __argnames__ : {value: ["message", "filename", "line", "col", "pos", "is_eof"]},
-            __module__ : {value: "errors"}
-        });
-        SyntaxError.__argnames__ = SyntaxError.prototype.__init__.__argnames__;
-        SyntaxError.__handles_kwarg_interpolation__ = SyntaxError.prototype.__init__.__handles_kwarg_interpolation__;
-        SyntaxError.prototype.toString = function toString() {
-            var self = this;
-            var ans;
-            ans = self.message + " (line: " + self.line + ", col: " + self.col + ", pos: " + self.pos + ")";
-            if (self.filename) {
-                ans = self.filename + ":" + ans;
-            }
-            if (self.stack) {
-                ans += "\n\n" + self.stack;
-            }
-            return ans;
-        };
-        if (!SyntaxError.prototype.toString.__module__) Object.defineProperties(SyntaxError.prototype.toString, {
-            __module__ : {value: "errors"}
-        });
-        SyntaxError.prototype.__repr__ = function __repr__ () {
-            if(Error.prototype.__repr__) return Error.prototype.__repr__.call(this);
-            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
-        };
-        SyntaxError.prototype.__str__ = function __str__ () {
-            if(Error.prototype.__str__) return Error.prototype.__str__.call(this);
-return this.__repr__();
-        };
-        Object.defineProperty(SyntaxError.prototype, "__bases__", {value: [Error]});
-
-        function ImportError() {
-            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
-            ImportError.prototype.__init__.apply(this, arguments);
-        }
-        ρσ_extends(ImportError, SyntaxError);
-        ImportError.prototype.__init__ = function __init__ () {
-            SyntaxError.prototype.__init__ && SyntaxError.prototype.__init__.apply(this, arguments);
-        };
-        ImportError.prototype.__repr__ = function __repr__ () {
-            if(SyntaxError.prototype.__repr__) return SyntaxError.prototype.__repr__.call(this);
-            return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
-        };
-        ImportError.prototype.__str__ = function __str__ () {
-            if(SyntaxError.prototype.__str__) return SyntaxError.prototype.__str__.call(this);
-return this.__repr__();
-        };
-        Object.defineProperty(ImportError.prototype, "__bases__", {value: [SyntaxError]});
-        
-
-        ρσ_modules.errors.SyntaxError = SyntaxError;
-        ρσ_modules.errors.ImportError = ImportError;
-    })();
-
-    (function(){
-        var __name__ = "unicode_aliases";
-        var DB, ALIAS_MAP;
-        DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
-        ALIAS_MAP = (function() {
-            var ρσ_anonfunc = function () {
-                var ans, line, parts, code_point;
-                ans = {};
-                var ρσ_Iter10 = DB.split("\n");
-                ρσ_Iter10 = ((typeof ρσ_Iter10[Symbol.iterator] === "function") ? (ρσ_Iter10 instanceof Map ? ρσ_Iter10.keys() : ρσ_Iter10) : Object.keys(ρσ_Iter10));
-                for (var ρσ_Index10 of ρσ_Iter10) {
-                    line = ρσ_Index10;
-                    line = line.trim();
-                    if (!line || line[0] === "#") {
-                        continue;
-                    }
-                    parts = line.split(";");
-                    if (parts.length >= 2) {
-                        code_point = parseInt(parts[0], 16);
-                        if (code_point !== undefined && parts[1]) {
-                            ans[ρσ_bound_index(parts[1].toLowerCase(), ans)] = code_point;
-                        }
-                    }
-                }
-                return ans;
-            };
-            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                __module__ : {value: "unicode_aliases"}
-            });
-            return ρσ_anonfunc;
-        })()();
-        ρσ_modules.unicode_aliases.DB = DB;
-        ρσ_modules.unicode_aliases.ALIAS_MAP = ALIAS_MAP;
-    })();
-
-    (function(){
         var __name__ = "ast";
         var noop = ρσ_modules.utils.noop;
 
@@ -5229,10 +5199,10 @@ return this.__repr__();
             if (include_name) {
                 p(pad + yellow + self.constructor.name.slice(4) + reset);
             }
-            var ρσ_Iter11 = self;
-            ρσ_Iter11 = ((typeof ρσ_Iter11[Symbol.iterator] === "function") ? (ρσ_Iter11 instanceof Map ? ρσ_Iter11.keys() : ρσ_Iter11) : Object.keys(ρσ_Iter11));
-            for (var ρσ_Index11 of ρσ_Iter11) {
-                key = ρσ_Index11;
+            var ρσ_Iter10 = self;
+            ρσ_Iter10 = ((typeof ρσ_Iter10[Symbol.iterator] === "function") ? (ρσ_Iter10 instanceof Map ? ρσ_Iter10.keys() : ρσ_Iter10) : Object.keys(ρσ_Iter10));
+            for (var ρσ_Index10 of ρσ_Iter10) {
+                key = ρσ_Index10;
                 if (ρσ_in(key, omit)) {
                     continue;
                 }
@@ -5240,17 +5210,17 @@ return this.__repr__();
                     if (self[(typeof key === "number" && key < 0) ? self.length + key : key].length) {
                         p(pad + " " + blue + key + ": " + reset + "[");
                         if (depth > 1) {
+                            var ρσ_Iter11 = self[(typeof key === "number" && key < 0) ? self.length + key : key];
+                            ρσ_Iter11 = ((typeof ρσ_Iter11[Symbol.iterator] === "function") ? (ρσ_Iter11 instanceof Map ? ρσ_Iter11.keys() : ρσ_Iter11) : Object.keys(ρσ_Iter11));
+                            for (var ρσ_Index11 of ρσ_Iter11) {
+                                element = ρσ_Index11;
+                                element._dump(depth - 1, omit, offset + 1, true);
+                            }
+                        } else {
                             var ρσ_Iter12 = self[(typeof key === "number" && key < 0) ? self.length + key : key];
                             ρσ_Iter12 = ((typeof ρσ_Iter12[Symbol.iterator] === "function") ? (ρσ_Iter12 instanceof Map ? ρσ_Iter12.keys() : ρσ_Iter12) : Object.keys(ρσ_Iter12));
                             for (var ρσ_Index12 of ρσ_Iter12) {
                                 element = ρσ_Index12;
-                                element._dump(depth - 1, omit, offset + 1, true);
-                            }
-                        } else {
-                            var ρσ_Iter13 = self[(typeof key === "number" && key < 0) ? self.length + key : key];
-                            ρσ_Iter13 = ((typeof ρσ_Iter13[Symbol.iterator] === "function") ? (ρσ_Iter13 instanceof Map ? ρσ_Iter13.keys() : ρσ_Iter13) : Object.keys(ρσ_Iter13));
-                            for (var ρσ_Index13 of ρσ_Iter13) {
-                                element = ρσ_Index13;
                                 p(pad + "   " + yellow + element.constructor.name.slice(4) + reset);
                             }
                         }
@@ -5263,10 +5233,10 @@ return this.__repr__();
                         tname = self[(typeof key === "number" && key < 0) ? self.length + key : key].constructor.name.slice(4);
                         if (tname === "Token") {
                             p(pad + " " + blue + key + ": " + magenta + tname + reset);
-                            var ρσ_Iter14 = self[(typeof key === "number" && key < 0) ? self.length + key : key];
-                            ρσ_Iter14 = ((typeof ρσ_Iter14[Symbol.iterator] === "function") ? (ρσ_Iter14 instanceof Map ? ρσ_Iter14.keys() : ρσ_Iter14) : Object.keys(ρσ_Iter14));
-                            for (var ρσ_Index14 of ρσ_Iter14) {
-                                property = ρσ_Index14;
+                            var ρσ_Iter13 = self[(typeof key === "number" && key < 0) ? self.length + key : key];
+                            ρσ_Iter13 = ((typeof ρσ_Iter13[Symbol.iterator] === "function") ? (ρσ_Iter13 instanceof Map ? ρσ_Iter13.keys() : ρσ_Iter13) : Object.keys(ρσ_Iter13));
+                            for (var ρσ_Index13 of ρσ_Iter13) {
+                                property = ρσ_Index13;
                                 p(pad + "   " + blue + property + ": " + reset + (ρσ_expr_temp = self[(typeof key === "number" && key < 0) ? self.length + key : key])[(typeof property === "number" && property < 0) ? ρσ_expr_temp.length + property : property]);
                             }
                         } else {
@@ -5481,10 +5451,10 @@ return this.__repr__();
             if (is_node_type(node.body, AST_Statement)) {
                 node.body._walk(visitor);
             } else if (node.body) {
-                var ρσ_Iter15 = node.body;
-                ρσ_Iter15 = ((typeof ρσ_Iter15[Symbol.iterator] === "function") ? (ρσ_Iter15 instanceof Map ? ρσ_Iter15.keys() : ρσ_Iter15) : Object.keys(ρσ_Iter15));
-                for (var ρσ_Index15 of ρσ_Iter15) {
-                    stat = ρσ_Index15;
+                var ρσ_Iter14 = node.body;
+                ρσ_Iter14 = ((typeof ρσ_Iter14[Symbol.iterator] === "function") ? (ρσ_Iter14 instanceof Map ? ρσ_Iter14.keys() : ρσ_Iter14) : Object.keys(ρσ_Iter14));
+                for (var ρσ_Index14 of ρσ_Iter14) {
+                    stat = ρσ_Index14;
                     stat._walk(visitor);
                 }
             }
@@ -5903,10 +5873,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var exp;
-                    var ρσ_Iter16 = self.clauses;
-                    ρσ_Iter16 = ((typeof ρσ_Iter16[Symbol.iterator] === "function") ? (ρσ_Iter16 instanceof Map ? ρσ_Iter16.keys() : ρσ_Iter16) : Object.keys(ρσ_Iter16));
-                    for (var ρσ_Index16 of ρσ_Iter16) {
-                        exp = ρσ_Index16;
+                    var ρσ_Iter15 = self.clauses;
+                    ρσ_Iter15 = ((typeof ρσ_Iter15[Symbol.iterator] === "function") ? (ρσ_Iter15 instanceof Map ? ρσ_Iter15.keys() : ρσ_Iter15) : Object.keys(ρσ_Iter15));
+                    for (var ρσ_Index15 of ρσ_Iter15) {
+                        exp = ρσ_Index15;
                         exp._walk(visitor);
                     }
                     self.body._walk(visitor);
@@ -6055,10 +6025,10 @@ return this.__repr__();
                         self.alias._walk(visitor);
                     }
                     if (self.argnames) {
-                        var ρσ_Iter17 = self.argnames;
-                        ρσ_Iter17 = ((typeof ρσ_Iter17[Symbol.iterator] === "function") ? (ρσ_Iter17 instanceof Map ? ρσ_Iter17.keys() : ρσ_Iter17) : Object.keys(ρσ_Iter17));
-                        for (var ρσ_Index17 of ρσ_Iter17) {
-                            arg = ρσ_Index17;
+                        var ρσ_Iter16 = self.argnames;
+                        ρσ_Iter16 = ((typeof ρσ_Iter16[Symbol.iterator] === "function") ? (ρσ_Iter16 instanceof Map ? ρσ_Iter16.keys() : ρσ_Iter16) : Object.keys(ρσ_Iter16));
+                        for (var ρσ_Index16 of ρσ_Iter16) {
+                            arg = ρσ_Index16;
                             arg._walk(visitor);
                         }
                     }
@@ -6105,10 +6075,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var imp;
-                    var ρσ_Iter18 = self.imports;
-                    ρσ_Iter18 = ((typeof ρσ_Iter18[Symbol.iterator] === "function") ? (ρσ_Iter18 instanceof Map ? ρσ_Iter18.keys() : ρσ_Iter18) : Object.keys(ρσ_Iter18));
-                    for (var ρσ_Index18 of ρσ_Iter18) {
-                        imp = ρσ_Index18;
+                    var ρσ_Iter17 = self.imports;
+                    ρσ_Iter17 = ((typeof ρσ_Iter17[Symbol.iterator] === "function") ? (ρσ_Iter17 instanceof Map ? ρσ_Iter17.keys() : ρσ_Iter17) : Object.keys(ρσ_Iter17));
+                    for (var ρσ_Index17 of ρσ_Iter17) {
+                        imp = ρσ_Index17;
                         imp._walk(visitor);
                     }
                 };
@@ -6191,10 +6161,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var arg;
-                    var ρσ_Iter19 = self.args;
-                    ρσ_Iter19 = ((typeof ρσ_Iter19[Symbol.iterator] === "function") ? (ρσ_Iter19 instanceof Map ? ρσ_Iter19.keys() : ρσ_Iter19) : Object.keys(ρσ_Iter19));
-                    for (var ρσ_Index19 of ρσ_Iter19) {
-                        arg = ρσ_Index19;
+                    var ρσ_Iter18 = self.args;
+                    ρσ_Iter18 = ((typeof ρσ_Iter18[Symbol.iterator] === "function") ? (ρσ_Iter18 instanceof Map ? ρσ_Iter18.keys() : ρσ_Iter18) : Object.keys(ρσ_Iter18));
+                    for (var ρσ_Index18 of ρσ_Iter18) {
+                        arg = ρσ_Index18;
                         arg._walk(visitor);
                     }
                     if (self.starargs) {
@@ -6248,10 +6218,10 @@ return this.__repr__();
                 var ρσ_anonfunc = function () {
                     var d;
                     if (self.decorators) {
-                        var ρσ_Iter20 = self.decorators;
-                        ρσ_Iter20 = ((typeof ρσ_Iter20[Symbol.iterator] === "function") ? (ρσ_Iter20 instanceof Map ? ρσ_Iter20.keys() : ρσ_Iter20) : Object.keys(ρσ_Iter20));
-                        for (var ρσ_Index20 of ρσ_Iter20) {
-                            d = ρσ_Index20;
+                        var ρσ_Iter19 = self.decorators;
+                        ρσ_Iter19 = ((typeof ρσ_Iter19[Symbol.iterator] === "function") ? (ρσ_Iter19 instanceof Map ? ρσ_Iter19.keys() : ρσ_Iter19) : Object.keys(ρσ_Iter19));
+                        for (var ρσ_Index19 of ρσ_Iter19) {
+                            d = ρσ_Index19;
                             d.walk(visitor);
                         }
                     }
@@ -6325,10 +6295,10 @@ return this.__repr__();
                 var ρσ_anonfunc = function () {
                     var d;
                     if (self.decorators) {
-                        var ρσ_Iter21 = self.decorators;
-                        ρσ_Iter21 = ((typeof ρσ_Iter21[Symbol.iterator] === "function") ? (ρσ_Iter21 instanceof Map ? ρσ_Iter21.keys() : ρσ_Iter21) : Object.keys(ρσ_Iter21));
-                        for (var ρσ_Index21 of ρσ_Iter21) {
-                            d = ρσ_Index21;
+                        var ρσ_Iter20 = self.decorators;
+                        ρσ_Iter20 = ((typeof ρσ_Iter20[Symbol.iterator] === "function") ? (ρσ_Iter20 instanceof Map ? ρσ_Iter20.keys() : ρσ_Iter20) : Object.keys(ρσ_Iter20));
+                        for (var ρσ_Index20 of ρσ_Iter20) {
+                            d = ρσ_Index20;
                             d.walk(visitor);
                         }
                     }
@@ -6739,10 +6709,10 @@ return this.__repr__();
                         self.argname.walk(visitor);
                     }
                     if (self.errors) {
-                        var ρσ_Iter22 = self.errors;
-                        ρσ_Iter22 = ((typeof ρσ_Iter22[Symbol.iterator] === "function") ? (ρσ_Iter22 instanceof Map ? ρσ_Iter22.keys() : ρσ_Iter22) : Object.keys(ρσ_Iter22));
-                        for (var ρσ_Index22 of ρσ_Iter22) {
-                            e = ρσ_Index22;
+                        var ρσ_Iter21 = self.errors;
+                        ρσ_Iter21 = ((typeof ρσ_Iter21[Symbol.iterator] === "function") ? (ρσ_Iter21 instanceof Map ? ρσ_Iter21.keys() : ρσ_Iter21) : Object.keys(ρσ_Iter21));
+                        for (var ρσ_Index21 of ρσ_Iter21) {
+                            e = ρσ_Index21;
                             e.walk(visitor);
                         }
                     }
@@ -6823,10 +6793,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var def_;
-                    var ρσ_Iter23 = self.definitions;
-                    ρσ_Iter23 = ((typeof ρσ_Iter23[Symbol.iterator] === "function") ? (ρσ_Iter23 instanceof Map ? ρσ_Iter23.keys() : ρσ_Iter23) : Object.keys(ρσ_Iter23));
-                    for (var ρσ_Index23 of ρσ_Iter23) {
-                        def_ = ρσ_Index23;
+                    var ρσ_Iter22 = self.definitions;
+                    ρσ_Iter22 = ((typeof ρσ_Iter22[Symbol.iterator] === "function") ? (ρσ_Iter22 instanceof Map ? ρσ_Iter22.keys() : ρσ_Iter22) : Object.keys(ρσ_Iter22));
+                    for (var ρσ_Index22 of ρσ_Iter22) {
+                        def_ = ρσ_Index22;
                         def_._walk(visitor);
                     }
                 };
@@ -6969,26 +6939,26 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var arg, pair;
-                    var ρσ_Iter24 = self.args;
-                    ρσ_Iter24 = ((typeof ρσ_Iter24[Symbol.iterator] === "function") ? (ρσ_Iter24 instanceof Map ? ρσ_Iter24.keys() : ρσ_Iter24) : Object.keys(ρσ_Iter24));
-                    for (var ρσ_Index24 of ρσ_Iter24) {
-                        arg = ρσ_Index24;
+                    var ρσ_Iter23 = self.args;
+                    ρσ_Iter23 = ((typeof ρσ_Iter23[Symbol.iterator] === "function") ? (ρσ_Iter23 instanceof Map ? ρσ_Iter23.keys() : ρσ_Iter23) : Object.keys(ρσ_Iter23));
+                    for (var ρσ_Index23 of ρσ_Iter23) {
+                        arg = ρσ_Index23;
                         arg._walk(visitor);
                     }
                     if (self.kwargs) {
-                        var ρσ_Iter25 = self.kwargs;
-                        ρσ_Iter25 = ((typeof ρσ_Iter25[Symbol.iterator] === "function") ? (ρσ_Iter25 instanceof Map ? ρσ_Iter25.keys() : ρσ_Iter25) : Object.keys(ρσ_Iter25));
-                        for (var ρσ_Index25 of ρσ_Iter25) {
-                            pair = ρσ_Index25;
+                        var ρσ_Iter24 = self.kwargs;
+                        ρσ_Iter24 = ((typeof ρσ_Iter24[Symbol.iterator] === "function") ? (ρσ_Iter24 instanceof Map ? ρσ_Iter24.keys() : ρσ_Iter24) : Object.keys(ρσ_Iter24));
+                        for (var ρσ_Index24 of ρσ_Iter24) {
+                            pair = ρσ_Index24;
                             pair[0]._walk(visitor);
                             pair[1]._walk(visitor);
                         }
                     }
                     if (self.kwarg_items) {
-                        var ρσ_Iter26 = self.kwarg_items;
-                        ρσ_Iter26 = ((typeof ρσ_Iter26[Symbol.iterator] === "function") ? (ρσ_Iter26 instanceof Map ? ρσ_Iter26.keys() : ρσ_Iter26) : Object.keys(ρσ_Iter26));
-                        for (var ρσ_Index26 of ρσ_Iter26) {
-                            arg = ρσ_Index26;
+                        var ρσ_Iter25 = self.kwarg_items;
+                        ρσ_Iter25 = ((typeof ρσ_Iter25[Symbol.iterator] === "function") ? (ρσ_Iter25 instanceof Map ? ρσ_Iter25.keys() : ρσ_Iter25) : Object.keys(ρσ_Iter25));
+                        for (var ρσ_Index25 of ρσ_Iter25) {
+                            arg = ρσ_Index25;
                             arg._walk(visitor);
                         }
                     }
@@ -7227,8 +7197,8 @@ return this.__repr__();
                 return array[0].clone();
             }
             ans = null;
-            for (var ρσ_Index27 = array.length - 1; ρσ_Index27 > -1; ρσ_Index27-=1) {
-                i = ρσ_Index27;
+            for (var ρσ_Index26 = array.length - 1; ρσ_Index26 > -1; ρσ_Index26-=1) {
+                i = ρσ_Index26;
                 ans = AST_Seq.prototype.cons.call(array[(typeof i === "number" && i < 0) ? array.length + i : i], ans);
             }
             p = ans;
@@ -7719,10 +7689,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var el;
-                    var ρσ_Iter28 = self.elements;
-                    ρσ_Iter28 = ((typeof ρσ_Iter28[Symbol.iterator] === "function") ? (ρσ_Iter28 instanceof Map ? ρσ_Iter28.keys() : ρσ_Iter28) : Object.keys(ρσ_Iter28));
-                    for (var ρσ_Index28 of ρσ_Iter28) {
-                        el = ρσ_Index28;
+                    var ρσ_Iter27 = self.elements;
+                    ρσ_Iter27 = ((typeof ρσ_Iter27[Symbol.iterator] === "function") ? (ρσ_Iter27 instanceof Map ? ρσ_Iter27.keys() : ρσ_Iter27) : Object.keys(ρσ_Iter27));
+                    for (var ρσ_Index27 of ρσ_Iter27) {
+                        el = ρσ_Index27;
                         el._walk(visitor);
                     }
                 };
@@ -7741,10 +7711,10 @@ return this.__repr__();
             function flatten(arr) {
                 var ans, value;
                 ans = [];
-                var ρσ_Iter29 = arr;
-                ρσ_Iter29 = ((typeof ρσ_Iter29[Symbol.iterator] === "function") ? (ρσ_Iter29 instanceof Map ? ρσ_Iter29.keys() : ρσ_Iter29) : Object.keys(ρσ_Iter29));
-                for (var ρσ_Index29 of ρσ_Iter29) {
-                    value = ρσ_Index29;
+                var ρσ_Iter28 = arr;
+                ρσ_Iter28 = ((typeof ρσ_Iter28[Symbol.iterator] === "function") ? (ρσ_Iter28 instanceof Map ? ρσ_Iter28.keys() : ρσ_Iter28) : Object.keys(ρσ_Iter28));
+                for (var ρσ_Index28 of ρσ_Iter28) {
+                    value = ρσ_Index28;
                     if (is_node_type(value, AST_Seq)) {
                         value = value.to_array();
                     } else if (is_node_type(value, AST_Array)) {
@@ -7796,10 +7766,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var prop;
-                    var ρσ_Iter30 = self.properties;
-                    ρσ_Iter30 = ((typeof ρσ_Iter30[Symbol.iterator] === "function") ? (ρσ_Iter30 instanceof Map ? ρσ_Iter30.keys() : ρσ_Iter30) : Object.keys(ρσ_Iter30));
-                    for (var ρσ_Index30 of ρσ_Iter30) {
-                        prop = ρσ_Index30;
+                    var ρσ_Iter29 = self.properties;
+                    ρσ_Iter29 = ((typeof ρσ_Iter29[Symbol.iterator] === "function") ? (ρσ_Iter29 instanceof Map ? ρσ_Iter29.keys() : ρσ_Iter29) : Object.keys(ρσ_Iter29));
+                    for (var ρσ_Index29 of ρσ_Iter29) {
+                        prop = ρσ_Index29;
                         prop._walk(visitor);
                     }
                 };
@@ -7921,10 +7891,10 @@ return this.__repr__();
             return visitor._visit(self, (function() {
                 var ρσ_anonfunc = function () {
                     var prop;
-                    var ρσ_Iter31 = self.items;
-                    ρσ_Iter31 = ((typeof ρσ_Iter31[Symbol.iterator] === "function") ? (ρσ_Iter31 instanceof Map ? ρσ_Iter31.keys() : ρσ_Iter31) : Object.keys(ρσ_Iter31));
-                    for (var ρσ_Index31 of ρσ_Iter31) {
-                        prop = ρσ_Index31;
+                    var ρσ_Iter30 = self.items;
+                    ρσ_Iter30 = ((typeof ρσ_Iter30[Symbol.iterator] === "function") ? (ρσ_Iter30 instanceof Map ? ρσ_Iter30.keys() : ρσ_Iter30) : Object.keys(ρσ_Iter30));
+                    for (var ρσ_Index30 of ρσ_Iter30) {
+                        prop = ρσ_Index30;
                         prop._walk(visitor);
                     }
                 };
@@ -8596,8 +8566,8 @@ return this.__repr__();
             var self = this;
             var stack, x, i;
             stack = self.stack;
-            for (var ρσ_Index32 = stack.length - 1; ρσ_Index32 > -1; ρσ_Index32-=1) {
-                i = ρσ_Index32;
+            for (var ρσ_Index31 = stack.length - 1; ρσ_Index31 > -1; ρσ_Index31-=1) {
+                i = ρσ_Index31;
                 x = stack[(typeof i === "number" && i < 0) ? stack.length + i : i];
                 if (is_node_type(x, type)) {
                     return x;
@@ -8902,19 +8872,54 @@ return this.__repr__();
     })();
 
     (function(){
+        var __name__ = "unicode_aliases";
+        var DB, ALIAS_MAP;
+        DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
+        ALIAS_MAP = (function() {
+            var ρσ_anonfunc = function () {
+                var ans, line, parts, code_point;
+                ans = {};
+                var ρσ_Iter32 = DB.split("\n");
+                ρσ_Iter32 = ((typeof ρσ_Iter32[Symbol.iterator] === "function") ? (ρσ_Iter32 instanceof Map ? ρσ_Iter32.keys() : ρσ_Iter32) : Object.keys(ρσ_Iter32));
+                for (var ρσ_Index32 of ρσ_Iter32) {
+                    line = ρσ_Index32;
+                    line = line.trim();
+                    if (!line || line[0] === "#") {
+                        continue;
+                    }
+                    parts = line.split(";");
+                    if (parts.length >= 2) {
+                        code_point = parseInt(parts[0], 16);
+                        if (code_point !== undefined && parts[1]) {
+                            ans[ρσ_bound_index(parts[1].toLowerCase(), ans)] = code_point;
+                        }
+                    }
+                }
+                return ans;
+            };
+            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                __module__ : {value: "unicode_aliases"}
+            });
+            return ρσ_anonfunc;
+        })()();
+        ρσ_modules.unicode_aliases.DB = DB;
+        ρσ_modules.unicode_aliases.ALIAS_MAP = ALIAS_MAP;
+    })();
+
+    (function(){
         var __name__ = "tokenizer";
         var RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATOR_CHARS, ASCII_CONTROL_CHARS, HEX_PAT, NAME_PAT, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, KEYWORDS, KEYWORDS_ATOM, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, ALL_KEYWORDS, IDENTIFIER_PAT, UNICODE, EX_EOF;
-        var ALIAS_MAP = ρσ_modules.unicode_aliases.ALIAS_MAP;
-
-        var make_predicate = ρσ_modules.utils.make_predicate;
-        var characters = ρσ_modules.utils.characters;
-
         var AST_Token = ρσ_modules.ast.AST_Token;
 
         var SyntaxError = ρσ_modules.errors.SyntaxError;
 
         var interpolate = ρσ_modules.string_interpolation.interpolate;
         var quoted_string = ρσ_modules.string_interpolation.quoted_string;
+
+        var ALIAS_MAP = ρσ_modules.unicode_aliases.ALIAS_MAP;
+
+        var make_predicate = ρσ_modules.utils.make_predicate;
+        var characters = ρσ_modules.utils.characters;
 
         RE_HEX_NUMBER = /^0x[0-9a-f]+$/i;
         RE_OCT_NUMBER = /^0[0-7]+$/;
@@ -9563,7 +9568,15 @@ return this.__repr__();
                 });
                 return ρσ_anonfunc;
             })());
-            function handle_interpolated_string(string, start_tok) {
+            function handle_interpolated_string() {
+                var string = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var start_tok = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
+                var is_fstring = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? handle_interpolated_string.__defaults__.is_fstring : arguments[2];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "is_fstring")){
+                    is_fstring = ρσ_kwargs_obj.is_fstring;
+                }
                 var parts, ch, stok, j, potential_mod, mods, is_raw, combined;
                 function raise_error(err) {
                     throw new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, false);
@@ -9573,7 +9586,11 @@ return this.__repr__();
                     __module__ : {value: "tokenizer"}
                 });
 
-                parts = [interpolate(string, raise_error)];
+                if (is_fstring) {
+                    parts = [interpolate(string, raise_error)];
+                } else {
+                    parts = [quoted_string(string)];
+                }
                 while (true) {
                     while (S.pos < S.text.length && (S.text.charAt(S.pos) === " " || S.text.charAt(S.pos) === "\t")) {
                         next();
@@ -9619,8 +9636,10 @@ return this.__repr__();
                 S.text = S.text.slice(0, S.pos) + "(" + combined + ")" + S.text.slice(S.pos);
                 return token("punc", next());
             };
-            if (!handle_interpolated_string.__argnames__) Object.defineProperties(handle_interpolated_string, {
-                __argnames__ : {value: ["string", "start_tok"]},
+            if (!handle_interpolated_string.__defaults__) Object.defineProperties(handle_interpolated_string, {
+                __defaults__ : {value: {is_fstring:true}},
+                __handles_kwarg_interpolation__ : {value: true},
+                __argnames__ : {value: ["string", "start_tok", "is_fstring"]},
                 __module__ : {value: "tokenizer"}
             });
 
@@ -9792,7 +9811,7 @@ return this.__repr__();
             });
 
             function next_token() {
-                var indent, ch, code, tmp_, regex_allowed, tok, mods, start_pos_for_string, stok;
+                var indent, ch, code, tmp_, stok, j, k, potential_mod, mods_check, regex_allowed, tok, mods, start_pos_for_string;
                 indent = parse_whitespace();
                 if (indent === -1) {
                     return token("punc", "}", false, true);
@@ -9805,7 +9824,25 @@ return this.__repr__();
                 code = ch.charCodeAt(0);
                 tmp_ = code;
                 if (tmp_ === 34 || tmp_ === 39) {
-                    return read_string(false);
+                    stok = read_string(false);
+                    j = S.pos;
+                    while (j < S.text.length && (S.text.charAt(j) === " " || S.text.charAt(j) === "\t")) {
+                        j += 1;
+                    }
+                    if (j < S.text.length && is_identifier_start(S.text.charAt(j).charCodeAt(0))) {
+                        k = j;
+                        while (k < S.text.length && is_identifier_char(S.text.charAt(k))) {
+                            k += 1;
+                        }
+                        potential_mod = S.text.substring(j, k);
+                        if (is_string_modifier(potential_mod) && k < S.text.length && "'\"".indexOf(S.text.charAt(k)) !== -1) {
+                            mods_check = potential_mod.toLowerCase();
+                            if (mods_check.indexOf("f") !== -1 && mods_check.indexOf("v") === -1) {
+                                return handle_interpolated_string(stok.value, stok, false);
+                            }
+                        }
+                    }
+                    return stok;
                 } else if (tmp_ === 35) {
                     if (S.pos === 0 && S.text.charAt(1) === "!") {
                         return read_line_comment(true);
@@ -9924,4167 +9961,13 @@ return this.__repr__();
     })();
 
     (function(){
-        var __name__ = "parse";
-        var COMPILER_VERSION, PYTHON_FLAGS, CACHE_VERSION, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, FORBIDDEN_CLASS_VARS, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
-        var make_predicate = ρσ_modules.utils.make_predicate;
-        var array_to_hash = ρσ_modules.utils.array_to_hash;
-        var defaults = ρσ_modules.utils.defaults;
-        var has_prop = ρσ_modules.utils.has_prop;
-        var cache_file_name = ρσ_modules.utils.cache_file_name;
-
-        var SyntaxError = ρσ_modules.errors.SyntaxError;
-        var ImportError = ρσ_modules.errors.ImportError;
-
-        var AST_ArgsDef = ρσ_modules.ast.AST_ArgsDef;
-        var AST_Array = ρσ_modules.ast.AST_Array;
-        var AST_Assign = ρσ_modules.ast.AST_Assign;
-        var AST_Binary = ρσ_modules.ast.AST_Binary;
-        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
-        var AST_Break = ρσ_modules.ast.AST_Break;
-        var AST_Call = ρσ_modules.ast.AST_Call;
-        var AST_CallArg = ρσ_modules.ast.AST_CallArg;
-        var AST_CallArgs = ρσ_modules.ast.AST_CallArgs;
-        var AST_Catch = ρσ_modules.ast.AST_Catch;
-        var AST_Class = ρσ_modules.ast.AST_Class;
-        var AST_ClassCall = ρσ_modules.ast.AST_ClassCall;
-        var AST_Conditional = ρσ_modules.ast.AST_Conditional;
-        var AST_Constant = ρσ_modules.ast.AST_Constant;
-        var AST_Continue = ρσ_modules.ast.AST_Continue;
-        var AST_DWLoop = ρσ_modules.ast.AST_DWLoop;
-        var AST_Debugger = ρσ_modules.ast.AST_Debugger;
-        var AST_Decorator = ρσ_modules.ast.AST_Decorator;
-        var AST_Definitions = ρσ_modules.ast.AST_Definitions;
-        var AST_DictComprehension = ρσ_modules.ast.AST_DictComprehension;
-        var AST_Directive = ρσ_modules.ast.AST_Directive;
-        var AST_Do = ρσ_modules.ast.AST_Do;
-        var AST_Dot = ρσ_modules.ast.AST_Dot;
-        var AST_Else = ρσ_modules.ast.AST_Else;
-        var AST_EmptyStatement = ρσ_modules.ast.AST_EmptyStatement;
-        var AST_Except = ρσ_modules.ast.AST_Except;
-        var AST_ExpressiveObject = ρσ_modules.ast.AST_ExpressiveObject;
-        var AST_False = ρσ_modules.ast.AST_False;
-        var AST_Finally = ρσ_modules.ast.AST_Finally;
-        var AST_ForIn = ρσ_modules.ast.AST_ForIn;
-        var AST_ForJS = ρσ_modules.ast.AST_ForJS;
-        var AST_Function = ρσ_modules.ast.AST_Function;
-        var AST_GeneratorComprehension = ρσ_modules.ast.AST_GeneratorComprehension;
-        var AST_Hole = ρσ_modules.ast.AST_Hole;
-        var AST_If = ρσ_modules.ast.AST_If;
-        var AST_Import = ρσ_modules.ast.AST_Import;
-        var AST_ImportedVar = ρσ_modules.ast.AST_ImportedVar;
-        var AST_Imports = ρσ_modules.ast.AST_Imports;
-        var AST_ListComprehension = ρσ_modules.ast.AST_ListComprehension;
-        var AST_Method = ρσ_modules.ast.AST_Method;
-        var AST_New = ρσ_modules.ast.AST_New;
-        var AST_Null = ρσ_modules.ast.AST_Null;
-        var AST_Number = ρσ_modules.ast.AST_Number;
-        var AST_Object = ρσ_modules.ast.AST_Object;
-        var AST_ObjectKeyVal = ρσ_modules.ast.AST_ObjectKeyVal;
-        var AST_PropAccess = ρσ_modules.ast.AST_PropAccess;
-        var AST_RegExp = ρσ_modules.ast.AST_RegExp;
-        var AST_Return = ρσ_modules.ast.AST_Return;
-        var AST_Scope = ρσ_modules.ast.AST_Scope;
-        var AST_Set = ρσ_modules.ast.AST_Set;
-        var AST_SetComprehension = ρσ_modules.ast.AST_SetComprehension;
-        var AST_SetItem = ρσ_modules.ast.AST_SetItem;
-        var AST_Seq = ρσ_modules.ast.AST_Seq;
-        var AST_SimpleStatement = ρσ_modules.ast.AST_SimpleStatement;
-        var AST_Splice = ρσ_modules.ast.AST_Splice;
-        var AST_String = ρσ_modules.ast.AST_String;
-        var AST_Sub = ρσ_modules.ast.AST_Sub;
-        var AST_ItemAccess = ρσ_modules.ast.AST_ItemAccess;
-        var AST_SymbolAlias = ρσ_modules.ast.AST_SymbolAlias;
-        var AST_SymbolCatch = ρσ_modules.ast.AST_SymbolCatch;
-        var AST_SymbolDefun = ρσ_modules.ast.AST_SymbolDefun;
-        var AST_SymbolFunarg = ρσ_modules.ast.AST_SymbolFunarg;
-        var AST_SymbolLambda = ρσ_modules.ast.AST_SymbolLambda;
-        var AST_SymbolNonlocal = ρσ_modules.ast.AST_SymbolNonlocal;
-        var AST_SymbolRef = ρσ_modules.ast.AST_SymbolRef;
-        var AST_SymbolVar = ρσ_modules.ast.AST_SymbolVar;
-        var AST_This = ρσ_modules.ast.AST_This;
-        var AST_Throw = ρσ_modules.ast.AST_Throw;
-        var AST_Toplevel = ρσ_modules.ast.AST_Toplevel;
-        var AST_True = ρσ_modules.ast.AST_True;
-        var AST_Try = ρσ_modules.ast.AST_Try;
-        var AST_UnaryPrefix = ρσ_modules.ast.AST_UnaryPrefix;
-        var AST_Undefined = ρσ_modules.ast.AST_Undefined;
-        var AST_Var = ρσ_modules.ast.AST_Var;
-        var AST_VarDef = ρσ_modules.ast.AST_VarDef;
-        var AST_Verbatim = ρσ_modules.ast.AST_Verbatim;
-        var AST_While = ρσ_modules.ast.AST_While;
-        var AST_With = ρσ_modules.ast.AST_With;
-        var AST_WithClause = ρσ_modules.ast.AST_WithClause;
-        var AST_Yield = ρσ_modules.ast.AST_Yield;
-        var AST_Await = ρσ_modules.ast.AST_Await;
-        var AST_Assert = ρσ_modules.ast.AST_Assert;
-        var AST_Existential = ρσ_modules.ast.AST_Existential;
-        var is_node_type = ρσ_modules.ast.is_node_type;
-        var TreeWalker = ρσ_modules.ast.TreeWalker;
-
-        var tokenizer = ρσ_modules.tokenizer.tokenizer;
-        var is_token = ρσ_modules.tokenizer.is_token;
-        var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
-
-        COMPILER_VERSION = "69bd5337ed9d2347e80f4c6a357a9dcd6567b9a1";
-        PYTHON_FLAGS = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["dict_literals"] = true;
-            ρσ_d["overload_getitem"] = true;
-            ρσ_d["bound_methods"] = true;
-            ρσ_d["hash_literals"] = true;
-            return ρσ_d;
-        }).call(this);
-        CACHE_VERSION = 1;
-        function get_compiler_version() {
-            return COMPILER_VERSION;
-        };
-        if (!get_compiler_version.__module__) Object.defineProperties(get_compiler_version, {
-            __module__ : {value: "parse"}
-        });
-
-        function static_predicate(names) {
-            return (function() {
-                var ρσ_Iter = names.split(" "), ρσ_Result = Object.create(null), k;
-                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                for (var ρσ_Index of ρσ_Iter) {
-                    k = ρσ_Index;
-                    ρσ_Result[k] = (true);
-                }
-                return ρσ_Result;
-            })();
-        };
-        if (!static_predicate.__argnames__) Object.defineProperties(static_predicate, {
-            __argnames__ : {value: ["names"]},
-            __module__ : {value: "parse"}
-        });
-
-        NATIVE_CLASSES = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["Image"] = Object.create(null);
-            ρσ_d["FileReader"] = Object.create(null);
-            ρσ_d["RegExp"] = Object.create(null);
-            ρσ_d["Error"] = Object.create(null);
-            ρσ_d["EvalError"] = Object.create(null);
-            ρσ_d["InternalError"] = Object.create(null);
-            ρσ_d["RangeError"] = Object.create(null);
-            ρσ_d["ReferenceError"] = Object.create(null);
-            ρσ_d["SyntaxError"] = Object.create(null);
-            ρσ_d["TypeError"] = Object.create(null);
-            ρσ_d["URIError"] = Object.create(null);
-            ρσ_d["Object"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("getOwnPropertyNames getOwnPropertyDescriptor getOwnPropertyDescriptors getOwnPropertySymbols keys entries values create defineProperty defineProperties getPrototypeOf setPrototypeOf assign seal isSealed is preventExtensions isExtensible freeze isFrozen");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["String"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("fromCharCode");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["Array"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("isArray from of");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["Function"] = Object.create(null);
-            ρσ_d["Date"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("UTC now parse");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["ArrayBuffer"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("isView transfer");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["DataView"] = Object.create(null);
-            ρσ_d["Float32Array"] = Object.create(null);
-            ρσ_d["Float64Array"] = Object.create(null);
-            ρσ_d["Int16Array"] = Object.create(null);
-            ρσ_d["Int32Array"] = Object.create(null);
-            ρσ_d["Int8Array"] = Object.create(null);
-            ρσ_d["Uint16Array"] = Object.create(null);
-            ρσ_d["Uint32Array"] = Object.create(null);
-            ρσ_d["Uint8Array"] = Object.create(null);
-            ρσ_d["Uint8ClampedArray"] = Object.create(null);
-            ρσ_d["Map"] = Object.create(null);
-            ρσ_d["WeakMap"] = Object.create(null);
-            ρσ_d["Proxy"] = Object.create(null);
-            ρσ_d["Set"] = Object.create(null);
-            ρσ_d["WeakSet"] = Object.create(null);
-            ρσ_d["Promise"] = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["static"] = static_predicate("all race reject resolve");
-                return ρσ_d;
-            }).call(this);
-            ρσ_d["WebSocket"] = Object.create(null);
-            ρσ_d["XMLHttpRequest"] = Object.create(null);
-            ρσ_d["TextEncoder"] = Object.create(null);
-            ρσ_d["TextDecoder"] = Object.create(null);
-            ρσ_d["MouseEvent"] = Object.create(null);
-            ρσ_d["Event"] = Object.create(null);
-            ρσ_d["CustomEvent"] = Object.create(null);
-            ρσ_d["Blob"] = Object.create(null);
-            return ρσ_d;
-        }).call(this);
-        ERROR_CLASSES = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["Exception"] = Object.create(null);
-            ρσ_d["AttributeError"] = Object.create(null);
-            ρσ_d["IndexError"] = Object.create(null);
-            ρσ_d["KeyError"] = Object.create(null);
-            ρσ_d["ValueError"] = Object.create(null);
-            ρσ_d["UnicodeDecodeError"] = Object.create(null);
-            ρσ_d["AssertionError"] = Object.create(null);
-            ρσ_d["ZeroDivisionError"] = Object.create(null);
-            return ρσ_d;
-        }).call(this);
-        COMMON_STATIC = static_predicate("call apply bind toString");
-        FORBIDDEN_CLASS_VARS = "prototype constructor".split(" ");
-        UNARY_PREFIX = make_predicate("typeof void delete ~ - + ! @");
-        ASSIGNMENT = make_predicate("= += -= /= //= *= %= >>= <<= >>>= |= ^= &=");
-        PRECEDENCE = (function() {
-            var ρσ_anonfunc = function (a, ret) {
-                var b, j, i;
-                for (var ρσ_Index35 = 0; ρσ_Index35 < a.length; ρσ_Index35++) {
-                    i = ρσ_Index35;
-                    b = a[(typeof i === "number" && i < 0) ? a.length + i : i];
-                    for (var ρσ_Index36 = 0; ρσ_Index36 < b.length; ρσ_Index36++) {
-                        j = ρσ_Index36;
-                        ret[ρσ_bound_index(b[(typeof j === "number" && j < 0) ? b.length + j : j], ret)] = i + 1;
-                    }
-                }
-                return ret;
-            };
-            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                __argnames__ : {value: ["a", "ret"]},
-                __module__ : {value: "parse"}
-            });
-            return ρσ_anonfunc;
-        })()([ [ "||" ], [ "&&" ], [ "|" ], [ "^" ], [ "&" ], [ "==", "===", "!=", "!==" ], [ "<", ">", "<=", ">=", "in", "nin", "instanceof" ], [ ">>", "<<", ">>>" ], [ "+", "-" ], [ "*", "/", "//", "%" ], [ "**" ] ], Object.create(null));
-        STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ]);
-        ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name", "js" ]);
-        compile_time_decorators = [ "staticmethod", "external", "property" ];
-        function has_simple_decorator(decorators, name) {
-            var remove, s;
-            remove = [];
-            for (var i = 0; i < decorators.length; i++) {
-                s = decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i];
-                if (is_node_type(s, AST_SymbolRef) && !s.parens && s.name === name) {
-                    remove.push(i);
-                }
-            }
-            if (remove.length) {
-                remove.reverse();
-                for (var i = 0; i < remove.length; i++) {
-                    decorators.splice(remove[(typeof i === "number" && i < 0) ? remove.length + i : i], 1);
-                }
-                return true;
-            }
-            return false;
-        };
-        if (!has_simple_decorator.__argnames__) Object.defineProperties(has_simple_decorator, {
-            __argnames__ : {value: ["decorators", "name"]},
-            __module__ : {value: "parse"}
-        });
-
-        function has_setter_decorator(decorators, name) {
-            var remove, s;
-            remove = [];
-            for (var i = 0; i < decorators.length; i++) {
-                s = decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i];
-                if (is_node_type(s, AST_Dot) && is_node_type(s.expression, AST_SymbolRef) && s.expression.name === name && s.property === "setter") {
-                    remove.push(i);
-                }
-            }
-            if (remove.length) {
-                remove.reverse();
-                for (var i = 0; i < remove.length; i++) {
-                    decorators.splice(remove[(typeof i === "number" && i < 0) ? remove.length + i : i], 1);
-                }
-                return true;
-            }
-            return false;
-        };
-        if (!has_setter_decorator.__argnames__) Object.defineProperties(has_setter_decorator, {
-            __argnames__ : {value: ["decorators", "name"]},
-            __module__ : {value: "parse"}
-        });
-
-        function create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options) {
-            function next() {
-                S.prev = S.token;
-                if (S.peeked.length) {
-                    S.token = S.peeked.shift();
-                } else {
-                    S.token = S.input();
-                }
-                return S.token;
-            };
-            if (!next.__module__) Object.defineProperties(next, {
-                __module__ : {value: "parse"}
-            });
-
-            function is_(type, value) {
-                return is_token(S.token, type, value);
-            };
-            if (!is_.__argnames__) Object.defineProperties(is_, {
-                __argnames__ : {value: ["type", "value"]},
-                __module__ : {value: "parse"}
-            });
-
-            function peek() {
-                if (!S.peeked.length) {
-                    S.peeked.push(S.input());
-                }
-                return S.peeked[0];
-            };
-            if (!peek.__module__) Object.defineProperties(peek, {
-                __module__ : {value: "parse"}
-            });
-
-            function prev() {
-                return S.prev;
-            };
-            if (!prev.__module__) Object.defineProperties(prev, {
-                __module__ : {value: "parse"}
-            });
-
-            function croak(msg, line, col, pos, is_eof) {
-                var ctx;
-                ctx = S.input.context();
-                throw new SyntaxError(msg, ctx.filename, (line !== undefined) ? line : ctx.tokline, (col !== undefined) ? col : ctx.tokcol, (pos !== undefined) ? pos : ctx.tokpos, is_eof);
-            };
-            if (!croak.__argnames__) Object.defineProperties(croak, {
-                __argnames__ : {value: ["msg", "line", "col", "pos", "is_eof"]},
-                __module__ : {value: "parse"}
-            });
-
-            function token_error(token, msg) {
-                var is_eof;
-                is_eof = token.type === "eof";
-                croak(msg, token.line, token.col, undefined, is_eof);
-            };
-            if (!token_error.__argnames__) Object.defineProperties(token_error, {
-                __argnames__ : {value: ["token", "msg"]},
-                __module__ : {value: "parse"}
-            });
-
-            function unexpected(token) {
-                if (token === undefined) {
-                    token = S.token;
-                }
-                token_error(token, "Unexpected token: " + token.type + " «" + token.value + "»");
-            };
-            if (!unexpected.__argnames__) Object.defineProperties(unexpected, {
-                __argnames__ : {value: ["token"]},
-                __module__ : {value: "parse"}
-            });
-
-            function is_recoverable_error(e) {
-                return e instanceof SyntaxError;
-            };
-            if (!is_recoverable_error.__argnames__) Object.defineProperties(is_recoverable_error, {
-                __argnames__ : {value: ["e"]},
-                __module__ : {value: "parse"}
-            });
-
-            function record_recovery(e) {
-                S.recovered_errors.push((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["message"] = e.message;
-                    ρσ_d["line"] = e.line;
-                    ρσ_d["col"] = e.col;
-                    ρσ_d["pos"] = e.pos;
-                    ρσ_d["endpos"] = e.endpos;
-                    ρσ_d["is_eof"] = e.is_eof;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!record_recovery.__argnames__) Object.defineProperties(record_recovery, {
-                __argnames__ : {value: ["e"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function skip_to_recovery_point() {
-                while (!is_("eof")) {
-                    try {
-                        next();
-                    } catch (ρσ_Exception) {
-                        ρσ_last_exception = ρσ_Exception;
-                        {
-                            var e = ρσ_Exception;
-                            if (is_recoverable_error(e)) {
-                                record_recovery(e);
-                                if (is_("eof")) {
-                                    return;
-                                }
-                                continue;
-                            }
-                            throw ρσ_Exception;
-                        } 
-                    }
-                    if (is_("eof") || is_("punc", "}") || S.token.nlb) {
-                        return;
-                    }
-                }
-            };
-            if (!skip_to_recovery_point.__module__) Object.defineProperties(skip_to_recovery_point, {
-                __module__ : {value: "parse"}
-            });
-
-            function expect_token(type, val) {
-                if (is_(type, val)) {
-                    return next();
-                }
-                token_error(S.token, "Unexpected token " + S.token.type + " «" + S.token.value + "»" + ", expected " + type + " «" + val + "»");
-            };
-            if (!expect_token.__argnames__) Object.defineProperties(expect_token, {
-                __argnames__ : {value: ["type", "val"]},
-                __module__ : {value: "parse"}
-            });
-
-            function expect(punc) {
-                return expect_token("punc", punc);
-            };
-            if (!expect.__argnames__) Object.defineProperties(expect, {
-                __argnames__ : {value: ["punc"]},
-                __module__ : {value: "parse"}
-            });
-
-            function semicolon() {
-                if (is_("punc", ";")) {
-                    next();
-                    S.token.nlb = true;
-                }
-            };
-            if (!semicolon.__module__) Object.defineProperties(semicolon, {
-                __module__ : {value: "parse"}
-            });
-
-            function embed_tokens(parser) {
-                async function with_embedded_tokens() {
-                    var start, expr, end;
-                    start = S.token;
-                    expr = await parser();
-                    if (expr === undefined) {
-                        unexpected();
-                    }
-                    end = prev();
-                    expr.start = start;
-                    expr.end = end;
-                    return expr;
-                };
-                if (!with_embedded_tokens.__module__) Object.defineProperties(with_embedded_tokens, {
-                    __module__ : {value: "parse"}
-                });
-
-                return with_embedded_tokens;
-            };
-            if (!embed_tokens.__argnames__) Object.defineProperties(embed_tokens, {
-                __argnames__ : {value: ["parser"]},
-                __module__ : {value: "parse"}
-            });
-
-            function scan_for_top_level_callables(body) {
-                var ans, opt, x, obj;
-                ans = [];
-                if (Array.isArray(body)) {
-                    var ρσ_Iter37 = body;
-                    ρσ_Iter37 = ((typeof ρσ_Iter37[Symbol.iterator] === "function") ? (ρσ_Iter37 instanceof Map ? ρσ_Iter37.keys() : ρσ_Iter37) : Object.keys(ρσ_Iter37));
-                    for (var ρσ_Index37 of ρσ_Iter37) {
-                        obj = ρσ_Index37;
-                        if (is_node_type(obj, AST_Function) || is_node_type(obj, AST_Class)) {
-                            if (obj.name) {
-                                ans.push(obj.name.name);
-                            } else {
-                                token_error(obj.start, "Top-level functions must have names");
-                            }
-                        } else {
-                            if (is_node_type(obj, AST_Scope)) {
-                                continue;
-                            }
-                            var ρσ_Iter38 = [ "body", "alternative" ];
-                            ρσ_Iter38 = ((typeof ρσ_Iter38[Symbol.iterator] === "function") ? (ρσ_Iter38 instanceof Map ? ρσ_Iter38.keys() : ρσ_Iter38) : Object.keys(ρσ_Iter38));
-                            for (var ρσ_Index38 of ρσ_Iter38) {
-                                x = ρσ_Index38;
-                                opt = obj[(typeof x === "number" && x < 0) ? obj.length + x : x];
-                                if (opt) {
-                                    ans = ans.concat(scan_for_top_level_callables(opt));
-                                }
-                                if (is_node_type(opt, AST_Assign) && !(is_node_type(opt.right, AST_Scope))) {
-                                    ans = ans.concat(scan_for_top_level_callables(opt.right));
-                                }
-                            }
-                        }
-                    }
-                } else if (body.body) {
-                    ans = ans.concat(scan_for_top_level_callables(body.body));
-                    if (body.alternative) {
-                        ans = ans.concat(scan_for_top_level_callables(body.alternative));
-                    }
-                }
-                return ans;
-            };
-            if (!scan_for_top_level_callables.__argnames__) Object.defineProperties(scan_for_top_level_callables, {
-                __argnames__ : {value: ["body"]},
-                __module__ : {value: "parse"}
-            });
-
-            function scan_for_classes(body) {
-                var ans, obj;
-                ans = Object.create(null);
-                var ρσ_Iter39 = body;
-                ρσ_Iter39 = ((typeof ρσ_Iter39[Symbol.iterator] === "function") ? (ρσ_Iter39 instanceof Map ? ρσ_Iter39.keys() : ρσ_Iter39) : Object.keys(ρσ_Iter39));
-                for (var ρσ_Index39 of ρσ_Iter39) {
-                    obj = ρσ_Index39;
-                    if (is_node_type(obj, AST_Class)) {
-                        ans[ρσ_bound_index(obj.name.name, ans)] = obj;
-                    }
-                }
-                return ans;
-            };
-            if (!scan_for_classes.__argnames__) Object.defineProperties(scan_for_classes, {
-                __argnames__ : {value: ["body"]},
-                __module__ : {value: "parse"}
-            });
-
-            function scan_for_local_vars(body) {
-                var localvars, seen, opt, option, clause, stmt, is_compound_assign, lhs;
-                localvars = [];
-                seen = Object.create(null);
-                function push(x) {
-                    if (has_prop(seen, x)) {
-                        return;
-                    }
-                    seen[(typeof x === "number" && x < 0) ? seen.length + x : x] = true;
-                    localvars.push(x);
-                };
-                if (!push.__argnames__) Object.defineProperties(push, {
-                    __argnames__ : {value: ["x"]},
-                    __module__ : {value: "parse"}
-                });
-
-                function extend(arr) {
-                    var x;
-                    var ρσ_Iter40 = arr;
-                    ρσ_Iter40 = ((typeof ρσ_Iter40[Symbol.iterator] === "function") ? (ρσ_Iter40 instanceof Map ? ρσ_Iter40.keys() : ρσ_Iter40) : Object.keys(ρσ_Iter40));
-                    for (var ρσ_Index40 of ρσ_Iter40) {
-                        x = ρσ_Index40;
-                        push(x);
-                    }
-                };
-                if (!extend.__argnames__) Object.defineProperties(extend, {
-                    __argnames__ : {value: ["arr"]},
-                    __module__ : {value: "parse"}
-                });
-
-                function scan_in_array(arr) {
-                    var x;
-                    var ρσ_Iter41 = arr;
-                    ρσ_Iter41 = ((typeof ρσ_Iter41[Symbol.iterator] === "function") ? (ρσ_Iter41 instanceof Map ? ρσ_Iter41.keys() : ρσ_Iter41) : Object.keys(ρσ_Iter41));
-                    for (var ρσ_Index41 of ρσ_Iter41) {
-                        x = ρσ_Index41;
-                        if (is_node_type(x, AST_Seq)) {
-                            x = x.to_array();
-                        } else if (is_node_type(x, AST_Array)) {
-                            x = x.elements;
-                        }
-                        if (Array.isArray(x)) {
-                            scan_in_array(x);
-                        } else {
-                            if (!is_node_type(x, AST_PropAccess)) {
-                                push(x.name);
-                            }
-                        }
-                    }
-                };
-                if (!scan_in_array.__argnames__) Object.defineProperties(scan_in_array, {
-                    __argnames__ : {value: ["arr"]},
-                    __module__ : {value: "parse"}
-                });
-
-                function add_assign_lhs(lhs) {
-                    if (is_node_type(lhs, AST_Seq)) {
-                        lhs = new AST_Array((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["elements"] = lhs.to_array();
-                            return ρσ_d;
-                        }).call(this));
-                    }
-                    if (is_node_type(lhs, AST_Array)) {
-                        push("ρσ_unpack");
-                        scan_in_array(lhs.elements);
-                    } else if (lhs.name) {
-                        push(lhs.name);
-                    }
-                };
-                if (!add_assign_lhs.__argnames__) Object.defineProperties(add_assign_lhs, {
-                    __argnames__ : {value: ["lhs"]},
-                    __module__ : {value: "parse"}
-                });
-
-                function add_for_in(stmt) {
-                    if (is_node_type(stmt.init, AST_Array)) {
-                        push("ρσ_unpack");
-                        scan_in_array(stmt.init.elements);
-                    } else {
-                        push(stmt.init.name);
-                    }
-                };
-                if (!add_for_in.__argnames__) Object.defineProperties(add_for_in, {
-                    __argnames__ : {value: ["stmt"]},
-                    __module__ : {value: "parse"}
-                });
-
-                if (Array.isArray(body)) {
-                    var ρσ_Iter42 = body;
-                    ρσ_Iter42 = ((typeof ρσ_Iter42[Symbol.iterator] === "function") ? (ρσ_Iter42 instanceof Map ? ρσ_Iter42.keys() : ρσ_Iter42) : Object.keys(ρσ_Iter42));
-                    for (var ρσ_Index42 of ρσ_Iter42) {
-                        stmt = ρσ_Index42;
-                        if (is_node_type(stmt, AST_Scope)) {
-                            continue;
-                        }
-                        var ρσ_Iter43 = [ "body", "alternative", "bcatch", "condition" ];
-                        ρσ_Iter43 = ((typeof ρσ_Iter43[Symbol.iterator] === "function") ? (ρσ_Iter43 instanceof Map ? ρσ_Iter43.keys() : ρσ_Iter43) : Object.keys(ρσ_Iter43));
-                        for (var ρσ_Index43 of ρσ_Iter43) {
-                            option = ρσ_Index43;
-                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
-                            if (opt) {
-                                extend(scan_for_local_vars(opt));
-                            }
-                            if (is_node_type(opt, AST_Assign) && !(is_node_type(opt.right, AST_Scope))) {
-                                extend(scan_for_local_vars(opt.right));
-                            }
-                        }
-                        if (is_node_type(stmt, AST_ForIn)) {
-                            add_for_in(stmt);
-                        } else if (is_node_type(stmt, AST_DWLoop)) {
-                            extend(scan_for_local_vars(stmt));
-                        } else if (is_node_type(stmt, AST_With)) {
-                            [push("ρσ_with_exception"), push("ρσ_with_suppress")];
-                            var ρσ_Iter44 = stmt.clauses;
-                            ρσ_Iter44 = ((typeof ρσ_Iter44[Symbol.iterator] === "function") ? (ρσ_Iter44 instanceof Map ? ρσ_Iter44.keys() : ρσ_Iter44) : Object.keys(ρσ_Iter44));
-                            for (var ρσ_Index44 of ρσ_Iter44) {
-                                clause = ρσ_Index44;
-                                if (clause.alias) {
-                                    push(clause.alias.name);
-                                }
-                            }
-                        }
-                    }
-                } else if (body.body) {
-                    extend(scan_for_local_vars(body.body));
-                    if (body.alternative) {
-                        extend(scan_for_local_vars(body.alternative));
-                    }
-                } else if (is_node_type(body, AST_Assign)) {
-                    if (body.is_chained()) {
-                        is_compound_assign = false;
-                        var ρσ_Iter45 = body.traverse_chain()[0];
-                        ρσ_Iter45 = ((typeof ρσ_Iter45[Symbol.iterator] === "function") ? (ρσ_Iter45 instanceof Map ? ρσ_Iter45.keys() : ρσ_Iter45) : Object.keys(ρσ_Iter45));
-                        for (var ρσ_Index45 of ρσ_Iter45) {
-                            lhs = ρσ_Index45;
-                            add_assign_lhs(lhs);
-                            if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
-                                is_compound_assign = true;
-                                break;
-                            }
-                        }
-                        if (is_compound_assign) {
-                            push("ρσ_chain_assign_temp");
-                        }
-                    } else {
-                        add_assign_lhs(body.left);
-                    }
-                    if (!is_node_type(body.right, AST_Scope)) {
-                        extend(scan_for_local_vars(body.right));
-                    }
-                } else if (is_node_type(body, AST_ForIn)) {
-                    add_for_in(body);
-                }
-                return localvars;
-            };
-            if (!scan_for_local_vars.__argnames__) Object.defineProperties(scan_for_local_vars, {
-                __argnames__ : {value: ["body"]},
-                __module__ : {value: "parse"}
-            });
-
-            function scan_for_nonlocal_defs(body) {
-                var vardef, opt, option, stmt;
-                vars = [];
-                if (Array.isArray(body)) {
-                    var ρσ_Iter46 = body;
-                    ρσ_Iter46 = ((typeof ρσ_Iter46[Symbol.iterator] === "function") ? (ρσ_Iter46 instanceof Map ? ρσ_Iter46.keys() : ρσ_Iter46) : Object.keys(ρσ_Iter46));
-                    for (var ρσ_Index46 of ρσ_Iter46) {
-                        stmt = ρσ_Index46;
-                        if (is_node_type(stmt, AST_Scope)) {
-                            continue;
-                        }
-                        if (is_node_type(stmt, AST_Definitions)) {
-                            var ρσ_Iter47 = stmt.definitions;
-                            ρσ_Iter47 = ((typeof ρσ_Iter47[Symbol.iterator] === "function") ? (ρσ_Iter47 instanceof Map ? ρσ_Iter47.keys() : ρσ_Iter47) : Object.keys(ρσ_Iter47));
-                            for (var ρσ_Index47 of ρσ_Iter47) {
-                                vardef = ρσ_Index47;
-                                vars.push(vardef.name.name);
-                            }
-                        }
-                        var ρσ_Iter48 = [ "body", "alternative" ];
-                        ρσ_Iter48 = ((typeof ρσ_Iter48[Symbol.iterator] === "function") ? (ρσ_Iter48 instanceof Map ? ρσ_Iter48.keys() : ρσ_Iter48) : Object.keys(ρσ_Iter48));
-                        for (var ρσ_Index48 of ρσ_Iter48) {
-                            option = ρσ_Index48;
-                            var vars;
-                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
-                            if (opt) {
-                                vars = vars.concat(scan_for_nonlocal_defs(opt));
-                            }
-                        }
-                    }
-                } else if (body.body) {
-                    vars = vars.concat(scan_for_nonlocal_defs(body.body));
-                    if (body.alternative) {
-                        vars = vars.concat(scan_for_nonlocal_defs(body.alternative));
-                    }
-                }
-                return vars;
-            };
-            if (!scan_for_nonlocal_defs.__argnames__) Object.defineProperties(scan_for_nonlocal_defs, {
-                __argnames__ : {value: ["body"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function return_() {
-                var value, is_end_of_statement;
-                if (is_("punc", ";")) {
-                    semicolon();
-                    value = null;
-                } else {
-                    is_end_of_statement = S.token.nlb || is_("eof") || is_("punc", "}");
-                    if (is_end_of_statement) {
-                        value = null;
-                    } else {
-                        value = await expression(true);
-                        semicolon();
-                    }
-                }
-                return value;
-            };
-            if (!return_.__module__) Object.defineProperties(return_, {
-                __module__ : {value: "parse"}
-            });
-
-            
-            var statement = embed_tokens((function() {
-                var ρσ_anonfunc = async function statement() {
-                    var tmp_, p, bs_body, do_body, do_cond, while_cond, while_body, start, func, chain, cond, msg, ret_val, value, node, tmp;
-                    if (S.token.type === "operator" && S.token.value.substr(0, 1) === "/") {
-                        token_error(S.token, "RapydScript does not support statements starting with regexp literals");
-                    }
-                    S.statement_starting_token = S.token;
-                    tmp_ = S.token.type;
-                    p = prev();
-                    if (p && !S.token.nlb && ATOMIC_START_TOKEN[ρσ_bound_index(p.type, ATOMIC_START_TOKEN)] && !is_("punc", ":")) {
-                        unexpected();
-                    }
-                    if (tmp_ === "string") {
-                        return await simple_statement();
-                    } else if (tmp_ === "shebang") {
-                        tmp_ = S.token.value;
-                        next();
-                        return new AST_Directive((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["value"] = tmp_;
-                            return ρσ_d;
-                        }).call(this));
-                    } else if (tmp_ === "num" || tmp_ === "regexp" || tmp_ === "operator" || tmp_ === "atom" || tmp_ === "js") {
-                        return await simple_statement();
-                    } else if (tmp_ === "punc") {
-                        tmp_ = S.token.value;
-                        if (tmp_ === ":") {
-                            bs_body = await block_();
-                            return new AST_BlockStatement((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = S.token;
-                                ρσ_d["body"] = bs_body;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "{" || tmp_ === "[" || tmp_ === "(") {
-                            return await simple_statement();
-                        } else if (tmp_ === ";") {
-                            next();
-                            return new AST_EmptyStatement((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["stype"] = ";";
-                                ρσ_d["start"] = prev();
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                        } else {
-                            unexpected();
-                        }
-                    } else if (tmp_ === "name") {
-                        if (is_token(peek(), "punc", ":")) token_error(peek(), "invalid syntax, colon not allowed here");
-                        return await simple_statement();
-                    } else if (tmp_ === "keyword") {
-                        tmp_ = S.token.value;
-                        next();
-                        if (tmp_ === "break") {
-                            return break_cont(AST_Break);
-                        } else if (tmp_ === "continue") {
-                            return break_cont(AST_Continue);
-                        } else if (tmp_ === "debugger") {
-                            semicolon();
-                            return new AST_Debugger;
-                        } else if (tmp_ === "do") {
-                            do_body = await in_loop(statement);
-                            do_cond = await (function() {
-                                var ρσ_anonfunc = async function () {
-                                    var tmp;
-                                    expect(".");
-                                    expect_token("keyword", "while");
-                                    tmp = await expression(true);
-                                    if (is_node_type(tmp, AST_Assign)) {
-                                        croak("Assignments in do loop conditions are not allowed");
-                                    }
-                                    semicolon();
-                                    return tmp;
-                                };
-                                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                                    __module__ : {value: "parse"}
-                                });
-                                return ρσ_anonfunc;
-                            })()();
-                            return new AST_Do((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["body"] = do_body;
-                                ρσ_d["condition"] = do_cond;
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "while") {
-                            while_cond = await expression(true);
-                            if (is_node_type(while_cond, AST_Assign)) {
-                                croak("Assignments in while loop conditions are not allowed");
-                            }
-                            if (!is_("punc", ":")) {
-                                croak("Expected a colon after the while statement");
-                            }
-                            while_body = await in_loop(statement);
-                            return new AST_While((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["condition"] = while_cond;
-                                ρσ_d["body"] = while_body;
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "for") {
-                            if (is_("js")) {
-                                return await for_js();
-                            }
-                            return await for_();
-                        } else if (tmp_ === "from") {
-                            return await import_(true);
-                        } else if (tmp_ === "import") {
-                            return await import_(false);
-                        } else if (tmp_ === "class") {
-                            return await class_();
-                        } else if (tmp_ === "async") {
-                            if (!is_("keyword", "def")) {
-                                croak("Expected 'def' after 'async'");
-                            }
-                            next();
-                            start = prev();
-                            func = await function_((ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1], false, true);
-                            func.start = start;
-                            func.end = prev();
-                            chain = await subscripts(func, true);
-                            if (chain === func) {
-                                return func;
-                            } else {
-                                return new AST_SimpleStatement((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["body"] = chain;
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this));
-                            }
-                        } else if (tmp_ === "def") {
-                            start = prev();
-                            func = await function_((ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1], false);
-                            func.start = start;
-                            func.end = prev();
-                            chain = await subscripts(func, true);
-                            if (chain === func) {
-                                return func;
-                            } else {
-                                return new AST_SimpleStatement((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["start"] = start;
-                                    ρσ_d["body"] = chain;
-                                    ρσ_d["end"] = prev();
-                                    return ρσ_d;
-                                }).call(this));
-                            }
-                        } else if (tmp_ === "assert") {
-                            start = prev();
-                            cond = await expression(false);
-                            msg = null;
-                            if (is_("punc", ",")) {
-                                next();
-                                msg = await expression(false);
-                            }
-                            return new AST_Assert((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["condition"] = cond;
-                                ρσ_d["message"] = msg;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "if") {
-                            return await if_();
-                        } else if (tmp_ === "pass") {
-                            semicolon();
-                            return new AST_EmptyStatement((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["stype"] = "pass";
-                                ρσ_d["start"] = prev();
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "return") {
-                            if (S.in_function === 0) {
-                                croak("'return' outside of function");
-                            }
-                            if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator) {
-                                croak("'return' not allowed in a function with yield");
-                            }
-                            (ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator = false;
-                            ret_val = await return_();
-                            return new AST_Return((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = ret_val;
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "await") {
-                            if (S.in_function === 0 || !(ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
-                                croak("'await' outside of async function");
-                            }
-                            value = await expr_atom(true);
-                            node = new AST_Await((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = value;
-                                return ρσ_d;
-                            }).call(this));
-                            semicolon();
-                            return new AST_SimpleStatement((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["body"] = node;
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "yield") {
-                            return await yield_();
-                        } else if (tmp_ === "raise") {
-                            if (S.token.nlb) {
-                                return new AST_Throw((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = new AST_SymbolCatch((function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["name"] = "ρσ_Exception";
-                                        return ρσ_d;
-                                    }).call(this));
-                                    return ρσ_d;
-                                }).call(this));
-                            }
-                            tmp = await expression(true);
-                            semicolon();
-                            return new AST_Throw((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = tmp;
-                                return ρσ_d;
-                            }).call(this));
-                        } else if (tmp_ === "try") {
-                            return await try_();
-                        } else if (tmp_ === "nonlocal") {
-                            tmp = await nonlocal_();
-                            semicolon();
-                            return tmp;
-                        } else if (tmp_ === "global") {
-                            tmp = await nonlocal_(true);
-                            semicolon();
-                            return tmp;
-                        } else if (tmp_ === "with") {
-                            return await with_();
-                        } else {
-                            unexpected();
-                        }
-                    }
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "parse"}
-                });
-                return ρσ_anonfunc;
-            })());
-
-            async function with_() {
-                var clauses, start, expr, alias, body;
-                clauses = [];
-                start = S.token;
-                while (true) {
-                    if (is_("eof")) {
-                        unexpected();
-                    }
-                    expr = await expression();
-                    alias = null;
-                    if (is_("keyword", "as")) {
-                        next();
-                        alias = as_symbol(AST_SymbolAlias);
-                    }
-                    clauses.push(new AST_WithClause((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["expression"] = expr;
-                        ρσ_d["alias"] = alias;
-                        return ρσ_d;
-                    }).call(this)));
-                    if (is_("punc", ",")) {
-                        next();
-                        continue;
-                    }
-                    if (!is_("punc", ":")) {
-                        unexpected();
-                    }
-                    break;
-                }
-                if (!clauses.length) {
-                    token_error(start, "with statement must have at least one clause");
-                }
-                body = await statement();
-                return new AST_With((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["clauses"] = clauses;
-                    ρσ_d["body"] = body;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!with_.__module__) Object.defineProperties(with_, {
-                __module__ : {value: "parse"}
-            });
-
-            async function simple_statement(tmp) {
-                tmp = await expression(true);
-                semicolon();
-                return new AST_SimpleStatement((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["body"] = tmp;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!simple_statement.__argnames__) Object.defineProperties(simple_statement, {
-                __argnames__ : {value: ["tmp"]},
-                __module__ : {value: "parse"}
-            });
-
-            function break_cont(t) {
-                if (S.in_loop === 0) {
-                    croak(t.name.slice(4) + " not inside a loop or switch");
-                }
-                semicolon();
-                return new t;
-            };
-            if (!break_cont.__argnames__) Object.defineProperties(break_cont, {
-                __argnames__ : {value: ["t"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function yield_() {
-                var is_yield_from, yld_val;
-                if (S.in_function === 0) {
-                    croak("'yield' outside of function");
-                }
-                if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
-                    croak("'yield' not allowed in an async function");
-                }
-                if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator === false) {
-                    croak("'yield' not allowed in a function with return");
-                }
-                (ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator = true;
-                is_yield_from = is_("keyword", "from");
-                if (is_yield_from) {
-                    next();
-                }
-                yld_val = await return_();
-                return new AST_Yield((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["is_yield_from"] = is_yield_from;
-                    ρσ_d["value"] = yld_val;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!yield_.__module__) Object.defineProperties(yield_, {
-                __module__ : {value: "parse"}
-            });
-
-            async function for_(list_comp) {
-                var init, tmp;
-                init = null;
-                if (!is_("punc", ";")) {
-                    init = await expression(true, true);
-                    if (is_node_type(init, AST_Seq)) {
-                        if (is_node_type(init.car, AST_SymbolRef) && is_node_type(init.cdr, AST_SymbolRef)) {
-                            tmp = init.to_array();
-                        } else {
-                            tmp = [ init ];
-                        }
-                        init = new AST_Array((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = init.start;
-                            ρσ_d["elements"] = tmp;
-                            ρσ_d["end"] = init.end;
-                            return ρσ_d;
-                        }).call(this));
-                    }
-                    if (is_("operator", "in")) {
-                        if (is_node_type(init, AST_Var) && init.definitions.length > 1) {
-                            croak("Only one variable declaration allowed in for..in loop");
-                        }
-                        next();
-                        return await for_in(init, list_comp);
-                    }
-                }
-                unexpected();
-            };
-            if (!for_.__argnames__) Object.defineProperties(for_, {
-                __argnames__ : {value: ["list_comp"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function for_in(init, list_comp) {
-                var lhs, obj, fi_body;
-                lhs = (is_node_type(init, AST_Var)) ? init.definitions[0].name : null;
-                obj = await expression(true);
-                if (list_comp) {
-                    return (function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["init"] = init;
-                        ρσ_d["name"] = lhs;
-                        ρσ_d["object"] = obj;
-                        return ρσ_d;
-                    }).call(this);
-                }
-                fi_body = await in_loop(statement);
-                return new AST_ForIn((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["init"] = init;
-                    ρσ_d["name"] = lhs;
-                    ρσ_d["object"] = obj;
-                    ρσ_d["body"] = fi_body;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!for_in.__argnames__) Object.defineProperties(for_in, {
-                __argnames__ : {value: ["init", "list_comp"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function for_js() {
-                var condition, fj_body;
-                condition = as_atom_node();
-                fj_body = await in_loop(statement);
-                return new AST_ForJS((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["condition"] = condition;
-                    ρσ_d["body"] = fj_body;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!for_js.__module__) Object.defineProperties(for_js, {
-                __module__ : {value: "parse"}
-            });
-
-            function get_class_in_scope(expr) {
-                var s, referenced_path, class_name;
-                if (is_node_type(expr, AST_SymbolRef)) {
-                    if (has_prop(NATIVE_CLASSES, expr.name)) {
-                        return NATIVE_CLASSES[ρσ_bound_index(expr.name, NATIVE_CLASSES)];
-                    }
-                    if (has_prop(ERROR_CLASSES, expr.name)) {
-                        return ERROR_CLASSES[ρσ_bound_index(expr.name, ERROR_CLASSES)];
-                    }
-                    for (var ρσ_Index49 = S.classes.length - 1; ρσ_Index49 > -1; ρσ_Index49-=1) {
-                        s = ρσ_Index49;
-                        if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], expr.name)) {
-                            return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[ρσ_bound_index(expr.name, ρσ_expr_temp)];
-                        }
-                    }
-                } else if (is_node_type(expr, AST_Dot)) {
-                    referenced_path = [];
-                    while (is_node_type(expr, AST_Dot)) {
-                        referenced_path.unshift(expr.property);
-                        expr = expr.expression;
-                    }
-                    if (is_node_type(expr, AST_SymbolRef)) {
-                        referenced_path.unshift(expr.name);
-                        if (len(referenced_path) > 1) {
-                            class_name = referenced_path.join(".");
-                            for (var ρσ_Index50 = S.classes.length - 1; ρσ_Index50 > -1; ρσ_Index50-=1) {
-                                s = ρσ_Index50;
-                                if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], class_name)) {
-                                    return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
-                                }
-                            }
-                        }
-                    }
-                }
-                return false;
-            };
-            if (!get_class_in_scope.__argnames__) Object.defineProperties(get_class_in_scope, {
-                __argnames__ : {value: ["expr"]},
-                __module__ : {value: "parse"}
-            });
-
-            function import_error(message) {
-                var ctx;
-                ctx = S.input.context();
-                throw new ImportError(message, ctx.filename, ctx.tokline, ctx.tokcol, ctx.tokpos);
-            };
-            if (!import_error.__argnames__) Object.defineProperties(import_error, {
-                __argnames__ : {value: ["message"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function do_import(key) {
-                var loading_promises, _rfn, package_module_id, file_mtime, filename, prefetched_src, modpath, ρσ_unpack, location, cache_read, cached, ast_json_str, _split, srchash, src_code, cache_ok, pending, ikey, classes, ci, cname, meta, module, bitem;
-                if (has_prop(imported_modules, key)) {
-                    return;
-                }
-                if (has_prop(importing_modules, key) && importing_modules[(typeof key === "number" && key < 0) ? importing_modules.length + key : key]) {
-                    import_error("Detected a recursive import of: " + key + " while importing: " + module_id);
-                }
-                loading_promises = options.loading_promises;
-                if (has_prop(loading_promises, key)) {
-                    await loading_promises[(typeof key === "number" && key < 0) ? loading_promises.length + key : key];
-                    return;
-                }
-                _rfn = [null];
-                function _capture_resolve(resolve) {
-                    _rfn[0] = resolve;
-                };
-                if (!_capture_resolve.__argnames__) Object.defineProperties(_capture_resolve, {
-                    __argnames__ : {value: ["resolve"]},
-                    __module__ : {value: "parse"}
-                });
-
-                loading_promises[(typeof key === "number" && key < 0) ? loading_promises.length + key : key] = new Promise(_capture_resolve);
-                try {
-                    package_module_id = key.split(".").slice(0, -1).join(".");
-                    if (len(package_module_id) > 0) {
-                        await do_import(package_module_id);
-                    }
-                    if (options.for_linting) {
-                        imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key] = (function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["is_cached"] = true;
-                            ρσ_d["classes"] = Object.create(null);
-                            ρσ_d["module_id"] = key;
-                            ρσ_d["exports"] = [];
-                            ρσ_d["nonlocalvars"] = [];
-                            ρσ_d["baselib"] = Object.create(null);
-                            ρσ_d["outputs"] = Object.create(null);
-                            ρσ_d["discard_asserts"] = options.discard_asserts;
-                            return ρσ_d;
-                        }).call(this);
-                        return;
-                    }
-                    async function safe_stat(base_path) {
-                        var st, ρσ_unpack, i, path;
-                        var ρσ_Iter51 = enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]);
-                        ρσ_Iter51 = ((typeof ρσ_Iter51[Symbol.iterator] === "function") ? (ρσ_Iter51 instanceof Map ? ρσ_Iter51.keys() : ρσ_Iter51) : Object.keys(ρσ_Iter51));
-                        for (var ρσ_Index51 of ρσ_Iter51) {
-                            ρσ_unpack = ρσ_Index51;
-                            i = ρσ_unpack[0];
-                            path = ρσ_unpack[1];
-                            try {
-                                st = await stat_file(path);
-                                return [ st.mtimeMs, path, (has_prop(st, "content")) ? st.content : null ];
-                            } catch (ρσ_Exception) {
-                                ρσ_last_exception = ρσ_Exception;
-                                {
-                                    var e = ρσ_Exception;
-                                    if (e.code === "ENOENT" || e.code === "EPERM" || e.code === "EACCESS") {
-                                        if (i === 1) {
-                                            return [null, null, null];
-                                        }
-                                    }
-                                    if (i === 1) {
-                                        throw ρσ_Exception;
-                                    }
-                                } 
-                            }
-                        }
-                    };
-                    if (!safe_stat.__argnames__) Object.defineProperties(safe_stat, {
-                        __argnames__ : {value: ["base_path"]},
-                        __module__ : {value: "parse"}
-                    });
-
-                    file_mtime = filename = prefetched_src = null;
-                    modpath = key.replace(/\./g, "/");
-                    var ρσ_Iter52 = import_dirs;
-                    ρσ_Iter52 = ((typeof ρσ_Iter52[Symbol.iterator] === "function") ? (ρσ_Iter52 instanceof Map ? ρσ_Iter52.keys() : ρσ_Iter52) : Object.keys(ρσ_Iter52));
-                    for (var ρσ_Index52 of ρσ_Iter52) {
-                        location = ρσ_Index52;
-                        if (location) {
-                            ρσ_unpack = await safe_stat(location + "/" + modpath);
-ρσ_unpack = ρσ_unpack_asarray(3, ρσ_unpack);
-                            file_mtime = ρσ_unpack[0];
-                            filename = ρσ_unpack[1];
-                            prefetched_src = ρσ_unpack[2];
-                            if (filename !== null) {
-                                break;
-                            }
-                        }
-                    }
-                    if (filename === null) {
-                        import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(":"));
-                    }
-                    cache_read = readfile(cache_file_name(filename, options.module_cache_dir));
-                    cached = null;
-                    ast_json_str = null;
-                    try {
-                        _split = decode_cache(await cache_read);
-                        if (_split !== null) {
-                            cached = JSON.parse(_split.meta);
-                            ast_json_str = _split.ast;
-                        }
-                    } catch (ρσ_Exception) {
-                        ρσ_last_exception = ρσ_Exception;
-                        {
-                            cached = null;
-                        } 
-                    }
-                    srchash = src_code = null;
-                    cache_ok = cached && cached.v === CACHE_VERSION && cached.compiler_version === COMPILER_VERSION;
-                    if (cache_ok && file_mtime !== null && cached.mtime !== null && cached.mtime === file_mtime) {
-                        srchash = cached.signature;
-                    } else {
-                        src_code = prefetched_src || await readfile(filename, "utf-8");
-                        srchash = sha1sum(src_code);
-                        if (!cache_ok || cached.signature !== srchash) {
-                            cached = null;
-                        }
-                    }
-                    if (cached !== null) {
-                        pending = [];
-                        var ρσ_Iter53 = cached.imported_module_ids;
-                        ρσ_Iter53 = ((typeof ρσ_Iter53[Symbol.iterator] === "function") ? (ρσ_Iter53 instanceof Map ? ρσ_Iter53.keys() : ρσ_Iter53) : Object.keys(ρσ_Iter53));
-                        for (var ρσ_Index53 of ρσ_Iter53) {
-                            ikey = ρσ_Index53;
-                            if (!has_prop(imported_modules, ikey)) {
-                                pending.push(do_import(ikey));
-                            }
-                        }
-                        if (pending.length > 0) {
-                            await Promise.all(pending);
-                        }
-                        classes = Object.create(null);
-                        var ρσ_Iter54 = Object.keys(cached.classes || Object.create(null));
-                        ρσ_Iter54 = ((typeof ρσ_Iter54[Symbol.iterator] === "function") ? (ρσ_Iter54 instanceof Map ? ρσ_Iter54.keys() : ρσ_Iter54) : Object.keys(ρσ_Iter54));
-                        for (var ρσ_Index54 of ρσ_Iter54) {
-                            cname = ρσ_Index54;
-                            ci = (ρσ_expr_temp = cached.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
-                            classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname] = (function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["name"] = (function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["name"] = cname;
-                                    return ρσ_d;
-                                }).call(this);
-                                ρσ_d["static"] = ci.static || Object.create(null);
-                                ρσ_d["bound"] = ci.bound || [];
-                                ρσ_d["classvars"] = ci.classvars || Object.create(null);
-                                return ρσ_d;
-                            }).call(this);
-                        }
-                        meta = (function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["module_id"] = key;
-                            ρσ_d["filename"] = filename;
-                            ρσ_d["import_order"] = Object.keys(imported_modules).length;
-                            ρσ_d["imports"] = imported_modules;
-                            ρσ_d["exports"] = (function() {
-                                var ρσ_Iter = cached.exported_names, ρσ_Result = [], n;
-                                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                                for (var ρσ_Index of ρσ_Iter) {
-                                    n = ρσ_Index;
-                                    ρσ_Result.push((function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["name"] = n;
-                                        return ρσ_d;
-                                    }).call(this));
-                                }
-                                ρσ_Result = ρσ_list_constructor(ρσ_Result);
-                                return ρσ_Result;
-                            })();
-                            ρσ_d["baselib"] = cached.baselib || Object.create(null);
-                            ρσ_d["classes"] = classes;
-                            return ρσ_d;
-                        }).call(this);
-                        if (cached.has_side_effects !== undefined) {
-                            meta["_has_side_effects"] = cached.has_side_effects;
-                        }
-                        if (cached.index !== undefined) {
-                            meta["_cache_index"] = cached.index;
-                        }
-                        module = make_lazy_ast_module(ast_json_str, meta);
-                        imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key] = module;
-                    } else {
-                        await parse(src_code, (function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["filename"] = filename;
-                            ρσ_d["toplevel"] = null;
-                            ρσ_d["basedir"] = options.basedir;
-                            ρσ_d["libdir"] = options.libdir;
-                            ρσ_d["import_dirs"] = options.import_dirs;
-                            ρσ_d["module_id"] = key;
-                            ρσ_d["imported_modules"] = imported_modules;
-                            ρσ_d["importing_modules"] = importing_modules;
-                            ρσ_d["discard_asserts"] = options.discard_asserts;
-                            ρσ_d["module_cache_dir"] = options.module_cache_dir;
-                            ρσ_d["_src_hash"] = srchash;
-                            ρσ_d["_file_mtime"] = file_mtime;
-                            ρσ_d["loading_promises"] = loading_promises;
-                            return ρσ_d;
-                        }).call(this));
-                    }
-                } finally {
-                    ρσ_delitem(loading_promises, key);
-                    if (_rfn[0]) {
-                        _rfn[0](null);
-                    }
-                }
-                imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].srchash = srchash;
-                var ρσ_Iter55 = Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib);
-                ρσ_Iter55 = ((typeof ρσ_Iter55[Symbol.iterator] === "function") ? (ρσ_Iter55 instanceof Map ? ρσ_Iter55.keys() : ρσ_Iter55) : Object.keys(ρσ_Iter55));
-                for (var ρσ_Index55 of ρσ_Iter55) {
-                    bitem = ρσ_Index55;
-                    baselib_items[(typeof bitem === "number" && bitem < 0) ? baselib_items.length + bitem : bitem] = true;
-                }
-            };
-            if (!do_import.__argnames__) Object.defineProperties(do_import, {
-                __argnames__ : {value: ["key"]},
-                __module__ : {value: "parse"}
-            });
-
-            function read_python_flags() {
-                var bracketed, name, val;
-                expect_token("keyword", "import");
-                bracketed = is_("punc", "(");
-                if (bracketed) {
-                    next();
-                }
-                while (true) {
-                    if (!is_("name")) {
-                        croak("Name expected");
-                    }
-                    name = S.token.value;
-                    val = (name.startsWith("no_")) ? false : true;
-                    if (!val) {
-                        name = name.slice(3);
-                    }
-                    if (!PYTHON_FLAGS) {
-                        croak("Unknown __python__ flag: " + name);
-                    }
-                    S.scoped_flags.set(name, val);
-                    next();
-                    if (is_("punc", ",")) {
-                        next();
-                    } else {
-                        if (bracketed) {
-                            if (is_("punc", ")")) {
-                                next();
-                            } else {
-                                continue;
-                            }
-                        }
-                        break;
-                    }
-                }
-                return new AST_EmptyStatement((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["stype"] = "scoped_flags";
-                    ρσ_d["start"] = prev();
-                    ρσ_d["end"] = prev();
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!read_python_flags.__module__) Object.defineProperties(read_python_flags, {
-                __module__ : {value: "parse"}
-            });
-
-            async function import_(from_import) {
-                var ans, tok, tmp, name, last_tok, key, alias, aimp, ρσ_unpack, classes, argnames, bracketed, exports, symdef, aname, obj, argvar, cname, imp;
-                ans = new AST_Imports((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["imports"] = [];
-                    return ρσ_d;
-                }).call(this));
-                while (true) {
-                    tok = tmp = name = last_tok = await expression(false);
-                    key = "";
-                    while (is_node_type(tmp, AST_Dot)) {
-                        key = "." + tmp.property + key;
-                        tmp = last_tok = tmp.expression;
-                    }
-                    key = tmp.name + key;
-                    if (from_import && key === "__python__") {
-                        return read_python_flags();
-                    }
-                    alias = null;
-                    if (!from_import && is_("keyword", "as")) {
-                        next();
-                        alias = as_symbol(AST_SymbolAlias);
-                    }
-                    aimp = new AST_Import((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["module"] = name;
-                        ρσ_d["key"] = key;
-                        ρσ_d["alias"] = alias;
-                        ρσ_d["argnames"] = null;
-                        ρσ_d["body"] = (function() {
-                            var ρσ_anonfunc = function () {
-                                return imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key];
-                            };
-                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                                __module__ : {value: "parse"}
-                            });
-                            return ρσ_anonfunc;
-                        })();
-                        return ρσ_d;
-                    }).call(this));
-                    ρσ_unpack = [tok.start, last_tok.end];
-                    aimp.start = ρσ_unpack[0];
-                    aimp.end = ρσ_unpack[1];
-                    ans.imports.push(aimp);
-                    if (from_import) {
-                        break;
-                    }
-                    if (is_("punc", ",")) {
-                        next();
-                    } else {
-                        break;
-                    }
-                }
-                var ρσ_Iter56 = ans["imports"];
-                ρσ_Iter56 = ((typeof ρσ_Iter56[Symbol.iterator] === "function") ? (ρσ_Iter56 instanceof Map ? ρσ_Iter56.keys() : ρσ_Iter56) : Object.keys(ρσ_Iter56));
-                for (var ρσ_Index56 of ρσ_Iter56) {
-                    imp = ρσ_Index56;
-                    await do_import(imp.key);
-                    if (imported_module_ids.indexOf(imp.key) === -1) {
-                        imported_module_ids.push(imp.key);
-                    }
-                    classes = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].classes;
-                    if (from_import) {
-                        expect_token("keyword", "import");
-                        imp.argnames = argnames = [];
-                        bracketed = is_("punc", "(");
-                        if (bracketed) {
-                            next();
-                        }
-                        exports = Object.create(null);
-                        var ρσ_Iter57 = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports;
-                        ρσ_Iter57 = ((typeof ρσ_Iter57[Symbol.iterator] === "function") ? (ρσ_Iter57 instanceof Map ? ρσ_Iter57.keys() : ρσ_Iter57) : Object.keys(ρσ_Iter57));
-                        for (var ρσ_Index57 of ρσ_Iter57) {
-                            symdef = ρσ_Index57;
-                            exports[ρσ_bound_index(symdef.name, exports)] = true;
-                        }
-                        while (true) {
-                            aname = as_symbol(AST_ImportedVar);
-                            if (!options.for_linting && !has_prop(exports, aname.name)) {
-                                import_error("The symbol \"" + aname.name + "\" is not exported from the module: " + key);
-                            }
-                            if (is_("keyword", "as")) {
-                                next();
-                                aname.alias = as_symbol(AST_SymbolAlias);
-                            }
-                            argnames.push(aname);
-                            if (is_("punc", ",")) {
-                                next();
-                            } else {
-                                if (bracketed) {
-                                    if (is_("punc", ")")) {
-                                        next();
-                                    } else {
-                                        continue;
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        var ρσ_Iter58 = argnames;
-                        ρσ_Iter58 = ((typeof ρσ_Iter58[Symbol.iterator] === "function") ? (ρσ_Iter58 instanceof Map ? ρσ_Iter58.keys() : ρσ_Iter58) : Object.keys(ρσ_Iter58));
-                        for (var ρσ_Index58 of ρσ_Iter58) {
-                            argvar = ρσ_Index58;
-                            obj = classes[ρσ_bound_index(argvar.name, classes)];
-                            if (obj) {
-                                key = (argvar.alias) ? argvar.alias.name : argvar.name;
-                                (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = (function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["static"] = obj.static;
-                                    ρσ_d["bound"] = obj.bound;
-                                    ρσ_d["classvars"] = obj.classvars;
-                                    return ρσ_d;
-                                }).call(this);
-                            }
-                        }
-                    } else {
-                        var ρσ_Iter59 = Object.keys(classes);
-                        ρσ_Iter59 = ((typeof ρσ_Iter59[Symbol.iterator] === "function") ? (ρσ_Iter59 instanceof Map ? ρσ_Iter59.keys() : ρσ_Iter59) : Object.keys(ρσ_Iter59));
-                        for (var ρσ_Index59 of ρσ_Iter59) {
-                            cname = ρσ_Index59;
-                            obj = classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname];
-                            key = (imp.alias) ? imp.alias.name : imp.key;
-                            (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[ρσ_bound_index(key + "." + obj.name.name, ρσ_expr_temp)] = (function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["static"] = obj.static;
-                                ρσ_d["bound"] = obj.bound;
-                                ρσ_d["classvars"] = obj.classvars;
-                                return ρσ_d;
-                            }).call(this);
-                        }
-                    }
-                }
-                return ans;
-            };
-            if (!import_.__argnames__) Object.defineProperties(import_, {
-                __argnames__ : {value: ["from_import"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function class_() {
-                var name, externaldecorator, class_details, bases, class_parent, a, docstrings, cls_decorators, cls_body, definition, descriptor, stmt, class_var_names, visitor;
-                name = as_symbol(AST_SymbolDefun);
-                if (!name) {
-                    unexpected();
-                }
-                externaldecorator = has_simple_decorator(S.decorators, "external");
-                class_details = (function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["static"] = Object.create(null);
-                    ρσ_d["bound"] = [];
-                    ρσ_d["classvars"] = Object.create(null);
-                    ρσ_d["processing"] = name.name;
-                    ρσ_d["provisional_classvars"] = Object.create(null);
-                    return ρσ_d;
-                }).call(this);
-                bases = [];
-                class_parent = null;
-                if (is_("punc", "(")) {
-                    S.in_parenthesized_expr = true;
-                    next();
-                    while (true) {
-                        if (is_("punc", ")")) {
-                            S.in_parenthesized_expr = false;
-                            next();
-                            break;
-                        }
-                        a = await expr_atom(false);
-                        if (class_parent === null) {
-                            class_parent = a;
-                        }
-                        bases.push(a);
-                        if (is_("punc", ",")) {
-                            next();
-                            continue;
-                        }
-                    }
-                }
-                docstrings = [];
-                cls_decorators = (function() {
-                    var ρσ_anonfunc = function () {
-                        var d, decorator;
-                        d = [];
-                        var ρσ_Iter60 = S.decorators;
-                        ρσ_Iter60 = ((typeof ρσ_Iter60[Symbol.iterator] === "function") ? (ρσ_Iter60 instanceof Map ? ρσ_Iter60.keys() : ρσ_Iter60) : Object.keys(ρσ_Iter60));
-                        for (var ρσ_Index60 of ρσ_Iter60) {
-                            decorator = ρσ_Index60;
-                            d.push(new AST_Decorator((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["expression"] = decorator;
-                                return ρσ_d;
-                            }).call(this)));
-                        }
-                        S.decorators = [];
-                        return d;
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })()();
-                cls_body = await (function() {
-                    var ρσ_anonfunc = async function (loop, labels) {
-                        var a;
-                        S.in_class.push(name.name);
-                        (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 1, ρσ_expr_temp)])[ρσ_bound_index(name.name, ρσ_expr_temp)] = class_details;
-                        S.classes.push(Object.create(null));
-                        S.scoped_flags.push();
-                        S.in_function += 1;
-                        S.in_loop = 0;
-                        S.labels = [];
-                        a = await block_(docstrings);
-                        S.in_function -= 1;
-                        S.scoped_flags.pop();
-                        S.classes.pop();
-                        S.in_class.pop();
-                        S.in_loop = loop;
-                        S.labels = labels;
-                        return a;
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["loop", "labels"]},
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })()(S.in_loop, S.labels);
-                definition = new AST_Class((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["name"] = name;
-                    ρσ_d["docstrings"] = docstrings;
-                    ρσ_d["module_id"] = module_id;
-                    ρσ_d["dynamic_properties"] = Object.create(null);
-                    ρσ_d["parent"] = class_parent;
-                    ρσ_d["bases"] = bases;
-                    ρσ_d["localvars"] = [];
-                    ρσ_d["classvars"] = class_details.classvars;
-                    ρσ_d["static"] = class_details.static;
-                    ρσ_d["external"] = externaldecorator;
-                    ρσ_d["bound"] = class_details.bound;
-                    ρσ_d["statements"] = [];
-                    ρσ_d["decorators"] = cls_decorators;
-                    ρσ_d["body"] = cls_body;
-                    return ρσ_d;
-                }).call(this));
-                class_details.processing = false;
-                var ρσ_Iter61 = definition.body;
-                ρσ_Iter61 = ((typeof ρσ_Iter61[Symbol.iterator] === "function") ? (ρσ_Iter61 instanceof Map ? ρσ_Iter61.keys() : ρσ_Iter61) : Object.keys(ρσ_Iter61));
-                for (var ρσ_Index61 of ρσ_Iter61) {
-                    stmt = ρσ_Index61;
-                    if (is_node_type(stmt, AST_Method)) {
-                        if (stmt.is_getter || stmt.is_setter) {
-                            descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)];
-                            if (!descriptor) {
-                                descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)] = Object.create(null);
-                            }
-                            descriptor[ρσ_bound_index((stmt.is_getter) ? "getter" : "setter", descriptor)] = stmt;
-                        } else if (stmt.name.name === "__init__") {
-                            definition.init = stmt;
-                        }
-                    }
-                }
-                class_var_names = Object.create(null);
-                function walker() {
-                    function visit_node(node, descend) {
-                        var varname;
-                        if (is_node_type(node, AST_Method)) {
-                            class_var_names[ρσ_bound_index(node.name.name, class_var_names)] = true;
-                            return;
-                        }
-                        if (is_node_type(node, AST_Function)) {
-                            return;
-                        }
-                        if (is_node_type(node, AST_Assign) && is_node_type(node.left, AST_SymbolRef)) {
-                            varname = node.left.name;
-                            if (FORBIDDEN_CLASS_VARS.indexOf(varname) !== -1) {
-                                token_error(node.left.start, varname + " is not allowed as a class variable name");
-                            }
-                            class_var_names[(typeof varname === "number" && varname < 0) ? class_var_names.length + varname : varname] = true;
-                            (ρσ_expr_temp = definition.classvars)[(typeof varname === "number" && varname < 0) ? ρσ_expr_temp.length + varname : varname] = true;
-                        } else if (is_node_type(node, AST_SymbolRef) && has_prop(class_var_names, node.name)) {
-                            node.thedef = new AST_SymbolDefun((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["name"] = name.name + ".prototype." + node.name;
-                                return ρσ_d;
-                            }).call(this));
-                        }
-                        if (descend) {
-                            descend.call(node);
-                        }
-                    };
-                    if (!visit_node.__argnames__) Object.defineProperties(visit_node, {
-                        __argnames__ : {value: ["node", "descend"]},
-                        __module__ : {value: "parse"}
-                    });
-
-                    this._visit = visit_node;
-                };
-                if (!walker.__module__) Object.defineProperties(walker, {
-                    __module__ : {value: "parse"}
-                });
-
-                visitor = new walker;
-                var ρσ_Iter62 = definition.body;
-                ρσ_Iter62 = ((typeof ρσ_Iter62[Symbol.iterator] === "function") ? (ρσ_Iter62 instanceof Map ? ρσ_Iter62.keys() : ρσ_Iter62) : Object.keys(ρσ_Iter62));
-                for (var ρσ_Index62 of ρσ_Iter62) {
-                    stmt = ρσ_Index62;
-                    if (!is_node_type(stmt, AST_Class)) {
-                        stmt.walk(visitor);
-                        definition.statements.push(stmt);
-                    }
-                }
-                return definition;
-            };
-            if (!class_.__module__) Object.defineProperties(class_, {
-                __module__ : {value: "parse"}
-            });
-
-            async function function_() {
-                var in_class = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
-                var is_expression = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
-                var is_async = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? function_.__defaults__.is_async : arguments[2];
-                var ρσ_kwargs_obj = arguments[arguments.length-1];
-                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
-                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "is_async")){
-                    is_async = ρσ_kwargs_obj.is_async;
-                }
-                var name, is_anonymous, staticmethod, property_getter, property_setter, staticloc, ctor, return_annotation, is_generator, docstrings, fn_argnames, fn_decorators, fn_body, definition, assignments, j, i, nonlocals;
-                name = (is_("name")) ? as_symbol((in_class) ? AST_SymbolDefun : AST_SymbolLambda) : null;
-                if (in_class && !name) {
-                    croak("Cannot use anonymous function as class methods");
-                }
-                is_anonymous = !name;
-                staticmethod = property_getter = property_setter = false;
-                if (in_class) {
-                    staticloc = has_simple_decorator(S.decorators, "staticmethod");
-                    property_getter = has_simple_decorator(S.decorators, "property");
-                    property_setter = has_setter_decorator(S.decorators, name.name);
-                    if (staticloc) {
-                        if (property_getter || property_setter) {
-                            croak("A method cannot be both static and a property getter/setter");
-                        }
-                        (ρσ_expr_temp = (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 2, ρσ_expr_temp)])[(typeof in_class === "number" && in_class < 0) ? ρσ_expr_temp.length + in_class : in_class].static)[ρσ_bound_index(name.name, ρσ_expr_temp)] = true;
-                        staticmethod = true;
-                    } else if (name.name !== "__init__" && S.scoped_flags.get("bound_methods")) {
-                        (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 2, ρσ_expr_temp)])[(typeof in_class === "number" && in_class < 0) ? ρσ_expr_temp.length + in_class : in_class].bound.push(name.name);
-                    }
-                }
-                expect("(");
-                S.in_parenthesized_expr = true;
-                ctor = (in_class) ? AST_Method : AST_Function;
-                return_annotation = null;
-                is_generator = [];
-                docstrings = [];
-                fn_argnames = await (function() {
-                    var ρσ_anonfunc = async function () {
-                        var a, starargs_sym, kwargs_sym, defaults, has_defaults, first, seen_names, def_line, current_arg_name, name_token;
-                        a = [];
-                        starargs_sym = undefined;
-                        kwargs_sym = undefined;
-                        defaults = Object.create(null);
-                        has_defaults = false;
-                        first = true;
-                        seen_names = Object.create(null);
-                        def_line = S.input.context().tokline;
-                        current_arg_name = null;
-                        name_token = null;
-                        async function get_arg() {
-                            var name_ctx, ntok, annotation, sym;
-                            current_arg_name = S.token.value;
-                            if (has_prop(seen_names, current_arg_name)) {
-                                token_error(prev(), "Can't repeat parameter names");
-                            }
-                            if (current_arg_name === "arguments") {
-                                token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript");
-                            }
-                            seen_names[(typeof current_arg_name === "number" && current_arg_name < 0) ? seen_names.length + current_arg_name : current_arg_name] = true;
-                            name_token = S.token;
-                            name_ctx = S.input.context();
-                            ntok = peek();
-                            if (ntok.type === "punc" && ntok.value === ":") {
-                                next();
-                                expect(":");
-                                annotation = await maybe_conditional();
-                                if (!is_token(name_token, "name")) {
-                                    if (S.input.context().tokline !== def_line) {
-                                        croak("Name expected", name_ctx.tokline);
-                                    } else {
-                                        croak("Name expected");
-                                    }
-                                    return null;
-                                }
-                                sym = new AST_SymbolFunarg((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["name"] = name_token.value;
-                                    ρσ_d["start"] = S.token;
-                                    ρσ_d["end"] = S.token;
-                                    ρσ_d["annotation"] = annotation;
-                                    return ρσ_d;
-                                }).call(this));
-                                return sym;
-                            } else {
-                                if (!is_("name")) {
-                                    if (S.input.context().tokline !== def_line) {
-                                        croak("Name expected", def_line);
-                                    } else {
-                                        croak("Name expected");
-                                    }
-                                    return null;
-                                }
-                                sym = new AST_SymbolFunarg((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["name"] = current_arg_name;
-                                    ρσ_d["start"] = S.token;
-                                    ρσ_d["end"] = S.token;
-                                    ρσ_d["annotation"] = null;
-                                    return ρσ_d;
-                                }).call(this));
-                                next();
-                                return sym;
-                            }
-                        };
-                        if (!get_arg.__module__) Object.defineProperties(get_arg, {
-                            __module__ : {value: "parse"}
-                        });
-
-                        while (!is_("punc", ")")) {
-                            if (first) {
-                                first = false;
-                            } else {
-                                expect(",");
-                                if (is_("punc", ")")) {
-                                    break;
-                                }
-                            }
-                            if (is_("operator", "**")) {
-                                next();
-                                if (kwargs_sym) {
-                                    token_error(name_token, "Can't define multiple **kwargs in function definition");
-                                }
-                                kwargs_sym = await get_arg();
-                            } else if (is_("operator", "*")) {
-                                next();
-                                if (starargs_sym) {
-                                    token_error(name_token, "Can't define multiple *args in function definition");
-                                }
-                                if (kwargs_sym) {
-                                    token_error(name_token, "Can't define *args after **kwargs in function definition");
-                                }
-                                starargs_sym = await get_arg();
-                            } else {
-                                if (starargs_sym || kwargs_sym) {
-                                    token_error(name_token, "Can't define a formal parameter after *args or **kwargs");
-                                }
-                                a.push(await get_arg());
-                                if (is_("operator", "=")) {
-                                    if (kwargs_sym) {
-                                        token_error(name_token, "Can't define an optional formal parameter after **kwargs");
-                                    }
-                                    next();
-                                    defaults[(typeof current_arg_name === "number" && current_arg_name < 0) ? defaults.length + current_arg_name : current_arg_name] = await expression(false);
-                                    has_defaults = true;
-                                } else {
-                                    if (has_defaults) {
-                                        token_error(name_token, "Can't define required formal parameters after optional formal parameters");
-                                    }
-                                }
-                            }
-                        }
-                        next();
-                        if (is_("punc", "->")) {
-                            next();
-                            return_annotation = await maybe_conditional();
-                        }
-                        S.in_parenthesized_expr = false;
-                        return new AST_ArgsDef((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["args"] = a;
-                            ρσ_d["starargs"] = starargs_sym;
-                            ρσ_d["kwargs"] = kwargs_sym;
-                            ρσ_d["defaults"] = defaults;
-                            ρσ_d["has_defaults"] = has_defaults;
-                            ρσ_d["is_simple_func"] = !starargs_sym && !kwargs_sym && !has_defaults;
-                            return ρσ_d;
-                        }).call(this));
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })()();
-                fn_decorators = (function() {
-                    var ρσ_anonfunc = function () {
-                        var d, decorator;
-                        d = [];
-                        var ρσ_Iter63 = S.decorators;
-                        ρσ_Iter63 = ((typeof ρσ_Iter63[Symbol.iterator] === "function") ? (ρσ_Iter63 instanceof Map ? ρσ_Iter63.keys() : ρσ_Iter63) : Object.keys(ρσ_Iter63));
-                        for (var ρσ_Index63 of ρσ_Iter63) {
-                            decorator = ρσ_Index63;
-                            d.push(new AST_Decorator((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["expression"] = decorator;
-                                return ρσ_d;
-                            }).call(this)));
-                        }
-                        S.decorators = [];
-                        return d;
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })()();
-                fn_body = await (function() {
-                    var ρσ_anonfunc = async function (loop, labels) {
-                        var a;
-                        S.in_class.push(false);
-                        S.classes.push(Object.create(null));
-                        S.scoped_flags.push();
-                        S.in_function += 1;
-                        S.functions.push((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["is_async"] = is_async;
-                            return ρσ_d;
-                        }).call(this));
-                        S.in_loop = 0;
-                        S.labels = [];
-                        a = await block_(docstrings);
-                        S.in_function -= 1;
-                        S.scoped_flags.pop();
-                        is_generator.push(bool(S.functions.pop().is_generator));
-                        S.classes.pop();
-                        S.in_class.pop();
-                        S.in_loop = loop;
-                        S.labels = labels;
-                        return a;
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["loop", "labels"]},
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })()(S.in_loop, S.labels);
-                definition = new ctor((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["name"] = name;
-                    ρσ_d["is_expression"] = is_expression;
-                    ρσ_d["is_anonymous"] = is_anonymous;
-                    ρσ_d["argnames"] = fn_argnames;
-                    ρσ_d["localvars"] = [];
-                    ρσ_d["decorators"] = fn_decorators;
-                    ρσ_d["docstrings"] = docstrings;
-                    ρσ_d["body"] = fn_body;
-                    return ρσ_d;
-                }).call(this));
-                definition.return_annotation = return_annotation;
-                definition.is_generator = is_generator[0];
-                definition.is_async = is_async;
-                if (is_node_type(definition, AST_Method)) {
-                    definition.static = staticmethod;
-                    definition.is_getter = property_getter;
-                    definition.is_setter = property_setter;
-                    if (definition.argnames.args.length < 1 && !definition.static) {
-                        croak("Methods of a class must have at least one argument, traditionally named self");
-                    }
-                    if (definition.name && definition.name.name === "__init__") {
-                        if (definition.is_generator) {
-                            croak("The __init__ method of a class cannot be a generator (yield not allowed)");
-                        }
-                        if (definition.is_async) {
-                            croak("The __init__ method of a class cannot be async");
-                        }
-                        if (property_getter || property_setter) {
-                            croak("The __init__ method of a class cannot be a property getter/setter");
-                        }
-                    }
-                }
-                if (definition.is_async && definition.is_generator) {
-                    croak("A function cannot be both async and a generator");
-                }
-                if (definition.is_generator) {
-                    baselib_items["yield"] = true;
-                }
-                assignments = scan_for_local_vars(definition.body);
-                for (var ρσ_Index64 = 0; ρσ_Index64 < assignments.length; ρσ_Index64++) {
-                    i = ρσ_Index64;
-                    for (var ρσ_Index65 = 0; ρσ_Index65 < definition.argnames.args.length + 1; ρσ_Index65++) {
-                        j = ρσ_Index65;
-                        if (j === definition.argnames.args.length) {
-                            definition.localvars.push(new_symbol(AST_SymbolVar, assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i]));
-                        } else if (j < definition.argnames.args.length && assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i] === (ρσ_expr_temp = definition.argnames.args)[(typeof j === "number" && j < 0) ? ρσ_expr_temp.length + j : j].name) {
-                            break;
-                        }
-                    }
-                }
-                nonlocals = scan_for_nonlocal_defs(definition.body);
-                nonlocals = (function() {
-                    var ρσ_Iter = nonlocals, ρσ_Result = ρσ_set(), name;
-                    ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                    for (var ρσ_Index of ρσ_Iter) {
-                        name = ρσ_Index;
-                        ρσ_Result.add(name);
-                    }
-                    return ρσ_Result;
-                })();
-                definition.localvars = definition.localvars.filter((function() {
-                    var ρσ_anonfunc = function (v) {
-                        return !nonlocals.has(v.name);
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["v"]},
-                        __module__ : {value: "parse"}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                return definition;
-            };
-            if (!function_.__defaults__) Object.defineProperties(function_, {
-                __defaults__ : {value: {is_async:false}},
-                __handles_kwarg_interpolation__ : {value: true},
-                __argnames__ : {value: ["in_class", "is_expression", "is_async"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function if_() {
-                var cond, body, belse;
-                cond = await expression(true);
-                body = await statement();
-                belse = null;
-                if (is_("keyword", "elif") || is_("keyword", "else")) {
-                    if (is_("keyword", "else")) {
-                        next();
-                    } else {
-                        S.token.value = "if";
-                    }
-                    belse = await statement();
-                }
-                return new AST_If((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["condition"] = cond;
-                    ρσ_d["body"] = body;
-                    ρσ_d["alternative"] = belse;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!if_.__module__) Object.defineProperties(if_, {
-                __module__ : {value: "parse"}
-            });
-
-            function is_docstring(stmt) {
-                if (is_node_type(stmt, AST_SimpleStatement)) {
-                    if (is_node_type(stmt.body, AST_String)) {
-                        return stmt.body;
-                    }
-                }
-                return false;
-            };
-            if (!is_docstring.__argnames__) Object.defineProperties(is_docstring, {
-                __argnames__ : {value: ["stmt"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function block_(docstrings) {
-                var prev_whitespace, a, stmt, ds, current_whitespace;
-                prev_whitespace = S.token.leading_whitespace;
-                expect(":");
-                a = [];
-                if (!S.token.nlb) {
-                    while (!S.token.nlb) {
-                        if (is_("eof")) {
-                            if (options.recover_errors) {
-                                break;
-                            }
-                            unexpected();
-                        }
-                        if (options.recover_errors) {
-                            try {
-                                stmt = await statement();
-                            } catch (ρσ_Exception) {
-                                ρσ_last_exception = ρσ_Exception;
-                                {
-                                    var berr = ρσ_Exception;
-                                    if (is_recoverable_error(berr)) {
-                                        record_recovery(berr);
-                                        await skip_to_recovery_point();
-                                        continue;
-                                    }
-                                    throw ρσ_Exception;
-                                } 
-                            }
-                        } else {
-                            stmt = await statement();
-                        }
-                        if (docstrings) {
-                            ds = is_docstring(stmt);
-                            if (ds) {
-                                docstrings.push(ds);
-                                continue;
-                            }
-                        }
-                        a.push(stmt);
-                    }
-                } else {
-                    current_whitespace = S.token.leading_whitespace;
-                    if (current_whitespace.length === 0 || prev_whitespace === current_whitespace) {
-                        croak("Expected an indented block");
-                    }
-                    while (!is_("punc", "}")) {
-                        if (is_("eof")) {
-                            return a;
-                        }
-                        if (options.recover_errors) {
-                            try {
-                                stmt = await statement();
-                            } catch (ρσ_Exception) {
-                                ρσ_last_exception = ρσ_Exception;
-                                {
-                                    var berr = ρσ_Exception;
-                                    if (is_recoverable_error(berr)) {
-                                        record_recovery(berr);
-                                        await skip_to_recovery_point();
-                                        continue;
-                                    }
-                                    throw ρσ_Exception;
-                                } 
-                            }
-                        } else {
-                            stmt = await statement();
-                        }
-                        if (docstrings) {
-                            ds = is_docstring(stmt);
-                            if (ds) {
-                                docstrings.push(ds);
-                                continue;
-                            }
-                        }
-                        a.push(stmt);
-                    }
-                    next();
-                }
-                return a;
-            };
-            if (!block_.__argnames__) Object.defineProperties(block_, {
-                __argnames__ : {value: ["docstrings"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function try_() {
-                var body, bcatch, bfinally, belse, start, exceptions, name, except_body, belse_body, bfinally_body;
-                body = await block_();
-                bcatch = [];
-                bfinally = null;
-                belse = null;
-                while (is_("keyword", "except")) {
-                    start = S.token;
-                    next();
-                    exceptions = [];
-                    if (!is_("punc", ":") && !is_("keyword", "as")) {
-                        exceptions.push(as_symbol(AST_SymbolVar));
-                        while (is_("punc", ",")) {
-                            next();
-                            exceptions.push(as_symbol(AST_SymbolVar));
-                        }
-                    }
-                    name = null;
-                    if (is_("keyword", "as")) {
-                        next();
-                        name = as_symbol(AST_SymbolCatch);
-                    }
-                    except_body = await block_();
-                    bcatch.push(new AST_Except((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["argname"] = name;
-                        ρσ_d["errors"] = exceptions;
-                        ρσ_d["body"] = except_body;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)));
-                }
-                if (is_("keyword", "else")) {
-                    start = S.token;
-                    next();
-                    belse_body = await block_();
-                    belse = new AST_Else((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["body"] = belse_body;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this));
-                }
-                if (is_("keyword", "finally")) {
-                    start = S.token;
-                    next();
-                    bfinally_body = await block_();
-                    bfinally = new AST_Finally((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["body"] = bfinally_body;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this));
-                }
-                if (!bcatch.length && !bfinally) {
-                    croak("Missing except/finally blocks");
-                }
-                return new AST_Try((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["body"] = body;
-                    ρσ_d["bcatch"] = (bcatch.length) ? new AST_Catch((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["body"] = bcatch;
-                        return ρσ_d;
-                    }).call(this)) : null;
-                    ρσ_d["bfinally"] = bfinally;
-                    ρσ_d["belse"] = belse;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!try_.__module__) Object.defineProperties(try_, {
-                __module__ : {value: "parse"}
-            });
-
-            async function vardefs(symbol_class) {
-                var a, vd_start, vd_name, varval;
-                a = [];
-                while (true) {
-                    vd_start = S.token;
-                    vd_name = as_symbol(symbol_class);
-                    if (is_("operator", "=")) {
-                        next();
-                        varval = await expression(false);
-                    } else {
-                        varval = null;
-                    }
-                    a.push(new AST_VarDef((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = vd_start;
-                        ρσ_d["name"] = vd_name;
-                        ρσ_d["value"] = varval;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)));
-                    if (!is_("punc", ",")) {
-                        break;
-                    }
-                    next();
-                }
-                return a;
-            };
-            if (!vardefs.__argnames__) Object.defineProperties(vardefs, {
-                __argnames__ : {value: ["symbol_class"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function nonlocal_(is_global) {
-                var defs, vardef;
-                defs = await vardefs(AST_SymbolNonlocal);
-                if (is_global) {
-                    var ρσ_Iter66 = defs;
-                    ρσ_Iter66 = ((typeof ρσ_Iter66[Symbol.iterator] === "function") ? (ρσ_Iter66 instanceof Map ? ρσ_Iter66.keys() : ρσ_Iter66) : Object.keys(ρσ_Iter66));
-                    for (var ρσ_Index66 of ρσ_Iter66) {
-                        vardef = ρσ_Index66;
-                        S.globals.push(vardef.name.name);
-                    }
-                }
-                return new AST_Var((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = prev();
-                    ρσ_d["definitions"] = defs;
-                    ρσ_d["end"] = prev();
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!nonlocal_.__argnames__) Object.defineProperties(nonlocal_, {
-                __argnames__ : {value: ["is_global"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function new_() {
-                var start, newexp, args;
-                start = S.token;
-                expect_token("operator", "new");
-                newexp = await expr_atom(false);
-                if (is_("punc", "(")) {
-                    S.in_parenthesized_expr = true;
-                    next();
-                    args = await func_call_list();
-                    S.in_parenthesized_expr = false;
-                } else {
-                    args = await func_call_list(true);
-                }
-                return await subscripts(new AST_New((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = start;
-                    ρσ_d["expression"] = newexp;
-                    ρσ_d["args"] = args;
-                    ρσ_d["end"] = prev();
-                    return ρσ_d;
-                }).call(this)), true);
-            };
-            if (!new_.__module__) Object.defineProperties(new_, {
-                __module__ : {value: "parse"}
-            });
-
-            function string_() {
-                var strings, start;
-                strings = [];
-                start = S.token;
-                while (true) {
-                    strings.push(S.token.value);
-                    if (peek().type !== "string") {
-                        break;
-                    }
-                    next();
-                }
-                return new AST_String((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = start;
-                    ρσ_d["end"] = S.token;
-                    ρσ_d["value"] = strings.join("");
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!string_.__module__) Object.defineProperties(string_, {
-                __module__ : {value: "parse"}
-            });
-
-            function token_as_atom_node() {
-                var tok, tmp_, tmp__;
-                tok = S.token;
-                tmp_ = tok.type;
-                if (tmp_ === "name") {
-                    return token_as_symbol(tok, AST_SymbolRef);
-                } else if (tmp_ === "num") {
-                    return new AST_Number((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = tok;
-                        ρσ_d["end"] = tok;
-                        ρσ_d["value"] = tok.value;
-                        return ρσ_d;
-                    }).call(this));
-                } else if (tmp_ === "string") {
-                    return string_();
-                } else if (tmp_ === "regexp") {
-                    return new AST_RegExp((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = tok;
-                        ρσ_d["end"] = tok;
-                        ρσ_d["value"] = tok.value;
-                        return ρσ_d;
-                    }).call(this));
-                } else if (tmp_ === "atom") {
-                    tmp__ = tok.value;
-                    if (tmp__ === "False") {
-                        return new AST_False((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = tok;
-                            ρσ_d["end"] = tok;
-                            return ρσ_d;
-                        }).call(this));
-                    } else if (tmp__ === "True") {
-                        return new AST_True((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = tok;
-                            ρσ_d["end"] = tok;
-                            return ρσ_d;
-                        }).call(this));
-                    } else if (tmp__ === "None") {
-                        return new AST_Null((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = tok;
-                            ρσ_d["end"] = tok;
-                            return ρσ_d;
-                        }).call(this));
-                    }
-                } else if (tmp_ === "js") {
-                    return new AST_Verbatim((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = tok;
-                        ρσ_d["end"] = tok;
-                        ρσ_d["value"] = tok.value;
-                        return ρσ_d;
-                    }).call(this));
-                }
-                token_error(tok, "Expecting an atomic token (number/string/bool/regexp/js/None)");
-            };
-            if (!token_as_atom_node.__module__) Object.defineProperties(token_as_atom_node, {
-                __module__ : {value: "parse"}
-            });
-
-            function as_atom_node() {
-                var ret;
-                ret = token_as_atom_node();
-                next();
-                return ret;
-            };
-            if (!as_atom_node.__module__) Object.defineProperties(as_atom_node, {
-                __module__ : {value: "parse"}
-            });
-
-            async function expr_atom(allow_calls) {
-                var start, tmp_, ex, ret, cls, func, value;
-                if (is_("operator", "new")) {
-                    return await new_();
-                }
-                start = S.token;
-                if (is_("punc")) {
-                    tmp_ = start.value;
-                    if (tmp_ === "(") {
-                        S.in_parenthesized_expr = true;
-                        next();
-                        if (is_("punc", ")")) {
-                            next();
-                            return new AST_Array((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["elements"] = [];
-                                return ρσ_d;
-                            }).call(this));
-                        }
-                        ex = await expression(true);
-                        if (is_("keyword", "for")) {
-                            ret = await read_comprehension(new AST_GeneratorComprehension((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["statement"] = ex;
-                                return ρσ_d;
-                            }).call(this)), ")");
-                            S.in_parenthesized_expr = false;
-                            return ret;
-                        }
-                        ex.start = start;
-                        ex.end = S.token;
-                        if (is_node_type(ex, AST_SymbolRef)) {
-                            ex.parens = true;
-                        }
-                        if (!is_node_type(ex, AST_GeneratorComprehension)) {
-                            expect(")");
-                        }
-                        if (is_node_type(ex, AST_UnaryPrefix)) {
-                            ex.parenthesized = true;
-                        }
-                        S.in_parenthesized_expr = false;
-                        return await subscripts(ex, allow_calls);
-                    } else if (tmp_ === "[") {
-                        return await subscripts(await array_(), allow_calls);
-                    } else if (tmp_ === "{") {
-                        return await subscripts(await object_(), allow_calls);
-                    }
-                    unexpected();
-                }
-                if (is_("keyword", "class")) {
-                    next();
-                    cls = await class_();
-                    cls.start = start;
-                    cls.end = prev();
-                    return await subscripts(cls, allow_calls);
-                }
-                if (is_("keyword", "async")) {
-                    next();
-                    if (!is_("keyword", "def")) {
-                        croak("Expected 'def' after 'async'");
-                    }
-                    next();
-                    func = await function_(false, true, true);
-                    func.start = start;
-                    func.end = prev();
-                    return await subscripts(func, allow_calls);
-                }
-                if (is_("keyword", "def")) {
-                    next();
-                    func = await function_(false, true);
-                    func.start = start;
-                    func.end = prev();
-                    return await subscripts(func, allow_calls);
-                }
-                if (is_("keyword", "await")) {
-                    next();
-                    if (S.in_function === 0 || !(ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
-                        croak("'await' outside of async function");
-                    }
-                    value = await expr_atom(true);
-                    return new AST_Await((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["value"] = value;
-                        return ρσ_d;
-                    }).call(this));
-                }
-                if (is_("keyword", "yield")) {
-                    next();
-                    return await yield_();
-                }
-                if (ATOMIC_START_TOKEN[ρσ_bound_index(S.token.type, ATOMIC_START_TOKEN)]) {
-                    return await subscripts(as_atom_node(), allow_calls);
-                }
-                unexpected();
-            };
-            if (!expr_atom.__argnames__) Object.defineProperties(expr_atom, {
-                __argnames__ : {value: ["allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function expr_list(closing, allow_trailing_comma, allow_empty, func_call) {
-                var first, a, saw_starargs, pargs, kwargs, arg;
-                first = true;
-                a = [];
-                saw_starargs = false;
-                while (!is_("punc", closing)) {
-                    if (saw_starargs) {
-                        token_error(prev(), "*args must be the last argument in a function call");
-                    }
-                    if (first) {
-                        first = false;
-                    } else {
-                        expect(",");
-                    }
-                    if (allow_trailing_comma && is_("punc", closing)) {
-                        break;
-                    }
-                    if (is_("operator", "*") && func_call) {
-                        saw_starargs = true;
-                        next();
-                    }
-                    if (is_("punc", ",") && allow_empty) {
-                        a.push(new AST_Hole((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = S.token;
-                            ρσ_d["end"] = S.token;
-                            return ρσ_d;
-                        }).call(this)));
-                    } else {
-                        a.push(await expression(false));
-                    }
-                }
-                next();
-                if (func_call) {
-                    pargs = [];
-                    kwargs = [];
-                    var ρσ_Iter67 = a;
-                    ρσ_Iter67 = ((typeof ρσ_Iter67[Symbol.iterator] === "function") ? (ρσ_Iter67 instanceof Map ? ρσ_Iter67.keys() : ρσ_Iter67) : Object.keys(ρσ_Iter67));
-                    for (var ρσ_Index67 of ρσ_Iter67) {
-                        arg = ρσ_Index67;
-                        if (is_node_type(arg, AST_Assign)) {
-                            kwargs.push([ arg.left, arg.right ]);
-                        } else {
-                            pargs.push(arg);
-                        }
-                    }
-                    return new AST_CallArgs((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["args"] = pargs;
-                        ρσ_d["kwargs"] = kwargs;
-                        ρσ_d["kwarg_items"] = [];
-                        ρσ_d["starargs"] = saw_starargs;
-                        return ρσ_d;
-                    }).call(this));
-                }
-                return a;
-            };
-            if (!expr_list.__argnames__) Object.defineProperties(expr_list, {
-                __argnames__ : {value: ["closing", "allow_trailing_comma", "allow_empty", "func_call"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function func_call_list(empty) {
-                var a, first, kwargs, kwarg_items, starargs, single_comprehension, arg, comp;
-                a = [];
-                first = true;
-                kwargs = [];
-                kwarg_items = [];
-                starargs = false;
-                if (empty) {
-                    return new AST_CallArgs((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["args"] = a;
-                        ρσ_d["kwargs"] = kwargs;
-                        ρσ_d["kwarg_items"] = kwarg_items;
-                        ρσ_d["starargs"] = starargs;
-                        return ρσ_d;
-                    }).call(this));
-                }
-                single_comprehension = false;
-                while (!is_("punc", ")") && !is_("eof")) {
-                    if (!first) {
-                        expect(",");
-                        if (is_("punc", ")")) {
-                            break;
-                        }
-                    }
-                    if (is_("operator", "*")) {
-                        next();
-                        arg = await expression(false);
-                        a.push(new AST_CallArg((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["value"] = arg;
-                            ρσ_d["is_array"] = true;
-                            return ρσ_d;
-                        }).call(this)));
-                        starargs = true;
-                    } else if (is_("operator", "**")) {
-                        next();
-                        kwarg_items.push(as_symbol(AST_SymbolRef, false));
-                        starargs = true;
-                    } else {
-                        arg = await expression(false);
-                        if (is_node_type(arg, AST_Assign)) {
-                            kwargs.push([ arg.left, arg.right ]);
-                        } else {
-                            if (is_("keyword", "for")) {
-                                if (!first) {
-                                    croak("Generator expression must be parenthesized if not sole argument");
-                                }
-                                comp = await read_comprehension(new AST_GeneratorComprehension((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["statement"] = arg;
-                                    return ρσ_d;
-                                }).call(this)), ")");
-                                a.push(new AST_CallArg((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = comp;
-                                    ρσ_d["is_array"] = false;
-                                    return ρσ_d;
-                                }).call(this)));
-                                single_comprehension = true;
-                                break;
-                            }
-                            a.push(new AST_CallArg((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = arg;
-                                ρσ_d["is_array"] = false;
-                                return ρσ_d;
-                            }).call(this)));
-                        }
-                    }
-                    first = false;
-                }
-                if (!single_comprehension) {
-                    next();
-                }
-                return new AST_CallArgs((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["args"] = a;
-                    ρσ_d["kwargs"] = kwargs;
-                    ρσ_d["kwarg_items"] = kwarg_items;
-                    ρσ_d["starargs"] = starargs;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!func_call_list.__argnames__) Object.defineProperties(func_call_list, {
-                __argnames__ : {value: ["empty"]},
-                __module__ : {value: "parse"}
-            });
-
-            
-            var array_ = embed_tokens((function() {
-                var ρσ_anonfunc = async function array_() {
-                    var expr, arr_rest;
-                    expect("[");
-                    expr = [];
-                    if (!is_("punc", "]")) {
-                        expr.push(await expression(false));
-                        if (is_("keyword", "for")) {
-                            return await read_comprehension(new AST_ListComprehension((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["statement"] = expr[0];
-                                return ρσ_d;
-                            }).call(this)), "]");
-                        }
-                        if (!is_("punc", "]")) {
-                            expect(",");
-                        }
-                    }
-                    arr_rest = await expr_list("]", true, true);
-                    return new AST_Array((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["elements"] = expr.concat(arr_rest);
-                        return ρσ_d;
-                    }).call(this));
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "parse"}
-                });
-                return ρσ_anonfunc;
-            })());
-
-            
-            var object_ = embed_tokens((function() {
-                var ρσ_anonfunc = async function object_() {
-                    var first, has_non_const_keys, is_pydict, is_jshash, a, start, ctx, orig, left, end, obj_val;
-                    expect("{");
-                    first = true;
-                    has_non_const_keys = false;
-                    is_pydict = S.scoped_flags.get("dict_literals", false);
-                    is_jshash = S.scoped_flags.get("hash_literals", false);
-                    a = [];
-                    while (!is_("punc", "}")) {
-                        if (!first) {
-                            expect(",");
-                        }
-                        if (is_("punc", "}")) {
-                            break;
-                        }
-                        first = false;
-                        start = S.token;
-                        ctx = S.input.context();
-                        orig = ctx.expecting_object_literal_key;
-                        ctx.expecting_object_literal_key = true;
-                        try {
-                            left = await expression(false);
-                        } finally {
-                            ctx.expecting_object_literal_key = orig;
-                        }
-                        if (is_("keyword", "for")) {
-                            return await read_comprehension(new AST_SetComprehension((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["statement"] = left;
-                                return ρσ_d;
-                            }).call(this)), "}");
-                        }
-                        if (a.length === 0 && (is_("punc", ",") || is_("punc", "}"))) {
-                            end = prev();
-                            return await set_(start, end, left);
-                        }
-                        if (!is_node_type(left, AST_Constant)) {
-                            has_non_const_keys = true;
-                        }
-                        expect(":");
-                        obj_val = await expression(false);
-                        a.push(new AST_ObjectKeyVal((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["key"] = left;
-                            ρσ_d["value"] = obj_val;
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)));
-                        if (a.length === 1 && is_("keyword", "for")) {
-                            return await dict_comprehension(a, is_pydict, is_jshash);
-                        }
-                    }
-                    next();
-                    return new ((has_non_const_keys) ? AST_ExpressiveObject : AST_Object)((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["properties"] = a;
-                        ρσ_d["is_pydict"] = is_pydict;
-                        ρσ_d["is_jshash"] = is_jshash;
-                        return ρσ_d;
-                    }).call(this));
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "parse"}
-                });
-                return ρσ_anonfunc;
-            })());
-
-            async function set_(start, end, expr) {
-                var ostart, a, set_val;
-                ostart = start;
-                a = [ new AST_SetItem((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = start;
-                    ρσ_d["end"] = end;
-                    ρσ_d["value"] = expr;
-                    return ρσ_d;
-                }).call(this)) ];
-                while (!is_("punc", "}")) {
-                    expect(",");
-                    start = S.token;
-                    if (is_("punc", "}")) {
-                        break;
-                    }
-                    set_val = await expression(false);
-                    a.push(new AST_SetItem((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["value"] = set_val;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)));
-                }
-                next();
-                return new AST_Set((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["items"] = a;
-                    ρσ_d["start"] = ostart;
-                    ρσ_d["end"] = prev();
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!set_.__argnames__) Object.defineProperties(set_, {
-                __argnames__ : {value: ["start", "end", "expr"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function read_comprehension(obj, terminator) {
-                var forloop;
-                if (is_node_type(obj, AST_GeneratorComprehension)) {
-                    baselib_items["yield"] = true;
-                }
-                S.in_comprehension = true;
-                S.in_parenthesized_expr = false;
-                expect_token("keyword", "for");
-                forloop = await for_(true);
-                obj.init = forloop.init;
-                obj.name = forloop.name;
-                obj.object = forloop.object;
-                if (is_("punc", terminator)) {
-                    obj.condition = null;
-                } else {
-                    expect_token("keyword", "if");
-                    obj.condition = await expression(true);
-                }
-                expect(terminator);
-                S.in_comprehension = false;
-                return obj;
-            };
-            if (!read_comprehension.__argnames__) Object.defineProperties(read_comprehension, {
-                __argnames__ : {value: ["obj", "terminator"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function dict_comprehension(a, is_pydict, is_jshash) {
-                var ρσ_unpack, left, right;
-                if (a.length) {
-                    ρσ_unpack = [a[0].key, a[0].value];
-                    left = ρσ_unpack[0];
-                    right = ρσ_unpack[1];
-                } else {
-                    left = await expression(false);
-                    if (!is_("punc", ":")) {
-                        return await read_comprehension(new AST_SetComprehension((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["statement"] = left;
-                            return ρσ_d;
-                        }).call(this)), "}");
-                    }
-                    expect(":");
-                    right = await expression(false);
-                }
-                return await read_comprehension(new AST_DictComprehension((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["statement"] = left;
-                    ρσ_d["value_statement"] = right;
-                    ρσ_d["is_pydict"] = is_pydict;
-                    ρσ_d["is_jshash"] = is_jshash;
-                    return ρσ_d;
-                }).call(this)), "}");
-            };
-            if (!dict_comprehension.__argnames__) Object.defineProperties(dict_comprehension, {
-                __argnames__ : {value: ["a", "is_pydict", "is_jshash"]},
-                __module__ : {value: "parse"}
-            });
-
-            function as_name() {
-                var tmp, tmp_;
-                tmp = S.token;
-                next();
-                tmp_ = tmp.type;
-                if (tmp_ === "name" || tmp_ === "operator" || tmp_ === "keyword" || tmp_ === "atom") {
-                    return tmp.value;
-                } else {
-                    unexpected();
-                }
-            };
-            if (!as_name.__module__) Object.defineProperties(as_name, {
-                __module__ : {value: "parse"}
-            });
-
-            function token_as_symbol(tok, ttype) {
-                var name;
-                name = tok.value;
-                if (RESERVED_WORDS[(typeof name === "number" && name < 0) ? RESERVED_WORDS.length + name : name] && name !== "this") {
-                    croak(name + " is a reserved word");
-                }
-                return new ((name === "this") ? AST_This : ttype)((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["name"] = String(tok.value);
-                    ρσ_d["start"] = tok;
-                    ρσ_d["end"] = tok;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!token_as_symbol.__argnames__) Object.defineProperties(token_as_symbol, {
-                __argnames__ : {value: ["tok", "ttype"]},
-                __module__ : {value: "parse"}
-            });
-
-            function as_symbol(ttype, noerror) {
-                var sym;
-                if (!is_("name")) {
-                    if (!noerror) {
-                        croak("Name expected");
-                    }
-                    return null;
-                }
-                sym = token_as_symbol(S.token, ttype);
-                next();
-                return sym;
-            };
-            if (!as_symbol.__argnames__) Object.defineProperties(as_symbol, {
-                __argnames__ : {value: ["ttype", "noerror"]},
-                __module__ : {value: "parse"}
-            });
-
-            function new_symbol(type, name) {
-                var sym;
-                sym = new ((name === "this") ? AST_This : type)((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["name"] = String(name);
-                    ρσ_d["start"] = null;
-                    ρσ_d["end"] = null;
-                    return ρσ_d;
-                }).call(this));
-                return sym;
-            };
-            if (!new_symbol.__argnames__) Object.defineProperties(new_symbol, {
-                __argnames__ : {value: ["type", "name"]},
-                __module__ : {value: "parse"}
-            });
-
-            function is_static_method(cls, method) {
-                if (has_prop(COMMON_STATIC, method) || cls.static && has_prop(cls.static, method)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            };
-            if (!is_static_method.__argnames__) Object.defineProperties(is_static_method, {
-                __argnames__ : {value: ["cls", "method"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function getitem(expr, allow_calls) {
-                var start, is_py_sub, slice_bounds, is_slice, splice_assign, _ca, _sb, i, _ca2, _ca3, assignment, assign_operator;
-                start = expr.start;
-                next();
-                is_py_sub = S.scoped_flags.get("overload_getitem", false);
-                slice_bounds = [];
-                is_slice = false;
-                if (is_("punc", ":")) {
-                    slice_bounds.push(null);
-                } else {
-                    slice_bounds.push(await expression(false));
-                }
-                if (is_("punc", ":")) {
-                    is_slice = true;
-                    next();
-                    if (is_("punc", ":")) {
-                        slice_bounds.push(null);
-                    } else if (!is_("punc", "]")) {
-                        slice_bounds.push(await expression(false));
-                    }
-                }
-                if (is_("punc", ":")) {
-                    next();
-                    if (is_("punc", "]")) {
-                        unexpected();
-                    } else {
-                        slice_bounds.push(await expression(false));
-                    }
-                }
-                expect("]");
-                if (is_slice) {
-                    if (is_("operator", "=")) {
-                        next();
-                        splice_assign = await expression(true);
-                        return await subscripts(new AST_Splice((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["expression"] = expr;
-                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = 0;
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["property2"] = slice_bounds[1];
-                            ρσ_d["assignment"] = splice_assign;
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), allow_calls);
-                    } else if (slice_bounds.length === 3) {
-                        slice_bounds.unshift(slice_bounds.pop());
-                        if (!slice_bounds[slice_bounds.length-1]) {
-                            slice_bounds.pop();
-                            if (!slice_bounds[slice_bounds.length-1]) {
-                                slice_bounds.pop();
-                            }
-                        } else if (!slice_bounds[slice_bounds.length-2]) {
-                            slice_bounds[slice_bounds.length-2] = new AST_Undefined;
-                        }
-                        _ca = [];
-                        _ca.push(new AST_CallArg((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["value"] = expr;
-                            ρσ_d["is_array"] = false;
-                            return ρσ_d;
-                        }).call(this)));
-                        var ρσ_Iter68 = slice_bounds;
-                        ρσ_Iter68 = ((typeof ρσ_Iter68[Symbol.iterator] === "function") ? (ρσ_Iter68 instanceof Map ? ρσ_Iter68.keys() : ρσ_Iter68) : Object.keys(ρσ_Iter68));
-                        for (var ρσ_Index68 of ρσ_Iter68) {
-                            _sb = ρσ_Index68;
-                            _ca.push(new AST_CallArg((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = _sb;
-                                ρσ_d["is_array"] = false;
-                                return ρσ_d;
-                            }).call(this)));
-                        }
-                        return await subscripts(new AST_Call((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["expression"] = new AST_SymbolRef((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["name"] = (S.in_delete) ? "ρσ_delslice" : "ρσ_eslice";
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["args"] = new AST_CallArgs((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["args"] = _ca;
-                                ρσ_d["kwargs"] = [];
-                                ρσ_d["kwarg_items"] = [];
-                                ρσ_d["starargs"] = false;
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), allow_calls);
-                    } else {
-                        slice_bounds = (function() {
-                            var ρσ_Iter = slice_bounds, ρσ_Result = [], i;
-                            ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                            for (var ρσ_Index of ρσ_Iter) {
-                                i = ρσ_Index;
-                                ρσ_Result.push((i === null) ? new AST_Number((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = 0;
-                                    return ρσ_d;
-                                }).call(this)) : i);
-                            }
-                            ρσ_Result = ρσ_list_constructor(ρσ_Result);
-                            return ρσ_Result;
-                        })();
-                        if (S.in_delete) {
-                            _ca2 = [];
-                            _ca2.push(new AST_CallArg((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = expr;
-                                ρσ_d["is_array"] = false;
-                                return ρσ_d;
-                            }).call(this)));
-                            _ca2.push(new AST_CallArg((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = new AST_Number((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = 1;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["is_array"] = false;
-                                return ρσ_d;
-                            }).call(this)));
-                            var ρσ_Iter69 = slice_bounds;
-                            ρσ_Iter69 = ((typeof ρσ_Iter69[Symbol.iterator] === "function") ? (ρσ_Iter69 instanceof Map ? ρσ_Iter69.keys() : ρσ_Iter69) : Object.keys(ρσ_Iter69));
-                            for (var ρσ_Index69 of ρσ_Iter69) {
-                                _sb = ρσ_Index69;
-                                _ca2.push(new AST_CallArg((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["value"] = _sb;
-                                    ρσ_d["is_array"] = false;
-                                    return ρσ_d;
-                                }).call(this)));
-                            }
-                            return await subscripts(new AST_Call((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = new AST_SymbolRef((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["name"] = "ρσ_delslice";
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["args"] = new AST_CallArgs((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["args"] = _ca2;
-                                    ρσ_d["kwargs"] = [];
-                                    ρσ_d["kwarg_items"] = [];
-                                    ρσ_d["starargs"] = false;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this)), allow_calls);
-                        }
-                        _ca3 = [];
-                        var ρσ_Iter70 = slice_bounds;
-                        ρσ_Iter70 = ((typeof ρσ_Iter70[Symbol.iterator] === "function") ? (ρσ_Iter70 instanceof Map ? ρσ_Iter70.keys() : ρσ_Iter70) : Object.keys(ρσ_Iter70));
-                        for (var ρσ_Index70 of ρσ_Iter70) {
-                            _sb = ρσ_Index70;
-                            _ca3.push(new AST_CallArg((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = _sb;
-                                ρσ_d["is_array"] = false;
-                                return ρσ_d;
-                            }).call(this)));
-                        }
-                        return await subscripts(new AST_Call((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["expression"] = new AST_Dot((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["expression"] = expr;
-                                ρσ_d["property"] = "slice";
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["args"] = new AST_CallArgs((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["args"] = _ca3;
-                                ρσ_d["kwargs"] = [];
-                                ρσ_d["kwarg_items"] = [];
-                                ρσ_d["starargs"] = false;
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), allow_calls);
-                    }
-                } else {
-                    if (is_py_sub) {
-                        assignment = null;
-                        assign_operator = "";
-                        if (is_("operator") && ASSIGNMENT[ρσ_bound_index(S.token.value, ASSIGNMENT)]) {
-                            assign_operator = S.token.value.slice(0, -1);
-                            next();
-                            assignment = await expression(true);
-                        }
-                        return await subscripts(new AST_ItemAccess((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["expression"] = expr;
-                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["value"] = 0;
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["assignment"] = assignment;
-                            ρσ_d["assign_operator"] = assign_operator;
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), allow_calls);
-                    }
-                    return await subscripts(new AST_Sub((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["expression"] = expr;
-                        ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["value"] = 0;
-                            return ρσ_d;
-                        }).call(this));
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)), allow_calls);
-                }
-            };
-            if (!getitem.__argnames__) Object.defineProperties(getitem, {
-                __argnames__ : {value: ["expr", "allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function call_(expr) {
-                var start, call_args, ret, c, funcname, classcall_args, tmp_, jstype_args, args, basic_args;
-                start = expr.start;
-                S.in_parenthesized_expr = true;
-                next();
-                if (!expr.parens && get_class_in_scope(expr)) {
-                    call_args = await func_call_list();
-                    ret = await subscripts(new AST_New((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["expression"] = expr;
-                        ρσ_d["args"] = call_args;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)), true);
-                    S.in_parenthesized_expr = false;
-                    return ret;
-                } else {
-                    if (is_node_type(expr, AST_Dot)) {
-                        c = get_class_in_scope(expr.expression);
-                    }
-                    if (c) {
-                        funcname = expr;
-                        classcall_args = await func_call_list();
-                        ret = await subscripts(new AST_ClassCall((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["class"] = expr.expression;
-                            ρσ_d["method"] = funcname.property;
-                            ρσ_d["static"] = is_static_method(c, funcname.property);
-                            ρσ_d["args"] = classcall_args;
-                            ρσ_d["end"] = prev();
-                            return ρσ_d;
-                        }).call(this)), true);
-                        S.in_parenthesized_expr = false;
-                        return ret;
-                    } else if (is_node_type(expr, AST_SymbolRef)) {
-                        tmp_ = expr.name;
-                        if (tmp_ === "jstype") {
-                            jstype_args = await func_call_list();
-                            ret = new AST_UnaryPrefix((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["operator"] = "typeof";
-                                ρσ_d["expression"] = jstype_args.args[0].value;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                            S.in_parenthesized_expr = false;
-                            return ret;
-                        } else if (tmp_ === "isinstance") {
-                            args = await func_call_list();
-                            if (args.args.length !== 2) {
-                                croak("isinstance() must be called with exactly two arguments");
-                            }
-                            ret = new AST_Binary((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["left"] = args.args[0].value;
-                                ρσ_d["operator"] = "instanceof";
-                                ρσ_d["right"] = args.args[1].value;
-                                ρσ_d["end"] = prev();
-                                return ρσ_d;
-                            }).call(this));
-                            S.in_parenthesized_expr = false;
-                            return ret;
-                        }
-                    }
-                    basic_args = await func_call_list();
-                    ret = await subscripts(new AST_Call((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["expression"] = expr;
-                        ρσ_d["args"] = basic_args;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this)), true);
-                    S.in_parenthesized_expr = false;
-                    return ret;
-                }
-            };
-            if (!call_.__argnames__) Object.defineProperties(call_, {
-                __argnames__ : {value: ["expr"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function get_attr(expr, allow_calls) {
-                var prop, c, classvars;
-                next();
-                prop = as_name();
-                c = get_class_in_scope(expr);
-                if (c) {
-                    classvars = (c.processing) ? c.provisional_classvars : c.classvars;
-                    if (classvars && classvars[prop]) {
-                        prop = "prototype." + prop;
-                    }
-                }
-                return await subscripts(new AST_Dot((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = expr.start;
-                    ρσ_d["expression"] = expr;
-                    ρσ_d["property"] = prop;
-                    ρσ_d["end"] = prev();
-                    return ρσ_d;
-                }).call(this)), allow_calls);
-            };
-            if (!get_attr.__argnames__) Object.defineProperties(get_attr, {
-                __argnames__ : {value: ["expr", "allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function existential(expr, allow_calls) {
-                var ans, ttype, val, is_py_sub;
-                ans = new AST_Existential((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["start"] = expr.start;
-                    ρσ_d["end"] = S.token;
-                    ρσ_d["expression"] = expr;
-                    return ρσ_d;
-                }).call(this));
-                next();
-                ttype = S.token.type;
-                val = S.token.value;
-                if (S.token.nlb || ttype === "keyword" || ttype === "operator" || ttype === "eof") {
-                    ans.after = null;
-                    return ans;
-                }
-                if (ttype === "punc") {
-                    if (val === ".") {
-                        ans.after = ".";
-                    } else if (val === "[") {
-                        is_py_sub = S.scoped_flags.get("overload_getitem", false);
-                        ans.after = (is_py_sub) ? "g" : "[";
-                    } else if (val === "(") {
-                        if (!allow_calls) {
-                            unexpected();
-                        }
-                        ans.after = "(";
-                    } else {
-                        ans.after = null;
-                        return ans;
-                    }
-                    return await subscripts(ans, allow_calls);
-                }
-                ans.after = await expression();
-                return ans;
-            };
-            if (!existential.__argnames__) Object.defineProperties(existential, {
-                __argnames__ : {value: ["expr", "allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function subscripts(expr, allow_calls) {
-                if (is_("punc", ".")) {
-                    return await get_attr(expr, allow_calls);
-                }
-                if (is_("punc", "[") && !S.token.nlb) {
-                    return await getitem(expr, allow_calls);
-                }
-                if (allow_calls && is_("punc", "(") && !S.token.nlb) {
-                    return await call_(expr);
-                }
-                if (is_("punc", "?")) {
-                    return await existential(expr, allow_calls);
-                }
-                return expr;
-            };
-            if (!subscripts.__argnames__) Object.defineProperties(subscripts, {
-                __argnames__ : {value: ["expr", "allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function maybe_unary(allow_calls) {
-                var start, expr, is_parenthesized, ex, val;
-                start = S.token;
-                if (is_("operator", "@")) {
-                    if (S.parsing_decorator) {
-                        croak("Nested decorators are not allowed");
-                    }
-                    next();
-                    S.parsing_decorator = true;
-                    expr = await expression();
-                    S.parsing_decorator = false;
-                    S.decorators.push(expr);
-                    return new AST_EmptyStatement((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["stype"] = "@";
-                        ρσ_d["start"] = prev();
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this));
-                }
-                if (is_("operator") && UNARY_PREFIX[ρσ_bound_index(start.value, UNARY_PREFIX)]) {
-                    next();
-                    is_parenthesized = is_("punc", "(");
-                    S.in_delete = start.value === "delete";
-                    expr = await maybe_unary(allow_calls);
-                    S.in_delete = false;
-                    ex = make_unary(AST_UnaryPrefix, start.value, expr, is_parenthesized);
-                    ex.start = start;
-                    ex.end = prev();
-                    return ex;
-                }
-                val = await expr_atom(allow_calls);
-                return val;
-            };
-            if (!maybe_unary.__argnames__) Object.defineProperties(maybe_unary, {
-                __argnames__ : {value: ["allow_calls"]},
-                __module__ : {value: "parse"}
-            });
-
-            function make_unary(ctor, op, expr, is_parenthesized) {
-                return new ctor((function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["operator"] = op;
-                    ρσ_d["expression"] = expr;
-                    ρσ_d["parenthesized"] = is_parenthesized;
-                    return ρσ_d;
-                }).call(this));
-            };
-            if (!make_unary.__argnames__) Object.defineProperties(make_unary, {
-                __argnames__ : {value: ["ctor", "op", "expr", "is_parenthesized"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function expr_op(left, min_prec, no_in) {
-                var op, prec, right, ret;
-                op = (is_("operator")) ? S.token.value : null;
-                if (op === "!" && peek().type === "operator" && peek().value === "in") {
-                    next();
-                    S.token.value = op = "nin";
-                }
-                if (no_in && (op === "in" || op === "nin")) {
-                    op = null;
-                }
-                prec = (op !== null) ? PRECEDENCE[(typeof op === "number" && op < 0) ? PRECEDENCE.length + op : op] : null;
-                if (prec !== null && prec > min_prec) {
-                    next();
-                    right = await expr_op(await maybe_unary(true), prec, no_in);
-                    ret = new AST_Binary((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = left.start;
-                        ρσ_d["left"] = left;
-                        ρσ_d["operator"] = op;
-                        ρσ_d["right"] = right;
-                        ρσ_d["end"] = right.end;
-                        return ρσ_d;
-                    }).call(this));
-                    return await expr_op(ret, min_prec, no_in);
-                }
-                return left;
-            };
-            if (!expr_op.__argnames__) Object.defineProperties(expr_op, {
-                __argnames__ : {value: ["left", "min_prec", "no_in"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function expr_ops(no_in) {
-                return await expr_op(await maybe_unary(true), 0, no_in);
-            };
-            if (!expr_ops.__argnames__) Object.defineProperties(expr_ops, {
-                __argnames__ : {value: ["no_in"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function maybe_conditional(no_in) {
-                var start, expr, ne, cond_alt, conditional;
-                start = S.token;
-                expr = await expr_ops(no_in);
-                if (is_("keyword", "if") && (S.in_parenthesized_expr || S.statement_starting_token !== S.token && !S.in_comprehension && !S.token.nlb)) {
-                    next();
-                    ne = await expression(false);
-                    expect_token("keyword", "else");
-                    cond_alt = await expression(false, no_in);
-                    conditional = new AST_Conditional((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["condition"] = ne;
-                        ρσ_d["consequent"] = expr;
-                        ρσ_d["alternative"] = cond_alt;
-                        ρσ_d["end"] = peek();
-                        return ρσ_d;
-                    }).call(this));
-                    return conditional;
-                }
-                return expr;
-            };
-            if (!maybe_conditional.__argnames__) Object.defineProperties(maybe_conditional, {
-                __argnames__ : {value: ["no_in"]},
-                __module__ : {value: "parse"}
-            });
-
-            function create_assign(data) {
-                var ans, class_name, c, lhs;
-                if (data.right && is_node_type(data.right, AST_Seq) && (is_node_type(data.right.car, AST_Assign) || is_node_type(data.right.cdr, AST_Assign)) && data.operator !== "=") {
-                    token_error(data.start, "Invalid assignment operator for chained assignment: " + data.operator);
-                }
-                ans = new AST_Assign(data);
-                if (S.in_class.length && (ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1]) {
-                    class_name = (ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1];
-                    if (is_node_type(ans.left, AST_SymbolRef) && S.classes.length > 1) {
-                        c = (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-2])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
-                        if (c) {
-                            if (ans.is_chained()) {
-                                var ρσ_Iter71 = ans.traverse_chain()[0];
-                                ρσ_Iter71 = ((typeof ρσ_Iter71[Symbol.iterator] === "function") ? (ρσ_Iter71 instanceof Map ? ρσ_Iter71.keys() : ρσ_Iter71) : Object.keys(ρσ_Iter71));
-                                for (var ρσ_Index71 of ρσ_Iter71) {
-                                    lhs = ρσ_Index71;
-                                    (ρσ_expr_temp = c.provisional_classvars)[ρσ_bound_index(lhs.name, ρσ_expr_temp)] = true;
-                                }
-                            } else {
-                                (ρσ_expr_temp = c.provisional_classvars)[ρσ_bound_index(ans.left.name, ρσ_expr_temp)] = true;
-                            }
-                        }
-                    }
-                }
-                return ans;
-            };
-            if (!create_assign.__argnames__) Object.defineProperties(create_assign, {
-                __argnames__ : {value: ["data"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function maybe_assign(no_in, only_plain_assignment) {
-                var start, left, val, assign_right;
-                start = S.token;
-                left = await maybe_conditional(no_in);
-                val = S.token.value;
-                if (is_("operator") && ASSIGNMENT[(typeof val === "number" && val < 0) ? ASSIGNMENT.length + val : val]) {
-                    if (only_plain_assignment && val !== "=") {
-                        croak("Invalid assignment operator for chained assignment: " + val);
-                    }
-                    next();
-                    assign_right = await maybe_assign(no_in, true);
-                    return create_assign((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["left"] = left;
-                        ρσ_d["operator"] = val;
-                        ρσ_d["right"] = assign_right;
-                        ρσ_d["end"] = prev();
-                        return ρσ_d;
-                    }).call(this));
-                }
-                return left;
-            };
-            if (!maybe_assign.__argnames__) Object.defineProperties(maybe_assign, {
-                __argnames__ : {value: ["no_in", "only_plain_assignment"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function expression(commas, no_in) {
-                var start, expr, left, seq_cdr;
-                start = S.token;
-                expr = await maybe_assign(no_in);
-                function build_seq(a) {
-                    if (a.length === 1) {
-                        return a[0];
-                    }
-                    return new AST_Seq((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["car"] = a.shift();
-                        ρσ_d["cdr"] = build_seq(a);
-                        ρσ_d["end"] = peek();
-                        return ρσ_d;
-                    }).call(this));
-                };
-                if (!build_seq.__argnames__) Object.defineProperties(build_seq, {
-                    __argnames__ : {value: ["a"]},
-                    __module__ : {value: "parse"}
-                });
-
-                if (commas) {
-                    left = [ expr ];
-                    while (is_("punc", ",") && !peek().nlb) {
-                        next();
-                        if (is_node_type(expr, AST_Assign)) {
-                            left[left.length-1] = left[left.length-1].left;
-                            seq_cdr = await expression(true, no_in);
-                            return create_assign((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["start"] = start;
-                                ρσ_d["left"] = (left.length === 1) ? left[0] : new AST_Array((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["elements"] = left;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["operator"] = expr.operator;
-                                ρσ_d["right"] = new AST_Seq((function(){
-                                    var ρσ_d = Object.create(null);
-                                    ρσ_d["car"] = expr.right;
-                                    ρσ_d["cdr"] = seq_cdr;
-                                    return ρσ_d;
-                                }).call(this));
-                                ρσ_d["end"] = peek();
-                                return ρσ_d;
-                            }).call(this));
-                        }
-                        expr = await maybe_assign(no_in);
-                        left.push(expr);
-                    }
-                    if (left.length > 1 && is_node_type(left[left.length-1], AST_Assign)) {
-                        left[left.length-1] = left[left.length-1].left;
-                        return create_assign((function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["start"] = start;
-                            ρσ_d["left"] = new AST_Array((function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["elements"] = left;
-                                return ρσ_d;
-                            }).call(this));
-                            ρσ_d["operator"] = expr.operator;
-                            ρσ_d["right"] = expr.right;
-                            ρσ_d["end"] = peek();
-                            return ρσ_d;
-                        }).call(this));
-                    }
-                    return build_seq(left);
-                }
-                return expr;
-            };
-            if (!expression.__argnames__) Object.defineProperties(expression, {
-                __argnames__ : {value: ["commas", "no_in"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function in_loop(cont) {
-                var ret;
-                S.in_loop += 1;
-                ret = await cont();
-                S.in_loop -= 1;
-                return ret;
-            };
-            if (!in_loop.__argnames__) Object.defineProperties(in_loop, {
-                __argnames__ : {value: ["cont"]},
-                __module__ : {value: "parse"}
-            });
-
-            async function run_parser() {
-                var start, body, docstrings, first_token, toplevel, element, shebang, ds, end, recovered, tok_ctx, seen_exports, item, classes_cache, cls, cname, has_se, idx_exec_refs_set, idx_import_bindings, idx_top_defs, idx_pinned, idx_dec, idx_def_refs, idx_local, idx_arg, idx_imp, se_found, idx_stmt, cache_meta;
-                start = S.token = next();
-                body = [];
-                docstrings = [];
-                first_token = true;
-                toplevel = options.toplevel;
-                while (!is_("eof")) {
-                    if (options.recover_errors) {
-                        try {
-                            element = await statement();
-                        } catch (ρσ_Exception) {
-                            ρσ_last_exception = ρσ_Exception;
-                            {
-                                var rerr = ρσ_Exception;
-                                if (is_recoverable_error(rerr)) {
-                                    record_recovery(rerr);
-                                    await skip_to_recovery_point();
-                                    continue;
-                                }
-                                throw ρσ_Exception;
-                            } 
-                        }
-                    } else {
-                        element = await statement();
-                    }
-                    if (first_token && is_node_type(element, AST_Directive) && element.value.indexOf("#!") === 0) {
-                        shebang = element.value;
-                    } else {
-                        ds = !toplevel && is_docstring(element);
-                        if (ds) {
-                            docstrings.push(ds);
-                        } else {
-                            body.push(element);
-                        }
-                    }
-                    first_token = false;
-                }
-                end = prev();
-                if (toplevel) {
-                    toplevel.body = toplevel.body.concat(body);
-                    toplevel.end = end;
-                    toplevel.docstrings;
-                } else {
-                    toplevel = new AST_Toplevel((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["start"] = start;
-                        ρσ_d["body"] = body;
-                        ρσ_d["shebang"] = shebang;
-                        ρσ_d["end"] = end;
-                        ρσ_d["docstrings"] = docstrings;
-                        return ρσ_d;
-                    }).call(this));
-                }
-                if (options.recover_errors) {
-                    recovered = S.recovered_errors;
-                    try {
-                        tok_ctx = S.input.context();
-                        if (tok_ctx && tok_ctx.recovered_errors && tok_ctx.recovered_errors.length) {
-                            recovered = recovered.concat(tok_ctx.recovered_errors);
-                        }
-                    } catch (ρσ_Exception) {
-                        ρσ_last_exception = ρσ_Exception;
-                        {
-                        } 
-                    }
-                    toplevel.recovered_errors = recovered;
-                }
-                toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body).concat(S.globals);
-                toplevel.localvars = [];
-                toplevel.exports = [];
-                seen_exports = Object.create(null);
-                function add_item(item, isvar) {
-                    var symbol;
-                    if (toplevel.nonlocalvars.indexOf(item) < 0) {
-                        symbol = new_symbol(AST_SymbolVar, item);
-                        if (isvar) {
-                            toplevel.localvars.push(symbol);
-                        }
-                        if (!has_prop(seen_exports, item)) {
-                            toplevel.exports.push(symbol);
-                            seen_exports[(typeof item === "number" && item < 0) ? seen_exports.length + item : item] = true;
-                        }
-                    }
-                };
-                if (!add_item.__argnames__) Object.defineProperties(add_item, {
-                    __argnames__ : {value: ["item", "isvar"]},
-                    __module__ : {value: "parse"}
-                });
-
-                var ρσ_Iter72 = scan_for_local_vars(toplevel.body);
-                ρσ_Iter72 = ((typeof ρσ_Iter72[Symbol.iterator] === "function") ? (ρσ_Iter72 instanceof Map ? ρσ_Iter72.keys() : ρσ_Iter72) : Object.keys(ρσ_Iter72));
-                for (var ρσ_Index72 of ρσ_Iter72) {
-                    item = ρσ_Index72;
-                    add_item(item, true);
-                }
-                var ρσ_Iter73 = scan_for_top_level_callables(toplevel.body);
-                ρσ_Iter73 = ((typeof ρσ_Iter73[Symbol.iterator] === "function") ? (ρσ_Iter73 instanceof Map ? ρσ_Iter73.keys() : ρσ_Iter73) : Object.keys(ρσ_Iter73));
-                for (var ρσ_Index73 of ρσ_Iter73) {
-                    item = ρσ_Index73;
-                    add_item(item, false);
-                }
-                toplevel.filename = options.filename;
-                toplevel.imported_module_ids = imported_module_ids;
-                toplevel.classes = scan_for_classes(toplevel.body);
-                toplevel.import_order = Object.keys(imported_modules).length;
-                toplevel.module_id = module_id;
-                imported_modules[(typeof module_id === "number" && module_id < 0) ? imported_modules.length + module_id : module_id] = toplevel;
-                toplevel.imports = imported_modules;
-                toplevel.baselib = baselib_items;
-                toplevel.scoped_flags = S.scoped_flags.stack[0];
-                importing_modules[(typeof module_id === "number" && module_id < 0) ? importing_modules.length + module_id : module_id] = false;
-                toplevel.comments_after = S.token.comments_before || [];
-                if (options._src_hash && options.filename && module_id !== "__main__") {
-                    try {
-                        classes_cache = Object.create(null);
-                        var ρσ_Iter74 = Object.keys(toplevel.classes || Object.create(null));
-                        ρσ_Iter74 = ((typeof ρσ_Iter74[Symbol.iterator] === "function") ? (ρσ_Iter74 instanceof Map ? ρσ_Iter74.keys() : ρσ_Iter74) : Object.keys(ρσ_Iter74));
-                        for (var ρσ_Index74 of ρσ_Iter74) {
-                            cname = ρσ_Index74;
-                            cls = (ρσ_expr_temp = toplevel.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
-                            classes_cache[(typeof cname === "number" && cname < 0) ? classes_cache.length + cname : cname] = (function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["static"] = cls.static || Object.create(null);
-                                ρσ_d["bound"] = cls.bound || [];
-                                ρσ_d["classvars"] = cls.classvars || Object.create(null);
-                                return ρσ_d;
-                            }).call(this);
-                        }
-                        has_se = false;
-                        idx_exec_refs_set = Object.create(null);
-                        idx_import_bindings = Object.create(null);
-                        idx_top_defs = Object.create(null);
-                        function _collect_refs_into(node, refs_set) {
-                            function _rv(n) {
-                                if (is_node_type(n, AST_SymbolRef)) {
-                                    refs_set[ρσ_bound_index(n.name, refs_set)] = true;
-                                }
-                            };
-                            if (!_rv.__argnames__) Object.defineProperties(_rv, {
-                                __argnames__ : {value: ["n"]},
-                                __module__ : {value: "parse"}
-                            });
-
-                            node.walk(new TreeWalker(_rv));
-                        };
-                        if (!_collect_refs_into.__argnames__) Object.defineProperties(_collect_refs_into, {
-                            __argnames__ : {value: ["node", "refs_set"]},
-                            __module__ : {value: "parse"}
-                        });
-
-                        var ρσ_Iter75 = toplevel.body;
-                        ρσ_Iter75 = ((typeof ρσ_Iter75[Symbol.iterator] === "function") ? (ρσ_Iter75 instanceof Map ? ρσ_Iter75.keys() : ρσ_Iter75) : Object.keys(ρσ_Iter75));
-                        for (var ρσ_Index75 of ρσ_Iter75) {
-                            idx_stmt = ρσ_Index75;
-                            if (is_node_type(idx_stmt, AST_Function) || is_node_type(idx_stmt, AST_Class)) {
-                                if (idx_stmt.name) {
-                                    idx_pinned = false;
-                                    if (idx_stmt.decorators) {
-                                        var ρσ_Iter76 = idx_stmt.decorators;
-                                        ρσ_Iter76 = ((typeof ρσ_Iter76[Symbol.iterator] === "function") ? (ρσ_Iter76 instanceof Map ? ρσ_Iter76.keys() : ρσ_Iter76) : Object.keys(ρσ_Iter76));
-                                        for (var ρσ_Index76 of ρσ_Iter76) {
-                                            idx_dec = ρσ_Index76;
-                                            if (idx_dec.expression && is_node_type(idx_dec.expression, AST_SymbolRef) && (idx_dec.expression.name === "no_prune" || typeof idx_dec.expression.name === "object" && ρσ_equals(idx_dec.expression.name, "no_prune"))) {
-                                                idx_pinned = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    idx_def_refs = Object.create(null);
-                                    _collect_refs_into(idx_stmt, idx_def_refs);
-                                    idx_top_defs[ρσ_bound_index(idx_stmt.name.name, idx_top_defs)] = (function(){
-                                        var ρσ_d = Object.create(null);
-                                        ρσ_d["pinned"] = idx_pinned;
-                                        ρσ_d["refs"] = Object.keys(idx_def_refs);
-                                        return ρσ_d;
-                                    }).call(this);
-                                }
-                            } else if (is_node_type(idx_stmt, AST_Imports)) {
-                                var ρσ_Iter77 = idx_stmt.imports;
-                                ρσ_Iter77 = ((typeof ρσ_Iter77[Symbol.iterator] === "function") ? (ρσ_Iter77 instanceof Map ? ρσ_Iter77.keys() : ρσ_Iter77) : Object.keys(ρσ_Iter77));
-                                for (var ρσ_Index77 of ρσ_Iter77) {
-                                    idx_imp = ρσ_Index77;
-                                    if (idx_imp.argnames && idx_imp.argnames.length) {
-                                        var ρσ_Iter78 = idx_imp.argnames;
-                                        ρσ_Iter78 = ((typeof ρσ_Iter78[Symbol.iterator] === "function") ? (ρσ_Iter78 instanceof Map ? ρσ_Iter78.keys() : ρσ_Iter78) : Object.keys(ρσ_Iter78));
-                                        for (var ρσ_Index78 of ρσ_Iter78) {
-                                            idx_arg = ρσ_Index78;
-                                            idx_local = (idx_arg.alias) ? idx_arg.alias.name : idx_arg.name;
-                                            idx_import_bindings[(typeof idx_local === "number" && idx_local < 0) ? idx_import_bindings.length + idx_local : idx_local] = (function(){
-                                                var ρσ_d = Object.create(null);
-                                                ρσ_d["source"] = idx_imp.key;
-                                                ρσ_d["imported_name"] = idx_arg.name;
-                                                ρσ_d["is_namespace"] = false;
-                                                return ρσ_d;
-                                            }).call(this);
-                                        }
-                                    } else {
-                                        idx_local = (idx_imp.alias) ? idx_imp.alias.name : idx_imp.key.split(".")[0];
-                                        idx_import_bindings[(typeof idx_local === "number" && idx_local < 0) ? idx_import_bindings.length + idx_local : idx_local] = (function(){
-                                            var ρσ_d = Object.create(null);
-                                            ρσ_d["source"] = idx_imp.key;
-                                            ρσ_d["imported_name"] = null;
-                                            ρσ_d["is_namespace"] = true;
-                                            return ρσ_d;
-                                        }).call(this);
-                                    }
-                                }
-                            } else {
-                                if (!has_se) {
-                                    se_found = [false];
-                                    function se_check(se_node, se_descend) {
-                                        if (is_node_type(se_node, AST_Call)) {
-                                            se_found[0] = true;
-                                            return true;
-                                        }
-                                    };
-                                    if (!se_check.__argnames__) Object.defineProperties(se_check, {
-                                        __argnames__ : {value: ["se_node", "se_descend"]},
-                                        __module__ : {value: "parse"}
-                                    });
-
-                                    idx_stmt.walk(new TreeWalker(se_check));
-                                    if (se_found[0]) {
-                                        has_se = true;
-                                    }
-                                }
-                                _collect_refs_into(idx_stmt, idx_exec_refs_set);
-                            }
-                        }
-                        cache_meta = (function(){
-                            var ρσ_d = Object.create(null);
-                            ρσ_d["v"] = CACHE_VERSION;
-                            ρσ_d["signature"] = options._src_hash;
-                            ρσ_d["compiler_version"] = COMPILER_VERSION;
-                            ρσ_d["imported_module_ids"] = toplevel.imported_module_ids;
-                            ρσ_d["exported_names"] = (function() {
-                                var ρσ_Iter = toplevel.exports, ρσ_Result = [], sym;
-                                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                                for (var ρσ_Index of ρσ_Iter) {
-                                    sym = ρσ_Index;
-                                    ρσ_Result.push(sym.name);
-                                }
-                                ρσ_Result = ρσ_list_constructor(ρσ_Result);
-                                return ρσ_Result;
-                            })();
-                            ρσ_d["baselib"] = toplevel.baselib || Object.create(null);
-                            ρσ_d["classes"] = classes_cache;
-                            ρσ_d["has_side_effects"] = has_se;
-                            ρσ_d["index"] = (function(){
-                                var ρσ_d = Object.create(null);
-                                ρσ_d["exec_refs"] = Object.keys(idx_exec_refs_set);
-                                ρσ_d["import_bindings"] = idx_import_bindings;
-                                ρσ_d["top_defs"] = idx_top_defs;
-                                return ρσ_d;
-                            }).call(this);
-                            return ρσ_d;
-                        }).call(this);
-                        if (options._file_mtime !== null && options._file_mtime !== undefined) {
-                            cache_meta["mtime"] = options._file_mtime;
-                        }
-                        await writefile(cache_file_name(options.filename, options.module_cache_dir), encode_cache(JSON.stringify(cache_meta), toplevel));
-                    } catch (ρσ_Exception) {
-                        ρσ_last_exception = ρσ_Exception;
-                        {
-                            var e = ρσ_Exception;
-                            console.error("Failed to write AST cache file:", options.filename, "with error:", e);
-                        } 
-                    }
-                }
-                return toplevel;
-            };
-            if (!run_parser.__module__) Object.defineProperties(run_parser, {
-                __module__ : {value: "parse"}
-            });
-
-            return run_parser;
-        };
-        if (!create_parser_ctx.__argnames__) Object.defineProperties(create_parser_ctx, {
-            __argnames__ : {value: ["S", "import_dirs", "module_id", "baselib_items", "imported_module_ids", "imported_modules", "importing_modules", "options"]},
-            __module__ : {value: "parse"}
-        });
-
-        async function parse(text, options) {
-            var import_dirs, x, location, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, S, obj, cname;
-            options = defaults(options, (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["filename"] = null;
-                ρσ_d["module_id"] = "__main__";
-                ρσ_d["toplevel"] = null;
-                ρσ_d["for_linting"] = false;
-                ρσ_d["import_dirs"] = [];
-                ρσ_d["classes"] = undefined;
-                ρσ_d["scoped_flags"] = Object.create(null);
-                ρσ_d["discard_asserts"] = false;
-                ρσ_d["module_cache_dir"] = "";
-                ρσ_d["recover_errors"] = false;
-                return ρσ_d;
-            }).call(this));
-            import_dirs = (function() {
-                var ρσ_Iter = options.import_dirs, ρσ_Result = [], x;
-                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
-                for (var ρσ_Index of ρσ_Iter) {
-                    x = ρσ_Index;
-                    ρσ_Result.push(x);
-                }
-                ρσ_Result = ρσ_list_constructor(ρσ_Result);
-                return ρσ_Result;
-            })();
-            var ρσ_Iter79 = [options.libdir, options.basedir];
-            ρσ_Iter79 = ((typeof ρσ_Iter79[Symbol.iterator] === "function") ? (ρσ_Iter79 instanceof Map ? ρσ_Iter79.keys() : ρσ_Iter79) : Object.keys(ρσ_Iter79));
-            for (var ρσ_Index79 of ρσ_Iter79) {
-                location = ρσ_Index79;
-                if (location) {
-                    import_dirs.push(location);
-                }
-            }
-            module_id = options.module_id;
-            baselib_items = Object.create(null);
-            imported_module_ids = [];
-            imported_modules = options.imported_modules || Object.create(null);
-            importing_modules = options.importing_modules || Object.create(null);
-            if (!options.loading_promises) {
-                options.loading_promises = Object.create(null);
-            }
-            importing_modules[(typeof module_id === "number" && module_id < 0) ? importing_modules.length + module_id : module_id] = true;
-            S = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["input"] = (typeof text === "string") ? tokenizer(text, options.filename, options.recover_errors) : text;
-                ρσ_d["recovered_errors"] = [];
-                ρσ_d["token"] = null;
-                ρσ_d["prev"] = null;
-                ρσ_d["peeked"] = [];
-                ρσ_d["in_function"] = 0;
-                ρσ_d["statement_starting_token"] = null;
-                ρσ_d["in_comprehension"] = false;
-                ρσ_d["in_parenthesized_expr"] = false;
-                ρσ_d["in_delete"] = false;
-                ρσ_d["in_loop"] = 0;
-                ρσ_d["in_class"] = [ false ];
-                ρσ_d["classes"] = [ Object.create(null) ];
-                ρσ_d["functions"] = [ Object.create(null) ];
-                ρσ_d["labels"] = [];
-                ρσ_d["decorators"] = [];
-                ρσ_d["parsing_decorator"] = false;
-                ρσ_d["globals"] = [];
-                ρσ_d["scoped_flags"] = (function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["stack"] = [options.scoped_flags || Object.create(null)];
-                    ρσ_d["push"] = (function() {
-                        var ρσ_anonfunc = function () {
-                            this.stack.push(Object.create(null));
-                        };
-                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                            __module__ : {value: "parse"}
-                        });
-                        return ρσ_anonfunc;
-                    })();
-                    ρσ_d["pop"] = (function() {
-                        var ρσ_anonfunc = function () {
-                            this.stack.pop();
-                        };
-                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                            __module__ : {value: "parse"}
-                        });
-                        return ρσ_anonfunc;
-                    })();
-                    ρσ_d["get"] = (function() {
-                        var ρσ_anonfunc = function (name, defval) {
-                            var d, q;
-                            for (var i = this.stack.length - 1; i >= 0; i--) {
-                                d = (ρσ_expr_temp = this.stack)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
-                                q = d[(typeof name === "number" && name < 0) ? d.length + name : name];
-                                if (q) {
-                                    return q;
-                                }
-                            }
-                            return defval;
-                        };
-                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["name", "defval"]},
-                            __module__ : {value: "parse"}
-                        });
-                        return ρσ_anonfunc;
-                    })();
-                    ρσ_d["set"] = (function() {
-                        var ρσ_anonfunc = function (name, val) {
-                            (ρσ_expr_temp = (ρσ_expr_temp = this.stack)[ρσ_expr_temp.length-1])[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name] = val;
-                        };
-                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["name", "val"]},
-                            __module__ : {value: "parse"}
-                        });
-                        return ρσ_anonfunc;
-                    })();
-                    return ρσ_d;
-                }).call(this);
-                return ρσ_d;
-            }).call(this);
-            if (options.classes) {
-                var ρσ_Iter80 = options.classes;
-                ρσ_Iter80 = ((typeof ρσ_Iter80[Symbol.iterator] === "function") ? (ρσ_Iter80 instanceof Map ? ρσ_Iter80.keys() : ρσ_Iter80) : Object.keys(ρσ_Iter80));
-                for (var ρσ_Index80 of ρσ_Iter80) {
-                    cname = ρσ_Index80;
-                    obj = (ρσ_expr_temp = options.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
-                    (ρσ_expr_temp = S.classes[0])[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname] = (function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["static"] = obj.static;
-                        ρσ_d["bound"] = obj.bound;
-                        ρσ_d["classvars"] = obj.classvars;
-                        return ρσ_d;
-                    }).call(this);
-                }
-            }
-            if (typeof text === "string" && !options._src_hash) {
-                options._src_hash = sha1sum(text);
-            }
-            return await create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)();
-        };
-        if (!parse.__argnames__) Object.defineProperties(parse, {
-            __argnames__ : {value: ["text", "options"]},
-            __module__ : {value: "parse"}
-        });
-
-        ρσ_modules.parse.COMPILER_VERSION = COMPILER_VERSION;
-        ρσ_modules.parse.PYTHON_FLAGS = PYTHON_FLAGS;
-        ρσ_modules.parse.CACHE_VERSION = CACHE_VERSION;
-        ρσ_modules.parse.NATIVE_CLASSES = NATIVE_CLASSES;
-        ρσ_modules.parse.ERROR_CLASSES = ERROR_CLASSES;
-        ρσ_modules.parse.COMMON_STATIC = COMMON_STATIC;
-        ρσ_modules.parse.FORBIDDEN_CLASS_VARS = FORBIDDEN_CLASS_VARS;
-        ρσ_modules.parse.UNARY_PREFIX = UNARY_PREFIX;
-        ρσ_modules.parse.ASSIGNMENT = ASSIGNMENT;
-        ρσ_modules.parse.PRECEDENCE = PRECEDENCE;
-        ρσ_modules.parse.STATEMENTS_WITH_LABELS = STATEMENTS_WITH_LABELS;
-        ρσ_modules.parse.ATOMIC_START_TOKEN = ATOMIC_START_TOKEN;
-        ρσ_modules.parse.compile_time_decorators = compile_time_decorators;
-        ρσ_modules.parse.get_compiler_version = get_compiler_version;
-        ρσ_modules.parse.static_predicate = static_predicate;
-        ρσ_modules.parse.has_simple_decorator = has_simple_decorator;
-        ρσ_modules.parse.has_setter_decorator = has_setter_decorator;
-        ρσ_modules.parse.create_parser_ctx = create_parser_ctx;
-        ρσ_modules.parse.parse = parse;
-    })();
-
-    (function(){
-        var __name__ = "output";
-
-    })();
-
-    (function(){
         var __name__ = "output.stream";
         var DANGEROUS, _IDENT_CHARS, require_semi_colon_chars, output_stream_defaults;
+        var is_identifier_char = ρσ_modules.tokenizer.is_identifier_char;
+
         var make_predicate = ρσ_modules.utils.make_predicate;
         var defaults = ρσ_modules.utils.defaults;
         var repeat_string = ρσ_modules.utils.repeat_string;
-
-        var is_identifier_char = ρσ_modules.tokenizer.is_identifier_char;
 
         DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
         _IDENT_CHARS = (function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})();
@@ -14641,10 +10524,10 @@ return this.__repr__();
             if (self._source_map_segments === null) {
                 return;
             }
-            var ρσ_Iter81 = segments;
-            ρσ_Iter81 = ((typeof ρσ_Iter81[Symbol.iterator] === "function") ? (ρσ_Iter81 instanceof Map ? ρσ_Iter81.keys() : ρσ_Iter81) : Object.keys(ρσ_Iter81));
-            for (var ρσ_Index81 of ρσ_Iter81) {
-                seg = ρσ_Index81;
+            var ρσ_Iter35 = segments;
+            ρσ_Iter35 = ((typeof ρσ_Iter35[Symbol.iterator] === "function") ? (ρσ_Iter35 instanceof Map ? ρσ_Iter35.keys() : ρσ_Iter35) : Object.keys(ρσ_Iter35));
+            for (var ρσ_Index35 of ρσ_Iter35) {
+                seg = ρσ_Index35;
                 self._source_map_segments.push([seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]);
             }
         };
@@ -14680,637 +10563,6 @@ return this.__repr__();
     })();
 
     (function(){
-        var __name__ = "output.statements";
-        var AST_Definitions = ρσ_modules.ast.AST_Definitions;
-        var AST_Scope = ρσ_modules.ast.AST_Scope;
-        var AST_Method = ρσ_modules.ast.AST_Method;
-        var AST_Except = ρσ_modules.ast.AST_Except;
-        var AST_EmptyStatement = ρσ_modules.ast.AST_EmptyStatement;
-        var AST_Statement = ρσ_modules.ast.AST_Statement;
-        var AST_Seq = ρσ_modules.ast.AST_Seq;
-        var AST_BaseCall = ρσ_modules.ast.AST_BaseCall;
-        var AST_Dot = ρσ_modules.ast.AST_Dot;
-        var AST_Sub = ρσ_modules.ast.AST_Sub;
-        var AST_ItemAccess = ρσ_modules.ast.AST_ItemAccess;
-        var AST_Conditional = ρσ_modules.ast.AST_Conditional;
-        var AST_Binary = ρσ_modules.ast.AST_Binary;
-        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
-        var is_node_type = ρσ_modules.ast.is_node_type;
-
-        function force_statement(stat, output) {
-            if (output.options.bracketize) {
-                if (!stat || is_node_type(stat, AST_EmptyStatement)) {
-                    output.print("{}");
-                } else if (is_node_type(stat, AST_BlockStatement)) {
-                    stat.print(output);
-                } else {
-                    output.with_block((function() {
-                        var ρσ_anonfunc = function () {
-                            output.indent();
-                            stat.print(output);
-                            output.newline();
-                        };
-                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                            __module__ : {value: "output.statements"}
-                        });
-                        return ρσ_anonfunc;
-                    })());
-                }
-            } else {
-                if (!stat || is_node_type(stat, AST_EmptyStatement)) {
-                    output.force_semicolon();
-                } else {
-                    stat.print(output);
-                }
-            }
-        };
-        if (!force_statement.__argnames__) Object.defineProperties(force_statement, {
-            __argnames__ : {value: ["stat", "output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function first_in_statement(output) {
-            var a, i, node, p;
-            a = output.stack();
-            i = a.length;
-            node = a[ρσ_bound_index(i -= 1, a)];
-            p = a[ρσ_bound_index(i -= 1, a)];
-            while (i > 0) {
-                if (is_node_type(p, AST_Statement) && p.body === node) {
-                    return true;
-                }
-                if (is_node_type(p, AST_Seq) && p.car === node || is_node_type(p, AST_BaseCall) && p.expression === node || is_node_type(p, AST_Dot) && p.expression === node || is_node_type(p, AST_Sub) && p.expression === node || is_node_type(p, AST_ItemAccess) && p.expression === node || is_node_type(p, AST_Conditional) && p.condition === node || is_node_type(p, AST_Binary) && p.left === node) {
-                    node = p;
-                    p = a[ρσ_bound_index(i -= 1, a)];
-                } else {
-                    return false;
-                }
-            }
-        };
-        if (!first_in_statement.__argnames__) Object.defineProperties(first_in_statement, {
-            __argnames__ : {value: ["output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function declare_vars(vars, output) {
-            var ρσ_unpack, i, arg;
-            if (vars.length) {
-                output.indent();
-                output.print("var");
-                output.space();
-                var ρσ_Iter82 = enumerate(vars);
-                ρσ_Iter82 = ((typeof ρσ_Iter82[Symbol.iterator] === "function") ? (ρσ_Iter82 instanceof Map ? ρσ_Iter82.keys() : ρσ_Iter82) : Object.keys(ρσ_Iter82));
-                for (var ρσ_Index82 of ρσ_Iter82) {
-                    ρσ_unpack = ρσ_Index82;
-                    i = ρσ_unpack[0];
-                    arg = ρσ_unpack[1];
-                    if (i) {
-                        output.comma();
-                    }
-                    arg.print(output);
-                }
-                output.semicolon();
-                output.newline();
-            }
-        };
-        if (!declare_vars.__argnames__) Object.defineProperties(declare_vars, {
-            __argnames__ : {value: ["vars", "output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function display_body(body, is_toplevel, output) {
-            var last, ρσ_unpack, i, stmt;
-            last = body.length - 1;
-            var ρσ_Iter83 = enumerate(body);
-            ρσ_Iter83 = ((typeof ρσ_Iter83[Symbol.iterator] === "function") ? (ρσ_Iter83 instanceof Map ? ρσ_Iter83.keys() : ρσ_Iter83) : Object.keys(ρσ_Iter83));
-            for (var ρσ_Index83 of ρσ_Iter83) {
-                ρσ_unpack = ρσ_Index83;
-                i = ρσ_unpack[0];
-                stmt = ρσ_unpack[1];
-                if (!(is_node_type(stmt, AST_EmptyStatement)) && !(is_node_type(stmt, AST_Definitions))) {
-                    output.indent();
-                    stmt.print(output);
-                    if (!((i === last && is_toplevel))) {
-                        output.newline();
-                    }
-                }
-            }
-        };
-        if (!display_body.__argnames__) Object.defineProperties(display_body, {
-            __argnames__ : {value: ["body", "is_toplevel", "output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function display_complex_body(node, is_toplevel, output, function_preamble) {
-            var offset;
-            offset = 0;
-            if (is_node_type(node, AST_Method) && !node.static) {
-                output.indent();
-                output.print("var");
-                output.space();
-                output.assign(node.argnames.args[0]);
-                output.print("this");
-                output.semicolon();
-                output.newline();
-                offset += 1;
-            }
-            if (is_node_type(node, AST_Scope)) {
-                function_preamble(node, output, offset);
-                declare_vars(node.localvars, output);
-            } else if (is_node_type(node, AST_Except)) {
-                if (node.argname) {
-                    output.indent();
-                    output.print("var");
-                    output.space();
-                    output.assign(node.argname);
-                    output.print("ρσ_Exception");
-                    output.semicolon();
-                    output.newline();
-                }
-            }
-            display_body(node.body, is_toplevel, output);
-        };
-        if (!display_complex_body.__argnames__) Object.defineProperties(display_complex_body, {
-            __argnames__ : {value: ["node", "is_toplevel", "output", "function_preamble"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function print_bracketed(node, output, complex, function_preamble, before, after) {
-            if (node.body.length > 0) {
-                output.with_block((function() {
-                    var ρσ_anonfunc = function () {
-                        if (before) {
-                            before(output);
-                        }
-                        if (complex) {
-                            display_complex_body(node, false, output, function_preamble);
-                        } else {
-                            display_body(node.body, false, output);
-                        }
-                        if (after) {
-                            after(output);
-                        }
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "output.statements"}
-                    });
-                    return ρσ_anonfunc;
-                })());
-            } else {
-                if (before || after) {
-                    output.with_block((function() {
-                        var ρσ_anonfunc = function () {
-                            if (before) {
-                                before(output);
-                            }
-                            if (after) {
-                                after(output);
-                            }
-                        };
-                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                            __module__ : {value: "output.statements"}
-                        });
-                        return ρσ_anonfunc;
-                    })());
-                } else {
-                    output.print("{}");
-                }
-            }
-        };
-        if (!print_bracketed.__argnames__) Object.defineProperties(print_bracketed, {
-            __argnames__ : {value: ["node", "output", "complex", "function_preamble", "before", "after"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function print_with(self, output) {
-            var exits, clause_name, clause;
-            exits = [];
-            [output.assign("ρσ_with_exception"), output.print("undefined"), output.end_statement()];
-            var ρσ_Iter84 = self.clauses;
-            ρσ_Iter84 = ((typeof ρσ_Iter84[Symbol.iterator] === "function") ? (ρσ_Iter84 instanceof Map ? ρσ_Iter84.keys() : ρσ_Iter84) : Object.keys(ρσ_Iter84));
-            for (var ρσ_Index84 of ρσ_Iter84) {
-                clause = ρσ_Index84;
-                output.with_counter += 1;
-                clause_name = "ρσ_with_clause_" + output.with_counter;
-                exits.push(clause_name);
-                [output.indent(), output.print("var "), output.assign(clause_name)];
-                clause.expression.print(output);
-                output.end_statement();
-                output.indent();
-                if (clause.alias) {
-                    output.assign(clause.alias.name);
-                }
-                output.print(clause_name + ".__enter__()");
-                output.end_statement();
-            }
-            [output.indent(), output.print("try"), output.space()];
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    output.indent();
-                    self._do_print_body(output);
-                    output.newline();
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.statements"}
-                });
-                return ρσ_anonfunc;
-            })());
-            [output.space(), output.print("catch(e)")];
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    [output.indent(), output.assign("ρσ_with_exception"), output.print("e"), output.end_statement()];
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.statements"}
-                });
-                return ρσ_anonfunc;
-            })());
-            [output.newline(), output.indent(), output.spaced("if", "(ρσ_with_exception", "===", "undefined)")];
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    var clause;
-                    var ρσ_Iter85 = exits;
-                    ρσ_Iter85 = ((typeof ρσ_Iter85[Symbol.iterator] === "function") ? (ρσ_Iter85 instanceof Map ? ρσ_Iter85.keys() : ρσ_Iter85) : Object.keys(ρσ_Iter85));
-                    for (var ρσ_Index85 of ρσ_Iter85) {
-                        clause = ρσ_Index85;
-                        [output.indent(), output.print(clause + ".__exit__()"), output.end_statement()];
-                    }
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.statements"}
-                });
-                return ρσ_anonfunc;
-            })());
-            [output.space(), output.print("else"), output.space()];
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    var clause;
-                    [output.indent(), output.assign("ρσ_with_suppress"), output.print("false"), output.end_statement()];
-                    var ρσ_Iter86 = exits;
-                    ρσ_Iter86 = ((typeof ρσ_Iter86[Symbol.iterator] === "function") ? (ρσ_Iter86 instanceof Map ? ρσ_Iter86.keys() : ρσ_Iter86) : Object.keys(ρσ_Iter86));
-                    for (var ρσ_Index86 of ρσ_Iter86) {
-                        clause = ρσ_Index86;
-                        output.indent();
-                        output.spaced("ρσ_with_suppress", "|=", "ρσ_bool(" + clause + ".__exit__(ρσ_with_exception.constructor,", "ρσ_with_exception,", "ρσ_with_exception.stack))");
-                        output.end_statement();
-                    }
-                    [output.indent(), output.spaced("if", "(!ρσ_with_suppress)", "throw ρσ_with_exception"), 
-                    output.end_statement()];
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.statements"}
-                });
-                return ρσ_anonfunc;
-            })());
-        };
-        if (!print_with.__argnames__) Object.defineProperties(print_with, {
-            __argnames__ : {value: ["self", "output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        function print_assert(self, output) {
-            if (output.options.discard_asserts) {
-                return;
-            }
-            [output.spaced("if", "(!("), self.condition.print(output), output.spaced("))", "throw new AssertionError")];
-            if (self.message) {
-                output.print("(");
-                self.message.print(output);
-                output.print(")");
-            }
-            output.end_statement();
-        };
-        if (!print_assert.__argnames__) Object.defineProperties(print_assert, {
-            __argnames__ : {value: ["self", "output"]},
-            __module__ : {value: "output.statements"}
-        });
-
-        ρσ_modules["output.statements"].force_statement = force_statement;
-        ρσ_modules["output.statements"].first_in_statement = first_in_statement;
-        ρσ_modules["output.statements"].declare_vars = declare_vars;
-        ρσ_modules["output.statements"].display_body = display_body;
-        ρσ_modules["output.statements"].display_complex_body = display_complex_body;
-        ρσ_modules["output.statements"].print_bracketed = print_bracketed;
-        ρσ_modules["output.statements"].print_with = print_with;
-        ρσ_modules["output.statements"].print_assert = print_assert;
-    })();
-
-    (function(){
-        var __name__ = "output.exceptions";
-        var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
-
-        function print_try(self, output) {
-            var else_var_name;
-            else_var_name = null;
-            function update_output_var(output) {
-                [output.indent(), output.assign(else_var_name), output.print("true"), output.end_statement()];
-            };
-            if (!update_output_var.__argnames__) Object.defineProperties(update_output_var, {
-                __argnames__ : {value: ["output"]},
-                __module__ : {value: "output.exceptions"}
-            });
-
-            if (self.belse) {
-                else_var_name = output.new_try_else_counter();
-                [output.assign("var " + else_var_name), output.print("false"), output.end_statement(), 
-                output.indent()];
-            }
-            output.print("try");
-            output.space();
-            print_bracketed(self, output, false, null, null, (else_var_name) ? update_output_var : null);
-            if (self.bcatch) {
-                output.space();
-                print_catch(self.bcatch, output);
-            }
-            if (self.bfinally) {
-                output.space();
-                print_finally(self.bfinally, output, self.belse, else_var_name);
-            } else if (self.belse) {
-                output.newline();
-                print_else(self.belse, else_var_name, output);
-            }
-        };
-        if (!print_try.__argnames__) Object.defineProperties(print_try, {
-            __argnames__ : {value: ["self", "output"]},
-            __module__ : {value: "output.exceptions"}
-        });
-
-        function print_catch(self, output) {
-            output.print("catch");
-            output.space();
-            output.with_parens((function() {
-                var ρσ_anonfunc = function () {
-                    output.print("ρσ_Exception");
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.exceptions"}
-                });
-                return ρσ_anonfunc;
-            })());
-            output.space();
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    var no_default, ρσ_unpack, i, exception;
-                    output.indent();
-                    [output.spaced("ρσ_last_exception", "=", "ρσ_Exception"), output.end_statement()];
-                    output.indent();
-                    no_default = true;
-                    var ρσ_Iter87 = enumerate(self.body);
-                    ρσ_Iter87 = ((typeof ρσ_Iter87[Symbol.iterator] === "function") ? (ρσ_Iter87 instanceof Map ? ρσ_Iter87.keys() : ρσ_Iter87) : Object.keys(ρσ_Iter87));
-                    for (var ρσ_Index87 of ρσ_Iter87) {
-                        ρσ_unpack = ρσ_Index87;
-                        i = ρσ_unpack[0];
-                        exception = ρσ_unpack[1];
-                        if (i) {
-                            output.print("else ");
-                        }
-                        if (exception.errors.length) {
-                            output.print("if");
-                            output.space();
-                            output.with_parens((function() {
-                                var ρσ_anonfunc = function () {
-                                    var ρσ_unpack, i, err;
-                                    var ρσ_Iter88 = enumerate(exception.errors);
-                                    ρσ_Iter88 = ((typeof ρσ_Iter88[Symbol.iterator] === "function") ? (ρσ_Iter88 instanceof Map ? ρσ_Iter88.keys() : ρσ_Iter88) : Object.keys(ρσ_Iter88));
-                                    for (var ρσ_Index88 of ρσ_Iter88) {
-                                        ρσ_unpack = ρσ_Index88;
-                                        i = ρσ_unpack[0];
-                                        err = ρσ_unpack[1];
-                                        if (i) {
-                                            output.newline();
-                                            output.indent();
-                                            output.print("||");
-                                            output.space();
-                                        }
-                                        output.print("ρσ_Exception");
-                                        output.space();
-                                        output.print("instanceof");
-                                        output.space();
-                                        if (err.name === "Exception") {
-                                            output.print("Error");
-                                        } else {
-                                            err.print(output);
-                                        }
-                                    }
-                                };
-                                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                                    __module__ : {value: "output.exceptions"}
-                                });
-                                return ρσ_anonfunc;
-                            })());
-                            output.space();
-                        } else {
-                            no_default = false;
-                        }
-                        print_bracketed(exception, output, true);
-                        output.space();
-                    }
-                    if (no_default) {
-                        output.print("else");
-                        output.space();
-                        output.with_block((function() {
-                            var ρσ_anonfunc = function () {
-                                output.indent();
-                                output.print("throw");
-                                output.space();
-                                output.print("ρσ_Exception");
-                                output.semicolon();
-                                output.newline();
-                            };
-                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                                __module__ : {value: "output.exceptions"}
-                            });
-                            return ρσ_anonfunc;
-                        })());
-                    }
-                    output.newline();
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.exceptions"}
-                });
-                return ρσ_anonfunc;
-            })());
-        };
-        if (!print_catch.__argnames__) Object.defineProperties(print_catch, {
-            __argnames__ : {value: ["self", "output"]},
-            __module__ : {value: "output.exceptions"}
-        });
-
-        function print_finally(self, output, belse, else_var_name) {
-            output.print("finally");
-            output.space();
-            if (else_var_name) {
-                output.with_block((function() {
-                    var ρσ_anonfunc = function () {
-                        [output.indent(), output.print("try")];
-                        output.space();
-                        output.with_block((function() {
-                            var ρσ_anonfunc = function () {
-                                print_else(belse, else_var_name, output);
-                            };
-                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                                __module__ : {value: "output.exceptions"}
-                            });
-                            return ρσ_anonfunc;
-                        })());
-                        print_finally(self, output);
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "output.exceptions"}
-                    });
-                    return ρσ_anonfunc;
-                })());
-            } else {
-                print_bracketed(self, output);
-            }
-        };
-        if (!print_finally.__argnames__) Object.defineProperties(print_finally, {
-            __argnames__ : {value: ["self", "output", "belse", "else_var_name"]},
-            __module__ : {value: "output.exceptions"}
-        });
-
-        function print_else(self, else_var_name, output) {
-            [output.indent(), output.spaced("if", "(" + else_var_name + ")")];
-            output.space();
-            print_bracketed(self, output);
-        };
-        if (!print_else.__argnames__) Object.defineProperties(print_else, {
-            __argnames__ : {value: ["self", "else_var_name", "output"]},
-            __module__ : {value: "output.exceptions"}
-        });
-
-        ρσ_modules["output.exceptions"].print_try = print_try;
-        ρσ_modules["output.exceptions"].print_catch = print_catch;
-        ρσ_modules["output.exceptions"].print_finally = print_finally;
-        ρσ_modules["output.exceptions"].print_else = print_else;
-    })();
-
-    (function(){
-        var __name__ = "output.utils";
-        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
-        var is_node_type = ρσ_modules.ast.is_node_type;
-
-        function best_of(a) {
-            var best, len_, i;
-            best = a[0];
-            len_ = best.length;
-            for (var ρσ_Index89 = 1; ρσ_Index89 < a.length; ρσ_Index89++) {
-                i = ρσ_Index89;
-                if (a[(typeof i === "number" && i < 0) ? a.length + i : i].length < len_) {
-                    best = a[(typeof i === "number" && i < 0) ? a.length + i : i];
-                    len_ = best.length;
-                }
-            }
-            return best;
-        };
-        if (!best_of.__argnames__) Object.defineProperties(best_of, {
-            __argnames__ : {value: ["a"]},
-            __module__ : {value: "output.utils"}
-        });
-
-        function make_num(num) {
-            var str_, a, m;
-            str_ = num.toString(10);
-            a = [ str_.replace(/^0\./, ".").replace("e+", "e") ];
-            m = null;
-            if (Math.floor(num) === num) {
-                if (num >= 0) {
-                    a.push("0x" + num.toString(16).toLowerCase(), "0" + num.toString(8));
-                } else {
-                    a.push("-0x" + (-(num)).toString(16).toLowerCase(), "-0" + (-(num)).toString(8));
-                }
-                if (m = /^(.*?)(0+)$/.exec(num)) {
-                    a.push(m[1] + "e" + m[2].length);
-                }
-            } else if (m = /^0?\.(0+)(.*)$/.exec(num)) {
-                a.push(m[2] + "e-" + (m[1].length + m[2].length), str_.substr(str_.indexOf(".")));
-            }
-            return best_of(a);
-        };
-        if (!make_num.__argnames__) Object.defineProperties(make_num, {
-            __argnames__ : {value: ["num"]},
-            __module__ : {value: "output.utils"}
-        });
-
-        function make_block(stmt, output) {
-            if (is_node_type(stmt, AST_BlockStatement)) {
-                stmt.print(output);
-                return;
-            }
-            output.with_block((function() {
-                var ρσ_anonfunc = function () {
-                    output.indent();
-                    stmt.print(output);
-                    output.newline();
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.utils"}
-                });
-                return ρσ_anonfunc;
-            })());
-        };
-        if (!make_block.__argnames__) Object.defineProperties(make_block, {
-            __argnames__ : {value: ["stmt", "output"]},
-            __module__ : {value: "output.utils"}
-        });
-
-        function create_doctring(docstrings) {
-            var ans, ds, lines, min_leading_whitespace, r, leading_whitespace, line, lw, ρσ_unpack, l;
-            ans = [];
-            var ρσ_Iter90 = docstrings;
-            ρσ_Iter90 = ((typeof ρσ_Iter90[Symbol.iterator] === "function") ? (ρσ_Iter90 instanceof Map ? ρσ_Iter90.keys() : ρσ_Iter90) : Object.keys(ρσ_Iter90));
-            for (var ρσ_Index90 of ρσ_Iter90) {
-                ds = ρσ_Index90;
-                ds = str.rstrip(ds.value);
-                lines = [];
-                min_leading_whitespace = "";
-                var ρσ_Iter91 = ds.split(/$/gm);
-                ρσ_Iter91 = ((typeof ρσ_Iter91[Symbol.iterator] === "function") ? (ρσ_Iter91 instanceof Map ? ρσ_Iter91.keys() : ρσ_Iter91) : Object.keys(ρσ_Iter91));
-                for (var ρσ_Index91 of ρσ_Iter91) {
-                    line = ρσ_Index91;
-                    r = /^\s+/.exec(line);
-                    leading_whitespace = "";
-                    if (r) {
-                        leading_whitespace = (r) ? r[0].replace(/[\n\r]/g, "") : "";
-                        line = line.slice(r[0].length);
-                    }
-                    if (!str.strip(line)) {
-                        lines.push(["", ""]);
-                    } else {
-                        leading_whitespace = leading_whitespace.replace(/\t/g, "    ");
-                        if (leading_whitespace && (!min_leading_whitespace || leading_whitespace.length < min_leading_whitespace.length)) {
-                            min_leading_whitespace = leading_whitespace;
-                        }
-                        lines.push([leading_whitespace, line]);
-                    }
-                }
-                var ρσ_Iter92 = lines;
-                ρσ_Iter92 = ((typeof ρσ_Iter92[Symbol.iterator] === "function") ? (ρσ_Iter92 instanceof Map ? ρσ_Iter92.keys() : ρσ_Iter92) : Object.keys(ρσ_Iter92));
-                for (var ρσ_Index92 of ρσ_Iter92) {
-                    ρσ_unpack = ρσ_Index92;
-                    lw = ρσ_unpack[0];
-                    l = ρσ_unpack[1];
-                    if (min_leading_whitespace) {
-                        lw = lw.slice(min_leading_whitespace.length);
-                    }
-                    ans.push(lw + l);
-                }
-                ans.push("");
-            }
-            return str.rstrip(ans.join("\n"));
-        };
-        if (!create_doctring.__argnames__) Object.defineProperties(create_doctring, {
-            __argnames__ : {value: ["docstrings"]},
-            __module__ : {value: "output.utils"}
-        });
-
-        ρσ_modules["output.utils"].best_of = best_of;
-        ρσ_modules["output.utils"].make_num = make_num;
-        ρσ_modules["output.utils"].make_block = make_block;
-        ρσ_modules["output.utils"].create_doctring = create_doctring;
-    })();
-
-    (function(){
         var __name__ = "output.loops";
         var AST_BaseCall = ρσ_modules.ast.AST_BaseCall;
         var AST_SymbolRef = ρσ_modules.ast.AST_SymbolRef;
@@ -15326,10 +10578,10 @@ return this.__repr__();
 
         function unpack_tuple(elems, output, in_statement) {
             var ρσ_unpack, i, elem;
-            var ρσ_Iter93 = enumerate(elems);
-            ρσ_Iter93 = ((typeof ρσ_Iter93[Symbol.iterator] === "function") ? (ρσ_Iter93 instanceof Map ? ρσ_Iter93.keys() : ρσ_Iter93) : Object.keys(ρσ_Iter93));
-            for (var ρσ_Index93 of ρσ_Iter93) {
-                ρσ_unpack = ρσ_Index93;
+            var ρσ_Iter36 = enumerate(elems);
+            ρσ_Iter36 = ((typeof ρσ_Iter36[Symbol.iterator] === "function") ? (ρσ_Iter36 instanceof Map ? ρσ_Iter36.keys() : ρσ_Iter36) : Object.keys(ρσ_Iter36));
+            for (var ρσ_Index36 of ρσ_Iter36) {
+                ρσ_unpack = ρσ_Index36;
                 i = ρσ_unpack[0];
                 elem = ρσ_unpack[1];
                 output.indent();
@@ -15459,10 +10711,10 @@ return this.__repr__();
                         output.print(self.simple_for_index);
                         output.end_statement();
                     }
-                    var ρσ_Iter94 = self.body.body;
-                    ρσ_Iter94 = ((typeof ρσ_Iter94[Symbol.iterator] === "function") ? (ρσ_Iter94 instanceof Map ? ρσ_Iter94.keys() : ρσ_Iter94) : Object.keys(ρσ_Iter94));
-                    for (var ρσ_Index94 of ρσ_Iter94) {
-                        stmt = ρσ_Index94;
+                    var ρσ_Iter37 = self.body.body;
+                    ρσ_Iter37 = ((typeof ρσ_Iter37[Symbol.iterator] === "function") ? (ρσ_Iter37 instanceof Map ? ρσ_Iter37.keys() : ρσ_Iter37) : Object.keys(ρσ_Iter37));
+                    for (var ρσ_Index37 of ρσ_Iter37) {
+                        stmt = ρσ_Index37;
                         output.indent();
                         stmt.print(output);
                         output.newline();
@@ -15759,10 +11011,10 @@ return this.__repr__();
                                 body_out.print(result_obj);
                             }
                             if (is_node_type(self.init, AST_Array)) {
-                                var ρσ_Iter95 = self.init.elements;
-                                ρσ_Iter95 = ((typeof ρσ_Iter95[Symbol.iterator] === "function") ? (ρσ_Iter95 instanceof Map ? ρσ_Iter95.keys() : ρσ_Iter95) : Object.keys(ρσ_Iter95));
-                                for (var ρσ_Index95 of ρσ_Iter95) {
-                                    i = ρσ_Index95;
+                                var ρσ_Iter38 = self.init.elements;
+                                ρσ_Iter38 = ((typeof ρσ_Iter38[Symbol.iterator] === "function") ? (ρσ_Iter38 instanceof Map ? ρσ_Iter38.keys() : ρσ_Iter38) : Object.keys(ρσ_Iter38));
+                                for (var ρσ_Index38 of ρσ_Iter38) {
+                                    i = ρσ_Index38;
                                     body_out.comma();
                                     i.print(body_out);
                                 }
@@ -16366,10 +11618,10 @@ return this.__repr__();
                 left_hand_sides = ρσ_unpack[0];
                 rhs = ρσ_unpack[1];
                 is_compound_assign = false;
-                var ρσ_Iter96 = left_hand_sides;
-                ρσ_Iter96 = ((typeof ρσ_Iter96[Symbol.iterator] === "function") ? (ρσ_Iter96 instanceof Map ? ρσ_Iter96.keys() : ρσ_Iter96) : Object.keys(ρσ_Iter96));
-                for (var ρσ_Index96 of ρσ_Iter96) {
-                    lhs = ρσ_Index96;
+                var ρσ_Iter39 = left_hand_sides;
+                ρσ_Iter39 = ((typeof ρσ_Iter39[Symbol.iterator] === "function") ? (ρσ_Iter39 instanceof Map ? ρσ_Iter39.keys() : ρσ_Iter39) : Object.keys(ρσ_Iter39));
+                for (var ρσ_Index39 of ρσ_Iter39) {
+                    lhs = ρσ_Index39;
                     if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array) || is_node_type(lhs, AST_ItemAccess)) {
                         is_compound_assign = true;
                         break;
@@ -16388,10 +11640,10 @@ return this.__repr__();
                         ρσ_d["right"] = rhs;
                         return ρσ_d;
                     }).call(this)), output);
-                    var ρσ_Iter97 = left_hand_sides;
-                    ρσ_Iter97 = ((typeof ρσ_Iter97[Symbol.iterator] === "function") ? (ρσ_Iter97 instanceof Map ? ρσ_Iter97.keys() : ρσ_Iter97) : Object.keys(ρσ_Iter97));
-                    for (var ρσ_Index97 of ρσ_Iter97) {
-                        lhs = ρσ_Index97;
+                    var ρσ_Iter40 = left_hand_sides;
+                    ρσ_Iter40 = ((typeof ρσ_Iter40[Symbol.iterator] === "function") ? (ρσ_Iter40 instanceof Map ? ρσ_Iter40.keys() : ρσ_Iter40) : Object.keys(ρσ_Iter40));
+                    for (var ρσ_Index40 of ρσ_Iter40) {
+                        lhs = ρσ_Index40;
                         [output.end_statement(), output.indent()];
                         print_assignment(new AST_Assign((function(){
                             var ρσ_d = Object.create(null);
@@ -16402,10 +11654,10 @@ return this.__repr__();
                         }).call(this)), output);
                     }
                 } else {
-                    var ρσ_Iter98 = left_hand_sides;
-                    ρσ_Iter98 = ((typeof ρσ_Iter98[Symbol.iterator] === "function") ? (ρσ_Iter98 instanceof Map ? ρσ_Iter98.keys() : ρσ_Iter98) : Object.keys(ρσ_Iter98));
-                    for (var ρσ_Index98 of ρσ_Iter98) {
-                        lhs = ρσ_Index98;
+                    var ρσ_Iter41 = left_hand_sides;
+                    ρσ_Iter41 = ((typeof ρσ_Iter41[Symbol.iterator] === "function") ? (ρσ_Iter41 instanceof Map ? ρσ_Iter41.keys() : ρσ_Iter41) : Object.keys(ρσ_Iter41));
+                    for (var ρσ_Index41 of ρσ_Iter41) {
+                        lhs = ρσ_Index41;
                         output.spaced(lhs, "=", "");
                     }
                     rhs.print(output);
@@ -16499,6 +11751,447 @@ return this.__repr__();
     })();
 
     (function(){
+        var __name__ = "output.statements";
+        var AST_Definitions = ρσ_modules.ast.AST_Definitions;
+        var AST_Scope = ρσ_modules.ast.AST_Scope;
+        var AST_Method = ρσ_modules.ast.AST_Method;
+        var AST_Except = ρσ_modules.ast.AST_Except;
+        var AST_EmptyStatement = ρσ_modules.ast.AST_EmptyStatement;
+        var AST_Statement = ρσ_modules.ast.AST_Statement;
+        var AST_Seq = ρσ_modules.ast.AST_Seq;
+        var AST_BaseCall = ρσ_modules.ast.AST_BaseCall;
+        var AST_Dot = ρσ_modules.ast.AST_Dot;
+        var AST_Sub = ρσ_modules.ast.AST_Sub;
+        var AST_ItemAccess = ρσ_modules.ast.AST_ItemAccess;
+        var AST_Conditional = ρσ_modules.ast.AST_Conditional;
+        var AST_Binary = ρσ_modules.ast.AST_Binary;
+        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
+        var is_node_type = ρσ_modules.ast.is_node_type;
+
+        function force_statement(stat, output) {
+            if (output.options.bracketize) {
+                if (!stat || is_node_type(stat, AST_EmptyStatement)) {
+                    output.print("{}");
+                } else if (is_node_type(stat, AST_BlockStatement)) {
+                    stat.print(output);
+                } else {
+                    output.with_block((function() {
+                        var ρσ_anonfunc = function () {
+                            output.indent();
+                            stat.print(output);
+                            output.newline();
+                        };
+                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                            __module__ : {value: "output.statements"}
+                        });
+                        return ρσ_anonfunc;
+                    })());
+                }
+            } else {
+                if (!stat || is_node_type(stat, AST_EmptyStatement)) {
+                    output.force_semicolon();
+                } else {
+                    stat.print(output);
+                }
+            }
+        };
+        if (!force_statement.__argnames__) Object.defineProperties(force_statement, {
+            __argnames__ : {value: ["stat", "output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function first_in_statement(output) {
+            var a, i, node, p;
+            a = output.stack();
+            i = a.length;
+            node = a[ρσ_bound_index(i -= 1, a)];
+            p = a[ρσ_bound_index(i -= 1, a)];
+            while (i > 0) {
+                if (is_node_type(p, AST_Statement) && p.body === node) {
+                    return true;
+                }
+                if (is_node_type(p, AST_Seq) && p.car === node || is_node_type(p, AST_BaseCall) && p.expression === node || is_node_type(p, AST_Dot) && p.expression === node || is_node_type(p, AST_Sub) && p.expression === node || is_node_type(p, AST_ItemAccess) && p.expression === node || is_node_type(p, AST_Conditional) && p.condition === node || is_node_type(p, AST_Binary) && p.left === node) {
+                    node = p;
+                    p = a[ρσ_bound_index(i -= 1, a)];
+                } else {
+                    return false;
+                }
+            }
+        };
+        if (!first_in_statement.__argnames__) Object.defineProperties(first_in_statement, {
+            __argnames__ : {value: ["output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function declare_vars(vars, output) {
+            var ρσ_unpack, i, arg;
+            if (vars.length) {
+                output.indent();
+                output.print("var");
+                output.space();
+                var ρσ_Iter42 = enumerate(vars);
+                ρσ_Iter42 = ((typeof ρσ_Iter42[Symbol.iterator] === "function") ? (ρσ_Iter42 instanceof Map ? ρσ_Iter42.keys() : ρσ_Iter42) : Object.keys(ρσ_Iter42));
+                for (var ρσ_Index42 of ρσ_Iter42) {
+                    ρσ_unpack = ρσ_Index42;
+                    i = ρσ_unpack[0];
+                    arg = ρσ_unpack[1];
+                    if (i) {
+                        output.comma();
+                    }
+                    arg.print(output);
+                }
+                output.semicolon();
+                output.newline();
+            }
+        };
+        if (!declare_vars.__argnames__) Object.defineProperties(declare_vars, {
+            __argnames__ : {value: ["vars", "output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function display_body(body, is_toplevel, output) {
+            var last, ρσ_unpack, i, stmt;
+            last = body.length - 1;
+            var ρσ_Iter43 = enumerate(body);
+            ρσ_Iter43 = ((typeof ρσ_Iter43[Symbol.iterator] === "function") ? (ρσ_Iter43 instanceof Map ? ρσ_Iter43.keys() : ρσ_Iter43) : Object.keys(ρσ_Iter43));
+            for (var ρσ_Index43 of ρσ_Iter43) {
+                ρσ_unpack = ρσ_Index43;
+                i = ρσ_unpack[0];
+                stmt = ρσ_unpack[1];
+                if (!(is_node_type(stmt, AST_EmptyStatement)) && !(is_node_type(stmt, AST_Definitions))) {
+                    output.indent();
+                    stmt.print(output);
+                    if (!((i === last && is_toplevel))) {
+                        output.newline();
+                    }
+                }
+            }
+        };
+        if (!display_body.__argnames__) Object.defineProperties(display_body, {
+            __argnames__ : {value: ["body", "is_toplevel", "output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function display_complex_body(node, is_toplevel, output, function_preamble) {
+            var offset;
+            offset = 0;
+            if (is_node_type(node, AST_Method) && !node.static) {
+                output.indent();
+                output.print("var");
+                output.space();
+                output.assign(node.argnames.args[0]);
+                output.print("this");
+                output.semicolon();
+                output.newline();
+                offset += 1;
+            }
+            if (is_node_type(node, AST_Scope)) {
+                function_preamble(node, output, offset);
+                declare_vars(node.localvars, output);
+            } else if (is_node_type(node, AST_Except)) {
+                if (node.argname) {
+                    output.indent();
+                    output.print("var");
+                    output.space();
+                    output.assign(node.argname);
+                    output.print("ρσ_Exception");
+                    output.semicolon();
+                    output.newline();
+                }
+            }
+            display_body(node.body, is_toplevel, output);
+        };
+        if (!display_complex_body.__argnames__) Object.defineProperties(display_complex_body, {
+            __argnames__ : {value: ["node", "is_toplevel", "output", "function_preamble"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function print_bracketed(node, output, complex, function_preamble, before, after) {
+            if (node.body.length > 0) {
+                output.with_block((function() {
+                    var ρσ_anonfunc = function () {
+                        if (before) {
+                            before(output);
+                        }
+                        if (complex) {
+                            display_complex_body(node, false, output, function_preamble);
+                        } else {
+                            display_body(node.body, false, output);
+                        }
+                        if (after) {
+                            after(output);
+                        }
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "output.statements"}
+                    });
+                    return ρσ_anonfunc;
+                })());
+            } else {
+                if (before || after) {
+                    output.with_block((function() {
+                        var ρσ_anonfunc = function () {
+                            if (before) {
+                                before(output);
+                            }
+                            if (after) {
+                                after(output);
+                            }
+                        };
+                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                            __module__ : {value: "output.statements"}
+                        });
+                        return ρσ_anonfunc;
+                    })());
+                } else {
+                    output.print("{}");
+                }
+            }
+        };
+        if (!print_bracketed.__argnames__) Object.defineProperties(print_bracketed, {
+            __argnames__ : {value: ["node", "output", "complex", "function_preamble", "before", "after"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function print_with(self, output) {
+            var exits, clause_name, clause;
+            exits = [];
+            [output.assign("ρσ_with_exception"), output.print("undefined"), output.end_statement()];
+            var ρσ_Iter44 = self.clauses;
+            ρσ_Iter44 = ((typeof ρσ_Iter44[Symbol.iterator] === "function") ? (ρσ_Iter44 instanceof Map ? ρσ_Iter44.keys() : ρσ_Iter44) : Object.keys(ρσ_Iter44));
+            for (var ρσ_Index44 of ρσ_Iter44) {
+                clause = ρσ_Index44;
+                output.with_counter += 1;
+                clause_name = "ρσ_with_clause_" + output.with_counter;
+                exits.push(clause_name);
+                [output.indent(), output.print("var "), output.assign(clause_name)];
+                clause.expression.print(output);
+                output.end_statement();
+                output.indent();
+                if (clause.alias) {
+                    output.assign(clause.alias.name);
+                }
+                output.print(clause_name + ".__enter__()");
+                output.end_statement();
+            }
+            [output.indent(), output.print("try"), output.space()];
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    output.indent();
+                    self._do_print_body(output);
+                    output.newline();
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.statements"}
+                });
+                return ρσ_anonfunc;
+            })());
+            [output.space(), output.print("catch(e)")];
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    [output.indent(), output.assign("ρσ_with_exception"), output.print("e"), output.end_statement()];
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.statements"}
+                });
+                return ρσ_anonfunc;
+            })());
+            [output.newline(), output.indent(), output.spaced("if", "(ρσ_with_exception", "===", "undefined)")];
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    var clause;
+                    var ρσ_Iter45 = exits;
+                    ρσ_Iter45 = ((typeof ρσ_Iter45[Symbol.iterator] === "function") ? (ρσ_Iter45 instanceof Map ? ρσ_Iter45.keys() : ρσ_Iter45) : Object.keys(ρσ_Iter45));
+                    for (var ρσ_Index45 of ρσ_Iter45) {
+                        clause = ρσ_Index45;
+                        [output.indent(), output.print(clause + ".__exit__()"), output.end_statement()];
+                    }
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.statements"}
+                });
+                return ρσ_anonfunc;
+            })());
+            [output.space(), output.print("else"), output.space()];
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    var clause;
+                    [output.indent(), output.assign("ρσ_with_suppress"), output.print("false"), output.end_statement()];
+                    var ρσ_Iter46 = exits;
+                    ρσ_Iter46 = ((typeof ρσ_Iter46[Symbol.iterator] === "function") ? (ρσ_Iter46 instanceof Map ? ρσ_Iter46.keys() : ρσ_Iter46) : Object.keys(ρσ_Iter46));
+                    for (var ρσ_Index46 of ρσ_Iter46) {
+                        clause = ρσ_Index46;
+                        output.indent();
+                        output.spaced("ρσ_with_suppress", "|=", "ρσ_bool(" + clause + ".__exit__(ρσ_with_exception.constructor,", "ρσ_with_exception,", "ρσ_with_exception.stack))");
+                        output.end_statement();
+                    }
+                    [output.indent(), output.spaced("if", "(!ρσ_with_suppress)", "throw ρσ_with_exception"), 
+                    output.end_statement()];
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.statements"}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        if (!print_with.__argnames__) Object.defineProperties(print_with, {
+            __argnames__ : {value: ["self", "output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        function print_assert(self, output) {
+            if (output.options.discard_asserts) {
+                return;
+            }
+            [output.spaced("if", "(!("), self.condition.print(output), output.spaced("))", "throw new AssertionError")];
+            if (self.message) {
+                output.print("(");
+                self.message.print(output);
+                output.print(")");
+            }
+            output.end_statement();
+        };
+        if (!print_assert.__argnames__) Object.defineProperties(print_assert, {
+            __argnames__ : {value: ["self", "output"]},
+            __module__ : {value: "output.statements"}
+        });
+
+        ρσ_modules["output.statements"].force_statement = force_statement;
+        ρσ_modules["output.statements"].first_in_statement = first_in_statement;
+        ρσ_modules["output.statements"].declare_vars = declare_vars;
+        ρσ_modules["output.statements"].display_body = display_body;
+        ρσ_modules["output.statements"].display_complex_body = display_complex_body;
+        ρσ_modules["output.statements"].print_bracketed = print_bracketed;
+        ρσ_modules["output.statements"].print_with = print_with;
+        ρσ_modules["output.statements"].print_assert = print_assert;
+    })();
+
+    (function(){
+        var __name__ = "output.utils";
+        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
+        var is_node_type = ρσ_modules.ast.is_node_type;
+
+        function best_of(a) {
+            var best, len_, i;
+            best = a[0];
+            len_ = best.length;
+            for (var ρσ_Index47 = 1; ρσ_Index47 < a.length; ρσ_Index47++) {
+                i = ρσ_Index47;
+                if (a[(typeof i === "number" && i < 0) ? a.length + i : i].length < len_) {
+                    best = a[(typeof i === "number" && i < 0) ? a.length + i : i];
+                    len_ = best.length;
+                }
+            }
+            return best;
+        };
+        if (!best_of.__argnames__) Object.defineProperties(best_of, {
+            __argnames__ : {value: ["a"]},
+            __module__ : {value: "output.utils"}
+        });
+
+        function make_num(num) {
+            var str_, a, m;
+            str_ = num.toString(10);
+            a = [ str_.replace(/^0\./, ".").replace("e+", "e") ];
+            m = null;
+            if (Math.floor(num) === num) {
+                if (num >= 0) {
+                    a.push("0x" + num.toString(16).toLowerCase(), "0" + num.toString(8));
+                } else {
+                    a.push("-0x" + (-(num)).toString(16).toLowerCase(), "-0" + (-(num)).toString(8));
+                }
+                if (m = /^(.*?)(0+)$/.exec(num)) {
+                    a.push(m[1] + "e" + m[2].length);
+                }
+            } else if (m = /^0?\.(0+)(.*)$/.exec(num)) {
+                a.push(m[2] + "e-" + (m[1].length + m[2].length), str_.substr(str_.indexOf(".")));
+            }
+            return best_of(a);
+        };
+        if (!make_num.__argnames__) Object.defineProperties(make_num, {
+            __argnames__ : {value: ["num"]},
+            __module__ : {value: "output.utils"}
+        });
+
+        function make_block(stmt, output) {
+            if (is_node_type(stmt, AST_BlockStatement)) {
+                stmt.print(output);
+                return;
+            }
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    output.indent();
+                    stmt.print(output);
+                    output.newline();
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.utils"}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        if (!make_block.__argnames__) Object.defineProperties(make_block, {
+            __argnames__ : {value: ["stmt", "output"]},
+            __module__ : {value: "output.utils"}
+        });
+
+        function create_doctring(docstrings) {
+            var ans, ds, lines, min_leading_whitespace, r, leading_whitespace, line, lw, ρσ_unpack, l;
+            ans = [];
+            var ρσ_Iter48 = docstrings;
+            ρσ_Iter48 = ((typeof ρσ_Iter48[Symbol.iterator] === "function") ? (ρσ_Iter48 instanceof Map ? ρσ_Iter48.keys() : ρσ_Iter48) : Object.keys(ρσ_Iter48));
+            for (var ρσ_Index48 of ρσ_Iter48) {
+                ds = ρσ_Index48;
+                ds = str.rstrip(ds.value);
+                lines = [];
+                min_leading_whitespace = "";
+                var ρσ_Iter49 = ds.split(/$/gm);
+                ρσ_Iter49 = ((typeof ρσ_Iter49[Symbol.iterator] === "function") ? (ρσ_Iter49 instanceof Map ? ρσ_Iter49.keys() : ρσ_Iter49) : Object.keys(ρσ_Iter49));
+                for (var ρσ_Index49 of ρσ_Iter49) {
+                    line = ρσ_Index49;
+                    r = /^\s+/.exec(line);
+                    leading_whitespace = "";
+                    if (r) {
+                        leading_whitespace = (r) ? r[0].replace(/[\n\r]/g, "") : "";
+                        line = line.slice(r[0].length);
+                    }
+                    if (!str.strip(line)) {
+                        lines.push(["", ""]);
+                    } else {
+                        leading_whitespace = leading_whitespace.replace(/\t/g, "    ");
+                        if (leading_whitespace && (!min_leading_whitespace || leading_whitespace.length < min_leading_whitespace.length)) {
+                            min_leading_whitespace = leading_whitespace;
+                        }
+                        lines.push([leading_whitespace, line]);
+                    }
+                }
+                var ρσ_Iter50 = lines;
+                ρσ_Iter50 = ((typeof ρσ_Iter50[Symbol.iterator] === "function") ? (ρσ_Iter50 instanceof Map ? ρσ_Iter50.keys() : ρσ_Iter50) : Object.keys(ρσ_Iter50));
+                for (var ρσ_Index50 of ρσ_Iter50) {
+                    ρσ_unpack = ρσ_Index50;
+                    lw = ρσ_unpack[0];
+                    l = ρσ_unpack[1];
+                    if (min_leading_whitespace) {
+                        lw = lw.slice(min_leading_whitespace.length);
+                    }
+                    ans.push(lw + l);
+                }
+                ans.push("");
+            }
+            return str.rstrip(ans.join("\n"));
+        };
+        if (!create_doctring.__argnames__) Object.defineProperties(create_doctring, {
+            __argnames__ : {value: ["docstrings"]},
+            __module__ : {value: "output.utils"}
+        });
+
+        ρσ_modules["output.utils"].best_of = best_of;
+        ρσ_modules["output.utils"].make_num = make_num;
+        ρσ_modules["output.utils"].make_block = make_block;
+        ρσ_modules["output.utils"].create_doctring = create_doctring;
+    })();
+
+    (function(){
         var __name__ = "output.functions";
         var anonfunc, module_name;
         var AST_ClassCall = ρσ_modules.ast.AST_ClassCall;
@@ -16508,13 +12201,13 @@ return this.__repr__();
         var AST_SymbolRef = ρσ_modules.ast.AST_SymbolRef;
         var is_node_type = ρσ_modules.ast.is_node_type;
 
-        var OutputStream = ρσ_modules["output.stream"].OutputStream;
+        var print_getattr = ρσ_modules["output.operators"].print_getattr;
 
         var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
 
-        var create_doctring = ρσ_modules["output.utils"].create_doctring;
+        var OutputStream = ρσ_modules["output.stream"].OutputStream;
 
-        var print_getattr = ρσ_modules["output.operators"].print_getattr;
+        var create_doctring = ρσ_modules["output.utils"].create_doctring;
 
         anonfunc = "ρσ_anonfunc";
         module_name = "null";
@@ -16562,10 +12255,10 @@ return this.__repr__();
                 var ρσ_anonfunc = function () {
                     var ρσ_unpack, i, arg;
                     if (argnames && argnames.args.length && (argnames.is_simple_func === true || argnames.is_simple_func === undefined)) {
-                        var ρσ_Iter99 = enumerate((strip_first) ? argnames.args.slice(1) : argnames.args);
-                        ρσ_Iter99 = ((typeof ρσ_Iter99[Symbol.iterator] === "function") ? (ρσ_Iter99 instanceof Map ? ρσ_Iter99.keys() : ρσ_Iter99) : Object.keys(ρσ_Iter99));
-                        for (var ρσ_Index99 of ρσ_Iter99) {
-                            ρσ_unpack = ρσ_Index99;
+                        var ρσ_Iter51 = enumerate((strip_first) ? argnames.args.slice(1) : argnames.args);
+                        ρσ_Iter51 = ((typeof ρσ_Iter51[Symbol.iterator] === "function") ? (ρσ_Iter51 instanceof Map ? ρσ_Iter51.keys() : ρσ_Iter51) : Object.keys(ρσ_Iter51));
+                        for (var ρσ_Index51 of ρσ_Iter51) {
+                            ρσ_unpack = ρσ_Index51;
                             i = ρσ_unpack[0];
                             arg = ρσ_unpack[1];
                             if (i) {
@@ -16595,10 +12288,10 @@ return this.__repr__();
             }
             fname = (node.name) ? node.name.name : anonfunc;
             kw = "arguments[arguments.length-1]";
-            var ρσ_Iter100 = enumerate(a.args);
-            ρσ_Iter100 = ((typeof ρσ_Iter100[Symbol.iterator] === "function") ? (ρσ_Iter100 instanceof Map ? ρσ_Iter100.keys() : ρσ_Iter100) : Object.keys(ρσ_Iter100));
-            for (var ρσ_Index100 of ρσ_Iter100) {
-                ρσ_unpack = ρσ_Index100;
+            var ρσ_Iter52 = enumerate(a.args);
+            ρσ_Iter52 = ((typeof ρσ_Iter52[Symbol.iterator] === "function") ? (ρσ_Iter52 instanceof Map ? ρσ_Iter52.keys() : ρσ_Iter52) : Object.keys(ρσ_Iter52));
+            for (var ρσ_Index52 of ρσ_Iter52) {
+                ρσ_unpack = ρσ_Index52;
                 c = ρσ_unpack[0];
                 arg = ρσ_unpack[1];
                 i = c - offset;
@@ -16627,10 +12320,10 @@ return this.__repr__();
                 output.spaced("if", "(" + kw, "===", "null", "||", "typeof", kw, "!==", "\"object\"", "||", kw, "[ρσ_kwargs_symbol]", "!==", "true)", kw, "=", "{}");
                 output.end_statement();
                 if (a.has_defaults) {
-                    var ρσ_Iter101 = Object.keys(a.defaults);
-                    ρσ_Iter101 = ((typeof ρσ_Iter101[Symbol.iterator] === "function") ? (ρσ_Iter101 instanceof Map ? ρσ_Iter101.keys() : ρσ_Iter101) : Object.keys(ρσ_Iter101));
-                    for (var ρσ_Index101 of ρσ_Iter101) {
-                        dname = ρσ_Index101;
+                    var ρσ_Iter53 = Object.keys(a.defaults);
+                    ρσ_Iter53 = ((typeof ρσ_Iter53[Symbol.iterator] === "function") ? (ρσ_Iter53 instanceof Map ? ρσ_Iter53.keys() : ρσ_Iter53) : Object.keys(ρσ_Iter53));
+                    for (var ρσ_Index53 of ρσ_Iter53) {
+                        dname = ρσ_Index53;
                         output.indent();
                         output.spaced("if", "(Object.prototype.hasOwnProperty.call(" + kw + ",", "\"" + dname + "\"))");
                         output.with_block((function() {
@@ -16674,10 +12367,10 @@ return this.__repr__();
             if (self.return_annotation) {
                 return true;
             }
-            var ρσ_Iter102 = self.argnames.args;
-            ρσ_Iter102 = ((typeof ρσ_Iter102[Symbol.iterator] === "function") ? (ρσ_Iter102 instanceof Map ? ρσ_Iter102.keys() : ρσ_Iter102) : Object.keys(ρσ_Iter102));
-            for (var ρσ_Index102 of ρσ_Iter102) {
-                arg = ρσ_Index102;
+            var ρσ_Iter54 = self.argnames.args;
+            ρσ_Iter54 = ((typeof ρσ_Iter54[Symbol.iterator] === "function") ? (ρσ_Iter54 instanceof Map ? ρσ_Iter54.keys() : ρσ_Iter54) : Object.keys(ρσ_Iter54));
+            for (var ρσ_Index54 of ρσ_Iter54) {
+                arg = ρσ_Index54;
                 if (arg.annotation) {
                     return true;
                 }
@@ -16699,10 +12392,10 @@ return this.__repr__();
                         var ρσ_unpack, i, arg;
                         output.print("{");
                         if (self.argnames && self.argnames.args.length) {
-                            var ρσ_Iter103 = enumerate(self.argnames.args);
-                            ρσ_Iter103 = ((typeof ρσ_Iter103[Symbol.iterator] === "function") ? (ρσ_Iter103 instanceof Map ? ρσ_Iter103.keys() : ρσ_Iter103) : Object.keys(ρσ_Iter103));
-                            for (var ρσ_Index103 of ρσ_Iter103) {
-                                ρσ_unpack = ρσ_Index103;
+                            var ρσ_Iter55 = enumerate(self.argnames.args);
+                            ρσ_Iter55 = ((typeof ρσ_Iter55[Symbol.iterator] === "function") ? (ρσ_Iter55 instanceof Map ? ρσ_Iter55.keys() : ρσ_Iter55) : Object.keys(ρσ_Iter55));
+                            for (var ρσ_Index55 of ρσ_Iter55) {
+                                ρσ_unpack = ρσ_Index55;
                                 i = ρσ_unpack[0];
                                 arg = ρσ_unpack[1];
                                 if (arg.annotation) {
@@ -16734,10 +12427,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, k;
                         output.print("{");
-                        var ρσ_Iter104 = enumerate(dkeys);
-                        ρσ_Iter104 = ((typeof ρσ_Iter104[Symbol.iterator] === "function") ? (ρσ_Iter104 instanceof Map ? ρσ_Iter104.keys() : ρσ_Iter104) : Object.keys(ρσ_Iter104));
-                        for (var ρσ_Index104 of ρσ_Iter104) {
-                            ρσ_unpack = ρσ_Index104;
+                        var ρσ_Iter56 = enumerate(dkeys);
+                        ρσ_Iter56 = ((typeof ρσ_Iter56[Symbol.iterator] === "function") ? (ρσ_Iter56 instanceof Map ? ρσ_Iter56.keys() : ρσ_Iter56) : Object.keys(ρσ_Iter56));
+                        for (var ρσ_Index56 of ρσ_Iter56) {
+                            ρσ_unpack = ρσ_Index56;
                             i = ρσ_unpack[0];
                             k = ρσ_unpack[1];
                             [output.print(k + ":"), defaults[(typeof k === "number" && k < 0) ? defaults.length + k : k].print(output)];
@@ -16769,10 +12462,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, arg;
                         output.print("[");
-                        var ρσ_Iter105 = enumerate(self.argnames.args);
-                        ρσ_Iter105 = ((typeof ρσ_Iter105[Symbol.iterator] === "function") ? (ρσ_Iter105 instanceof Map ? ρσ_Iter105.keys() : ρσ_Iter105) : Object.keys(ρσ_Iter105));
-                        for (var ρσ_Index105 of ρσ_Iter105) {
-                            ρσ_unpack = ρσ_Index105;
+                        var ρσ_Iter57 = enumerate(self.argnames.args);
+                        ρσ_Iter57 = ((typeof ρσ_Iter57[Symbol.iterator] === "function") ? (ρσ_Iter57 instanceof Map ? ρσ_Iter57.keys() : ρσ_Iter57) : Object.keys(ρσ_Iter57));
+                        for (var ρσ_Index57 of ρσ_Iter57) {
+                            ρσ_unpack = ρσ_Index57;
                             i = ρσ_unpack[0];
                             arg = ρσ_unpack[1];
                             if (strip_first && i === 0) {
@@ -16992,10 +12685,10 @@ return this.__repr__();
                 var ρσ_unpack, i, kwname, pair;
                 output.print("ρσ_desugar_kwargs(");
                 if (has_kwarg_items) {
-                    var ρσ_Iter106 = enumerate(self.args.kwarg_items);
-                    ρσ_Iter106 = ((typeof ρσ_Iter106[Symbol.iterator] === "function") ? (ρσ_Iter106 instanceof Map ? ρσ_Iter106.keys() : ρσ_Iter106) : Object.keys(ρσ_Iter106));
-                    for (var ρσ_Index106 of ρσ_Iter106) {
-                        ρσ_unpack = ρσ_Index106;
+                    var ρσ_Iter58 = enumerate(self.args.kwarg_items);
+                    ρσ_Iter58 = ((typeof ρσ_Iter58[Symbol.iterator] === "function") ? (ρσ_Iter58 instanceof Map ? ρσ_Iter58.keys() : ρσ_Iter58) : Object.keys(ρσ_Iter58));
+                    for (var ρσ_Index58 of ρσ_Iter58) {
+                        ρσ_unpack = ρσ_Index58;
                         i = ρσ_unpack[0];
                         kwname = ρσ_unpack[1];
                         if (i > 0) {
@@ -17011,10 +12704,10 @@ return this.__repr__();
                 }
                 if (has_kwarg_formals) {
                     output.print("{");
-                    var ρσ_Iter107 = enumerate(self.args.kwargs);
-                    ρσ_Iter107 = ((typeof ρσ_Iter107[Symbol.iterator] === "function") ? (ρσ_Iter107 instanceof Map ? ρσ_Iter107.keys() : ρσ_Iter107) : Object.keys(ρσ_Iter107));
-                    for (var ρσ_Index107 of ρσ_Iter107) {
-                        ρσ_unpack = ρσ_Index107;
+                    var ρσ_Iter59 = enumerate(self.args.kwargs);
+                    ρσ_Iter59 = ((typeof ρσ_Iter59[Symbol.iterator] === "function") ? (ρσ_Iter59 instanceof Map ? ρσ_Iter59.keys() : ρσ_Iter59) : Object.keys(ρσ_Iter59));
+                    for (var ρσ_Index59 of ρσ_Iter59) {
+                        ρσ_unpack = ρσ_Index59;
                         i = ρσ_unpack[0];
                         pair = ρσ_unpack[1];
                         if (i) {
@@ -17109,10 +12802,10 @@ return this.__repr__();
                 output.with_parens((function() {
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, a;
-                        var ρσ_Iter108 = enumerate(self.args.args);
-                        ρσ_Iter108 = ((typeof ρσ_Iter108[Symbol.iterator] === "function") ? (ρσ_Iter108 instanceof Map ? ρσ_Iter108.keys() : ρσ_Iter108) : Object.keys(ρσ_Iter108));
-                        for (var ρσ_Index108 of ρσ_Iter108) {
-                            ρσ_unpack = ρσ_Index108;
+                        var ρσ_Iter60 = enumerate(self.args.args);
+                        ρσ_Iter60 = ((typeof ρσ_Iter60[Symbol.iterator] === "function") ? (ρσ_Iter60 instanceof Map ? ρσ_Iter60.keys() : ρσ_Iter60) : Object.keys(ρσ_Iter60));
+                        for (var ρσ_Index60 of ρσ_Iter60) {
+                            ρσ_unpack = ρσ_Index60;
                             i = ρσ_unpack[0];
                             a = ρσ_unpack[1];
                             if (i) {
@@ -17339,8 +13032,8 @@ return this.__repr__();
                 self.name.print(output);
                 output.spaced(".ρσ_decorators", "=", "[");
                 num = decorators.length;
-                for (var ρσ_Index109 = 0; ρσ_Index109 < num; ρσ_Index109++) {
-                    i = ρσ_Index109;
+                for (var ρσ_Index61 = 0; ρσ_Index61 < num; ρσ_Index61++) {
+                    i = ρσ_Index61;
                     decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i].expression.print(output);
                     output.spaced((i < num - 1) ? "," : "]");
                 }
@@ -17379,10 +13072,10 @@ return this.__repr__();
                                         output.end_statement();
                                     }
                                 }
-                                var ρσ_Iter110 = self.bound;
-                                ρσ_Iter110 = ((typeof ρσ_Iter110[Symbol.iterator] === "function") ? (ρσ_Iter110 instanceof Map ? ρσ_Iter110.keys() : ρσ_Iter110) : Object.keys(ρσ_Iter110));
-                                for (var ρσ_Index110 of ρσ_Iter110) {
-                                    bname = ρσ_Index110;
+                                var ρσ_Iter62 = self.bound;
+                                ρσ_Iter62 = ((typeof ρσ_Iter62[Symbol.iterator] === "function") ? (ρσ_Iter62 instanceof Map ? ρσ_Iter62.keys() : ρσ_Iter62) : Object.keys(ρσ_Iter62));
+                                for (var ρσ_Index62 of ρσ_Iter62) {
+                                    bname = ρσ_Index62;
                                     if (seen_methods[(typeof bname === "number" && bname < 0) ? seen_methods.length + bname : bname] || (ρσ_expr_temp = self.dynamic_properties)[(typeof bname === "number" && bname < 0) ? ρσ_expr_temp.length + bname : bname]) {
                                         continue;
                                     }
@@ -17414,10 +13107,10 @@ return this.__repr__();
                         output.with_block((function() {
                             var ρσ_anonfunc = function () {
                                 var prop, name;
-                                var ρσ_Iter111 = property_names;
-                                ρσ_Iter111 = ((typeof ρσ_Iter111[Symbol.iterator] === "function") ? (ρσ_Iter111 instanceof Map ? ρσ_Iter111.keys() : ρσ_Iter111) : Object.keys(ρσ_Iter111));
-                                for (var ρσ_Index111 of ρσ_Iter111) {
-                                    name = ρσ_Index111;
+                                var ρσ_Iter63 = property_names;
+                                ρσ_Iter63 = ((typeof ρσ_Iter63[Symbol.iterator] === "function") ? (ρσ_Iter63 instanceof Map ? ρσ_Iter63.keys() : ρσ_Iter63) : Object.keys(ρσ_Iter63));
+                                for (var ρσ_Index63 of ρσ_Iter63) {
+                                    name = ρσ_Index63;
                                     prop = (ρσ_expr_temp = self.dynamic_properties)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name];
                                     [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
                                     output.with_block((function() {
@@ -17486,10 +13179,10 @@ return this.__repr__();
                 })());
             }
             defined_methods = Object.create(null);
-            var ρσ_Iter112 = self.body;
-            ρσ_Iter112 = ((typeof ρσ_Iter112[Symbol.iterator] === "function") ? (ρσ_Iter112 instanceof Map ? ρσ_Iter112.keys() : ρσ_Iter112) : Object.keys(ρσ_Iter112));
-            for (var ρσ_Index112 of ρσ_Iter112) {
-                stmt = ρσ_Index112;
+            var ρσ_Iter64 = self.body;
+            ρσ_Iter64 = ((typeof ρσ_Iter64[Symbol.iterator] === "function") ? (ρσ_Iter64 instanceof Map ? ρσ_Iter64.keys() : ρσ_Iter64) : Object.keys(ρσ_Iter64));
+            for (var ρσ_Index64 of ρσ_Iter64) {
+                stmt = ρσ_Index64;
                 if (is_node_type(stmt, AST_Method)) {
                     if (stmt.is_getter || stmt.is_setter) {
                         continue;
@@ -17498,10 +13191,10 @@ return this.__repr__();
                     defined_methods[ρσ_bound_index(stmt.name.name, defined_methods)] = true;
                     sname = stmt.name.name;
                     if (sname === "__init__") {
-                        var ρσ_Iter113 = [ ".__argnames__", ".__handles_kwarg_interpolation__" ];
-                        ρσ_Iter113 = ((typeof ρσ_Iter113[Symbol.iterator] === "function") ? (ρσ_Iter113 instanceof Map ? ρσ_Iter113.keys() : ρσ_Iter113) : Object.keys(ρσ_Iter113));
-                        for (var ρσ_Index113 of ρσ_Iter113) {
-                            attr = ρσ_Index113;
+                        var ρσ_Iter65 = [ ".__argnames__", ".__handles_kwarg_interpolation__" ];
+                        ρσ_Iter65 = ((typeof ρσ_Iter65[Symbol.iterator] === "function") ? (ρσ_Iter65 instanceof Map ? ρσ_Iter65.keys() : ρσ_Iter65) : Object.keys(ρσ_Iter65));
+                        for (var ρσ_Index65 of ρσ_Iter65) {
+                            attr = ρσ_Index65;
                             [output.indent(), self.name.print(output), output.assign(attr)];
                             [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
                         }
@@ -17586,10 +13279,10 @@ return this.__repr__();
                     return ρσ_anonfunc;
                 })());
             }
-            var ρσ_Iter114 = self.statements;
-            ρσ_Iter114 = ((typeof ρσ_Iter114[Symbol.iterator] === "function") ? (ρσ_Iter114 instanceof Map ? ρσ_Iter114.keys() : ρσ_Iter114) : Object.keys(ρσ_Iter114));
-            for (var ρσ_Index114 of ρσ_Iter114) {
-                stmt = ρσ_Index114;
+            var ρσ_Iter66 = self.statements;
+            ρσ_Iter66 = ((typeof ρσ_Iter66[Symbol.iterator] === "function") ? (ρσ_Iter66 instanceof Map ? ρσ_Iter66.keys() : ρσ_Iter66) : Object.keys(ρσ_Iter66));
+            for (var ρσ_Index66 of ρσ_Iter66) {
+                stmt = ρσ_Index66;
                 if (!is_node_type(stmt, AST_Method)) {
                     output.indent();
                     stmt.print(output);
@@ -17599,8 +13292,8 @@ return this.__repr__();
             if (decorators.length) {
                 output.indent();
                 output.assign(self.name);
-                for (var ρσ_Index115 = 0; ρσ_Index115 < decorators.length; ρσ_Index115++) {
-                    di = ρσ_Index115;
+                for (var ρσ_Index67 = 0; ρσ_Index67 < decorators.length; ρσ_Index67++) {
+                    di = ρσ_Index67;
                     self.name.print(output);
                     output.print(".ρσ_decorators[" + ρσ_str.format("{}", di) + "](");
                 }
@@ -17625,6 +13318,274 @@ return this.__repr__();
     })();
 
     (function(){
+        var __name__ = "output.comments";
+        var AST_Exit = ρσ_modules.ast.AST_Exit;
+        var is_node_type = ρσ_modules.ast.is_node_type;
+
+        function output_comments(comments, output, nlb) {
+            var comm;
+            var ρσ_Iter68 = comments;
+            ρσ_Iter68 = ((typeof ρσ_Iter68[Symbol.iterator] === "function") ? (ρσ_Iter68 instanceof Map ? ρσ_Iter68.keys() : ρσ_Iter68) : Object.keys(ρσ_Iter68));
+            for (var ρσ_Index68 of ρσ_Iter68) {
+                comm = ρσ_Index68;
+                if (comm.type === "comment1") {
+                    output.print("//" + comm.value + "\n");
+                    output.indent();
+                } else if (comm.type === "comment2") {
+                    output.print("/*" + comm.value + "*/");
+                    if (nlb) {
+                        output.print("\n");
+                        output.indent();
+                    } else {
+                        output.space();
+                    }
+                }
+            }
+        };
+        if (!output_comments.__argnames__) Object.defineProperties(output_comments, {
+            __argnames__ : {value: ["comments", "output", "nlb"]},
+            __module__ : {value: "output.comments"}
+        });
+
+        function print_comments(self, output) {
+            var c, start, comments;
+            c = output.options.comments;
+            if (c) {
+                start = self.start;
+                if (start && !start._comments_dumped) {
+                    start._comments_dumped = true;
+                    comments = start.comments_before;
+                    if (is_node_type(self, AST_Exit) && self.value && self.value.start.comments_before && self.value.start.comments_before.length > 0) {
+                        comments = (comments || []).concat(self.value.start.comments_before);
+                        self.value.start.comments_before = [];
+                    }
+                    if (c.test) {
+                        comments = comments.filter((function() {
+                            var ρσ_anonfunc = function (comment) {
+                                return c.test(comment.value);
+                            };
+                            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                                __argnames__ : {value: ["comment"]},
+                                __module__ : {value: "output.comments"}
+                            });
+                            return ρσ_anonfunc;
+                        })());
+                    } else if (typeof c === "function") {
+                        comments = comments.filter((function() {
+                            var ρσ_anonfunc = function (comment) {
+                                return c(self, comment);
+                            };
+                            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                                __argnames__ : {value: ["comment"]},
+                                __module__ : {value: "output.comments"}
+                            });
+                            return ρσ_anonfunc;
+                        })());
+                    }
+                    output_comments(comments, output, start.nlb);
+                }
+            }
+        };
+        if (!print_comments.__argnames__) Object.defineProperties(print_comments, {
+            __argnames__ : {value: ["self", "output"]},
+            __module__ : {value: "output.comments"}
+        });
+
+        ρσ_modules["output.comments"].output_comments = output_comments;
+        ρσ_modules["output.comments"].print_comments = print_comments;
+    })();
+
+    (function(){
+        var __name__ = "output.exceptions";
+        var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
+
+        function print_try(self, output) {
+            var else_var_name;
+            else_var_name = null;
+            function update_output_var(output) {
+                [output.indent(), output.assign(else_var_name), output.print("true"), output.end_statement()];
+            };
+            if (!update_output_var.__argnames__) Object.defineProperties(update_output_var, {
+                __argnames__ : {value: ["output"]},
+                __module__ : {value: "output.exceptions"}
+            });
+
+            if (self.belse) {
+                else_var_name = output.new_try_else_counter();
+                [output.assign("var " + else_var_name), output.print("false"), output.end_statement(), 
+                output.indent()];
+            }
+            output.print("try");
+            output.space();
+            print_bracketed(self, output, false, null, null, (else_var_name) ? update_output_var : null);
+            if (self.bcatch) {
+                output.space();
+                print_catch(self.bcatch, output);
+            }
+            if (self.bfinally) {
+                output.space();
+                print_finally(self.bfinally, output, self.belse, else_var_name);
+            } else if (self.belse) {
+                output.newline();
+                print_else(self.belse, else_var_name, output);
+            }
+        };
+        if (!print_try.__argnames__) Object.defineProperties(print_try, {
+            __argnames__ : {value: ["self", "output"]},
+            __module__ : {value: "output.exceptions"}
+        });
+
+        function print_catch(self, output) {
+            output.print("catch");
+            output.space();
+            output.with_parens((function() {
+                var ρσ_anonfunc = function () {
+                    output.print("ρσ_Exception");
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.exceptions"}
+                });
+                return ρσ_anonfunc;
+            })());
+            output.space();
+            output.with_block((function() {
+                var ρσ_anonfunc = function () {
+                    var no_default, ρσ_unpack, i, exception;
+                    output.indent();
+                    [output.spaced("ρσ_last_exception", "=", "ρσ_Exception"), output.end_statement()];
+                    output.indent();
+                    no_default = true;
+                    var ρσ_Iter69 = enumerate(self.body);
+                    ρσ_Iter69 = ((typeof ρσ_Iter69[Symbol.iterator] === "function") ? (ρσ_Iter69 instanceof Map ? ρσ_Iter69.keys() : ρσ_Iter69) : Object.keys(ρσ_Iter69));
+                    for (var ρσ_Index69 of ρσ_Iter69) {
+                        ρσ_unpack = ρσ_Index69;
+                        i = ρσ_unpack[0];
+                        exception = ρσ_unpack[1];
+                        if (i) {
+                            output.print("else ");
+                        }
+                        if (exception.errors.length) {
+                            output.print("if");
+                            output.space();
+                            output.with_parens((function() {
+                                var ρσ_anonfunc = function () {
+                                    var ρσ_unpack, i, err;
+                                    var ρσ_Iter70 = enumerate(exception.errors);
+                                    ρσ_Iter70 = ((typeof ρσ_Iter70[Symbol.iterator] === "function") ? (ρσ_Iter70 instanceof Map ? ρσ_Iter70.keys() : ρσ_Iter70) : Object.keys(ρσ_Iter70));
+                                    for (var ρσ_Index70 of ρσ_Iter70) {
+                                        ρσ_unpack = ρσ_Index70;
+                                        i = ρσ_unpack[0];
+                                        err = ρσ_unpack[1];
+                                        if (i) {
+                                            output.newline();
+                                            output.indent();
+                                            output.print("||");
+                                            output.space();
+                                        }
+                                        output.print("ρσ_Exception");
+                                        output.space();
+                                        output.print("instanceof");
+                                        output.space();
+                                        if (err.name === "Exception") {
+                                            output.print("Error");
+                                        } else {
+                                            err.print(output);
+                                        }
+                                    }
+                                };
+                                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                                    __module__ : {value: "output.exceptions"}
+                                });
+                                return ρσ_anonfunc;
+                            })());
+                            output.space();
+                        } else {
+                            no_default = false;
+                        }
+                        print_bracketed(exception, output, true);
+                        output.space();
+                    }
+                    if (no_default) {
+                        output.print("else");
+                        output.space();
+                        output.with_block((function() {
+                            var ρσ_anonfunc = function () {
+                                output.indent();
+                                output.print("throw");
+                                output.space();
+                                output.print("ρσ_Exception");
+                                output.semicolon();
+                                output.newline();
+                            };
+                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                                __module__ : {value: "output.exceptions"}
+                            });
+                            return ρσ_anonfunc;
+                        })());
+                    }
+                    output.newline();
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.exceptions"}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        if (!print_catch.__argnames__) Object.defineProperties(print_catch, {
+            __argnames__ : {value: ["self", "output"]},
+            __module__ : {value: "output.exceptions"}
+        });
+
+        function print_finally(self, output, belse, else_var_name) {
+            output.print("finally");
+            output.space();
+            if (else_var_name) {
+                output.with_block((function() {
+                    var ρσ_anonfunc = function () {
+                        [output.indent(), output.print("try")];
+                        output.space();
+                        output.with_block((function() {
+                            var ρσ_anonfunc = function () {
+                                print_else(belse, else_var_name, output);
+                            };
+                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                                __module__ : {value: "output.exceptions"}
+                            });
+                            return ρσ_anonfunc;
+                        })());
+                        print_finally(self, output);
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "output.exceptions"}
+                    });
+                    return ρσ_anonfunc;
+                })());
+            } else {
+                print_bracketed(self, output);
+            }
+        };
+        if (!print_finally.__argnames__) Object.defineProperties(print_finally, {
+            __argnames__ : {value: ["self", "output", "belse", "else_var_name"]},
+            __module__ : {value: "output.exceptions"}
+        });
+
+        function print_else(self, else_var_name, output) {
+            [output.indent(), output.spaced("if", "(" + else_var_name + ")")];
+            output.space();
+            print_bracketed(self, output);
+        };
+        if (!print_else.__argnames__) Object.defineProperties(print_else, {
+            __argnames__ : {value: ["self", "else_var_name", "output"]},
+            __module__ : {value: "output.exceptions"}
+        });
+
+        ρσ_modules["output.exceptions"].print_try = print_try;
+        ρσ_modules["output.exceptions"].print_catch = print_catch;
+        ρσ_modules["output.exceptions"].print_finally = print_finally;
+        ρσ_modules["output.exceptions"].print_else = print_else;
+    })();
+
+    (function(){
         var __name__ = "output.literals";
         var AST_Binary = ρσ_modules.ast.AST_Binary;
         var is_node_type = ρσ_modules.ast.is_node_type;
@@ -17638,10 +13599,10 @@ return this.__repr__();
                     if (len_ > 0) {
                         output.space();
                     }
-                    var ρσ_Iter116 = enumerate(a);
-                    ρσ_Iter116 = ((typeof ρσ_Iter116[Symbol.iterator] === "function") ? (ρσ_Iter116 instanceof Map ? ρσ_Iter116.keys() : ρσ_Iter116) : Object.keys(ρσ_Iter116));
-                    for (var ρσ_Index116 of ρσ_Iter116) {
-                        ρσ_unpack = ρσ_Index116;
+                    var ρσ_Iter71 = enumerate(a);
+                    ρσ_Iter71 = ((typeof ρσ_Iter71[Symbol.iterator] === "function") ? (ρσ_Iter71 instanceof Map ? ρσ_Iter71.keys() : ρσ_Iter71) : Object.keys(ρσ_Iter71));
+                    for (var ρσ_Index71 of ρσ_Iter71) {
+                        ρσ_unpack = ρσ_Index71;
                         i = ρσ_unpack[0];
                         exp = ρσ_unpack[1];
                         if (i) {
@@ -17678,10 +13639,10 @@ return this.__repr__();
                                 output.spaced("var", "ρσ_d", "=", (self.is_jshash) ? "Object.create(null)" : "{}");
                             }
                             output.end_statement();
-                            var ρσ_Iter117 = enumerate(self.properties);
-                            ρσ_Iter117 = ((typeof ρσ_Iter117[Symbol.iterator] === "function") ? (ρσ_Iter117 instanceof Map ? ρσ_Iter117.keys() : ρσ_Iter117) : Object.keys(ρσ_Iter117));
-                            for (var ρσ_Index117 of ρσ_Iter117) {
-                                ρσ_unpack = ρσ_Index117;
+                            var ρσ_Iter72 = enumerate(self.properties);
+                            ρσ_Iter72 = ((typeof ρσ_Iter72[Symbol.iterator] === "function") ? (ρσ_Iter72 instanceof Map ? ρσ_Iter72.keys() : ρσ_Iter72) : Object.keys(ρσ_Iter72));
+                            for (var ρσ_Index72 of ρσ_Iter72) {
+                                ρσ_unpack = ρσ_Index72;
                                 i = ρσ_unpack[0];
                                 prop = ρσ_unpack[1];
                                 output.indent();
@@ -17770,10 +13731,10 @@ return this.__repr__();
                             output.indent();
                             output.spaced.apply(output, "var s = ρσ_set()".split(" "));
                             output.end_statement();
-                            var ρσ_Iter118 = self.items;
-                            ρσ_Iter118 = ((typeof ρσ_Iter118[Symbol.iterator] === "function") ? (ρσ_Iter118 instanceof Map ? ρσ_Iter118.keys() : ρσ_Iter118) : Object.keys(ρσ_Iter118));
-                            for (var ρσ_Index118 of ρσ_Iter118) {
-                                item = ρσ_Index118;
+                            var ρσ_Iter73 = self.items;
+                            ρσ_Iter73 = ((typeof ρσ_Iter73[Symbol.iterator] === "function") ? (ρσ_Iter73 instanceof Map ? ρσ_Iter73.keys() : ρσ_Iter73) : Object.keys(ρσ_Iter73));
+                            for (var ρσ_Index73 of ρσ_Iter73) {
+                                item = ρσ_Index73;
                                 output.indent();
                                 output.print("s.jsset.add");
                                 output.with_parens((function() {
@@ -17834,102 +13795,24 @@ return this.__repr__();
     })();
 
     (function(){
-        var __name__ = "output.comments";
-        var AST_Exit = ρσ_modules.ast.AST_Exit;
-        var is_node_type = ρσ_modules.ast.is_node_type;
-
-        function output_comments(comments, output, nlb) {
-            var comm;
-            var ρσ_Iter119 = comments;
-            ρσ_Iter119 = ((typeof ρσ_Iter119[Symbol.iterator] === "function") ? (ρσ_Iter119 instanceof Map ? ρσ_Iter119.keys() : ρσ_Iter119) : Object.keys(ρσ_Iter119));
-            for (var ρσ_Index119 of ρσ_Iter119) {
-                comm = ρσ_Index119;
-                if (comm.type === "comment1") {
-                    output.print("//" + comm.value + "\n");
-                    output.indent();
-                } else if (comm.type === "comment2") {
-                    output.print("/*" + comm.value + "*/");
-                    if (nlb) {
-                        output.print("\n");
-                        output.indent();
-                    } else {
-                        output.space();
-                    }
-                }
-            }
-        };
-        if (!output_comments.__argnames__) Object.defineProperties(output_comments, {
-            __argnames__ : {value: ["comments", "output", "nlb"]},
-            __module__ : {value: "output.comments"}
-        });
-
-        function print_comments(self, output) {
-            var c, start, comments;
-            c = output.options.comments;
-            if (c) {
-                start = self.start;
-                if (start && !start._comments_dumped) {
-                    start._comments_dumped = true;
-                    comments = start.comments_before;
-                    if (is_node_type(self, AST_Exit) && self.value && self.value.start.comments_before && self.value.start.comments_before.length > 0) {
-                        comments = (comments || []).concat(self.value.start.comments_before);
-                        self.value.start.comments_before = [];
-                    }
-                    if (c.test) {
-                        comments = comments.filter((function() {
-                            var ρσ_anonfunc = function (comment) {
-                                return c.test(comment.value);
-                            };
-                            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["comment"]},
-                                __module__ : {value: "output.comments"}
-                            });
-                            return ρσ_anonfunc;
-                        })());
-                    } else if (typeof c === "function") {
-                        comments = comments.filter((function() {
-                            var ρσ_anonfunc = function (comment) {
-                                return c(self, comment);
-                            };
-                            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                                __argnames__ : {value: ["comment"]},
-                                __module__ : {value: "output.comments"}
-                            });
-                            return ρσ_anonfunc;
-                        })());
-                    }
-                    output_comments(comments, output, start.nlb);
-                }
-            }
-        };
-        if (!print_comments.__argnames__) Object.defineProperties(print_comments, {
-            __argnames__ : {value: ["self", "output"]},
-            __module__ : {value: "output.comments"}
-        });
-
-        ρσ_modules["output.comments"].output_comments = output_comments;
-        ρσ_modules["output.comments"].print_comments = print_comments;
-    })();
-
-    (function(){
         var __name__ = "output.modules";
-        var declare_vars = ρσ_modules["output.statements"].declare_vars;
-        var display_body = ρσ_modules["output.statements"].display_body;
-
-        var create_doctring = ρσ_modules["output.utils"].create_doctring;
-
         var print_comments = ρσ_modules["output.comments"].print_comments;
         var output_comments = ρσ_modules["output.comments"].output_comments;
 
         var set_module_name = ρσ_modules["output.functions"].set_module_name;
 
+        var declare_vars = ρσ_modules["output.statements"].declare_vars;
+        var display_body = ρσ_modules["output.statements"].display_body;
+
+        var create_doctring = ρσ_modules["output.utils"].create_doctring;
+
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = [];
-            var ρσ_Iter120 = Object.keys(module.imports);
-            ρσ_Iter120 = ((typeof ρσ_Iter120[Symbol.iterator] === "function") ? (ρσ_Iter120 instanceof Map ? ρσ_Iter120.keys() : ρσ_Iter120) : Object.keys(ρσ_Iter120));
-            for (var ρσ_Index120 of ρσ_Iter120) {
-                import_id = ρσ_Index120;
+            var ρσ_Iter74 = Object.keys(module.imports);
+            ρσ_Iter74 = ((typeof ρσ_Iter74[Symbol.iterator] === "function") ? (ρσ_Iter74 instanceof Map ? ρσ_Iter74.keys() : ρσ_Iter74) : Object.keys(ρσ_Iter74));
+            for (var ρσ_Index74 of ρσ_Iter74) {
+                import_id = ρσ_Index74;
                 imports.push((ρσ_expr_temp = module.imports)[(typeof import_id === "number" && import_id < 0) ? ρσ_expr_temp.length + import_id : import_id]);
             }
             imports.sort((function() {
@@ -17952,14 +13835,14 @@ return this.__repr__();
                 output.newline();
             }
             nonlocalvars = Object.create(null);
-            var ρσ_Iter121 = imports;
-            ρσ_Iter121 = ((typeof ρσ_Iter121[Symbol.iterator] === "function") ? (ρσ_Iter121 instanceof Map ? ρσ_Iter121.keys() : ρσ_Iter121) : Object.keys(ρσ_Iter121));
-            for (var ρσ_Index121 of ρσ_Iter121) {
-                module_ = ρσ_Index121;
-                var ρσ_Iter122 = module_.nonlocalvars;
-                ρσ_Iter122 = ((typeof ρσ_Iter122[Symbol.iterator] === "function") ? (ρσ_Iter122 instanceof Map ? ρσ_Iter122.keys() : ρσ_Iter122) : Object.keys(ρσ_Iter122));
-                for (var ρσ_Index122 of ρσ_Iter122) {
-                    name = ρσ_Index122;
+            var ρσ_Iter75 = imports;
+            ρσ_Iter75 = ((typeof ρσ_Iter75[Symbol.iterator] === "function") ? (ρσ_Iter75 instanceof Map ? ρσ_Iter75.keys() : ρσ_Iter75) : Object.keys(ρσ_Iter75));
+            for (var ρσ_Index75 of ρσ_Iter75) {
+                module_ = ρσ_Index75;
+                var ρσ_Iter76 = module_.nonlocalvars;
+                ρσ_Iter76 = ((typeof ρσ_Iter76[Symbol.iterator] === "function") ? (ρσ_Iter76 instanceof Map ? ρσ_Iter76.keys() : ρσ_Iter76) : Object.keys(ρσ_Iter76));
+                for (var ρσ_Index76 of ρσ_Iter76) {
+                    name = ρσ_Index76;
                     nonlocalvars[(typeof name === "number" && name < 0) ? nonlocalvars.length + name : name] = true;
                 }
             }
@@ -17970,10 +13853,10 @@ return this.__repr__();
                 output.semicolon();
                 output.newline();
             }
-            var ρσ_Iter123 = imports;
-            ρσ_Iter123 = ((typeof ρσ_Iter123[Symbol.iterator] === "function") ? (ρσ_Iter123 instanceof Map ? ρσ_Iter123.keys() : ρσ_Iter123) : Object.keys(ρσ_Iter123));
-            for (var ρσ_Index123 of ρσ_Iter123) {
-                module_ = ρσ_Index123;
+            var ρσ_Iter77 = imports;
+            ρσ_Iter77 = ((typeof ρσ_Iter77[Symbol.iterator] === "function") ? (ρσ_Iter77 instanceof Map ? ρσ_Iter77.keys() : ρσ_Iter77) : Object.keys(ρσ_Iter77));
+            for (var ρσ_Index77 of ρσ_Iter77) {
+                module_ = ρσ_Index77;
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -17986,10 +13869,10 @@ return this.__repr__();
                     output.end_statement();
                 }
             }
-            var ρσ_Iter124 = imports;
-            ρσ_Iter124 = ((typeof ρσ_Iter124[Symbol.iterator] === "function") ? (ρσ_Iter124 instanceof Map ? ρσ_Iter124.keys() : ρσ_Iter124) : Object.keys(ρσ_Iter124));
-            for (var ρσ_Index124 of ρσ_Iter124) {
-                module_ = ρσ_Index124;
+            var ρσ_Iter78 = imports;
+            ρσ_Iter78 = ((typeof ρσ_Iter78[Symbol.iterator] === "function") ? (ρσ_Iter78 instanceof Map ? ρσ_Iter78.keys() : ρσ_Iter78) : Object.keys(ρσ_Iter78));
+            for (var ρσ_Index78 of ρσ_Iter78) {
+                module_ = ρσ_Index78;
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -18039,10 +13922,10 @@ return this.__repr__();
                 output.end_statement();
             }
             output.newline();
-            var ρσ_Iter125 = exports;
-            ρσ_Iter125 = ((typeof ρσ_Iter125[Symbol.iterator] === "function") ? (ρσ_Iter125 instanceof Map ? ρσ_Iter125.keys() : ρσ_Iter125) : Object.keys(ρσ_Iter125));
-            for (var ρσ_Index125 of ρσ_Iter125) {
-                symbol = ρσ_Index125;
+            var ρσ_Iter79 = exports;
+            ρσ_Iter79 = ((typeof ρσ_Iter79[Symbol.iterator] === "function") ? (ρσ_Iter79 instanceof Map ? ρσ_Iter79.keys() : ρσ_Iter79) : Object.keys(ρσ_Iter79));
+            for (var ρσ_Index79 of ρσ_Iter79) {
+                symbol = ρσ_Index79;
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -18261,15 +14144,15 @@ return this.__repr__();
                 __module__ : {value: "output.modules"}
             });
 
-            var ρσ_Iter126 = container.imports;
-            ρσ_Iter126 = ((typeof ρσ_Iter126[Symbol.iterator] === "function") ? (ρσ_Iter126 instanceof Map ? ρσ_Iter126.keys() : ρσ_Iter126) : Object.keys(ρσ_Iter126));
-            for (var ρσ_Index126 of ρσ_Iter126) {
-                self = ρσ_Index126;
+            var ρσ_Iter80 = container.imports;
+            ρσ_Iter80 = ((typeof ρσ_Iter80[Symbol.iterator] === "function") ? (ρσ_Iter80 instanceof Map ? ρσ_Iter80.keys() : ρσ_Iter80) : Object.keys(ρσ_Iter80));
+            for (var ρσ_Index80 of ρσ_Iter80) {
+                self = ρσ_Index80;
                 if (self.argnames) {
-                    var ρσ_Iter127 = self.argnames;
-                    ρσ_Iter127 = ((typeof ρσ_Iter127[Symbol.iterator] === "function") ? (ρσ_Iter127 instanceof Map ? ρσ_Iter127.keys() : ρσ_Iter127) : Object.keys(ρσ_Iter127));
-                    for (var ρσ_Index127 of ρσ_Iter127) {
-                        argname = ρσ_Index127;
+                    var ρσ_Iter81 = self.argnames;
+                    ρσ_Iter81 = ((typeof ρσ_Iter81[Symbol.iterator] === "function") ? (ρσ_Iter81 instanceof Map ? ρσ_Iter81.keys() : ρσ_Iter81) : Object.keys(ρσ_Iter81));
+                    for (var ρσ_Index81 of ρσ_Iter81) {
+                        argname = ρσ_Index81;
                         akey = (argname.alias) ? argname.alias.name : argname.name;
                         add_aname(akey, self.key, argname.name);
                     }
@@ -18278,10 +14161,10 @@ return this.__repr__();
                         add_aname(self.alias.name, self.key, false);
                     } else {
                         parts = self.key.split(".");
-                        var ρσ_Iter128 = enumerate(parts);
-                        ρσ_Iter128 = ((typeof ρσ_Iter128[Symbol.iterator] === "function") ? (ρσ_Iter128 instanceof Map ? ρσ_Iter128.keys() : ρσ_Iter128) : Object.keys(ρσ_Iter128));
-                        for (var ρσ_Index128 of ρσ_Iter128) {
-                            ρσ_unpack = ρσ_Index128;
+                        var ρσ_Iter82 = enumerate(parts);
+                        ρσ_Iter82 = ((typeof ρσ_Iter82[Symbol.iterator] === "function") ? (ρσ_Iter82 instanceof Map ? ρσ_Iter82.keys() : ρσ_Iter82) : Object.keys(ρσ_Iter82));
+                        for (var ρσ_Index82 of ρσ_Iter82) {
+                            ρσ_unpack = ρσ_Index82;
                             i = ρσ_unpack[0];
                             part = ρσ_unpack[1];
                             if (i === 0) {
@@ -18313,11 +14196,4156 @@ return this.__repr__();
     })();
 
     (function(){
+        var __name__ = "parse";
+        var COMPILER_VERSION, PYTHON_FLAGS, CACHE_VERSION, NATIVE_CLASSES, ERROR_CLASSES, COMMON_STATIC, FORBIDDEN_CLASS_VARS, UNARY_PREFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN, compile_time_decorators;
+        var AST_ArgsDef = ρσ_modules.ast.AST_ArgsDef;
+        var AST_Array = ρσ_modules.ast.AST_Array;
+        var AST_Assign = ρσ_modules.ast.AST_Assign;
+        var AST_Binary = ρσ_modules.ast.AST_Binary;
+        var AST_BlockStatement = ρσ_modules.ast.AST_BlockStatement;
+        var AST_Break = ρσ_modules.ast.AST_Break;
+        var AST_Call = ρσ_modules.ast.AST_Call;
+        var AST_CallArg = ρσ_modules.ast.AST_CallArg;
+        var AST_CallArgs = ρσ_modules.ast.AST_CallArgs;
+        var AST_Catch = ρσ_modules.ast.AST_Catch;
+        var AST_Class = ρσ_modules.ast.AST_Class;
+        var AST_ClassCall = ρσ_modules.ast.AST_ClassCall;
+        var AST_Conditional = ρσ_modules.ast.AST_Conditional;
+        var AST_Constant = ρσ_modules.ast.AST_Constant;
+        var AST_Continue = ρσ_modules.ast.AST_Continue;
+        var AST_DWLoop = ρσ_modules.ast.AST_DWLoop;
+        var AST_Debugger = ρσ_modules.ast.AST_Debugger;
+        var AST_Decorator = ρσ_modules.ast.AST_Decorator;
+        var AST_Definitions = ρσ_modules.ast.AST_Definitions;
+        var AST_DictComprehension = ρσ_modules.ast.AST_DictComprehension;
+        var AST_Directive = ρσ_modules.ast.AST_Directive;
+        var AST_Do = ρσ_modules.ast.AST_Do;
+        var AST_Dot = ρσ_modules.ast.AST_Dot;
+        var AST_Else = ρσ_modules.ast.AST_Else;
+        var AST_EmptyStatement = ρσ_modules.ast.AST_EmptyStatement;
+        var AST_Except = ρσ_modules.ast.AST_Except;
+        var AST_ExpressiveObject = ρσ_modules.ast.AST_ExpressiveObject;
+        var AST_False = ρσ_modules.ast.AST_False;
+        var AST_Finally = ρσ_modules.ast.AST_Finally;
+        var AST_ForIn = ρσ_modules.ast.AST_ForIn;
+        var AST_ForJS = ρσ_modules.ast.AST_ForJS;
+        var AST_Function = ρσ_modules.ast.AST_Function;
+        var AST_GeneratorComprehension = ρσ_modules.ast.AST_GeneratorComprehension;
+        var AST_Hole = ρσ_modules.ast.AST_Hole;
+        var AST_If = ρσ_modules.ast.AST_If;
+        var AST_Import = ρσ_modules.ast.AST_Import;
+        var AST_ImportedVar = ρσ_modules.ast.AST_ImportedVar;
+        var AST_Imports = ρσ_modules.ast.AST_Imports;
+        var AST_ListComprehension = ρσ_modules.ast.AST_ListComprehension;
+        var AST_Method = ρσ_modules.ast.AST_Method;
+        var AST_New = ρσ_modules.ast.AST_New;
+        var AST_Null = ρσ_modules.ast.AST_Null;
+        var AST_Number = ρσ_modules.ast.AST_Number;
+        var AST_Object = ρσ_modules.ast.AST_Object;
+        var AST_ObjectKeyVal = ρσ_modules.ast.AST_ObjectKeyVal;
+        var AST_PropAccess = ρσ_modules.ast.AST_PropAccess;
+        var AST_RegExp = ρσ_modules.ast.AST_RegExp;
+        var AST_Return = ρσ_modules.ast.AST_Return;
+        var AST_Scope = ρσ_modules.ast.AST_Scope;
+        var AST_Set = ρσ_modules.ast.AST_Set;
+        var AST_SetComprehension = ρσ_modules.ast.AST_SetComprehension;
+        var AST_SetItem = ρσ_modules.ast.AST_SetItem;
+        var AST_Seq = ρσ_modules.ast.AST_Seq;
+        var AST_SimpleStatement = ρσ_modules.ast.AST_SimpleStatement;
+        var AST_Splice = ρσ_modules.ast.AST_Splice;
+        var AST_String = ρσ_modules.ast.AST_String;
+        var AST_Sub = ρσ_modules.ast.AST_Sub;
+        var AST_ItemAccess = ρσ_modules.ast.AST_ItemAccess;
+        var AST_SymbolAlias = ρσ_modules.ast.AST_SymbolAlias;
+        var AST_SymbolCatch = ρσ_modules.ast.AST_SymbolCatch;
+        var AST_SymbolDefun = ρσ_modules.ast.AST_SymbolDefun;
+        var AST_SymbolFunarg = ρσ_modules.ast.AST_SymbolFunarg;
+        var AST_SymbolLambda = ρσ_modules.ast.AST_SymbolLambda;
+        var AST_SymbolNonlocal = ρσ_modules.ast.AST_SymbolNonlocal;
+        var AST_SymbolRef = ρσ_modules.ast.AST_SymbolRef;
+        var AST_SymbolVar = ρσ_modules.ast.AST_SymbolVar;
+        var AST_This = ρσ_modules.ast.AST_This;
+        var AST_Throw = ρσ_modules.ast.AST_Throw;
+        var AST_Toplevel = ρσ_modules.ast.AST_Toplevel;
+        var AST_True = ρσ_modules.ast.AST_True;
+        var AST_Try = ρσ_modules.ast.AST_Try;
+        var AST_UnaryPrefix = ρσ_modules.ast.AST_UnaryPrefix;
+        var AST_Undefined = ρσ_modules.ast.AST_Undefined;
+        var AST_Var = ρσ_modules.ast.AST_Var;
+        var AST_VarDef = ρσ_modules.ast.AST_VarDef;
+        var AST_Verbatim = ρσ_modules.ast.AST_Verbatim;
+        var AST_While = ρσ_modules.ast.AST_While;
+        var AST_With = ρσ_modules.ast.AST_With;
+        var AST_WithClause = ρσ_modules.ast.AST_WithClause;
+        var AST_Yield = ρσ_modules.ast.AST_Yield;
+        var AST_Await = ρσ_modules.ast.AST_Await;
+        var AST_Assert = ρσ_modules.ast.AST_Assert;
+        var AST_Existential = ρσ_modules.ast.AST_Existential;
+        var is_node_type = ρσ_modules.ast.is_node_type;
+        var TreeWalker = ρσ_modules.ast.TreeWalker;
+
+        var SyntaxError = ρσ_modules.errors.SyntaxError;
+        var ImportError = ρσ_modules.errors.ImportError;
+
+        var tokenizer = ρσ_modules.tokenizer.tokenizer;
+        var is_token = ρσ_modules.tokenizer.is_token;
+        var RESERVED_WORDS = ρσ_modules.tokenizer.RESERVED_WORDS;
+
+        var make_predicate = ρσ_modules.utils.make_predicate;
+        var array_to_hash = ρσ_modules.utils.array_to_hash;
+        var defaults = ρσ_modules.utils.defaults;
+        var has_prop = ρσ_modules.utils.has_prop;
+        var cache_file_name = ρσ_modules.utils.cache_file_name;
+
+        COMPILER_VERSION = "26bb05fd52c1ab34533f1096cf96966752880310";
+        PYTHON_FLAGS = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["dict_literals"] = true;
+            ρσ_d["overload_getitem"] = true;
+            ρσ_d["bound_methods"] = true;
+            ρσ_d["hash_literals"] = true;
+            return ρσ_d;
+        }).call(this);
+        CACHE_VERSION = 1;
+        function get_compiler_version() {
+            return COMPILER_VERSION;
+        };
+        if (!get_compiler_version.__module__) Object.defineProperties(get_compiler_version, {
+            __module__ : {value: "parse"}
+        });
+
+        function static_predicate(names) {
+            return (function() {
+                var ρσ_Iter = names.split(" "), ρσ_Result = Object.create(null), k;
+                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                for (var ρσ_Index of ρσ_Iter) {
+                    k = ρσ_Index;
+                    ρσ_Result[k] = (true);
+                }
+                return ρσ_Result;
+            })();
+        };
+        if (!static_predicate.__argnames__) Object.defineProperties(static_predicate, {
+            __argnames__ : {value: ["names"]},
+            __module__ : {value: "parse"}
+        });
+
+        NATIVE_CLASSES = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["Image"] = Object.create(null);
+            ρσ_d["FileReader"] = Object.create(null);
+            ρσ_d["RegExp"] = Object.create(null);
+            ρσ_d["Error"] = Object.create(null);
+            ρσ_d["EvalError"] = Object.create(null);
+            ρσ_d["InternalError"] = Object.create(null);
+            ρσ_d["RangeError"] = Object.create(null);
+            ρσ_d["ReferenceError"] = Object.create(null);
+            ρσ_d["SyntaxError"] = Object.create(null);
+            ρσ_d["TypeError"] = Object.create(null);
+            ρσ_d["URIError"] = Object.create(null);
+            ρσ_d["Object"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("getOwnPropertyNames getOwnPropertyDescriptor getOwnPropertyDescriptors getOwnPropertySymbols keys entries values create defineProperty defineProperties getPrototypeOf setPrototypeOf assign seal isSealed is preventExtensions isExtensible freeze isFrozen");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["String"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("fromCharCode");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["Array"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("isArray from of");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["Function"] = Object.create(null);
+            ρσ_d["Date"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("UTC now parse");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["ArrayBuffer"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("isView transfer");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["DataView"] = Object.create(null);
+            ρσ_d["Float32Array"] = Object.create(null);
+            ρσ_d["Float64Array"] = Object.create(null);
+            ρσ_d["Int16Array"] = Object.create(null);
+            ρσ_d["Int32Array"] = Object.create(null);
+            ρσ_d["Int8Array"] = Object.create(null);
+            ρσ_d["Uint16Array"] = Object.create(null);
+            ρσ_d["Uint32Array"] = Object.create(null);
+            ρσ_d["Uint8Array"] = Object.create(null);
+            ρσ_d["Uint8ClampedArray"] = Object.create(null);
+            ρσ_d["Map"] = Object.create(null);
+            ρσ_d["WeakMap"] = Object.create(null);
+            ρσ_d["Proxy"] = Object.create(null);
+            ρσ_d["Set"] = Object.create(null);
+            ρσ_d["WeakSet"] = Object.create(null);
+            ρσ_d["Promise"] = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["static"] = static_predicate("all race reject resolve");
+                return ρσ_d;
+            }).call(this);
+            ρσ_d["WebSocket"] = Object.create(null);
+            ρσ_d["XMLHttpRequest"] = Object.create(null);
+            ρσ_d["TextEncoder"] = Object.create(null);
+            ρσ_d["TextDecoder"] = Object.create(null);
+            ρσ_d["MouseEvent"] = Object.create(null);
+            ρσ_d["Event"] = Object.create(null);
+            ρσ_d["CustomEvent"] = Object.create(null);
+            ρσ_d["Blob"] = Object.create(null);
+            return ρσ_d;
+        }).call(this);
+        ERROR_CLASSES = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["Exception"] = Object.create(null);
+            ρσ_d["AttributeError"] = Object.create(null);
+            ρσ_d["IndexError"] = Object.create(null);
+            ρσ_d["KeyError"] = Object.create(null);
+            ρσ_d["ValueError"] = Object.create(null);
+            ρσ_d["UnicodeDecodeError"] = Object.create(null);
+            ρσ_d["AssertionError"] = Object.create(null);
+            ρσ_d["ZeroDivisionError"] = Object.create(null);
+            return ρσ_d;
+        }).call(this);
+        COMMON_STATIC = static_predicate("call apply bind toString");
+        FORBIDDEN_CLASS_VARS = "prototype constructor".split(" ");
+        UNARY_PREFIX = make_predicate("typeof void delete ~ - + ! @");
+        ASSIGNMENT = make_predicate("= += -= /= //= *= %= >>= <<= >>>= |= ^= &=");
+        PRECEDENCE = (function() {
+            var ρσ_anonfunc = function (a, ret) {
+                var b, j, i;
+                for (var ρσ_Index83 = 0; ρσ_Index83 < a.length; ρσ_Index83++) {
+                    i = ρσ_Index83;
+                    b = a[(typeof i === "number" && i < 0) ? a.length + i : i];
+                    for (var ρσ_Index84 = 0; ρσ_Index84 < b.length; ρσ_Index84++) {
+                        j = ρσ_Index84;
+                        ret[ρσ_bound_index(b[(typeof j === "number" && j < 0) ? b.length + j : j], ret)] = i + 1;
+                    }
+                }
+                return ret;
+            };
+            if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                __argnames__ : {value: ["a", "ret"]},
+                __module__ : {value: "parse"}
+            });
+            return ρσ_anonfunc;
+        })()([ [ "||" ], [ "&&" ], [ "|" ], [ "^" ], [ "&" ], [ "==", "===", "!=", "!==" ], [ "<", ">", "<=", ">=", "in", "nin", "instanceof" ], [ ">>", "<<", ">>>" ], [ "+", "-" ], [ "*", "/", "//", "%" ], [ "**" ] ], Object.create(null));
+        STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ]);
+        ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name", "js" ]);
+        compile_time_decorators = [ "staticmethod", "external", "property" ];
+        function has_simple_decorator(decorators, name) {
+            var remove, s;
+            remove = [];
+            for (var i = 0; i < decorators.length; i++) {
+                s = decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i];
+                if (is_node_type(s, AST_SymbolRef) && !s.parens && s.name === name) {
+                    remove.push(i);
+                }
+            }
+            if (remove.length) {
+                remove.reverse();
+                for (var i = 0; i < remove.length; i++) {
+                    decorators.splice(remove[(typeof i === "number" && i < 0) ? remove.length + i : i], 1);
+                }
+                return true;
+            }
+            return false;
+        };
+        if (!has_simple_decorator.__argnames__) Object.defineProperties(has_simple_decorator, {
+            __argnames__ : {value: ["decorators", "name"]},
+            __module__ : {value: "parse"}
+        });
+
+        function has_setter_decorator(decorators, name) {
+            var remove, s;
+            remove = [];
+            for (var i = 0; i < decorators.length; i++) {
+                s = decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i];
+                if (is_node_type(s, AST_Dot) && is_node_type(s.expression, AST_SymbolRef) && s.expression.name === name && s.property === "setter") {
+                    remove.push(i);
+                }
+            }
+            if (remove.length) {
+                remove.reverse();
+                for (var i = 0; i < remove.length; i++) {
+                    decorators.splice(remove[(typeof i === "number" && i < 0) ? remove.length + i : i], 1);
+                }
+                return true;
+            }
+            return false;
+        };
+        if (!has_setter_decorator.__argnames__) Object.defineProperties(has_setter_decorator, {
+            __argnames__ : {value: ["decorators", "name"]},
+            __module__ : {value: "parse"}
+        });
+
+        function create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options) {
+            function next() {
+                S.prev = S.token;
+                if (S.peeked.length) {
+                    S.token = S.peeked.shift();
+                } else {
+                    S.token = S.input();
+                }
+                return S.token;
+            };
+            if (!next.__module__) Object.defineProperties(next, {
+                __module__ : {value: "parse"}
+            });
+
+            function is_(type, value) {
+                return is_token(S.token, type, value);
+            };
+            if (!is_.__argnames__) Object.defineProperties(is_, {
+                __argnames__ : {value: ["type", "value"]},
+                __module__ : {value: "parse"}
+            });
+
+            function peek() {
+                if (!S.peeked.length) {
+                    S.peeked.push(S.input());
+                }
+                return S.peeked[0];
+            };
+            if (!peek.__module__) Object.defineProperties(peek, {
+                __module__ : {value: "parse"}
+            });
+
+            function prev() {
+                return S.prev;
+            };
+            if (!prev.__module__) Object.defineProperties(prev, {
+                __module__ : {value: "parse"}
+            });
+
+            function croak(msg, line, col, pos, is_eof) {
+                var ctx;
+                ctx = S.input.context();
+                throw new SyntaxError(msg, ctx.filename, (line !== undefined) ? line : ctx.tokline, (col !== undefined) ? col : ctx.tokcol, (pos !== undefined) ? pos : ctx.tokpos, is_eof);
+            };
+            if (!croak.__argnames__) Object.defineProperties(croak, {
+                __argnames__ : {value: ["msg", "line", "col", "pos", "is_eof"]},
+                __module__ : {value: "parse"}
+            });
+
+            function token_error(token, msg) {
+                var is_eof;
+                is_eof = token.type === "eof";
+                croak(msg, token.line, token.col, undefined, is_eof);
+            };
+            if (!token_error.__argnames__) Object.defineProperties(token_error, {
+                __argnames__ : {value: ["token", "msg"]},
+                __module__ : {value: "parse"}
+            });
+
+            function unexpected(token) {
+                if (token === undefined) {
+                    token = S.token;
+                }
+                token_error(token, "Unexpected token: " + token.type + " «" + token.value + "»");
+            };
+            if (!unexpected.__argnames__) Object.defineProperties(unexpected, {
+                __argnames__ : {value: ["token"]},
+                __module__ : {value: "parse"}
+            });
+
+            function is_recoverable_error(e) {
+                return e instanceof SyntaxError;
+            };
+            if (!is_recoverable_error.__argnames__) Object.defineProperties(is_recoverable_error, {
+                __argnames__ : {value: ["e"]},
+                __module__ : {value: "parse"}
+            });
+
+            function record_recovery(e) {
+                S.recovered_errors.push((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["message"] = e.message;
+                    ρσ_d["line"] = e.line;
+                    ρσ_d["col"] = e.col;
+                    ρσ_d["pos"] = e.pos;
+                    ρσ_d["endpos"] = e.endpos;
+                    ρσ_d["is_eof"] = e.is_eof;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!record_recovery.__argnames__) Object.defineProperties(record_recovery, {
+                __argnames__ : {value: ["e"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function skip_to_recovery_point() {
+                while (!is_("eof")) {
+                    try {
+                        next();
+                    } catch (ρσ_Exception) {
+                        ρσ_last_exception = ρσ_Exception;
+                        {
+                            var e = ρσ_Exception;
+                            if (is_recoverable_error(e)) {
+                                record_recovery(e);
+                                if (is_("eof")) {
+                                    return;
+                                }
+                                continue;
+                            }
+                            throw ρσ_Exception;
+                        } 
+                    }
+                    if (is_("eof") || is_("punc", "}") || S.token.nlb) {
+                        return;
+                    }
+                }
+            };
+            if (!skip_to_recovery_point.__module__) Object.defineProperties(skip_to_recovery_point, {
+                __module__ : {value: "parse"}
+            });
+
+            function expect_token(type, val) {
+                if (is_(type, val)) {
+                    return next();
+                }
+                token_error(S.token, "Unexpected token " + S.token.type + " «" + S.token.value + "»" + ", expected " + type + " «" + val + "»");
+            };
+            if (!expect_token.__argnames__) Object.defineProperties(expect_token, {
+                __argnames__ : {value: ["type", "val"]},
+                __module__ : {value: "parse"}
+            });
+
+            function expect(punc) {
+                return expect_token("punc", punc);
+            };
+            if (!expect.__argnames__) Object.defineProperties(expect, {
+                __argnames__ : {value: ["punc"]},
+                __module__ : {value: "parse"}
+            });
+
+            function semicolon() {
+                if (is_("punc", ";")) {
+                    next();
+                    S.token.nlb = true;
+                }
+            };
+            if (!semicolon.__module__) Object.defineProperties(semicolon, {
+                __module__ : {value: "parse"}
+            });
+
+            function embed_tokens(parser) {
+                async function with_embedded_tokens() {
+                    var start, expr, end;
+                    start = S.token;
+                    expr = await parser();
+                    if (expr === undefined) {
+                        unexpected();
+                    }
+                    end = prev();
+                    expr.start = start;
+                    expr.end = end;
+                    return expr;
+                };
+                if (!with_embedded_tokens.__module__) Object.defineProperties(with_embedded_tokens, {
+                    __module__ : {value: "parse"}
+                });
+
+                return with_embedded_tokens;
+            };
+            if (!embed_tokens.__argnames__) Object.defineProperties(embed_tokens, {
+                __argnames__ : {value: ["parser"]},
+                __module__ : {value: "parse"}
+            });
+
+            function scan_for_top_level_callables(body) {
+                var ans, opt, x, obj;
+                ans = [];
+                if (Array.isArray(body)) {
+                    var ρσ_Iter85 = body;
+                    ρσ_Iter85 = ((typeof ρσ_Iter85[Symbol.iterator] === "function") ? (ρσ_Iter85 instanceof Map ? ρσ_Iter85.keys() : ρσ_Iter85) : Object.keys(ρσ_Iter85));
+                    for (var ρσ_Index85 of ρσ_Iter85) {
+                        obj = ρσ_Index85;
+                        if (is_node_type(obj, AST_Function) || is_node_type(obj, AST_Class)) {
+                            if (obj.name) {
+                                ans.push(obj.name.name);
+                            } else {
+                                token_error(obj.start, "Top-level functions must have names");
+                            }
+                        } else {
+                            if (is_node_type(obj, AST_Scope)) {
+                                continue;
+                            }
+                            var ρσ_Iter86 = [ "body", "alternative" ];
+                            ρσ_Iter86 = ((typeof ρσ_Iter86[Symbol.iterator] === "function") ? (ρσ_Iter86 instanceof Map ? ρσ_Iter86.keys() : ρσ_Iter86) : Object.keys(ρσ_Iter86));
+                            for (var ρσ_Index86 of ρσ_Iter86) {
+                                x = ρσ_Index86;
+                                opt = obj[(typeof x === "number" && x < 0) ? obj.length + x : x];
+                                if (opt) {
+                                    ans = ans.concat(scan_for_top_level_callables(opt));
+                                }
+                                if (is_node_type(opt, AST_Assign) && !(is_node_type(opt.right, AST_Scope))) {
+                                    ans = ans.concat(scan_for_top_level_callables(opt.right));
+                                }
+                            }
+                        }
+                    }
+                } else if (body.body) {
+                    ans = ans.concat(scan_for_top_level_callables(body.body));
+                    if (body.alternative) {
+                        ans = ans.concat(scan_for_top_level_callables(body.alternative));
+                    }
+                }
+                return ans;
+            };
+            if (!scan_for_top_level_callables.__argnames__) Object.defineProperties(scan_for_top_level_callables, {
+                __argnames__ : {value: ["body"]},
+                __module__ : {value: "parse"}
+            });
+
+            function scan_for_classes(body) {
+                var ans, obj;
+                ans = Object.create(null);
+                var ρσ_Iter87 = body;
+                ρσ_Iter87 = ((typeof ρσ_Iter87[Symbol.iterator] === "function") ? (ρσ_Iter87 instanceof Map ? ρσ_Iter87.keys() : ρσ_Iter87) : Object.keys(ρσ_Iter87));
+                for (var ρσ_Index87 of ρσ_Iter87) {
+                    obj = ρσ_Index87;
+                    if (is_node_type(obj, AST_Class)) {
+                        ans[ρσ_bound_index(obj.name.name, ans)] = obj;
+                    }
+                }
+                return ans;
+            };
+            if (!scan_for_classes.__argnames__) Object.defineProperties(scan_for_classes, {
+                __argnames__ : {value: ["body"]},
+                __module__ : {value: "parse"}
+            });
+
+            function scan_for_local_vars(body) {
+                var localvars, seen, opt, option, clause, stmt, is_compound_assign, lhs;
+                localvars = [];
+                seen = Object.create(null);
+                function push(x) {
+                    if (has_prop(seen, x)) {
+                        return;
+                    }
+                    seen[(typeof x === "number" && x < 0) ? seen.length + x : x] = true;
+                    localvars.push(x);
+                };
+                if (!push.__argnames__) Object.defineProperties(push, {
+                    __argnames__ : {value: ["x"]},
+                    __module__ : {value: "parse"}
+                });
+
+                function extend(arr) {
+                    var x;
+                    var ρσ_Iter88 = arr;
+                    ρσ_Iter88 = ((typeof ρσ_Iter88[Symbol.iterator] === "function") ? (ρσ_Iter88 instanceof Map ? ρσ_Iter88.keys() : ρσ_Iter88) : Object.keys(ρσ_Iter88));
+                    for (var ρσ_Index88 of ρσ_Iter88) {
+                        x = ρσ_Index88;
+                        push(x);
+                    }
+                };
+                if (!extend.__argnames__) Object.defineProperties(extend, {
+                    __argnames__ : {value: ["arr"]},
+                    __module__ : {value: "parse"}
+                });
+
+                function scan_in_array(arr) {
+                    var x;
+                    var ρσ_Iter89 = arr;
+                    ρσ_Iter89 = ((typeof ρσ_Iter89[Symbol.iterator] === "function") ? (ρσ_Iter89 instanceof Map ? ρσ_Iter89.keys() : ρσ_Iter89) : Object.keys(ρσ_Iter89));
+                    for (var ρσ_Index89 of ρσ_Iter89) {
+                        x = ρσ_Index89;
+                        if (is_node_type(x, AST_Seq)) {
+                            x = x.to_array();
+                        } else if (is_node_type(x, AST_Array)) {
+                            x = x.elements;
+                        }
+                        if (Array.isArray(x)) {
+                            scan_in_array(x);
+                        } else {
+                            if (!is_node_type(x, AST_PropAccess)) {
+                                push(x.name);
+                            }
+                        }
+                    }
+                };
+                if (!scan_in_array.__argnames__) Object.defineProperties(scan_in_array, {
+                    __argnames__ : {value: ["arr"]},
+                    __module__ : {value: "parse"}
+                });
+
+                function add_assign_lhs(lhs) {
+                    if (is_node_type(lhs, AST_Seq)) {
+                        lhs = new AST_Array((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["elements"] = lhs.to_array();
+                            return ρσ_d;
+                        }).call(this));
+                    }
+                    if (is_node_type(lhs, AST_Array)) {
+                        push("ρσ_unpack");
+                        scan_in_array(lhs.elements);
+                    } else if (lhs.name) {
+                        push(lhs.name);
+                    }
+                };
+                if (!add_assign_lhs.__argnames__) Object.defineProperties(add_assign_lhs, {
+                    __argnames__ : {value: ["lhs"]},
+                    __module__ : {value: "parse"}
+                });
+
+                function add_for_in(stmt) {
+                    if (is_node_type(stmt.init, AST_Array)) {
+                        push("ρσ_unpack");
+                        scan_in_array(stmt.init.elements);
+                    } else {
+                        push(stmt.init.name);
+                    }
+                };
+                if (!add_for_in.__argnames__) Object.defineProperties(add_for_in, {
+                    __argnames__ : {value: ["stmt"]},
+                    __module__ : {value: "parse"}
+                });
+
+                if (Array.isArray(body)) {
+                    var ρσ_Iter90 = body;
+                    ρσ_Iter90 = ((typeof ρσ_Iter90[Symbol.iterator] === "function") ? (ρσ_Iter90 instanceof Map ? ρσ_Iter90.keys() : ρσ_Iter90) : Object.keys(ρσ_Iter90));
+                    for (var ρσ_Index90 of ρσ_Iter90) {
+                        stmt = ρσ_Index90;
+                        if (is_node_type(stmt, AST_Scope)) {
+                            continue;
+                        }
+                        var ρσ_Iter91 = [ "body", "alternative", "bcatch", "condition" ];
+                        ρσ_Iter91 = ((typeof ρσ_Iter91[Symbol.iterator] === "function") ? (ρσ_Iter91 instanceof Map ? ρσ_Iter91.keys() : ρσ_Iter91) : Object.keys(ρσ_Iter91));
+                        for (var ρσ_Index91 of ρσ_Iter91) {
+                            option = ρσ_Index91;
+                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
+                            if (opt) {
+                                extend(scan_for_local_vars(opt));
+                            }
+                            if (is_node_type(opt, AST_Assign) && !(is_node_type(opt.right, AST_Scope))) {
+                                extend(scan_for_local_vars(opt.right));
+                            }
+                        }
+                        if (is_node_type(stmt, AST_ForIn)) {
+                            add_for_in(stmt);
+                        } else if (is_node_type(stmt, AST_DWLoop)) {
+                            extend(scan_for_local_vars(stmt));
+                        } else if (is_node_type(stmt, AST_With)) {
+                            [push("ρσ_with_exception"), push("ρσ_with_suppress")];
+                            var ρσ_Iter92 = stmt.clauses;
+                            ρσ_Iter92 = ((typeof ρσ_Iter92[Symbol.iterator] === "function") ? (ρσ_Iter92 instanceof Map ? ρσ_Iter92.keys() : ρσ_Iter92) : Object.keys(ρσ_Iter92));
+                            for (var ρσ_Index92 of ρσ_Iter92) {
+                                clause = ρσ_Index92;
+                                if (clause.alias) {
+                                    push(clause.alias.name);
+                                }
+                            }
+                        }
+                    }
+                } else if (body.body) {
+                    extend(scan_for_local_vars(body.body));
+                    if (body.alternative) {
+                        extend(scan_for_local_vars(body.alternative));
+                    }
+                } else if (is_node_type(body, AST_Assign)) {
+                    if (body.is_chained()) {
+                        is_compound_assign = false;
+                        var ρσ_Iter93 = body.traverse_chain()[0];
+                        ρσ_Iter93 = ((typeof ρσ_Iter93[Symbol.iterator] === "function") ? (ρσ_Iter93 instanceof Map ? ρσ_Iter93.keys() : ρσ_Iter93) : Object.keys(ρσ_Iter93));
+                        for (var ρσ_Index93 of ρσ_Iter93) {
+                            lhs = ρσ_Index93;
+                            add_assign_lhs(lhs);
+                            if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
+                                is_compound_assign = true;
+                                break;
+                            }
+                        }
+                        if (is_compound_assign) {
+                            push("ρσ_chain_assign_temp");
+                        }
+                    } else {
+                        add_assign_lhs(body.left);
+                    }
+                    if (!is_node_type(body.right, AST_Scope)) {
+                        extend(scan_for_local_vars(body.right));
+                    }
+                } else if (is_node_type(body, AST_ForIn)) {
+                    add_for_in(body);
+                }
+                return localvars;
+            };
+            if (!scan_for_local_vars.__argnames__) Object.defineProperties(scan_for_local_vars, {
+                __argnames__ : {value: ["body"]},
+                __module__ : {value: "parse"}
+            });
+
+            function scan_for_nonlocal_defs(body) {
+                var vardef, opt, option, stmt;
+                vars = [];
+                if (Array.isArray(body)) {
+                    var ρσ_Iter94 = body;
+                    ρσ_Iter94 = ((typeof ρσ_Iter94[Symbol.iterator] === "function") ? (ρσ_Iter94 instanceof Map ? ρσ_Iter94.keys() : ρσ_Iter94) : Object.keys(ρσ_Iter94));
+                    for (var ρσ_Index94 of ρσ_Iter94) {
+                        stmt = ρσ_Index94;
+                        if (is_node_type(stmt, AST_Scope)) {
+                            continue;
+                        }
+                        if (is_node_type(stmt, AST_Definitions)) {
+                            var ρσ_Iter95 = stmt.definitions;
+                            ρσ_Iter95 = ((typeof ρσ_Iter95[Symbol.iterator] === "function") ? (ρσ_Iter95 instanceof Map ? ρσ_Iter95.keys() : ρσ_Iter95) : Object.keys(ρσ_Iter95));
+                            for (var ρσ_Index95 of ρσ_Iter95) {
+                                vardef = ρσ_Index95;
+                                vars.push(vardef.name.name);
+                            }
+                        }
+                        var ρσ_Iter96 = [ "body", "alternative" ];
+                        ρσ_Iter96 = ((typeof ρσ_Iter96[Symbol.iterator] === "function") ? (ρσ_Iter96 instanceof Map ? ρσ_Iter96.keys() : ρσ_Iter96) : Object.keys(ρσ_Iter96));
+                        for (var ρσ_Index96 of ρσ_Iter96) {
+                            option = ρσ_Index96;
+                            var vars;
+                            opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
+                            if (opt) {
+                                vars = vars.concat(scan_for_nonlocal_defs(opt));
+                            }
+                        }
+                    }
+                } else if (body.body) {
+                    vars = vars.concat(scan_for_nonlocal_defs(body.body));
+                    if (body.alternative) {
+                        vars = vars.concat(scan_for_nonlocal_defs(body.alternative));
+                    }
+                }
+                return vars;
+            };
+            if (!scan_for_nonlocal_defs.__argnames__) Object.defineProperties(scan_for_nonlocal_defs, {
+                __argnames__ : {value: ["body"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function return_() {
+                var value, is_end_of_statement;
+                if (is_("punc", ";")) {
+                    semicolon();
+                    value = null;
+                } else {
+                    is_end_of_statement = S.token.nlb || is_("eof") || is_("punc", "}");
+                    if (is_end_of_statement) {
+                        value = null;
+                    } else {
+                        value = await expression(true);
+                        semicolon();
+                    }
+                }
+                return value;
+            };
+            if (!return_.__module__) Object.defineProperties(return_, {
+                __module__ : {value: "parse"}
+            });
+
+            
+            var statement = embed_tokens((function() {
+                var ρσ_anonfunc = async function statement() {
+                    var tmp_, p, bs_body, do_body, do_cond, while_cond, while_body, start, func, chain, cond, msg, ret_val, value, node, tmp;
+                    if (S.token.type === "operator" && S.token.value.substr(0, 1) === "/") {
+                        token_error(S.token, "RapydScript does not support statements starting with regexp literals");
+                    }
+                    S.statement_starting_token = S.token;
+                    tmp_ = S.token.type;
+                    p = prev();
+                    if (p && !S.token.nlb && ATOMIC_START_TOKEN[ρσ_bound_index(p.type, ATOMIC_START_TOKEN)] && !is_("punc", ":")) {
+                        unexpected();
+                    }
+                    if (tmp_ === "string") {
+                        return await simple_statement();
+                    } else if (tmp_ === "shebang") {
+                        tmp_ = S.token.value;
+                        next();
+                        return new AST_Directive((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = tmp_;
+                            return ρσ_d;
+                        }).call(this));
+                    } else if (tmp_ === "num" || tmp_ === "regexp" || tmp_ === "operator" || tmp_ === "atom" || tmp_ === "js") {
+                        return await simple_statement();
+                    } else if (tmp_ === "punc") {
+                        tmp_ = S.token.value;
+                        if (tmp_ === ":") {
+                            bs_body = await block_();
+                            return new AST_BlockStatement((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = S.token;
+                                ρσ_d["body"] = bs_body;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "{" || tmp_ === "[" || tmp_ === "(") {
+                            return await simple_statement();
+                        } else if (tmp_ === ";") {
+                            next();
+                            return new AST_EmptyStatement((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["stype"] = ";";
+                                ρσ_d["start"] = prev();
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                        } else {
+                            unexpected();
+                        }
+                    } else if (tmp_ === "name") {
+                        if (is_token(peek(), "punc", ":")) token_error(peek(), "invalid syntax, colon not allowed here");
+                        return await simple_statement();
+                    } else if (tmp_ === "keyword") {
+                        tmp_ = S.token.value;
+                        next();
+                        if (tmp_ === "break") {
+                            return break_cont(AST_Break);
+                        } else if (tmp_ === "continue") {
+                            return break_cont(AST_Continue);
+                        } else if (tmp_ === "debugger") {
+                            semicolon();
+                            return new AST_Debugger;
+                        } else if (tmp_ === "do") {
+                            do_body = await in_loop(statement);
+                            do_cond = await (function() {
+                                var ρσ_anonfunc = async function () {
+                                    var tmp;
+                                    expect(".");
+                                    expect_token("keyword", "while");
+                                    tmp = await expression(true);
+                                    if (is_node_type(tmp, AST_Assign)) {
+                                        croak("Assignments in do loop conditions are not allowed");
+                                    }
+                                    semicolon();
+                                    return tmp;
+                                };
+                                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                                    __module__ : {value: "parse"}
+                                });
+                                return ρσ_anonfunc;
+                            })()();
+                            return new AST_Do((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["body"] = do_body;
+                                ρσ_d["condition"] = do_cond;
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "while") {
+                            while_cond = await expression(true);
+                            if (is_node_type(while_cond, AST_Assign)) {
+                                croak("Assignments in while loop conditions are not allowed");
+                            }
+                            if (!is_("punc", ":")) {
+                                croak("Expected a colon after the while statement");
+                            }
+                            while_body = await in_loop(statement);
+                            return new AST_While((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["condition"] = while_cond;
+                                ρσ_d["body"] = while_body;
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "for") {
+                            if (is_("js")) {
+                                return await for_js();
+                            }
+                            return await for_();
+                        } else if (tmp_ === "from") {
+                            return await import_(true);
+                        } else if (tmp_ === "import") {
+                            return await import_(false);
+                        } else if (tmp_ === "class") {
+                            return await class_();
+                        } else if (tmp_ === "async") {
+                            if (!is_("keyword", "def")) {
+                                croak("Expected 'def' after 'async'");
+                            }
+                            next();
+                            start = prev();
+                            func = await function_((ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1], false, true);
+                            func.start = start;
+                            func.end = prev();
+                            chain = await subscripts(func, true);
+                            if (chain === func) {
+                                return func;
+                            } else {
+                                return new AST_SimpleStatement((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["start"] = start;
+                                    ρσ_d["body"] = chain;
+                                    ρσ_d["end"] = prev();
+                                    return ρσ_d;
+                                }).call(this));
+                            }
+                        } else if (tmp_ === "def") {
+                            start = prev();
+                            func = await function_((ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1], false);
+                            func.start = start;
+                            func.end = prev();
+                            chain = await subscripts(func, true);
+                            if (chain === func) {
+                                return func;
+                            } else {
+                                return new AST_SimpleStatement((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["start"] = start;
+                                    ρσ_d["body"] = chain;
+                                    ρσ_d["end"] = prev();
+                                    return ρσ_d;
+                                }).call(this));
+                            }
+                        } else if (tmp_ === "assert") {
+                            start = prev();
+                            cond = await expression(false);
+                            msg = null;
+                            if (is_("punc", ",")) {
+                                next();
+                                msg = await expression(false);
+                            }
+                            return new AST_Assert((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["condition"] = cond;
+                                ρσ_d["message"] = msg;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "if") {
+                            return await if_();
+                        } else if (tmp_ === "pass") {
+                            semicolon();
+                            return new AST_EmptyStatement((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["stype"] = "pass";
+                                ρσ_d["start"] = prev();
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "return") {
+                            if (S.in_function === 0) {
+                                croak("'return' outside of function");
+                            }
+                            if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator) {
+                                croak("'return' not allowed in a function with yield");
+                            }
+                            (ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator = false;
+                            ret_val = await return_();
+                            return new AST_Return((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = ret_val;
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "await") {
+                            if (S.in_function === 0 || !(ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
+                                croak("'await' outside of async function");
+                            }
+                            value = await expr_atom(true);
+                            node = new AST_Await((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = value;
+                                return ρσ_d;
+                            }).call(this));
+                            semicolon();
+                            return new AST_SimpleStatement((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["body"] = node;
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "yield") {
+                            return await yield_();
+                        } else if (tmp_ === "raise") {
+                            if (S.token.nlb) {
+                                return new AST_Throw((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = new AST_SymbolCatch((function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["name"] = "ρσ_Exception";
+                                        return ρσ_d;
+                                    }).call(this));
+                                    return ρσ_d;
+                                }).call(this));
+                            }
+                            tmp = await expression(true);
+                            semicolon();
+                            return new AST_Throw((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = tmp;
+                                return ρσ_d;
+                            }).call(this));
+                        } else if (tmp_ === "try") {
+                            return await try_();
+                        } else if (tmp_ === "nonlocal") {
+                            tmp = await nonlocal_();
+                            semicolon();
+                            return tmp;
+                        } else if (tmp_ === "global") {
+                            tmp = await nonlocal_(true);
+                            semicolon();
+                            return tmp;
+                        } else if (tmp_ === "with") {
+                            return await with_();
+                        } else {
+                            unexpected();
+                        }
+                    }
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "parse"}
+                });
+                return ρσ_anonfunc;
+            })());
+
+            async function with_() {
+                var clauses, start, expr, alias, body;
+                clauses = [];
+                start = S.token;
+                while (true) {
+                    if (is_("eof")) {
+                        unexpected();
+                    }
+                    expr = await expression();
+                    alias = null;
+                    if (is_("keyword", "as")) {
+                        next();
+                        alias = as_symbol(AST_SymbolAlias);
+                    }
+                    clauses.push(new AST_WithClause((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["alias"] = alias;
+                        return ρσ_d;
+                    }).call(this)));
+                    if (is_("punc", ",")) {
+                        next();
+                        continue;
+                    }
+                    if (!is_("punc", ":")) {
+                        unexpected();
+                    }
+                    break;
+                }
+                if (!clauses.length) {
+                    token_error(start, "with statement must have at least one clause");
+                }
+                body = await statement();
+                return new AST_With((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["clauses"] = clauses;
+                    ρσ_d["body"] = body;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!with_.__module__) Object.defineProperties(with_, {
+                __module__ : {value: "parse"}
+            });
+
+            async function simple_statement(tmp) {
+                tmp = await expression(true);
+                semicolon();
+                return new AST_SimpleStatement((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["body"] = tmp;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!simple_statement.__argnames__) Object.defineProperties(simple_statement, {
+                __argnames__ : {value: ["tmp"]},
+                __module__ : {value: "parse"}
+            });
+
+            function break_cont(t) {
+                if (S.in_loop === 0) {
+                    croak(t.name.slice(4) + " not inside a loop or switch");
+                }
+                semicolon();
+                return new t;
+            };
+            if (!break_cont.__argnames__) Object.defineProperties(break_cont, {
+                __argnames__ : {value: ["t"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function yield_() {
+                var is_yield_from, yld_val;
+                if (S.in_function === 0) {
+                    croak("'yield' outside of function");
+                }
+                if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
+                    croak("'yield' not allowed in an async function");
+                }
+                if ((ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator === false) {
+                    croak("'yield' not allowed in a function with return");
+                }
+                (ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_generator = true;
+                is_yield_from = is_("keyword", "from");
+                if (is_yield_from) {
+                    next();
+                }
+                yld_val = await return_();
+                return new AST_Yield((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["is_yield_from"] = is_yield_from;
+                    ρσ_d["value"] = yld_val;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!yield_.__module__) Object.defineProperties(yield_, {
+                __module__ : {value: "parse"}
+            });
+
+            async function for_(list_comp) {
+                var init, tmp;
+                init = null;
+                if (!is_("punc", ";")) {
+                    init = await expression(true, true);
+                    if (is_node_type(init, AST_Seq)) {
+                        if (is_node_type(init.car, AST_SymbolRef) && is_node_type(init.cdr, AST_SymbolRef)) {
+                            tmp = init.to_array();
+                        } else {
+                            tmp = [ init ];
+                        }
+                        init = new AST_Array((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = init.start;
+                            ρσ_d["elements"] = tmp;
+                            ρσ_d["end"] = init.end;
+                            return ρσ_d;
+                        }).call(this));
+                    }
+                    if (is_("operator", "in")) {
+                        if (is_node_type(init, AST_Var) && init.definitions.length > 1) {
+                            croak("Only one variable declaration allowed in for..in loop");
+                        }
+                        next();
+                        return await for_in(init, list_comp);
+                    }
+                }
+                unexpected();
+            };
+            if (!for_.__argnames__) Object.defineProperties(for_, {
+                __argnames__ : {value: ["list_comp"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function for_in(init, list_comp) {
+                var lhs, obj, fi_body;
+                lhs = (is_node_type(init, AST_Var)) ? init.definitions[0].name : null;
+                obj = await expression(true);
+                if (list_comp) {
+                    return (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["init"] = init;
+                        ρσ_d["name"] = lhs;
+                        ρσ_d["object"] = obj;
+                        return ρσ_d;
+                    }).call(this);
+                }
+                fi_body = await in_loop(statement);
+                return new AST_ForIn((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["init"] = init;
+                    ρσ_d["name"] = lhs;
+                    ρσ_d["object"] = obj;
+                    ρσ_d["body"] = fi_body;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!for_in.__argnames__) Object.defineProperties(for_in, {
+                __argnames__ : {value: ["init", "list_comp"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function for_js() {
+                var condition, fj_body;
+                condition = as_atom_node();
+                fj_body = await in_loop(statement);
+                return new AST_ForJS((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["condition"] = condition;
+                    ρσ_d["body"] = fj_body;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!for_js.__module__) Object.defineProperties(for_js, {
+                __module__ : {value: "parse"}
+            });
+
+            function get_class_in_scope(expr) {
+                var s, referenced_path, class_name;
+                if (is_node_type(expr, AST_SymbolRef)) {
+                    if (has_prop(NATIVE_CLASSES, expr.name)) {
+                        return NATIVE_CLASSES[ρσ_bound_index(expr.name, NATIVE_CLASSES)];
+                    }
+                    if (has_prop(ERROR_CLASSES, expr.name)) {
+                        return ERROR_CLASSES[ρσ_bound_index(expr.name, ERROR_CLASSES)];
+                    }
+                    for (var ρσ_Index97 = S.classes.length - 1; ρσ_Index97 > -1; ρσ_Index97-=1) {
+                        s = ρσ_Index97;
+                        if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], expr.name)) {
+                            return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[ρσ_bound_index(expr.name, ρσ_expr_temp)];
+                        }
+                    }
+                } else if (is_node_type(expr, AST_Dot)) {
+                    referenced_path = [];
+                    while (is_node_type(expr, AST_Dot)) {
+                        referenced_path.unshift(expr.property);
+                        expr = expr.expression;
+                    }
+                    if (is_node_type(expr, AST_SymbolRef)) {
+                        referenced_path.unshift(expr.name);
+                        if (len(referenced_path) > 1) {
+                            class_name = referenced_path.join(".");
+                            for (var ρσ_Index98 = S.classes.length - 1; ρσ_Index98 > -1; ρσ_Index98-=1) {
+                                s = ρσ_Index98;
+                                if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], class_name)) {
+                                    return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            };
+            if (!get_class_in_scope.__argnames__) Object.defineProperties(get_class_in_scope, {
+                __argnames__ : {value: ["expr"]},
+                __module__ : {value: "parse"}
+            });
+
+            function import_error(message) {
+                var ctx;
+                ctx = S.input.context();
+                throw new ImportError(message, ctx.filename, ctx.tokline, ctx.tokcol, ctx.tokpos);
+            };
+            if (!import_error.__argnames__) Object.defineProperties(import_error, {
+                __argnames__ : {value: ["message"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function do_import(key) {
+                var loading_promises, _rfn, package_module_id, file_mtime, filename, prefetched_src, modpath, ρσ_unpack, location, cache_read, cached, ast_json_str, _split, srchash, src_code, cache_ok, pending, ikey, classes, ci, cname, meta, module, bitem;
+                if (has_prop(imported_modules, key)) {
+                    return;
+                }
+                if (has_prop(importing_modules, key) && importing_modules[(typeof key === "number" && key < 0) ? importing_modules.length + key : key]) {
+                    import_error("Detected a recursive import of: " + key + " while importing: " + module_id);
+                }
+                loading_promises = options.loading_promises;
+                if (has_prop(loading_promises, key)) {
+                    await loading_promises[(typeof key === "number" && key < 0) ? loading_promises.length + key : key];
+                    return;
+                }
+                _rfn = [null];
+                function _capture_resolve(resolve) {
+                    _rfn[0] = resolve;
+                };
+                if (!_capture_resolve.__argnames__) Object.defineProperties(_capture_resolve, {
+                    __argnames__ : {value: ["resolve"]},
+                    __module__ : {value: "parse"}
+                });
+
+                loading_promises[(typeof key === "number" && key < 0) ? loading_promises.length + key : key] = new Promise(_capture_resolve);
+                try {
+                    package_module_id = key.split(".").slice(0, -1).join(".");
+                    if (len(package_module_id) > 0) {
+                        await do_import(package_module_id);
+                    }
+                    if (options.for_linting) {
+                        imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key] = (function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["is_cached"] = true;
+                            ρσ_d["classes"] = Object.create(null);
+                            ρσ_d["module_id"] = key;
+                            ρσ_d["exports"] = [];
+                            ρσ_d["nonlocalvars"] = [];
+                            ρσ_d["baselib"] = Object.create(null);
+                            ρσ_d["outputs"] = Object.create(null);
+                            ρσ_d["discard_asserts"] = options.discard_asserts;
+                            return ρσ_d;
+                        }).call(this);
+                        return;
+                    }
+                    async function safe_stat(base_path) {
+                        var st, ρσ_unpack, i, path;
+                        var ρσ_Iter99 = enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]);
+                        ρσ_Iter99 = ((typeof ρσ_Iter99[Symbol.iterator] === "function") ? (ρσ_Iter99 instanceof Map ? ρσ_Iter99.keys() : ρσ_Iter99) : Object.keys(ρσ_Iter99));
+                        for (var ρσ_Index99 of ρσ_Iter99) {
+                            ρσ_unpack = ρσ_Index99;
+                            i = ρσ_unpack[0];
+                            path = ρσ_unpack[1];
+                            try {
+                                st = await stat_file(path);
+                                return [ st.mtimeMs, path, (has_prop(st, "content")) ? st.content : null ];
+                            } catch (ρσ_Exception) {
+                                ρσ_last_exception = ρσ_Exception;
+                                {
+                                    var e = ρσ_Exception;
+                                    if (e.code === "ENOENT" || e.code === "EPERM" || e.code === "EACCESS") {
+                                        if (i === 1) {
+                                            return [null, null, null];
+                                        }
+                                    }
+                                    if (i === 1) {
+                                        throw ρσ_Exception;
+                                    }
+                                } 
+                            }
+                        }
+                    };
+                    if (!safe_stat.__argnames__) Object.defineProperties(safe_stat, {
+                        __argnames__ : {value: ["base_path"]},
+                        __module__ : {value: "parse"}
+                    });
+
+                    file_mtime = filename = prefetched_src = null;
+                    modpath = key.replace(/\./g, "/");
+                    var ρσ_Iter100 = import_dirs;
+                    ρσ_Iter100 = ((typeof ρσ_Iter100[Symbol.iterator] === "function") ? (ρσ_Iter100 instanceof Map ? ρσ_Iter100.keys() : ρσ_Iter100) : Object.keys(ρσ_Iter100));
+                    for (var ρσ_Index100 of ρσ_Iter100) {
+                        location = ρσ_Index100;
+                        if (location) {
+                            ρσ_unpack = await safe_stat(location + "/" + modpath);
+ρσ_unpack = ρσ_unpack_asarray(3, ρσ_unpack);
+                            file_mtime = ρσ_unpack[0];
+                            filename = ρσ_unpack[1];
+                            prefetched_src = ρσ_unpack[2];
+                            if (filename !== null) {
+                                break;
+                            }
+                        }
+                    }
+                    if (filename === null) {
+                        import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(":"));
+                    }
+                    cache_read = readfile(cache_file_name(filename, options.module_cache_dir));
+                    cached = null;
+                    ast_json_str = null;
+                    try {
+                        _split = decode_cache(await cache_read);
+                        if (_split !== null) {
+                            cached = JSON.parse(_split.meta);
+                            ast_json_str = _split.ast;
+                        }
+                    } catch (ρσ_Exception) {
+                        ρσ_last_exception = ρσ_Exception;
+                        {
+                            cached = null;
+                        } 
+                    }
+                    srchash = src_code = null;
+                    cache_ok = cached && cached.v === CACHE_VERSION && cached.compiler_version === COMPILER_VERSION;
+                    if (cache_ok && file_mtime !== null && cached.mtime !== null && cached.mtime === file_mtime) {
+                        srchash = cached.signature;
+                    } else {
+                        src_code = prefetched_src || await readfile(filename, "utf-8");
+                        srchash = sha1sum(src_code);
+                        if (!cache_ok || cached.signature !== srchash) {
+                            cached = null;
+                        }
+                    }
+                    if (cached !== null) {
+                        pending = [];
+                        var ρσ_Iter101 = cached.imported_module_ids;
+                        ρσ_Iter101 = ((typeof ρσ_Iter101[Symbol.iterator] === "function") ? (ρσ_Iter101 instanceof Map ? ρσ_Iter101.keys() : ρσ_Iter101) : Object.keys(ρσ_Iter101));
+                        for (var ρσ_Index101 of ρσ_Iter101) {
+                            ikey = ρσ_Index101;
+                            if (!has_prop(imported_modules, ikey)) {
+                                pending.push(do_import(ikey));
+                            }
+                        }
+                        if (pending.length > 0) {
+                            await Promise.all(pending);
+                        }
+                        classes = Object.create(null);
+                        var ρσ_Iter102 = Object.keys(cached.classes || Object.create(null));
+                        ρσ_Iter102 = ((typeof ρσ_Iter102[Symbol.iterator] === "function") ? (ρσ_Iter102 instanceof Map ? ρσ_Iter102.keys() : ρσ_Iter102) : Object.keys(ρσ_Iter102));
+                        for (var ρσ_Index102 of ρσ_Iter102) {
+                            cname = ρσ_Index102;
+                            ci = (ρσ_expr_temp = cached.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
+                            classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname] = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["name"] = (function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = cname;
+                                    return ρσ_d;
+                                }).call(this);
+                                ρσ_d["static"] = ci.static || Object.create(null);
+                                ρσ_d["bound"] = ci.bound || [];
+                                ρσ_d["classvars"] = ci.classvars || Object.create(null);
+                                return ρσ_d;
+                            }).call(this);
+                        }
+                        meta = (function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["module_id"] = key;
+                            ρσ_d["filename"] = filename;
+                            ρσ_d["import_order"] = Object.keys(imported_modules).length;
+                            ρσ_d["imports"] = imported_modules;
+                            ρσ_d["exports"] = (function() {
+                                var ρσ_Iter = cached.exported_names, ρσ_Result = [], n;
+                                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                                for (var ρσ_Index of ρσ_Iter) {
+                                    n = ρσ_Index;
+                                    ρσ_Result.push((function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["name"] = n;
+                                        return ρσ_d;
+                                    }).call(this));
+                                }
+                                ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                                return ρσ_Result;
+                            })();
+                            ρσ_d["baselib"] = cached.baselib || Object.create(null);
+                            ρσ_d["classes"] = classes;
+                            return ρσ_d;
+                        }).call(this);
+                        if (cached.has_side_effects !== undefined) {
+                            meta["_has_side_effects"] = cached.has_side_effects;
+                        }
+                        if (cached.index !== undefined) {
+                            meta["_cache_index"] = cached.index;
+                        }
+                        module = make_lazy_ast_module(ast_json_str, meta);
+                        imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key] = module;
+                    } else {
+                        await parse(src_code, (function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["filename"] = filename;
+                            ρσ_d["toplevel"] = null;
+                            ρσ_d["basedir"] = options.basedir;
+                            ρσ_d["libdir"] = options.libdir;
+                            ρσ_d["import_dirs"] = options.import_dirs;
+                            ρσ_d["module_id"] = key;
+                            ρσ_d["imported_modules"] = imported_modules;
+                            ρσ_d["importing_modules"] = importing_modules;
+                            ρσ_d["discard_asserts"] = options.discard_asserts;
+                            ρσ_d["module_cache_dir"] = options.module_cache_dir;
+                            ρσ_d["_src_hash"] = srchash;
+                            ρσ_d["_file_mtime"] = file_mtime;
+                            ρσ_d["loading_promises"] = loading_promises;
+                            return ρσ_d;
+                        }).call(this));
+                    }
+                } finally {
+                    ρσ_delitem(loading_promises, key);
+                    if (_rfn[0]) {
+                        _rfn[0](null);
+                    }
+                }
+                imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].srchash = srchash;
+                var ρσ_Iter103 = Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib);
+                ρσ_Iter103 = ((typeof ρσ_Iter103[Symbol.iterator] === "function") ? (ρσ_Iter103 instanceof Map ? ρσ_Iter103.keys() : ρσ_Iter103) : Object.keys(ρσ_Iter103));
+                for (var ρσ_Index103 of ρσ_Iter103) {
+                    bitem = ρσ_Index103;
+                    baselib_items[(typeof bitem === "number" && bitem < 0) ? baselib_items.length + bitem : bitem] = true;
+                }
+            };
+            if (!do_import.__argnames__) Object.defineProperties(do_import, {
+                __argnames__ : {value: ["key"]},
+                __module__ : {value: "parse"}
+            });
+
+            function read_python_flags() {
+                var bracketed, name, val;
+                expect_token("keyword", "import");
+                bracketed = is_("punc", "(");
+                if (bracketed) {
+                    next();
+                }
+                while (true) {
+                    if (!is_("name")) {
+                        croak("Name expected");
+                    }
+                    name = S.token.value;
+                    val = (name.startsWith("no_")) ? false : true;
+                    if (!val) {
+                        name = name.slice(3);
+                    }
+                    if (!PYTHON_FLAGS) {
+                        croak("Unknown __python__ flag: " + name);
+                    }
+                    S.scoped_flags.set(name, val);
+                    next();
+                    if (is_("punc", ",")) {
+                        next();
+                    } else {
+                        if (bracketed) {
+                            if (is_("punc", ")")) {
+                                next();
+                            } else {
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+                }
+                return new AST_EmptyStatement((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["stype"] = "scoped_flags";
+                    ρσ_d["start"] = prev();
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!read_python_flags.__module__) Object.defineProperties(read_python_flags, {
+                __module__ : {value: "parse"}
+            });
+
+            async function import_(from_import) {
+                var ans, tok, tmp, name, last_tok, key, alias, aimp, ρσ_unpack, classes, argnames, bracketed, exports, symdef, aname, obj, argvar, cname, imp;
+                ans = new AST_Imports((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["imports"] = [];
+                    return ρσ_d;
+                }).call(this));
+                while (true) {
+                    tok = tmp = name = last_tok = await expression(false);
+                    key = "";
+                    while (is_node_type(tmp, AST_Dot)) {
+                        key = "." + tmp.property + key;
+                        tmp = last_tok = tmp.expression;
+                    }
+                    key = tmp.name + key;
+                    if (from_import && key === "__python__") {
+                        return read_python_flags();
+                    }
+                    alias = null;
+                    if (!from_import && is_("keyword", "as")) {
+                        next();
+                        alias = as_symbol(AST_SymbolAlias);
+                    }
+                    aimp = new AST_Import((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["module"] = name;
+                        ρσ_d["key"] = key;
+                        ρσ_d["alias"] = alias;
+                        ρσ_d["argnames"] = null;
+                        ρσ_d["body"] = (function() {
+                            var ρσ_anonfunc = function () {
+                                return imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key];
+                            };
+                            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                                __module__ : {value: "parse"}
+                            });
+                            return ρσ_anonfunc;
+                        })();
+                        return ρσ_d;
+                    }).call(this));
+                    ρσ_unpack = [tok.start, last_tok.end];
+                    aimp.start = ρσ_unpack[0];
+                    aimp.end = ρσ_unpack[1];
+                    ans.imports.push(aimp);
+                    if (from_import) {
+                        break;
+                    }
+                    if (is_("punc", ",")) {
+                        next();
+                    } else {
+                        break;
+                    }
+                }
+                var ρσ_Iter104 = ans["imports"];
+                ρσ_Iter104 = ((typeof ρσ_Iter104[Symbol.iterator] === "function") ? (ρσ_Iter104 instanceof Map ? ρσ_Iter104.keys() : ρσ_Iter104) : Object.keys(ρσ_Iter104));
+                for (var ρσ_Index104 of ρσ_Iter104) {
+                    imp = ρσ_Index104;
+                    await do_import(imp.key);
+                    if (imported_module_ids.indexOf(imp.key) === -1) {
+                        imported_module_ids.push(imp.key);
+                    }
+                    classes = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].classes;
+                    if (from_import) {
+                        expect_token("keyword", "import");
+                        imp.argnames = argnames = [];
+                        bracketed = is_("punc", "(");
+                        if (bracketed) {
+                            next();
+                        }
+                        exports = Object.create(null);
+                        var ρσ_Iter105 = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports;
+                        ρσ_Iter105 = ((typeof ρσ_Iter105[Symbol.iterator] === "function") ? (ρσ_Iter105 instanceof Map ? ρσ_Iter105.keys() : ρσ_Iter105) : Object.keys(ρσ_Iter105));
+                        for (var ρσ_Index105 of ρσ_Iter105) {
+                            symdef = ρσ_Index105;
+                            exports[ρσ_bound_index(symdef.name, exports)] = true;
+                        }
+                        while (true) {
+                            aname = as_symbol(AST_ImportedVar);
+                            if (!options.for_linting && !has_prop(exports, aname.name)) {
+                                import_error("The symbol \"" + aname.name + "\" is not exported from the module: " + key);
+                            }
+                            if (is_("keyword", "as")) {
+                                next();
+                                aname.alias = as_symbol(AST_SymbolAlias);
+                            }
+                            argnames.push(aname);
+                            if (is_("punc", ",")) {
+                                next();
+                            } else {
+                                if (bracketed) {
+                                    if (is_("punc", ")")) {
+                                        next();
+                                    } else {
+                                        continue;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        var ρσ_Iter106 = argnames;
+                        ρσ_Iter106 = ((typeof ρσ_Iter106[Symbol.iterator] === "function") ? (ρσ_Iter106 instanceof Map ? ρσ_Iter106.keys() : ρσ_Iter106) : Object.keys(ρσ_Iter106));
+                        for (var ρσ_Index106 of ρσ_Iter106) {
+                            argvar = ρσ_Index106;
+                            obj = classes[ρσ_bound_index(argvar.name, classes)];
+                            if (obj) {
+                                key = (argvar.alias) ? argvar.alias.name : argvar.name;
+                                (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[(typeof key === "number" && key < 0) ? ρσ_expr_temp.length + key : key] = (function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["static"] = obj.static;
+                                    ρσ_d["bound"] = obj.bound;
+                                    ρσ_d["classvars"] = obj.classvars;
+                                    return ρσ_d;
+                                }).call(this);
+                            }
+                        }
+                    } else {
+                        var ρσ_Iter107 = Object.keys(classes);
+                        ρσ_Iter107 = ((typeof ρσ_Iter107[Symbol.iterator] === "function") ? (ρσ_Iter107 instanceof Map ? ρσ_Iter107.keys() : ρσ_Iter107) : Object.keys(ρσ_Iter107));
+                        for (var ρσ_Index107 of ρσ_Iter107) {
+                            cname = ρσ_Index107;
+                            obj = classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname];
+                            key = (imp.alias) ? imp.alias.name : imp.key;
+                            (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[ρσ_bound_index(key + "." + obj.name.name, ρσ_expr_temp)] = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["static"] = obj.static;
+                                ρσ_d["bound"] = obj.bound;
+                                ρσ_d["classvars"] = obj.classvars;
+                                return ρσ_d;
+                            }).call(this);
+                        }
+                    }
+                }
+                return ans;
+            };
+            if (!import_.__argnames__) Object.defineProperties(import_, {
+                __argnames__ : {value: ["from_import"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function class_() {
+                var name, externaldecorator, class_details, bases, class_parent, a, docstrings, cls_decorators, cls_body, definition, descriptor, stmt, class_var_names, visitor;
+                name = as_symbol(AST_SymbolDefun);
+                if (!name) {
+                    unexpected();
+                }
+                externaldecorator = has_simple_decorator(S.decorators, "external");
+                class_details = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["static"] = Object.create(null);
+                    ρσ_d["bound"] = [];
+                    ρσ_d["classvars"] = Object.create(null);
+                    ρσ_d["processing"] = name.name;
+                    ρσ_d["provisional_classvars"] = Object.create(null);
+                    return ρσ_d;
+                }).call(this);
+                bases = [];
+                class_parent = null;
+                if (is_("punc", "(")) {
+                    S.in_parenthesized_expr = true;
+                    next();
+                    while (true) {
+                        if (is_("punc", ")")) {
+                            S.in_parenthesized_expr = false;
+                            next();
+                            break;
+                        }
+                        a = await expr_atom(false);
+                        if (class_parent === null) {
+                            class_parent = a;
+                        }
+                        bases.push(a);
+                        if (is_("punc", ",")) {
+                            next();
+                            continue;
+                        }
+                    }
+                }
+                docstrings = [];
+                cls_decorators = (function() {
+                    var ρσ_anonfunc = function () {
+                        var d, decorator;
+                        d = [];
+                        var ρσ_Iter108 = S.decorators;
+                        ρσ_Iter108 = ((typeof ρσ_Iter108[Symbol.iterator] === "function") ? (ρσ_Iter108 instanceof Map ? ρσ_Iter108.keys() : ρσ_Iter108) : Object.keys(ρσ_Iter108));
+                        for (var ρσ_Index108 of ρσ_Iter108) {
+                            decorator = ρσ_Index108;
+                            d.push(new AST_Decorator((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["expression"] = decorator;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
+                        S.decorators = [];
+                        return d;
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })()();
+                cls_body = await (function() {
+                    var ρσ_anonfunc = async function (loop, labels) {
+                        var a;
+                        S.in_class.push(name.name);
+                        (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 1, ρσ_expr_temp)])[ρσ_bound_index(name.name, ρσ_expr_temp)] = class_details;
+                        S.classes.push(Object.create(null));
+                        S.scoped_flags.push();
+                        S.in_function += 1;
+                        S.in_loop = 0;
+                        S.labels = [];
+                        a = await block_(docstrings);
+                        S.in_function -= 1;
+                        S.scoped_flags.pop();
+                        S.classes.pop();
+                        S.in_class.pop();
+                        S.in_loop = loop;
+                        S.labels = labels;
+                        return a;
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["loop", "labels"]},
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })()(S.in_loop, S.labels);
+                definition = new AST_Class((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = name;
+                    ρσ_d["docstrings"] = docstrings;
+                    ρσ_d["module_id"] = module_id;
+                    ρσ_d["dynamic_properties"] = Object.create(null);
+                    ρσ_d["parent"] = class_parent;
+                    ρσ_d["bases"] = bases;
+                    ρσ_d["localvars"] = [];
+                    ρσ_d["classvars"] = class_details.classvars;
+                    ρσ_d["static"] = class_details.static;
+                    ρσ_d["external"] = externaldecorator;
+                    ρσ_d["bound"] = class_details.bound;
+                    ρσ_d["statements"] = [];
+                    ρσ_d["decorators"] = cls_decorators;
+                    ρσ_d["body"] = cls_body;
+                    return ρσ_d;
+                }).call(this));
+                class_details.processing = false;
+                var ρσ_Iter109 = definition.body;
+                ρσ_Iter109 = ((typeof ρσ_Iter109[Symbol.iterator] === "function") ? (ρσ_Iter109 instanceof Map ? ρσ_Iter109.keys() : ρσ_Iter109) : Object.keys(ρσ_Iter109));
+                for (var ρσ_Index109 of ρσ_Iter109) {
+                    stmt = ρσ_Index109;
+                    if (is_node_type(stmt, AST_Method)) {
+                        if (stmt.is_getter || stmt.is_setter) {
+                            descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)];
+                            if (!descriptor) {
+                                descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)] = Object.create(null);
+                            }
+                            descriptor[ρσ_bound_index((stmt.is_getter) ? "getter" : "setter", descriptor)] = stmt;
+                        } else if (stmt.name.name === "__init__") {
+                            definition.init = stmt;
+                        }
+                    }
+                }
+                class_var_names = Object.create(null);
+                function walker() {
+                    function visit_node(node, descend) {
+                        var varname;
+                        if (is_node_type(node, AST_Method)) {
+                            class_var_names[ρσ_bound_index(node.name.name, class_var_names)] = true;
+                            return;
+                        }
+                        if (is_node_type(node, AST_Function)) {
+                            return;
+                        }
+                        if (is_node_type(node, AST_Assign) && is_node_type(node.left, AST_SymbolRef)) {
+                            varname = node.left.name;
+                            if (FORBIDDEN_CLASS_VARS.indexOf(varname) !== -1) {
+                                token_error(node.left.start, varname + " is not allowed as a class variable name");
+                            }
+                            class_var_names[(typeof varname === "number" && varname < 0) ? class_var_names.length + varname : varname] = true;
+                            (ρσ_expr_temp = definition.classvars)[(typeof varname === "number" && varname < 0) ? ρσ_expr_temp.length + varname : varname] = true;
+                        } else if (is_node_type(node, AST_SymbolRef) && has_prop(class_var_names, node.name)) {
+                            node.thedef = new AST_SymbolDefun((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["name"] = name.name + ".prototype." + node.name;
+                                return ρσ_d;
+                            }).call(this));
+                        }
+                        if (descend) {
+                            descend.call(node);
+                        }
+                    };
+                    if (!visit_node.__argnames__) Object.defineProperties(visit_node, {
+                        __argnames__ : {value: ["node", "descend"]},
+                        __module__ : {value: "parse"}
+                    });
+
+                    this._visit = visit_node;
+                };
+                if (!walker.__module__) Object.defineProperties(walker, {
+                    __module__ : {value: "parse"}
+                });
+
+                visitor = new walker;
+                var ρσ_Iter110 = definition.body;
+                ρσ_Iter110 = ((typeof ρσ_Iter110[Symbol.iterator] === "function") ? (ρσ_Iter110 instanceof Map ? ρσ_Iter110.keys() : ρσ_Iter110) : Object.keys(ρσ_Iter110));
+                for (var ρσ_Index110 of ρσ_Iter110) {
+                    stmt = ρσ_Index110;
+                    if (!is_node_type(stmt, AST_Class)) {
+                        stmt.walk(visitor);
+                        definition.statements.push(stmt);
+                    }
+                }
+                return definition;
+            };
+            if (!class_.__module__) Object.defineProperties(class_, {
+                __module__ : {value: "parse"}
+            });
+
+            async function function_() {
+                var in_class = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var is_expression = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
+                var is_async = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? function_.__defaults__.is_async : arguments[2];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "is_async")){
+                    is_async = ρσ_kwargs_obj.is_async;
+                }
+                var name, is_anonymous, staticmethod, property_getter, property_setter, staticloc, ctor, return_annotation, is_generator, docstrings, fn_argnames, fn_decorators, fn_body, definition, assignments, j, i, nonlocals;
+                name = (is_("name")) ? as_symbol((in_class) ? AST_SymbolDefun : AST_SymbolLambda) : null;
+                if (in_class && !name) {
+                    croak("Cannot use anonymous function as class methods");
+                }
+                is_anonymous = !name;
+                staticmethod = property_getter = property_setter = false;
+                if (in_class) {
+                    staticloc = has_simple_decorator(S.decorators, "staticmethod");
+                    property_getter = has_simple_decorator(S.decorators, "property");
+                    property_setter = has_setter_decorator(S.decorators, name.name);
+                    if (staticloc) {
+                        if (property_getter || property_setter) {
+                            croak("A method cannot be both static and a property getter/setter");
+                        }
+                        (ρσ_expr_temp = (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 2, ρσ_expr_temp)])[(typeof in_class === "number" && in_class < 0) ? ρσ_expr_temp.length + in_class : in_class].static)[ρσ_bound_index(name.name, ρσ_expr_temp)] = true;
+                        staticmethod = true;
+                    } else if (name.name !== "__init__" && S.scoped_flags.get("bound_methods")) {
+                        (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_bound_index(S.classes.length - 2, ρσ_expr_temp)])[(typeof in_class === "number" && in_class < 0) ? ρσ_expr_temp.length + in_class : in_class].bound.push(name.name);
+                    }
+                }
+                expect("(");
+                S.in_parenthesized_expr = true;
+                ctor = (in_class) ? AST_Method : AST_Function;
+                return_annotation = null;
+                is_generator = [];
+                docstrings = [];
+                fn_argnames = await (function() {
+                    var ρσ_anonfunc = async function () {
+                        var a, starargs_sym, kwargs_sym, defaults, has_defaults, first, seen_names, def_line, current_arg_name, name_token;
+                        a = [];
+                        starargs_sym = undefined;
+                        kwargs_sym = undefined;
+                        defaults = Object.create(null);
+                        has_defaults = false;
+                        first = true;
+                        seen_names = Object.create(null);
+                        def_line = S.input.context().tokline;
+                        current_arg_name = null;
+                        name_token = null;
+                        async function get_arg() {
+                            var name_ctx, ntok, annotation, sym;
+                            current_arg_name = S.token.value;
+                            if (has_prop(seen_names, current_arg_name)) {
+                                token_error(prev(), "Can't repeat parameter names");
+                            }
+                            if (current_arg_name === "arguments") {
+                                token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript");
+                            }
+                            seen_names[(typeof current_arg_name === "number" && current_arg_name < 0) ? seen_names.length + current_arg_name : current_arg_name] = true;
+                            name_token = S.token;
+                            name_ctx = S.input.context();
+                            ntok = peek();
+                            if (ntok.type === "punc" && ntok.value === ":") {
+                                next();
+                                expect(":");
+                                annotation = await maybe_conditional();
+                                if (!is_token(name_token, "name")) {
+                                    if (S.input.context().tokline !== def_line) {
+                                        croak("Name expected", name_ctx.tokline);
+                                    } else {
+                                        croak("Name expected");
+                                    }
+                                    return null;
+                                }
+                                sym = new AST_SymbolFunarg((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = name_token.value;
+                                    ρσ_d["start"] = S.token;
+                                    ρσ_d["end"] = S.token;
+                                    ρσ_d["annotation"] = annotation;
+                                    return ρσ_d;
+                                }).call(this));
+                                return sym;
+                            } else {
+                                if (!is_("name")) {
+                                    if (S.input.context().tokline !== def_line) {
+                                        croak("Name expected", def_line);
+                                    } else {
+                                        croak("Name expected");
+                                    }
+                                    return null;
+                                }
+                                sym = new AST_SymbolFunarg((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = current_arg_name;
+                                    ρσ_d["start"] = S.token;
+                                    ρσ_d["end"] = S.token;
+                                    ρσ_d["annotation"] = null;
+                                    return ρσ_d;
+                                }).call(this));
+                                next();
+                                return sym;
+                            }
+                        };
+                        if (!get_arg.__module__) Object.defineProperties(get_arg, {
+                            __module__ : {value: "parse"}
+                        });
+
+                        while (!is_("punc", ")")) {
+                            if (first) {
+                                first = false;
+                            } else {
+                                expect(",");
+                                if (is_("punc", ")")) {
+                                    break;
+                                }
+                            }
+                            if (is_("operator", "**")) {
+                                next();
+                                if (kwargs_sym) {
+                                    token_error(name_token, "Can't define multiple **kwargs in function definition");
+                                }
+                                kwargs_sym = await get_arg();
+                            } else if (is_("operator", "*")) {
+                                next();
+                                if (starargs_sym) {
+                                    token_error(name_token, "Can't define multiple *args in function definition");
+                                }
+                                if (kwargs_sym) {
+                                    token_error(name_token, "Can't define *args after **kwargs in function definition");
+                                }
+                                starargs_sym = await get_arg();
+                            } else {
+                                if (starargs_sym || kwargs_sym) {
+                                    token_error(name_token, "Can't define a formal parameter after *args or **kwargs");
+                                }
+                                a.push(await get_arg());
+                                if (is_("operator", "=")) {
+                                    if (kwargs_sym) {
+                                        token_error(name_token, "Can't define an optional formal parameter after **kwargs");
+                                    }
+                                    next();
+                                    defaults[(typeof current_arg_name === "number" && current_arg_name < 0) ? defaults.length + current_arg_name : current_arg_name] = await expression(false);
+                                    has_defaults = true;
+                                } else {
+                                    if (has_defaults) {
+                                        token_error(name_token, "Can't define required formal parameters after optional formal parameters");
+                                    }
+                                }
+                            }
+                        }
+                        next();
+                        if (is_("punc", "->")) {
+                            next();
+                            return_annotation = await maybe_conditional();
+                        }
+                        S.in_parenthesized_expr = false;
+                        return new AST_ArgsDef((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["args"] = a;
+                            ρσ_d["starargs"] = starargs_sym;
+                            ρσ_d["kwargs"] = kwargs_sym;
+                            ρσ_d["defaults"] = defaults;
+                            ρσ_d["has_defaults"] = has_defaults;
+                            ρσ_d["is_simple_func"] = !starargs_sym && !kwargs_sym && !has_defaults;
+                            return ρσ_d;
+                        }).call(this));
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })()();
+                fn_decorators = (function() {
+                    var ρσ_anonfunc = function () {
+                        var d, decorator;
+                        d = [];
+                        var ρσ_Iter111 = S.decorators;
+                        ρσ_Iter111 = ((typeof ρσ_Iter111[Symbol.iterator] === "function") ? (ρσ_Iter111 instanceof Map ? ρσ_Iter111.keys() : ρσ_Iter111) : Object.keys(ρσ_Iter111));
+                        for (var ρσ_Index111 of ρσ_Iter111) {
+                            decorator = ρσ_Index111;
+                            d.push(new AST_Decorator((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["expression"] = decorator;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
+                        S.decorators = [];
+                        return d;
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })()();
+                fn_body = await (function() {
+                    var ρσ_anonfunc = async function (loop, labels) {
+                        var a;
+                        S.in_class.push(false);
+                        S.classes.push(Object.create(null));
+                        S.scoped_flags.push();
+                        S.in_function += 1;
+                        S.functions.push((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["is_async"] = is_async;
+                            return ρσ_d;
+                        }).call(this));
+                        S.in_loop = 0;
+                        S.labels = [];
+                        a = await block_(docstrings);
+                        S.in_function -= 1;
+                        S.scoped_flags.pop();
+                        is_generator.push(bool(S.functions.pop().is_generator));
+                        S.classes.pop();
+                        S.in_class.pop();
+                        S.in_loop = loop;
+                        S.labels = labels;
+                        return a;
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["loop", "labels"]},
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })()(S.in_loop, S.labels);
+                definition = new ctor((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = name;
+                    ρσ_d["is_expression"] = is_expression;
+                    ρσ_d["is_anonymous"] = is_anonymous;
+                    ρσ_d["argnames"] = fn_argnames;
+                    ρσ_d["localvars"] = [];
+                    ρσ_d["decorators"] = fn_decorators;
+                    ρσ_d["docstrings"] = docstrings;
+                    ρσ_d["body"] = fn_body;
+                    return ρσ_d;
+                }).call(this));
+                definition.return_annotation = return_annotation;
+                definition.is_generator = is_generator[0];
+                definition.is_async = is_async;
+                if (is_node_type(definition, AST_Method)) {
+                    definition.static = staticmethod;
+                    definition.is_getter = property_getter;
+                    definition.is_setter = property_setter;
+                    if (definition.argnames.args.length < 1 && !definition.static) {
+                        croak("Methods of a class must have at least one argument, traditionally named self");
+                    }
+                    if (definition.name && definition.name.name === "__init__") {
+                        if (definition.is_generator) {
+                            croak("The __init__ method of a class cannot be a generator (yield not allowed)");
+                        }
+                        if (definition.is_async) {
+                            croak("The __init__ method of a class cannot be async");
+                        }
+                        if (property_getter || property_setter) {
+                            croak("The __init__ method of a class cannot be a property getter/setter");
+                        }
+                    }
+                }
+                if (definition.is_async && definition.is_generator) {
+                    croak("A function cannot be both async and a generator");
+                }
+                if (definition.is_generator) {
+                    baselib_items["yield"] = true;
+                }
+                assignments = scan_for_local_vars(definition.body);
+                for (var ρσ_Index112 = 0; ρσ_Index112 < assignments.length; ρσ_Index112++) {
+                    i = ρσ_Index112;
+                    for (var ρσ_Index113 = 0; ρσ_Index113 < definition.argnames.args.length + 1; ρσ_Index113++) {
+                        j = ρσ_Index113;
+                        if (j === definition.argnames.args.length) {
+                            definition.localvars.push(new_symbol(AST_SymbolVar, assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i]));
+                        } else if (j < definition.argnames.args.length && assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i] === (ρσ_expr_temp = definition.argnames.args)[(typeof j === "number" && j < 0) ? ρσ_expr_temp.length + j : j].name) {
+                            break;
+                        }
+                    }
+                }
+                nonlocals = scan_for_nonlocal_defs(definition.body);
+                nonlocals = (function() {
+                    var ρσ_Iter = nonlocals, ρσ_Result = ρσ_set(), name;
+                    ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                    for (var ρσ_Index of ρσ_Iter) {
+                        name = ρσ_Index;
+                        ρσ_Result.add(name);
+                    }
+                    return ρσ_Result;
+                })();
+                definition.localvars = definition.localvars.filter((function() {
+                    var ρσ_anonfunc = function (v) {
+                        return !nonlocals.has(v.name);
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["v"]},
+                        __module__ : {value: "parse"}
+                    });
+                    return ρσ_anonfunc;
+                })());
+                return definition;
+            };
+            if (!function_.__defaults__) Object.defineProperties(function_, {
+                __defaults__ : {value: {is_async:false}},
+                __handles_kwarg_interpolation__ : {value: true},
+                __argnames__ : {value: ["in_class", "is_expression", "is_async"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function if_() {
+                var cond, body, belse;
+                cond = await expression(true);
+                body = await statement();
+                belse = null;
+                if (is_("keyword", "elif") || is_("keyword", "else")) {
+                    if (is_("keyword", "else")) {
+                        next();
+                    } else {
+                        S.token.value = "if";
+                    }
+                    belse = await statement();
+                }
+                return new AST_If((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["condition"] = cond;
+                    ρσ_d["body"] = body;
+                    ρσ_d["alternative"] = belse;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!if_.__module__) Object.defineProperties(if_, {
+                __module__ : {value: "parse"}
+            });
+
+            function is_docstring(stmt) {
+                if (is_node_type(stmt, AST_SimpleStatement)) {
+                    if (is_node_type(stmt.body, AST_String)) {
+                        return stmt.body;
+                    }
+                }
+                return false;
+            };
+            if (!is_docstring.__argnames__) Object.defineProperties(is_docstring, {
+                __argnames__ : {value: ["stmt"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function block_(docstrings) {
+                var prev_whitespace, a, stmt, ds, current_whitespace;
+                prev_whitespace = S.token.leading_whitespace;
+                expect(":");
+                a = [];
+                if (!S.token.nlb) {
+                    while (!S.token.nlb) {
+                        if (is_("eof")) {
+                            if (options.recover_errors) {
+                                break;
+                            }
+                            unexpected();
+                        }
+                        if (options.recover_errors) {
+                            try {
+                                stmt = await statement();
+                            } catch (ρσ_Exception) {
+                                ρσ_last_exception = ρσ_Exception;
+                                {
+                                    var berr = ρσ_Exception;
+                                    if (is_recoverable_error(berr)) {
+                                        record_recovery(berr);
+                                        await skip_to_recovery_point();
+                                        continue;
+                                    }
+                                    throw ρσ_Exception;
+                                } 
+                            }
+                        } else {
+                            stmt = await statement();
+                        }
+                        if (docstrings) {
+                            ds = is_docstring(stmt);
+                            if (ds) {
+                                docstrings.push(ds);
+                                continue;
+                            }
+                        }
+                        a.push(stmt);
+                    }
+                } else {
+                    current_whitespace = S.token.leading_whitespace;
+                    if (current_whitespace.length === 0 || prev_whitespace === current_whitespace) {
+                        croak("Expected an indented block");
+                    }
+                    while (!is_("punc", "}")) {
+                        if (is_("eof")) {
+                            return a;
+                        }
+                        if (options.recover_errors) {
+                            try {
+                                stmt = await statement();
+                            } catch (ρσ_Exception) {
+                                ρσ_last_exception = ρσ_Exception;
+                                {
+                                    var berr = ρσ_Exception;
+                                    if (is_recoverable_error(berr)) {
+                                        record_recovery(berr);
+                                        await skip_to_recovery_point();
+                                        continue;
+                                    }
+                                    throw ρσ_Exception;
+                                } 
+                            }
+                        } else {
+                            stmt = await statement();
+                        }
+                        if (docstrings) {
+                            ds = is_docstring(stmt);
+                            if (ds) {
+                                docstrings.push(ds);
+                                continue;
+                            }
+                        }
+                        a.push(stmt);
+                    }
+                    next();
+                }
+                return a;
+            };
+            if (!block_.__argnames__) Object.defineProperties(block_, {
+                __argnames__ : {value: ["docstrings"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function try_() {
+                var body, bcatch, bfinally, belse, start, exceptions, name, except_body, belse_body, bfinally_body;
+                body = await block_();
+                bcatch = [];
+                bfinally = null;
+                belse = null;
+                while (is_("keyword", "except")) {
+                    start = S.token;
+                    next();
+                    exceptions = [];
+                    if (!is_("punc", ":") && !is_("keyword", "as")) {
+                        exceptions.push(as_symbol(AST_SymbolVar));
+                        while (is_("punc", ",")) {
+                            next();
+                            exceptions.push(as_symbol(AST_SymbolVar));
+                        }
+                    }
+                    name = null;
+                    if (is_("keyword", "as")) {
+                        next();
+                        name = as_symbol(AST_SymbolCatch);
+                    }
+                    except_body = await block_();
+                    bcatch.push(new AST_Except((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["argname"] = name;
+                        ρσ_d["errors"] = exceptions;
+                        ρσ_d["body"] = except_body;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
+                }
+                if (is_("keyword", "else")) {
+                    start = S.token;
+                    next();
+                    belse_body = await block_();
+                    belse = new AST_Else((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = belse_body;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
+                }
+                if (is_("keyword", "finally")) {
+                    start = S.token;
+                    next();
+                    bfinally_body = await block_();
+                    bfinally = new AST_Finally((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = bfinally_body;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
+                }
+                if (!bcatch.length && !bfinally) {
+                    croak("Missing except/finally blocks");
+                }
+                return new AST_Try((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["body"] = body;
+                    ρσ_d["bcatch"] = (bcatch.length) ? new AST_Catch((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["body"] = bcatch;
+                        return ρσ_d;
+                    }).call(this)) : null;
+                    ρσ_d["bfinally"] = bfinally;
+                    ρσ_d["belse"] = belse;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!try_.__module__) Object.defineProperties(try_, {
+                __module__ : {value: "parse"}
+            });
+
+            async function vardefs(symbol_class) {
+                var a, vd_start, vd_name, varval;
+                a = [];
+                while (true) {
+                    vd_start = S.token;
+                    vd_name = as_symbol(symbol_class);
+                    if (is_("operator", "=")) {
+                        next();
+                        varval = await expression(false);
+                    } else {
+                        varval = null;
+                    }
+                    a.push(new AST_VarDef((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = vd_start;
+                        ρσ_d["name"] = vd_name;
+                        ρσ_d["value"] = varval;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
+                    if (!is_("punc", ",")) {
+                        break;
+                    }
+                    next();
+                }
+                return a;
+            };
+            if (!vardefs.__argnames__) Object.defineProperties(vardefs, {
+                __argnames__ : {value: ["symbol_class"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function nonlocal_(is_global) {
+                var defs, vardef;
+                defs = await vardefs(AST_SymbolNonlocal);
+                if (is_global) {
+                    var ρσ_Iter114 = defs;
+                    ρσ_Iter114 = ((typeof ρσ_Iter114[Symbol.iterator] === "function") ? (ρσ_Iter114 instanceof Map ? ρσ_Iter114.keys() : ρσ_Iter114) : Object.keys(ρσ_Iter114));
+                    for (var ρσ_Index114 of ρσ_Iter114) {
+                        vardef = ρσ_Index114;
+                        S.globals.push(vardef.name.name);
+                    }
+                }
+                return new AST_Var((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = prev();
+                    ρσ_d["definitions"] = defs;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!nonlocal_.__argnames__) Object.defineProperties(nonlocal_, {
+                __argnames__ : {value: ["is_global"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function new_() {
+                var start, newexp, args;
+                start = S.token;
+                expect_token("operator", "new");
+                newexp = await expr_atom(false);
+                if (is_("punc", "(")) {
+                    S.in_parenthesized_expr = true;
+                    next();
+                    args = await func_call_list();
+                    S.in_parenthesized_expr = false;
+                } else {
+                    args = await func_call_list(true);
+                }
+                return await subscripts(new AST_New((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["expression"] = newexp;
+                    ρσ_d["args"] = args;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this)), true);
+            };
+            if (!new_.__module__) Object.defineProperties(new_, {
+                __module__ : {value: "parse"}
+            });
+
+            function string_() {
+                var strings, start;
+                strings = [];
+                start = S.token;
+                while (true) {
+                    strings.push(S.token.value);
+                    if (peek().type !== "string") {
+                        break;
+                    }
+                    next();
+                }
+                return new AST_String((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["end"] = S.token;
+                    ρσ_d["value"] = strings.join("");
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!string_.__module__) Object.defineProperties(string_, {
+                __module__ : {value: "parse"}
+            });
+
+            function token_as_atom_node() {
+                var tok, tmp_, tmp__;
+                tok = S.token;
+                tmp_ = tok.type;
+                if (tmp_ === "name") {
+                    return token_as_symbol(tok, AST_SymbolRef);
+                } else if (tmp_ === "num") {
+                    return new AST_Number((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
+                } else if (tmp_ === "string") {
+                    return string_();
+                } else if (tmp_ === "regexp") {
+                    return new AST_RegExp((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
+                } else if (tmp_ === "atom") {
+                    tmp__ = tok.value;
+                    if (tmp__ === "False") {
+                        return new AST_False((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
+                    } else if (tmp__ === "True") {
+                        return new AST_True((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
+                    } else if (tmp__ === "None") {
+                        return new AST_Null((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = tok;
+                            ρσ_d["end"] = tok;
+                            return ρσ_d;
+                        }).call(this));
+                    }
+                } else if (tmp_ === "js") {
+                    return new AST_Verbatim((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = tok;
+                        ρσ_d["end"] = tok;
+                        ρσ_d["value"] = tok.value;
+                        return ρσ_d;
+                    }).call(this));
+                }
+                token_error(tok, "Expecting an atomic token (number/string/bool/regexp/js/None)");
+            };
+            if (!token_as_atom_node.__module__) Object.defineProperties(token_as_atom_node, {
+                __module__ : {value: "parse"}
+            });
+
+            function as_atom_node() {
+                var ret;
+                ret = token_as_atom_node();
+                next();
+                return ret;
+            };
+            if (!as_atom_node.__module__) Object.defineProperties(as_atom_node, {
+                __module__ : {value: "parse"}
+            });
+
+            async function expr_atom(allow_calls) {
+                var start, tmp_, ex, ret, cls, func, value;
+                if (is_("operator", "new")) {
+                    return await new_();
+                }
+                start = S.token;
+                if (is_("punc")) {
+                    tmp_ = start.value;
+                    if (tmp_ === "(") {
+                        S.in_parenthesized_expr = true;
+                        next();
+                        if (is_("punc", ")")) {
+                            next();
+                            return new AST_Array((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["elements"] = [];
+                                return ρσ_d;
+                            }).call(this));
+                        }
+                        ex = await expression(true);
+                        if (is_("keyword", "for")) {
+                            ret = await read_comprehension(new AST_GeneratorComprehension((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["statement"] = ex;
+                                return ρσ_d;
+                            }).call(this)), ")");
+                            S.in_parenthesized_expr = false;
+                            return ret;
+                        }
+                        ex.start = start;
+                        ex.end = S.token;
+                        if (is_node_type(ex, AST_SymbolRef)) {
+                            ex.parens = true;
+                        }
+                        if (!is_node_type(ex, AST_GeneratorComprehension)) {
+                            expect(")");
+                        }
+                        if (is_node_type(ex, AST_UnaryPrefix)) {
+                            ex.parenthesized = true;
+                        }
+                        S.in_parenthesized_expr = false;
+                        return await subscripts(ex, allow_calls);
+                    } else if (tmp_ === "[") {
+                        return await subscripts(await array_(), allow_calls);
+                    } else if (tmp_ === "{") {
+                        return await subscripts(await object_(), allow_calls);
+                    }
+                    unexpected();
+                }
+                if (is_("keyword", "class")) {
+                    next();
+                    cls = await class_();
+                    cls.start = start;
+                    cls.end = prev();
+                    return await subscripts(cls, allow_calls);
+                }
+                if (is_("keyword", "async")) {
+                    next();
+                    if (!is_("keyword", "def")) {
+                        croak("Expected 'def' after 'async'");
+                    }
+                    next();
+                    func = await function_(false, true, true);
+                    func.start = start;
+                    func.end = prev();
+                    return await subscripts(func, allow_calls);
+                }
+                if (is_("keyword", "def")) {
+                    next();
+                    func = await function_(false, true);
+                    func.start = start;
+                    func.end = prev();
+                    return await subscripts(func, allow_calls);
+                }
+                if (is_("keyword", "await")) {
+                    next();
+                    if (S.in_function === 0 || !(ρσ_expr_temp = S.functions)[ρσ_expr_temp.length-1].is_async) {
+                        croak("'await' outside of async function");
+                    }
+                    value = await expr_atom(true);
+                    return new AST_Await((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["value"] = value;
+                        return ρσ_d;
+                    }).call(this));
+                }
+                if (is_("keyword", "yield")) {
+                    next();
+                    return await yield_();
+                }
+                if (ATOMIC_START_TOKEN[ρσ_bound_index(S.token.type, ATOMIC_START_TOKEN)]) {
+                    return await subscripts(as_atom_node(), allow_calls);
+                }
+                unexpected();
+            };
+            if (!expr_atom.__argnames__) Object.defineProperties(expr_atom, {
+                __argnames__ : {value: ["allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function expr_list(closing, allow_trailing_comma, allow_empty, func_call) {
+                var first, a, saw_starargs, pargs, kwargs, arg;
+                first = true;
+                a = [];
+                saw_starargs = false;
+                while (!is_("punc", closing)) {
+                    if (saw_starargs) {
+                        token_error(prev(), "*args must be the last argument in a function call");
+                    }
+                    if (first) {
+                        first = false;
+                    } else {
+                        expect(",");
+                    }
+                    if (allow_trailing_comma && is_("punc", closing)) {
+                        break;
+                    }
+                    if (is_("operator", "*") && func_call) {
+                        saw_starargs = true;
+                        next();
+                    }
+                    if (is_("punc", ",") && allow_empty) {
+                        a.push(new AST_Hole((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = S.token;
+                            ρσ_d["end"] = S.token;
+                            return ρσ_d;
+                        }).call(this)));
+                    } else {
+                        a.push(await expression(false));
+                    }
+                }
+                next();
+                if (func_call) {
+                    pargs = [];
+                    kwargs = [];
+                    var ρσ_Iter115 = a;
+                    ρσ_Iter115 = ((typeof ρσ_Iter115[Symbol.iterator] === "function") ? (ρσ_Iter115 instanceof Map ? ρσ_Iter115.keys() : ρσ_Iter115) : Object.keys(ρσ_Iter115));
+                    for (var ρσ_Index115 of ρσ_Iter115) {
+                        arg = ρσ_Index115;
+                        if (is_node_type(arg, AST_Assign)) {
+                            kwargs.push([ arg.left, arg.right ]);
+                        } else {
+                            pargs.push(arg);
+                        }
+                    }
+                    return new AST_CallArgs((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["args"] = pargs;
+                        ρσ_d["kwargs"] = kwargs;
+                        ρσ_d["kwarg_items"] = [];
+                        ρσ_d["starargs"] = saw_starargs;
+                        return ρσ_d;
+                    }).call(this));
+                }
+                return a;
+            };
+            if (!expr_list.__argnames__) Object.defineProperties(expr_list, {
+                __argnames__ : {value: ["closing", "allow_trailing_comma", "allow_empty", "func_call"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function func_call_list(empty) {
+                var a, first, kwargs, kwarg_items, starargs, single_comprehension, arg, comp;
+                a = [];
+                first = true;
+                kwargs = [];
+                kwarg_items = [];
+                starargs = false;
+                if (empty) {
+                    return new AST_CallArgs((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["args"] = a;
+                        ρσ_d["kwargs"] = kwargs;
+                        ρσ_d["kwarg_items"] = kwarg_items;
+                        ρσ_d["starargs"] = starargs;
+                        return ρσ_d;
+                    }).call(this));
+                }
+                single_comprehension = false;
+                while (!is_("punc", ")") && !is_("eof")) {
+                    if (!first) {
+                        expect(",");
+                        if (is_("punc", ")")) {
+                            break;
+                        }
+                    }
+                    if (is_("operator", "*")) {
+                        next();
+                        arg = await expression(false);
+                        a.push(new AST_CallArg((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = arg;
+                            ρσ_d["is_array"] = true;
+                            return ρσ_d;
+                        }).call(this)));
+                        starargs = true;
+                    } else if (is_("operator", "**")) {
+                        next();
+                        kwarg_items.push(as_symbol(AST_SymbolRef, false));
+                        starargs = true;
+                    } else {
+                        arg = await expression(false);
+                        if (is_node_type(arg, AST_Assign)) {
+                            kwargs.push([ arg.left, arg.right ]);
+                        } else {
+                            if (is_("keyword", "for")) {
+                                if (!first) {
+                                    croak("Generator expression must be parenthesized if not sole argument");
+                                }
+                                comp = await read_comprehension(new AST_GeneratorComprehension((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["statement"] = arg;
+                                    return ρσ_d;
+                                }).call(this)), ")");
+                                a.push(new AST_CallArg((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = comp;
+                                    ρσ_d["is_array"] = false;
+                                    return ρσ_d;
+                                }).call(this)));
+                                single_comprehension = true;
+                                break;
+                            }
+                            a.push(new AST_CallArg((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = arg;
+                                ρσ_d["is_array"] = false;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
+                    }
+                    first = false;
+                }
+                if (!single_comprehension) {
+                    next();
+                }
+                return new AST_CallArgs((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["args"] = a;
+                    ρσ_d["kwargs"] = kwargs;
+                    ρσ_d["kwarg_items"] = kwarg_items;
+                    ρσ_d["starargs"] = starargs;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!func_call_list.__argnames__) Object.defineProperties(func_call_list, {
+                __argnames__ : {value: ["empty"]},
+                __module__ : {value: "parse"}
+            });
+
+            
+            var array_ = embed_tokens((function() {
+                var ρσ_anonfunc = async function array_() {
+                    var expr, arr_rest;
+                    expect("[");
+                    expr = [];
+                    if (!is_("punc", "]")) {
+                        expr.push(await expression(false));
+                        if (is_("keyword", "for")) {
+                            return await read_comprehension(new AST_ListComprehension((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["statement"] = expr[0];
+                                return ρσ_d;
+                            }).call(this)), "]");
+                        }
+                        if (!is_("punc", "]")) {
+                            expect(",");
+                        }
+                    }
+                    arr_rest = await expr_list("]", true, true);
+                    return new AST_Array((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["elements"] = expr.concat(arr_rest);
+                        return ρσ_d;
+                    }).call(this));
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "parse"}
+                });
+                return ρσ_anonfunc;
+            })());
+
+            
+            var object_ = embed_tokens((function() {
+                var ρσ_anonfunc = async function object_() {
+                    var first, has_non_const_keys, is_pydict, is_jshash, a, start, ctx, orig, left, end, obj_val;
+                    expect("{");
+                    first = true;
+                    has_non_const_keys = false;
+                    is_pydict = S.scoped_flags.get("dict_literals", false);
+                    is_jshash = S.scoped_flags.get("hash_literals", false);
+                    a = [];
+                    while (!is_("punc", "}")) {
+                        if (!first) {
+                            expect(",");
+                        }
+                        if (is_("punc", "}")) {
+                            break;
+                        }
+                        first = false;
+                        start = S.token;
+                        ctx = S.input.context();
+                        orig = ctx.expecting_object_literal_key;
+                        ctx.expecting_object_literal_key = true;
+                        try {
+                            left = await expression(false);
+                        } finally {
+                            ctx.expecting_object_literal_key = orig;
+                        }
+                        if (is_("keyword", "for")) {
+                            return await read_comprehension(new AST_SetComprehension((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["statement"] = left;
+                                return ρσ_d;
+                            }).call(this)), "}");
+                        }
+                        if (a.length === 0 && (is_("punc", ",") || is_("punc", "}"))) {
+                            end = prev();
+                            return await set_(start, end, left);
+                        }
+                        if (!is_node_type(left, AST_Constant)) {
+                            has_non_const_keys = true;
+                        }
+                        expect(":");
+                        obj_val = await expression(false);
+                        a.push(new AST_ObjectKeyVal((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["key"] = left;
+                            ρσ_d["value"] = obj_val;
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)));
+                        if (a.length === 1 && is_("keyword", "for")) {
+                            return await dict_comprehension(a, is_pydict, is_jshash);
+                        }
+                    }
+                    next();
+                    return new ((has_non_const_keys) ? AST_ExpressiveObject : AST_Object)((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["properties"] = a;
+                        ρσ_d["is_pydict"] = is_pydict;
+                        ρσ_d["is_jshash"] = is_jshash;
+                        return ρσ_d;
+                    }).call(this));
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "parse"}
+                });
+                return ρσ_anonfunc;
+            })());
+
+            async function set_(start, end, expr) {
+                var ostart, a, set_val;
+                ostart = start;
+                a = [ new AST_SetItem((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = start;
+                    ρσ_d["end"] = end;
+                    ρσ_d["value"] = expr;
+                    return ρσ_d;
+                }).call(this)) ];
+                while (!is_("punc", "}")) {
+                    expect(",");
+                    start = S.token;
+                    if (is_("punc", "}")) {
+                        break;
+                    }
+                    set_val = await expression(false);
+                    a.push(new AST_SetItem((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["value"] = set_val;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)));
+                }
+                next();
+                return new AST_Set((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["items"] = a;
+                    ρσ_d["start"] = ostart;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!set_.__argnames__) Object.defineProperties(set_, {
+                __argnames__ : {value: ["start", "end", "expr"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function read_comprehension(obj, terminator) {
+                var forloop;
+                if (is_node_type(obj, AST_GeneratorComprehension)) {
+                    baselib_items["yield"] = true;
+                }
+                S.in_comprehension = true;
+                S.in_parenthesized_expr = false;
+                expect_token("keyword", "for");
+                forloop = await for_(true);
+                obj.init = forloop.init;
+                obj.name = forloop.name;
+                obj.object = forloop.object;
+                if (is_("punc", terminator)) {
+                    obj.condition = null;
+                } else {
+                    expect_token("keyword", "if");
+                    obj.condition = await expression(true);
+                }
+                expect(terminator);
+                S.in_comprehension = false;
+                return obj;
+            };
+            if (!read_comprehension.__argnames__) Object.defineProperties(read_comprehension, {
+                __argnames__ : {value: ["obj", "terminator"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function dict_comprehension(a, is_pydict, is_jshash) {
+                var ρσ_unpack, left, right;
+                if (a.length) {
+                    ρσ_unpack = [a[0].key, a[0].value];
+                    left = ρσ_unpack[0];
+                    right = ρσ_unpack[1];
+                } else {
+                    left = await expression(false);
+                    if (!is_("punc", ":")) {
+                        return await read_comprehension(new AST_SetComprehension((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["statement"] = left;
+                            return ρσ_d;
+                        }).call(this)), "}");
+                    }
+                    expect(":");
+                    right = await expression(false);
+                }
+                return await read_comprehension(new AST_DictComprehension((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["statement"] = left;
+                    ρσ_d["value_statement"] = right;
+                    ρσ_d["is_pydict"] = is_pydict;
+                    ρσ_d["is_jshash"] = is_jshash;
+                    return ρσ_d;
+                }).call(this)), "}");
+            };
+            if (!dict_comprehension.__argnames__) Object.defineProperties(dict_comprehension, {
+                __argnames__ : {value: ["a", "is_pydict", "is_jshash"]},
+                __module__ : {value: "parse"}
+            });
+
+            function as_name() {
+                var tmp, tmp_;
+                tmp = S.token;
+                next();
+                tmp_ = tmp.type;
+                if (tmp_ === "name" || tmp_ === "operator" || tmp_ === "keyword" || tmp_ === "atom") {
+                    return tmp.value;
+                } else {
+                    unexpected();
+                }
+            };
+            if (!as_name.__module__) Object.defineProperties(as_name, {
+                __module__ : {value: "parse"}
+            });
+
+            function token_as_symbol(tok, ttype) {
+                var name;
+                name = tok.value;
+                if (RESERVED_WORDS[(typeof name === "number" && name < 0) ? RESERVED_WORDS.length + name : name] && name !== "this") {
+                    croak(name + " is a reserved word");
+                }
+                return new ((name === "this") ? AST_This : ttype)((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = String(tok.value);
+                    ρσ_d["start"] = tok;
+                    ρσ_d["end"] = tok;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!token_as_symbol.__argnames__) Object.defineProperties(token_as_symbol, {
+                __argnames__ : {value: ["tok", "ttype"]},
+                __module__ : {value: "parse"}
+            });
+
+            function as_symbol(ttype, noerror) {
+                var sym;
+                if (!is_("name")) {
+                    if (!noerror) {
+                        croak("Name expected");
+                    }
+                    return null;
+                }
+                sym = token_as_symbol(S.token, ttype);
+                next();
+                return sym;
+            };
+            if (!as_symbol.__argnames__) Object.defineProperties(as_symbol, {
+                __argnames__ : {value: ["ttype", "noerror"]},
+                __module__ : {value: "parse"}
+            });
+
+            function new_symbol(type, name) {
+                var sym;
+                sym = new ((name === "this") ? AST_This : type)((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["name"] = String(name);
+                    ρσ_d["start"] = null;
+                    ρσ_d["end"] = null;
+                    return ρσ_d;
+                }).call(this));
+                return sym;
+            };
+            if (!new_symbol.__argnames__) Object.defineProperties(new_symbol, {
+                __argnames__ : {value: ["type", "name"]},
+                __module__ : {value: "parse"}
+            });
+
+            function is_static_method(cls, method) {
+                if (has_prop(COMMON_STATIC, method) || cls.static && has_prop(cls.static, method)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+            if (!is_static_method.__argnames__) Object.defineProperties(is_static_method, {
+                __argnames__ : {value: ["cls", "method"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function getitem(expr, allow_calls) {
+                var start, is_py_sub, slice_bounds, is_slice, splice_assign, _ca, _sb, i, _ca2, _ca3, assignment, assign_operator;
+                start = expr.start;
+                next();
+                is_py_sub = S.scoped_flags.get("overload_getitem", false);
+                slice_bounds = [];
+                is_slice = false;
+                if (is_("punc", ":")) {
+                    slice_bounds.push(null);
+                } else {
+                    slice_bounds.push(await expression(false));
+                }
+                if (is_("punc", ":")) {
+                    is_slice = true;
+                    next();
+                    if (is_("punc", ":")) {
+                        slice_bounds.push(null);
+                    } else if (!is_("punc", "]")) {
+                        slice_bounds.push(await expression(false));
+                    }
+                }
+                if (is_("punc", ":")) {
+                    next();
+                    if (is_("punc", "]")) {
+                        unexpected();
+                    } else {
+                        slice_bounds.push(await expression(false));
+                    }
+                }
+                expect("]");
+                if (is_slice) {
+                    if (is_("operator", "=")) {
+                        next();
+                        splice_assign = await expression(true);
+                        return await subscripts(new AST_Splice((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = expr;
+                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = 0;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["property2"] = slice_bounds[1];
+                            ρσ_d["assignment"] = splice_assign;
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    } else if (slice_bounds.length === 3) {
+                        slice_bounds.unshift(slice_bounds.pop());
+                        if (!slice_bounds[slice_bounds.length-1]) {
+                            slice_bounds.pop();
+                            if (!slice_bounds[slice_bounds.length-1]) {
+                                slice_bounds.pop();
+                            }
+                        } else if (!slice_bounds[slice_bounds.length-2]) {
+                            slice_bounds[slice_bounds.length-2] = new AST_Undefined;
+                        }
+                        _ca = [];
+                        _ca.push(new AST_CallArg((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = expr;
+                            ρσ_d["is_array"] = false;
+                            return ρσ_d;
+                        }).call(this)));
+                        var ρσ_Iter116 = slice_bounds;
+                        ρσ_Iter116 = ((typeof ρσ_Iter116[Symbol.iterator] === "function") ? (ρσ_Iter116 instanceof Map ? ρσ_Iter116.keys() : ρσ_Iter116) : Object.keys(ρσ_Iter116));
+                        for (var ρσ_Index116 of ρσ_Iter116) {
+                            _sb = ρσ_Index116;
+                            _ca.push(new AST_CallArg((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = _sb;
+                                ρσ_d["is_array"] = false;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
+                        return await subscripts(new AST_Call((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = new AST_SymbolRef((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["name"] = (S.in_delete) ? "ρσ_delslice" : "ρσ_eslice";
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["args"] = new AST_CallArgs((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["args"] = _ca;
+                                ρσ_d["kwargs"] = [];
+                                ρσ_d["kwarg_items"] = [];
+                                ρσ_d["starargs"] = false;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    } else {
+                        slice_bounds = (function() {
+                            var ρσ_Iter = slice_bounds, ρσ_Result = [], i;
+                            ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                            for (var ρσ_Index of ρσ_Iter) {
+                                i = ρσ_Index;
+                                ρσ_Result.push((i === null) ? new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 0;
+                                    return ρσ_d;
+                                }).call(this)) : i);
+                            }
+                            ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                            return ρσ_Result;
+                        })();
+                        if (S.in_delete) {
+                            _ca2 = [];
+                            _ca2.push(new AST_CallArg((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = expr;
+                                ρσ_d["is_array"] = false;
+                                return ρσ_d;
+                            }).call(this)));
+                            _ca2.push(new AST_CallArg((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = new AST_Number((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = 1;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["is_array"] = false;
+                                return ρσ_d;
+                            }).call(this)));
+                            var ρσ_Iter117 = slice_bounds;
+                            ρσ_Iter117 = ((typeof ρσ_Iter117[Symbol.iterator] === "function") ? (ρσ_Iter117 instanceof Map ? ρσ_Iter117.keys() : ρσ_Iter117) : Object.keys(ρσ_Iter117));
+                            for (var ρσ_Index117 of ρσ_Iter117) {
+                                _sb = ρσ_Index117;
+                                _ca2.push(new AST_CallArg((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["value"] = _sb;
+                                    ρσ_d["is_array"] = false;
+                                    return ρσ_d;
+                                }).call(this)));
+                            }
+                            return await subscripts(new AST_Call((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = new AST_SymbolRef((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["name"] = "ρσ_delslice";
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["args"] = new AST_CallArgs((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["args"] = _ca2;
+                                    ρσ_d["kwargs"] = [];
+                                    ρσ_d["kwarg_items"] = [];
+                                    ρσ_d["starargs"] = false;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this)), allow_calls);
+                        }
+                        _ca3 = [];
+                        var ρσ_Iter118 = slice_bounds;
+                        ρσ_Iter118 = ((typeof ρσ_Iter118[Symbol.iterator] === "function") ? (ρσ_Iter118 instanceof Map ? ρσ_Iter118.keys() : ρσ_Iter118) : Object.keys(ρσ_Iter118));
+                        for (var ρσ_Index118 of ρσ_Iter118) {
+                            _sb = ρσ_Index118;
+                            _ca3.push(new AST_CallArg((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = _sb;
+                                ρσ_d["is_array"] = false;
+                                return ρσ_d;
+                            }).call(this)));
+                        }
+                        return await subscripts(new AST_Call((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = new AST_Dot((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["expression"] = expr;
+                                ρσ_d["property"] = "slice";
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["args"] = new AST_CallArgs((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["args"] = _ca3;
+                                ρσ_d["kwargs"] = [];
+                                ρσ_d["kwarg_items"] = [];
+                                ρσ_d["starargs"] = false;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    }
+                } else {
+                    if (is_py_sub) {
+                        assignment = null;
+                        assign_operator = "";
+                        if (is_("operator") && ASSIGNMENT[ρσ_bound_index(S.token.value, ASSIGNMENT)]) {
+                            assign_operator = S.token.value.slice(0, -1);
+                            next();
+                            assignment = await expression(true);
+                        }
+                        return await subscripts(new AST_ItemAccess((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["expression"] = expr;
+                            ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["value"] = 0;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["assignment"] = assignment;
+                            ρσ_d["assign_operator"] = assign_operator;
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), allow_calls);
+                    }
+                    return await subscripts(new AST_Sub((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["property"] = slice_bounds[0] || new AST_Number((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["value"] = 0;
+                            return ρσ_d;
+                        }).call(this));
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), allow_calls);
+                }
+            };
+            if (!getitem.__argnames__) Object.defineProperties(getitem, {
+                __argnames__ : {value: ["expr", "allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function call_(expr) {
+                var start, call_args, ret, c, funcname, classcall_args, tmp_, jstype_args, args, basic_args;
+                start = expr.start;
+                S.in_parenthesized_expr = true;
+                next();
+                if (!expr.parens && get_class_in_scope(expr)) {
+                    call_args = await func_call_list();
+                    ret = await subscripts(new AST_New((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["args"] = call_args;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), true);
+                    S.in_parenthesized_expr = false;
+                    return ret;
+                } else {
+                    if (is_node_type(expr, AST_Dot)) {
+                        c = get_class_in_scope(expr.expression);
+                    }
+                    if (c) {
+                        funcname = expr;
+                        classcall_args = await func_call_list();
+                        ret = await subscripts(new AST_ClassCall((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["class"] = expr.expression;
+                            ρσ_d["method"] = funcname.property;
+                            ρσ_d["static"] = is_static_method(c, funcname.property);
+                            ρσ_d["args"] = classcall_args;
+                            ρσ_d["end"] = prev();
+                            return ρσ_d;
+                        }).call(this)), true);
+                        S.in_parenthesized_expr = false;
+                        return ret;
+                    } else if (is_node_type(expr, AST_SymbolRef)) {
+                        tmp_ = expr.name;
+                        if (tmp_ === "jstype") {
+                            jstype_args = await func_call_list();
+                            ret = new AST_UnaryPrefix((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["operator"] = "typeof";
+                                ρσ_d["expression"] = jstype_args.args[0].value;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                            S.in_parenthesized_expr = false;
+                            return ret;
+                        } else if (tmp_ === "isinstance") {
+                            args = await func_call_list();
+                            if (args.args.length !== 2) {
+                                croak("isinstance() must be called with exactly two arguments");
+                            }
+                            ret = new AST_Binary((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["left"] = args.args[0].value;
+                                ρσ_d["operator"] = "instanceof";
+                                ρσ_d["right"] = args.args[1].value;
+                                ρσ_d["end"] = prev();
+                                return ρσ_d;
+                            }).call(this));
+                            S.in_parenthesized_expr = false;
+                            return ret;
+                        }
+                    }
+                    basic_args = await func_call_list();
+                    ret = await subscripts(new AST_Call((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["expression"] = expr;
+                        ρσ_d["args"] = basic_args;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this)), true);
+                    S.in_parenthesized_expr = false;
+                    return ret;
+                }
+            };
+            if (!call_.__argnames__) Object.defineProperties(call_, {
+                __argnames__ : {value: ["expr"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function get_attr(expr, allow_calls) {
+                var prop, c, classvars;
+                next();
+                prop = as_name();
+                c = get_class_in_scope(expr);
+                if (c) {
+                    classvars = (c.processing) ? c.provisional_classvars : c.classvars;
+                    if (classvars && classvars[prop]) {
+                        prop = "prototype." + prop;
+                    }
+                }
+                return await subscripts(new AST_Dot((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = expr.start;
+                    ρσ_d["expression"] = expr;
+                    ρσ_d["property"] = prop;
+                    ρσ_d["end"] = prev();
+                    return ρσ_d;
+                }).call(this)), allow_calls);
+            };
+            if (!get_attr.__argnames__) Object.defineProperties(get_attr, {
+                __argnames__ : {value: ["expr", "allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function existential(expr, allow_calls) {
+                var ans, ttype, val, is_py_sub;
+                ans = new AST_Existential((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["start"] = expr.start;
+                    ρσ_d["end"] = S.token;
+                    ρσ_d["expression"] = expr;
+                    return ρσ_d;
+                }).call(this));
+                next();
+                ttype = S.token.type;
+                val = S.token.value;
+                if (S.token.nlb || ttype === "keyword" || ttype === "operator" || ttype === "eof") {
+                    ans.after = null;
+                    return ans;
+                }
+                if (ttype === "punc") {
+                    if (val === ".") {
+                        ans.after = ".";
+                    } else if (val === "[") {
+                        is_py_sub = S.scoped_flags.get("overload_getitem", false);
+                        ans.after = (is_py_sub) ? "g" : "[";
+                    } else if (val === "(") {
+                        if (!allow_calls) {
+                            unexpected();
+                        }
+                        ans.after = "(";
+                    } else {
+                        ans.after = null;
+                        return ans;
+                    }
+                    return await subscripts(ans, allow_calls);
+                }
+                ans.after = await expression();
+                return ans;
+            };
+            if (!existential.__argnames__) Object.defineProperties(existential, {
+                __argnames__ : {value: ["expr", "allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function subscripts(expr, allow_calls) {
+                if (is_("punc", ".")) {
+                    return await get_attr(expr, allow_calls);
+                }
+                if (is_("punc", "[") && !S.token.nlb) {
+                    return await getitem(expr, allow_calls);
+                }
+                if (allow_calls && is_("punc", "(") && !S.token.nlb) {
+                    return await call_(expr);
+                }
+                if (is_("punc", "?")) {
+                    return await existential(expr, allow_calls);
+                }
+                return expr;
+            };
+            if (!subscripts.__argnames__) Object.defineProperties(subscripts, {
+                __argnames__ : {value: ["expr", "allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function maybe_unary(allow_calls) {
+                var start, expr, is_parenthesized, ex, val;
+                start = S.token;
+                if (is_("operator", "@")) {
+                    if (S.parsing_decorator) {
+                        croak("Nested decorators are not allowed");
+                    }
+                    next();
+                    S.parsing_decorator = true;
+                    expr = await expression();
+                    S.parsing_decorator = false;
+                    S.decorators.push(expr);
+                    return new AST_EmptyStatement((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["stype"] = "@";
+                        ρσ_d["start"] = prev();
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
+                }
+                if (is_("operator") && UNARY_PREFIX[ρσ_bound_index(start.value, UNARY_PREFIX)]) {
+                    next();
+                    is_parenthesized = is_("punc", "(");
+                    S.in_delete = start.value === "delete";
+                    expr = await maybe_unary(allow_calls);
+                    S.in_delete = false;
+                    ex = make_unary(AST_UnaryPrefix, start.value, expr, is_parenthesized);
+                    ex.start = start;
+                    ex.end = prev();
+                    return ex;
+                }
+                val = await expr_atom(allow_calls);
+                return val;
+            };
+            if (!maybe_unary.__argnames__) Object.defineProperties(maybe_unary, {
+                __argnames__ : {value: ["allow_calls"]},
+                __module__ : {value: "parse"}
+            });
+
+            function make_unary(ctor, op, expr, is_parenthesized) {
+                return new ctor((function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["operator"] = op;
+                    ρσ_d["expression"] = expr;
+                    ρσ_d["parenthesized"] = is_parenthesized;
+                    return ρσ_d;
+                }).call(this));
+            };
+            if (!make_unary.__argnames__) Object.defineProperties(make_unary, {
+                __argnames__ : {value: ["ctor", "op", "expr", "is_parenthesized"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function expr_op(left, min_prec, no_in) {
+                var op, prec, right, ret;
+                op = (is_("operator")) ? S.token.value : null;
+                if (op === "!" && peek().type === "operator" && peek().value === "in") {
+                    next();
+                    S.token.value = op = "nin";
+                }
+                if (no_in && (op === "in" || op === "nin")) {
+                    op = null;
+                }
+                prec = (op !== null) ? PRECEDENCE[(typeof op === "number" && op < 0) ? PRECEDENCE.length + op : op] : null;
+                if (prec !== null && prec > min_prec) {
+                    next();
+                    right = await expr_op(await maybe_unary(true), prec, no_in);
+                    ret = new AST_Binary((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = left.start;
+                        ρσ_d["left"] = left;
+                        ρσ_d["operator"] = op;
+                        ρσ_d["right"] = right;
+                        ρσ_d["end"] = right.end;
+                        return ρσ_d;
+                    }).call(this));
+                    return await expr_op(ret, min_prec, no_in);
+                }
+                return left;
+            };
+            if (!expr_op.__argnames__) Object.defineProperties(expr_op, {
+                __argnames__ : {value: ["left", "min_prec", "no_in"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function expr_ops(no_in) {
+                return await expr_op(await maybe_unary(true), 0, no_in);
+            };
+            if (!expr_ops.__argnames__) Object.defineProperties(expr_ops, {
+                __argnames__ : {value: ["no_in"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function maybe_conditional(no_in) {
+                var start, expr, ne, cond_alt, conditional;
+                start = S.token;
+                expr = await expr_ops(no_in);
+                if (is_("keyword", "if") && (S.in_parenthesized_expr || S.statement_starting_token !== S.token && !S.in_comprehension && !S.token.nlb)) {
+                    next();
+                    ne = await expression(false);
+                    expect_token("keyword", "else");
+                    cond_alt = await expression(false, no_in);
+                    conditional = new AST_Conditional((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["condition"] = ne;
+                        ρσ_d["consequent"] = expr;
+                        ρσ_d["alternative"] = cond_alt;
+                        ρσ_d["end"] = peek();
+                        return ρσ_d;
+                    }).call(this));
+                    return conditional;
+                }
+                return expr;
+            };
+            if (!maybe_conditional.__argnames__) Object.defineProperties(maybe_conditional, {
+                __argnames__ : {value: ["no_in"]},
+                __module__ : {value: "parse"}
+            });
+
+            function create_assign(data) {
+                var ans, class_name, c, lhs;
+                if (data.right && is_node_type(data.right, AST_Seq) && (is_node_type(data.right.car, AST_Assign) || is_node_type(data.right.cdr, AST_Assign)) && data.operator !== "=") {
+                    token_error(data.start, "Invalid assignment operator for chained assignment: " + data.operator);
+                }
+                ans = new AST_Assign(data);
+                if (S.in_class.length && (ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1]) {
+                    class_name = (ρσ_expr_temp = S.in_class)[ρσ_expr_temp.length-1];
+                    if (is_node_type(ans.left, AST_SymbolRef) && S.classes.length > 1) {
+                        c = (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-2])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
+                        if (c) {
+                            if (ans.is_chained()) {
+                                var ρσ_Iter119 = ans.traverse_chain()[0];
+                                ρσ_Iter119 = ((typeof ρσ_Iter119[Symbol.iterator] === "function") ? (ρσ_Iter119 instanceof Map ? ρσ_Iter119.keys() : ρσ_Iter119) : Object.keys(ρσ_Iter119));
+                                for (var ρσ_Index119 of ρσ_Iter119) {
+                                    lhs = ρσ_Index119;
+                                    (ρσ_expr_temp = c.provisional_classvars)[ρσ_bound_index(lhs.name, ρσ_expr_temp)] = true;
+                                }
+                            } else {
+                                (ρσ_expr_temp = c.provisional_classvars)[ρσ_bound_index(ans.left.name, ρσ_expr_temp)] = true;
+                            }
+                        }
+                    }
+                }
+                return ans;
+            };
+            if (!create_assign.__argnames__) Object.defineProperties(create_assign, {
+                __argnames__ : {value: ["data"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function maybe_assign(no_in, only_plain_assignment) {
+                var start, left, val, assign_right;
+                start = S.token;
+                left = await maybe_conditional(no_in);
+                val = S.token.value;
+                if (is_("operator") && ASSIGNMENT[(typeof val === "number" && val < 0) ? ASSIGNMENT.length + val : val]) {
+                    if (only_plain_assignment && val !== "=") {
+                        croak("Invalid assignment operator for chained assignment: " + val);
+                    }
+                    next();
+                    assign_right = await maybe_assign(no_in, true);
+                    return create_assign((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["left"] = left;
+                        ρσ_d["operator"] = val;
+                        ρσ_d["right"] = assign_right;
+                        ρσ_d["end"] = prev();
+                        return ρσ_d;
+                    }).call(this));
+                }
+                return left;
+            };
+            if (!maybe_assign.__argnames__) Object.defineProperties(maybe_assign, {
+                __argnames__ : {value: ["no_in", "only_plain_assignment"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function expression(commas, no_in) {
+                var start, expr, left, seq_cdr;
+                start = S.token;
+                expr = await maybe_assign(no_in);
+                function build_seq(a) {
+                    if (a.length === 1) {
+                        return a[0];
+                    }
+                    return new AST_Seq((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["car"] = a.shift();
+                        ρσ_d["cdr"] = build_seq(a);
+                        ρσ_d["end"] = peek();
+                        return ρσ_d;
+                    }).call(this));
+                };
+                if (!build_seq.__argnames__) Object.defineProperties(build_seq, {
+                    __argnames__ : {value: ["a"]},
+                    __module__ : {value: "parse"}
+                });
+
+                if (commas) {
+                    left = [ expr ];
+                    while (is_("punc", ",") && (!peek().nlb || S.in_parenthesized_expr)) {
+                        next();
+                        if (is_node_type(expr, AST_Assign)) {
+                            left[left.length-1] = left[left.length-1].left;
+                            seq_cdr = await expression(true, no_in);
+                            return create_assign((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["start"] = start;
+                                ρσ_d["left"] = (left.length === 1) ? left[0] : new AST_Array((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["elements"] = left;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["operator"] = expr.operator;
+                                ρσ_d["right"] = new AST_Seq((function(){
+                                    var ρσ_d = Object.create(null);
+                                    ρσ_d["car"] = expr.right;
+                                    ρσ_d["cdr"] = seq_cdr;
+                                    return ρσ_d;
+                                }).call(this));
+                                ρσ_d["end"] = peek();
+                                return ρσ_d;
+                            }).call(this));
+                        }
+                        expr = await maybe_assign(no_in);
+                        left.push(expr);
+                    }
+                    if (left.length > 1 && is_node_type(left[left.length-1], AST_Assign)) {
+                        left[left.length-1] = left[left.length-1].left;
+                        return create_assign((function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["start"] = start;
+                            ρσ_d["left"] = new AST_Array((function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["elements"] = left;
+                                return ρσ_d;
+                            }).call(this));
+                            ρσ_d["operator"] = expr.operator;
+                            ρσ_d["right"] = expr.right;
+                            ρσ_d["end"] = peek();
+                            return ρσ_d;
+                        }).call(this));
+                    }
+                    return build_seq(left);
+                }
+                return expr;
+            };
+            if (!expression.__argnames__) Object.defineProperties(expression, {
+                __argnames__ : {value: ["commas", "no_in"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function in_loop(cont) {
+                var ret;
+                S.in_loop += 1;
+                ret = await cont();
+                S.in_loop -= 1;
+                return ret;
+            };
+            if (!in_loop.__argnames__) Object.defineProperties(in_loop, {
+                __argnames__ : {value: ["cont"]},
+                __module__ : {value: "parse"}
+            });
+
+            async function run_parser() {
+                var start, body, docstrings, first_token, toplevel, element, shebang, ds, end, recovered, tok_ctx, seen_exports, item, classes_cache, cls, cname, has_se, idx_exec_refs_set, idx_import_bindings, idx_top_defs, idx_pinned, idx_dec, idx_def_refs, idx_local, idx_arg, idx_imp, se_found, idx_stmt, cache_meta;
+                start = S.token = next();
+                body = [];
+                docstrings = [];
+                first_token = true;
+                toplevel = options.toplevel;
+                while (!is_("eof")) {
+                    if (options.recover_errors) {
+                        try {
+                            element = await statement();
+                        } catch (ρσ_Exception) {
+                            ρσ_last_exception = ρσ_Exception;
+                            {
+                                var rerr = ρσ_Exception;
+                                if (is_recoverable_error(rerr)) {
+                                    record_recovery(rerr);
+                                    await skip_to_recovery_point();
+                                    continue;
+                                }
+                                throw ρσ_Exception;
+                            } 
+                        }
+                    } else {
+                        element = await statement();
+                    }
+                    if (first_token && is_node_type(element, AST_Directive) && element.value.indexOf("#!") === 0) {
+                        shebang = element.value;
+                    } else {
+                        ds = !toplevel && is_docstring(element);
+                        if (ds) {
+                            docstrings.push(ds);
+                        } else {
+                            body.push(element);
+                        }
+                    }
+                    first_token = false;
+                }
+                end = prev();
+                if (toplevel) {
+                    toplevel.body = toplevel.body.concat(body);
+                    toplevel.end = end;
+                    toplevel.docstrings;
+                } else {
+                    toplevel = new AST_Toplevel((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["start"] = start;
+                        ρσ_d["body"] = body;
+                        ρσ_d["shebang"] = shebang;
+                        ρσ_d["end"] = end;
+                        ρσ_d["docstrings"] = docstrings;
+                        return ρσ_d;
+                    }).call(this));
+                }
+                if (options.recover_errors) {
+                    recovered = S.recovered_errors;
+                    try {
+                        tok_ctx = S.input.context();
+                        if (tok_ctx && tok_ctx.recovered_errors && tok_ctx.recovered_errors.length) {
+                            recovered = recovered.concat(tok_ctx.recovered_errors);
+                        }
+                    } catch (ρσ_Exception) {
+                        ρσ_last_exception = ρσ_Exception;
+                        {
+                        } 
+                    }
+                    toplevel.recovered_errors = recovered;
+                }
+                toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body).concat(S.globals);
+                toplevel.localvars = [];
+                toplevel.exports = [];
+                seen_exports = Object.create(null);
+                function add_item(item, isvar) {
+                    var symbol;
+                    if (toplevel.nonlocalvars.indexOf(item) < 0) {
+                        symbol = new_symbol(AST_SymbolVar, item);
+                        if (isvar) {
+                            toplevel.localvars.push(symbol);
+                        }
+                        if (!has_prop(seen_exports, item)) {
+                            toplevel.exports.push(symbol);
+                            seen_exports[(typeof item === "number" && item < 0) ? seen_exports.length + item : item] = true;
+                        }
+                    }
+                };
+                if (!add_item.__argnames__) Object.defineProperties(add_item, {
+                    __argnames__ : {value: ["item", "isvar"]},
+                    __module__ : {value: "parse"}
+                });
+
+                var ρσ_Iter120 = scan_for_local_vars(toplevel.body);
+                ρσ_Iter120 = ((typeof ρσ_Iter120[Symbol.iterator] === "function") ? (ρσ_Iter120 instanceof Map ? ρσ_Iter120.keys() : ρσ_Iter120) : Object.keys(ρσ_Iter120));
+                for (var ρσ_Index120 of ρσ_Iter120) {
+                    item = ρσ_Index120;
+                    add_item(item, true);
+                }
+                var ρσ_Iter121 = scan_for_top_level_callables(toplevel.body);
+                ρσ_Iter121 = ((typeof ρσ_Iter121[Symbol.iterator] === "function") ? (ρσ_Iter121 instanceof Map ? ρσ_Iter121.keys() : ρσ_Iter121) : Object.keys(ρσ_Iter121));
+                for (var ρσ_Index121 of ρσ_Iter121) {
+                    item = ρσ_Index121;
+                    add_item(item, false);
+                }
+                toplevel.filename = options.filename;
+                toplevel.imported_module_ids = imported_module_ids;
+                toplevel.classes = scan_for_classes(toplevel.body);
+                toplevel.import_order = Object.keys(imported_modules).length;
+                toplevel.module_id = module_id;
+                imported_modules[(typeof module_id === "number" && module_id < 0) ? imported_modules.length + module_id : module_id] = toplevel;
+                toplevel.imports = imported_modules;
+                toplevel.baselib = baselib_items;
+                toplevel.scoped_flags = S.scoped_flags.stack[0];
+                importing_modules[(typeof module_id === "number" && module_id < 0) ? importing_modules.length + module_id : module_id] = false;
+                toplevel.comments_after = S.token.comments_before || [];
+                if (options._src_hash && options.filename && module_id !== "__main__") {
+                    try {
+                        classes_cache = Object.create(null);
+                        var ρσ_Iter122 = Object.keys(toplevel.classes || Object.create(null));
+                        ρσ_Iter122 = ((typeof ρσ_Iter122[Symbol.iterator] === "function") ? (ρσ_Iter122 instanceof Map ? ρσ_Iter122.keys() : ρσ_Iter122) : Object.keys(ρσ_Iter122));
+                        for (var ρσ_Index122 of ρσ_Iter122) {
+                            cname = ρσ_Index122;
+                            cls = (ρσ_expr_temp = toplevel.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
+                            classes_cache[(typeof cname === "number" && cname < 0) ? classes_cache.length + cname : cname] = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["static"] = cls.static || Object.create(null);
+                                ρσ_d["bound"] = cls.bound || [];
+                                ρσ_d["classvars"] = cls.classvars || Object.create(null);
+                                return ρσ_d;
+                            }).call(this);
+                        }
+                        has_se = false;
+                        idx_exec_refs_set = Object.create(null);
+                        idx_import_bindings = Object.create(null);
+                        idx_top_defs = Object.create(null);
+                        function _collect_refs_into(node, refs_set) {
+                            function _rv(n) {
+                                if (is_node_type(n, AST_SymbolRef)) {
+                                    refs_set[ρσ_bound_index(n.name, refs_set)] = true;
+                                }
+                            };
+                            if (!_rv.__argnames__) Object.defineProperties(_rv, {
+                                __argnames__ : {value: ["n"]},
+                                __module__ : {value: "parse"}
+                            });
+
+                            node.walk(new TreeWalker(_rv));
+                        };
+                        if (!_collect_refs_into.__argnames__) Object.defineProperties(_collect_refs_into, {
+                            __argnames__ : {value: ["node", "refs_set"]},
+                            __module__ : {value: "parse"}
+                        });
+
+                        var ρσ_Iter123 = toplevel.body;
+                        ρσ_Iter123 = ((typeof ρσ_Iter123[Symbol.iterator] === "function") ? (ρσ_Iter123 instanceof Map ? ρσ_Iter123.keys() : ρσ_Iter123) : Object.keys(ρσ_Iter123));
+                        for (var ρσ_Index123 of ρσ_Iter123) {
+                            idx_stmt = ρσ_Index123;
+                            if (is_node_type(idx_stmt, AST_Function) || is_node_type(idx_stmt, AST_Class)) {
+                                if (idx_stmt.name) {
+                                    idx_pinned = false;
+                                    if (idx_stmt.decorators) {
+                                        var ρσ_Iter124 = idx_stmt.decorators;
+                                        ρσ_Iter124 = ((typeof ρσ_Iter124[Symbol.iterator] === "function") ? (ρσ_Iter124 instanceof Map ? ρσ_Iter124.keys() : ρσ_Iter124) : Object.keys(ρσ_Iter124));
+                                        for (var ρσ_Index124 of ρσ_Iter124) {
+                                            idx_dec = ρσ_Index124;
+                                            if (idx_dec.expression && is_node_type(idx_dec.expression, AST_SymbolRef) && (idx_dec.expression.name === "no_prune" || typeof idx_dec.expression.name === "object" && ρσ_equals(idx_dec.expression.name, "no_prune"))) {
+                                                idx_pinned = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    idx_def_refs = Object.create(null);
+                                    _collect_refs_into(idx_stmt, idx_def_refs);
+                                    idx_top_defs[ρσ_bound_index(idx_stmt.name.name, idx_top_defs)] = (function(){
+                                        var ρσ_d = Object.create(null);
+                                        ρσ_d["pinned"] = idx_pinned;
+                                        ρσ_d["refs"] = Object.keys(idx_def_refs);
+                                        return ρσ_d;
+                                    }).call(this);
+                                }
+                            } else if (is_node_type(idx_stmt, AST_Imports)) {
+                                var ρσ_Iter125 = idx_stmt.imports;
+                                ρσ_Iter125 = ((typeof ρσ_Iter125[Symbol.iterator] === "function") ? (ρσ_Iter125 instanceof Map ? ρσ_Iter125.keys() : ρσ_Iter125) : Object.keys(ρσ_Iter125));
+                                for (var ρσ_Index125 of ρσ_Iter125) {
+                                    idx_imp = ρσ_Index125;
+                                    if (idx_imp.argnames && idx_imp.argnames.length) {
+                                        var ρσ_Iter126 = idx_imp.argnames;
+                                        ρσ_Iter126 = ((typeof ρσ_Iter126[Symbol.iterator] === "function") ? (ρσ_Iter126 instanceof Map ? ρσ_Iter126.keys() : ρσ_Iter126) : Object.keys(ρσ_Iter126));
+                                        for (var ρσ_Index126 of ρσ_Iter126) {
+                                            idx_arg = ρσ_Index126;
+                                            idx_local = (idx_arg.alias) ? idx_arg.alias.name : idx_arg.name;
+                                            idx_import_bindings[(typeof idx_local === "number" && idx_local < 0) ? idx_import_bindings.length + idx_local : idx_local] = (function(){
+                                                var ρσ_d = Object.create(null);
+                                                ρσ_d["source"] = idx_imp.key;
+                                                ρσ_d["imported_name"] = idx_arg.name;
+                                                ρσ_d["is_namespace"] = false;
+                                                return ρσ_d;
+                                            }).call(this);
+                                        }
+                                    } else {
+                                        idx_local = (idx_imp.alias) ? idx_imp.alias.name : idx_imp.key.split(".")[0];
+                                        idx_import_bindings[(typeof idx_local === "number" && idx_local < 0) ? idx_import_bindings.length + idx_local : idx_local] = (function(){
+                                            var ρσ_d = Object.create(null);
+                                            ρσ_d["source"] = idx_imp.key;
+                                            ρσ_d["imported_name"] = null;
+                                            ρσ_d["is_namespace"] = true;
+                                            return ρσ_d;
+                                        }).call(this);
+                                    }
+                                }
+                            } else {
+                                if (!has_se) {
+                                    se_found = [false];
+                                    function se_check(se_node, se_descend) {
+                                        if (is_node_type(se_node, AST_Call)) {
+                                            se_found[0] = true;
+                                            return true;
+                                        }
+                                    };
+                                    if (!se_check.__argnames__) Object.defineProperties(se_check, {
+                                        __argnames__ : {value: ["se_node", "se_descend"]},
+                                        __module__ : {value: "parse"}
+                                    });
+
+                                    idx_stmt.walk(new TreeWalker(se_check));
+                                    if (se_found[0]) {
+                                        has_se = true;
+                                    }
+                                }
+                                _collect_refs_into(idx_stmt, idx_exec_refs_set);
+                            }
+                        }
+                        cache_meta = (function(){
+                            var ρσ_d = Object.create(null);
+                            ρσ_d["v"] = CACHE_VERSION;
+                            ρσ_d["signature"] = options._src_hash;
+                            ρσ_d["compiler_version"] = COMPILER_VERSION;
+                            ρσ_d["imported_module_ids"] = toplevel.imported_module_ids;
+                            ρσ_d["exported_names"] = (function() {
+                                var ρσ_Iter = toplevel.exports, ρσ_Result = [], sym;
+                                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                                for (var ρσ_Index of ρσ_Iter) {
+                                    sym = ρσ_Index;
+                                    ρσ_Result.push(sym.name);
+                                }
+                                ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                                return ρσ_Result;
+                            })();
+                            ρσ_d["baselib"] = toplevel.baselib || Object.create(null);
+                            ρσ_d["classes"] = classes_cache;
+                            ρσ_d["has_side_effects"] = has_se;
+                            ρσ_d["index"] = (function(){
+                                var ρσ_d = Object.create(null);
+                                ρσ_d["exec_refs"] = Object.keys(idx_exec_refs_set);
+                                ρσ_d["import_bindings"] = idx_import_bindings;
+                                ρσ_d["top_defs"] = idx_top_defs;
+                                return ρσ_d;
+                            }).call(this);
+                            return ρσ_d;
+                        }).call(this);
+                        if (options._file_mtime !== null && options._file_mtime !== undefined) {
+                            cache_meta["mtime"] = options._file_mtime;
+                        }
+                        await writefile(cache_file_name(options.filename, options.module_cache_dir), encode_cache(JSON.stringify(cache_meta), toplevel));
+                    } catch (ρσ_Exception) {
+                        ρσ_last_exception = ρσ_Exception;
+                        {
+                            var e = ρσ_Exception;
+                            console.error("Failed to write AST cache file:", options.filename, "with error:", e);
+                        } 
+                    }
+                }
+                return toplevel;
+            };
+            if (!run_parser.__module__) Object.defineProperties(run_parser, {
+                __module__ : {value: "parse"}
+            });
+
+            return run_parser;
+        };
+        if (!create_parser_ctx.__argnames__) Object.defineProperties(create_parser_ctx, {
+            __argnames__ : {value: ["S", "import_dirs", "module_id", "baselib_items", "imported_module_ids", "imported_modules", "importing_modules", "options"]},
+            __module__ : {value: "parse"}
+        });
+
+        async function parse(text, options) {
+            var import_dirs, x, location, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, S, obj, cname;
+            options = defaults(options, (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["filename"] = null;
+                ρσ_d["module_id"] = "__main__";
+                ρσ_d["toplevel"] = null;
+                ρσ_d["for_linting"] = false;
+                ρσ_d["import_dirs"] = [];
+                ρσ_d["classes"] = undefined;
+                ρσ_d["scoped_flags"] = Object.create(null);
+                ρσ_d["discard_asserts"] = false;
+                ρσ_d["module_cache_dir"] = "";
+                ρσ_d["recover_errors"] = false;
+                return ρσ_d;
+            }).call(this));
+            import_dirs = (function() {
+                var ρσ_Iter = options.import_dirs, ρσ_Result = [], x;
+                ρσ_Iter = ((typeof ρσ_Iter[Symbol.iterator] === "function") ? (ρσ_Iter instanceof Map ? ρσ_Iter.keys() : ρσ_Iter) : Object.keys(ρσ_Iter));
+                for (var ρσ_Index of ρσ_Iter) {
+                    x = ρσ_Index;
+                    ρσ_Result.push(x);
+                }
+                ρσ_Result = ρσ_list_constructor(ρσ_Result);
+                return ρσ_Result;
+            })();
+            var ρσ_Iter127 = [options.libdir, options.basedir];
+            ρσ_Iter127 = ((typeof ρσ_Iter127[Symbol.iterator] === "function") ? (ρσ_Iter127 instanceof Map ? ρσ_Iter127.keys() : ρσ_Iter127) : Object.keys(ρσ_Iter127));
+            for (var ρσ_Index127 of ρσ_Iter127) {
+                location = ρσ_Index127;
+                if (location) {
+                    import_dirs.push(location);
+                }
+            }
+            module_id = options.module_id;
+            baselib_items = Object.create(null);
+            imported_module_ids = [];
+            imported_modules = options.imported_modules || Object.create(null);
+            importing_modules = options.importing_modules || Object.create(null);
+            if (!options.loading_promises) {
+                options.loading_promises = Object.create(null);
+            }
+            importing_modules[(typeof module_id === "number" && module_id < 0) ? importing_modules.length + module_id : module_id] = true;
+            S = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["input"] = (typeof text === "string") ? tokenizer(text, options.filename, options.recover_errors) : text;
+                ρσ_d["recovered_errors"] = [];
+                ρσ_d["token"] = null;
+                ρσ_d["prev"] = null;
+                ρσ_d["peeked"] = [];
+                ρσ_d["in_function"] = 0;
+                ρσ_d["statement_starting_token"] = null;
+                ρσ_d["in_comprehension"] = false;
+                ρσ_d["in_parenthesized_expr"] = false;
+                ρσ_d["in_delete"] = false;
+                ρσ_d["in_loop"] = 0;
+                ρσ_d["in_class"] = [ false ];
+                ρσ_d["classes"] = [ Object.create(null) ];
+                ρσ_d["functions"] = [ Object.create(null) ];
+                ρσ_d["labels"] = [];
+                ρσ_d["decorators"] = [];
+                ρσ_d["parsing_decorator"] = false;
+                ρσ_d["globals"] = [];
+                ρσ_d["scoped_flags"] = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["stack"] = [options.scoped_flags || Object.create(null)];
+                    ρσ_d["push"] = (function() {
+                        var ρσ_anonfunc = function () {
+                            this.stack.push(Object.create(null));
+                        };
+                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                            __module__ : {value: "parse"}
+                        });
+                        return ρσ_anonfunc;
+                    })();
+                    ρσ_d["pop"] = (function() {
+                        var ρσ_anonfunc = function () {
+                            this.stack.pop();
+                        };
+                        if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                            __module__ : {value: "parse"}
+                        });
+                        return ρσ_anonfunc;
+                    })();
+                    ρσ_d["get"] = (function() {
+                        var ρσ_anonfunc = function (name, defval) {
+                            var d, q;
+                            for (var i = this.stack.length - 1; i >= 0; i--) {
+                                d = (ρσ_expr_temp = this.stack)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i];
+                                q = d[(typeof name === "number" && name < 0) ? d.length + name : name];
+                                if (q) {
+                                    return q;
+                                }
+                            }
+                            return defval;
+                        };
+                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                            __argnames__ : {value: ["name", "defval"]},
+                            __module__ : {value: "parse"}
+                        });
+                        return ρσ_anonfunc;
+                    })();
+                    ρσ_d["set"] = (function() {
+                        var ρσ_anonfunc = function (name, val) {
+                            (ρσ_expr_temp = (ρσ_expr_temp = this.stack)[ρσ_expr_temp.length-1])[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name] = val;
+                        };
+                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                            __argnames__ : {value: ["name", "val"]},
+                            __module__ : {value: "parse"}
+                        });
+                        return ρσ_anonfunc;
+                    })();
+                    return ρσ_d;
+                }).call(this);
+                return ρσ_d;
+            }).call(this);
+            if (options.classes) {
+                var ρσ_Iter128 = options.classes;
+                ρσ_Iter128 = ((typeof ρσ_Iter128[Symbol.iterator] === "function") ? (ρσ_Iter128 instanceof Map ? ρσ_Iter128.keys() : ρσ_Iter128) : Object.keys(ρσ_Iter128));
+                for (var ρσ_Index128 of ρσ_Iter128) {
+                    cname = ρσ_Index128;
+                    obj = (ρσ_expr_temp = options.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
+                    (ρσ_expr_temp = S.classes[0])[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname] = (function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["static"] = obj.static;
+                        ρσ_d["bound"] = obj.bound;
+                        ρσ_d["classvars"] = obj.classvars;
+                        return ρσ_d;
+                    }).call(this);
+                }
+            }
+            if (typeof text === "string" && !options._src_hash) {
+                options._src_hash = sha1sum(text);
+            }
+            return await create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options)();
+        };
+        if (!parse.__argnames__) Object.defineProperties(parse, {
+            __argnames__ : {value: ["text", "options"]},
+            __module__ : {value: "parse"}
+        });
+
+        ρσ_modules.parse.COMPILER_VERSION = COMPILER_VERSION;
+        ρσ_modules.parse.PYTHON_FLAGS = PYTHON_FLAGS;
+        ρσ_modules.parse.CACHE_VERSION = CACHE_VERSION;
+        ρσ_modules.parse.NATIVE_CLASSES = NATIVE_CLASSES;
+        ρσ_modules.parse.ERROR_CLASSES = ERROR_CLASSES;
+        ρσ_modules.parse.COMMON_STATIC = COMMON_STATIC;
+        ρσ_modules.parse.FORBIDDEN_CLASS_VARS = FORBIDDEN_CLASS_VARS;
+        ρσ_modules.parse.UNARY_PREFIX = UNARY_PREFIX;
+        ρσ_modules.parse.ASSIGNMENT = ASSIGNMENT;
+        ρσ_modules.parse.PRECEDENCE = PRECEDENCE;
+        ρσ_modules.parse.STATEMENTS_WITH_LABELS = STATEMENTS_WITH_LABELS;
+        ρσ_modules.parse.ATOMIC_START_TOKEN = ATOMIC_START_TOKEN;
+        ρσ_modules.parse.compile_time_decorators = compile_time_decorators;
+        ρσ_modules.parse.get_compiler_version = get_compiler_version;
+        ρσ_modules.parse.static_predicate = static_predicate;
+        ρσ_modules.parse.has_simple_decorator = has_simple_decorator;
+        ρσ_modules.parse.has_setter_decorator = has_setter_decorator;
+        ρσ_modules.parse.create_parser_ctx = create_parser_ctx;
+        ρσ_modules.parse.parse = parse;
+    })();
+
+    (function(){
         var __name__ = "output.codegen";
-        var noop = ρσ_modules.utils.noop;
-
-        var PRECEDENCE = ρσ_modules.parse.PRECEDENCE;
-
         var AST_Array = ρσ_modules.ast.AST_Array;
         var AST_Assign = ρσ_modules.ast.AST_Assign;
         var AST_BaseCall = ρσ_modules.ast.AST_BaseCall;
@@ -18385,9 +18413,14 @@ return this.__repr__();
         var TreeWalker = ρσ_modules.ast.TreeWalker;
         var AST_Existential = ρσ_modules.ast.AST_Existential;
 
+        var print_class = ρσ_modules["output.classes"].print_class;
+
+        var print_comments = ρσ_modules["output.comments"].print_comments;
+
         var print_try = ρσ_modules["output.exceptions"].print_try;
 
-        var print_class = ρσ_modules["output.classes"].print_class;
+        var print_function = ρσ_modules["output.functions"].print_function;
+        var print_function_call = ρσ_modules["output.functions"].print_function_call;
 
         var print_array = ρσ_modules["output.literals"].print_array;
         var print_obj_literal = ρσ_modules["output.literals"].print_obj_literal;
@@ -18404,8 +18437,6 @@ return this.__repr__();
         var print_top_level = ρσ_modules["output.modules"].print_top_level;
         var print_imports = ρσ_modules["output.modules"].print_imports;
 
-        var print_comments = ρσ_modules["output.comments"].print_comments;
-
         var print_getattr = ρσ_modules["output.operators"].print_getattr;
         var print_getitem = ρσ_modules["output.operators"].print_getitem;
         var print_rich_getitem = ρσ_modules["output.operators"].print_rich_getitem;
@@ -18417,9 +18448,6 @@ return this.__repr__();
         var print_seq = ρσ_modules["output.operators"].print_seq;
         var print_existential = ρσ_modules["output.operators"].print_existential;
 
-        var print_function = ρσ_modules["output.functions"].print_function;
-        var print_function_call = ρσ_modules["output.functions"].print_function_call;
-
         var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
         var first_in_statement = ρσ_modules["output.statements"].first_in_statement;
         var force_statement = ρσ_modules["output.statements"].force_statement;
@@ -18428,6 +18456,10 @@ return this.__repr__();
 
         var make_block = ρσ_modules["output.utils"].make_block;
         var make_num = ρσ_modules["output.utils"].make_num;
+
+        var PRECEDENCE = ρσ_modules.parse.PRECEDENCE;
+
+        var noop = ρσ_modules.utils.noop;
 
         function generate_code() {
             function DEFPRINT(nodetype, generator) {
@@ -19247,23 +19279,23 @@ return this.__repr__();
 
 
         var ast, ast_node;
-        var DefaultsError = ρσ_modules.utils.DefaultsError;
-        var string_template = ρσ_modules.utils.string_template;
-
         var ImportError = ρσ_modules.errors.ImportError;
         var SyntaxError = ρσ_modules.errors.SyntaxError;
 
-        var ALL_KEYWORDS = ρσ_modules.tokenizer.ALL_KEYWORDS;
-        var IDENTIFIER_PAT = ρσ_modules.tokenizer.IDENTIFIER_PAT;
-        var tokenizer = ρσ_modules.tokenizer.tokenizer;
+        var generate_code = ρσ_modules["output.codegen"].generate_code;
+
+        var OutputStream = ρσ_modules["output.stream"].OutputStream;
 
         var parse = ρσ_modules.parse.parse;
         var NATIVE_CLASSES = ρσ_modules.parse.NATIVE_CLASSES;
         var compile_time_decorators = ρσ_modules.parse.compile_time_decorators;
 
-        var OutputStream = ρσ_modules["output.stream"].OutputStream;
+        var ALL_KEYWORDS = ρσ_modules.tokenizer.ALL_KEYWORDS;
+        var IDENTIFIER_PAT = ρσ_modules.tokenizer.IDENTIFIER_PAT;
+        var tokenizer = ρσ_modules.tokenizer.tokenizer;
 
-        var generate_code = ρσ_modules["output.codegen"].generate_code;
+        var DefaultsError = ρσ_modules.utils.DefaultsError;
+        var string_template = ρσ_modules.utils.string_template;
 
         generate_code();
         if (typeof exports === "object") {
