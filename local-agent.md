@@ -26,3 +26,6 @@ run the entire suite.
 Before declaring a task complete, you must follow this exact verification lifecycle:
 1. Run the local **Build and Test Command** to guarantee zero compilation or compilation-stage errors and no test failures
 2. If errors occur, analyze the stdout logs completely before writing a fix. Do not guess.
+3. Run rapydscript fmt . to ensure any changes you made to .pyj files are
+   correctly formatted
+4. If the changes you made are user visible, update the changelog

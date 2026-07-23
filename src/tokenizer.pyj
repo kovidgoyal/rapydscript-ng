@@ -503,9 +503,15 @@ def tokenizer(raw_text, filename, recover_errors):
             parts = v'[quoted_string(string)]'
         # Look ahead for consecutive string literals to concatenate (e.g. f'a'f'b' or f'a''b')
         while True:
-            # Skip horizontal whitespace (spaces and tabs, not newlines)
-            while S.pos < S.text.length and (S.text.charAt(S.pos) is ' ' or S.text.charAt(S.pos) is '\t'):
-                next()
+            # Skip horizontal whitespace; also skip newlines inside brackets where indentation is irrelevant
+            while S.pos < S.text.length:
+                wch = S.text.charAt(S.pos)
+                if wch is ' ' or wch is '\t':
+                    next()
+                elif (wch is '\n' or wch is '\r') and not S.indentation_matters[-1]:
+                    next()
+                else:
+                    break
             ch = S.text.charAt(S.pos)
             if not ch:
                 break
@@ -676,8 +682,14 @@ def tokenizer(raw_text, filename, recover_errors):
             # otherwise be parsed as a call expression "a"(...) after the tokenizer
             # injects the f-string result as a parenthesised expression.
             j = S.pos
-            while j < S.text.length and (S.text.charAt(j) is ' ' or S.text.charAt(j) is '\t'):
-                j += 1
+            while j < S.text.length:
+                jch = S.text.charAt(j)
+                if jch is ' ' or jch is '\t':
+                    j += 1
+                elif (jch is '\n' or jch is '\r') and not S.indentation_matters[-1]:
+                    j += 1
+                else:
+                    break
             if j < S.text.length and is_identifier_start(S.text.charAt(j).charCodeAt(0)):
                 k = j
                 while k < S.text.length and is_identifier_char(S.text.charAt(k)):

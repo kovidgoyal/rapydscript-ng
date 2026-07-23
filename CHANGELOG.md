@@ -2,6 +2,8 @@ version 0.8.2
 =======================
 
   * Fix fmt not recognizing stdlib modules in standalone build
+  * Fix string concatenation across newlines inside function calls not working
+    when one of the strings is an f-string
 
 version 0.8.1
 =======================
