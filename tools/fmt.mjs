@@ -956,10 +956,19 @@ export async function cli(argv, base_path, src_path, lib_path) {
         if (argv.check_only) {
             var errs = check_report(f, code, formatted, opts);
             if (errs.length) { had_errors = true; errs.forEach(function (m) { console.error(m); }); }
-        } else if (formatted !== code.replace(/\r\n?/g, '\n')) {
-            try { await fs.promises.writeFile(f, formatted); }
-            catch (e) { console.error("ERROR: can't write file: " + f); process.exit(2); }
-            console.log('reformatted ' + f);
+        } else {
+            if (formatted !== code.replace(/\r\n?/g, '\n')) {
+                try { await fs.promises.writeFile(f, formatted); }
+                catch (e) { console.error("ERROR: can't write file: " + f); process.exit(2); }
+                console.log('reformatted ' + f);
+            }
+            var flines = formatted.split('\n');
+            for (var li = 0; li < flines.length; li++) {
+                if (flines[li].length > opts.line_length) {
+                    console.error(f + ':' + (li + 1) + ': line exceeds ' + opts.line_length + ' characters (' + flines[li].length + ')');
+                    had_errors = true;
+                }
+            }
         }
     }
     process.exit(had_errors ? 1 : 0);
