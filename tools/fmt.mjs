@@ -626,6 +626,13 @@ function is_visual_def_start(elements, idx) {
 // reading src/lib/. Fall back to reading src/lib/ directly when the generated
 // file is absent (e.g. running straight from the release/ tree).
 var STDLIB_MODULES = (function () {
+    var em = globalThis.__rapydscript_embedded__;
+    if (em) {
+        if (em.stdlib_modules) return new Set(em.stdlib_modules);
+        if (em.stdlib) return new Set(Object.keys(em.stdlib)
+            .filter(function (n) { return n.slice(-4) === '.pyj'; })
+            .map(function (n) { return n.slice(0, -4); }));
+    }
     try {
         return new Set(JSON.parse(fs.readFileSync(
             new URL('../dev/stdlib_modules.json', import.meta.url), 'utf-8')));

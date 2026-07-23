@@ -1,3 +1,8 @@
+version 0.8.2
+=======================
+
+  * Fix fmt not recognizing stdlib modules in standalone build
+
 version 0.8.1
 =======================
 
