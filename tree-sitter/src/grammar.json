@@ -2476,6 +2476,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "f_string"
+        },
+        {
+          "type": "SYMBOL",
           "name": "concatenated_string"
         },
         {
@@ -4493,18 +4497,127 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "string"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "string"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "f_string"
+              }
+            ]
           },
           {
             "type": "REPEAT1",
             "content": {
-              "type": "SYMBOL",
-              "name": "string"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "string"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "f_string"
+                }
+              ]
             }
           }
         ]
       }
+    },
+    "f_string": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "fstring_start"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "fstring_content"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "interpolation"
+              }
+            ]
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "fstring_end"
+        }
+      ]
+    },
+    "interpolation": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "FIELD",
+          "name": "expression",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_expression"
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "type_conversion",
+              "content": {
+                "type": "PATTERN",
+                "value": "![rsa]"
+              }
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ":"
+                },
+                {
+                  "type": "FIELD",
+                  "name": "format_spec",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "fstring_content"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
     },
     "this": {
       "type": "STRING",
@@ -4532,7 +4645,7 @@
             "members": [
               {
                 "type": "PATTERN",
-                "value": "[rRuUfFbB]+"
+                "value": "[rRuUbB]+"
               },
               {
                 "type": "BLANK"
@@ -4963,6 +5076,18 @@
     {
       "type": "SYMBOL",
       "name": "regex"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "fstring_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "fstring_content"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "fstring_end"
     }
   ],
   "inline": [],

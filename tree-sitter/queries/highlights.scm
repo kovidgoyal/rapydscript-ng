@@ -21,6 +21,16 @@
 (regex) @string.regexp
 (number) @number
 
+; f-strings: delimiters and literal content get @string, interpolation braces
+; get @punctuation.special so they stand out, and the expression inside is
+; transparent — its child nodes (identifiers, calls, etc.) are highlighted by
+; the normal rules below.
+(fstring_start) @string
+(fstring_content) @string
+(fstring_end) @string
+(interpolation "{" @punctuation.special)
+(interpolation "}" @punctuation.special)
+
 (true) @boolean
 (false) @boolean
 (none) @constant.builtin

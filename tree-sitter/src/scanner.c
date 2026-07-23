@@ -9,7 +9,16 @@ enum TokenType {
     INDENT,
     DEDENT,
     REGEX,
+    FSTRING_START,
+    FSTRING_CONTENT,
+    FSTRING_END,
 };
+
+// Per-nesting-level metadata for f-strings.
+typedef struct {
+    char quote_char;  // '"' or '\''
+    uint8_t triple;   // 1 if triple-quoted, 0 otherwise
+} FStringFrame;
 
 // A simple growable stack of indentation widths. The bottom of the stack is
 // always 0 (the module level indentation).
@@ -24,6 +33,10 @@ typedef struct {
     // (already consumed) newline.
     uint16_t pending_indent;
     uint8_t has_pending;
+    // Stack of open f-string frames.
+    uint32_t fstring_size;
+    uint32_t fstring_capacity;
+    FStringFrame *fstring_data;
 } Scanner;
 
 static void stack_push(Scanner *s, uint16_t value) {
@@ -46,6 +59,21 @@ static void stack_pop(Scanner *s) {
     }
 }
 
+static void fstack_push(Scanner *s, FStringFrame frame) {
+    if (s->fstring_size >= s->fstring_capacity) {
+        uint32_t new_cap = s->fstring_capacity ? s->fstring_capacity * 2 : 4;
+        s->fstring_data = realloc(s->fstring_data, new_cap * sizeof(FStringFrame));
+        s->fstring_capacity = new_cap;
+    }
+    s->fstring_data[s->fstring_size++] = frame;
+}
+
+static void fstack_pop(Scanner *s) {
+    if (s->fstring_size > 0) {
+        s->fstring_size--;
+    }
+}
+
 void *tree_sitter_rapydscript_external_scanner_create(void) {
     Scanner *s = calloc(1, sizeof(Scanner));
     stack_push(s, 0);
@@ -57,23 +85,43 @@ void tree_sitter_rapydscript_external_scanner_destroy(void *payload) {
     if (s->data) {
         free(s->data);
     }
+    if (s->fstring_data) {
+        free(s->fstring_data);
+    }
     free(s);
 }
 
 unsigned tree_sitter_rapydscript_external_scanner_serialize(void *payload, char *buffer) {
     Scanner *s = (Scanner *)payload;
     unsigned i = 0;
+
+    // has_pending flag and pending_indent value
     buffer[i++] = (char)(s->has_pending ? 1 : 0);
     buffer[i++] = (char)(s->pending_indent & 0xFF);
     buffer[i++] = (char)((s->pending_indent >> 8) & 0xFF);
+
+    // Indent stack size (so we can distinguish it from fstring data)
+    uint16_t indent_count = (uint16_t)(s->size < 0xFFFF ? s->size : 0xFFFF);
+    buffer[i++] = (char)(indent_count & 0xFF);
+    buffer[i++] = (char)((indent_count >> 8) & 0xFF);
+
     for (uint32_t k = 0; k < s->size; k++) {
-        if (i + 2 > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
-            break;
-        }
+        if (i + 2 > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) break;
         uint16_t v = s->data[k];
         buffer[i++] = (char)(v & 0xFF);
         buffer[i++] = (char)((v >> 8) & 0xFF);
     }
+
+    // F-string stack
+    if (i + 1 <= TREE_SITTER_SERIALIZATION_BUFFER_SIZE) {
+        buffer[i++] = (char)(s->fstring_size & 0xFF);
+        for (uint32_t k = 0; k < s->fstring_size; k++) {
+            if (i + 2 > TREE_SITTER_SERIALIZATION_BUFFER_SIZE) break;
+            buffer[i++] = s->fstring_data[k].quote_char;
+            buffer[i++] = s->fstring_data[k].triple;
+        }
+    }
+
     return i;
 }
 
@@ -82,19 +130,39 @@ void tree_sitter_rapydscript_external_scanner_deserialize(void *payload, const c
     s->size = 0;
     s->has_pending = 0;
     s->pending_indent = 0;
+    s->fstring_size = 0;
     unsigned i = 0;
-    if (length >= 3) {
-        s->has_pending = (uint8_t)buffer[i++];
-        s->pending_indent = (uint8_t)buffer[i] | ((uint16_t)(uint8_t)buffer[i + 1] << 8);
-        i += 2;
+
+    if (length < 5) {
+        stack_push(s, 0);
+        return;
     }
-    while (i + 2 <= length) {
+
+    s->has_pending = (uint8_t)buffer[i++];
+    s->pending_indent = (uint8_t)buffer[i] | ((uint16_t)(uint8_t)buffer[i + 1] << 8);
+    i += 2;
+
+    uint16_t indent_count = (uint8_t)buffer[i] | ((uint16_t)(uint8_t)buffer[i + 1] << 8);
+    i += 2;
+
+    for (uint16_t k = 0; k < indent_count && i + 2 <= length; k++) {
         uint16_t v = (uint8_t)buffer[i] | ((uint16_t)(uint8_t)buffer[i + 1] << 8);
         i += 2;
         stack_push(s, v);
     }
     if (s->size == 0) {
         stack_push(s, 0);
+    }
+
+    // F-string stack
+    if (i < length) {
+        uint8_t fcount = (uint8_t)buffer[i++];
+        for (uint8_t k = 0; k < fcount && i + 2 <= length; k++) {
+            FStringFrame frame;
+            frame.quote_char = buffer[i++];
+            frame.triple = (uint8_t)buffer[i++];
+            fstack_push(s, frame);
+        }
     }
 }
 
@@ -178,9 +246,195 @@ static bool scan_regex(TSLexer *lexer) {
     return true;
 }
 
+// Scan the opening of an f-string: optional modifier chars containing at least
+// one f/F (but no v/V), followed by 1 or 3 quote characters.
+static bool scan_fstring_start(TSLexer *lexer, Scanner *s) {
+    // Skip leading whitespace (the extras rule handles it for most tokens, but
+    // we do it here explicitly to match the REGEX scanner's behaviour).
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
+           lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
+           lexer->lookahead == '\f') {
+        skip(lexer);
+    }
+
+    bool has_f = false;
+    int mod_count = 0;
+
+    while (mod_count < 6) {
+        int32_t c = lexer->lookahead;
+        if (c == 'f' || c == 'F') {
+            has_f = true;
+            advance(lexer);
+            mod_count++;
+        } else if (c == 'r' || c == 'R' || c == 'b' || c == 'B' ||
+                   c == 'u' || c == 'U') {
+            advance(lexer);
+            mod_count++;
+        } else if (c == 'v' || c == 'V') {
+            // Verbatim string — not an f-string.
+            return false;
+        } else {
+            break;
+        }
+    }
+
+    if (!has_f) return false;
+
+    int32_t q = lexer->lookahead;
+    if (q != '"' && q != '\'') return false;
+
+    advance(lexer);          // consume first quote
+    lexer->mark_end(lexer);  // tentative token end after one quote
+
+    bool triple = false;
+    if (lexer->lookahead == q) {
+        advance(lexer);  // peek at second quote
+        if (lexer->lookahead == q) {
+            advance(lexer);  // consume third quote
+            triple = true;
+            lexer->mark_end(lexer);  // extend token to include triple quote
+        }
+        // If only two quotes (f''), mark_end is still after the first quote;
+        // the second quote will be scanned as FSTRING_END immediately.
+    }
+
+    FStringFrame frame = {(char)q, triple ? 1 : 0};
+    fstack_push(s, frame);
+
+    lexer->result_symbol = FSTRING_START;
+    return true;
+}
+
+// Scan literal content inside an f-string up to (but not including) the next
+// interpolation opener '{' or the closing quote sequence.  Returns false if
+// there is no content (e.g. we are already at '{' or the closing quote).
+static bool scan_fstring_content(TSLexer *lexer, Scanner *s) {
+    if (s->fstring_size == 0) return false;
+    FStringFrame frame = s->fstring_data[s->fstring_size - 1];
+    int32_t q = (int32_t)(unsigned char)frame.quote_char;
+    bool triple = frame.triple != 0;
+
+    bool has_content = false;
+
+    while (true) {
+        int32_t c = lexer->lookahead;
+
+        if (c == 0) break;  // EOF
+
+        // Unterminated single-line f-string.
+        if (c == '\n' && !triple) break;
+
+        if (c == q) {
+            if (triple) {
+                // Check for closing triple quote.
+                advance(lexer);
+                if (lexer->lookahead == q) {
+                    advance(lexer);
+                    if (lexer->lookahead == q) {
+                        // Found closing """/'''.  Stop before it.
+                        // mark_end was last set before we advanced into the quotes.
+                        break;
+                    }
+                    // Two matching quotes but not three: include both in content.
+                    lexer->mark_end(lexer);
+                    has_content = true;
+                    continue;
+                }
+                // Single matching quote in a triple-quoted string: part of content.
+                lexer->mark_end(lexer);
+                has_content = true;
+                continue;
+            } else {
+                // Single-quoted: closing quote.  Stop before it.
+                break;
+            }
+        }
+
+        if (c == '{') {
+            advance(lexer);  // tentatively consume
+            if (lexer->lookahead == '{') {
+                // '{{' is an escaped brace — include both in content.
+                advance(lexer);
+                lexer->mark_end(lexer);
+                has_content = true;
+                continue;
+            }
+            // Lone '{' starts an interpolation.  The last mark_end is before
+            // this '{', so returning false here leaves the '{' unconsumed.
+            break;
+        }
+
+        if (c == '}') {
+            advance(lexer);  // tentatively consume
+            if (lexer->lookahead == '}') {
+                // '}}' is an escaped brace — include both in content.
+                advance(lexer);
+                lexer->mark_end(lexer);
+                has_content = true;
+                continue;
+            }
+            // Lone '}' — either a format-spec terminator or a syntax error.
+            // Stop before it.
+            break;
+        }
+
+        if (c == '\\') {
+            advance(lexer);  // consume backslash
+            if (lexer->lookahead != 0) {
+                advance(lexer);  // consume escaped character
+            }
+            lexer->mark_end(lexer);
+            has_content = true;
+            continue;
+        }
+
+        advance(lexer);
+        lexer->mark_end(lexer);
+        has_content = true;
+    }
+
+    if (!has_content) return false;
+
+    lexer->result_symbol = FSTRING_CONTENT;
+    return true;
+}
+
+// Scan the closing quote sequence of an f-string and pop the frame.
+static bool scan_fstring_end(TSLexer *lexer, Scanner *s) {
+    if (s->fstring_size == 0) return false;
+    FStringFrame frame = s->fstring_data[s->fstring_size - 1];
+    int32_t q = (int32_t)(unsigned char)frame.quote_char;
+
+    if (lexer->lookahead != q) return false;
+
+    if (frame.triple) {
+        advance(lexer);
+        if (lexer->lookahead != q) return false;
+        advance(lexer);
+        if (lexer->lookahead != q) return false;
+        advance(lexer);
+    } else {
+        advance(lexer);
+    }
+
+    fstack_pop(s);
+    lexer->mark_end(lexer);
+    lexer->result_symbol = FSTRING_END;
+    return true;
+}
+
 bool tree_sitter_rapydscript_external_scanner_scan(void *payload, TSLexer *lexer,
                                                    const bool *valid_symbols) {
     Scanner *scanner = (Scanner *)payload;
+
+    // F-string content must be handled before any whitespace skipping because
+    // the whitespace is part of the string's content.
+    if (valid_symbols[FSTRING_CONTENT]) {
+        if (scan_fstring_content(lexer, scanner)) return true;
+    }
+    if (valid_symbols[FSTRING_END]) {
+        if (scan_fstring_end(lexer, scanner)) return true;
+    }
 
     // 1. Reconcile any pending indentation left over from a previously emitted
     //    NEWLINE/DEDENT. This is how we emit several DEDENT tokens for a single
@@ -200,25 +454,29 @@ bool tree_sitter_rapydscript_external_scanner_scan(void *payload, TSLexer *lexer
         scanner->has_pending = 0;
     }
 
-    // 2. Regular expression literals. Only valid where a primary expression may
-    //    begin, so '/' cannot be a division operator in that position.
-    if (valid_symbols[REGEX] && !valid_symbols[NEWLINE] && !valid_symbols[INDENT] &&
-        !valid_symbols[DEDENT]) {
-        // Skip surrounding whitespace, including newlines: a regex literal may
-        // appear on its own line, e.g. as an argument following a preceding
-        // multi-line one (`foo(\n def(): ...\n ,\n /re/\n)`).
+    // 2. Regular expression literals and f-string starts are both only valid
+    //    where a primary expression may begin, so neither '/' (division) nor an
+    //    f-modifier identifier causes ambiguity in other positions.
+    if ((valid_symbols[REGEX] || valid_symbols[FSTRING_START]) &&
+        !valid_symbols[NEWLINE] && !valid_symbols[INDENT] && !valid_symbols[DEDENT]) {
+        // Skip surrounding whitespace, including newlines: a literal may appear
+        // on its own line, e.g. as an argument following a preceding multi-line
+        // one (`foo(\n def(): ...\n ,\n /re/\n)`).
         while (lexer->lookahead == ' ' || lexer->lookahead == '\t' ||
                lexer->lookahead == '\n' || lexer->lookahead == '\r' ||
                lexer->lookahead == '\f') {
             skip(lexer);
         }
-        if (lexer->lookahead == '/') {
+        if (valid_symbols[REGEX] && lexer->lookahead == '/') {
             return scan_regex(lexer);
+        }
+        if (valid_symbols[FSTRING_START]) {
+            return scan_fstring_start(lexer, scanner);
         }
         return false;
     }
 
-    // 3. Indentation / newline handling.
+    // 4. Indentation / newline handling.
     bool found_end_of_line = false;
     uint32_t indent_length = 0;
 

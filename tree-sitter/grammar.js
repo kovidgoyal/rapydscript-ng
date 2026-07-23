@@ -57,6 +57,9 @@ module.exports = grammar({
     $._indent,
     $._dedent,
     $.regex,
+    $.fstring_start,
+    $.fstring_content,
+    $.fstring_end,
   ],
 
   extras: $ => [
@@ -589,6 +592,7 @@ module.exports = grammar({
       $.none,
       $.number,
       $.string,
+      $.f_string,
       $.concatenated_string,
       $.regex,
       $.verbatim,
@@ -924,20 +928,37 @@ module.exports = grammar({
     // ---- atoms / literals ------------------------------------------------
 
     concatenated_string: $ => prec.left(seq(
-      $.string,
-      repeat1($.string),
+      choice($.string, $.f_string),
+      repeat1(choice($.string, $.f_string)),
     )),
+
+    f_string: $ => seq(
+      $.fstring_start,
+      repeat(choice(
+        $.fstring_content,
+        $.interpolation,
+      )),
+      $.fstring_end,
+    ),
+
+    interpolation: $ => seq(
+      '{',
+      field('expression', $._expression),
+      optional(field('type_conversion', /![rsa]/)),
+      optional(seq(':', field('format_spec', $.fstring_content))),
+      '}',
+    ),
 
     this: _ => 'this',
     true: _ => 'True',
     false: _ => 'False',
     none: _ => 'None',
 
-    // string with optional r/u/f/b modifiers (the `v` modifier denotes a
-    // verbatim JavaScript literal and is handled separately). Interpolation
-    // and escapes are not sub-tokenised; the whole literal is a single node.
+    // string with optional r/u/b modifiers (the `v` modifier denotes a
+    // verbatim JavaScript literal, handled separately; the `f` modifier
+    // produces an f_string with structured interpolation nodes).
     string: _ => token(seq(
-      optional(/[rRuUfFbB]+/),
+      optional(/[rRuUbB]+/),
       choice(
         seq('"""', repeat(choice(/[^"\\]/, /\\(.|\n)/, /"[^"]/, /""[^"]/)), '"""'),
         seq("'''", repeat(choice(/[^'\\]/, /\\(.|\n)/, /'[^']/, /''[^']/)), "'''"),

@@ -33,13 +33,11 @@ line"""
     right: (string)))
 
 ==================
-string modifiers r u f
+string modifiers r u
 ==================
 
 a = r'x'
 b = u'y'
-c = f'val {x}'
-
 
 ---
 
@@ -51,11 +49,49 @@ c = f'val {x}'
   (assignment
     left: (pattern
       (identifier))
-    right: (string))
+    right: (string)))
+
+==================
+f-string basic interpolation
+==================
+
+c = f'val {x}'
+
+---
+
+(module
   (assignment
     left: (pattern
       (identifier))
-    right: (string)))
+    right: (f_string
+      (fstring_start)
+      (fstring_content)
+      (interpolation
+        expression: (identifier))
+      (fstring_end))))
+
+==================
+f-string expression
+==================
+
+d = f'{obj.method(arg)}'
+
+---
+
+(module
+  (assignment
+    left: (pattern
+      (identifier))
+    right: (f_string
+      (fstring_start)
+      (interpolation
+        expression: (call
+          function: (attribute
+            object: (identifier)
+            attribute: (identifier))
+          arguments: (argument_list
+            (identifier))))
+      (fstring_end))))
 
 ==================
 verbatim javascript literal
