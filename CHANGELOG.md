@@ -4,6 +4,7 @@ version 0.8.1
   * Fix concantenation of mixed string and f-string literal
   * fmt and lsp now by default read format related settings from pyproject.toml overridable via command line
   * fmt command reports unfixable long lines in normal mode as well
+  * Fix newlines inside tuples not being allowed
 
 version 0.8.0
 =======================

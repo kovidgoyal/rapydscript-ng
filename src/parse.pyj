@@ -2317,7 +2317,7 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             })
         if commas:
             left = v'[ expr ]'
-            while is_('punc', ',') and not peek().nlb:
+            while is_('punc', ',') and (not peek().nlb or S.in_parenthesized_expr):
                 next()
                 if is_node_type(expr, AST_Assign):
                     left[-1] = left[-1].left
