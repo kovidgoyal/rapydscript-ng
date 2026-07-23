@@ -104,6 +104,14 @@ Installation
 
 [Try RapydScript-ng live via an in-browser REPL!](https://sw.kovidgoyal.net/rapydscript/repl/)
 
+If you just want the standalone rapydscript binary, you can install it from
+PyPI, with::
+
+    pip install rapydscript-ng
+
+If you want the full package, needed to use the ``web-repl-export`` command, or
+integrate with a node project, you can instead install using npm.
+
 First make sure you have installed the latest version of [node.js](https://nodejs.org/) (You may need to restart your computer after this step). 
 
 From NPM for use as a command line app:

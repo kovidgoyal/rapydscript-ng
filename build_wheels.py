@@ -73,6 +73,10 @@ def write_wheel_metadata(dist_info_dir, meta, wheel_platform):
             f.write(f"Keywords: {', '.join(meta['keywords'])}\n")
         if repo_url:
             f.write(f"Project-URL: Source Code, {repo_url}\n")
+        f.write("Description-Content-Type: text/markdown")
+        print(file=f)
+        with open("README.md") as s:
+            f.write(s.read())
 
 
 def build_wheel(meta, bun_target, wheel_platform, binary_name, dest_dir, tmpdir):
