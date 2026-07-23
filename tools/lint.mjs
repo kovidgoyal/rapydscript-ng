@@ -706,6 +706,30 @@ export async function cli(argv, base_path, src_path, lib_path) {
         process.exit(1);
     }
 
+    // Expand directories to .pyj files recursively
+    async function expand_dirs(inputs) {
+        var result = [];
+        for (var i = 0; i < inputs.length; i++) {
+            var f = inputs[i];
+            if (f === '-') { result.push(f); continue; }
+            var st;
+            try { st = await fs.promises.lstat(f); }
+            catch (e) { console.error("ERROR: can't access: " + f); process.exit(1); }
+            if (st.isDirectory()) {
+                var children;
+                try {
+                    children = (await fs.promises.readdir(f)).sort().map(function(x) { return path.join(f, x); });
+                } catch(e) { console.error("ERROR: can't read directory: " + f); process.exit(1); }
+                var sub = await expand_dirs(children);
+                sub.forEach(function(x) { if (x.endsWith('.pyj')) result.push(x); });
+            } else if (st.isFile()) {
+                result.push(f);
+            }
+        }
+        return result;
+    }
+    if (files.length) files = await expand_dirs(files);
+
     var all_ok = true;
     var builtins = {};
     var noqa = {};

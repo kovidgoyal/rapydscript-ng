@@ -318,11 +318,12 @@ command prompt.`);
 opt("no_js", '', 'bool', false, `Do not display the compiled JavaScript before executing
 it.`);
 
-create_group('lint', "[input1.pyj input2.pyj ...]", `Run the RapydScript linter. This will find various
+create_group('lint', "[input1.pyj dir1 ...]", `Run the RapydScript linter. This will find various
 possible problems in the .pyj files you specify and
 write messages about them to stdout. Use - to read from STDIN.
-The main check it performs is for unused/undefined
-symbols, like pyflakes does for python.`,
+You can specify directories to recursively lint all .pyj
+files within them. The main check it performs is for
+unused/undefined symbols, like pyflakes does for python.`,
 `In addition to the command line options listed below,
 you can also control the linter in a couple of other ways.
 

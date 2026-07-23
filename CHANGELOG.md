@@ -4,6 +4,7 @@ version 0.8.2
   * Fix fmt not recognizing stdlib modules in standalone build
   * Fix string concatenation across newlines inside function calls not working
     when one of the strings is an f-string
+  * Allow specifying directories to lint on the command line
 
 version 0.8.1
 =======================

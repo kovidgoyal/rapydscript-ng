@@ -28,4 +28,5 @@ Before declaring a task complete, you must follow this exact verification lifecy
 2. If errors occur, analyze the stdout logs completely before writing a fix. Do not guess.
 3. Run rapydscript fmt . to ensure any changes you made to .pyj files are
    correctly formatted
-4. If the changes you made are user visible, update the changelog
+4. Run rapydscript lint . to check for any issues in your code
+5. If the changes you made are user visible, update the changelog
