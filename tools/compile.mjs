@@ -111,6 +111,12 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
         });
     }
 
+    function write_to_stream(stream, data) {
+        return new Promise((resolve, reject) => {
+            stream.write(data + '\n', 'utf8', err => err ? reject(err) : resolve());
+        });
+    }
+
     async function write_output(js_output, output_stream) {
         if (argv.source_map && output_stream) {
             var segments = output_stream.get_source_map_segments();
@@ -123,11 +129,11 @@ export default async function(start_time, argv, base_path, src_path, lib_path) {
         }
         if (argv.output) {
             // Node's filesystem module cannot write directly to /dev/stdout
-            if (argv.output == '/dev/stdout') console.log(js_output);
-            else if (argv.output == '/dev/stderr') console.error(js_output);
+            if (argv.output == '/dev/stdout') await write_to_stream(process.stdout, js_output);
+            else if (argv.output == '/dev/stderr') await write_to_stream(process.stderr, js_output);
             else await fs.promises.writeFile(argv.output, js_output, "utf8");
         } else if (!argv.execute){
-            console.log(js_output);
+            await write_to_stream(process.stdout, js_output);
         }
         if (argv.execute) {
             vm.runInNewContext(js_output, {'console':console, 'require':require}, {'filename':files[0]});
