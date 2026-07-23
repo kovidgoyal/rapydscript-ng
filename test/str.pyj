@@ -57,6 +57,14 @@ def test_interpolation():
     ae(f'{a}'f'{a}', '11')
     ae(f'a''b', 'ab')
     ae(f'{a}''b', '1b')
+    # Test plain string followed by f-string (regression: was parsed as a call expression)
+    ae('a' f'b', 'ab')
+    ae('a' f'{a}', 'a1')
+    ae('prefix ' f'{a}', 'prefix 1')
+    ae('a'  f'{a}', 'a1')
+    ae('a' f'{a}' 'b', 'a1b')
+    ae('a' f'{a}' f'{a}', 'a11')
+    ae(rf'raw{a}' f' and {a}', 'raw1 and 1')
 
 somevar = 33
 test('somevar=33', '{somevar=}', somevar=somevar)

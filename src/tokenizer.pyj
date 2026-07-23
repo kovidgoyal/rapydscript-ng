@@ -494,10 +494,13 @@ def tokenizer(raw_text, filename, recover_errors):
         return token(tok_type, ret)
     )
 
-    def handle_interpolated_string(string, start_tok):
+    def handle_interpolated_string(string, start_tok, is_fstring=True):
         def raise_error(err):
             raise new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, False)
-        parts = v'[interpolate(string, raise_error)]'
+        if is_fstring:
+            parts = v'[interpolate(string, raise_error)]'
+        else:
+            parts = v'[quoted_string(string)]'
         # Look ahead for consecutive string literals to concatenate (e.g. f'a'f'b' or f'a''b')
         while True:
             # Skip horizontal whitespace (spaces and tabs, not newlines)
@@ -668,7 +671,23 @@ def tokenizer(raw_text, filename, recover_errors):
         code = ch.charCodeAt(0)
         tmp_ = code
         if tmp_ is 34 or tmp_ is 39:  # double-quote (") or single quote (')
-            return read_string(False)
+            stok = read_string(False)
+            # Look ahead to detect a following f-string (e.g. "a" f"b"), which would
+            # otherwise be parsed as a call expression "a"(...) after the tokenizer
+            # injects the f-string result as a parenthesised expression.
+            j = S.pos
+            while j < S.text.length and (S.text.charAt(j) is ' ' or S.text.charAt(j) is '\t'):
+                j += 1
+            if j < S.text.length and is_identifier_start(S.text.charAt(j).charCodeAt(0)):
+                k = j
+                while k < S.text.length and is_identifier_char(S.text.charAt(k)):
+                    k += 1
+                potential_mod = S.text.substring(j, k)
+                if is_string_modifier(potential_mod) and k < S.text.length and '\'"'.indexOf(S.text.charAt(k)) is not -1:
+                    mods_check = potential_mod.toLowerCase()
+                    if mods_check.indexOf('f') is not -1 and mods_check.indexOf('v') is -1:
+                        return handle_interpolated_string(stok.value, stok, False)
+            return stok
         elif tmp_ is 35:  # pound-sign (#)
             if S.pos is 0 and S.text.charAt(1) is '!':
                 # shebang
