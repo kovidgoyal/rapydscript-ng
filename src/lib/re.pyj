@@ -904,10 +904,10 @@ class RegexObject:
 
     def finditer(self, string):
         # We have to copy pat since lastIndex is mutable
-        pat = RegExp(
+        pat = RegExp(  # noqa: unused-local
             this._pattern.source,
             this._modifiers
-        )  # noqa: unused-local
+        )
         ans = v"{'_string':string, '_r':pat, '_self':self}"
         ans[ρσ_iterator_symbol] = def ():
             return this
@@ -915,7 +915,7 @@ class RegexObject:
             m = this._r.exec(this._string)
             if m is None:
                 return v"{'done':true}"
-            _mo = MatchObject(this._self, m, 0, None)
+            _mo = MatchObject(this._self, m, 0, None)  # noqa: unused-local
             return v"{'done':false, 'value':_mo}"
         return ans
 

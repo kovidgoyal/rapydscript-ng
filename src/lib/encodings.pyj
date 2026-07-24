@@ -59,7 +59,8 @@ def urlsafe_b64encode(bytes, pad_char):
 
 def urlsafe_b64decode(string):
     string = String.prototype.replace.call(
-        string, /[_-]/g, def (m): return '+' if m is '-' else '/';
+        string, /[_-]/g, def (m):
+            return '+' if m is '-' else '/'
     )
     return base64decode(string)
 

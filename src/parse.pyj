@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 # globals: readfile, writefile, stat_file, sha1sum, ast_from_json,
-# ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
+# globals: ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
 from __python__ import hash_literals
 
 from ast import (
@@ -1647,7 +1647,8 @@ def create_parser_ctx(
         nonlocals = scan_for_nonlocal_defs(definition.body)
         nonlocals = {name for name in nonlocals}
         definition.localvars = definition.localvars.filter(
-            def (v): return not nonlocals.has(v.name);
+            def (v):
+                return not nonlocals.has(v.name)
         )
         return definition
 

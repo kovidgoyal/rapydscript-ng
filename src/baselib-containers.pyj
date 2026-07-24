@@ -2,7 +2,7 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals:ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_repr
+# globals: ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_repr
 
 
 def ρσ_equals(a, b):
@@ -97,7 +97,7 @@ if v'typeof Array.prototype.append' is not 'function':
     Object.defineProperty(Array.prototype, 'append', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': Array.prototype.push,
-    });
+    })
     Object.defineProperty(Array.prototype, 'extend', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (iterable):
@@ -117,7 +117,7 @@ if v'typeof Array.prototype.append' is not 'function':
                 while not result.done:
                     this.push(result.value)
                     result = iterator.next()
-    });
+    })
     Object.defineProperty(Array.prototype, 'index', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (val, start, stop):
@@ -134,7 +134,7 @@ if v'typeof Array.prototype.append' is not 'function':
                 if this[i] == val:
                     return i  # noqa:undef
             raise ValueError(val + ' is not in list')
-    });
+    })
     Object.defineProperty(Array.prototype, 'pypop', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (index):
@@ -146,7 +146,7 @@ if v'typeof Array.prototype.append' is not 'function':
             if not ans.length:
                 raise IndexError('pop index out of range')
             return ans[0]
-    });
+    })
     Object.defineProperty(Array.prototype, 'remove', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (value):
@@ -155,15 +155,15 @@ if v'typeof Array.prototype.append' is not 'function':
                     this.splice(i, 1)
                     return
             raise ValueError(value + ' not in list')
-    });
+    })
     Object.defineProperty(Array.prototype, 'toString', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): return '[' + this.join(', ') + ']'
-    });
+    })
     Object.defineProperty(Array.prototype, 'inspect', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): return '[' + this.join(', ') + ']'
-    });
+    })
     Object.defineProperty(Array.prototype, 'insert', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (index, val):
@@ -176,30 +176,30 @@ if v'typeof Array.prototype.append' is not 'function':
             for v'var i = this.length; i > index; i--':
                 this[i] = this[i - 1]  # noqa:undef
             this[index] = val
-    });
+    })
     Object.defineProperty(Array.prototype, 'copy', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): return ρσ_list_constructor(this)
-    });
+    })
     Object.defineProperty(Array.prototype, 'clear', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): this.length = 0
-    });
+    })
     Object.defineProperty(Array.prototype, 'count', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (value):
             return this.reduce(
                 def (n, val): return n + (val is value);, 0)
-    });
+    })
     Object.defineProperty(Array.prototype, 'pysort', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (key = None, reverse = False):
-            def _sort_key(value):
+            _sort_key = def (value):
                 t = jstype(value)
                 if t is 'string' or t is 'number':
                     return value
                 return value.toString()
-            def _sort_cmp(a, b, ap, bp):
+            _sort_cmp = def (a, b, ap, bp):
                 if a < b:
                     return -1
                 if a > b:
@@ -216,15 +216,15 @@ if v'typeof Array.prototype.append' is not 'function':
             this.sort(def (a, b): return mult * _sort_cmp(
                 keymap.get(a), keymap.get(b),
                 posmap.get(a), posmap.get(b));)
-    });
+    })
     Object.defineProperty(Array.prototype, 'as_array', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): return Array.from (this)
-    });
+    })
     Object.defineProperty(Array.prototype, '__len__', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (): return this.length
-    });
+    })
     Object.defineProperty(Array.prototype, '__contains__', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (val):
@@ -232,7 +232,7 @@ if v'typeof Array.prototype.append' is not 'function':
                 if this[i] == val:
                     return True
             return False
-    });
+    })
     Object.defineProperty(Array.prototype, '__eq__', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': def (other):
@@ -244,11 +244,11 @@ if v'typeof Array.prototype.append' is not 'function':
                 if not (this[i] == other[i]):
                     return False
             return True
-    });
+    })
     Object.defineProperty(Array.prototype, 'constructor', {
         'writable': False, 'configurable': False, 'enumerable': False,
         'value': ρσ_list_constructor,
-    });
+    })
 
 
 def ρσ_list_decorate(ans):

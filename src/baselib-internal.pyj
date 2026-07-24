@@ -2,7 +2,7 @@
 # License: BSD
 
 # globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol,
-# ρσ_arraylike, ρσ_list_constructor, ρσ_str, ρσ_int, ρσ_float
+# globals: ρσ_arraylike, ρσ_list_constructor, ρσ_str, ρσ_int, ρσ_float
 
 
 def ρσ_eslice(arr, step, start, end):
