@@ -1,14 +1,18 @@
-version 0.8.2
+version 0.8.3
 =======================
 
   * ``lint`` command now uses a worker thread pool for large jobs, roughly
     doubling throughput when linting many files at once
-  * Fix fmt not recognizing stdlib modules in standalone build
   * Fix string concatenation across newlines inside function calls not working
     when one of the strings is an f-string
   * Tree-sitter grammar: f-string expressions inside ``{...}`` are now
     structured as ``interpolation`` nodes, enabling syntax highlighting of
     the embedded expressions in editors that use the tree-sitter grammar
+
+version 0.8.2
+=======================
+
+  * Fix fmt not recognizing stdlib modules in standalone build
 
 version 0.8.1
 =======================
