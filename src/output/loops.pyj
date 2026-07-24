@@ -3,7 +3,6 @@
 from __python__ import hash_literals
 
 from ast import AST_BaseCall, AST_SymbolRef, AST_Array, AST_Unary, AST_Number, has_calls, AST_Seq, AST_ListComprehension, is_node_type
-from output.stream import OutputStream
 
 
 def unpack_tuple(elems, output, in_statement):
@@ -55,10 +54,7 @@ def is_simple_for(self):
             not (is_node_type(self.init, AST_Array))):
         a = self.object.args.args
         l = a.length
-        if l < 3 or (
-            is_node_type(a[2].value, AST_Number) or (
-                is_node_type(a[2].value, AST_Unary) and a[2].value.operator is '-' and is_node_type(a[2].value.expression, AST_Number)
-        )):
+        if l < 3 or (is_node_type(a[2].value, AST_Number) or (is_node_type(a[2].value, AST_Unary) and a[2].value.operator is '-' and is_node_type(a[2].value.expression, AST_Number))):
             if (l is 1 and not has_calls(a[0].value)) or (l > 1 and not has_calls(a[1].value)):
                 return True
     return False
@@ -99,8 +95,24 @@ def print_for_loop_body(output):
 
 def init_es6_itervar(output, itervar):
     output.indent()
-    output.spaced(itervar, '=', '((typeof', itervar + '[Symbol.iterator]', '===', '"function")', '?',
-                    '(' + itervar, 'instanceof', 'Map', '?', itervar + '.keys()', ':', itervar + ')', ':', 'Object.keys(' + itervar + '))')
+    output.spaced(
+        itervar,
+        '=',
+        '((typeof',
+        itervar + '[Symbol.iterator]',
+        '===',
+        '"function")',
+        '?',
+        '(' + itervar,
+        'instanceof',
+        'Map',
+        '?',
+        itervar + '.keys()',
+        ':',
+        itervar + ')',
+        ':',
+        'Object.keys(' + itervar + '))'
+    )
     output.end_statement()
 
 
@@ -176,7 +188,13 @@ def print_for_in(self, output):
         output.end_statement()
         init_es6_itervar(output, itervar)
         output.indent()
-        output.spaced('for', '(var', 'ρσ_Index' + output.index_counter, 'of', itervar + ')')
+        output.spaced(
+            'for',
+            '(var',
+            'ρσ_Index' + output.index_counter,
+            'of',
+            itervar + ')'
+        )
 
     output.space()
     self._do_print_body(output)
@@ -184,7 +202,11 @@ def print_for_in(self, output):
 
 def print_list_comprehension(self, output):
     tname = self.constructor.name.slice(4)
-    result_obj = {'ListComprehension': '[]', 'DictComprehension': ('Object.create(null)' if self.is_jshash else '{}'), 'SetComprehension': 'ρσ_set()'}[tname]
+    result_obj = {
+        'ListComprehension': '[]',
+        'DictComprehension': ('Object.create(null)' if self.is_jshash else '{}'),
+        'SetComprehension': 'ρσ_set()',
+    }[tname]
     is_generator = tname is 'GeneratorComprehension'
     if tname is 'DictComprehension':
         if self.is_pydict:

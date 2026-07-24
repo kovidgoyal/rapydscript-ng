@@ -5,7 +5,6 @@ from __python__ import hash_literals
 from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef, is_node_type
 from output.operators import print_getattr
 from output.statements import print_bracketed
-from output.stream import OutputStream
 from output.utils import create_doctring
 
 anonfunc = 'ρσ_anonfunc'
@@ -63,14 +62,59 @@ def function_preamble(node, output, offset):
             output.space()
             output.assign(arg)
             if Object.prototype.hasOwnProperty.call(a.defaults, arg.name):
-                output.spaced('(arguments[' + i + ']', '===', 'undefined', '||',
-                                '(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                kw, '[ρσ_kwargs_symbol]', '===', 'true))', '?', '')
+                output.spaced(
+                    '(arguments[' + i + ']',
+                    '===',
+                    'undefined',
+                    '||',
+                    '(',
+                    i,
+                    '===',
+                    'arguments.length-1',
+                    '&&',
+                    kw,
+                    '!==',
+                    'null',
+                    '&&',
+                    'typeof',
+                    kw,
+                    '===',
+                    '"object"',
+                    '&&',
+                    kw,
+                    '[ρσ_kwargs_symbol]',
+                    '===',
+                    'true))',
+                    '?',
+                    ''
+                )
                 output.print(fname + '.__defaults__.'), arg.print(output)
                 output.space(), output.print(':'), output.space()
             else:
-                output.spaced('(', i, '===', 'arguments.length-1', '&&', kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&',
-                                kw, '[ρσ_kwargs_symbol]', '===', 'true)', '?', 'undefined', ':', '')
+                output.spaced(
+                    '(',
+                    i,
+                    '===',
+                    'arguments.length-1',
+                    '&&',
+                    kw,
+                    '!==',
+                    'null',
+                    '&&',
+                    'typeof',
+                    kw,
+                    '===',
+                    '"object"',
+                    '&&',
+                    kw,
+                    '[ρσ_kwargs_symbol]',
+                    '===',
+                    'true)',
+                    '?',
+                    'undefined',
+                    ':',
+                    ''
+                )
             output.print('arguments[' + i + ']')
             output.end_statement()
     if a.kwargs or a.has_defaults:
@@ -81,13 +125,35 @@ def function_preamble(node, output, offset):
         output.end_statement()
         # Ensure kwargs is the options object
         output.indent()
-        output.spaced('if', '(' + kw, '===', 'null', '||', 'typeof', kw, '!==', '"object"', '||', kw, '[ρσ_kwargs_symbol]', '!==', 'true)', kw, '=', '{}')
+        output.spaced(
+            'if',
+            '(' + kw,
+            '===',
+            'null',
+            '||',
+            'typeof',
+            kw,
+            '!==',
+            '"object"',
+            '||',
+            kw,
+            '[ρσ_kwargs_symbol]',
+            '!==',
+            'true)',
+            kw,
+            '=',
+            '{}'
+        )
         output.end_statement()
         # Read values from the kwargs object for any formal parameters
         if a.has_defaults:
             for dname in Object.keys(a.defaults):
                 output.indent()
-                output.spaced('if', '(Object.prototype.hasOwnProperty.call(' + kw + ',', '"' + dname + '"))')
+                output.spaced(
+                    'if',
+                    '(Object.prototype.hasOwnProperty.call(' + kw + ',',
+                    '"' + dname + '"))'
+                )
                 output.with_block(def ():
                     output.indent()
                     output.spaced(dname, '=', kw + '.' + dname)
@@ -103,11 +169,33 @@ def function_preamble(node, output, offset):
         # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
         nargs = a.args.length - offset
         output.indent()
-        output.spaced('var', a.starargs.name, '=', 'Array.prototype.slice.call(arguments,', nargs + ')')
+        output.spaced(
+            'var',
+            a.starargs.name,
+            '=',
+            'Array.prototype.slice.call(arguments,',
+            nargs + ')'
+        )
         output.end_statement()
         # Remove the options object, if present
         output.indent()
-        output.spaced('if', '(' + kw, '!==', 'null', '&&', 'typeof', kw, '===', '"object"', '&&', kw, '[ρσ_kwargs_symbol]', '===', 'true)', a.starargs.name)
+        output.spaced(
+            'if',
+            '(' + kw,
+            '!==',
+            'null',
+            '&&',
+            'typeof',
+            kw,
+            '===',
+            '"object"',
+            '&&',
+            kw,
+            '[ρσ_kwargs_symbol]',
+            '===',
+            'true)',
+            a.starargs.name
+        )
         output.print('.pop()')
         output.end_statement()
 
@@ -183,7 +271,11 @@ def function_annotation(self, output, strip_first, name):
     output.indent()
     # Only define the properties if they were not already defined, which
     # can happen if the function definition is inside a loop, for example.
-    output.spaced('if', '(!' + fname + '.' + names[0] + ')', 'Object.defineProperties(' + fname)
+    output.spaced(
+        'if',
+        '(!' + fname + '.' + names[0] + ')',
+        'Object.defineProperties(' + fname
+    )
     output.comma()
     output.with_block(def ():
         for v'var i = 0; i < names.length; i++':
@@ -235,7 +327,10 @@ def function_definition(self, output, strip_first, as_expression):
     if as_expression:
         output.end_statement()
         function_annotation(self, output, strip_first, anonfunc)
-        output.indent(), output.spaced('return', anonfunc), output.end_statement()
+        output.indent(), output.spaced(
+            'return',
+            anonfunc
+        ), output.end_statement()
         output.set_indentation(orig_indent)
         output.indent(), output.print('})()')
 
@@ -386,7 +481,10 @@ def print_function_call(self, output):
 
     is_repeatable = is_new or not has_calls(self.expression)
     if not is_repeatable:
-        output.assign('(ρσ_expr_temp'), print_this(self.expression, output), output.comma()
+        output.assign('(ρσ_expr_temp'), print_this(
+            self.expression,
+            output
+        ), output.comma()
 
     if has_kwargs:
         if is_new:

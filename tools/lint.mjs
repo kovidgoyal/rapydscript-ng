@@ -7,6 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { read_config } from './ini.mjs';
 import * as utils from './utils.mjs';
 
@@ -663,11 +664,12 @@ function cli_vim_report(r) {
 
 var ini_cache = {};
 
-async function get_ini(toplevel_dir) {
-    if (has_prop(ini_cache, toplevel_dir)) return ini_cache[toplevel_dir];
-    var rl = (await read_config(toplevel_dir)).rapydscript || {};
-    ini_cache[toplevel_dir] = rl;
-    return rl;
+function get_ini(toplevel_dir) {
+    if (!has_prop(ini_cache, toplevel_dir)) {
+        // Store the promise so concurrent callers for the same dir share one read.
+        ini_cache[toplevel_dir] = read_config(toplevel_dir).then(function(r) { return r.rapydscript || {}; });
+    }
+    return ini_cache[toplevel_dir];
 }
 
 export async function cli(argv, base_path, src_path, lib_path) {
@@ -706,36 +708,6 @@ export async function cli(argv, base_path, src_path, lib_path) {
         process.exit(1);
     }
 
-    // Expand directories to .pyj files recursively
-    async function expand_dirs(inputs, toplevel) {
-        var result = [];
-        for (var i = 0; i < inputs.length; i++) {
-            var f = inputs[i];
-            if (f === '-') { result.push(f); continue; }
-            var st;
-            try { st = await fs.promises.lstat(f); }
-            catch (e) {
-                if (toplevel) { console.error("ERROR: can't access: " + f); process.exit(1); }
-                continue;
-            }
-            if (st.isDirectory()) {
-                var children;
-                try {
-                    children = (await fs.promises.readdir(f)).sort().map(function(x) { return path.join(f, x); });
-                } catch(e) {
-                    if (toplevel) { console.error("ERROR: can't read directory: " + f); process.exit(1); }
-                    continue;
-                }
-                var sub = await expand_dirs(children, false);
-                sub.forEach(function(x) { if (x.endsWith('.pyj')) result.push(x); });
-            } else if (st.isFile()) {
-                result.push(f);
-            }
-        }
-        return result;
-    }
-    if (files.length) files = await expand_dirs(files, true);
-
     var all_ok = true;
     var builtins = {};
     var noqa = {};
@@ -746,7 +718,52 @@ export async function cli(argv, base_path, src_path, lib_path) {
         return x === '-' ? argv.stdin_filename : x;
     }
 
-    for (const filename of (files.length ? files : [null])) {
+    // reportcb used for final output (same logic as inside lint_code)
+    var reportcb = {'json': cli_json_report, 'vim': cli_vim_report, 'undef': cli_undef_report}[argv.errorformat] || cli_report;
+
+    // Expand directories to .pyj files recursively, stat-ing entries in parallel.
+    async function expand_dirs(inputs, toplevel) {
+        // Stat all entries concurrently, then process results in sorted order.
+        var entries = await Promise.all(inputs.map(async function(f) {
+            if (f === '-') return { f, type: 'stdin' };
+            var st;
+            try { st = await fs.promises.lstat(f); }
+            catch (e) {
+                if (toplevel) { console.error("ERROR: can't access: " + f); process.exit(1); }
+                return null;
+            }
+            if (st.isDirectory()) return { f, type: 'dir' };
+            if (st.isFile()) return { f, type: 'file' };
+            return null;
+        }));
+
+        var result = [];
+        for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            if (!entry) continue;
+            if (entry.type === 'stdin') { result.push(entry.f); continue; }
+            if (entry.type === 'file') { result.push(entry.f); continue; }
+            // Directory: read children and recurse
+            var children;
+            try {
+                children = (await fs.promises.readdir(entry.f)).sort().map(function(x) { return path.join(entry.f, x); });
+            } catch(e) {
+                if (toplevel) { console.error("ERROR: can't read directory: " + entry.f); process.exit(1); }
+                continue;
+            }
+            var sub = await expand_dirs(children, false);
+            sub.forEach(function(x) { if (x.endsWith('.pyj')) result.push(x); });
+        }
+        return result;
+    }
+    if (files.length) files = await expand_dirs(files, true);
+
+    var all_files = files.length ? files : [null];
+    var has_stdin = all_files.indexOf('-') !== -1 || all_files.indexOf(null) !== -1;
+
+    // Process a single file and return its messages without printing them.
+    // Used when the worker pool is not active (stdin, or too few files).
+    async function process_file(filename) {
         var code;
         try {
             code = await read_whole_file(filename === '-' ? null : filename);
@@ -777,9 +794,81 @@ export async function cli(argv, base_path, src_path, lib_path) {
             }
         });
 
-        // Lint!
-        if ((await lint_code(code, {filename:path_for_filename(filename || '-'), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false})).length) all_ok = false;
+        var lines = code.split('\n');
+        var msgs = await lint_code(code, {filename:path_for_filename(filename || '-'), builtins:final_builtins, noqa:final_noqa, errorformat:argv.errorformat || false, report:function() {}});
+        msgs.forEach(function(msg) { msg.code_lines = lines; });
+        return msgs;
     }
+
+    var all_results;
+    // Use a worker pool when there are enough files to justify the overhead.
+    // Workers own their own compiler instance so parsing runs in parallel across CPU cores.
+    var WORKER_THRESHOLD = 4;
+
+    if (!has_stdin && all_files.length >= WORKER_THRESHOLD) {
+        var { Worker } = await import('worker_threads');
+        var os_mod = await import('os');
+
+        var worker_path = path.join(path.dirname(fileURLToPath(import.meta.url)), 'lint-worker.mjs');
+        var num_workers = Math.min(os_mod.cpus().length, all_files.length, 8);
+
+        // Dispatch files to workers dynamically so fast files don't leave workers idle.
+        var ordered_results = new Array(all_files.length);
+        var next_idx = 0;
+        var pending = all_files.length;
+        var done_resolve;
+        var done_promise = new Promise(function(res) { done_resolve = res; });
+        if (pending === 0) done_resolve();
+
+        function dispatch(worker) {
+            if (next_idx >= all_files.length) return;
+            var idx = next_idx++;
+            worker.postMessage({
+                type: 'lint',
+                id: idx,
+                filename: all_files[idx],
+                base_builtins: builtins,
+                base_noqa: noqa,
+            });
+        }
+
+        // Create workers and dispatch eagerly as each becomes ready rather than
+        // waiting for all workers before starting any work.
+        var worker_promises = Array.from({length: num_workers}, function() {
+            return new Promise(function(resolve) {
+                var w = new Worker(worker_path);
+                w.once('message', function(m) {
+                    if (m.type !== 'ready') return;
+                    w.on('message', function(msg) {
+                        if (msg.type === 'result') {
+                            ordered_results[msg.id] = msg.messages;
+                        } else if (msg.type === 'error') {
+                            console.error("ERROR: lint failed for " + all_files[msg.id] + ": " + msg.error);
+                            ordered_results[msg.id] = [];
+                        }
+                        pending--;
+                        if (pending === 0) { done_resolve(); return; }
+                        dispatch(w);
+                    });
+                    dispatch(w);
+                    resolve(w);
+                });
+            });
+        });
+
+        await done_promise;
+        var workers = await Promise.all(worker_promises);
+        workers.forEach(function(w) { w.terminate(); });
+        all_results = ordered_results;
+    } else {
+        // Single-threaded path: process concurrently on the main thread.
+        all_results = await Promise.all(all_files.map(process_file));
+    }
+
+    var all_messages = [];
+    all_results.forEach(function(msgs) { Array.prototype.push.apply(all_messages, msgs); });
+    if (all_messages.length) all_ok = false;
+    all_messages.forEach(function(msg, i) { reportcb(msg, i, all_messages); });
 
     process.exit((all_ok) ? 0 : 1);
 }

@@ -129,15 +129,13 @@ class AST_Directive(AST_Statement):
     'Represents a directive, like "use strict";'
     properties = {
         'value': "[string] The value of this directive as a plain string (it's not an AST_String!)",
-        'scope': '[AST_Scope/S] The scope that this directive affects'
+        'scope': '[AST_Scope/S] The scope that this directive affects',
     }
 
 
 class AST_SimpleStatement(AST_Statement):
     'A statement consisting of an expression, i.e. a = 1 + 2'
-    properties = {
-        'body': '[AST_Node] an expression node (should not be instanceof AST_Statement)'
-    }
+    properties = {'body': '[AST_Node] an expression node (should not be instanceof AST_Statement)'}
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -196,9 +194,7 @@ class AST_EmptyStatement(AST_Statement):
 
 class AST_StatementWithBody(AST_Statement):
     'Base class for all statements that contain one nested body: `For`, `ForIn`, `Do`, `While`, `With`'
-    properties = {
-        'body': "[AST_Statement] the body; this should always be present, even if it's an AST_EmptyStatement"
-    }
+    properties = {'body': "[AST_Statement] the body; this should always be present, even if it's an AST_EmptyStatement"}
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -208,9 +204,7 @@ class AST_StatementWithBody(AST_Statement):
 
 class AST_DWLoop(AST_StatementWithBody):
     'Base class for do/while statements'
-    properties = {
-        'condition': '[AST_Node] the loop condition.  Should not be instanceof AST_Statement'
-    }
+    properties = {'condition': '[AST_Node] the loop condition.  Should not be instanceof AST_Statement'}
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -256,7 +250,7 @@ class AST_ListComprehension(AST_ForIn):
     'A list comprehension expression'
     properties = {
         'condition': '[AST_Node] the `if` condition',
-        'statement': '[AST_Node] statement to perform on each element before returning it'
+        'statement': '[AST_Node] statement to perform on each element before returning it',
     }
 
     def _walk(self, visitor):
@@ -498,9 +492,7 @@ class AST_Jump(AST_Statement):
 
 class AST_Exit(AST_Jump):
     'Base class for “exits” (`return` and `throw`)'
-    properties = {
-        'value': '[AST_Node?] the value returned or thrown by this statement; could be null for AST_Return'
-    }
+    properties = {'value': '[AST_Node?] the value returned or thrown by this statement; could be null for AST_Return'}
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -555,7 +547,7 @@ class AST_If(AST_StatementWithBody):
     'A `if` statement'
     properties = {
         'condition': '[AST_Node] the `if` condition',
-        'alternative': '[AST_Statement?] the `else` part, or null if not present'
+        'alternative': '[AST_Statement?] the `else` part, or null if not present',
     }
 
     def _walk(self, visitor):
@@ -840,7 +832,7 @@ class AST_Splice(AST_PropAccess):
     'Index-style property access, i.e. `a[3:5]`'
     properties = {
         'property2': '[AST_Node] the 2nd property to access - typically ending index for the array.',
-        'assignment': '[AST_Node] The data being spliced in.'
+        'assignment': '[AST_Node] The data being spliced in.',
     }
 
     def _walk(self, visitor):
@@ -919,10 +911,10 @@ class AST_Assign(AST_Binary):
     'An assignment expression — `a = b + 5`'
 
     def is_chained(self):
-        return is_node_type(self.right, AST_Assign) or (
-            is_node_type(self.right, AST_Seq) and (
-                is_node_type(self.right.car, AST_Assign) or is_node_type(self.right.cdr, AST_Assign))
-        )
+        return is_node_type(
+            self.right,
+            AST_Assign
+        ) or (is_node_type(self.right, AST_Seq) and (is_node_type(self.right.car, AST_Assign) or is_node_type(self.right.cdr, AST_Assign)))
 
     def traverse_chain(self):
         right = self.right
@@ -1056,7 +1048,7 @@ class AST_Symbol(AST_Node):
     properties = {
         'name': '[string] name of this symbol',
         'scope': '[AST_Scope/S] the current scope (not necessarily the definition scope)',
-        'thedef': '[SymbolDef/S] the definition of this symbol'
+        'thedef': '[SymbolDef/S] the definition of this symbol',
     }
 
 
@@ -1088,9 +1080,7 @@ class AST_SymbolNonlocal(AST_SymbolDeclaration):
 
 class AST_SymbolFunarg(AST_SymbolVar):
     'Symbol naming a function argument, possibly with an annotation.'
-    properties = {
-        'annotation': '[AST_Node?] The annotation provided for this argument (if any)'
-    }
+    properties = {'annotation': '[AST_Node?] The annotation provided for this argument (if any)'}
 
 
 class AST_SymbolDefun(AST_SymbolDeclaration):
@@ -1242,7 +1232,10 @@ class TreeWalker:
             if is_node_type(p, AST_If) and p.condition is self
             or is_node_type(p, AST_Conditional) and p.condition is self
             or is_node_type(p, AST_DWLoop) and p.condition is self
-            or is_node_type(p, AST_UnaryPrefix) and p.operator is '!' and p.expression is self:
+            or is_node_type(
+                p,
+                AST_UnaryPrefix
+            ) and p.operator is '!' and p.expression is self:
                 return True
             if not (is_node_type(p, AST_Binary) and (p.operator is '&&' or p.operator is '||')):
                 return False
