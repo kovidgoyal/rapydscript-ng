@@ -707,20 +707,26 @@ export async function cli(argv, base_path, src_path, lib_path) {
     }
 
     // Expand directories to .pyj files recursively
-    async function expand_dirs(inputs) {
+    async function expand_dirs(inputs, toplevel) {
         var result = [];
         for (var i = 0; i < inputs.length; i++) {
             var f = inputs[i];
             if (f === '-') { result.push(f); continue; }
             var st;
             try { st = await fs.promises.lstat(f); }
-            catch (e) { console.error("ERROR: can't access: " + f); process.exit(1); }
+            catch (e) {
+                if (toplevel) { console.error("ERROR: can't access: " + f); process.exit(1); }
+                continue;
+            }
             if (st.isDirectory()) {
                 var children;
                 try {
                     children = (await fs.promises.readdir(f)).sort().map(function(x) { return path.join(f, x); });
-                } catch(e) { console.error("ERROR: can't read directory: " + f); process.exit(1); }
-                var sub = await expand_dirs(children);
+                } catch(e) {
+                    if (toplevel) { console.error("ERROR: can't read directory: " + f); process.exit(1); }
+                    continue;
+                }
+                var sub = await expand_dirs(children, false);
                 sub.forEach(function(x) { if (x.endsWith('.pyj')) result.push(x); });
             } else if (st.isFile()) {
                 result.push(f);
@@ -728,7 +734,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
         }
         return result;
     }
-    if (files.length) files = await expand_dirs(files);
+    if (files.length) files = await expand_dirs(files, true);
 
     var all_ok = true;
     var builtins = {};
