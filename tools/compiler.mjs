@@ -13,7 +13,6 @@ import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
 import vm from 'vm';
-import * as terser from 'terser';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { generate_source_map } from './sourcemap.mjs';
@@ -39,11 +38,6 @@ async function path_exists(p) {
     }
 }
 
-function uglify(code) {
-    var ans = terser.minify_sync(code);
-    if (ans.error) throw ans.error;
-    return ans.code;
-}
 
 
 async function find_compiler_dir() {

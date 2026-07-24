@@ -8,7 +8,7 @@
  * instance so parsing can run on multiple CPU cores simultaneously.
  */
 
-import { parentPort } from 'worker_threads';
+import { parentPort, workerData } from 'worker_threads';
 import { create_compiler } from './compiler.mjs';
 import { read_config } from './ini.mjs';
 import * as utils from './utils.mjs';
@@ -17,6 +17,12 @@ import path from 'path';
 
 const merge = utils.merge;
 const has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
+
+// Restore embedded assets forwarded by the main thread (needed in compiled binaries
+// where workers don't inherit the main thread's globalThis).
+if (workerData && workerData.embedded) {
+    globalThis.__rapydscript_embedded__ = workerData.embedded;
+}
 
 // Initialize the compiler first — lint.mjs reads globalThis.create_rapydscript_compiler
 // at module evaluation time, so the global must be set before the dynamic import.

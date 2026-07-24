@@ -7,7 +7,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { read_config } from './ini.mjs';
 import * as utils from './utils.mjs';
 
@@ -805,11 +804,19 @@ export async function cli(argv, base_path, src_path, lib_path) {
     // Workers own their own compiler instance so parsing runs in parallel across CPU cores.
     var WORKER_THRESHOLD = 4;
 
-    if (!has_stdin && all_files.length >= WORKER_THRESHOLD) {
+    // In compiled binaries lint.mjs is dynamically imported so Bun's static
+    // analysis never sees the new Worker() call.  build.ts pre-bundles
+    // lint-worker.mjs and embeds it via `with { type: 'file' }`, storing the
+    // virtual-FS path in __rapydscript_embedded__['lint-worker-url'].
+    // Fall back gracefully (single-threaded) if the URL isn't available.
+    var embedded = globalThis.__rapydscript_embedded__;
+    var worker_url = embedded
+        ? embedded['lint-worker-url']
+        : new URL('./lint-worker.mjs', import.meta.url);
+
+    if (!has_stdin && all_files.length >= WORKER_THRESHOLD && worker_url) {
         var { Worker } = await import('worker_threads');
         var os_mod = await import('os');
-
-        var worker_path = path.join(path.dirname(fileURLToPath(import.meta.url)), 'lint-worker.mjs');
         var num_workers = Math.min(os_mod.cpus().length, all_files.length, 8);
 
         // Dispatch files to workers dynamically so fast files don't leave workers idle.
@@ -836,7 +843,7 @@ export async function cli(argv, base_path, src_path, lib_path) {
         // waiting for all workers before starting any work.
         var worker_promises = Array.from({length: num_workers}, function() {
             return new Promise(function(resolve) {
-                var w = new Worker(worker_path);
+                var w = new Worker(worker_url, { workerData: { embedded: embedded || null } });
                 w.once('message', function(m) {
                     if (m.type !== 'ready') return;
                     w.on('message', function(msg) {

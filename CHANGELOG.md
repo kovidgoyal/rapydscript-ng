@@ -2,6 +2,7 @@ version 0.8.4
 ================
   * Fix LSP ignoring globals: comments
   * Fix function call separated by new lines in tuples not being parsed
+  * Fix lint not working in standalone binary when linting more than 4 files at once
 
 version 0.8.3
 =======================
