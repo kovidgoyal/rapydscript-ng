@@ -15,7 +15,14 @@ def print_try(self, output):
         output.assign('var ' + else_var_name), output.print('false'), output.end_statement(), output.indent()
     output.print('try')
     output.space()
-    print_bracketed(self, output, False, None, None, update_output_var if else_var_name else None)
+    print_bracketed(
+        self,
+        output,
+        False,
+        None,
+        None,
+        update_output_var if else_var_name else None
+    )
     if self.bcatch:
         output.space()
         print_catch(self.bcatch, output)

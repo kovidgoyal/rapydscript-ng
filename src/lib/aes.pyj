@@ -441,7 +441,10 @@ class CBC(ModeOfOperation):  # {{{
         return {'iv': first_iv, 'cipherbytes': outputbytes}
 
     def encrypt(self, plaintext, tag):
-        return self.encrypt_bytes(string_to_bytes(plaintext), self.tag_as_bytes(tag))
+        return self.encrypt_bytes(
+            string_to_bytes(plaintext),
+            self.tag_as_bytes(tag)
+        )
 
     def decrypt_bytes(self, inputbytes, tag_bytes, iv):
         offset = 0
@@ -459,7 +462,11 @@ class CBC(ModeOfOperation):  # {{{
         return outputbytes
 
     def decrypt(self, output_from_encrypt, tag):
-        ans = self.decrypt_bytes(output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), output_from_encrypt.iv)
+        ans = self.decrypt_bytes(
+            output_from_encrypt.cipherbytes,
+            self.tag_as_bytes(tag),
+            output_from_encrypt.iv
+        )
         return str.rstrip(bytes_to_string(ans), '\0')
 # }}}
 
@@ -648,12 +655,22 @@ class GCM(ModeOfOperation):  # {{{
         else:
             self.increment_iv()
             iv = self.current_iv
-        return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag), False)
+        return self._crypt(
+            iv,
+            string_to_bytes(plaintext),
+            self.tag_as_bytes(tag),
+            False
+        )
 
     def decrypt(self, output_from_encrypt, tag):
         if output_from_encrypt.tag.length != 4:
             raise ValueError('Corrupted message')
-        ans = self._crypt(output_from_encrypt.iv, output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), True)
+        ans = self._crypt(
+            output_from_encrypt.iv,
+            output_from_encrypt.cipherbytes,
+            self.tag_as_bytes(tag),
+            True
+        )
         if ans.tag != output_from_encrypt.tag:
             raise ValueError('Corrupted message')
         return bytes_to_string(ans.cipherbytes)

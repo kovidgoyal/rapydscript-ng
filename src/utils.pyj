@@ -41,7 +41,10 @@ def repeat_string(str_, i):
 
 class DefaultsError(ValueError):
     def __init__(self, name, defs):
-        ValueError.__init__(self, name + ' is not a supported option. Supported options are: ' + str(Object.keys(defs)))
+        ValueError.__init__(
+            self,
+            name + ' is not a supported option. Supported options are: ' + str(Object.keys(defs))
+        )
 
 
 def defaults(args, defs, croak):
@@ -80,12 +83,18 @@ MAP = def ():
             if isinstance(val, AtTop):
                 val = val.v
                 if isinstance(val, Splice):
-                    top.push.apply(top, (val.v.slice().reverse() if backwards else val.v))
+                    top.push.apply(
+                        top,
+                        (val.v.slice().reverse() if backwards else val.v)
+                    )
                 else:
                     top.push(val)
             elif val is not skip:
                 if isinstance(val, Splice):
-                    ret.push.apply(ret, (val.v.slice().reverse() if backwards else val.v))
+                    ret.push.apply(
+                        ret,
+                        (val.v.slice().reverse() if backwards else val.v)
+                    )
                 else:
                     ret.push(val)
             return is_last
@@ -205,5 +214,8 @@ def make_predicate(words):
 def cache_file_name(src, cache_dir):
     if cache_dir:
         src = str.replace(src, '\\', '/')
-        return cache_dir + '/' + str.lstrip(str.replace(src, '/', '-') + '.bin', '-')
+        return cache_dir + '/' + str.lstrip(
+            str.replace(src, '/', '-') + '.bin',
+            '-'
+        )
     return src + '-cached'

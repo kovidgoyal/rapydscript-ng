@@ -52,7 +52,10 @@ def print_class(output):
     def add_hidden_property(name, proceed):
         output.indent(), output.print('Object.defineProperty(')
         self.name.print(output), output.print('.prototype'), output.comma(), output.print(JSON.stringify(name)), output.comma()
-        output.spaced('{value:', ''), proceed(), output.print('})'), output.end_statement()
+        output.spaced(
+            '{value:',
+            ''
+        ), proceed(), output.print('})'), output.end_statement()
 
     # generate constructor
     def write_constructor():
@@ -183,7 +186,10 @@ def print_class(output):
             sname = stmt.name.name
             if sname is '__init__':
                 # Copy argument handling data so that kwarg interpolation works when calling the constructor
-                for attr in ['.__argnames__', '.__handles_kwarg_interpolation__']:
+                for attr in [
+                    '.__argnames__',
+                    '.__handles_kwarg_interpolation__',
+                ]:
                     output.indent(), self.name.print(output), output.assign(attr)
                     self.name.print(output), output.print('.prototype.__init__' + attr), output.end_statement()
             if sname is '__iter__':

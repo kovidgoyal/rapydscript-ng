@@ -157,7 +157,12 @@ def print_with(self, output):
     output.with_block(def ():
         output.indent(), output.assign('ρσ_with_exception'), output.print('e'), output.end_statement()
     )
-    output.newline(), output.indent(), output.spaced('if', '(ρσ_with_exception', '===', 'undefined)')
+    output.newline(), output.indent(), output.spaced(
+        'if',
+        '(ρσ_with_exception',
+        '===',
+        'undefined)'
+    )
     output.with_block(def ():
         for clause in exits:
             output.indent(), output.print(clause + '.__exit__()'), output.end_statement()
@@ -177,7 +182,10 @@ def print_with(self, output):
 def print_assert(self, output):
     if output.options.discard_asserts:
         return
-    output.spaced('if', '(!('), self.condition.print(output), output.spaced('))', 'throw new AssertionError')
+    output.spaced(
+        'if',
+        '(!('
+    ), self.condition.print(output), output.spaced('))', 'throw new AssertionError')
     if self.message:
         output.print('(')
         self.message.print(output)

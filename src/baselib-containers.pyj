@@ -19,9 +19,7 @@ def ρσ_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
-    if jstype(a) is 'object' and jstype(b) is 'object' and a is not None and b is not None and (
-        (a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)
-    ):
+    if jstype(a) is 'object' and jstype(b) is 'object' and a is not None and b is not None and ((a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)):
         # Do a dict like comparison as this is most likely either a JS has
         # (Object.create(null) or a JS object used as a hash (v"{}"))
         akeys, bkeys = Object.keys(a), Object.keys(b)

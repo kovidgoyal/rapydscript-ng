@@ -14,7 +14,15 @@ RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i
 
 OPERATOR_CHARS = make_predicate(characters('+-*&%=<>!?|~^@'))
 
-ASCII_CONTROL_CHARS = {'a': 7, 'b': 8, 'f': 12, 'n': 10, 'r': 13, 't': 9, 'v': 11}
+ASCII_CONTROL_CHARS = {
+    'a': 7,
+    'b': 8,
+    'f': 12,
+    'n': 10,
+    'r': 13,
+    't': 9,
+    'v': 11,
+}
 HEX_PAT = /[a-fA-F0-9]/
 NAME_PAT = /[a-zA-Z ]/
 
@@ -86,9 +94,7 @@ KEYWORDS = 'as assert async await break class continue def del do elif else exce
 KEYWORDS_ATOM = 'False None True'
 
 # see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar
-RESERVED_WORDS = ('break case class catch const continue debugger default delete do else export extends'
-' finally for function if import in instanceof new return super switch this throw try typeof var void'
-' while with yield enum implements static private package let public protected interface null true false')
+RESERVED_WORDS = ('break case class catch const continue debugger default delete do else export extends' ' finally for function if import in instanceof new return super switch this throw try typeof var void' ' while with yield enum implements static private package let public protected interface null true false')
 
 KEYWORDS_BEFORE_EXPRESSION = 'return yield new del raise elif else if await'
 
@@ -225,7 +231,10 @@ def tokenizer(raw_text, filename, recover_errors):
             or type is 'keyword' and KEYWORDS_BEFORE_EXPRESSION[value]
             or type is 'punc' and PUNC_BEFORE_EXPRESSION[value])
 
-        if type is 'operator' and value is 'is' and S.text.substr(S.pos).trimLeft().substr(0, 4).trimRight() is 'not':
+        if type is 'operator' and value is 'is' and S.text.substr(S.pos).trimLeft().substr(
+            0,
+            4
+        ).trimRight() is 'not':
             next_token()
             value = '!=='
 
@@ -262,10 +271,7 @@ def tokenizer(raw_text, filename, recover_errors):
                 S.indentation_matters.push(True)
 
             if value is '[':
-                if S.prev and (
-                    S.prev.type is 'name' or
-                    (S.prev.type is 'punc' and ')]'.indexOf(S.prev.value) is not -1)
-                ):
+                if S.prev and (S.prev.type is 'name' or (S.prev.type is 'punc' and ')]'.indexOf(S.prev.value) is not -1)):
                     S.index_or_slice.push(True)
                 else:
                     S.index_or_slice.push(False)
@@ -329,7 +335,14 @@ def tokenizer(raw_text, filename, recover_errors):
         return ret
 
     def parse_error(err, is_eof):
-        raise new SyntaxError(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof)
+        raise new SyntaxError(
+            err,
+            filename,
+            S.tokline,
+            S.tokcol,
+            S.tokpos,
+            is_eof
+        )
 
     def read_num(prefix):
         has_e = False
@@ -429,7 +442,10 @@ def tokenizer(raw_text, filename, recover_errors):
                 if code <= 0xFFFF:
                     return String.fromCharCode(code)
                 code -= 0x10000
-                return String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
+                return String.fromCharCode(
+                    0xD800 + (code >> 10),
+                    0xDC00 + (code & 0x3FF)
+                )
             return '\\U' + code
         if q is 'N' and peek() is '{':
             next()
@@ -438,13 +454,19 @@ def tokenizer(raw_text, filename, recover_errors):
                 return '\\N{' + name
             next()
             key = (name or '').toLowerCase()
-            if not name or not Object.prototype.hasOwnProperty.call(ALIAS_MAP, key):
+            if not name or not Object.prototype.hasOwnProperty.call(
+                ALIAS_MAP,
+                key
+            ):
                 return '\\N{' + name + '}'
             code = ALIAS_MAP[key]
             if code <= 0xFFFF:
                 return String.fromCharCode(code)
             code -= 0x10000
-            return String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
+            return String.fromCharCode(
+                0xD800 + (code >> 10),
+                0xDC00 + (code & 0x3FF)
+            )
         return '\\' + q
 
     def with_eof_error(eof_error, cont):
@@ -496,7 +518,14 @@ def tokenizer(raw_text, filename, recover_errors):
 
     def handle_interpolated_string(string, start_tok, is_fstring=True):
         def raise_error(err):
-            raise new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, False)
+            raise new SyntaxError(
+                err,
+                filename,
+                start_tok.line,
+                start_tok.col,
+                start_tok.pos,
+                False
+            )
         if is_fstring:
             parts = v'[interpolate(string, raise_error)]'
         else:
@@ -653,7 +682,10 @@ def tokenizer(raw_text, filename, recover_errors):
 
     def handle_dot():
         next()
-        return read_num('.') if is_digit(peek().charCodeAt(0)) else token('punc', '.')
+        return read_num('.') if is_digit(peek().charCodeAt(0)) else token(
+            'punc',
+            '.'
+        )
 
     def read_word():
         word = read_name()
@@ -698,7 +730,11 @@ def tokenizer(raw_text, filename, recover_errors):
                 if is_string_modifier(potential_mod) and k < S.text.length and '\'"'.indexOf(S.text.charAt(k)) is not -1:
                     mods_check = potential_mod.toLowerCase()
                     if mods_check.indexOf('f') is not -1 and mods_check.indexOf('v') is -1:
-                        return handle_interpolated_string(stok.value, stok, False)
+                        return handle_interpolated_string(
+                            stok.value,
+                            stok,
+                            False
+                        )
             return stok
         elif tmp_ is 35:  # pound-sign (#)
             if S.pos is 0 and S.text.charAt(1) is '!':
@@ -736,7 +772,10 @@ def tokenizer(raw_text, filename, recover_errors):
             if '\'"'.indexOf(peek()) is not -1 and is_string_modifier(tok.value):
                 mods = tok.value.toLowerCase()
                 start_pos_for_string = S.tokpos
-                stok = read_string(mods.indexOf('r') is not -1, mods.indexOf('v') is not -1)
+                stok = read_string(
+                    mods.indexOf('r') is not -1,
+                    mods.indexOf('v') is not -1
+                )
                 tok.endpos = stok.endpos
                 if stok.type is not 'js' and mods.indexOf('f') is not -1:
                     tok.col += start_pos_for_string - tok.pos
@@ -751,8 +790,7 @@ def tokenizer(raw_text, filename, recover_errors):
             # loop forever (parse_error is raised before the character is
             # consumed). Record it and skip the single offending character so the
             # tokenizer always makes forward progress.
-            S.recovered_errors.push({'message': 'Unexpected character «' + ch + '»',
-                                     'line': S.tokline, 'col': S.tokcol, 'pos': S.tokpos, 'is_eof': False})
+            S.recovered_errors.push({'message': 'Unexpected character «' + ch + '»', 'line': S.tokline, 'col': S.tokcol, 'pos': S.tokpos, 'is_eof': False})
             next()
             return next_token()
         parse_error('Unexpected character «' + ch + '»')

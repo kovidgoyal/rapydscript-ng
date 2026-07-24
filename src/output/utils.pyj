@@ -32,7 +32,10 @@ def make_num(num):
             a.push(m[1] + 'e' + m[2].length)
 
     elif m = /^0?\.(0+)(.*)$/.exec(num):
-        a.push(m[2] + 'e-' + (m[1].length + m[2].length), str_.substr(str_.indexOf('.')))
+        a.push(
+            m[2] + 'e-' + (m[1].length + m[2].length),
+            str_.substr(str_.indexOf('.'))
+        )
 
     return best_of(a)
 

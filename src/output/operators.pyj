@@ -30,7 +30,10 @@ def print_getitem(self, output):  # AST_Sub
         expr.print(output)
         output.print('['), prop.print(output), output.print(']')
         return
-    is_negative_number = is_node_type(prop, AST_Unary) and prop.operator is '-' and is_node_type(prop.expression, AST_Number)
+    is_negative_number = is_node_type(prop, AST_Unary) and prop.operator is '-' and is_node_type(
+        prop.expression,
+        AST_Number
+    )
     is_repeatable = is_node_type(expr, AST_SymbolRef)
     if is_repeatable:
         expr.print(output)
@@ -46,7 +49,13 @@ def print_getitem(self, output):  # AST_Sub
     # will raise a TypeError with the < operator.
     if is_repeatable:
         output.spaced('[(typeof', prop, '===', '"number"', '&&', prop)
-        output.spaced('', '<', '0)', '?', expr), output.spaced('.length', '+', prop, ':', prop)
+        output.spaced(
+            '',
+            '<',
+            '0)',
+            '?',
+            expr
+        ), output.spaced('.length', '+', prop, ':', prop)
         output.print(']')
     else:
         output.print('[ρσ_bound_index('), prop.print(output), output.comma(), expr.print(output), output.print(')]')
@@ -127,19 +136,37 @@ def write_instanceof(left, right, output):
 
 def write_smart_equality(self, output):
     def is_ok(x):
-        return not (
-            is_node_type(x, AST_Array) or is_node_type(x, AST_Set) or is_node_type(x, AST_Object) or
-            is_node_type(x, AST_Statement) or is_node_type(x, AST_Binary) or is_node_type(x, AST_Conditional)
-            or is_node_type(x, AST_BaseCall)
-        )
+        return not (is_node_type(x, AST_Array) or is_node_type(x, AST_Set) or is_node_type(x, AST_Object) or is_node_type(x, AST_Statement) or is_node_type(x, AST_Binary) or is_node_type(x, AST_Conditional) or is_node_type(x, AST_BaseCall))
     if is_ok(self.left) and is_ok(self.right):
         if self.operator is '==':
             output.print('(')
-            output.spaced(self.left, '===', self.right, '||', 'typeof', self.left, '===', '"object"', '&&', 'ρσ_equals(')
+            output.spaced(
+                self.left,
+                '===',
+                self.right,
+                '||',
+                'typeof',
+                self.left,
+                '===',
+                '"object"',
+                '&&',
+                'ρσ_equals('
+            )
             self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print('))')
         else:
             output.print('(')
-            output.spaced(self.left, '!==', self.right, '&&', '(typeof', self.left, '!==', '"object"', '||', 'ρσ_not_equals(')
+            output.spaced(
+                self.left,
+                '!==',
+                self.right,
+                '&&',
+                '(typeof',
+                self.left,
+                '!==',
+                '"object"',
+                '||',
+                'ρσ_not_equals('
+            )
             self.left.print(output), output.print(','), output.space(), self.right.print(output), output.print(')))')
     else:
         output.print('ρσ_' + ('equals(' if self.operator is '==' else 'not_equals('))
@@ -167,7 +194,10 @@ def print_binary_op(self, output):
             output.comma()
             self.right.print(output)
         )
-    elif comparators[self.operator] and is_node_type(self.left, AST_Binary) and comparators[self.left.operator]:
+    elif comparators[self.operator] and is_node_type(
+        self.left,
+        AST_Binary
+    ) and comparators[self.left.operator]:
         # A chained comparison such as a < b < c
         if is_node_type(self.left.right, AST_Symbol):
             # left side compares against a regular variable,
@@ -210,7 +240,11 @@ def print_binary_op(self, output):
             left = self.left.expression
             output.print(self.left.operator)
         if output.options.js_version > 6:
-            output.print('(('), left.print(output), output.spaced(')', '**', '('), self.right.print(output), output.print('))')
+            output.print('(('), left.print(output), output.spaced(
+                ')',
+                '**',
+                '('
+            ), self.right.print(output), output.print('))')
         else:
             output.print('Math.pow('), left.print(output), output.comma(), self.right.print(output), output.print(')')
     elif self.operator is '==' or self.operator is '!=':
@@ -228,7 +262,11 @@ def print_binary_op(self, output):
         if nan_check is not None:
             # We use the fact that NaN is the only object that is not equal to
             # itself
-            output.spaced(nan_check, '!==' if self.operator is '===' else '===', nan_check)
+            output.spaced(
+                nan_check,
+                '!==' if self.operator is '===' else '===',
+                nan_check
+            )
         else:
             output.spaced(self.left, self.operator, self.right)
     else:
@@ -241,17 +279,48 @@ def print_existential(self, output):
     key = after_map[self.after] if self.after is None or jstype(self.after) is 'string' else 'e'
     if is_node_type(self.expression, AST_SymbolRef):
         if key is 'n':
-            output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null)')
+            output.spaced(
+                '(typeof',
+                self.expression,
+                '!==',
+                '"undefined"',
+                '&&',
+                self.expression,
+                '!==',
+                'null)'
+            )
             return
         if key is 'c':
-            output.spaced('(typeof', self.expression, '===', '"function"', '?', self.expression, ':', '(function(){return undefined;}))')
+            output.spaced(
+                '(typeof',
+                self.expression,
+                '===',
+                '"function"',
+                '?',
+                self.expression,
+                ':',
+                '(function(){return undefined;}))'
+            )
             return
         after = self.after
         if key is 'd':
             after = 'Object.create(null)'
         elif key is 'g':
             after = '{__getitem__:function(){return undefined;}}'
-        output.spaced('(typeof', self.expression, '!==', '"undefined"', '&&', self.expression, '!==', 'null', '?', self.expression, ':', after)
+        output.spaced(
+            '(typeof',
+            self.expression,
+            '!==',
+            '"undefined"',
+            '&&',
+            self.expression,
+            '!==',
+            'null',
+            '?',
+            self.expression,
+            ':',
+            after
+        )
         output.print(')')
         return
     output.print('ρσ_exists.' + key + '(')
@@ -282,7 +351,10 @@ def print_assignment(self, output):
         self.right.print(output)
     if is_node_type(left, AST_Array):
         output.end_statement()
-        if not is_node_type(self.right, AST_Seq) and not is_node_type(self.right, AST_Array):
+        if not is_node_type(
+            self.right,
+            AST_Seq
+        ) and not is_node_type(self.right, AST_Array):
             output.assign('ρσ_unpack')
             output.print('ρσ_unpack_asarray(' + flat.length), output.comma(), output.print('ρσ_unpack)')
             output.end_statement()
@@ -305,15 +377,24 @@ def print_assign(self, output):
         left_hand_sides, rhs = self.traverse_chain()
         is_compound_assign = False
         for lhs in left_hand_sides:
-            if is_node_type(lhs, AST_Seq) or is_node_type(lhs, AST_Array) or is_node_type(lhs, AST_ItemAccess):
+            if is_node_type(
+                lhs,
+                AST_Seq
+            ) or is_node_type(lhs, AST_Array) or is_node_type(lhs, AST_ItemAccess):
                 is_compound_assign = True
                 break
         if is_compound_assign:
             temp_rhs = new AST_SymbolRef({'name': 'ρσ_chain_assign_temp'})
-            print_assignment(new AST_Assign({'left': temp_rhs, 'operator': '=', 'right': rhs}), output)
+            print_assignment(
+                new AST_Assign({'left': temp_rhs, 'operator': '=', 'right': rhs}),
+                output
+            )
             for lhs in left_hand_sides:
                 output.end_statement(), output.indent()
-                print_assignment(new AST_Assign({'left': lhs, 'right': temp_rhs, 'operator': self.operator}), output)
+                print_assignment(
+                    new AST_Assign({'left': lhs, 'right': temp_rhs, 'operator': self.operator}),
+                    output
+                )
         else:
             for lhs in left_hand_sides:
                 output.spaced(lhs, '=', '')

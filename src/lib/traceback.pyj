@@ -106,15 +106,30 @@ def _parse_stack_frame(line):
     # Chrome/Node: "    at functionName (file:line:col)"
     m = /^\s*at\s+(.*?)\s+\((.+):(\d+):(\d+)\)/.exec(line)
     if m:
-        return {'func': m[1] or None, 'file': m[2], 'line': parseInt(m[3], 10) - 1, 'col': parseInt(m[4], 10) - 1}
+        return {
+            'func': m[1] or None,
+            'file': m[2],
+            'line': parseInt(m[3], 10) - 1,
+            'col': parseInt(m[4], 10) - 1,
+        }
     # Chrome/Node: "    at file:line:col"
     m = /^\s*at (.+):(\d+):(\d+)$/.exec(line)
     if m:
-        return {'func': None, 'file': m[1], 'line': parseInt(m[2], 10) - 1, 'col': parseInt(m[3], 10) - 1}
+        return {
+            'func': None,
+            'file': m[1],
+            'line': parseInt(m[2], 10) - 1,
+            'col': parseInt(m[3], 10) - 1,
+        }
     # Firefox: "functionName@file:line:col"
     m = /^(.*?)@(.+):(\d+):(\d+)$/.exec(line)
     if m:
-        return {'func': m[1] or None, 'file': m[2], 'line': parseInt(m[3], 10) - 1, 'col': parseInt(m[4], 10) - 1}
+        return {
+            'func': m[1] or None,
+            'file': m[2],
+            'line': parseInt(m[3], 10) - 1,
+            'col': parseInt(m[4], 10) - 1,
+        }
     return None
 
 

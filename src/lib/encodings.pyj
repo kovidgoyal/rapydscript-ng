@@ -12,13 +12,28 @@ def base64encode(bytes, altchars, pad_char):
     ans = v'[]'
     for v'var i = 0; i < main_length; i += 3':
         chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
-        ans.push(encodings[(chunk & 16515072) >> 18], encodings[(chunk & 258048) >> 12], encodings[(chunk & 4032) >> 6], encodings[chunk & 63])
+        ans.push(
+            encodings[(chunk & 16515072) >> 18],
+            encodings[(chunk & 258048) >> 12],
+            encodings[(chunk & 4032) >> 6],
+            encodings[chunk & 63]
+        )
     if remainder is 1:
         chunk = bytes[main_length]
-        ans.push(encodings[(chunk & 252) >> 2], encodings[(chunk & 3) << 4], pad_char, pad_char)
+        ans.push(
+            encodings[(chunk & 252) >> 2],
+            encodings[(chunk & 3) << 4],
+            pad_char,
+            pad_char
+        )
     elif remainder is 2:
         chunk = (bytes[main_length] << 8) | bytes[main_length + 1]
-        ans.push(encodings[(chunk & 64512) >> 10], encodings[(chunk & 1008) >> 4], encodings[(chunk & 15) << 2], pad_char)
+        ans.push(
+            encodings[(chunk & 64512) >> 10],
+            encodings[(chunk & 1008) >> 4],
+            encodings[(chunk & 15) << 2],
+            pad_char
+        )
     return ans.join('')
 
 

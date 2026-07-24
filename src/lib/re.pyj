@@ -473,7 +473,15 @@ _ALIAS_MAP = {
 }
 # }}}
 
-_ASCII_CONTROL_CHARS = {'a': 7, 'b': 8, 'f': 12, 'n': 10, 'r': 13, 't': 9, 'v': 11}
+_ASCII_CONTROL_CHARS = {
+    'a': 7,
+    'b': 8,
+    'f': 12,
+    'n': 10,
+    'r': 13,
+    't': 9,
+    'v': 11,
+}
 _HEX_PAT = /^[a-fA-F0-9]/
 _NUM_PAT = /^[0-9]/
 _GROUP_PAT = /<([^>]+)>/
@@ -534,7 +542,13 @@ def _expand(groups, repl, group_name_map):
         if _ASCII_CONTROL_CHARS[q]:
             return String.fromCharCode(_ASCII_CONTROL_CHARS[q])
         if '0' <= q <= '9':
-            ans = read_digits(Number.MAX_VALUE, _NUM_PAT, 10, Number.MAX_VALUE, q)
+            ans = read_digits(
+                Number.MAX_VALUE,
+                _NUM_PAT,
+                10,
+                Number.MAX_VALUE,
+                q
+            )
             if jstype(ans) is 'number':
                 return groups[ans] or ''
             return '\\' + ans
@@ -564,7 +578,10 @@ def _expand(groups, repl, group_name_map):
                 if code <= 0xFFFF:
                     return String.fromCharCode(code)
                 code -= 0x10000
-                return String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
+                return String.fromCharCode(
+                    0xD800 + (code >> 10),
+                    0xDC00 + (code & 0x3FF)
+                )
             return '\\U' + code
         if q is 'N' and peek() is '{':
             next()
@@ -581,7 +598,10 @@ def _expand(groups, repl, group_name_map):
             if code <= 0xFFFF:
                 return String.fromCharCode(code)
             code -= 0x10000
-            return String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
+            return String.fromCharCode(
+                0xD800 + (code >> 10),
+                0xDC00 + (code & 0x3FF)
+            )
 
         return '\\' + q
 
@@ -637,7 +657,15 @@ def transform_regex(source, flags):
                     pos = close + 1
                     continue
                 if 'aiLmsux'.indexOf(extension) is not -1:
-                    flag_map = {'a': ASCII, 'i': IGNORECASE, 'L': LOCALE, 'm': MULTILINE, 's': DOTALL, 'u': UNICODE, 'x': VERBOSE}
+                    flag_map = {
+                        'a': ASCII,
+                        'i': IGNORECASE,
+                        'L': LOCALE,
+                        'm': MULTILINE,
+                        's': DOTALL,
+                        'u': UNICODE,
+                        'x': VERBOSE,
+                    }
                     close = source.indexOf(')', pos + 1)
                     if close is -1:
                         raise SyntaxError('Expecting a closing )')
@@ -812,8 +840,14 @@ class MatchObject:
 
 class RegexObject:
     def __init__(self, pattern, flags):
-        self.pattern = pattern.source if isinstance(pattern, RegExp) else pattern
-        self.js_pattern, self.flags, self.group_name_map = transform_regex(self.pattern, flags)
+        self.pattern = pattern.source if isinstance(
+            pattern,
+            RegExp
+        ) else pattern
+        self.js_pattern, self.flags, self.group_name_map = transform_regex(
+            self.pattern,
+            flags
+        )
 
         modifiers = ''
         if self.flags & IGNORECASE: modifiers += 'i'
@@ -838,7 +872,12 @@ class RegexObject:
         return self._do_search(self._pattern, string, pos, endpos)
 
     def match(self, string, pos=0, endpos=None):
-        return self._do_search(RegExp('^' + self.js_pattern, self._modifiers), string, pos, endpos)
+        return self._do_search(
+            RegExp('^' + self.js_pattern, self._modifiers),
+            string,
+            pos,
+            endpos
+        )
 
     def split(self, string, maxsplit=0):
         self._pattern.lastIndex = 0
@@ -850,7 +889,10 @@ class RegexObject:
 
     def finditer(self, string):
         # We have to copy pat since lastIndex is mutable
-        pat = RegExp(this._pattern.source, this._modifiers)  # noqa: unused-local
+        pat = RegExp(
+            this._pattern.source,
+            this._modifiers
+        )  # noqa: unused-local
         ans = v"{'_string':string, '_r':pat, '_self':self}"
         ans[ρσ_iterator_symbol] = def ():
             return this
@@ -880,7 +922,11 @@ class RegexObject:
             m = matches[i]  # noqa:undef
             start = m.index
             end = start + m[0].length
-            string = string[:start] + expand(m, repl, self.group_name_map) + string[end:]
+            string = string[:start] + expand(
+                m,
+                repl,
+                self.group_name_map
+            ) + string[end:]
         return string, matches.length
 
     def sub(self, repl, string, count=0):

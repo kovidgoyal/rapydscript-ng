@@ -95,5 +95,8 @@ def print_regexp(self, output):
         str_ = output.to_ascii(str_)
     output.print(str_)
     p = output.parent()
-    if is_node_type(p, AST_Binary) and /^in/.test(p.operator) and p.left is self:
+    if is_node_type(
+        p,
+        AST_Binary
+    ) and /^in/.test(p.operator) and p.left is self:
         output.print(' ')
