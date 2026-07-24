@@ -1,3 +1,7 @@
+version 0.8.4
+================
+  * Fix LSP ignoring globals: comments
+
 version 0.8.3
 =======================
 

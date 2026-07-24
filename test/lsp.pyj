@@ -50,6 +50,22 @@ async def test_diagnostics():
     assrt.ok(c['import-unresolved'], 'expected import-unresolved for nonexistent_module')
     fs.rmSync(tmp, {'recursive': True})
 
+async def test_globals_directive_suppresses_undef():
+    tmp = write_workspace()
+    ctx = make_ctx(tmp)
+    uri = uri_of(path.join(tmp, 'globals_test.pyj'))
+    # ext_func is declared via # globals: so it must not produce an undef diagnostic.
+    text = '# globals: ext_func\n\nresult = ext_func(42)\n'
+    diags = await lsp.compute_diagnostics(ctx, uri, text)
+    c = codes(diags)
+    assrt.ok(not c['undef'], 'ext_func declared in # globals: must not be flagged as undef')
+    # A name NOT in # globals: must still be flagged.
+    text2 = '# globals: ext_func\n\nresult = ext_func(42)\nbad = undeclared_thing()\n'
+    diags2 = await lsp.compute_diagnostics(ctx, uri, text2)
+    c2 = codes(diags2)
+    assrt.ok(c2['undef'], 'undeclared_thing not in # globals: must still be flagged as undef')
+    fs.rmSync(tmp, {'recursive': True})
+
 async def test_hover_and_definition():
     tmp = write_workspace()
     ctx = make_ctx(tmp)

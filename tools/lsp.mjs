@@ -230,7 +230,7 @@ export async function compute_diagnostics(ctx, uri, raw_text) {
     // 2. Linter diagnostics -- only when the file parsed cleanly, so we do not
     //    emit misleading undefined/unused warnings from a partial AST.
     if (a.toplevel && (!a.recovered_errors || a.recovered_errors.length === 0)) {
-        var builtins = utils.merge(BUILTINS);
+        var builtins = utils.merge(BUILTINS, file_globals(a.text));
         var messages = lint_parsed(a.toplevel, a.text, { filename: a.file_path, builtins: builtins, noqa: file_noqa(a.text) });
         messages.forEach(function (m) {
             out.push(lint_message_to_diagnostic(doc, m));
@@ -263,6 +263,16 @@ function file_noqa(code) {
         if (lq.slice(0, 6).toLowerCase() === '#noqa:') (lq.split(':', 2)[1] || '').split(',').forEach(function (x) { if (x) noqa[x] = true; });
     });
     return noqa;
+}
+
+// Parse `# globals: a,b` file-level directives from the first lines (mirrors lint cli).
+function file_globals(code) {
+    var globals = Object.create(null);
+    code.split('\n', 20).forEach(function (line) {
+        var lq = line.replace(/\s+/g, '');
+        if (lq.slice(0, 9).toLowerCase() === '#globals:') (lq.split(':', 2)[1] || '').split(',').forEach(function (x) { if (x) globals[x] = true; });
+    });
+    return globals;
 }
 
 function lint_message_to_diagnostic(doc, m) {
