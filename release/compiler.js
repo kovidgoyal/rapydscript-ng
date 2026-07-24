@@ -4499,10 +4499,6 @@ var str = ρσ_str, repr = ρσ_repr;;
     ρσ_modules.output = {};
     ρσ_modules.utils = {};
     ρσ_modules.ast = {};
-    ρσ_modules.string_interpolation = {};
-    ρσ_modules.unicode_aliases = {};
-    ρσ_modules.tokenizer = {};
-    ρσ_modules["output.stream"] = {};
     ρσ_modules["output.loops"] = {};
     ρσ_modules["output.operators"] = {};
     ρσ_modules["output.statements"] = {};
@@ -4513,8 +4509,12 @@ var str = ρσ_str, repr = ρσ_repr;;
     ρσ_modules["output.exceptions"] = {};
     ρσ_modules["output.literals"] = {};
     ρσ_modules["output.modules"] = {};
+    ρσ_modules.string_interpolation = {};
+    ρσ_modules.unicode_aliases = {};
+    ρσ_modules.tokenizer = {};
     ρσ_modules.parse = {};
     ρσ_modules["output.codegen"] = {};
+    ρσ_modules["output.stream"] = {};
 
     (function(){
         var __name__ = "errors";
@@ -8767,1802 +8767,6 @@ return this.__repr__();
     })();
 
     (function(){
-        var __name__ = "string_interpolation";
-        function quoted_string(x) {
-            return "\"" + x.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"";
-        };
-        if (!quoted_string.__argnames__) Object.defineProperties(quoted_string, {
-            __argnames__ : {value: ["x"]},
-            __module__ : {value: "string_interpolation"}
-        });
-
-        function render_markup(markup) {
-            var ρσ_unpack, pos, key, ch, fmtspec, prefix;
-            ρσ_unpack = [0, ""];
-            pos = ρσ_unpack[0];
-            key = ρσ_unpack[1];
-            while (pos < markup.length) {
-                ch = markup[(typeof pos === "number" && pos < 0) ? markup.length + pos : pos];
-                if (ch === "!" || ch === ":") {
-                    break;
-                }
-                key += ch;
-                pos += 1;
-            }
-            fmtspec = markup.slice(pos);
-            prefix = "";
-            if (key.endsWith("=")) {
-                prefix = key;
-                key = key.slice(0, -1);
-            }
-            return "ρσ_str.format(\"" + prefix + "{" + fmtspec + "}\", " + key + ")";
-        };
-        if (!render_markup.__argnames__) Object.defineProperties(render_markup, {
-            __argnames__ : {value: ["markup"]},
-            __module__ : {value: "string_interpolation"}
-        });
-
-        function interpolate(template, raise_error) {
-            var pos, in_brace, markup, ans, ch;
-            pos = in_brace = 0;
-            markup = "";
-            ans = [""];
-            while (pos < template.length) {
-                ch = template[(typeof pos === "number" && pos < 0) ? template.length + pos : pos];
-                if (in_brace) {
-                    if (ch === "{") {
-                        in_brace += 1;
-                        markup += "{";
-                    } else if (ch === "}") {
-                        in_brace -= 1;
-                        if (in_brace > 0) {
-                            markup += "}";
-                        } else {
-                            ans.push([markup]);
-                            ans.push("");
-                        }
-                    } else {
-                        markup += ch;
-                    }
-                } else {
-                    if (ch === "{") {
-                        if (template[ρσ_bound_index(pos + 1, template)] === "{") {
-                            pos += 1;
-                            ans[ans.length-1] += "{";
-                        } else {
-                            in_brace = 1;
-                            markup = "";
-                        }
-                    } else if (ch === "}") {
-                        if (template[ρσ_bound_index(pos + 1, template)] === "}") {
-                            pos += 1;
-                            ans[ans.length-1] += "}";
-                        } else {
-                            raise_error("f-string: single '}' is not allowed");
-                        }
-                    } else {
-                        ans[ans.length-1] += ch;
-                    }
-                }
-                pos += 1;
-            }
-            if (in_brace) {
-                raise_error("expected '}' before end of string");
-            }
-            if (ans[ans.length-1] === "+") {
-                ans[ans.length-1] = "";
-            }
-            for (var i = 0; i < ans.length; i++) {
-                if (typeof ans[(typeof i === "number" && i < 0) ? ans.length + i : i] === "string") {
-                    ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = quoted_string(ans[(typeof i === "number" && i < 0) ? ans.length + i : i]);
-                } else {
-                    ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = "+" + render_markup.apply(this, ans[(typeof i === "number" && i < 0) ? ans.length + i : i]) + "+";
-                }
-            }
-            return ans.join("");
-        };
-        if (!interpolate.__argnames__) Object.defineProperties(interpolate, {
-            __argnames__ : {value: ["template", "raise_error"]},
-            __module__ : {value: "string_interpolation"}
-        });
-
-        ρσ_modules.string_interpolation.quoted_string = quoted_string;
-        ρσ_modules.string_interpolation.render_markup = render_markup;
-        ρσ_modules.string_interpolation.interpolate = interpolate;
-    })();
-
-    (function(){
-        var __name__ = "unicode_aliases";
-        var DB, ALIAS_MAP;
-        DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
-        ALIAS_MAP = (function() {
-            var ρσ_anonfunc = function () {
-                var ans, line, parts, code_point;
-                ans = {};
-                var ρσ_Iter32 = DB.split("\n");
-                ρσ_Iter32 = ((typeof ρσ_Iter32[Symbol.iterator] === "function") ? (ρσ_Iter32 instanceof Map ? ρσ_Iter32.keys() : ρσ_Iter32) : Object.keys(ρσ_Iter32));
-                for (var ρσ_Index32 of ρσ_Iter32) {
-                    line = ρσ_Index32;
-                    line = line.trim();
-                    if (!line || line[0] === "#") {
-                        continue;
-                    }
-                    parts = line.split(";");
-                    if (parts.length >= 2) {
-                        code_point = parseInt(parts[0], 16);
-                        if (code_point !== undefined && parts[1]) {
-                            ans[ρσ_bound_index(parts[1].toLowerCase(), ans)] = code_point;
-                        }
-                    }
-                }
-                return ans;
-            };
-            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                __module__ : {value: "unicode_aliases"}
-            });
-            return ρσ_anonfunc;
-        })()();
-        ρσ_modules.unicode_aliases.DB = DB;
-        ρσ_modules.unicode_aliases.ALIAS_MAP = ALIAS_MAP;
-    })();
-
-    (function(){
-        var __name__ = "tokenizer";
-        var RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATOR_CHARS, ASCII_CONTROL_CHARS, HEX_PAT, NAME_PAT, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, KEYWORDS, KEYWORDS_ATOM, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, ALL_KEYWORDS, IDENTIFIER_PAT, UNICODE, EX_EOF;
-        var AST_Token = ρσ_modules.ast.AST_Token;
-
-        var SyntaxError = ρσ_modules.errors.SyntaxError;
-
-        var interpolate = ρσ_modules.string_interpolation.interpolate;
-        var quoted_string = ρσ_modules.string_interpolation.quoted_string;
-
-        var ALIAS_MAP = ρσ_modules.unicode_aliases.ALIAS_MAP;
-
-        var make_predicate = ρσ_modules.utils.make_predicate;
-        var characters = ρσ_modules.utils.characters;
-
-        RE_HEX_NUMBER = /^0x[0-9a-f]+$/i;
-        RE_OCT_NUMBER = /^0[0-7]+$/;
-        RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i;
-        OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"));
-        ASCII_CONTROL_CHARS = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["a"] = 7;
-            ρσ_d["b"] = 8;
-            ρσ_d["f"] = 12;
-            ρσ_d["n"] = 10;
-            ρσ_d["r"] = 13;
-            ρσ_d["t"] = 9;
-            ρσ_d["v"] = 11;
-            return ρσ_d;
-        }).call(this);
-        HEX_PAT = /[a-fA-F0-9]/;
-        NAME_PAT = /[a-zA-Z ]/;
-        OPERATORS = make_predicate([ "in", "instanceof", "typeof", "new", "void", "del", "+", "-", "not", "~", "&", "|", "^", "**", "*", "//", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "is", "!=", "=", "+=", "-=", "//=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "and", "or", "@", "->" ]);
-        OP_MAP = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["or"] = "||";
-            ρσ_d["and"] = "&&";
-            ρσ_d["not"] = "!";
-            ρσ_d["del"] = "delete";
-            ρσ_d["None"] = "null";
-            ρσ_d["is"] = "===";
-            return ρσ_d;
-        }).call(this);
-        WHITESPACE_CHARS = make_predicate(characters("  \n\r\t\f\u000b​᠎           \u202f 　"));
-        PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"));
-        PUNC_CHARS = make_predicate(characters("[]{}(),;:?"));
-        KEYWORDS = "as assert async await break class continue def del do elif else except finally for from global if import in is new nonlocal pass raise return yield try while with or and not";
-        KEYWORDS_ATOM = "False None True";
-        RESERVED_WORDS = "break case class catch const continue debugger default delete do else export extends finally for function if import in instanceof new return super switch this throw try typeof var void while with yield enum implements static private package let public protected interface null true false";
-        KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if await";
-        ALL_KEYWORDS = KEYWORDS + " " + KEYWORDS_ATOM;
-        KEYWORDS = make_predicate(KEYWORDS);
-        RESERVED_WORDS = make_predicate(RESERVED_WORDS);
-        KEYWORDS_BEFORE_EXPRESSION = make_predicate(KEYWORDS_BEFORE_EXPRESSION);
-        KEYWORDS_ATOM = make_predicate(KEYWORDS_ATOM);
-        IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i;
-        function is_string_modifier(val) {
-            var ch;
-            var ρσ_Iter33 = val;
-            ρσ_Iter33 = ((typeof ρσ_Iter33[Symbol.iterator] === "function") ? (ρσ_Iter33 instanceof Map ? ρσ_Iter33.keys() : ρσ_Iter33) : Object.keys(ρσ_Iter33));
-            for (var ρσ_Index33 of ρσ_Iter33) {
-                ch = ρσ_Index33;
-                if ("vrufVRUF".indexOf(ch) === -1) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        if (!is_string_modifier.__argnames__) Object.defineProperties(is_string_modifier, {
-            __argnames__ : {value: ["val"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_letter(code) {
-            return code >= 97 && code <= 122 || code >= 65 && code <= 90 || code >= 170 && UNICODE.letter.test(String.fromCharCode(code));
-        };
-        if (!is_letter.__argnames__) Object.defineProperties(is_letter, {
-            __argnames__ : {value: ["code"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_digit(code) {
-            return code >= 48 && code <= 57;
-        };
-        if (!is_digit.__argnames__) Object.defineProperties(is_digit, {
-            __argnames__ : {value: ["code"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_alphanumeric_char(code) {
-            return is_digit(code) || is_letter(code);
-        };
-        if (!is_alphanumeric_char.__argnames__) Object.defineProperties(is_alphanumeric_char, {
-            __argnames__ : {value: ["code"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_unicode_combining_mark(ch) {
-            return UNICODE.non_spacing_mark.test(ch) || UNICODE.space_combining_mark.test(ch);
-        };
-        if (!is_unicode_combining_mark.__argnames__) Object.defineProperties(is_unicode_combining_mark, {
-            __argnames__ : {value: ["ch"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_unicode_connector_punctuation(ch) {
-            return UNICODE.connector_punctuation.test(ch);
-        };
-        if (!is_unicode_connector_punctuation.__argnames__) Object.defineProperties(is_unicode_connector_punctuation, {
-            __argnames__ : {value: ["ch"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_identifier(name) {
-            return !RESERVED_WORDS[(typeof name === "number" && name < 0) ? RESERVED_WORDS.length + name : name] && !KEYWORDS[(typeof name === "number" && name < 0) ? KEYWORDS.length + name : name] && !KEYWORDS_ATOM[(typeof name === "number" && name < 0) ? KEYWORDS_ATOM.length + name : name] && IDENTIFIER_PAT.test(name);
-        };
-        if (!is_identifier.__argnames__) Object.defineProperties(is_identifier, {
-            __argnames__ : {value: ["name"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_identifier_start(code) {
-            return code === 36 || code === 95 || is_letter(code);
-        };
-        if (!is_identifier_start.__argnames__) Object.defineProperties(is_identifier_start, {
-            __argnames__ : {value: ["code"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function is_identifier_char(ch) {
-            var code;
-            code = ch.charCodeAt(0);
-            return is_identifier_start(code) || is_digit(code) || code === 8204 || code === 8205 || is_unicode_combining_mark(ch) || is_unicode_connector_punctuation(ch);
-        };
-        if (!is_identifier_char.__argnames__) Object.defineProperties(is_identifier_char, {
-            __argnames__ : {value: ["ch"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        function parse_js_number(num) {
-            if (RE_HEX_NUMBER.test(num)) {
-                return parseInt(num.substr(2), 16);
-            } else if (RE_OCT_NUMBER.test(num)) {
-                return parseInt(num.substr(1), 8);
-            } else if (RE_DEC_NUMBER.test(num)) {
-                return parseFloat(num);
-            }
-        };
-        if (!parse_js_number.__argnames__) Object.defineProperties(parse_js_number, {
-            __argnames__ : {value: ["num"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        UNICODE = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["letter"] = new RegExp("[\\u0041-\\u005A\\u0061-\\u007A\\u00AA\\u00B5\\u00BA\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02C1\\u02C6-\\u02D1\\u02E0-\\u02E4\\u02EC\\u02EE\\u0370-\\u0374\\u0376\\u0377\\u037A-\\u037D\\u0386\\u0388-\\u038A\\u038C\\u038E-\\u03A1\\u03A3-\\u03F5\\u03F7-\\u0481\\u048A-\\u0523\\u0531-\\u0556\\u0559\\u0561-\\u0587\\u05D0-\\u05EA\\u05F0-\\u05F2\\u0621-\\u064A\\u066E\\u066F\\u0671-\\u06D3\\u06D5\\u06E5\\u06E6\\u06EE\\u06EF\\u06FA-\\u06FC\\u06FF\\u0710\\u0712-\\u072F\\u074D-\\u07A5\\u07B1\\u07CA-\\u07EA\\u07F4\\u07F5\\u07FA\\u0904-\\u0939\\u093D\\u0950\\u0958-\\u0961\\u0971\\u0972\\u097B-\\u097F\\u0985-\\u098C\\u098F\\u0990\\u0993-\\u09A8\\u09AA-\\u09B0\\u09B2\\u09B6-\\u09B9\\u09BD\\u09CE\\u09DC\\u09DD\\u09DF-\\u09E1\\u09F0\\u09F1\\u0A05-\\u0A0A\\u0A0F\\u0A10\\u0A13-\\u0A28\\u0A2A-\\u0A30\\u0A32\\u0A33\\u0A35\\u0A36\\u0A38\\u0A39\\u0A59-\\u0A5C\\u0A5E\\u0A72-\\u0A74\\u0A85-\\u0A8D\\u0A8F-\\u0A91\\u0A93-\\u0AA8\\u0AAA-\\u0AB0\\u0AB2\\u0AB3\\u0AB5-\\u0AB9\\u0ABD\\u0AD0\\u0AE0\\u0AE1\\u0B05-\\u0B0C\\u0B0F\\u0B10\\u0B13-\\u0B28\\u0B2A-\\u0B30\\u0B32\\u0B33\\u0B35-\\u0B39\\u0B3D\\u0B5C\\u0B5D\\u0B5F-\\u0B61\\u0B71\\u0B83\\u0B85-\\u0B8A\\u0B8E-\\u0B90\\u0B92-\\u0B95\\u0B99\\u0B9A\\u0B9C\\u0B9E\\u0B9F\\u0BA3\\u0BA4\\u0BA8-\\u0BAA\\u0BAE-\\u0BB9\\u0BD0\\u0C05-\\u0C0C\\u0C0E-\\u0C10\\u0C12-\\u0C28\\u0C2A-\\u0C33\\u0C35-\\u0C39\\u0C3D\\u0C58\\u0C59\\u0C60\\u0C61\\u0C85-\\u0C8C\\u0C8E-\\u0C90\\u0C92-\\u0CA8\\u0CAA-\\u0CB3\\u0CB5-\\u0CB9\\u0CBD\\u0CDE\\u0CE0\\u0CE1\\u0D05-\\u0D0C\\u0D0E-\\u0D10\\u0D12-\\u0D28\\u0D2A-\\u0D39\\u0D3D\\u0D60\\u0D61\\u0D7A-\\u0D7F\\u0D85-\\u0D96\\u0D9A-\\u0DB1\\u0DB3-\\u0DBB\\u0DBD\\u0DC0-\\u0DC6\\u0E01-\\u0E30\\u0E32\\u0E33\\u0E40-\\u0E46\\u0E81\\u0E82\\u0E84\\u0E87\\u0E88\\u0E8A\\u0E8D\\u0E94-\\u0E97\\u0E99-\\u0E9F\\u0EA1-\\u0EA3\\u0EA5\\u0EA7\\u0EAA\\u0EAB\\u0EAD-\\u0EB0\\u0EB2\\u0EB3\\u0EBD\\u0EC0-\\u0EC4\\u0EC6\\u0EDC\\u0EDD\\u0F00\\u0F40-\\u0F47\\u0F49-\\u0F6C\\u0F88-\\u0F8B\\u1000-\\u102A\\u103F\\u1050-\\u1055\\u105A-\\u105D\\u1061\\u1065\\u1066\\u106E-\\u1070\\u1075-\\u1081\\u108E\\u10A0-\\u10C5\\u10D0-\\u10FA\\u10FC\\u1100-\\u1159\\u115F-\\u11A2\\u11A8-\\u11F9\\u1200-\\u1248\\u124A-\\u124D\\u1250-\\u1256\\u1258\\u125A-\\u125D\\u1260-\\u1288\\u128A-\\u128D\\u1290-\\u12B0\\u12B2-\\u12B5\\u12B8-\\u12BE\\u12C0\\u12C2-\\u12C5\\u12C8-\\u12D6\\u12D8-\\u1310\\u1312-\\u1315\\u1318-\\u135A\\u1380-\\u138F\\u13A0-\\u13F4\\u1401-\\u166C\\u166F-\\u1676\\u1681-\\u169A\\u16A0-\\u16EA\\u1700-\\u170C\\u170E-\\u1711\\u1720-\\u1731\\u1740-\\u1751\\u1760-\\u176C\\u176E-\\u1770\\u1780-\\u17B3\\u17D7\\u17DC\\u1820-\\u1877\\u1880-\\u18A8\\u18AA\\u1900-\\u191C\\u1950-\\u196D\\u1970-\\u1974\\u1980-\\u19A9\\u19C1-\\u19C7\\u1A00-\\u1A16\\u1B05-\\u1B33\\u1B45-\\u1B4B\\u1B83-\\u1BA0\\u1BAE\\u1BAF\\u1C00-\\u1C23\\u1C4D-\\u1C4F\\u1C5A-\\u1C7D\\u1D00-\\u1DBF\\u1E00-\\u1F15\\u1F18-\\u1F1D\\u1F20-\\u1F45\\u1F48-\\u1F4D\\u1F50-\\u1F57\\u1F59\\u1F5B\\u1F5D\\u1F5F-\\u1F7D\\u1F80-\\u1FB4\\u1FB6-\\u1FBC\\u1FBE\\u1FC2-\\u1FC4\\u1FC6-\\u1FCC\\u1FD0-\\u1FD3\\u1FD6-\\u1FDB\\u1FE0-\\u1FEC\\u1FF2-\\u1FF4\\u1FF6-\\u1FFC\\u2071\\u207F\\u2090-\\u2094\\u2102\\u2107\\u210A-\\u2113\\u2115\\u2119-\\u211D\\u2124\\u2126\\u2128\\u212A-\\u212D\\u212F-\\u2139\\u213C-\\u213F\\u2145-\\u2149\\u214E\\u2183\\u2184\\u2C00-\\u2C2E\\u2C30-\\u2C5E\\u2C60-\\u2C6F\\u2C71-\\u2C7D\\u2C80-\\u2CE4\\u2D00-\\u2D25\\u2D30-\\u2D65\\u2D6F\\u2D80-\\u2D96\\u2DA0-\\u2DA6\\u2DA8-\\u2DAE\\u2DB0-\\u2DB6\\u2DB8-\\u2DBE\\u2DC0-\\u2DC6\\u2DC8-\\u2DCE\\u2DD0-\\u2DD6\\u2DD8-\\u2DDE\\u2E2F\\u3005\\u3006\\u3031-\\u3035\\u303B\\u303C\\u3041-\\u3096\\u309D-\\u309F\\u30A1-\\u30FA\\u30FC-\\u30FF\\u3105-\\u312D\\u3131-\\u318E\\u31A0-\\u31B7\\u31F0-\\u31FF\\u3400\\u4DB5\\u4E00\\u9FC3\\uA000-\\uA48C\\uA500-\\uA60C\\uA610-\\uA61F\\uA62A\\uA62B\\uA640-\\uA65F\\uA662-\\uA66E\\uA67F-\\uA697\\uA717-\\uA71F\\uA722-\\uA788\\uA78B\\uA78C\\uA7FB-\\uA801\\uA803-\\uA805\\uA807-\\uA80A\\uA80C-\\uA822\\uA840-\\uA873\\uA882-\\uA8B3\\uA90A-\\uA925\\uA930-\\uA946\\uAA00-\\uAA28\\uAA40-\\uAA42\\uAA44-\\uAA4B\\uAC00\\uD7A3\\uF900-\\uFA2D\\uFA30-\\uFA6A\\uFA70-\\uFAD9\\uFB00-\\uFB06\\uFB13-\\uFB17\\uFB1D\\uFB1F-\\uFB28\\uFB2A-\\uFB36\\uFB38-\\uFB3C\\uFB3E\\uFB40\\uFB41\\uFB43\\uFB44\\uFB46-\\uFBB1\\uFBD3-\\uFD3D\\uFD50-\\uFD8F\\uFD92-\\uFDC7\\uFDF0-\\uFDFB\\uFE70-\\uFE74\\uFE76-\\uFEFC\\uFF21-\\uFF3A\\uFF41-\\uFF5A\\uFF66-\\uFFBE\\uFFC2-\\uFFC7\\uFFCA-\\uFFCF\\uFFD2-\\uFFD7\\uFFDA-\\uFFDC]");
-            ρσ_d["non_spacing_mark"] = new RegExp("[\\u0300-\\u036F\\u0483-\\u0487\\u0591-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u05C5\\u05C7\\u0610-\\u061A\\u064B-\\u065E\\u0670\\u06D6-\\u06DC\\u06DF-\\u06E4\\u06E7\\u06E8\\u06EA-\\u06ED\\u0711\\u0730-\\u074A\\u07A6-\\u07B0\\u07EB-\\u07F3\\u0816-\\u0819\\u081B-\\u0823\\u0825-\\u0827\\u0829-\\u082D\\u0900-\\u0902\\u093C\\u0941-\\u0948\\u094D\\u0951-\\u0955\\u0962\\u0963\\u0981\\u09BC\\u09C1-\\u09C4\\u09CD\\u09E2\\u09E3\\u0A01\\u0A02\\u0A3C\\u0A41\\u0A42\\u0A47\\u0A48\\u0A4B-\\u0A4D\\u0A51\\u0A70\\u0A71\\u0A75\\u0A81\\u0A82\\u0ABC\\u0AC1-\\u0AC5\\u0AC7\\u0AC8\\u0ACD\\u0AE2\\u0AE3\\u0B01\\u0B3C\\u0B3F\\u0B41-\\u0B44\\u0B4D\\u0B56\\u0B62\\u0B63\\u0B82\\u0BC0\\u0BCD\\u0C3E-\\u0C40\\u0C46-\\u0C48\\u0C4A-\\u0C4D\\u0C55\\u0C56\\u0C62\\u0C63\\u0CBC\\u0CBF\\u0CC6\\u0CCC\\u0CCD\\u0CE2\\u0CE3\\u0D41-\\u0D44\\u0D4D\\u0D62\\u0D63\\u0DCA\\u0DD2-\\u0DD4\\u0DD6\\u0E31\\u0E34-\\u0E3A\\u0E47-\\u0E4E\\u0EB1\\u0EB4-\\u0EB9\\u0EBB\\u0EBC\\u0EC8-\\u0ECD\\u0F18\\u0F19\\u0F35\\u0F37\\u0F39\\u0F71-\\u0F7E\\u0F80-\\u0F84\\u0F86\\u0F87\\u0F90-\\u0F97\\u0F99-\\u0FBC\\u0FC6\\u102D-\\u1030\\u1032-\\u1037\\u1039\\u103A\\u103D\\u103E\\u1058\\u1059\\u105E-\\u1060\\u1071-\\u1074\\u1082\\u1085\\u1086\\u108D\\u109D\\u135F\\u1712-\\u1714\\u1732-\\u1734\\u1752\\u1753\\u1772\\u1773\\u17B7-\\u17BD\\u17C6\\u17C9-\\u17D3\\u17DD\\u180B-\\u180D\\u18A9\\u1920-\\u1922\\u1927\\u1928\\u1932\\u1939-\\u193B\\u1A17\\u1A18\\u1A56\\u1A58-\\u1A5E\\u1A60\\u1A62\\u1A65-\\u1A6C\\u1A73-\\u1A7C\\u1A7F\\u1B00-\\u1B03\\u1B34\\u1B36-\\u1B3A\\u1B3C\\u1B42\\u1B6B-\\u1B73\\u1B80\\u1B81\\u1BA2-\\u1BA5\\u1BA8\\u1BA9\\u1C2C-\\u1C33\\u1C36\\u1C37\\u1CD0-\\u1CD2\\u1CD4-\\u1CE0\\u1CE2-\\u1CE8\\u1CED\\u1DC0-\\u1DE6\\u1DFD-\\u1DFF\\u20D0-\\u20DC\\u20E1\\u20E5-\\u20F0\\u2CEF-\\u2CF1\\u2DE0-\\u2DFF\\u302A-\\u302F\\u3099\\u309A\\uA66F\\uA67C\\uA67D\\uA6F0\\uA6F1\\uA802\\uA806\\uA80B\\uA825\\uA826\\uA8C4\\uA8E0-\\uA8F1\\uA926-\\uA92D\\uA947-\\uA951\\uA980-\\uA982\\uA9B3\\uA9B6-\\uA9B9\\uA9BC\\uAA29-\\uAA2E\\uAA31\\uAA32\\uAA35\\uAA36\\uAA43\\uAA4C\\uAAB0\\uAAB2-\\uAAB4\\uAAB7\\uAAB8\\uAABE\\uAABF\\uAAC1\\uABE5\\uABE8\\uABED\\uFB1E\\uFE00-\\uFE0F\\uFE20-\\uFE26]");
-            ρσ_d["space_combining_mark"] = new RegExp("[\\u0903\\u093E-\\u0940\\u0949-\\u094C\\u094E\\u0982\\u0983\\u09BE-\\u09C0\\u09C7\\u09C8\\u09CB\\u09CC\\u09D7\\u0A03\\u0A3E-\\u0A40\\u0A83\\u0ABE-\\u0AC0\\u0AC9\\u0ACB\\u0ACC\\u0B02\\u0B03\\u0B3E\\u0B40\\u0B47\\u0B48\\u0B4B\\u0B4C\\u0B57\\u0BBE\\u0BBF\\u0BC1\\u0BC2\\u0BC6-\\u0BC8\\u0BCA-\\u0BCC\\u0BD7\\u0C01-\\u0C03\\u0C41-\\u0C44\\u0C82\\u0C83\\u0CBE\\u0CC0-\\u0CC4\\u0CC7\\u0CC8\\u0CCA\\u0CCB\\u0CD5\\u0CD6\\u0D02\\u0D03\\u0D3E-\\u0D40\\u0D46-\\u0D48\\u0D4A-\\u0D4C\\u0D57\\u0D82\\u0D83\\u0DCF-\\u0DD1\\u0DD8-\\u0DDF\\u0DF2\\u0DF3\\u0F3E\\u0F3F\\u0F7F\\u102B\\u102C\\u1031\\u1038\\u103B\\u103C\\u1056\\u1057\\u1062-\\u1064\\u1067-\\u106D\\u1083\\u1084\\u1087-\\u108C\\u108F\\u109A-\\u109C\\u17B6\\u17BE-\\u17C5\\u17C7\\u17C8\\u1923-\\u1926\\u1929-\\u192B\\u1930\\u1931\\u1933-\\u1938\\u19B0-\\u19C0\\u19C8\\u19C9\\u1A19-\\u1A1B\\u1A55\\u1A57\\u1A61\\u1A63\\u1A64\\u1A6D-\\u1A72\\u1B04\\u1B35\\u1B3B\\u1B3D-\\u1B41\\u1B43\\u1B44\\u1B82\\u1BA1\\u1BA6\\u1BA7\\u1BAA\\u1C24-\\u1C2B\\u1C34\\u1C35\\u1CE1\\u1CF2\\uA823\\uA824\\uA827\\uA880\\uA881\\uA8B4-\\uA8C3\\uA952\\uA953\\uA983\\uA9B4\\uA9B5\\uA9BA\\uA9BB\\uA9BD-\\uA9C0\\uAA2F\\uAA30\\uAA33\\uAA34\\uAA4D\\uAA7B\\uABE3\\uABE4\\uABE6\\uABE7\\uABE9\\uABEA\\uABEC]");
-            ρσ_d["connector_punctuation"] = new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]");
-            return ρσ_d;
-        }).call(this);
-        function is_token(token, type, val) {
-            return token.type === type && (val === null || val === undefined || token.value === val);
-        };
-        if (!is_token.__argnames__) Object.defineProperties(is_token, {
-            __argnames__ : {value: ["token", "type", "val"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        EX_EOF = Object.create(null);
-        function tokenizer(raw_text, filename, recover_errors) {
-            var S, read_string, read_regexp;
-            S = (function(){
-                var ρσ_d = Object.create(null);
-                ρσ_d["text"] = raw_text.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, "");
-                ρσ_d["filename"] = filename;
-                ρσ_d["recover_errors"] = !!recover_errors;
-                ρσ_d["recovered_errors"] = [];
-                ρσ_d["pos"] = 0;
-                ρσ_d["tokpos"] = 0;
-                ρσ_d["line"] = 1;
-                ρσ_d["tokline"] = 0;
-                ρσ_d["col"] = 0;
-                ρσ_d["tokcol"] = 0;
-                ρσ_d["newline_before"] = false;
-                ρσ_d["regex_allowed"] = false;
-                ρσ_d["comments_before"] = [];
-                ρσ_d["whitespace_before"] = [];
-                ρσ_d["newblock"] = false;
-                ρσ_d["endblock"] = false;
-                ρσ_d["indentation_matters"] = [ true ];
-                ρσ_d["cached_whitespace"] = "";
-                ρσ_d["prev"] = undefined;
-                ρσ_d["index_or_slice"] = [ false ];
-                ρσ_d["expecting_object_literal_key"] = false;
-                return ρσ_d;
-            }).call(this);
-            function peek() {
-                return S.text.charAt(S.pos);
-            };
-            if (!peek.__module__) Object.defineProperties(peek, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function prevChar() {
-                return S.text.charAt(S.tokpos - 1);
-            };
-            if (!prevChar.__module__) Object.defineProperties(prevChar, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function next(signal_eof, in_string) {
-                var ch;
-                ch = S.text.charAt(S.pos);
-                S.pos += 1;
-                if (signal_eof && !ch) {
-                    throw EX_EOF;
-                }
-                if (ch === "\n") {
-                    S.newline_before = S.newline_before || !in_string;
-                    S.line += 1;
-                    S.col = 0;
-                } else {
-                    S.col += 1;
-                }
-                return ch;
-            };
-            if (!next.__argnames__) Object.defineProperties(next, {
-                __argnames__ : {value: ["signal_eof", "in_string"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function find(what, signal_eof) {
-                var pos;
-                pos = S.text.indexOf(what, S.pos);
-                if (signal_eof && pos === -1) {
-                    throw EX_EOF;
-                }
-                return pos;
-            };
-            if (!find.__argnames__) Object.defineProperties(find, {
-                __argnames__ : {value: ["what", "signal_eof"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function start_token() {
-                S.tokline = S.line;
-                S.tokcol = S.col;
-                S.tokpos = S.pos;
-            };
-            if (!start_token.__module__) Object.defineProperties(start_token, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function token(type, value, is_comment, keep_newline) {
-                var ret, i;
-                S.regex_allowed = type === "operator" || type === "keyword" && KEYWORDS_BEFORE_EXPRESSION[(typeof value === "number" && value < 0) ? KEYWORDS_BEFORE_EXPRESSION.length + value : value] || type === "punc" && PUNC_BEFORE_EXPRESSION[(typeof value === "number" && value < 0) ? PUNC_BEFORE_EXPRESSION.length + value : value];
-                if (type === "operator" && value === "is" && S.text.substr(S.pos).trimLeft().substr(0, 4).trimRight() === "not") {
-                    next_token();
-                    value = "!==";
-                }
-                if (type === "operator" && OP_MAP[(typeof value === "number" && value < 0) ? OP_MAP.length + value : value]) {
-                    value = OP_MAP[(typeof value === "number" && value < 0) ? OP_MAP.length + value : value];
-                }
-                ret = (function(){
-                    var ρσ_d = Object.create(null);
-                    ρσ_d["type"] = type;
-                    ρσ_d["value"] = value;
-                    ρσ_d["line"] = S.tokline;
-                    ρσ_d["col"] = S.tokcol;
-                    ρσ_d["pos"] = S.tokpos;
-                    ρσ_d["endpos"] = S.pos;
-                    ρσ_d["nlb"] = S.newline_before;
-                    ρσ_d["file"] = filename;
-                    ρσ_d["leading_whitespace"] = (ρσ_expr_temp = S.whitespace_before)[ρσ_expr_temp.length-1] || "";
-                    return ρσ_d;
-                }).call(this);
-                if (!is_comment) {
-                    ret.comments_before = S.comments_before;
-                    S.comments_before = [];
-                    for (var ρσ_Index34 = 0; ρσ_Index34 < ret.comments_before.length; ρσ_Index34++) {
-                        i = ρσ_Index34;
-                        ret.nlb = ret.nlb || (ρσ_expr_temp = ret.comments_before)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].nlb;
-                    }
-                }
-                if (!keep_newline) {
-                    S.newline_before = false;
-                }
-                if (type === "punc") {
-                    if (value === ":" && !(ρσ_expr_temp = S.index_or_slice)[ρσ_expr_temp.length-1] && !S.expecting_object_literal_key && (!S.text.substring(S.pos + 1, find("\n")).trim() || !S.text.substring(S.pos + 1, find("#")).trim())) {
-                        S.newblock = true;
-                        S.indentation_matters.push(true);
-                    }
-                    if (value === "[") {
-                        if (S.prev && (S.prev.type === "name" || S.prev.type === "punc" && ")]".indexOf(S.prev.value) !== -1)) {
-                            S.index_or_slice.push(true);
-                        } else {
-                            S.index_or_slice.push(false);
-                        }
-                        S.indentation_matters.push(false);
-                    } else if (value === "{" || value === "(") {
-                        S.indentation_matters.push(false);
-                    } else if (value === "]") {
-                        S.index_or_slice.pop();
-                        S.indentation_matters.pop();
-                    } else if (value === "}" || value === ")") {
-                        S.indentation_matters.pop();
-                    }
-                }
-                S.prev = new AST_Token(ret);
-                return S.prev;
-            };
-            if (!token.__argnames__) Object.defineProperties(token, {
-                __argnames__ : {value: ["type", "value", "is_comment", "keep_newline"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function parse_whitespace() {
-                var leading_whitespace, whitespace_exists, ch;
-                leading_whitespace = "";
-                whitespace_exists = false;
-                while (WHITESPACE_CHARS[ρσ_bound_index(peek(), WHITESPACE_CHARS)]) {
-                    whitespace_exists = true;
-                    ch = next();
-                    if (ch === "\n") {
-                        leading_whitespace = "";
-                    } else {
-                        leading_whitespace += ch;
-                    }
-                }
-                if (peek() !== "#") {
-                    if (!whitespace_exists) {
-                        leading_whitespace = S.cached_whitespace;
-                    } else {
-                        S.cached_whitespace = leading_whitespace;
-                    }
-                    if (S.newline_before || S.endblock) {
-                        return test_indent_token(leading_whitespace);
-                    }
-                }
-            };
-            if (!parse_whitespace.__module__) Object.defineProperties(parse_whitespace, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function test_indent_token(leading_whitespace) {
-                var most_recent;
-                most_recent = (ρσ_expr_temp = S.whitespace_before)[ρσ_expr_temp.length-1] || "";
-                S.endblock = false;
-                if ((ρσ_expr_temp = S.indentation_matters)[ρσ_expr_temp.length-1] && leading_whitespace !== most_recent) {
-                    if (S.newblock && leading_whitespace && leading_whitespace.indexOf(most_recent) === 0) {
-                        S.newblock = false;
-                        S.whitespace_before.push(leading_whitespace);
-                        return 1;
-                    } else if (most_recent && most_recent.indexOf(leading_whitespace) === 0) {
-                        S.endblock = true;
-                        S.whitespace_before.pop();
-                        return -1;
-                    } else {
-                        parse_error("Inconsistent indentation");
-                    }
-                }
-                return 0;
-            };
-            if (!test_indent_token.__argnames__) Object.defineProperties(test_indent_token, {
-                __argnames__ : {value: ["leading_whitespace"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_while(pred) {
-                var ret, i, ch;
-                ret = "";
-                i = 0;
-                ch = "";
-                while ((ch = peek()) && pred(ch, i)) {
-                    i += 1;
-                    ret += next();
-                }
-                return ret;
-            };
-            if (!read_while.__argnames__) Object.defineProperties(read_while, {
-                __argnames__ : {value: ["pred"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function parse_error(err, is_eof) {
-                throw new SyntaxError(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof);
-            };
-            if (!parse_error.__argnames__) Object.defineProperties(parse_error, {
-                __argnames__ : {value: ["err", "is_eof"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_num(prefix) {
-                var has_e, has_x, has_dot, num, valid, seen;
-                has_e = false;
-                has_x = false;
-                has_dot = prefix === ".";
-                if (!prefix && peek() === "0" && S.text.charAt(S.pos + 1) === "b") {
-                    [next(), next()];
-                    num = read_while((function() {
-                        var ρσ_anonfunc = function (ch) {
-                            return ch === "0" || ch === "1";
-                        };
-                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["ch"]},
-                            __module__ : {value: "tokenizer"}
-                        });
-                        return ρσ_anonfunc;
-                    })());
-                    valid = parseInt(num, 2);
-                    if (isNaN(valid)) {
-                        parse_error("Invalid syntax for a binary number");
-                    }
-                    return token("num", valid);
-                }
-                seen = [];
-                num = read_while((function() {
-                    var ρσ_anonfunc = function (ch, i) {
-                        seen.push(ch);
-                        if (ch === "x" || ch === "X") {
-                            if (has_x || seen.length !== 2 || seen[0] !== "0") {
-                                return false;
-                            }
-                            has_x = true;
-                            return true;
-                        } else if (ch === "e" || ch === "E") {
-                            if (has_x) {
-                                return true;
-                            }
-                            if (has_e || (i === 0 || typeof i === "object" && ρσ_equals(i, 0))) {
-                                return false;
-                            }
-                            has_e = true;
-                            return true;
-                        } else if (ch === "-") {
-                            if (i === 0 && !prefix) {
-                                return true;
-                            }
-                            if (has_e && seen[ρσ_bound_index(i - 1, seen)].toLowerCase() === "e") {
-                                return true;
-                            }
-                            return false;
-                        } else if (ch === "+") {
-                            if (has_e && seen[ρσ_bound_index(i - 1, seen)].toLowerCase() === "e") {
-                                return true;
-                            }
-                            return false;
-                        } else if (ch === ".") {
-                            return (!has_dot && !has_x && !has_e) ? has_dot = true : false;
-                        }
-                        return is_alphanumeric_char(ch.charCodeAt(0));
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["ch", "i"]},
-                        __module__ : {value: "tokenizer"}
-                    });
-                    return ρσ_anonfunc;
-                })());
-                if (prefix) {
-                    num = prefix + num;
-                }
-                valid = parse_js_number(num);
-                if (!isNaN(valid)) {
-                    return token("num", valid);
-                } else {
-                    parse_error("Invalid syntax: " + num);
-                }
-            };
-            if (!read_num.__argnames__) Object.defineProperties(read_num, {
-                __argnames__ : {value: ["prefix"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_hex_digits(count) {
-                var ans, nval;
-                ans = "";
-                while (count > 0) {
-                    count -= 1;
-                    if (!HEX_PAT.test(peek())) {
-                        return ans;
-                    }
-                    ans += next();
-                }
-                nval = parseInt(ans, 16);
-                if (nval > 1114111) {
-                    return ans;
-                }
-                return nval;
-            };
-            if (!read_hex_digits.__argnames__) Object.defineProperties(read_hex_digits, {
-                __argnames__ : {value: ["count"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_escape_sequence() {
-                var q, octal, code, name, key;
-                q = next(true);
-                if (q === "\n") {
-                    return "";
-                }
-                if (q === "\\") {
-                    return q;
-                }
-                if ("\"'".indexOf(q) !== -1) {
-                    return q;
-                }
-                if (ASCII_CONTROL_CHARS[(typeof q === "number" && q < 0) ? ASCII_CONTROL_CHARS.length + q : q]) {
-                    return String.fromCharCode(ASCII_CONTROL_CHARS[(typeof q === "number" && q < 0) ? ASCII_CONTROL_CHARS.length + q : q]);
-                }
-                if ("0" <= q && q <= "7") {
-                    octal = q;
-                    if ("0" <= (ρσ_cond_temp = peek()) && ρσ_cond_temp <= "7") {
-                        octal += next();
-                    }
-                    if ("0" <= (ρσ_cond_temp = peek()) && ρσ_cond_temp <= "7") {
-                        octal += next();
-                    }
-                    code = parseInt(octal, 8);
-                    if (isNaN(code)) {
-                        return "\\" + octal;
-                    }
-                    return String.fromCharCode(code);
-                }
-                if (q === "x") {
-                    code = read_hex_digits(2);
-                    if (typeof code === "number") {
-                        return String.fromCharCode(code);
-                    }
-                    return "\\x" + code;
-                }
-                if (q === "u") {
-                    code = read_hex_digits(4);
-                    if (typeof code === "number") {
-                        return String.fromCharCode(code);
-                    }
-                    return "\\u" + code;
-                }
-                if (q === "U") {
-                    code = read_hex_digits(8);
-                    if (typeof code === "number") {
-                        if (code <= 65535) {
-                            return String.fromCharCode(code);
-                        }
-                        code -= 65536;
-                        return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
-                    }
-                    return "\\U" + code;
-                }
-                if (q === "N" && peek() === "{") {
-                    next();
-                    name = read_while((function() {
-                        var ρσ_anonfunc = function (ch) {
-                            return NAME_PAT.test(ch);
-                        };
-                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                            __argnames__ : {value: ["ch"]},
-                            __module__ : {value: "tokenizer"}
-                        });
-                        return ρσ_anonfunc;
-                    })());
-                    if (peek() !== "}") {
-                        return "\\N{" + name;
-                    }
-                    next();
-                    key = (name || "").toLowerCase();
-                    if (!name || !Object.prototype.hasOwnProperty.call(ALIAS_MAP, key)) {
-                        return "\\N{" + name + "}";
-                    }
-                    code = ALIAS_MAP[(typeof key === "number" && key < 0) ? ALIAS_MAP.length + key : key];
-                    if (code <= 65535) {
-                        return String.fromCharCode(code);
-                    }
-                    code -= 65536;
-                    return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
-                }
-                return "\\" + q;
-            };
-            if (!read_escape_sequence.__module__) Object.defineProperties(read_escape_sequence, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function with_eof_error(eof_error, cont) {
-                return (function() {
-                    var ρσ_anonfunc = function () {
-                        try {
-                            return cont.apply(null, arguments);
-                        } catch (ρσ_Exception) {
-                            ρσ_last_exception = ρσ_Exception;
-                            {
-                                var ex = ρσ_Exception;
-                                if (ex === EX_EOF) {
-                                    parse_error(eof_error, true);
-                                } else {
-                                    throw ρσ_Exception;
-                                }
-                            } 
-                        }
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "tokenizer"}
-                    });
-                    return ρσ_anonfunc;
-                })();
-            };
-            if (!with_eof_error.__argnames__) Object.defineProperties(with_eof_error, {
-                __argnames__ : {value: ["eof_error", "cont"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            read_string = with_eof_error("Unterminated string constant", (function() {
-                var ρσ_anonfunc = function (is_raw_literal, is_js_literal) {
-                    var quote, tok_type, ret, is_multiline, ch;
-                    quote = next();
-                    tok_type = (is_js_literal) ? "js" : "string";
-                    ret = "";
-                    is_multiline = false;
-                    if (peek() === quote) {
-                        next(true);
-                        if (peek() === quote) {
-                            next(true);
-                            is_multiline = true;
-                        } else {
-                            return token(tok_type, "");
-                        }
-                    }
-                    while (true) {
-                        ch = next(true, true);
-                        if (!ch) {
-                            break;
-                        }
-                        if (ch === "\n" && !is_multiline) {
-                            parse_error("End of line while scanning string literal");
-                        }
-                        if (ch === "\\") {
-                            ret += (is_raw_literal) ? "\\" + next(true) : read_escape_sequence();
-                            continue;
-                        }
-                        if (ch === quote) {
-                            if (!is_multiline) {
-                                break;
-                            }
-                            if (peek() === quote) {
-                                next();
-                                if (peek() === quote) {
-                                    next();
-                                    break;
-                                } else {
-                                    ch += quote;
-                                }
-                            }
-                        }
-                        ret += ch;
-                    }
-                    return token(tok_type, ret);
-                };
-                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["is_raw_literal", "is_js_literal"]},
-                    __module__ : {value: "tokenizer"}
-                });
-                return ρσ_anonfunc;
-            })());
-            function handle_interpolated_string() {
-                var string = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
-                var start_tok = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
-                var is_fstring = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? handle_interpolated_string.__defaults__.is_fstring : arguments[2];
-                var ρσ_kwargs_obj = arguments[arguments.length-1];
-                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
-                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "is_fstring")){
-                    is_fstring = ρσ_kwargs_obj.is_fstring;
-                }
-                var parts, ch, stok, j, potential_mod, mods, is_raw, combined;
-                function raise_error(err) {
-                    throw new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, false);
-                };
-                if (!raise_error.__argnames__) Object.defineProperties(raise_error, {
-                    __argnames__ : {value: ["err"]},
-                    __module__ : {value: "tokenizer"}
-                });
-
-                if (is_fstring) {
-                    parts = [interpolate(string, raise_error)];
-                } else {
-                    parts = [quoted_string(string)];
-                }
-                while (true) {
-                    while (S.pos < S.text.length && (S.text.charAt(S.pos) === " " || S.text.charAt(S.pos) === "\t")) {
-                        next();
-                    }
-                    ch = S.text.charAt(S.pos);
-                    if (!ch) {
-                        break;
-                    }
-                    if (ch === "'" || ch === "\"") {
-                        stok = read_string(false, false);
-                        parts.push(quoted_string(stok.value));
-                    } else if (is_identifier_start(ch.charCodeAt(0))) {
-                        j = S.pos;
-                        while (j < S.text.length && is_identifier_char(S.text.charAt(j))) {
-                            j += 1;
-                        }
-                        potential_mod = S.text.substring(S.pos, j);
-                        if (!is_string_modifier(potential_mod)) {
-                            break;
-                        }
-                        if (j >= S.text.length || "'\"".indexOf(S.text.charAt(j)) === -1) {
-                            break;
-                        }
-                        mods = potential_mod.toLowerCase();
-                        if (mods.indexOf("v") !== -1) {
-                            break;
-                        }
-                        while (S.pos < j) {
-                            next();
-                        }
-                        is_raw = mods.indexOf("r") !== -1;
-                        stok = read_string(is_raw, false);
-                        if (mods.indexOf("f") !== -1) {
-                            parts.push(interpolate(stok.value, raise_error));
-                        } else {
-                            parts.push(quoted_string(stok.value));
-                        }
-                    } else {
-                        break;
-                    }
-                }
-                combined = parts.join("+");
-                S.text = S.text.slice(0, S.pos) + "(" + combined + ")" + S.text.slice(S.pos);
-                return token("punc", next());
-            };
-            if (!handle_interpolated_string.__defaults__) Object.defineProperties(handle_interpolated_string, {
-                __defaults__ : {value: {is_fstring:true}},
-                __handles_kwarg_interpolation__ : {value: true},
-                __argnames__ : {value: ["string", "start_tok", "is_fstring"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_line_comment(shebang) {
-                var i, ret;
-                if (!shebang) {
-                    next();
-                }
-                i = find("\n");
-                if (i === -1) {
-                    ret = S.text.substr(S.pos);
-                    S.pos = S.text.length;
-                } else {
-                    ret = S.text.substring(S.pos, i);
-                    S.pos = i;
-                }
-                return token((shebang) ? "shebang" : "comment1", ret, true);
-            };
-            if (!read_line_comment.__argnames__) Object.defineProperties(read_line_comment, {
-                __argnames__ : {value: ["shebang"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_name() {
-                var name, ch;
-                name = ch = "";
-                while ((ch = peek()) !== null) {
-                    if (ch === "\\") {
-                        if (S.text.charAt(S.pos + 1) === "\n") {
-                            S.pos += 2;
-                            continue;
-                        }
-                        break;
-                    } else if (is_identifier_char(ch)) {
-                        name += next();
-                    } else {
-                        break;
-                    }
-                }
-                return name;
-            };
-            if (!read_name.__module__) Object.defineProperties(read_name, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            read_regexp = with_eof_error("Unterminated regular expression", (function() {
-                var ρσ_anonfunc = function () {
-                    var prev_backslash, regexp, ch, in_class, verbose_regexp, in_comment, mods;
-                    prev_backslash = false;
-                    regexp = ch = "";
-                    in_class = false;
-                    verbose_regexp = false;
-                    in_comment = false;
-                    if (peek() === "/") {
-                        next(true);
-                        if (peek() === "/") {
-                            verbose_regexp = true;
-                            next(true);
-                        } else {
-                            mods = read_name();
-                            return token("regexp", new RegExp(regexp, mods));
-                        }
-                    }
-                    while (true) {
-                        ch = next(true);
-                        if (!ch) {
-                            break;
-                        }
-                        if (in_comment) {
-                            if (ch === "\n") {
-                                in_comment = false;
-                            }
-                            continue;
-                        }
-                        if (prev_backslash) {
-                            regexp += "\\" + ch;
-                            prev_backslash = false;
-                        } else if (ch === "[") {
-                            in_class = true;
-                            regexp += ch;
-                        } else if (ch === "]" && in_class) {
-                            in_class = false;
-                            regexp += ch;
-                        } else if (ch === "/" && !in_class) {
-                            if (verbose_regexp) {
-                                if (peek() !== "/") {
-                                    regexp += "\\/";
-                                    continue;
-                                }
-                                next(true);
-                                if (peek() !== "/") {
-                                    regexp += "\\/\\/";
-                                    continue;
-                                }
-                                next(true);
-                            }
-                            break;
-                        } else if (ch === "\\") {
-                            prev_backslash = true;
-                        } else if (verbose_regexp && !in_class && " \n\r\t".indexOf(ch) !== -1) {
-                        } else if (verbose_regexp && !in_class && ch === "#") {
-                            in_comment = true;
-                        } else {
-                            regexp += ch;
-                        }
-                    }
-                    mods = read_name();
-                    return token("regexp", new RegExp(regexp, mods));
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "tokenizer"}
-                });
-                return ρσ_anonfunc;
-            })());
-            function read_operator(prefix) {
-                var op;
-                function grow(op) {
-                    var bigger;
-                    if (!peek()) {
-                        return op;
-                    }
-                    bigger = op + peek();
-                    if (OPERATORS[(typeof bigger === "number" && bigger < 0) ? OPERATORS.length + bigger : bigger]) {
-                        next();
-                        return grow(bigger);
-                    } else {
-                        return op;
-                    }
-                };
-                if (!grow.__argnames__) Object.defineProperties(grow, {
-                    __argnames__ : {value: ["op"]},
-                    __module__ : {value: "tokenizer"}
-                });
-
-                op = grow(prefix || next());
-                if (op === "->") {
-                    return token("punc", op);
-                }
-                return token("operator", op);
-            };
-            if (!read_operator.__argnames__) Object.defineProperties(read_operator, {
-                __argnames__ : {value: ["prefix"]},
-                __module__ : {value: "tokenizer"}
-            });
-
-            function handle_slash() {
-                next();
-                return (S.regex_allowed) ? read_regexp("") : read_operator("/");
-            };
-            if (!handle_slash.__module__) Object.defineProperties(handle_slash, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function handle_dot() {
-                next();
-                return (is_digit(peek().charCodeAt(0))) ? read_num(".") : token("punc", ".");
-            };
-            if (!handle_dot.__module__) Object.defineProperties(handle_dot, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function read_word() {
-                var word;
-                word = read_name();
-                return (KEYWORDS_ATOM[(typeof word === "number" && word < 0) ? KEYWORDS_ATOM.length + word : word]) ? token("atom", word) : (!KEYWORDS[(typeof word === "number" && word < 0) ? KEYWORDS.length + word : word]) ? token("name", word) : (OPERATORS[(typeof word === "number" && word < 0) ? OPERATORS.length + word : word] && prevChar() !== ".") ? token("operator", word) : token("keyword", word);
-            };
-            if (!read_word.__module__) Object.defineProperties(read_word, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            function next_token() {
-                var indent, ch, code, tmp_, stok, j, k, potential_mod, mods_check, regex_allowed, tok, mods, start_pos_for_string;
-                indent = parse_whitespace();
-                if (indent === -1) {
-                    return token("punc", "}", false, true);
-                }
-                start_token();
-                ch = peek();
-                if (!ch) {
-                    return token("eof");
-                }
-                code = ch.charCodeAt(0);
-                tmp_ = code;
-                if (tmp_ === 34 || tmp_ === 39) {
-                    stok = read_string(false);
-                    j = S.pos;
-                    while (j < S.text.length && (S.text.charAt(j) === " " || S.text.charAt(j) === "\t")) {
-                        j += 1;
-                    }
-                    if (j < S.text.length && is_identifier_start(S.text.charAt(j).charCodeAt(0))) {
-                        k = j;
-                        while (k < S.text.length && is_identifier_char(S.text.charAt(k))) {
-                            k += 1;
-                        }
-                        potential_mod = S.text.substring(j, k);
-                        if (is_string_modifier(potential_mod) && k < S.text.length && "'\"".indexOf(S.text.charAt(k)) !== -1) {
-                            mods_check = potential_mod.toLowerCase();
-                            if (mods_check.indexOf("f") !== -1 && mods_check.indexOf("v") === -1) {
-                                return handle_interpolated_string(stok.value, stok, false);
-                            }
-                        }
-                    }
-                    return stok;
-                } else if (tmp_ === 35) {
-                    if (S.pos === 0 && S.text.charAt(1) === "!") {
-                        return read_line_comment(true);
-                    }
-                    regex_allowed = S.regex_allowed;
-                    S.comments_before.push(read_line_comment());
-                    S.regex_allowed = regex_allowed;
-                    return next_token();
-                } else if (tmp_ === 46) {
-                    return handle_dot();
-                } else if (tmp_ === 47) {
-                    return handle_slash();
-                }
-                if (is_digit(code)) {
-                    return read_num();
-                }
-                if (PUNC_CHARS[(typeof ch === "number" && ch < 0) ? PUNC_CHARS.length + ch : ch]) {
-                    return token("punc", next());
-                }
-                if (OPERATOR_CHARS[(typeof ch === "number" && ch < 0) ? OPERATOR_CHARS.length + ch : ch]) {
-                    return read_operator();
-                }
-                if (code === 92 && S.text.charAt(S.pos + 1) === "\n") {
-                    next();
-                    next();
-                    S.newline_before = false;
-                    return next_token();
-                }
-                if (is_identifier_start(code)) {
-                    tok = read_word();
-                    if ("'\"".indexOf(peek()) !== -1 && is_string_modifier(tok.value)) {
-                        mods = tok.value.toLowerCase();
-                        start_pos_for_string = S.tokpos;
-                        stok = read_string(mods.indexOf("r") !== -1, mods.indexOf("v") !== -1);
-                        tok.endpos = stok.endpos;
-                        if (stok.type !== "js" && mods.indexOf("f") !== -1) {
-                            tok.col += start_pos_for_string - tok.pos;
-                            return handle_interpolated_string(stok.value, tok);
-                        }
-                        tok.value = stok.value;
-                        tok.type = stok.type;
-                    }
-                    return tok;
-                }
-                if (S.recover_errors) {
-                    S.recovered_errors.push((function(){
-                        var ρσ_d = Object.create(null);
-                        ρσ_d["message"] = "Unexpected character «" + ch + "»";
-                        ρσ_d["line"] = S.tokline;
-                        ρσ_d["col"] = S.tokcol;
-                        ρσ_d["pos"] = S.tokpos;
-                        ρσ_d["is_eof"] = false;
-                        return ρσ_d;
-                    }).call(this));
-                    next();
-                    return next_token();
-                }
-                parse_error("Unexpected character «" + ch + "»");
-            };
-            if (!next_token.__module__) Object.defineProperties(next_token, {
-                __module__ : {value: "tokenizer"}
-            });
-
-            next_token.context = (function() {
-                var ρσ_anonfunc = function (nc) {
-                    if (nc) {
-                        S = nc;
-                    }
-                    return S;
-                };
-                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["nc"]},
-                    __module__ : {value: "tokenizer"}
-                });
-                return ρσ_anonfunc;
-            })();
-            return next_token;
-        };
-        if (!tokenizer.__argnames__) Object.defineProperties(tokenizer, {
-            __argnames__ : {value: ["raw_text", "filename", "recover_errors"]},
-            __module__ : {value: "tokenizer"}
-        });
-
-        ρσ_modules.tokenizer.RE_HEX_NUMBER = RE_HEX_NUMBER;
-        ρσ_modules.tokenizer.RE_OCT_NUMBER = RE_OCT_NUMBER;
-        ρσ_modules.tokenizer.RE_DEC_NUMBER = RE_DEC_NUMBER;
-        ρσ_modules.tokenizer.OPERATOR_CHARS = OPERATOR_CHARS;
-        ρσ_modules.tokenizer.ASCII_CONTROL_CHARS = ASCII_CONTROL_CHARS;
-        ρσ_modules.tokenizer.HEX_PAT = HEX_PAT;
-        ρσ_modules.tokenizer.NAME_PAT = NAME_PAT;
-        ρσ_modules.tokenizer.OPERATORS = OPERATORS;
-        ρσ_modules.tokenizer.OP_MAP = OP_MAP;
-        ρσ_modules.tokenizer.WHITESPACE_CHARS = WHITESPACE_CHARS;
-        ρσ_modules.tokenizer.PUNC_BEFORE_EXPRESSION = PUNC_BEFORE_EXPRESSION;
-        ρσ_modules.tokenizer.PUNC_CHARS = PUNC_CHARS;
-        ρσ_modules.tokenizer.KEYWORDS = KEYWORDS;
-        ρσ_modules.tokenizer.KEYWORDS_ATOM = KEYWORDS_ATOM;
-        ρσ_modules.tokenizer.RESERVED_WORDS = RESERVED_WORDS;
-        ρσ_modules.tokenizer.KEYWORDS_BEFORE_EXPRESSION = KEYWORDS_BEFORE_EXPRESSION;
-        ρσ_modules.tokenizer.ALL_KEYWORDS = ALL_KEYWORDS;
-        ρσ_modules.tokenizer.IDENTIFIER_PAT = IDENTIFIER_PAT;
-        ρσ_modules.tokenizer.UNICODE = UNICODE;
-        ρσ_modules.tokenizer.EX_EOF = EX_EOF;
-        ρσ_modules.tokenizer.is_string_modifier = is_string_modifier;
-        ρσ_modules.tokenizer.is_letter = is_letter;
-        ρσ_modules.tokenizer.is_digit = is_digit;
-        ρσ_modules.tokenizer.is_alphanumeric_char = is_alphanumeric_char;
-        ρσ_modules.tokenizer.is_unicode_combining_mark = is_unicode_combining_mark;
-        ρσ_modules.tokenizer.is_unicode_connector_punctuation = is_unicode_connector_punctuation;
-        ρσ_modules.tokenizer.is_identifier = is_identifier;
-        ρσ_modules.tokenizer.is_identifier_start = is_identifier_start;
-        ρσ_modules.tokenizer.is_identifier_char = is_identifier_char;
-        ρσ_modules.tokenizer.parse_js_number = parse_js_number;
-        ρσ_modules.tokenizer.is_token = is_token;
-        ρσ_modules.tokenizer.tokenizer = tokenizer;
-    })();
-
-    (function(){
-        var __name__ = "output.stream";
-        var DANGEROUS, _IDENT_CHARS, require_semi_colon_chars, output_stream_defaults;
-        var is_identifier_char = ρσ_modules.tokenizer.is_identifier_char;
-
-        var make_predicate = ρσ_modules.utils.make_predicate;
-        var defaults = ρσ_modules.utils.defaults;
-        var repeat_string = ρσ_modules.utils.repeat_string;
-
-        DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-        _IDENT_CHARS = (function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})();
-        function _is_ident_char(ch) {
-            var code;
-            code = ch.charCodeAt(0);
-            if (code < 128) {
-                return _IDENT_CHARS[code];
-            }
-            return is_identifier_char(ch);
-        };
-        if (!_is_ident_char.__argnames__) Object.defineProperties(_is_ident_char, {
-            __argnames__ : {value: ["ch"]},
-            __module__ : {value: "output.stream"}
-        });
-
-        function as_hex(code, sz) {
-            var val;
-            val = code.toString(16);
-            if (val.length < sz) {
-                val = "0".repeat(sz - val.length) + val;
-            }
-            return val;
-        };
-        if (!as_hex.__argnames__) Object.defineProperties(as_hex, {
-            __argnames__ : {value: ["code", "sz"]},
-            __module__ : {value: "output.stream"}
-        });
-
-        function to_ascii(str_, identifier) {
-            return str_.replace(/[\u0080-\uffff]/g, (function() {
-                var ρσ_anonfunc = function (ch) {
-                    var code;
-                    code = ch.charCodeAt(0).toString(16);
-                    if (code.length <= 2 && !identifier) {
-                        return "\\x" + as_hex(code, 2);
-                    } else {
-                        return "\\u" + as_hex(code, 4);
-                    }
-                };
-                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["ch"]},
-                    __module__ : {value: "output.stream"}
-                });
-                return ρσ_anonfunc;
-            })());
-        };
-        if (!to_ascii.__argnames__) Object.defineProperties(to_ascii, {
-            __argnames__ : {value: ["str_", "identifier"]},
-            __module__ : {value: "output.stream"}
-        });
-
-        function encode_string(str_) {
-            return JSON.stringify(str_).replace(DANGEROUS, (function() {
-                var ρσ_anonfunc = function (a) {
-                    return "\\u" + as_hex(a.charCodeAt(0), 4);
-                };
-                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                    __argnames__ : {value: ["a"]},
-                    __module__ : {value: "output.stream"}
-                });
-                return ρσ_anonfunc;
-            })());
-        };
-        if (!encode_string.__argnames__) Object.defineProperties(encode_string, {
-            __argnames__ : {value: ["str_"]},
-            __module__ : {value: "output.stream"}
-        });
-
-        require_semi_colon_chars = make_predicate("( [ + * / - , .");
-        output_stream_defaults = (function(){
-            var ρσ_d = Object.create(null);
-            ρσ_d["indent_start"] = 0;
-            ρσ_d["indent_level"] = 4;
-            ρσ_d["quote_keys"] = false;
-            ρσ_d["space_colon"] = true;
-            ρσ_d["ascii_only"] = false;
-            ρσ_d["width"] = 80;
-            ρσ_d["max_line_len"] = 32e3;
-            ρσ_d["ie_proof"] = true;
-            ρσ_d["beautify"] = false;
-            ρσ_d["source_map"] = null;
-            ρσ_d["source_map_line_offset"] = 0;
-            ρσ_d["bracketize"] = false;
-            ρσ_d["semicolons"] = true;
-            ρσ_d["comments"] = false;
-            ρσ_d["preserve_line"] = false;
-            ρσ_d["omit_baselib"] = false;
-            ρσ_d["baselib_plain"] = null;
-            ρσ_d["private_scope"] = true;
-            ρσ_d["keep_docstrings"] = false;
-            ρσ_d["discard_asserts"] = false;
-            ρσ_d["module_cache_dir"] = "";
-            ρσ_d["js_version"] = 6;
-            ρσ_d["write_name"] = true;
-            return ρσ_d;
-        }).call(this);
-        function OutputStream() {
-            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
-            OutputStream.prototype.__init__.apply(this, arguments);
-        }
-        OutputStream.prototype.__init__ = function __init__(options) {
-            var self = this;
-            self.options = defaults(options, output_stream_defaults, true);
-            self._indentation = 0;
-            self.current_col = 0;
-            self.current_line = 1;
-            self.current_pos = 0;
-            self._fragments = [];
-            self.might_need_space = false;
-            self.might_need_semicolon = false;
-            self._last = null;
-            self._stack = [];
-            self.index_counter = 0;
-            self.with_counter = 0;
-            self.try_else_counter = 0;
-            self._source_map_segments = (self.options.source_map) ? [] : null;
-            self._indent_cache_val = -1;
-            self._indent_cache_str = "";
-            if (!self.options.source_map) {
-                self.add_mapping = (function() {
-                    var ρσ_anonfunc = function (node) {
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["node"]},
-                        __module__ : {value: "output.stream"}
-                    });
-                    return ρσ_anonfunc;
-                })();
-            }
-        };
-        if (!OutputStream.prototype.__init__.__argnames__) Object.defineProperties(OutputStream.prototype.__init__, {
-            __argnames__ : {value: ["options"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.__argnames__ = OutputStream.prototype.__init__.__argnames__;
-        OutputStream.__handles_kwarg_interpolation__ = OutputStream.prototype.__init__.__handles_kwarg_interpolation__;
-        OutputStream.prototype.new_try_else_counter = function new_try_else_counter() {
-            var self = this;
-            self.try_else_counter += 1;
-            return "ρσ_try_else_" + self.try_else_counter;
-        };
-        if (!OutputStream.prototype.new_try_else_counter.__module__) Object.defineProperties(OutputStream.prototype.new_try_else_counter, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.make_name = function make_name(name) {
-            var self = this;
-            name = name.toString();
-            if (self.options.ascii_only) {
-                name = to_ascii(name, true);
-            }
-            return name;
-        };
-        if (!OutputStream.prototype.make_name.__argnames__) Object.defineProperties(OutputStream.prototype.make_name, {
-            __argnames__ : {value: ["name"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.print_name = function print_name(name) {
-            var self = this;
-            self.print(self.make_name(name));
-        };
-        if (!OutputStream.prototype.print_name.__argnames__) Object.defineProperties(OutputStream.prototype.print_name, {
-            __argnames__ : {value: ["name"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.make_indent = function make_indent(back) {
-            var self = this;
-            var target, s;
-            target = self.options.indent_start + self._indentation - (back || 0) * self.options.indent_level;
-            if ((target === self._indent_cache_val || typeof target === "object" && ρσ_equals(target, self._indent_cache_val))) {
-                return self._indent_cache_str;
-            }
-            s = repeat_string(" ", target);
-            self._indent_cache_val = target;
-            self._indent_cache_str = s;
-            return s;
-        };
-        if (!OutputStream.prototype.make_indent.__argnames__) Object.defineProperties(OutputStream.prototype.make_indent, {
-            __argnames__ : {value: ["back"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.last_char = function last_char() {
-            var self = this;
-            return self._last.charAt(self._last.length - 1);
-        };
-        if (!OutputStream.prototype.last_char.__module__) Object.defineProperties(OutputStream.prototype.last_char, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.maybe_newline = function maybe_newline() {
-            var self = this;
-            if (self.options.max_line_len && self.current_col > self.options.max_line_len) {
-                self.print("\n");
-            }
-        };
-        if (!OutputStream.prototype.maybe_newline.__module__) Object.defineProperties(OutputStream.prototype.maybe_newline, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.print = function print(str_) {
-            var self = this;
-            var ch, target_line, prev, a, n;
-            str_ = String(str_);
-            ch = str_.charAt(0);
-            if (self.might_need_semicolon) {
-                if ((!ch || ";}".indexOf(ch) < 0) && !/[;]$/.test(self._last)) {
-                    if (self.options.semicolons || require_semi_colon_chars[(typeof ch === "number" && ch < 0) ? require_semi_colon_chars.length + ch : ch]) {
-                        self._fragments.push(";");
-                        self.current_col += 1;
-                        self.current_pos += 1;
-                    } else {
-                        self._fragments.push("\n");
-                        self.current_pos += 1;
-                        self.current_line += 1;
-                        self.current_col = 0;
-                    }
-                    if (!self.options.beautify) {
-                        self.might_need_space = false;
-                    }
-                }
-                self.might_need_semicolon = false;
-                self.maybe_newline();
-            }
-            if (!self.options.beautify && self.options.preserve_line && (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 1, ρσ_expr_temp)]) {
-                target_line = (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 1, ρσ_expr_temp)].start.line;
-                while (self.current_line < target_line) {
-                    self._fragments.push("\n");
-                    self.current_pos += 1;
-                    self.current_line += 1;
-                    self.current_col = 0;
-                    self.might_need_space = false;
-                }
-            }
-            if (self.might_need_space) {
-                prev = self.last_char();
-                if (_is_ident_char(prev) && (_is_ident_char(ch) || ch === "\\") || /^[\+\-\/]$/.test(ch) && ch === prev) {
-                    self._fragments.push(" ");
-                    self.current_col += 1;
-                    self.current_pos += 1;
-                }
-                self.might_need_space = false;
-            }
-            self.current_pos += str_.length;
-            if (str_.indexOf("\n") < 0) {
-                self.current_col += str_.length;
-            } else {
-                a = str_.split("\n");
-                n = a.length - 1;
-                self.current_line += n;
-                self.current_col = a[n].length;
-            }
-            self._last = str_;
-            self._fragments.push(str_);
-        };
-        if (!OutputStream.prototype.print.__argnames__) Object.defineProperties(OutputStream.prototype.print, {
-            __argnames__ : {value: ["str_"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.space = function space() {
-            var self = this;
-            if (self.options.beautify) {
-                self.print(" ");
-            } else {
-                self.might_need_space = true;
-            }
-        };
-        if (!OutputStream.prototype.space.__module__) Object.defineProperties(OutputStream.prototype.space, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.indent = function indent(half) {
-            var self = this;
-            if (self.options.beautify) {
-                self.print(self.make_indent((half) ? .5 : 0));
-            }
-        };
-        if (!OutputStream.prototype.indent.__argnames__) Object.defineProperties(OutputStream.prototype.indent, {
-            __argnames__ : {value: ["half"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.with_indent = function with_indent(col, proceed) {
-            var self = this;
-            var save_indentation, ret;
-            if (self.options.beautify) {
-                if (col === true) {
-                    col = self.next_indent();
-                }
-                save_indentation = self._indentation;
-                self._indentation = col;
-                ret = proceed();
-                self._indentation = save_indentation;
-                return ret;
-            } else {
-                return proceed();
-            }
-        };
-        if (!OutputStream.prototype.with_indent.__argnames__) Object.defineProperties(OutputStream.prototype.with_indent, {
-            __argnames__ : {value: ["col", "proceed"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.indentation = function indentation() {
-            var self = this;
-            return self._indentation;
-        };
-        if (!OutputStream.prototype.indentation.__module__) Object.defineProperties(OutputStream.prototype.indentation, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.set_indentation = function set_indentation(val) {
-            var self = this;
-            if (self.options.beautify) {
-                self._indentation = val;
-            }
-        };
-        if (!OutputStream.prototype.set_indentation.__argnames__) Object.defineProperties(OutputStream.prototype.set_indentation, {
-            __argnames__ : {value: ["val"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.newline = function newline() {
-            var self = this;
-            if (self.options.beautify) {
-                self.print("\n");
-            }
-        };
-        if (!OutputStream.prototype.newline.__module__) Object.defineProperties(OutputStream.prototype.newline, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.semicolon = function semicolon() {
-            var self = this;
-            if (self.options.beautify) {
-                self.print(";");
-            } else {
-                self.might_need_semicolon = true;
-            }
-        };
-        if (!OutputStream.prototype.semicolon.__module__) Object.defineProperties(OutputStream.prototype.semicolon, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.force_semicolon = function force_semicolon() {
-            var self = this;
-            self.might_need_semicolon = false;
-            self.print(";");
-        };
-        if (!OutputStream.prototype.force_semicolon.__module__) Object.defineProperties(OutputStream.prototype.force_semicolon, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.next_indent = function next_indent() {
-            var self = this;
-            return self._indentation + self.options.indent_level;
-        };
-        if (!OutputStream.prototype.next_indent.__module__) Object.defineProperties(OutputStream.prototype.next_indent, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.spaced = function spaced() {
-            var self = this;
-            for (var i=0; i < arguments.length; i++) {
-                if (i > 0) {
-                    self.space();
-                }
-                if (typeof arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].print === "function") {
-                    arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].print(self);
-                } else {
-                    self.print(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
-                }
-            }
-        };
-        if (!OutputStream.prototype.spaced.__module__) Object.defineProperties(OutputStream.prototype.spaced, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.end_statement = function end_statement() {
-            var self = this;
-            self.semicolon();
-            self.newline();
-        };
-        if (!OutputStream.prototype.end_statement.__module__) Object.defineProperties(OutputStream.prototype.end_statement, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.with_block = function with_block(cont) {
-            var self = this;
-            var ret;
-            ret = null;
-            self.print("{");
-            self.newline();
-            self.with_indent(self.next_indent(), (function() {
-                var ρσ_anonfunc = function () {
-                    ret = cont();
-                };
-                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                    __module__ : {value: "output.stream"}
-                });
-                return ρσ_anonfunc;
-            })());
-            self.indent();
-            self.print("}");
-            return ret;
-        };
-        if (!OutputStream.prototype.with_block.__argnames__) Object.defineProperties(OutputStream.prototype.with_block, {
-            __argnames__ : {value: ["cont"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.with_parens = function with_parens(cont) {
-            var self = this;
-            var ret;
-            self.print("(");
-            ret = cont();
-            self.print(")");
-            return ret;
-        };
-        if (!OutputStream.prototype.with_parens.__argnames__) Object.defineProperties(OutputStream.prototype.with_parens, {
-            __argnames__ : {value: ["cont"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.with_square = function with_square(cont) {
-            var self = this;
-            var ret;
-            self.print("[");
-            ret = cont();
-            self.print("]");
-            return ret;
-        };
-        if (!OutputStream.prototype.with_square.__argnames__) Object.defineProperties(OutputStream.prototype.with_square, {
-            __argnames__ : {value: ["cont"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.comma = function comma() {
-            var self = this;
-            self.print(",");
-            self.space();
-        };
-        if (!OutputStream.prototype.comma.__module__) Object.defineProperties(OutputStream.prototype.comma, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.colon = function colon() {
-            var self = this;
-            self.print(":");
-            if (self.options.space_colon) {
-                self.space();
-            }
-        };
-        if (!OutputStream.prototype.colon.__module__) Object.defineProperties(OutputStream.prototype.colon, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.get = function get() {
-            var self = this;
-            return self._fragments.join("");
-        };
-        if (!OutputStream.prototype.get.__module__) Object.defineProperties(OutputStream.prototype.get, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.assign = function assign(name) {
-            var self = this;
-            if (typeof name === "string") {
-                self.print(name);
-            } else {
-                name.print(self);
-            }
-            self.space();
-            self.print("=");
-            self.space();
-        };
-        if (!OutputStream.prototype.assign.__argnames__) Object.defineProperties(OutputStream.prototype.assign, {
-            __argnames__ : {value: ["name"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.current_width = function current_width() {
-            var self = this;
-            return self.current_col - self._indentation;
-        };
-        if (!OutputStream.prototype.current_width.__module__) Object.defineProperties(OutputStream.prototype.current_width, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.should_break = function should_break() {
-            var self = this;
-            return self.options.width && self.current_width() >= self.options.width;
-        };
-        if (!OutputStream.prototype.should_break.__module__) Object.defineProperties(OutputStream.prototype.should_break, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.last = function last() {
-            var self = this;
-            return self._last;
-        };
-        if (!OutputStream.prototype.last.__module__) Object.defineProperties(OutputStream.prototype.last, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.print_string = function print_string(str_) {
-            var self = this;
-            self.print(encode_string(str_));
-        };
-        if (!OutputStream.prototype.print_string.__argnames__) Object.defineProperties(OutputStream.prototype.print_string, {
-            __argnames__ : {value: ["str_"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.line = function line() {
-            var self = this;
-            return self.current_line;
-        };
-        if (!OutputStream.prototype.line.__module__) Object.defineProperties(OutputStream.prototype.line, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.col = function col() {
-            var self = this;
-            return self.current_col;
-        };
-        if (!OutputStream.prototype.col.__module__) Object.defineProperties(OutputStream.prototype.col, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.pos = function pos() {
-            var self = this;
-            return self.current_pos;
-        };
-        if (!OutputStream.prototype.pos.__module__) Object.defineProperties(OutputStream.prototype.pos, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.push_node = function push_node(node) {
-            var self = this;
-            self._stack.push(node);
-        };
-        if (!OutputStream.prototype.push_node.__argnames__) Object.defineProperties(OutputStream.prototype.push_node, {
-            __argnames__ : {value: ["node"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.pop_node = function pop_node() {
-            var self = this;
-            return self._stack.pop();
-        };
-        if (!OutputStream.prototype.pop_node.__module__) Object.defineProperties(OutputStream.prototype.pop_node, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.stack = function stack() {
-            var self = this;
-            return self._stack;
-        };
-        if (!OutputStream.prototype.stack.__module__) Object.defineProperties(OutputStream.prototype.stack, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.parent = function parent(n) {
-            var self = this;
-            return (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 2 - (n || 0), ρσ_expr_temp)];
-        };
-        if (!OutputStream.prototype.parent.__argnames__) Object.defineProperties(OutputStream.prototype.parent, {
-            __argnames__ : {value: ["n"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.add_mapping = function add_mapping(node) {
-            var self = this;
-            if (self._source_map_segments !== null && node.start && node.start.file) {
-                self._source_map_segments.push([self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col]);
-            }
-        };
-        if (!OutputStream.prototype.add_mapping.__argnames__) Object.defineProperties(OutputStream.prototype.add_mapping, {
-            __argnames__ : {value: ["node"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.add_cached_mappings = function add_cached_mappings(segments, line_offset) {
-            var self = this;
-            var seg;
-            if (self._source_map_segments === null) {
-                return;
-            }
-            var ρσ_Iter35 = segments;
-            ρσ_Iter35 = ((typeof ρσ_Iter35[Symbol.iterator] === "function") ? (ρσ_Iter35 instanceof Map ? ρσ_Iter35.keys() : ρσ_Iter35) : Object.keys(ρσ_Iter35));
-            for (var ρσ_Index35 of ρσ_Iter35) {
-                seg = ρσ_Index35;
-                self._source_map_segments.push([seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]);
-            }
-        };
-        if (!OutputStream.prototype.add_cached_mappings.__argnames__) Object.defineProperties(OutputStream.prototype.add_cached_mappings, {
-            __argnames__ : {value: ["segments", "line_offset"]},
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.get_source_map_segments = function get_source_map_segments() {
-            var self = this;
-            return self._source_map_segments;
-        };
-        if (!OutputStream.prototype.get_source_map_segments.__module__) Object.defineProperties(OutputStream.prototype.get_source_map_segments, {
-            __module__ : {value: "output.stream"}
-        });
-        OutputStream.prototype.__repr__ = function __repr__ () {
-                        return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
-        };
-        OutputStream.prototype.__str__ = function __str__ () {
-            return this.__repr__();
-        };
-        Object.defineProperty(OutputStream.prototype, "__bases__", {value: []});
-        OutputStream.prototype.toString = OutputStream.prototype.get;
-
-        ρσ_modules["output.stream"].DANGEROUS = DANGEROUS;
-        ρσ_modules["output.stream"]._IDENT_CHARS = _IDENT_CHARS;
-        ρσ_modules["output.stream"].require_semi_colon_chars = require_semi_colon_chars;
-        ρσ_modules["output.stream"].output_stream_defaults = output_stream_defaults;
-        ρσ_modules["output.stream"]._is_ident_char = _is_ident_char;
-        ρσ_modules["output.stream"].as_hex = as_hex;
-        ρσ_modules["output.stream"].to_ascii = to_ascii;
-        ρσ_modules["output.stream"].encode_string = encode_string;
-        ρσ_modules["output.stream"].OutputStream = OutputStream;
-    })();
-
-    (function(){
         var __name__ = "output.loops";
         var AST_BaseCall = ρσ_modules.ast.AST_BaseCall;
         var AST_SymbolRef = ρσ_modules.ast.AST_SymbolRef;
@@ -10574,14 +8778,12 @@ return this.__repr__();
         var AST_ListComprehension = ρσ_modules.ast.AST_ListComprehension;
         var is_node_type = ρσ_modules.ast.is_node_type;
 
-        var OutputStream = ρσ_modules["output.stream"].OutputStream;
-
         function unpack_tuple(elems, output, in_statement) {
             var ρσ_unpack, i, elem;
-            var ρσ_Iter36 = enumerate(elems);
-            ρσ_Iter36 = ((typeof ρσ_Iter36[Symbol.iterator] === "function") ? (ρσ_Iter36 instanceof Map ? ρσ_Iter36.keys() : ρσ_Iter36) : Object.keys(ρσ_Iter36));
-            for (var ρσ_Index36 of ρσ_Iter36) {
-                ρσ_unpack = ρσ_Index36;
+            var ρσ_Iter32 = enumerate(elems);
+            ρσ_Iter32 = ((typeof ρσ_Iter32[Symbol.iterator] === "function") ? (ρσ_Iter32 instanceof Map ? ρσ_Iter32.keys() : ρσ_Iter32) : Object.keys(ρσ_Iter32));
+            for (var ρσ_Index32 of ρσ_Iter32) {
+                ρσ_unpack = ρσ_Index32;
                 i = ρσ_unpack[0];
                 elem = ρσ_unpack[1];
                 output.indent();
@@ -10711,10 +8913,10 @@ return this.__repr__();
                         output.print(self.simple_for_index);
                         output.end_statement();
                     }
-                    var ρσ_Iter37 = self.body.body;
-                    ρσ_Iter37 = ((typeof ρσ_Iter37[Symbol.iterator] === "function") ? (ρσ_Iter37 instanceof Map ? ρσ_Iter37.keys() : ρσ_Iter37) : Object.keys(ρσ_Iter37));
-                    for (var ρσ_Index37 of ρσ_Iter37) {
-                        stmt = ρσ_Index37;
+                    var ρσ_Iter33 = self.body.body;
+                    ρσ_Iter33 = ((typeof ρσ_Iter33[Symbol.iterator] === "function") ? (ρσ_Iter33 instanceof Map ? ρσ_Iter33.keys() : ρσ_Iter33) : Object.keys(ρσ_Iter33));
+                    for (var ρσ_Index33 of ρσ_Iter33) {
+                        stmt = ρσ_Index33;
                         output.indent();
                         stmt.print(output);
                         output.newline();
@@ -11011,10 +9213,10 @@ return this.__repr__();
                                 body_out.print(result_obj);
                             }
                             if (is_node_type(self.init, AST_Array)) {
-                                var ρσ_Iter38 = self.init.elements;
-                                ρσ_Iter38 = ((typeof ρσ_Iter38[Symbol.iterator] === "function") ? (ρσ_Iter38 instanceof Map ? ρσ_Iter38.keys() : ρσ_Iter38) : Object.keys(ρσ_Iter38));
-                                for (var ρσ_Index38 of ρσ_Iter38) {
-                                    i = ρσ_Index38;
+                                var ρσ_Iter34 = self.init.elements;
+                                ρσ_Iter34 = ((typeof ρσ_Iter34[Symbol.iterator] === "function") ? (ρσ_Iter34 instanceof Map ? ρσ_Iter34.keys() : ρσ_Iter34) : Object.keys(ρσ_Iter34));
+                                for (var ρσ_Index34 of ρσ_Iter34) {
+                                    i = ρσ_Index34;
                                     body_out.comma();
                                     i.print(body_out);
                                 }
@@ -11618,10 +9820,10 @@ return this.__repr__();
                 left_hand_sides = ρσ_unpack[0];
                 rhs = ρσ_unpack[1];
                 is_compound_assign = false;
-                var ρσ_Iter39 = left_hand_sides;
-                ρσ_Iter39 = ((typeof ρσ_Iter39[Symbol.iterator] === "function") ? (ρσ_Iter39 instanceof Map ? ρσ_Iter39.keys() : ρσ_Iter39) : Object.keys(ρσ_Iter39));
-                for (var ρσ_Index39 of ρσ_Iter39) {
-                    lhs = ρσ_Index39;
+                var ρσ_Iter35 = left_hand_sides;
+                ρσ_Iter35 = ((typeof ρσ_Iter35[Symbol.iterator] === "function") ? (ρσ_Iter35 instanceof Map ? ρσ_Iter35.keys() : ρσ_Iter35) : Object.keys(ρσ_Iter35));
+                for (var ρσ_Index35 of ρσ_Iter35) {
+                    lhs = ρσ_Index35;
                     if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array) || is_node_type(lhs, AST_ItemAccess)) {
                         is_compound_assign = true;
                         break;
@@ -11640,10 +9842,10 @@ return this.__repr__();
                         ρσ_d["right"] = rhs;
                         return ρσ_d;
                     }).call(this)), output);
-                    var ρσ_Iter40 = left_hand_sides;
-                    ρσ_Iter40 = ((typeof ρσ_Iter40[Symbol.iterator] === "function") ? (ρσ_Iter40 instanceof Map ? ρσ_Iter40.keys() : ρσ_Iter40) : Object.keys(ρσ_Iter40));
-                    for (var ρσ_Index40 of ρσ_Iter40) {
-                        lhs = ρσ_Index40;
+                    var ρσ_Iter36 = left_hand_sides;
+                    ρσ_Iter36 = ((typeof ρσ_Iter36[Symbol.iterator] === "function") ? (ρσ_Iter36 instanceof Map ? ρσ_Iter36.keys() : ρσ_Iter36) : Object.keys(ρσ_Iter36));
+                    for (var ρσ_Index36 of ρσ_Iter36) {
+                        lhs = ρσ_Index36;
                         [output.end_statement(), output.indent()];
                         print_assignment(new AST_Assign((function(){
                             var ρσ_d = Object.create(null);
@@ -11654,10 +9856,10 @@ return this.__repr__();
                         }).call(this)), output);
                     }
                 } else {
-                    var ρσ_Iter41 = left_hand_sides;
-                    ρσ_Iter41 = ((typeof ρσ_Iter41[Symbol.iterator] === "function") ? (ρσ_Iter41 instanceof Map ? ρσ_Iter41.keys() : ρσ_Iter41) : Object.keys(ρσ_Iter41));
-                    for (var ρσ_Index41 of ρσ_Iter41) {
-                        lhs = ρσ_Index41;
+                    var ρσ_Iter37 = left_hand_sides;
+                    ρσ_Iter37 = ((typeof ρσ_Iter37[Symbol.iterator] === "function") ? (ρσ_Iter37 instanceof Map ? ρσ_Iter37.keys() : ρσ_Iter37) : Object.keys(ρσ_Iter37));
+                    for (var ρσ_Index37 of ρσ_Iter37) {
+                        lhs = ρσ_Index37;
                         output.spaced(lhs, "=", "");
                     }
                     rhs.print(output);
@@ -11829,10 +10031,10 @@ return this.__repr__();
                 output.indent();
                 output.print("var");
                 output.space();
-                var ρσ_Iter42 = enumerate(vars);
-                ρσ_Iter42 = ((typeof ρσ_Iter42[Symbol.iterator] === "function") ? (ρσ_Iter42 instanceof Map ? ρσ_Iter42.keys() : ρσ_Iter42) : Object.keys(ρσ_Iter42));
-                for (var ρσ_Index42 of ρσ_Iter42) {
-                    ρσ_unpack = ρσ_Index42;
+                var ρσ_Iter38 = enumerate(vars);
+                ρσ_Iter38 = ((typeof ρσ_Iter38[Symbol.iterator] === "function") ? (ρσ_Iter38 instanceof Map ? ρσ_Iter38.keys() : ρσ_Iter38) : Object.keys(ρσ_Iter38));
+                for (var ρσ_Index38 of ρσ_Iter38) {
+                    ρσ_unpack = ρσ_Index38;
                     i = ρσ_unpack[0];
                     arg = ρσ_unpack[1];
                     if (i) {
@@ -11852,10 +10054,10 @@ return this.__repr__();
         function display_body(body, is_toplevel, output) {
             var last, ρσ_unpack, i, stmt;
             last = body.length - 1;
-            var ρσ_Iter43 = enumerate(body);
-            ρσ_Iter43 = ((typeof ρσ_Iter43[Symbol.iterator] === "function") ? (ρσ_Iter43 instanceof Map ? ρσ_Iter43.keys() : ρσ_Iter43) : Object.keys(ρσ_Iter43));
-            for (var ρσ_Index43 of ρσ_Iter43) {
-                ρσ_unpack = ρσ_Index43;
+            var ρσ_Iter39 = enumerate(body);
+            ρσ_Iter39 = ((typeof ρσ_Iter39[Symbol.iterator] === "function") ? (ρσ_Iter39 instanceof Map ? ρσ_Iter39.keys() : ρσ_Iter39) : Object.keys(ρσ_Iter39));
+            for (var ρσ_Index39 of ρσ_Iter39) {
+                ρσ_unpack = ρσ_Index39;
                 i = ρσ_unpack[0];
                 stmt = ρσ_unpack[1];
                 if (!(is_node_type(stmt, AST_EmptyStatement)) && !(is_node_type(stmt, AST_Definitions))) {
@@ -11957,10 +10159,10 @@ return this.__repr__();
             var exits, clause_name, clause;
             exits = [];
             [output.assign("ρσ_with_exception"), output.print("undefined"), output.end_statement()];
-            var ρσ_Iter44 = self.clauses;
-            ρσ_Iter44 = ((typeof ρσ_Iter44[Symbol.iterator] === "function") ? (ρσ_Iter44 instanceof Map ? ρσ_Iter44.keys() : ρσ_Iter44) : Object.keys(ρσ_Iter44));
-            for (var ρσ_Index44 of ρσ_Iter44) {
-                clause = ρσ_Index44;
+            var ρσ_Iter40 = self.clauses;
+            ρσ_Iter40 = ((typeof ρσ_Iter40[Symbol.iterator] === "function") ? (ρσ_Iter40 instanceof Map ? ρσ_Iter40.keys() : ρσ_Iter40) : Object.keys(ρσ_Iter40));
+            for (var ρσ_Index40 of ρσ_Iter40) {
+                clause = ρσ_Index40;
                 output.with_counter += 1;
                 clause_name = "ρσ_with_clause_" + output.with_counter;
                 exits.push(clause_name);
@@ -12000,10 +10202,10 @@ return this.__repr__();
             output.with_block((function() {
                 var ρσ_anonfunc = function () {
                     var clause;
-                    var ρσ_Iter45 = exits;
-                    ρσ_Iter45 = ((typeof ρσ_Iter45[Symbol.iterator] === "function") ? (ρσ_Iter45 instanceof Map ? ρσ_Iter45.keys() : ρσ_Iter45) : Object.keys(ρσ_Iter45));
-                    for (var ρσ_Index45 of ρσ_Iter45) {
-                        clause = ρσ_Index45;
+                    var ρσ_Iter41 = exits;
+                    ρσ_Iter41 = ((typeof ρσ_Iter41[Symbol.iterator] === "function") ? (ρσ_Iter41 instanceof Map ? ρσ_Iter41.keys() : ρσ_Iter41) : Object.keys(ρσ_Iter41));
+                    for (var ρσ_Index41 of ρσ_Iter41) {
+                        clause = ρσ_Index41;
                         [output.indent(), output.print(clause + ".__exit__()"), output.end_statement()];
                     }
                 };
@@ -12017,10 +10219,10 @@ return this.__repr__();
                 var ρσ_anonfunc = function () {
                     var clause;
                     [output.indent(), output.assign("ρσ_with_suppress"), output.print("false"), output.end_statement()];
-                    var ρσ_Iter46 = exits;
-                    ρσ_Iter46 = ((typeof ρσ_Iter46[Symbol.iterator] === "function") ? (ρσ_Iter46 instanceof Map ? ρσ_Iter46.keys() : ρσ_Iter46) : Object.keys(ρσ_Iter46));
-                    for (var ρσ_Index46 of ρσ_Iter46) {
-                        clause = ρσ_Index46;
+                    var ρσ_Iter42 = exits;
+                    ρσ_Iter42 = ((typeof ρσ_Iter42[Symbol.iterator] === "function") ? (ρσ_Iter42 instanceof Map ? ρσ_Iter42.keys() : ρσ_Iter42) : Object.keys(ρσ_Iter42));
+                    for (var ρσ_Index42 of ρσ_Iter42) {
+                        clause = ρσ_Index42;
                         output.indent();
                         output.spaced("ρσ_with_suppress", "|=", "ρσ_bool(" + clause + ".__exit__(ρσ_with_exception.constructor,", "ρσ_with_exception,", "ρσ_with_exception.stack))");
                         output.end_statement();
@@ -12075,8 +10277,8 @@ return this.__repr__();
             var best, len_, i;
             best = a[0];
             len_ = best.length;
-            for (var ρσ_Index47 = 1; ρσ_Index47 < a.length; ρσ_Index47++) {
-                i = ρσ_Index47;
+            for (var ρσ_Index43 = 1; ρσ_Index43 < a.length; ρσ_Index43++) {
+                i = ρσ_Index43;
                 if (a[(typeof i === "number" && i < 0) ? a.length + i : i].length < len_) {
                     best = a[(typeof i === "number" && i < 0) ? a.length + i : i];
                     len_ = best.length;
@@ -12138,17 +10340,17 @@ return this.__repr__();
         function create_doctring(docstrings) {
             var ans, ds, lines, min_leading_whitespace, r, leading_whitespace, line, lw, ρσ_unpack, l;
             ans = [];
-            var ρσ_Iter48 = docstrings;
-            ρσ_Iter48 = ((typeof ρσ_Iter48[Symbol.iterator] === "function") ? (ρσ_Iter48 instanceof Map ? ρσ_Iter48.keys() : ρσ_Iter48) : Object.keys(ρσ_Iter48));
-            for (var ρσ_Index48 of ρσ_Iter48) {
-                ds = ρσ_Index48;
+            var ρσ_Iter44 = docstrings;
+            ρσ_Iter44 = ((typeof ρσ_Iter44[Symbol.iterator] === "function") ? (ρσ_Iter44 instanceof Map ? ρσ_Iter44.keys() : ρσ_Iter44) : Object.keys(ρσ_Iter44));
+            for (var ρσ_Index44 of ρσ_Iter44) {
+                ds = ρσ_Index44;
                 ds = str.rstrip(ds.value);
                 lines = [];
                 min_leading_whitespace = "";
-                var ρσ_Iter49 = ds.split(/$/gm);
-                ρσ_Iter49 = ((typeof ρσ_Iter49[Symbol.iterator] === "function") ? (ρσ_Iter49 instanceof Map ? ρσ_Iter49.keys() : ρσ_Iter49) : Object.keys(ρσ_Iter49));
-                for (var ρσ_Index49 of ρσ_Iter49) {
-                    line = ρσ_Index49;
+                var ρσ_Iter45 = ds.split(/$/gm);
+                ρσ_Iter45 = ((typeof ρσ_Iter45[Symbol.iterator] === "function") ? (ρσ_Iter45 instanceof Map ? ρσ_Iter45.keys() : ρσ_Iter45) : Object.keys(ρσ_Iter45));
+                for (var ρσ_Index45 of ρσ_Iter45) {
+                    line = ρσ_Index45;
                     r = /^\s+/.exec(line);
                     leading_whitespace = "";
                     if (r) {
@@ -12165,10 +10367,10 @@ return this.__repr__();
                         lines.push([leading_whitespace, line]);
                     }
                 }
-                var ρσ_Iter50 = lines;
-                ρσ_Iter50 = ((typeof ρσ_Iter50[Symbol.iterator] === "function") ? (ρσ_Iter50 instanceof Map ? ρσ_Iter50.keys() : ρσ_Iter50) : Object.keys(ρσ_Iter50));
-                for (var ρσ_Index50 of ρσ_Iter50) {
-                    ρσ_unpack = ρσ_Index50;
+                var ρσ_Iter46 = lines;
+                ρσ_Iter46 = ((typeof ρσ_Iter46[Symbol.iterator] === "function") ? (ρσ_Iter46 instanceof Map ? ρσ_Iter46.keys() : ρσ_Iter46) : Object.keys(ρσ_Iter46));
+                for (var ρσ_Index46 of ρσ_Iter46) {
+                    ρσ_unpack = ρσ_Index46;
                     lw = ρσ_unpack[0];
                     l = ρσ_unpack[1];
                     if (min_leading_whitespace) {
@@ -12204,8 +10406,6 @@ return this.__repr__();
         var print_getattr = ρσ_modules["output.operators"].print_getattr;
 
         var print_bracketed = ρσ_modules["output.statements"].print_bracketed;
-
-        var OutputStream = ρσ_modules["output.stream"].OutputStream;
 
         var create_doctring = ρσ_modules["output.utils"].create_doctring;
 
@@ -12255,10 +10455,10 @@ return this.__repr__();
                 var ρσ_anonfunc = function () {
                     var ρσ_unpack, i, arg;
                     if (argnames && argnames.args.length && (argnames.is_simple_func === true || argnames.is_simple_func === undefined)) {
-                        var ρσ_Iter51 = enumerate((strip_first) ? argnames.args.slice(1) : argnames.args);
-                        ρσ_Iter51 = ((typeof ρσ_Iter51[Symbol.iterator] === "function") ? (ρσ_Iter51 instanceof Map ? ρσ_Iter51.keys() : ρσ_Iter51) : Object.keys(ρσ_Iter51));
-                        for (var ρσ_Index51 of ρσ_Iter51) {
-                            ρσ_unpack = ρσ_Index51;
+                        var ρσ_Iter47 = enumerate((strip_first) ? argnames.args.slice(1) : argnames.args);
+                        ρσ_Iter47 = ((typeof ρσ_Iter47[Symbol.iterator] === "function") ? (ρσ_Iter47 instanceof Map ? ρσ_Iter47.keys() : ρσ_Iter47) : Object.keys(ρσ_Iter47));
+                        for (var ρσ_Index47 of ρσ_Iter47) {
+                            ρσ_unpack = ρσ_Index47;
                             i = ρσ_unpack[0];
                             arg = ρσ_unpack[1];
                             if (i) {
@@ -12288,10 +10488,10 @@ return this.__repr__();
             }
             fname = (node.name) ? node.name.name : anonfunc;
             kw = "arguments[arguments.length-1]";
-            var ρσ_Iter52 = enumerate(a.args);
-            ρσ_Iter52 = ((typeof ρσ_Iter52[Symbol.iterator] === "function") ? (ρσ_Iter52 instanceof Map ? ρσ_Iter52.keys() : ρσ_Iter52) : Object.keys(ρσ_Iter52));
-            for (var ρσ_Index52 of ρσ_Iter52) {
-                ρσ_unpack = ρσ_Index52;
+            var ρσ_Iter48 = enumerate(a.args);
+            ρσ_Iter48 = ((typeof ρσ_Iter48[Symbol.iterator] === "function") ? (ρσ_Iter48 instanceof Map ? ρσ_Iter48.keys() : ρσ_Iter48) : Object.keys(ρσ_Iter48));
+            for (var ρσ_Index48 of ρσ_Iter48) {
+                ρσ_unpack = ρσ_Index48;
                 c = ρσ_unpack[0];
                 arg = ρσ_unpack[1];
                 i = c - offset;
@@ -12320,10 +10520,10 @@ return this.__repr__();
                 output.spaced("if", "(" + kw, "===", "null", "||", "typeof", kw, "!==", "\"object\"", "||", kw, "[ρσ_kwargs_symbol]", "!==", "true)", kw, "=", "{}");
                 output.end_statement();
                 if (a.has_defaults) {
-                    var ρσ_Iter53 = Object.keys(a.defaults);
-                    ρσ_Iter53 = ((typeof ρσ_Iter53[Symbol.iterator] === "function") ? (ρσ_Iter53 instanceof Map ? ρσ_Iter53.keys() : ρσ_Iter53) : Object.keys(ρσ_Iter53));
-                    for (var ρσ_Index53 of ρσ_Iter53) {
-                        dname = ρσ_Index53;
+                    var ρσ_Iter49 = Object.keys(a.defaults);
+                    ρσ_Iter49 = ((typeof ρσ_Iter49[Symbol.iterator] === "function") ? (ρσ_Iter49 instanceof Map ? ρσ_Iter49.keys() : ρσ_Iter49) : Object.keys(ρσ_Iter49));
+                    for (var ρσ_Index49 of ρσ_Iter49) {
+                        dname = ρσ_Index49;
                         output.indent();
                         output.spaced("if", "(Object.prototype.hasOwnProperty.call(" + kw + ",", "\"" + dname + "\"))");
                         output.with_block((function() {
@@ -12367,10 +10567,10 @@ return this.__repr__();
             if (self.return_annotation) {
                 return true;
             }
-            var ρσ_Iter54 = self.argnames.args;
-            ρσ_Iter54 = ((typeof ρσ_Iter54[Symbol.iterator] === "function") ? (ρσ_Iter54 instanceof Map ? ρσ_Iter54.keys() : ρσ_Iter54) : Object.keys(ρσ_Iter54));
-            for (var ρσ_Index54 of ρσ_Iter54) {
-                arg = ρσ_Index54;
+            var ρσ_Iter50 = self.argnames.args;
+            ρσ_Iter50 = ((typeof ρσ_Iter50[Symbol.iterator] === "function") ? (ρσ_Iter50 instanceof Map ? ρσ_Iter50.keys() : ρσ_Iter50) : Object.keys(ρσ_Iter50));
+            for (var ρσ_Index50 of ρσ_Iter50) {
+                arg = ρσ_Index50;
                 if (arg.annotation) {
                     return true;
                 }
@@ -12392,10 +10592,10 @@ return this.__repr__();
                         var ρσ_unpack, i, arg;
                         output.print("{");
                         if (self.argnames && self.argnames.args.length) {
-                            var ρσ_Iter55 = enumerate(self.argnames.args);
-                            ρσ_Iter55 = ((typeof ρσ_Iter55[Symbol.iterator] === "function") ? (ρσ_Iter55 instanceof Map ? ρσ_Iter55.keys() : ρσ_Iter55) : Object.keys(ρσ_Iter55));
-                            for (var ρσ_Index55 of ρσ_Iter55) {
-                                ρσ_unpack = ρσ_Index55;
+                            var ρσ_Iter51 = enumerate(self.argnames.args);
+                            ρσ_Iter51 = ((typeof ρσ_Iter51[Symbol.iterator] === "function") ? (ρσ_Iter51 instanceof Map ? ρσ_Iter51.keys() : ρσ_Iter51) : Object.keys(ρσ_Iter51));
+                            for (var ρσ_Index51 of ρσ_Iter51) {
+                                ρσ_unpack = ρσ_Index51;
                                 i = ρσ_unpack[0];
                                 arg = ρσ_unpack[1];
                                 if (arg.annotation) {
@@ -12427,10 +10627,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, k;
                         output.print("{");
-                        var ρσ_Iter56 = enumerate(dkeys);
-                        ρσ_Iter56 = ((typeof ρσ_Iter56[Symbol.iterator] === "function") ? (ρσ_Iter56 instanceof Map ? ρσ_Iter56.keys() : ρσ_Iter56) : Object.keys(ρσ_Iter56));
-                        for (var ρσ_Index56 of ρσ_Iter56) {
-                            ρσ_unpack = ρσ_Index56;
+                        var ρσ_Iter52 = enumerate(dkeys);
+                        ρσ_Iter52 = ((typeof ρσ_Iter52[Symbol.iterator] === "function") ? (ρσ_Iter52 instanceof Map ? ρσ_Iter52.keys() : ρσ_Iter52) : Object.keys(ρσ_Iter52));
+                        for (var ρσ_Index52 of ρσ_Iter52) {
+                            ρσ_unpack = ρσ_Index52;
                             i = ρσ_unpack[0];
                             k = ρσ_unpack[1];
                             [output.print(k + ":"), defaults[(typeof k === "number" && k < 0) ? defaults.length + k : k].print(output)];
@@ -12462,10 +10662,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, arg;
                         output.print("[");
-                        var ρσ_Iter57 = enumerate(self.argnames.args);
-                        ρσ_Iter57 = ((typeof ρσ_Iter57[Symbol.iterator] === "function") ? (ρσ_Iter57 instanceof Map ? ρσ_Iter57.keys() : ρσ_Iter57) : Object.keys(ρσ_Iter57));
-                        for (var ρσ_Index57 of ρσ_Iter57) {
-                            ρσ_unpack = ρσ_Index57;
+                        var ρσ_Iter53 = enumerate(self.argnames.args);
+                        ρσ_Iter53 = ((typeof ρσ_Iter53[Symbol.iterator] === "function") ? (ρσ_Iter53 instanceof Map ? ρσ_Iter53.keys() : ρσ_Iter53) : Object.keys(ρσ_Iter53));
+                        for (var ρσ_Index53 of ρσ_Iter53) {
+                            ρσ_unpack = ρσ_Index53;
                             i = ρσ_unpack[0];
                             arg = ρσ_unpack[1];
                             if (strip_first && i === 0) {
@@ -12685,10 +10885,10 @@ return this.__repr__();
                 var ρσ_unpack, i, kwname, pair;
                 output.print("ρσ_desugar_kwargs(");
                 if (has_kwarg_items) {
-                    var ρσ_Iter58 = enumerate(self.args.kwarg_items);
-                    ρσ_Iter58 = ((typeof ρσ_Iter58[Symbol.iterator] === "function") ? (ρσ_Iter58 instanceof Map ? ρσ_Iter58.keys() : ρσ_Iter58) : Object.keys(ρσ_Iter58));
-                    for (var ρσ_Index58 of ρσ_Iter58) {
-                        ρσ_unpack = ρσ_Index58;
+                    var ρσ_Iter54 = enumerate(self.args.kwarg_items);
+                    ρσ_Iter54 = ((typeof ρσ_Iter54[Symbol.iterator] === "function") ? (ρσ_Iter54 instanceof Map ? ρσ_Iter54.keys() : ρσ_Iter54) : Object.keys(ρσ_Iter54));
+                    for (var ρσ_Index54 of ρσ_Iter54) {
+                        ρσ_unpack = ρσ_Index54;
                         i = ρσ_unpack[0];
                         kwname = ρσ_unpack[1];
                         if (i > 0) {
@@ -12704,10 +10904,10 @@ return this.__repr__();
                 }
                 if (has_kwarg_formals) {
                     output.print("{");
-                    var ρσ_Iter59 = enumerate(self.args.kwargs);
-                    ρσ_Iter59 = ((typeof ρσ_Iter59[Symbol.iterator] === "function") ? (ρσ_Iter59 instanceof Map ? ρσ_Iter59.keys() : ρσ_Iter59) : Object.keys(ρσ_Iter59));
-                    for (var ρσ_Index59 of ρσ_Iter59) {
-                        ρσ_unpack = ρσ_Index59;
+                    var ρσ_Iter55 = enumerate(self.args.kwargs);
+                    ρσ_Iter55 = ((typeof ρσ_Iter55[Symbol.iterator] === "function") ? (ρσ_Iter55 instanceof Map ? ρσ_Iter55.keys() : ρσ_Iter55) : Object.keys(ρσ_Iter55));
+                    for (var ρσ_Index55 of ρσ_Iter55) {
+                        ρσ_unpack = ρσ_Index55;
                         i = ρσ_unpack[0];
                         pair = ρσ_unpack[1];
                         if (i) {
@@ -12802,10 +11002,10 @@ return this.__repr__();
                 output.with_parens((function() {
                     var ρσ_anonfunc = function () {
                         var ρσ_unpack, i, a;
-                        var ρσ_Iter60 = enumerate(self.args.args);
-                        ρσ_Iter60 = ((typeof ρσ_Iter60[Symbol.iterator] === "function") ? (ρσ_Iter60 instanceof Map ? ρσ_Iter60.keys() : ρσ_Iter60) : Object.keys(ρσ_Iter60));
-                        for (var ρσ_Index60 of ρσ_Iter60) {
-                            ρσ_unpack = ρσ_Index60;
+                        var ρσ_Iter56 = enumerate(self.args.args);
+                        ρσ_Iter56 = ((typeof ρσ_Iter56[Symbol.iterator] === "function") ? (ρσ_Iter56 instanceof Map ? ρσ_Iter56.keys() : ρσ_Iter56) : Object.keys(ρσ_Iter56));
+                        for (var ρσ_Index56 of ρσ_Iter56) {
+                            ρσ_unpack = ρσ_Index56;
                             i = ρσ_unpack[0];
                             a = ρσ_unpack[1];
                             if (i) {
@@ -13032,8 +11232,8 @@ return this.__repr__();
                 self.name.print(output);
                 output.spaced(".ρσ_decorators", "=", "[");
                 num = decorators.length;
-                for (var ρσ_Index61 = 0; ρσ_Index61 < num; ρσ_Index61++) {
-                    i = ρσ_Index61;
+                for (var ρσ_Index57 = 0; ρσ_Index57 < num; ρσ_Index57++) {
+                    i = ρσ_Index57;
                     decorators[(typeof i === "number" && i < 0) ? decorators.length + i : i].expression.print(output);
                     output.spaced((i < num - 1) ? "," : "]");
                 }
@@ -13072,10 +11272,10 @@ return this.__repr__();
                                         output.end_statement();
                                     }
                                 }
-                                var ρσ_Iter62 = self.bound;
-                                ρσ_Iter62 = ((typeof ρσ_Iter62[Symbol.iterator] === "function") ? (ρσ_Iter62 instanceof Map ? ρσ_Iter62.keys() : ρσ_Iter62) : Object.keys(ρσ_Iter62));
-                                for (var ρσ_Index62 of ρσ_Iter62) {
-                                    bname = ρσ_Index62;
+                                var ρσ_Iter58 = self.bound;
+                                ρσ_Iter58 = ((typeof ρσ_Iter58[Symbol.iterator] === "function") ? (ρσ_Iter58 instanceof Map ? ρσ_Iter58.keys() : ρσ_Iter58) : Object.keys(ρσ_Iter58));
+                                for (var ρσ_Index58 of ρσ_Iter58) {
+                                    bname = ρσ_Index58;
                                     if (seen_methods[(typeof bname === "number" && bname < 0) ? seen_methods.length + bname : bname] || (ρσ_expr_temp = self.dynamic_properties)[(typeof bname === "number" && bname < 0) ? ρσ_expr_temp.length + bname : bname]) {
                                         continue;
                                     }
@@ -13107,10 +11307,10 @@ return this.__repr__();
                         output.with_block((function() {
                             var ρσ_anonfunc = function () {
                                 var prop, name;
-                                var ρσ_Iter63 = property_names;
-                                ρσ_Iter63 = ((typeof ρσ_Iter63[Symbol.iterator] === "function") ? (ρσ_Iter63 instanceof Map ? ρσ_Iter63.keys() : ρσ_Iter63) : Object.keys(ρσ_Iter63));
-                                for (var ρσ_Index63 of ρσ_Iter63) {
-                                    name = ρσ_Index63;
+                                var ρσ_Iter59 = property_names;
+                                ρσ_Iter59 = ((typeof ρσ_Iter59[Symbol.iterator] === "function") ? (ρσ_Iter59 instanceof Map ? ρσ_Iter59.keys() : ρσ_Iter59) : Object.keys(ρσ_Iter59));
+                                for (var ρσ_Index59 of ρσ_Iter59) {
+                                    name = ρσ_Index59;
                                     prop = (ρσ_expr_temp = self.dynamic_properties)[(typeof name === "number" && name < 0) ? ρσ_expr_temp.length + name : name];
                                     [output.indent(), output.print(JSON.stringify(name) + ":"), output.space()];
                                     output.with_block((function() {
@@ -13179,10 +11379,10 @@ return this.__repr__();
                 })());
             }
             defined_methods = Object.create(null);
-            var ρσ_Iter64 = self.body;
-            ρσ_Iter64 = ((typeof ρσ_Iter64[Symbol.iterator] === "function") ? (ρσ_Iter64 instanceof Map ? ρσ_Iter64.keys() : ρσ_Iter64) : Object.keys(ρσ_Iter64));
-            for (var ρσ_Index64 of ρσ_Iter64) {
-                stmt = ρσ_Index64;
+            var ρσ_Iter60 = self.body;
+            ρσ_Iter60 = ((typeof ρσ_Iter60[Symbol.iterator] === "function") ? (ρσ_Iter60 instanceof Map ? ρσ_Iter60.keys() : ρσ_Iter60) : Object.keys(ρσ_Iter60));
+            for (var ρσ_Index60 of ρσ_Iter60) {
+                stmt = ρσ_Index60;
                 if (is_node_type(stmt, AST_Method)) {
                     if (stmt.is_getter || stmt.is_setter) {
                         continue;
@@ -13191,10 +11391,10 @@ return this.__repr__();
                     defined_methods[ρσ_bound_index(stmt.name.name, defined_methods)] = true;
                     sname = stmt.name.name;
                     if (sname === "__init__") {
-                        var ρσ_Iter65 = [ ".__argnames__", ".__handles_kwarg_interpolation__" ];
-                        ρσ_Iter65 = ((typeof ρσ_Iter65[Symbol.iterator] === "function") ? (ρσ_Iter65 instanceof Map ? ρσ_Iter65.keys() : ρσ_Iter65) : Object.keys(ρσ_Iter65));
-                        for (var ρσ_Index65 of ρσ_Iter65) {
-                            attr = ρσ_Index65;
+                        var ρσ_Iter61 = [ ".__argnames__", ".__handles_kwarg_interpolation__" ];
+                        ρσ_Iter61 = ((typeof ρσ_Iter61[Symbol.iterator] === "function") ? (ρσ_Iter61 instanceof Map ? ρσ_Iter61.keys() : ρσ_Iter61) : Object.keys(ρσ_Iter61));
+                        for (var ρσ_Index61 of ρσ_Iter61) {
+                            attr = ρσ_Index61;
                             [output.indent(), self.name.print(output), output.assign(attr)];
                             [self.name.print(output), output.print(".prototype.__init__" + attr), output.end_statement()];
                         }
@@ -13279,10 +11479,10 @@ return this.__repr__();
                     return ρσ_anonfunc;
                 })());
             }
-            var ρσ_Iter66 = self.statements;
-            ρσ_Iter66 = ((typeof ρσ_Iter66[Symbol.iterator] === "function") ? (ρσ_Iter66 instanceof Map ? ρσ_Iter66.keys() : ρσ_Iter66) : Object.keys(ρσ_Iter66));
-            for (var ρσ_Index66 of ρσ_Iter66) {
-                stmt = ρσ_Index66;
+            var ρσ_Iter62 = self.statements;
+            ρσ_Iter62 = ((typeof ρσ_Iter62[Symbol.iterator] === "function") ? (ρσ_Iter62 instanceof Map ? ρσ_Iter62.keys() : ρσ_Iter62) : Object.keys(ρσ_Iter62));
+            for (var ρσ_Index62 of ρσ_Iter62) {
+                stmt = ρσ_Index62;
                 if (!is_node_type(stmt, AST_Method)) {
                     output.indent();
                     stmt.print(output);
@@ -13292,8 +11492,8 @@ return this.__repr__();
             if (decorators.length) {
                 output.indent();
                 output.assign(self.name);
-                for (var ρσ_Index67 = 0; ρσ_Index67 < decorators.length; ρσ_Index67++) {
-                    di = ρσ_Index67;
+                for (var ρσ_Index63 = 0; ρσ_Index63 < decorators.length; ρσ_Index63++) {
+                    di = ρσ_Index63;
                     self.name.print(output);
                     output.print(".ρσ_decorators[" + ρσ_str.format("{}", di) + "](");
                 }
@@ -13324,10 +11524,10 @@ return this.__repr__();
 
         function output_comments(comments, output, nlb) {
             var comm;
-            var ρσ_Iter68 = comments;
-            ρσ_Iter68 = ((typeof ρσ_Iter68[Symbol.iterator] === "function") ? (ρσ_Iter68 instanceof Map ? ρσ_Iter68.keys() : ρσ_Iter68) : Object.keys(ρσ_Iter68));
-            for (var ρσ_Index68 of ρσ_Iter68) {
-                comm = ρσ_Index68;
+            var ρσ_Iter64 = comments;
+            ρσ_Iter64 = ((typeof ρσ_Iter64[Symbol.iterator] === "function") ? (ρσ_Iter64 instanceof Map ? ρσ_Iter64.keys() : ρσ_Iter64) : Object.keys(ρσ_Iter64));
+            for (var ρσ_Index64 of ρσ_Iter64) {
+                comm = ρσ_Index64;
                 if (comm.type === "comment1") {
                     output.print("//" + comm.value + "\n");
                     output.indent();
@@ -13455,10 +11655,10 @@ return this.__repr__();
                     [output.spaced("ρσ_last_exception", "=", "ρσ_Exception"), output.end_statement()];
                     output.indent();
                     no_default = true;
-                    var ρσ_Iter69 = enumerate(self.body);
-                    ρσ_Iter69 = ((typeof ρσ_Iter69[Symbol.iterator] === "function") ? (ρσ_Iter69 instanceof Map ? ρσ_Iter69.keys() : ρσ_Iter69) : Object.keys(ρσ_Iter69));
-                    for (var ρσ_Index69 of ρσ_Iter69) {
-                        ρσ_unpack = ρσ_Index69;
+                    var ρσ_Iter65 = enumerate(self.body);
+                    ρσ_Iter65 = ((typeof ρσ_Iter65[Symbol.iterator] === "function") ? (ρσ_Iter65 instanceof Map ? ρσ_Iter65.keys() : ρσ_Iter65) : Object.keys(ρσ_Iter65));
+                    for (var ρσ_Index65 of ρσ_Iter65) {
+                        ρσ_unpack = ρσ_Index65;
                         i = ρσ_unpack[0];
                         exception = ρσ_unpack[1];
                         if (i) {
@@ -13470,10 +11670,10 @@ return this.__repr__();
                             output.with_parens((function() {
                                 var ρσ_anonfunc = function () {
                                     var ρσ_unpack, i, err;
-                                    var ρσ_Iter70 = enumerate(exception.errors);
-                                    ρσ_Iter70 = ((typeof ρσ_Iter70[Symbol.iterator] === "function") ? (ρσ_Iter70 instanceof Map ? ρσ_Iter70.keys() : ρσ_Iter70) : Object.keys(ρσ_Iter70));
-                                    for (var ρσ_Index70 of ρσ_Iter70) {
-                                        ρσ_unpack = ρσ_Index70;
+                                    var ρσ_Iter66 = enumerate(exception.errors);
+                                    ρσ_Iter66 = ((typeof ρσ_Iter66[Symbol.iterator] === "function") ? (ρσ_Iter66 instanceof Map ? ρσ_Iter66.keys() : ρσ_Iter66) : Object.keys(ρσ_Iter66));
+                                    for (var ρσ_Index66 of ρσ_Iter66) {
+                                        ρσ_unpack = ρσ_Index66;
                                         i = ρσ_unpack[0];
                                         err = ρσ_unpack[1];
                                         if (i) {
@@ -13599,10 +11799,10 @@ return this.__repr__();
                     if (len_ > 0) {
                         output.space();
                     }
-                    var ρσ_Iter71 = enumerate(a);
-                    ρσ_Iter71 = ((typeof ρσ_Iter71[Symbol.iterator] === "function") ? (ρσ_Iter71 instanceof Map ? ρσ_Iter71.keys() : ρσ_Iter71) : Object.keys(ρσ_Iter71));
-                    for (var ρσ_Index71 of ρσ_Iter71) {
-                        ρσ_unpack = ρσ_Index71;
+                    var ρσ_Iter67 = enumerate(a);
+                    ρσ_Iter67 = ((typeof ρσ_Iter67[Symbol.iterator] === "function") ? (ρσ_Iter67 instanceof Map ? ρσ_Iter67.keys() : ρσ_Iter67) : Object.keys(ρσ_Iter67));
+                    for (var ρσ_Index67 of ρσ_Iter67) {
+                        ρσ_unpack = ρσ_Index67;
                         i = ρσ_unpack[0];
                         exp = ρσ_unpack[1];
                         if (i) {
@@ -13639,10 +11839,10 @@ return this.__repr__();
                                 output.spaced("var", "ρσ_d", "=", (self.is_jshash) ? "Object.create(null)" : "{}");
                             }
                             output.end_statement();
-                            var ρσ_Iter72 = enumerate(self.properties);
-                            ρσ_Iter72 = ((typeof ρσ_Iter72[Symbol.iterator] === "function") ? (ρσ_Iter72 instanceof Map ? ρσ_Iter72.keys() : ρσ_Iter72) : Object.keys(ρσ_Iter72));
-                            for (var ρσ_Index72 of ρσ_Iter72) {
-                                ρσ_unpack = ρσ_Index72;
+                            var ρσ_Iter68 = enumerate(self.properties);
+                            ρσ_Iter68 = ((typeof ρσ_Iter68[Symbol.iterator] === "function") ? (ρσ_Iter68 instanceof Map ? ρσ_Iter68.keys() : ρσ_Iter68) : Object.keys(ρσ_Iter68));
+                            for (var ρσ_Index68 of ρσ_Iter68) {
+                                ρσ_unpack = ρσ_Index68;
                                 i = ρσ_unpack[0];
                                 prop = ρσ_unpack[1];
                                 output.indent();
@@ -13731,10 +11931,10 @@ return this.__repr__();
                             output.indent();
                             output.spaced.apply(output, "var s = ρσ_set()".split(" "));
                             output.end_statement();
-                            var ρσ_Iter73 = self.items;
-                            ρσ_Iter73 = ((typeof ρσ_Iter73[Symbol.iterator] === "function") ? (ρσ_Iter73 instanceof Map ? ρσ_Iter73.keys() : ρσ_Iter73) : Object.keys(ρσ_Iter73));
-                            for (var ρσ_Index73 of ρσ_Iter73) {
-                                item = ρσ_Index73;
+                            var ρσ_Iter69 = self.items;
+                            ρσ_Iter69 = ((typeof ρσ_Iter69[Symbol.iterator] === "function") ? (ρσ_Iter69 instanceof Map ? ρσ_Iter69.keys() : ρσ_Iter69) : Object.keys(ρσ_Iter69));
+                            for (var ρσ_Index69 of ρσ_Iter69) {
+                                item = ρσ_Index69;
                                 output.indent();
                                 output.print("s.jsset.add");
                                 output.with_parens((function() {
@@ -13809,10 +12009,10 @@ return this.__repr__();
         function write_imports(module, output) {
             var imports, import_id, nonlocalvars, name, module_, module_id;
             imports = [];
-            var ρσ_Iter74 = Object.keys(module.imports);
-            ρσ_Iter74 = ((typeof ρσ_Iter74[Symbol.iterator] === "function") ? (ρσ_Iter74 instanceof Map ? ρσ_Iter74.keys() : ρσ_Iter74) : Object.keys(ρσ_Iter74));
-            for (var ρσ_Index74 of ρσ_Iter74) {
-                import_id = ρσ_Index74;
+            var ρσ_Iter70 = Object.keys(module.imports);
+            ρσ_Iter70 = ((typeof ρσ_Iter70[Symbol.iterator] === "function") ? (ρσ_Iter70 instanceof Map ? ρσ_Iter70.keys() : ρσ_Iter70) : Object.keys(ρσ_Iter70));
+            for (var ρσ_Index70 of ρσ_Iter70) {
+                import_id = ρσ_Index70;
                 imports.push((ρσ_expr_temp = module.imports)[(typeof import_id === "number" && import_id < 0) ? ρσ_expr_temp.length + import_id : import_id]);
             }
             imports.sort((function() {
@@ -13835,14 +12035,14 @@ return this.__repr__();
                 output.newline();
             }
             nonlocalvars = Object.create(null);
-            var ρσ_Iter75 = imports;
-            ρσ_Iter75 = ((typeof ρσ_Iter75[Symbol.iterator] === "function") ? (ρσ_Iter75 instanceof Map ? ρσ_Iter75.keys() : ρσ_Iter75) : Object.keys(ρσ_Iter75));
-            for (var ρσ_Index75 of ρσ_Iter75) {
-                module_ = ρσ_Index75;
-                var ρσ_Iter76 = module_.nonlocalvars;
-                ρσ_Iter76 = ((typeof ρσ_Iter76[Symbol.iterator] === "function") ? (ρσ_Iter76 instanceof Map ? ρσ_Iter76.keys() : ρσ_Iter76) : Object.keys(ρσ_Iter76));
-                for (var ρσ_Index76 of ρσ_Iter76) {
-                    name = ρσ_Index76;
+            var ρσ_Iter71 = imports;
+            ρσ_Iter71 = ((typeof ρσ_Iter71[Symbol.iterator] === "function") ? (ρσ_Iter71 instanceof Map ? ρσ_Iter71.keys() : ρσ_Iter71) : Object.keys(ρσ_Iter71));
+            for (var ρσ_Index71 of ρσ_Iter71) {
+                module_ = ρσ_Index71;
+                var ρσ_Iter72 = module_.nonlocalvars;
+                ρσ_Iter72 = ((typeof ρσ_Iter72[Symbol.iterator] === "function") ? (ρσ_Iter72 instanceof Map ? ρσ_Iter72.keys() : ρσ_Iter72) : Object.keys(ρσ_Iter72));
+                for (var ρσ_Index72 of ρσ_Iter72) {
+                    name = ρσ_Index72;
                     nonlocalvars[(typeof name === "number" && name < 0) ? nonlocalvars.length + name : name] = true;
                 }
             }
@@ -13853,10 +12053,10 @@ return this.__repr__();
                 output.semicolon();
                 output.newline();
             }
-            var ρσ_Iter77 = imports;
-            ρσ_Iter77 = ((typeof ρσ_Iter77[Symbol.iterator] === "function") ? (ρσ_Iter77 instanceof Map ? ρσ_Iter77.keys() : ρσ_Iter77) : Object.keys(ρσ_Iter77));
-            for (var ρσ_Index77 of ρσ_Iter77) {
-                module_ = ρσ_Index77;
+            var ρσ_Iter73 = imports;
+            ρσ_Iter73 = ((typeof ρσ_Iter73[Symbol.iterator] === "function") ? (ρσ_Iter73 instanceof Map ? ρσ_Iter73.keys() : ρσ_Iter73) : Object.keys(ρσ_Iter73));
+            for (var ρσ_Index73 of ρσ_Iter73) {
+                module_ = ρσ_Index73;
                 module_id = module_.module_id;
                 if (module_id !== "__main__") {
                     output.indent();
@@ -13869,10 +12069,10 @@ return this.__repr__();
                     output.end_statement();
                 }
             }
-            var ρσ_Iter78 = imports;
-            ρσ_Iter78 = ((typeof ρσ_Iter78[Symbol.iterator] === "function") ? (ρσ_Iter78 instanceof Map ? ρσ_Iter78.keys() : ρσ_Iter78) : Object.keys(ρσ_Iter78));
-            for (var ρσ_Index78 of ρσ_Iter78) {
-                module_ = ρσ_Index78;
+            var ρσ_Iter74 = imports;
+            ρσ_Iter74 = ((typeof ρσ_Iter74[Symbol.iterator] === "function") ? (ρσ_Iter74 instanceof Map ? ρσ_Iter74.keys() : ρσ_Iter74) : Object.keys(ρσ_Iter74));
+            for (var ρσ_Index74 of ρσ_Iter74) {
+                module_ = ρσ_Index74;
                 if (module_.module_id !== "__main__") {
                     print_module(module_, output);
                 }
@@ -13922,10 +12122,10 @@ return this.__repr__();
                 output.end_statement();
             }
             output.newline();
-            var ρσ_Iter79 = exports;
-            ρσ_Iter79 = ((typeof ρσ_Iter79[Symbol.iterator] === "function") ? (ρσ_Iter79 instanceof Map ? ρσ_Iter79.keys() : ρσ_Iter79) : Object.keys(ρσ_Iter79));
-            for (var ρσ_Index79 of ρσ_Iter79) {
-                symbol = ρσ_Index79;
+            var ρσ_Iter75 = exports;
+            ρσ_Iter75 = ((typeof ρσ_Iter75[Symbol.iterator] === "function") ? (ρσ_Iter75 instanceof Map ? ρσ_Iter75.keys() : ρσ_Iter75) : Object.keys(ρσ_Iter75));
+            for (var ρσ_Index75 of ρσ_Iter75) {
+                symbol = ρσ_Index75;
                 if (!Object.prototype.hasOwnProperty.call(seen, symbol.name)) {
                     output.indent();
                     if (module_id.indexOf(".") === -1) {
@@ -14144,15 +12344,15 @@ return this.__repr__();
                 __module__ : {value: "output.modules"}
             });
 
-            var ρσ_Iter80 = container.imports;
-            ρσ_Iter80 = ((typeof ρσ_Iter80[Symbol.iterator] === "function") ? (ρσ_Iter80 instanceof Map ? ρσ_Iter80.keys() : ρσ_Iter80) : Object.keys(ρσ_Iter80));
-            for (var ρσ_Index80 of ρσ_Iter80) {
-                self = ρσ_Index80;
+            var ρσ_Iter76 = container.imports;
+            ρσ_Iter76 = ((typeof ρσ_Iter76[Symbol.iterator] === "function") ? (ρσ_Iter76 instanceof Map ? ρσ_Iter76.keys() : ρσ_Iter76) : Object.keys(ρσ_Iter76));
+            for (var ρσ_Index76 of ρσ_Iter76) {
+                self = ρσ_Index76;
                 if (self.argnames) {
-                    var ρσ_Iter81 = self.argnames;
-                    ρσ_Iter81 = ((typeof ρσ_Iter81[Symbol.iterator] === "function") ? (ρσ_Iter81 instanceof Map ? ρσ_Iter81.keys() : ρσ_Iter81) : Object.keys(ρσ_Iter81));
-                    for (var ρσ_Index81 of ρσ_Iter81) {
-                        argname = ρσ_Index81;
+                    var ρσ_Iter77 = self.argnames;
+                    ρσ_Iter77 = ((typeof ρσ_Iter77[Symbol.iterator] === "function") ? (ρσ_Iter77 instanceof Map ? ρσ_Iter77.keys() : ρσ_Iter77) : Object.keys(ρσ_Iter77));
+                    for (var ρσ_Index77 of ρσ_Iter77) {
+                        argname = ρσ_Index77;
                         akey = (argname.alias) ? argname.alias.name : argname.name;
                         add_aname(akey, self.key, argname.name);
                     }
@@ -14161,10 +12361,10 @@ return this.__repr__();
                         add_aname(self.alias.name, self.key, false);
                     } else {
                         parts = self.key.split(".");
-                        var ρσ_Iter82 = enumerate(parts);
-                        ρσ_Iter82 = ((typeof ρσ_Iter82[Symbol.iterator] === "function") ? (ρσ_Iter82 instanceof Map ? ρσ_Iter82.keys() : ρσ_Iter82) : Object.keys(ρσ_Iter82));
-                        for (var ρσ_Index82 of ρσ_Iter82) {
-                            ρσ_unpack = ρσ_Index82;
+                        var ρσ_Iter78 = enumerate(parts);
+                        ρσ_Iter78 = ((typeof ρσ_Iter78[Symbol.iterator] === "function") ? (ρσ_Iter78 instanceof Map ? ρσ_Iter78.keys() : ρσ_Iter78) : Object.keys(ρσ_Iter78));
+                        for (var ρσ_Index78 of ρσ_Iter78) {
+                            ρσ_unpack = ρσ_Index78;
                             i = ρσ_unpack[0];
                             part = ρσ_unpack[1];
                             if (i === 0) {
@@ -14193,6 +12393,1214 @@ return this.__repr__();
         ρσ_modules["output.modules"].print_top_level = print_top_level;
         ρσ_modules["output.modules"].print_module = print_module;
         ρσ_modules["output.modules"].print_imports = print_imports;
+    })();
+
+    (function(){
+        var __name__ = "string_interpolation";
+        function quoted_string(x) {
+            return "\"" + x.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/\n/g, "\\n") + "\"";
+        };
+        if (!quoted_string.__argnames__) Object.defineProperties(quoted_string, {
+            __argnames__ : {value: ["x"]},
+            __module__ : {value: "string_interpolation"}
+        });
+
+        function render_markup(markup) {
+            var ρσ_unpack, pos, key, ch, fmtspec, prefix;
+            ρσ_unpack = [0, ""];
+            pos = ρσ_unpack[0];
+            key = ρσ_unpack[1];
+            while (pos < markup.length) {
+                ch = markup[(typeof pos === "number" && pos < 0) ? markup.length + pos : pos];
+                if (ch === "!" || ch === ":") {
+                    break;
+                }
+                key += ch;
+                pos += 1;
+            }
+            fmtspec = markup.slice(pos);
+            prefix = "";
+            if (key.endsWith("=")) {
+                prefix = key;
+                key = key.slice(0, -1);
+            }
+            return "ρσ_str.format(\"" + prefix + "{" + fmtspec + "}\", " + key + ")";
+        };
+        if (!render_markup.__argnames__) Object.defineProperties(render_markup, {
+            __argnames__ : {value: ["markup"]},
+            __module__ : {value: "string_interpolation"}
+        });
+
+        function interpolate(template, raise_error) {
+            var pos, in_brace, markup, ans, ch;
+            pos = in_brace = 0;
+            markup = "";
+            ans = [""];
+            while (pos < template.length) {
+                ch = template[(typeof pos === "number" && pos < 0) ? template.length + pos : pos];
+                if (in_brace) {
+                    if (ch === "{") {
+                        in_brace += 1;
+                        markup += "{";
+                    } else if (ch === "}") {
+                        in_brace -= 1;
+                        if (in_brace > 0) {
+                            markup += "}";
+                        } else {
+                            ans.push([markup]);
+                            ans.push("");
+                        }
+                    } else {
+                        markup += ch;
+                    }
+                } else {
+                    if (ch === "{") {
+                        if (template[ρσ_bound_index(pos + 1, template)] === "{") {
+                            pos += 1;
+                            ans[ans.length-1] += "{";
+                        } else {
+                            in_brace = 1;
+                            markup = "";
+                        }
+                    } else if (ch === "}") {
+                        if (template[ρσ_bound_index(pos + 1, template)] === "}") {
+                            pos += 1;
+                            ans[ans.length-1] += "}";
+                        } else {
+                            raise_error("f-string: single '}' is not allowed");
+                        }
+                    } else {
+                        ans[ans.length-1] += ch;
+                    }
+                }
+                pos += 1;
+            }
+            if (in_brace) {
+                raise_error("expected '}' before end of string");
+            }
+            if (ans[ans.length-1] === "+") {
+                ans[ans.length-1] = "";
+            }
+            for (var i = 0; i < ans.length; i++) {
+                if (typeof ans[(typeof i === "number" && i < 0) ? ans.length + i : i] === "string") {
+                    ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = quoted_string(ans[(typeof i === "number" && i < 0) ? ans.length + i : i]);
+                } else {
+                    ans[(typeof i === "number" && i < 0) ? ans.length + i : i] = "+" + render_markup.apply(this, ans[(typeof i === "number" && i < 0) ? ans.length + i : i]) + "+";
+                }
+            }
+            return ans.join("");
+        };
+        if (!interpolate.__argnames__) Object.defineProperties(interpolate, {
+            __argnames__ : {value: ["template", "raise_error"]},
+            __module__ : {value: "string_interpolation"}
+        });
+
+        ρσ_modules.string_interpolation.quoted_string = quoted_string;
+        ρσ_modules.string_interpolation.render_markup = render_markup;
+        ρσ_modules.string_interpolation.interpolate = interpolate;
+    })();
+
+    (function(){
+        var __name__ = "unicode_aliases";
+        var DB, ALIAS_MAP;
+        DB = "\n# NameAliases-8.0.0.txt\n# Date: 2014-11-19, 01:30:00 GMT [KW, LI]\n#\n# This file is a normative contributory data file in the\n# Unicode Character Database.\n#\n# Copyright (c) 2005-2014 Unicode, Inc.\n# For terms of use, see http://www.unicode.org/terms_of_use.html\n#\n# This file defines the formal name aliases for Unicode characters.\n#\n# For informative aliases, see NamesList.txt\n#\n# The formal name aliases are divided into five types, each with a distinct label.\n#\n# Type Labels:\n#\n# 1. correction\n#      Corrections for serious problems in the character names\n# 2. control\n#      ISO 6429 names for C0 and C1 control functions, and other\n#      commonly occurring names for control codes\n# 3. alternate\n#      A few widely used alternate names for format characters\n# 4. figment\n#      Several documented labels for C1 control code points which\n#      were never actually approved in any standard\n# 5. abbreviation\n#      Commonly occurring abbreviations (or acronyms) for control codes,\n#      format characters, spaces, and variation selectors\n#\n# The formal name aliases are part of the Unicode character namespace, which\n# includes the character names and the names of named character sequences.\n# The inclusion of ISO 6429 names and other commonly occurring names and\n# abbreviations for control codes and format characters as formal name aliases\n# is to help avoid name collisions between Unicode character names and the\n# labels which commonly appear in text and/or in implementations such as regex, for\n# control codes (which for historical reasons have no Unicode character name)\n# or for format characters.\n#\n# For documentation, see NamesList.html and http://www.unicode.org/reports/tr44/\n#\n# FORMAT\n#\n# Each line has three fields, as described here:\n#\n# First field:  Code point\n# Second field: Alias\n# Third field:  Type\n#\n# The type labels used are defined above. As for property values, comparisons\n# of type labels should ignore case.\n#\n# The type labels can be mapped to other strings for display, if desired.\n#\n# In case multiple aliases are assigned, additional aliases\n# are provided on separate lines. Parsers of this data file should\n# take note that the same code point can (and does) occur more than once.\n#\n# Note that currently the only instances of multiple aliases of the same\n# type for a single code point are either of type \"control\" or \"abbreviation\".\n# An alias of type \"abbreviation\" can, in principle, be added for any code\n# point, although currently aliases of type \"correction\" do not have\n# any additional aliases of type \"abbreviation\". Such relationships\n# are not enforced by stability policies.\n#\n#-----------------------------------------------------------------\n\n0000;NULL;control\n0000;NUL;abbreviation\n0001;START OF HEADING;control\n0001;SOH;abbreviation\n0002;START OF TEXT;control\n0002;STX;abbreviation\n0003;END OF TEXT;control\n0003;ETX;abbreviation\n0004;END OF TRANSMISSION;control\n0004;EOT;abbreviation\n0005;ENQUIRY;control\n0005;ENQ;abbreviation\n0006;ACKNOWLEDGE;control\n0006;ACK;abbreviation\n\n# Note that no formal name alias for the ISO 6429 \"BELL\" is\n# provided for U+0007, because of the existing name collision\n# with U+1F514 BELL.\n\n0007;ALERT;control\n0007;BEL;abbreviation\n\n0008;BACKSPACE;control\n0008;BS;abbreviation\n0009;CHARACTER TABULATION;control\n0009;HORIZONTAL TABULATION;control\n0009;HT;abbreviation\n0009;TAB;abbreviation\n000A;LINE FEED;control\n000A;NEW LINE;control\n000A;END OF LINE;control\n000A;LF;abbreviation\n000A;NL;abbreviation\n000A;EOL;abbreviation\n000B;LINE TABULATION;control\n000B;VERTICAL TABULATION;control\n000B;VT;abbreviation\n000C;FORM FEED;control\n000C;FF;abbreviation\n000D;CARRIAGE RETURN;control\n000D;CR;abbreviation\n000E;SHIFT OUT;control\n000E;LOCKING-SHIFT ONE;control\n000E;SO;abbreviation\n000F;SHIFT IN;control\n000F;LOCKING-SHIFT ZERO;control\n000F;SI;abbreviation\n0010;DATA LINK ESCAPE;control\n0010;DLE;abbreviation\n0011;DEVICE CONTROL ONE;control\n0011;DC1;abbreviation\n0012;DEVICE CONTROL TWO;control\n0012;DC2;abbreviation\n0013;DEVICE CONTROL THREE;control\n0013;DC3;abbreviation\n0014;DEVICE CONTROL FOUR;control\n0014;DC4;abbreviation\n0015;NEGATIVE ACKNOWLEDGE;control\n0015;NAK;abbreviation\n0016;SYNCHRONOUS IDLE;control\n0016;SYN;abbreviation\n0017;END OF TRANSMISSION BLOCK;control\n0017;ETB;abbreviation\n0018;CANCEL;control\n0018;CAN;abbreviation\n0019;END OF MEDIUM;control\n0019;EOM;abbreviation\n001A;SUBSTITUTE;control\n001A;SUB;abbreviation\n001B;ESCAPE;control\n001B;ESC;abbreviation\n001C;INFORMATION SEPARATOR FOUR;control\n001C;FILE SEPARATOR;control\n001C;FS;abbreviation\n001D;INFORMATION SEPARATOR THREE;control\n001D;GROUP SEPARATOR;control\n001D;GS;abbreviation\n001E;INFORMATION SEPARATOR TWO;control\n001E;RECORD SEPARATOR;control\n001E;RS;abbreviation\n001F;INFORMATION SEPARATOR ONE;control\n001F;UNIT SEPARATOR;control\n001F;US;abbreviation\n0020;SP;abbreviation\n007F;DELETE;control\n007F;DEL;abbreviation\n\n# PADDING CHARACTER and HIGH OCTET PRESET represent\n# architectural concepts initially proposed for early\n# drafts of ISO/IEC 10646-1. They were never actually\n# approved or standardized: hence their designation\n# here as the \"figment\" type. Formal name aliases\n# (and corresponding abbreviations) for these code\n# points are included here because these names leaked\n# out from the draft documents and were published in\n# at least one RFC whose names for code points was\n# implemented in Perl regex expressions.\n\n0080;PADDING CHARACTER;figment\n0080;PAD;abbreviation\n0081;HIGH OCTET PRESET;figment\n0081;HOP;abbreviation\n\n0082;BREAK PERMITTED HERE;control\n0082;BPH;abbreviation\n0083;NO BREAK HERE;control\n0083;NBH;abbreviation\n0084;INDEX;control\n0084;IND;abbreviation\n0085;NEXT LINE;control\n0085;NEL;abbreviation\n0086;START OF SELECTED AREA;control\n0086;SSA;abbreviation\n0087;END OF SELECTED AREA;control\n0087;ESA;abbreviation\n0088;CHARACTER TABULATION SET;control\n0088;HORIZONTAL TABULATION SET;control\n0088;HTS;abbreviation\n0089;CHARACTER TABULATION WITH JUSTIFICATION;control\n0089;HORIZONTAL TABULATION WITH JUSTIFICATION;control\n0089;HTJ;abbreviation\n008A;LINE TABULATION SET;control\n008A;VERTICAL TABULATION SET;control\n008A;VTS;abbreviation\n008B;PARTIAL LINE FORWARD;control\n008B;PARTIAL LINE DOWN;control\n008B;PLD;abbreviation\n008C;PARTIAL LINE BACKWARD;control\n008C;PARTIAL LINE UP;control\n008C;PLU;abbreviation\n008D;REVERSE LINE FEED;control\n008D;REVERSE INDEX;control\n008D;RI;abbreviation\n008E;SINGLE SHIFT TWO;control\n008E;SINGLE-SHIFT-2;control\n008E;SS2;abbreviation\n008F;SINGLE SHIFT THREE;control\n008F;SINGLE-SHIFT-3;control\n008F;SS3;abbreviation\n0090;DEVICE CONTROL STRING;control\n0090;DCS;abbreviation\n0091;PRIVATE USE ONE;control\n0091;PRIVATE USE-1;control\n0091;PU1;abbreviation\n0092;PRIVATE USE TWO;control\n0092;PRIVATE USE-2;control\n0092;PU2;abbreviation\n0093;SET TRANSMIT STATE;control\n0093;STS;abbreviation\n0094;CANCEL CHARACTER;control\n0094;CCH;abbreviation\n0095;MESSAGE WAITING;control\n0095;MW;abbreviation\n0096;START OF GUARDED AREA;control\n0096;START OF PROTECTED AREA;control\n0096;SPA;abbreviation\n0097;END OF GUARDED AREA;control\n0097;END OF PROTECTED AREA;control\n0097;EPA;abbreviation\n0098;START OF STRING;control\n0098;SOS;abbreviation\n\n# SINGLE GRAPHIC CHARACTER INTRODUCER is another\n# architectural concept from early drafts of ISO/IEC 10646-1\n# which was never approved and standardized.\n\n0099;SINGLE GRAPHIC CHARACTER INTRODUCER;figment\n0099;SGC;abbreviation\n\n009A;SINGLE CHARACTER INTRODUCER;control\n009A;SCI;abbreviation\n009B;CONTROL SEQUENCE INTRODUCER;control\n009B;CSI;abbreviation\n009C;STRING TERMINATOR;control\n009C;ST;abbreviation\n009D;OPERATING SYSTEM COMMAND;control\n009D;OSC;abbreviation\n009E;PRIVACY MESSAGE;control\n009E;PM;abbreviation\n009F;APPLICATION PROGRAM COMMAND;control\n009F;APC;abbreviation\n00A0;NBSP;abbreviation\n00AD;SHY;abbreviation\n01A2;LATIN CAPITAL LETTER GHA;correction\n01A3;LATIN SMALL LETTER GHA;correction\n034F;CGJ;abbreviation\n061C;ALM;abbreviation\n0709;SYRIAC SUBLINEAR COLON SKEWED LEFT;correction\n0CDE;KANNADA LETTER LLLA;correction\n0E9D;LAO LETTER FO FON;correction\n0E9F;LAO LETTER FO FAY;correction\n0EA3;LAO LETTER RO;correction\n0EA5;LAO LETTER LO;correction\n0FD0;TIBETAN MARK BKA- SHOG GI MGO RGYAN;correction\n180B;FVS1;abbreviation\n180C;FVS2;abbreviation\n180D;FVS3;abbreviation\n180E;MVS;abbreviation\n200B;ZWSP;abbreviation\n200C;ZWNJ;abbreviation\n200D;ZWJ;abbreviation\n200E;LRM;abbreviation\n200F;RLM;abbreviation\n202A;LRE;abbreviation\n202B;RLE;abbreviation\n202C;PDF;abbreviation\n202D;LRO;abbreviation\n202E;RLO;abbreviation\n202F;NNBSP;abbreviation\n205F;MMSP;abbreviation\n2060;WJ;abbreviation\n2066;LRI;abbreviation\n2067;RLI;abbreviation\n2068;FSI;abbreviation\n2069;PDI;abbreviation\n2118;WEIERSTRASS ELLIPTIC FUNCTION;correction\n2448;MICR ON US SYMBOL;correction\n2449;MICR DASH SYMBOL;correction\n2B7A;LEFTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\n2B7C;RIGHTWARDS TRIANGLE-HEADED ARROW WITH DOUBLE VERTICAL STROKE;correction\nA015;YI SYLLABLE ITERATION MARK;correction\nFE18;PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRACKET;correction\nFE00;VS1;abbreviation\nFE01;VS2;abbreviation\nFE02;VS3;abbreviation\nFE03;VS4;abbreviation\nFE04;VS5;abbreviation\nFE05;VS6;abbreviation\nFE06;VS7;abbreviation\nFE07;VS8;abbreviation\nFE08;VS9;abbreviation\nFE09;VS10;abbreviation\nFE0A;VS11;abbreviation\nFE0B;VS12;abbreviation\nFE0C;VS13;abbreviation\nFE0D;VS14;abbreviation\nFE0E;VS15;abbreviation\nFE0F;VS16;abbreviation\nFEFF;BYTE ORDER MARK;alternate\nFEFF;BOM;abbreviation\nFEFF;ZWNBSP;abbreviation\n122D4;CUNEIFORM SIGN NU11 TENU;correction\n122D5;CUNEIFORM SIGN NU11 OVER NU11 BUR OVER BUR;correction\n1D0C5;BYZANTINE MUSICAL SYMBOL FTHORA SKLIRON CHROMA VASIS;correction\nE0100;VS17;abbreviation\nE0101;VS18;abbreviation\nE0102;VS19;abbreviation\nE0103;VS20;abbreviation\nE0104;VS21;abbreviation\nE0105;VS22;abbreviation\nE0106;VS23;abbreviation\nE0107;VS24;abbreviation\nE0108;VS25;abbreviation\nE0109;VS26;abbreviation\nE010A;VS27;abbreviation\nE010B;VS28;abbreviation\nE010C;VS29;abbreviation\nE010D;VS30;abbreviation\nE010E;VS31;abbreviation\nE010F;VS32;abbreviation\nE0110;VS33;abbreviation\nE0111;VS34;abbreviation\nE0112;VS35;abbreviation\nE0113;VS36;abbreviation\nE0114;VS37;abbreviation\nE0115;VS38;abbreviation\nE0116;VS39;abbreviation\nE0117;VS40;abbreviation\nE0118;VS41;abbreviation\nE0119;VS42;abbreviation\nE011A;VS43;abbreviation\nE011B;VS44;abbreviation\nE011C;VS45;abbreviation\nE011D;VS46;abbreviation\nE011E;VS47;abbreviation\nE011F;VS48;abbreviation\nE0120;VS49;abbreviation\nE0121;VS50;abbreviation\nE0122;VS51;abbreviation\nE0123;VS52;abbreviation\nE0124;VS53;abbreviation\nE0125;VS54;abbreviation\nE0126;VS55;abbreviation\nE0127;VS56;abbreviation\nE0128;VS57;abbreviation\nE0129;VS58;abbreviation\nE012A;VS59;abbreviation\nE012B;VS60;abbreviation\nE012C;VS61;abbreviation\nE012D;VS62;abbreviation\nE012E;VS63;abbreviation\nE012F;VS64;abbreviation\nE0130;VS65;abbreviation\nE0131;VS66;abbreviation\nE0132;VS67;abbreviation\nE0133;VS68;abbreviation\nE0134;VS69;abbreviation\nE0135;VS70;abbreviation\nE0136;VS71;abbreviation\nE0137;VS72;abbreviation\nE0138;VS73;abbreviation\nE0139;VS74;abbreviation\nE013A;VS75;abbreviation\nE013B;VS76;abbreviation\nE013C;VS77;abbreviation\nE013D;VS78;abbreviation\nE013E;VS79;abbreviation\nE013F;VS80;abbreviation\nE0140;VS81;abbreviation\nE0141;VS82;abbreviation\nE0142;VS83;abbreviation\nE0143;VS84;abbreviation\nE0144;VS85;abbreviation\nE0145;VS86;abbreviation\nE0146;VS87;abbreviation\nE0147;VS88;abbreviation\nE0148;VS89;abbreviation\nE0149;VS90;abbreviation\nE014A;VS91;abbreviation\nE014B;VS92;abbreviation\nE014C;VS93;abbreviation\nE014D;VS94;abbreviation\nE014E;VS95;abbreviation\nE014F;VS96;abbreviation\nE0150;VS97;abbreviation\nE0151;VS98;abbreviation\nE0152;VS99;abbreviation\nE0153;VS100;abbreviation\nE0154;VS101;abbreviation\nE0155;VS102;abbreviation\nE0156;VS103;abbreviation\nE0157;VS104;abbreviation\nE0158;VS105;abbreviation\nE0159;VS106;abbreviation\nE015A;VS107;abbreviation\nE015B;VS108;abbreviation\nE015C;VS109;abbreviation\nE015D;VS110;abbreviation\nE015E;VS111;abbreviation\nE015F;VS112;abbreviation\nE0160;VS113;abbreviation\nE0161;VS114;abbreviation\nE0162;VS115;abbreviation\nE0163;VS116;abbreviation\nE0164;VS117;abbreviation\nE0165;VS118;abbreviation\nE0166;VS119;abbreviation\nE0167;VS120;abbreviation\nE0168;VS121;abbreviation\nE0169;VS122;abbreviation\nE016A;VS123;abbreviation\nE016B;VS124;abbreviation\nE016C;VS125;abbreviation\nE016D;VS126;abbreviation\nE016E;VS127;abbreviation\nE016F;VS128;abbreviation\nE0170;VS129;abbreviation\nE0171;VS130;abbreviation\nE0172;VS131;abbreviation\nE0173;VS132;abbreviation\nE0174;VS133;abbreviation\nE0175;VS134;abbreviation\nE0176;VS135;abbreviation\nE0177;VS136;abbreviation\nE0178;VS137;abbreviation\nE0179;VS138;abbreviation\nE017A;VS139;abbreviation\nE017B;VS140;abbreviation\nE017C;VS141;abbreviation\nE017D;VS142;abbreviation\nE017E;VS143;abbreviation\nE017F;VS144;abbreviation\nE0180;VS145;abbreviation\nE0181;VS146;abbreviation\nE0182;VS147;abbreviation\nE0183;VS148;abbreviation\nE0184;VS149;abbreviation\nE0185;VS150;abbreviation\nE0186;VS151;abbreviation\nE0187;VS152;abbreviation\nE0188;VS153;abbreviation\nE0189;VS154;abbreviation\nE018A;VS155;abbreviation\nE018B;VS156;abbreviation\nE018C;VS157;abbreviation\nE018D;VS158;abbreviation\nE018E;VS159;abbreviation\nE018F;VS160;abbreviation\nE0190;VS161;abbreviation\nE0191;VS162;abbreviation\nE0192;VS163;abbreviation\nE0193;VS164;abbreviation\nE0194;VS165;abbreviation\nE0195;VS166;abbreviation\nE0196;VS167;abbreviation\nE0197;VS168;abbreviation\nE0198;VS169;abbreviation\nE0199;VS170;abbreviation\nE019A;VS171;abbreviation\nE019B;VS172;abbreviation\nE019C;VS173;abbreviation\nE019D;VS174;abbreviation\nE019E;VS175;abbreviation\nE019F;VS176;abbreviation\nE01A0;VS177;abbreviation\nE01A1;VS178;abbreviation\nE01A2;VS179;abbreviation\nE01A3;VS180;abbreviation\nE01A4;VS181;abbreviation\nE01A5;VS182;abbreviation\nE01A6;VS183;abbreviation\nE01A7;VS184;abbreviation\nE01A8;VS185;abbreviation\nE01A9;VS186;abbreviation\nE01AA;VS187;abbreviation\nE01AB;VS188;abbreviation\nE01AC;VS189;abbreviation\nE01AD;VS190;abbreviation\nE01AE;VS191;abbreviation\nE01AF;VS192;abbreviation\nE01B0;VS193;abbreviation\nE01B1;VS194;abbreviation\nE01B2;VS195;abbreviation\nE01B3;VS196;abbreviation\nE01B4;VS197;abbreviation\nE01B5;VS198;abbreviation\nE01B6;VS199;abbreviation\nE01B7;VS200;abbreviation\nE01B8;VS201;abbreviation\nE01B9;VS202;abbreviation\nE01BA;VS203;abbreviation\nE01BB;VS204;abbreviation\nE01BC;VS205;abbreviation\nE01BD;VS206;abbreviation\nE01BE;VS207;abbreviation\nE01BF;VS208;abbreviation\nE01C0;VS209;abbreviation\nE01C1;VS210;abbreviation\nE01C2;VS211;abbreviation\nE01C3;VS212;abbreviation\nE01C4;VS213;abbreviation\nE01C5;VS214;abbreviation\nE01C6;VS215;abbreviation\nE01C7;VS216;abbreviation\nE01C8;VS217;abbreviation\nE01C9;VS218;abbreviation\nE01CA;VS219;abbreviation\nE01CB;VS220;abbreviation\nE01CC;VS221;abbreviation\nE01CD;VS222;abbreviation\nE01CE;VS223;abbreviation\nE01CF;VS224;abbreviation\nE01D0;VS225;abbreviation\nE01D1;VS226;abbreviation\nE01D2;VS227;abbreviation\nE01D3;VS228;abbreviation\nE01D4;VS229;abbreviation\nE01D5;VS230;abbreviation\nE01D6;VS231;abbreviation\nE01D7;VS232;abbreviation\nE01D8;VS233;abbreviation\nE01D9;VS234;abbreviation\nE01DA;VS235;abbreviation\nE01DB;VS236;abbreviation\nE01DC;VS237;abbreviation\nE01DD;VS238;abbreviation\nE01DE;VS239;abbreviation\nE01DF;VS240;abbreviation\nE01E0;VS241;abbreviation\nE01E1;VS242;abbreviation\nE01E2;VS243;abbreviation\nE01E3;VS244;abbreviation\nE01E4;VS245;abbreviation\nE01E5;VS246;abbreviation\nE01E6;VS247;abbreviation\nE01E7;VS248;abbreviation\nE01E8;VS249;abbreviation\nE01E9;VS250;abbreviation\nE01EA;VS251;abbreviation\nE01EB;VS252;abbreviation\nE01EC;VS253;abbreviation\nE01ED;VS254;abbreviation\nE01EE;VS255;abbreviation\nE01EF;VS256;abbreviation\n\n# EOF\n";
+        ALIAS_MAP = (function() {
+            var ρσ_anonfunc = function () {
+                var ans, line, parts, code_point;
+                ans = {};
+                var ρσ_Iter79 = DB.split("\n");
+                ρσ_Iter79 = ((typeof ρσ_Iter79[Symbol.iterator] === "function") ? (ρσ_Iter79 instanceof Map ? ρσ_Iter79.keys() : ρσ_Iter79) : Object.keys(ρσ_Iter79));
+                for (var ρσ_Index79 of ρσ_Iter79) {
+                    line = ρσ_Index79;
+                    line = line.trim();
+                    if (!line || line[0] === "#") {
+                        continue;
+                    }
+                    parts = line.split(";");
+                    if (parts.length >= 2) {
+                        code_point = parseInt(parts[0], 16);
+                        if (code_point !== undefined && parts[1]) {
+                            ans[ρσ_bound_index(parts[1].toLowerCase(), ans)] = code_point;
+                        }
+                    }
+                }
+                return ans;
+            };
+            if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                __module__ : {value: "unicode_aliases"}
+            });
+            return ρσ_anonfunc;
+        })()();
+        ρσ_modules.unicode_aliases.DB = DB;
+        ρσ_modules.unicode_aliases.ALIAS_MAP = ALIAS_MAP;
+    })();
+
+    (function(){
+        var __name__ = "tokenizer";
+        var RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATOR_CHARS, ASCII_CONTROL_CHARS, HEX_PAT, NAME_PAT, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, KEYWORDS, KEYWORDS_ATOM, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, ALL_KEYWORDS, IDENTIFIER_PAT, UNICODE, EX_EOF;
+        var AST_Token = ρσ_modules.ast.AST_Token;
+
+        var SyntaxError = ρσ_modules.errors.SyntaxError;
+
+        var interpolate = ρσ_modules.string_interpolation.interpolate;
+        var quoted_string = ρσ_modules.string_interpolation.quoted_string;
+
+        var ALIAS_MAP = ρσ_modules.unicode_aliases.ALIAS_MAP;
+
+        var make_predicate = ρσ_modules.utils.make_predicate;
+        var characters = ρσ_modules.utils.characters;
+
+        RE_HEX_NUMBER = /^0x[0-9a-f]+$/i;
+        RE_OCT_NUMBER = /^0[0-7]+$/;
+        RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i;
+        OPERATOR_CHARS = make_predicate(characters("+-*&%=<>!?|~^@"));
+        ASCII_CONTROL_CHARS = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["a"] = 7;
+            ρσ_d["b"] = 8;
+            ρσ_d["f"] = 12;
+            ρσ_d["n"] = 10;
+            ρσ_d["r"] = 13;
+            ρσ_d["t"] = 9;
+            ρσ_d["v"] = 11;
+            return ρσ_d;
+        }).call(this);
+        HEX_PAT = /[a-fA-F0-9]/;
+        NAME_PAT = /[a-zA-Z ]/;
+        OPERATORS = make_predicate([ "in", "instanceof", "typeof", "new", "void", "del", "+", "-", "not", "~", "&", "|", "^", "**", "*", "//", "/", "%", ">>", "<<", ">>>", "<", ">", "<=", ">=", "==", "is", "!=", "=", "+=", "-=", "//=", "/=", "*=", "%=", ">>=", "<<=", ">>>=", "|=", "^=", "&=", "and", "or", "@", "->" ]);
+        OP_MAP = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["or"] = "||";
+            ρσ_d["and"] = "&&";
+            ρσ_d["not"] = "!";
+            ρσ_d["del"] = "delete";
+            ρσ_d["None"] = "null";
+            ρσ_d["is"] = "===";
+            return ρσ_d;
+        }).call(this);
+        WHITESPACE_CHARS = make_predicate(characters("  \n\r\t\f\u000b​᠎           \u202f 　"));
+        PUNC_BEFORE_EXPRESSION = make_predicate(characters("[{(,.;:"));
+        PUNC_CHARS = make_predicate(characters("[]{}(),;:?"));
+        KEYWORDS = "as assert async await break class continue def del do elif else except finally for from global if import in is new nonlocal pass raise return yield try while with or and not";
+        KEYWORDS_ATOM = "False None True";
+        RESERVED_WORDS = "break case class catch const continue debugger default delete do else export extends finally for function if import in instanceof new return super switch this throw try typeof var void while with yield enum implements static private package let public protected interface null true false";
+        KEYWORDS_BEFORE_EXPRESSION = "return yield new del raise elif else if await";
+        ALL_KEYWORDS = KEYWORDS + " " + KEYWORDS_ATOM;
+        KEYWORDS = make_predicate(KEYWORDS);
+        RESERVED_WORDS = make_predicate(RESERVED_WORDS);
+        KEYWORDS_BEFORE_EXPRESSION = make_predicate(KEYWORDS_BEFORE_EXPRESSION);
+        KEYWORDS_ATOM = make_predicate(KEYWORDS_ATOM);
+        IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i;
+        function is_string_modifier(val) {
+            var ch;
+            var ρσ_Iter80 = val;
+            ρσ_Iter80 = ((typeof ρσ_Iter80[Symbol.iterator] === "function") ? (ρσ_Iter80 instanceof Map ? ρσ_Iter80.keys() : ρσ_Iter80) : Object.keys(ρσ_Iter80));
+            for (var ρσ_Index80 of ρσ_Iter80) {
+                ch = ρσ_Index80;
+                if ("vrufVRUF".indexOf(ch) === -1) {
+                    return false;
+                }
+            }
+            return true;
+        };
+        if (!is_string_modifier.__argnames__) Object.defineProperties(is_string_modifier, {
+            __argnames__ : {value: ["val"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_letter(code) {
+            return code >= 97 && code <= 122 || code >= 65 && code <= 90 || code >= 170 && UNICODE.letter.test(String.fromCharCode(code));
+        };
+        if (!is_letter.__argnames__) Object.defineProperties(is_letter, {
+            __argnames__ : {value: ["code"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_digit(code) {
+            return code >= 48 && code <= 57;
+        };
+        if (!is_digit.__argnames__) Object.defineProperties(is_digit, {
+            __argnames__ : {value: ["code"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_alphanumeric_char(code) {
+            return is_digit(code) || is_letter(code);
+        };
+        if (!is_alphanumeric_char.__argnames__) Object.defineProperties(is_alphanumeric_char, {
+            __argnames__ : {value: ["code"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_unicode_combining_mark(ch) {
+            return UNICODE.non_spacing_mark.test(ch) || UNICODE.space_combining_mark.test(ch);
+        };
+        if (!is_unicode_combining_mark.__argnames__) Object.defineProperties(is_unicode_combining_mark, {
+            __argnames__ : {value: ["ch"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_unicode_connector_punctuation(ch) {
+            return UNICODE.connector_punctuation.test(ch);
+        };
+        if (!is_unicode_connector_punctuation.__argnames__) Object.defineProperties(is_unicode_connector_punctuation, {
+            __argnames__ : {value: ["ch"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_identifier(name) {
+            return !RESERVED_WORDS[(typeof name === "number" && name < 0) ? RESERVED_WORDS.length + name : name] && !KEYWORDS[(typeof name === "number" && name < 0) ? KEYWORDS.length + name : name] && !KEYWORDS_ATOM[(typeof name === "number" && name < 0) ? KEYWORDS_ATOM.length + name : name] && IDENTIFIER_PAT.test(name);
+        };
+        if (!is_identifier.__argnames__) Object.defineProperties(is_identifier, {
+            __argnames__ : {value: ["name"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_identifier_start(code) {
+            return code === 36 || code === 95 || is_letter(code);
+        };
+        if (!is_identifier_start.__argnames__) Object.defineProperties(is_identifier_start, {
+            __argnames__ : {value: ["code"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function is_identifier_char(ch) {
+            var code;
+            code = ch.charCodeAt(0);
+            return is_identifier_start(code) || is_digit(code) || code === 8204 || code === 8205 || is_unicode_combining_mark(ch) || is_unicode_connector_punctuation(ch);
+        };
+        if (!is_identifier_char.__argnames__) Object.defineProperties(is_identifier_char, {
+            __argnames__ : {value: ["ch"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        function parse_js_number(num) {
+            if (RE_HEX_NUMBER.test(num)) {
+                return parseInt(num.substr(2), 16);
+            } else if (RE_OCT_NUMBER.test(num)) {
+                return parseInt(num.substr(1), 8);
+            } else if (RE_DEC_NUMBER.test(num)) {
+                return parseFloat(num);
+            }
+        };
+        if (!parse_js_number.__argnames__) Object.defineProperties(parse_js_number, {
+            __argnames__ : {value: ["num"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        UNICODE = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["letter"] = new RegExp("[\\u0041-\\u005A\\u0061-\\u007A\\u00AA\\u00B5\\u00BA\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02C1\\u02C6-\\u02D1\\u02E0-\\u02E4\\u02EC\\u02EE\\u0370-\\u0374\\u0376\\u0377\\u037A-\\u037D\\u0386\\u0388-\\u038A\\u038C\\u038E-\\u03A1\\u03A3-\\u03F5\\u03F7-\\u0481\\u048A-\\u0523\\u0531-\\u0556\\u0559\\u0561-\\u0587\\u05D0-\\u05EA\\u05F0-\\u05F2\\u0621-\\u064A\\u066E\\u066F\\u0671-\\u06D3\\u06D5\\u06E5\\u06E6\\u06EE\\u06EF\\u06FA-\\u06FC\\u06FF\\u0710\\u0712-\\u072F\\u074D-\\u07A5\\u07B1\\u07CA-\\u07EA\\u07F4\\u07F5\\u07FA\\u0904-\\u0939\\u093D\\u0950\\u0958-\\u0961\\u0971\\u0972\\u097B-\\u097F\\u0985-\\u098C\\u098F\\u0990\\u0993-\\u09A8\\u09AA-\\u09B0\\u09B2\\u09B6-\\u09B9\\u09BD\\u09CE\\u09DC\\u09DD\\u09DF-\\u09E1\\u09F0\\u09F1\\u0A05-\\u0A0A\\u0A0F\\u0A10\\u0A13-\\u0A28\\u0A2A-\\u0A30\\u0A32\\u0A33\\u0A35\\u0A36\\u0A38\\u0A39\\u0A59-\\u0A5C\\u0A5E\\u0A72-\\u0A74\\u0A85-\\u0A8D\\u0A8F-\\u0A91\\u0A93-\\u0AA8\\u0AAA-\\u0AB0\\u0AB2\\u0AB3\\u0AB5-\\u0AB9\\u0ABD\\u0AD0\\u0AE0\\u0AE1\\u0B05-\\u0B0C\\u0B0F\\u0B10\\u0B13-\\u0B28\\u0B2A-\\u0B30\\u0B32\\u0B33\\u0B35-\\u0B39\\u0B3D\\u0B5C\\u0B5D\\u0B5F-\\u0B61\\u0B71\\u0B83\\u0B85-\\u0B8A\\u0B8E-\\u0B90\\u0B92-\\u0B95\\u0B99\\u0B9A\\u0B9C\\u0B9E\\u0B9F\\u0BA3\\u0BA4\\u0BA8-\\u0BAA\\u0BAE-\\u0BB9\\u0BD0\\u0C05-\\u0C0C\\u0C0E-\\u0C10\\u0C12-\\u0C28\\u0C2A-\\u0C33\\u0C35-\\u0C39\\u0C3D\\u0C58\\u0C59\\u0C60\\u0C61\\u0C85-\\u0C8C\\u0C8E-\\u0C90\\u0C92-\\u0CA8\\u0CAA-\\u0CB3\\u0CB5-\\u0CB9\\u0CBD\\u0CDE\\u0CE0\\u0CE1\\u0D05-\\u0D0C\\u0D0E-\\u0D10\\u0D12-\\u0D28\\u0D2A-\\u0D39\\u0D3D\\u0D60\\u0D61\\u0D7A-\\u0D7F\\u0D85-\\u0D96\\u0D9A-\\u0DB1\\u0DB3-\\u0DBB\\u0DBD\\u0DC0-\\u0DC6\\u0E01-\\u0E30\\u0E32\\u0E33\\u0E40-\\u0E46\\u0E81\\u0E82\\u0E84\\u0E87\\u0E88\\u0E8A\\u0E8D\\u0E94-\\u0E97\\u0E99-\\u0E9F\\u0EA1-\\u0EA3\\u0EA5\\u0EA7\\u0EAA\\u0EAB\\u0EAD-\\u0EB0\\u0EB2\\u0EB3\\u0EBD\\u0EC0-\\u0EC4\\u0EC6\\u0EDC\\u0EDD\\u0F00\\u0F40-\\u0F47\\u0F49-\\u0F6C\\u0F88-\\u0F8B\\u1000-\\u102A\\u103F\\u1050-\\u1055\\u105A-\\u105D\\u1061\\u1065\\u1066\\u106E-\\u1070\\u1075-\\u1081\\u108E\\u10A0-\\u10C5\\u10D0-\\u10FA\\u10FC\\u1100-\\u1159\\u115F-\\u11A2\\u11A8-\\u11F9\\u1200-\\u1248\\u124A-\\u124D\\u1250-\\u1256\\u1258\\u125A-\\u125D\\u1260-\\u1288\\u128A-\\u128D\\u1290-\\u12B0\\u12B2-\\u12B5\\u12B8-\\u12BE\\u12C0\\u12C2-\\u12C5\\u12C8-\\u12D6\\u12D8-\\u1310\\u1312-\\u1315\\u1318-\\u135A\\u1380-\\u138F\\u13A0-\\u13F4\\u1401-\\u166C\\u166F-\\u1676\\u1681-\\u169A\\u16A0-\\u16EA\\u1700-\\u170C\\u170E-\\u1711\\u1720-\\u1731\\u1740-\\u1751\\u1760-\\u176C\\u176E-\\u1770\\u1780-\\u17B3\\u17D7\\u17DC\\u1820-\\u1877\\u1880-\\u18A8\\u18AA\\u1900-\\u191C\\u1950-\\u196D\\u1970-\\u1974\\u1980-\\u19A9\\u19C1-\\u19C7\\u1A00-\\u1A16\\u1B05-\\u1B33\\u1B45-\\u1B4B\\u1B83-\\u1BA0\\u1BAE\\u1BAF\\u1C00-\\u1C23\\u1C4D-\\u1C4F\\u1C5A-\\u1C7D\\u1D00-\\u1DBF\\u1E00-\\u1F15\\u1F18-\\u1F1D\\u1F20-\\u1F45\\u1F48-\\u1F4D\\u1F50-\\u1F57\\u1F59\\u1F5B\\u1F5D\\u1F5F-\\u1F7D\\u1F80-\\u1FB4\\u1FB6-\\u1FBC\\u1FBE\\u1FC2-\\u1FC4\\u1FC6-\\u1FCC\\u1FD0-\\u1FD3\\u1FD6-\\u1FDB\\u1FE0-\\u1FEC\\u1FF2-\\u1FF4\\u1FF6-\\u1FFC\\u2071\\u207F\\u2090-\\u2094\\u2102\\u2107\\u210A-\\u2113\\u2115\\u2119-\\u211D\\u2124\\u2126\\u2128\\u212A-\\u212D\\u212F-\\u2139\\u213C-\\u213F\\u2145-\\u2149\\u214E\\u2183\\u2184\\u2C00-\\u2C2E\\u2C30-\\u2C5E\\u2C60-\\u2C6F\\u2C71-\\u2C7D\\u2C80-\\u2CE4\\u2D00-\\u2D25\\u2D30-\\u2D65\\u2D6F\\u2D80-\\u2D96\\u2DA0-\\u2DA6\\u2DA8-\\u2DAE\\u2DB0-\\u2DB6\\u2DB8-\\u2DBE\\u2DC0-\\u2DC6\\u2DC8-\\u2DCE\\u2DD0-\\u2DD6\\u2DD8-\\u2DDE\\u2E2F\\u3005\\u3006\\u3031-\\u3035\\u303B\\u303C\\u3041-\\u3096\\u309D-\\u309F\\u30A1-\\u30FA\\u30FC-\\u30FF\\u3105-\\u312D\\u3131-\\u318E\\u31A0-\\u31B7\\u31F0-\\u31FF\\u3400\\u4DB5\\u4E00\\u9FC3\\uA000-\\uA48C\\uA500-\\uA60C\\uA610-\\uA61F\\uA62A\\uA62B\\uA640-\\uA65F\\uA662-\\uA66E\\uA67F-\\uA697\\uA717-\\uA71F\\uA722-\\uA788\\uA78B\\uA78C\\uA7FB-\\uA801\\uA803-\\uA805\\uA807-\\uA80A\\uA80C-\\uA822\\uA840-\\uA873\\uA882-\\uA8B3\\uA90A-\\uA925\\uA930-\\uA946\\uAA00-\\uAA28\\uAA40-\\uAA42\\uAA44-\\uAA4B\\uAC00\\uD7A3\\uF900-\\uFA2D\\uFA30-\\uFA6A\\uFA70-\\uFAD9\\uFB00-\\uFB06\\uFB13-\\uFB17\\uFB1D\\uFB1F-\\uFB28\\uFB2A-\\uFB36\\uFB38-\\uFB3C\\uFB3E\\uFB40\\uFB41\\uFB43\\uFB44\\uFB46-\\uFBB1\\uFBD3-\\uFD3D\\uFD50-\\uFD8F\\uFD92-\\uFDC7\\uFDF0-\\uFDFB\\uFE70-\\uFE74\\uFE76-\\uFEFC\\uFF21-\\uFF3A\\uFF41-\\uFF5A\\uFF66-\\uFFBE\\uFFC2-\\uFFC7\\uFFCA-\\uFFCF\\uFFD2-\\uFFD7\\uFFDA-\\uFFDC]");
+            ρσ_d["non_spacing_mark"] = new RegExp("[\\u0300-\\u036F\\u0483-\\u0487\\u0591-\\u05BD\\u05BF\\u05C1\\u05C2\\u05C4\\u05C5\\u05C7\\u0610-\\u061A\\u064B-\\u065E\\u0670\\u06D6-\\u06DC\\u06DF-\\u06E4\\u06E7\\u06E8\\u06EA-\\u06ED\\u0711\\u0730-\\u074A\\u07A6-\\u07B0\\u07EB-\\u07F3\\u0816-\\u0819\\u081B-\\u0823\\u0825-\\u0827\\u0829-\\u082D\\u0900-\\u0902\\u093C\\u0941-\\u0948\\u094D\\u0951-\\u0955\\u0962\\u0963\\u0981\\u09BC\\u09C1-\\u09C4\\u09CD\\u09E2\\u09E3\\u0A01\\u0A02\\u0A3C\\u0A41\\u0A42\\u0A47\\u0A48\\u0A4B-\\u0A4D\\u0A51\\u0A70\\u0A71\\u0A75\\u0A81\\u0A82\\u0ABC\\u0AC1-\\u0AC5\\u0AC7\\u0AC8\\u0ACD\\u0AE2\\u0AE3\\u0B01\\u0B3C\\u0B3F\\u0B41-\\u0B44\\u0B4D\\u0B56\\u0B62\\u0B63\\u0B82\\u0BC0\\u0BCD\\u0C3E-\\u0C40\\u0C46-\\u0C48\\u0C4A-\\u0C4D\\u0C55\\u0C56\\u0C62\\u0C63\\u0CBC\\u0CBF\\u0CC6\\u0CCC\\u0CCD\\u0CE2\\u0CE3\\u0D41-\\u0D44\\u0D4D\\u0D62\\u0D63\\u0DCA\\u0DD2-\\u0DD4\\u0DD6\\u0E31\\u0E34-\\u0E3A\\u0E47-\\u0E4E\\u0EB1\\u0EB4-\\u0EB9\\u0EBB\\u0EBC\\u0EC8-\\u0ECD\\u0F18\\u0F19\\u0F35\\u0F37\\u0F39\\u0F71-\\u0F7E\\u0F80-\\u0F84\\u0F86\\u0F87\\u0F90-\\u0F97\\u0F99-\\u0FBC\\u0FC6\\u102D-\\u1030\\u1032-\\u1037\\u1039\\u103A\\u103D\\u103E\\u1058\\u1059\\u105E-\\u1060\\u1071-\\u1074\\u1082\\u1085\\u1086\\u108D\\u109D\\u135F\\u1712-\\u1714\\u1732-\\u1734\\u1752\\u1753\\u1772\\u1773\\u17B7-\\u17BD\\u17C6\\u17C9-\\u17D3\\u17DD\\u180B-\\u180D\\u18A9\\u1920-\\u1922\\u1927\\u1928\\u1932\\u1939-\\u193B\\u1A17\\u1A18\\u1A56\\u1A58-\\u1A5E\\u1A60\\u1A62\\u1A65-\\u1A6C\\u1A73-\\u1A7C\\u1A7F\\u1B00-\\u1B03\\u1B34\\u1B36-\\u1B3A\\u1B3C\\u1B42\\u1B6B-\\u1B73\\u1B80\\u1B81\\u1BA2-\\u1BA5\\u1BA8\\u1BA9\\u1C2C-\\u1C33\\u1C36\\u1C37\\u1CD0-\\u1CD2\\u1CD4-\\u1CE0\\u1CE2-\\u1CE8\\u1CED\\u1DC0-\\u1DE6\\u1DFD-\\u1DFF\\u20D0-\\u20DC\\u20E1\\u20E5-\\u20F0\\u2CEF-\\u2CF1\\u2DE0-\\u2DFF\\u302A-\\u302F\\u3099\\u309A\\uA66F\\uA67C\\uA67D\\uA6F0\\uA6F1\\uA802\\uA806\\uA80B\\uA825\\uA826\\uA8C4\\uA8E0-\\uA8F1\\uA926-\\uA92D\\uA947-\\uA951\\uA980-\\uA982\\uA9B3\\uA9B6-\\uA9B9\\uA9BC\\uAA29-\\uAA2E\\uAA31\\uAA32\\uAA35\\uAA36\\uAA43\\uAA4C\\uAAB0\\uAAB2-\\uAAB4\\uAAB7\\uAAB8\\uAABE\\uAABF\\uAAC1\\uABE5\\uABE8\\uABED\\uFB1E\\uFE00-\\uFE0F\\uFE20-\\uFE26]");
+            ρσ_d["space_combining_mark"] = new RegExp("[\\u0903\\u093E-\\u0940\\u0949-\\u094C\\u094E\\u0982\\u0983\\u09BE-\\u09C0\\u09C7\\u09C8\\u09CB\\u09CC\\u09D7\\u0A03\\u0A3E-\\u0A40\\u0A83\\u0ABE-\\u0AC0\\u0AC9\\u0ACB\\u0ACC\\u0B02\\u0B03\\u0B3E\\u0B40\\u0B47\\u0B48\\u0B4B\\u0B4C\\u0B57\\u0BBE\\u0BBF\\u0BC1\\u0BC2\\u0BC6-\\u0BC8\\u0BCA-\\u0BCC\\u0BD7\\u0C01-\\u0C03\\u0C41-\\u0C44\\u0C82\\u0C83\\u0CBE\\u0CC0-\\u0CC4\\u0CC7\\u0CC8\\u0CCA\\u0CCB\\u0CD5\\u0CD6\\u0D02\\u0D03\\u0D3E-\\u0D40\\u0D46-\\u0D48\\u0D4A-\\u0D4C\\u0D57\\u0D82\\u0D83\\u0DCF-\\u0DD1\\u0DD8-\\u0DDF\\u0DF2\\u0DF3\\u0F3E\\u0F3F\\u0F7F\\u102B\\u102C\\u1031\\u1038\\u103B\\u103C\\u1056\\u1057\\u1062-\\u1064\\u1067-\\u106D\\u1083\\u1084\\u1087-\\u108C\\u108F\\u109A-\\u109C\\u17B6\\u17BE-\\u17C5\\u17C7\\u17C8\\u1923-\\u1926\\u1929-\\u192B\\u1930\\u1931\\u1933-\\u1938\\u19B0-\\u19C0\\u19C8\\u19C9\\u1A19-\\u1A1B\\u1A55\\u1A57\\u1A61\\u1A63\\u1A64\\u1A6D-\\u1A72\\u1B04\\u1B35\\u1B3B\\u1B3D-\\u1B41\\u1B43\\u1B44\\u1B82\\u1BA1\\u1BA6\\u1BA7\\u1BAA\\u1C24-\\u1C2B\\u1C34\\u1C35\\u1CE1\\u1CF2\\uA823\\uA824\\uA827\\uA880\\uA881\\uA8B4-\\uA8C3\\uA952\\uA953\\uA983\\uA9B4\\uA9B5\\uA9BA\\uA9BB\\uA9BD-\\uA9C0\\uAA2F\\uAA30\\uAA33\\uAA34\\uAA4D\\uAA7B\\uABE3\\uABE4\\uABE6\\uABE7\\uABE9\\uABEA\\uABEC]");
+            ρσ_d["connector_punctuation"] = new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]");
+            return ρσ_d;
+        }).call(this);
+        function is_token(token, type, val) {
+            return token.type === type && (val === null || val === undefined || token.value === val);
+        };
+        if (!is_token.__argnames__) Object.defineProperties(is_token, {
+            __argnames__ : {value: ["token", "type", "val"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        EX_EOF = Object.create(null);
+        function tokenizer(raw_text, filename, recover_errors) {
+            var S, read_string, read_regexp;
+            S = (function(){
+                var ρσ_d = Object.create(null);
+                ρσ_d["text"] = raw_text.replace(/\r\n?|[\n\u2028\u2029]/g, "\n").replace(/\uFEFF/g, "");
+                ρσ_d["filename"] = filename;
+                ρσ_d["recover_errors"] = !!recover_errors;
+                ρσ_d["recovered_errors"] = [];
+                ρσ_d["pos"] = 0;
+                ρσ_d["tokpos"] = 0;
+                ρσ_d["line"] = 1;
+                ρσ_d["tokline"] = 0;
+                ρσ_d["col"] = 0;
+                ρσ_d["tokcol"] = 0;
+                ρσ_d["newline_before"] = false;
+                ρσ_d["regex_allowed"] = false;
+                ρσ_d["comments_before"] = [];
+                ρσ_d["whitespace_before"] = [];
+                ρσ_d["newblock"] = false;
+                ρσ_d["endblock"] = false;
+                ρσ_d["indentation_matters"] = [ true ];
+                ρσ_d["cached_whitespace"] = "";
+                ρσ_d["prev"] = undefined;
+                ρσ_d["index_or_slice"] = [ false ];
+                ρσ_d["expecting_object_literal_key"] = false;
+                return ρσ_d;
+            }).call(this);
+            function peek() {
+                return S.text.charAt(S.pos);
+            };
+            if (!peek.__module__) Object.defineProperties(peek, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function prevChar() {
+                return S.text.charAt(S.tokpos - 1);
+            };
+            if (!prevChar.__module__) Object.defineProperties(prevChar, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function next(signal_eof, in_string) {
+                var ch;
+                ch = S.text.charAt(S.pos);
+                S.pos += 1;
+                if (signal_eof && !ch) {
+                    throw EX_EOF;
+                }
+                if (ch === "\n") {
+                    S.newline_before = S.newline_before || !in_string;
+                    S.line += 1;
+                    S.col = 0;
+                } else {
+                    S.col += 1;
+                }
+                return ch;
+            };
+            if (!next.__argnames__) Object.defineProperties(next, {
+                __argnames__ : {value: ["signal_eof", "in_string"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function find(what, signal_eof) {
+                var pos;
+                pos = S.text.indexOf(what, S.pos);
+                if (signal_eof && pos === -1) {
+                    throw EX_EOF;
+                }
+                return pos;
+            };
+            if (!find.__argnames__) Object.defineProperties(find, {
+                __argnames__ : {value: ["what", "signal_eof"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function start_token() {
+                S.tokline = S.line;
+                S.tokcol = S.col;
+                S.tokpos = S.pos;
+            };
+            if (!start_token.__module__) Object.defineProperties(start_token, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function token(type, value, is_comment, keep_newline) {
+                var ret, i;
+                S.regex_allowed = type === "operator" || type === "keyword" && KEYWORDS_BEFORE_EXPRESSION[(typeof value === "number" && value < 0) ? KEYWORDS_BEFORE_EXPRESSION.length + value : value] || type === "punc" && PUNC_BEFORE_EXPRESSION[(typeof value === "number" && value < 0) ? PUNC_BEFORE_EXPRESSION.length + value : value];
+                if (type === "operator" && value === "is" && S.text.substr(S.pos).trimLeft().substr(0, 4).trimRight() === "not") {
+                    next_token();
+                    value = "!==";
+                }
+                if (type === "operator" && OP_MAP[(typeof value === "number" && value < 0) ? OP_MAP.length + value : value]) {
+                    value = OP_MAP[(typeof value === "number" && value < 0) ? OP_MAP.length + value : value];
+                }
+                ret = (function(){
+                    var ρσ_d = Object.create(null);
+                    ρσ_d["type"] = type;
+                    ρσ_d["value"] = value;
+                    ρσ_d["line"] = S.tokline;
+                    ρσ_d["col"] = S.tokcol;
+                    ρσ_d["pos"] = S.tokpos;
+                    ρσ_d["endpos"] = S.pos;
+                    ρσ_d["nlb"] = S.newline_before;
+                    ρσ_d["file"] = filename;
+                    ρσ_d["leading_whitespace"] = (ρσ_expr_temp = S.whitespace_before)[ρσ_expr_temp.length-1] || "";
+                    return ρσ_d;
+                }).call(this);
+                if (!is_comment) {
+                    ret.comments_before = S.comments_before;
+                    S.comments_before = [];
+                    for (var ρσ_Index81 = 0; ρσ_Index81 < ret.comments_before.length; ρσ_Index81++) {
+                        i = ρσ_Index81;
+                        ret.nlb = ret.nlb || (ρσ_expr_temp = ret.comments_before)[(typeof i === "number" && i < 0) ? ρσ_expr_temp.length + i : i].nlb;
+                    }
+                }
+                if (!keep_newline) {
+                    S.newline_before = false;
+                }
+                if (type === "punc") {
+                    if (value === ":" && !(ρσ_expr_temp = S.index_or_slice)[ρσ_expr_temp.length-1] && !S.expecting_object_literal_key && (!S.text.substring(S.pos + 1, find("\n")).trim() || !S.text.substring(S.pos + 1, find("#")).trim())) {
+                        S.newblock = true;
+                        S.indentation_matters.push(true);
+                    }
+                    if (value === "[") {
+                        if (S.prev && (S.prev.type === "name" || S.prev.type === "punc" && ")]".indexOf(S.prev.value) !== -1)) {
+                            S.index_or_slice.push(true);
+                        } else {
+                            S.index_or_slice.push(false);
+                        }
+                        S.indentation_matters.push(false);
+                    } else if (value === "{" || value === "(") {
+                        S.indentation_matters.push(false);
+                    } else if (value === "]") {
+                        S.index_or_slice.pop();
+                        S.indentation_matters.pop();
+                    } else if (value === "}" || value === ")") {
+                        S.indentation_matters.pop();
+                    }
+                }
+                S.prev = new AST_Token(ret);
+                return S.prev;
+            };
+            if (!token.__argnames__) Object.defineProperties(token, {
+                __argnames__ : {value: ["type", "value", "is_comment", "keep_newline"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function parse_whitespace() {
+                var leading_whitespace, whitespace_exists, ch;
+                leading_whitespace = "";
+                whitespace_exists = false;
+                while (WHITESPACE_CHARS[ρσ_bound_index(peek(), WHITESPACE_CHARS)]) {
+                    whitespace_exists = true;
+                    ch = next();
+                    if (ch === "\n") {
+                        leading_whitespace = "";
+                    } else {
+                        leading_whitespace += ch;
+                    }
+                }
+                if (peek() !== "#") {
+                    if (!whitespace_exists) {
+                        leading_whitespace = S.cached_whitespace;
+                    } else {
+                        S.cached_whitespace = leading_whitespace;
+                    }
+                    if (S.newline_before || S.endblock) {
+                        return test_indent_token(leading_whitespace);
+                    }
+                }
+            };
+            if (!parse_whitespace.__module__) Object.defineProperties(parse_whitespace, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function test_indent_token(leading_whitespace) {
+                var most_recent;
+                most_recent = (ρσ_expr_temp = S.whitespace_before)[ρσ_expr_temp.length-1] || "";
+                S.endblock = false;
+                if ((ρσ_expr_temp = S.indentation_matters)[ρσ_expr_temp.length-1] && leading_whitespace !== most_recent) {
+                    if (S.newblock && leading_whitespace && leading_whitespace.indexOf(most_recent) === 0) {
+                        S.newblock = false;
+                        S.whitespace_before.push(leading_whitespace);
+                        return 1;
+                    } else if (most_recent && most_recent.indexOf(leading_whitespace) === 0) {
+                        S.endblock = true;
+                        S.whitespace_before.pop();
+                        return -1;
+                    } else {
+                        parse_error("Inconsistent indentation");
+                    }
+                }
+                return 0;
+            };
+            if (!test_indent_token.__argnames__) Object.defineProperties(test_indent_token, {
+                __argnames__ : {value: ["leading_whitespace"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_while(pred) {
+                var ret, i, ch;
+                ret = "";
+                i = 0;
+                ch = "";
+                while ((ch = peek()) && pred(ch, i)) {
+                    i += 1;
+                    ret += next();
+                }
+                return ret;
+            };
+            if (!read_while.__argnames__) Object.defineProperties(read_while, {
+                __argnames__ : {value: ["pred"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function parse_error(err, is_eof) {
+                throw new SyntaxError(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof);
+            };
+            if (!parse_error.__argnames__) Object.defineProperties(parse_error, {
+                __argnames__ : {value: ["err", "is_eof"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_num(prefix) {
+                var has_e, has_x, has_dot, num, valid, seen;
+                has_e = false;
+                has_x = false;
+                has_dot = prefix === ".";
+                if (!prefix && peek() === "0" && S.text.charAt(S.pos + 1) === "b") {
+                    [next(), next()];
+                    num = read_while((function() {
+                        var ρσ_anonfunc = function (ch) {
+                            return ch === "0" || ch === "1";
+                        };
+                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                            __argnames__ : {value: ["ch"]},
+                            __module__ : {value: "tokenizer"}
+                        });
+                        return ρσ_anonfunc;
+                    })());
+                    valid = parseInt(num, 2);
+                    if (isNaN(valid)) {
+                        parse_error("Invalid syntax for a binary number");
+                    }
+                    return token("num", valid);
+                }
+                seen = [];
+                num = read_while((function() {
+                    var ρσ_anonfunc = function (ch, i) {
+                        seen.push(ch);
+                        if (ch === "x" || ch === "X") {
+                            if (has_x || seen.length !== 2 || seen[0] !== "0") {
+                                return false;
+                            }
+                            has_x = true;
+                            return true;
+                        } else if (ch === "e" || ch === "E") {
+                            if (has_x) {
+                                return true;
+                            }
+                            if (has_e || (i === 0 || typeof i === "object" && ρσ_equals(i, 0))) {
+                                return false;
+                            }
+                            has_e = true;
+                            return true;
+                        } else if (ch === "-") {
+                            if (i === 0 && !prefix) {
+                                return true;
+                            }
+                            if (has_e && seen[ρσ_bound_index(i - 1, seen)].toLowerCase() === "e") {
+                                return true;
+                            }
+                            return false;
+                        } else if (ch === "+") {
+                            if (has_e && seen[ρσ_bound_index(i - 1, seen)].toLowerCase() === "e") {
+                                return true;
+                            }
+                            return false;
+                        } else if (ch === ".") {
+                            return (!has_dot && !has_x && !has_e) ? has_dot = true : false;
+                        }
+                        return is_alphanumeric_char(ch.charCodeAt(0));
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["ch", "i"]},
+                        __module__ : {value: "tokenizer"}
+                    });
+                    return ρσ_anonfunc;
+                })());
+                if (prefix) {
+                    num = prefix + num;
+                }
+                valid = parse_js_number(num);
+                if (!isNaN(valid)) {
+                    return token("num", valid);
+                } else {
+                    parse_error("Invalid syntax: " + num);
+                }
+            };
+            if (!read_num.__argnames__) Object.defineProperties(read_num, {
+                __argnames__ : {value: ["prefix"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_hex_digits(count) {
+                var ans, nval;
+                ans = "";
+                while (count > 0) {
+                    count -= 1;
+                    if (!HEX_PAT.test(peek())) {
+                        return ans;
+                    }
+                    ans += next();
+                }
+                nval = parseInt(ans, 16);
+                if (nval > 1114111) {
+                    return ans;
+                }
+                return nval;
+            };
+            if (!read_hex_digits.__argnames__) Object.defineProperties(read_hex_digits, {
+                __argnames__ : {value: ["count"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_escape_sequence() {
+                var q, octal, code, name, key;
+                q = next(true);
+                if (q === "\n") {
+                    return "";
+                }
+                if (q === "\\") {
+                    return q;
+                }
+                if ("\"'".indexOf(q) !== -1) {
+                    return q;
+                }
+                if (ASCII_CONTROL_CHARS[(typeof q === "number" && q < 0) ? ASCII_CONTROL_CHARS.length + q : q]) {
+                    return String.fromCharCode(ASCII_CONTROL_CHARS[(typeof q === "number" && q < 0) ? ASCII_CONTROL_CHARS.length + q : q]);
+                }
+                if ("0" <= q && q <= "7") {
+                    octal = q;
+                    if ("0" <= (ρσ_cond_temp = peek()) && ρσ_cond_temp <= "7") {
+                        octal += next();
+                    }
+                    if ("0" <= (ρσ_cond_temp = peek()) && ρσ_cond_temp <= "7") {
+                        octal += next();
+                    }
+                    code = parseInt(octal, 8);
+                    if (isNaN(code)) {
+                        return "\\" + octal;
+                    }
+                    return String.fromCharCode(code);
+                }
+                if (q === "x") {
+                    code = read_hex_digits(2);
+                    if (typeof code === "number") {
+                        return String.fromCharCode(code);
+                    }
+                    return "\\x" + code;
+                }
+                if (q === "u") {
+                    code = read_hex_digits(4);
+                    if (typeof code === "number") {
+                        return String.fromCharCode(code);
+                    }
+                    return "\\u" + code;
+                }
+                if (q === "U") {
+                    code = read_hex_digits(8);
+                    if (typeof code === "number") {
+                        if (code <= 65535) {
+                            return String.fromCharCode(code);
+                        }
+                        code -= 65536;
+                        return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
+                    }
+                    return "\\U" + code;
+                }
+                if (q === "N" && peek() === "{") {
+                    next();
+                    name = read_while((function() {
+                        var ρσ_anonfunc = function (ch) {
+                            return NAME_PAT.test(ch);
+                        };
+                        if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                            __argnames__ : {value: ["ch"]},
+                            __module__ : {value: "tokenizer"}
+                        });
+                        return ρσ_anonfunc;
+                    })());
+                    if (peek() !== "}") {
+                        return "\\N{" + name;
+                    }
+                    next();
+                    key = (name || "").toLowerCase();
+                    if (!name || !Object.prototype.hasOwnProperty.call(ALIAS_MAP, key)) {
+                        return "\\N{" + name + "}";
+                    }
+                    code = ALIAS_MAP[(typeof key === "number" && key < 0) ? ALIAS_MAP.length + key : key];
+                    if (code <= 65535) {
+                        return String.fromCharCode(code);
+                    }
+                    code -= 65536;
+                    return String.fromCharCode(55296 + (code >> 10), 56320 + (code & 1023));
+                }
+                return "\\" + q;
+            };
+            if (!read_escape_sequence.__module__) Object.defineProperties(read_escape_sequence, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function with_eof_error(eof_error, cont) {
+                return (function() {
+                    var ρσ_anonfunc = function () {
+                        try {
+                            return cont.apply(null, arguments);
+                        } catch (ρσ_Exception) {
+                            ρσ_last_exception = ρσ_Exception;
+                            {
+                                var ex = ρσ_Exception;
+                                if (ex === EX_EOF) {
+                                    parse_error(eof_error, true);
+                                } else {
+                                    throw ρσ_Exception;
+                                }
+                            } 
+                        }
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "tokenizer"}
+                    });
+                    return ρσ_anonfunc;
+                })();
+            };
+            if (!with_eof_error.__argnames__) Object.defineProperties(with_eof_error, {
+                __argnames__ : {value: ["eof_error", "cont"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            read_string = with_eof_error("Unterminated string constant", (function() {
+                var ρσ_anonfunc = function (is_raw_literal, is_js_literal) {
+                    var quote, tok_type, ret, is_multiline, ch;
+                    quote = next();
+                    tok_type = (is_js_literal) ? "js" : "string";
+                    ret = "";
+                    is_multiline = false;
+                    if (peek() === quote) {
+                        next(true);
+                        if (peek() === quote) {
+                            next(true);
+                            is_multiline = true;
+                        } else {
+                            return token(tok_type, "");
+                        }
+                    }
+                    while (true) {
+                        ch = next(true, true);
+                        if (!ch) {
+                            break;
+                        }
+                        if (ch === "\n" && !is_multiline) {
+                            parse_error("End of line while scanning string literal");
+                        }
+                        if (ch === "\\") {
+                            ret += (is_raw_literal) ? "\\" + next(true) : read_escape_sequence();
+                            continue;
+                        }
+                        if (ch === quote) {
+                            if (!is_multiline) {
+                                break;
+                            }
+                            if (peek() === quote) {
+                                next();
+                                if (peek() === quote) {
+                                    next();
+                                    break;
+                                } else {
+                                    ch += quote;
+                                }
+                            }
+                        }
+                        ret += ch;
+                    }
+                    return token(tok_type, ret);
+                };
+                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["is_raw_literal", "is_js_literal"]},
+                    __module__ : {value: "tokenizer"}
+                });
+                return ρσ_anonfunc;
+            })());
+            function handle_interpolated_string() {
+                var string = ( 0 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[0];
+                var start_tok = ( 1 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true) ? undefined : arguments[1];
+                var is_fstring = (arguments[2] === undefined || ( 2 === arguments.length-1 && arguments[arguments.length-1] !== null && typeof arguments[arguments.length-1] === "object" && arguments[arguments.length-1] [ρσ_kwargs_symbol] === true)) ? handle_interpolated_string.__defaults__.is_fstring : arguments[2];
+                var ρσ_kwargs_obj = arguments[arguments.length-1];
+                if (ρσ_kwargs_obj === null || typeof ρσ_kwargs_obj !== "object" || ρσ_kwargs_obj [ρσ_kwargs_symbol] !== true) ρσ_kwargs_obj = {};
+                if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "is_fstring")){
+                    is_fstring = ρσ_kwargs_obj.is_fstring;
+                }
+                var parts, wch, ch, stok, j, potential_mod, mods, is_raw, combined;
+                function raise_error(err) {
+                    throw new SyntaxError(err, filename, start_tok.line, start_tok.col, start_tok.pos, false);
+                };
+                if (!raise_error.__argnames__) Object.defineProperties(raise_error, {
+                    __argnames__ : {value: ["err"]},
+                    __module__ : {value: "tokenizer"}
+                });
+
+                if (is_fstring) {
+                    parts = [interpolate(string, raise_error)];
+                } else {
+                    parts = [quoted_string(string)];
+                }
+                while (true) {
+                    while (S.pos < S.text.length) {
+                        wch = S.text.charAt(S.pos);
+                        if (wch === " " || wch === "\t") {
+                            next();
+                        } else if ((wch === "\n" || wch === "\r") && !(ρσ_expr_temp = S.indentation_matters)[ρσ_expr_temp.length-1]) {
+                            next();
+                        } else {
+                            break;
+                        }
+                    }
+                    ch = S.text.charAt(S.pos);
+                    if (!ch) {
+                        break;
+                    }
+                    if (ch === "'" || ch === "\"") {
+                        stok = read_string(false, false);
+                        parts.push(quoted_string(stok.value));
+                    } else if (is_identifier_start(ch.charCodeAt(0))) {
+                        j = S.pos;
+                        while (j < S.text.length && is_identifier_char(S.text.charAt(j))) {
+                            j += 1;
+                        }
+                        potential_mod = S.text.substring(S.pos, j);
+                        if (!is_string_modifier(potential_mod)) {
+                            break;
+                        }
+                        if (j >= S.text.length || "'\"".indexOf(S.text.charAt(j)) === -1) {
+                            break;
+                        }
+                        mods = potential_mod.toLowerCase();
+                        if (mods.indexOf("v") !== -1) {
+                            break;
+                        }
+                        while (S.pos < j) {
+                            next();
+                        }
+                        is_raw = mods.indexOf("r") !== -1;
+                        stok = read_string(is_raw, false);
+                        if (mods.indexOf("f") !== -1) {
+                            parts.push(interpolate(stok.value, raise_error));
+                        } else {
+                            parts.push(quoted_string(stok.value));
+                        }
+                    } else {
+                        break;
+                    }
+                }
+                combined = parts.join("+");
+                S.text = S.text.slice(0, S.pos) + "(" + combined + ")" + S.text.slice(S.pos);
+                return token("punc", next());
+            };
+            if (!handle_interpolated_string.__defaults__) Object.defineProperties(handle_interpolated_string, {
+                __defaults__ : {value: {is_fstring:true}},
+                __handles_kwarg_interpolation__ : {value: true},
+                __argnames__ : {value: ["string", "start_tok", "is_fstring"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_line_comment(shebang) {
+                var i, ret;
+                if (!shebang) {
+                    next();
+                }
+                i = find("\n");
+                if (i === -1) {
+                    ret = S.text.substr(S.pos);
+                    S.pos = S.text.length;
+                } else {
+                    ret = S.text.substring(S.pos, i);
+                    S.pos = i;
+                }
+                return token((shebang) ? "shebang" : "comment1", ret, true);
+            };
+            if (!read_line_comment.__argnames__) Object.defineProperties(read_line_comment, {
+                __argnames__ : {value: ["shebang"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_name() {
+                var name, ch;
+                name = ch = "";
+                while ((ch = peek()) !== null) {
+                    if (ch === "\\") {
+                        if (S.text.charAt(S.pos + 1) === "\n") {
+                            S.pos += 2;
+                            continue;
+                        }
+                        break;
+                    } else if (is_identifier_char(ch)) {
+                        name += next();
+                    } else {
+                        break;
+                    }
+                }
+                return name;
+            };
+            if (!read_name.__module__) Object.defineProperties(read_name, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            read_regexp = with_eof_error("Unterminated regular expression", (function() {
+                var ρσ_anonfunc = function () {
+                    var prev_backslash, regexp, ch, in_class, verbose_regexp, in_comment, mods;
+                    prev_backslash = false;
+                    regexp = ch = "";
+                    in_class = false;
+                    verbose_regexp = false;
+                    in_comment = false;
+                    if (peek() === "/") {
+                        next(true);
+                        if (peek() === "/") {
+                            verbose_regexp = true;
+                            next(true);
+                        } else {
+                            mods = read_name();
+                            return token("regexp", new RegExp(regexp, mods));
+                        }
+                    }
+                    while (true) {
+                        ch = next(true);
+                        if (!ch) {
+                            break;
+                        }
+                        if (in_comment) {
+                            if (ch === "\n") {
+                                in_comment = false;
+                            }
+                            continue;
+                        }
+                        if (prev_backslash) {
+                            regexp += "\\" + ch;
+                            prev_backslash = false;
+                        } else if (ch === "[") {
+                            in_class = true;
+                            regexp += ch;
+                        } else if (ch === "]" && in_class) {
+                            in_class = false;
+                            regexp += ch;
+                        } else if (ch === "/" && !in_class) {
+                            if (verbose_regexp) {
+                                if (peek() !== "/") {
+                                    regexp += "\\/";
+                                    continue;
+                                }
+                                next(true);
+                                if (peek() !== "/") {
+                                    regexp += "\\/\\/";
+                                    continue;
+                                }
+                                next(true);
+                            }
+                            break;
+                        } else if (ch === "\\") {
+                            prev_backslash = true;
+                        } else if (verbose_regexp && !in_class && " \n\r\t".indexOf(ch) !== -1) {
+                        } else if (verbose_regexp && !in_class && ch === "#") {
+                            in_comment = true;
+                        } else {
+                            regexp += ch;
+                        }
+                    }
+                    mods = read_name();
+                    return token("regexp", new RegExp(regexp, mods));
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "tokenizer"}
+                });
+                return ρσ_anonfunc;
+            })());
+            function read_operator(prefix) {
+                var op;
+                function grow(op) {
+                    var bigger;
+                    if (!peek()) {
+                        return op;
+                    }
+                    bigger = op + peek();
+                    if (OPERATORS[(typeof bigger === "number" && bigger < 0) ? OPERATORS.length + bigger : bigger]) {
+                        next();
+                        return grow(bigger);
+                    } else {
+                        return op;
+                    }
+                };
+                if (!grow.__argnames__) Object.defineProperties(grow, {
+                    __argnames__ : {value: ["op"]},
+                    __module__ : {value: "tokenizer"}
+                });
+
+                op = grow(prefix || next());
+                if (op === "->") {
+                    return token("punc", op);
+                }
+                return token("operator", op);
+            };
+            if (!read_operator.__argnames__) Object.defineProperties(read_operator, {
+                __argnames__ : {value: ["prefix"]},
+                __module__ : {value: "tokenizer"}
+            });
+
+            function handle_slash() {
+                next();
+                return (S.regex_allowed) ? read_regexp("") : read_operator("/");
+            };
+            if (!handle_slash.__module__) Object.defineProperties(handle_slash, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function handle_dot() {
+                next();
+                return (is_digit(peek().charCodeAt(0))) ? read_num(".") : token("punc", ".");
+            };
+            if (!handle_dot.__module__) Object.defineProperties(handle_dot, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function read_word() {
+                var word;
+                word = read_name();
+                return (KEYWORDS_ATOM[(typeof word === "number" && word < 0) ? KEYWORDS_ATOM.length + word : word]) ? token("atom", word) : (!KEYWORDS[(typeof word === "number" && word < 0) ? KEYWORDS.length + word : word]) ? token("name", word) : (OPERATORS[(typeof word === "number" && word < 0) ? OPERATORS.length + word : word] && prevChar() !== ".") ? token("operator", word) : token("keyword", word);
+            };
+            if (!read_word.__module__) Object.defineProperties(read_word, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            function next_token() {
+                var indent, ch, code, tmp_, stok, j, jch, k, potential_mod, mods_check, regex_allowed, tok, mods, start_pos_for_string;
+                indent = parse_whitespace();
+                if (indent === -1) {
+                    return token("punc", "}", false, true);
+                }
+                start_token();
+                ch = peek();
+                if (!ch) {
+                    return token("eof");
+                }
+                code = ch.charCodeAt(0);
+                tmp_ = code;
+                if (tmp_ === 34 || tmp_ === 39) {
+                    stok = read_string(false);
+                    j = S.pos;
+                    while (j < S.text.length) {
+                        jch = S.text.charAt(j);
+                        if (jch === " " || jch === "\t") {
+                            j += 1;
+                        } else if ((jch === "\n" || jch === "\r") && !(ρσ_expr_temp = S.indentation_matters)[ρσ_expr_temp.length-1]) {
+                            j += 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (j < S.text.length && is_identifier_start(S.text.charAt(j).charCodeAt(0))) {
+                        k = j;
+                        while (k < S.text.length && is_identifier_char(S.text.charAt(k))) {
+                            k += 1;
+                        }
+                        potential_mod = S.text.substring(j, k);
+                        if (is_string_modifier(potential_mod) && k < S.text.length && "'\"".indexOf(S.text.charAt(k)) !== -1) {
+                            mods_check = potential_mod.toLowerCase();
+                            if (mods_check.indexOf("f") !== -1 && mods_check.indexOf("v") === -1) {
+                                return handle_interpolated_string(stok.value, stok, false);
+                            }
+                        }
+                    }
+                    return stok;
+                } else if (tmp_ === 35) {
+                    if (S.pos === 0 && S.text.charAt(1) === "!") {
+                        return read_line_comment(true);
+                    }
+                    regex_allowed = S.regex_allowed;
+                    S.comments_before.push(read_line_comment());
+                    S.regex_allowed = regex_allowed;
+                    return next_token();
+                } else if (tmp_ === 46) {
+                    return handle_dot();
+                } else if (tmp_ === 47) {
+                    return handle_slash();
+                }
+                if (is_digit(code)) {
+                    return read_num();
+                }
+                if (PUNC_CHARS[(typeof ch === "number" && ch < 0) ? PUNC_CHARS.length + ch : ch]) {
+                    return token("punc", next());
+                }
+                if (OPERATOR_CHARS[(typeof ch === "number" && ch < 0) ? OPERATOR_CHARS.length + ch : ch]) {
+                    return read_operator();
+                }
+                if (code === 92 && S.text.charAt(S.pos + 1) === "\n") {
+                    next();
+                    next();
+                    S.newline_before = false;
+                    return next_token();
+                }
+                if (is_identifier_start(code)) {
+                    tok = read_word();
+                    if ("'\"".indexOf(peek()) !== -1 && is_string_modifier(tok.value)) {
+                        mods = tok.value.toLowerCase();
+                        start_pos_for_string = S.tokpos;
+                        stok = read_string(mods.indexOf("r") !== -1, mods.indexOf("v") !== -1);
+                        tok.endpos = stok.endpos;
+                        if (stok.type !== "js" && mods.indexOf("f") !== -1) {
+                            tok.col += start_pos_for_string - tok.pos;
+                            return handle_interpolated_string(stok.value, tok);
+                        }
+                        tok.value = stok.value;
+                        tok.type = stok.type;
+                    }
+                    return tok;
+                }
+                if (S.recover_errors) {
+                    S.recovered_errors.push((function(){
+                        var ρσ_d = Object.create(null);
+                        ρσ_d["message"] = "Unexpected character «" + ch + "»";
+                        ρσ_d["line"] = S.tokline;
+                        ρσ_d["col"] = S.tokcol;
+                        ρσ_d["pos"] = S.tokpos;
+                        ρσ_d["is_eof"] = false;
+                        return ρσ_d;
+                    }).call(this));
+                    next();
+                    return next_token();
+                }
+                parse_error("Unexpected character «" + ch + "»");
+            };
+            if (!next_token.__module__) Object.defineProperties(next_token, {
+                __module__ : {value: "tokenizer"}
+            });
+
+            next_token.context = (function() {
+                var ρσ_anonfunc = function (nc) {
+                    if (nc) {
+                        S = nc;
+                    }
+                    return S;
+                };
+                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["nc"]},
+                    __module__ : {value: "tokenizer"}
+                });
+                return ρσ_anonfunc;
+            })();
+            return next_token;
+        };
+        if (!tokenizer.__argnames__) Object.defineProperties(tokenizer, {
+            __argnames__ : {value: ["raw_text", "filename", "recover_errors"]},
+            __module__ : {value: "tokenizer"}
+        });
+
+        ρσ_modules.tokenizer.RE_HEX_NUMBER = RE_HEX_NUMBER;
+        ρσ_modules.tokenizer.RE_OCT_NUMBER = RE_OCT_NUMBER;
+        ρσ_modules.tokenizer.RE_DEC_NUMBER = RE_DEC_NUMBER;
+        ρσ_modules.tokenizer.OPERATOR_CHARS = OPERATOR_CHARS;
+        ρσ_modules.tokenizer.ASCII_CONTROL_CHARS = ASCII_CONTROL_CHARS;
+        ρσ_modules.tokenizer.HEX_PAT = HEX_PAT;
+        ρσ_modules.tokenizer.NAME_PAT = NAME_PAT;
+        ρσ_modules.tokenizer.OPERATORS = OPERATORS;
+        ρσ_modules.tokenizer.OP_MAP = OP_MAP;
+        ρσ_modules.tokenizer.WHITESPACE_CHARS = WHITESPACE_CHARS;
+        ρσ_modules.tokenizer.PUNC_BEFORE_EXPRESSION = PUNC_BEFORE_EXPRESSION;
+        ρσ_modules.tokenizer.PUNC_CHARS = PUNC_CHARS;
+        ρσ_modules.tokenizer.KEYWORDS = KEYWORDS;
+        ρσ_modules.tokenizer.KEYWORDS_ATOM = KEYWORDS_ATOM;
+        ρσ_modules.tokenizer.RESERVED_WORDS = RESERVED_WORDS;
+        ρσ_modules.tokenizer.KEYWORDS_BEFORE_EXPRESSION = KEYWORDS_BEFORE_EXPRESSION;
+        ρσ_modules.tokenizer.ALL_KEYWORDS = ALL_KEYWORDS;
+        ρσ_modules.tokenizer.IDENTIFIER_PAT = IDENTIFIER_PAT;
+        ρσ_modules.tokenizer.UNICODE = UNICODE;
+        ρσ_modules.tokenizer.EX_EOF = EX_EOF;
+        ρσ_modules.tokenizer.is_string_modifier = is_string_modifier;
+        ρσ_modules.tokenizer.is_letter = is_letter;
+        ρσ_modules.tokenizer.is_digit = is_digit;
+        ρσ_modules.tokenizer.is_alphanumeric_char = is_alphanumeric_char;
+        ρσ_modules.tokenizer.is_unicode_combining_mark = is_unicode_combining_mark;
+        ρσ_modules.tokenizer.is_unicode_connector_punctuation = is_unicode_connector_punctuation;
+        ρσ_modules.tokenizer.is_identifier = is_identifier;
+        ρσ_modules.tokenizer.is_identifier_start = is_identifier_start;
+        ρσ_modules.tokenizer.is_identifier_char = is_identifier_char;
+        ρσ_modules.tokenizer.parse_js_number = parse_js_number;
+        ρσ_modules.tokenizer.is_token = is_token;
+        ρσ_modules.tokenizer.tokenizer = tokenizer;
     })();
 
     (function(){
@@ -14297,7 +13705,7 @@ return this.__repr__();
         var has_prop = ρσ_modules.utils.has_prop;
         var cache_file_name = ρσ_modules.utils.cache_file_name;
 
-        COMPILER_VERSION = "26bb05fd52c1ab34533f1096cf96966752880310";
+        COMPILER_VERSION = "e5cc0837bcadd4447863286953b19faad0579251";
         PYTHON_FLAGS = (function(){
             var ρσ_d = Object.create(null);
             ρσ_d["dict_literals"] = true;
@@ -14418,11 +13826,11 @@ return this.__repr__();
         PRECEDENCE = (function() {
             var ρσ_anonfunc = function (a, ret) {
                 var b, j, i;
-                for (var ρσ_Index83 = 0; ρσ_Index83 < a.length; ρσ_Index83++) {
-                    i = ρσ_Index83;
+                for (var ρσ_Index82 = 0; ρσ_Index82 < a.length; ρσ_Index82++) {
+                    i = ρσ_Index82;
                     b = a[(typeof i === "number" && i < 0) ? a.length + i : i];
-                    for (var ρσ_Index84 = 0; ρσ_Index84 < b.length; ρσ_Index84++) {
-                        j = ρσ_Index84;
+                    for (var ρσ_Index83 = 0; ρσ_Index83 < b.length; ρσ_Index83++) {
+                        j = ρσ_Index83;
                         ret[ρσ_bound_index(b[(typeof j === "number" && j < 0) ? b.length + j : j], ret)] = i + 1;
                     }
                 }
@@ -14662,10 +14070,10 @@ return this.__repr__();
                 var ans, opt, x, obj;
                 ans = [];
                 if (Array.isArray(body)) {
-                    var ρσ_Iter85 = body;
-                    ρσ_Iter85 = ((typeof ρσ_Iter85[Symbol.iterator] === "function") ? (ρσ_Iter85 instanceof Map ? ρσ_Iter85.keys() : ρσ_Iter85) : Object.keys(ρσ_Iter85));
-                    for (var ρσ_Index85 of ρσ_Iter85) {
-                        obj = ρσ_Index85;
+                    var ρσ_Iter84 = body;
+                    ρσ_Iter84 = ((typeof ρσ_Iter84[Symbol.iterator] === "function") ? (ρσ_Iter84 instanceof Map ? ρσ_Iter84.keys() : ρσ_Iter84) : Object.keys(ρσ_Iter84));
+                    for (var ρσ_Index84 of ρσ_Iter84) {
+                        obj = ρσ_Index84;
                         if (is_node_type(obj, AST_Function) || is_node_type(obj, AST_Class)) {
                             if (obj.name) {
                                 ans.push(obj.name.name);
@@ -14676,10 +14084,10 @@ return this.__repr__();
                             if (is_node_type(obj, AST_Scope)) {
                                 continue;
                             }
-                            var ρσ_Iter86 = [ "body", "alternative" ];
-                            ρσ_Iter86 = ((typeof ρσ_Iter86[Symbol.iterator] === "function") ? (ρσ_Iter86 instanceof Map ? ρσ_Iter86.keys() : ρσ_Iter86) : Object.keys(ρσ_Iter86));
-                            for (var ρσ_Index86 of ρσ_Iter86) {
-                                x = ρσ_Index86;
+                            var ρσ_Iter85 = [ "body", "alternative" ];
+                            ρσ_Iter85 = ((typeof ρσ_Iter85[Symbol.iterator] === "function") ? (ρσ_Iter85 instanceof Map ? ρσ_Iter85.keys() : ρσ_Iter85) : Object.keys(ρσ_Iter85));
+                            for (var ρσ_Index85 of ρσ_Iter85) {
+                                x = ρσ_Index85;
                                 opt = obj[(typeof x === "number" && x < 0) ? obj.length + x : x];
                                 if (opt) {
                                     ans = ans.concat(scan_for_top_level_callables(opt));
@@ -14706,10 +14114,10 @@ return this.__repr__();
             function scan_for_classes(body) {
                 var ans, obj;
                 ans = Object.create(null);
-                var ρσ_Iter87 = body;
-                ρσ_Iter87 = ((typeof ρσ_Iter87[Symbol.iterator] === "function") ? (ρσ_Iter87 instanceof Map ? ρσ_Iter87.keys() : ρσ_Iter87) : Object.keys(ρσ_Iter87));
-                for (var ρσ_Index87 of ρσ_Iter87) {
-                    obj = ρσ_Index87;
+                var ρσ_Iter86 = body;
+                ρσ_Iter86 = ((typeof ρσ_Iter86[Symbol.iterator] === "function") ? (ρσ_Iter86 instanceof Map ? ρσ_Iter86.keys() : ρσ_Iter86) : Object.keys(ρσ_Iter86));
+                for (var ρσ_Index86 of ρσ_Iter86) {
+                    obj = ρσ_Index86;
                     if (is_node_type(obj, AST_Class)) {
                         ans[ρσ_bound_index(obj.name.name, ans)] = obj;
                     }
@@ -14739,10 +14147,10 @@ return this.__repr__();
 
                 function extend(arr) {
                     var x;
-                    var ρσ_Iter88 = arr;
-                    ρσ_Iter88 = ((typeof ρσ_Iter88[Symbol.iterator] === "function") ? (ρσ_Iter88 instanceof Map ? ρσ_Iter88.keys() : ρσ_Iter88) : Object.keys(ρσ_Iter88));
-                    for (var ρσ_Index88 of ρσ_Iter88) {
-                        x = ρσ_Index88;
+                    var ρσ_Iter87 = arr;
+                    ρσ_Iter87 = ((typeof ρσ_Iter87[Symbol.iterator] === "function") ? (ρσ_Iter87 instanceof Map ? ρσ_Iter87.keys() : ρσ_Iter87) : Object.keys(ρσ_Iter87));
+                    for (var ρσ_Index87 of ρσ_Iter87) {
+                        x = ρσ_Index87;
                         push(x);
                     }
                 };
@@ -14753,10 +14161,10 @@ return this.__repr__();
 
                 function scan_in_array(arr) {
                     var x;
-                    var ρσ_Iter89 = arr;
-                    ρσ_Iter89 = ((typeof ρσ_Iter89[Symbol.iterator] === "function") ? (ρσ_Iter89 instanceof Map ? ρσ_Iter89.keys() : ρσ_Iter89) : Object.keys(ρσ_Iter89));
-                    for (var ρσ_Index89 of ρσ_Iter89) {
-                        x = ρσ_Index89;
+                    var ρσ_Iter88 = arr;
+                    ρσ_Iter88 = ((typeof ρσ_Iter88[Symbol.iterator] === "function") ? (ρσ_Iter88 instanceof Map ? ρσ_Iter88.keys() : ρσ_Iter88) : Object.keys(ρσ_Iter88));
+                    for (var ρσ_Index88 of ρσ_Iter88) {
+                        x = ρσ_Index88;
                         if (is_node_type(x, AST_Seq)) {
                             x = x.to_array();
                         } else if (is_node_type(x, AST_Array)) {
@@ -14810,17 +14218,17 @@ return this.__repr__();
                 });
 
                 if (Array.isArray(body)) {
-                    var ρσ_Iter90 = body;
-                    ρσ_Iter90 = ((typeof ρσ_Iter90[Symbol.iterator] === "function") ? (ρσ_Iter90 instanceof Map ? ρσ_Iter90.keys() : ρσ_Iter90) : Object.keys(ρσ_Iter90));
-                    for (var ρσ_Index90 of ρσ_Iter90) {
-                        stmt = ρσ_Index90;
+                    var ρσ_Iter89 = body;
+                    ρσ_Iter89 = ((typeof ρσ_Iter89[Symbol.iterator] === "function") ? (ρσ_Iter89 instanceof Map ? ρσ_Iter89.keys() : ρσ_Iter89) : Object.keys(ρσ_Iter89));
+                    for (var ρσ_Index89 of ρσ_Iter89) {
+                        stmt = ρσ_Index89;
                         if (is_node_type(stmt, AST_Scope)) {
                             continue;
                         }
-                        var ρσ_Iter91 = [ "body", "alternative", "bcatch", "condition" ];
-                        ρσ_Iter91 = ((typeof ρσ_Iter91[Symbol.iterator] === "function") ? (ρσ_Iter91 instanceof Map ? ρσ_Iter91.keys() : ρσ_Iter91) : Object.keys(ρσ_Iter91));
-                        for (var ρσ_Index91 of ρσ_Iter91) {
-                            option = ρσ_Index91;
+                        var ρσ_Iter90 = [ "body", "alternative", "bcatch", "condition" ];
+                        ρσ_Iter90 = ((typeof ρσ_Iter90[Symbol.iterator] === "function") ? (ρσ_Iter90 instanceof Map ? ρσ_Iter90.keys() : ρσ_Iter90) : Object.keys(ρσ_Iter90));
+                        for (var ρσ_Index90 of ρσ_Iter90) {
+                            option = ρσ_Index90;
                             opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
                             if (opt) {
                                 extend(scan_for_local_vars(opt));
@@ -14835,10 +14243,10 @@ return this.__repr__();
                             extend(scan_for_local_vars(stmt));
                         } else if (is_node_type(stmt, AST_With)) {
                             [push("ρσ_with_exception"), push("ρσ_with_suppress")];
-                            var ρσ_Iter92 = stmt.clauses;
-                            ρσ_Iter92 = ((typeof ρσ_Iter92[Symbol.iterator] === "function") ? (ρσ_Iter92 instanceof Map ? ρσ_Iter92.keys() : ρσ_Iter92) : Object.keys(ρσ_Iter92));
-                            for (var ρσ_Index92 of ρσ_Iter92) {
-                                clause = ρσ_Index92;
+                            var ρσ_Iter91 = stmt.clauses;
+                            ρσ_Iter91 = ((typeof ρσ_Iter91[Symbol.iterator] === "function") ? (ρσ_Iter91 instanceof Map ? ρσ_Iter91.keys() : ρσ_Iter91) : Object.keys(ρσ_Iter91));
+                            for (var ρσ_Index91 of ρσ_Iter91) {
+                                clause = ρσ_Index91;
                                 if (clause.alias) {
                                     push(clause.alias.name);
                                 }
@@ -14853,10 +14261,10 @@ return this.__repr__();
                 } else if (is_node_type(body, AST_Assign)) {
                     if (body.is_chained()) {
                         is_compound_assign = false;
-                        var ρσ_Iter93 = body.traverse_chain()[0];
-                        ρσ_Iter93 = ((typeof ρσ_Iter93[Symbol.iterator] === "function") ? (ρσ_Iter93 instanceof Map ? ρσ_Iter93.keys() : ρσ_Iter93) : Object.keys(ρσ_Iter93));
-                        for (var ρσ_Index93 of ρσ_Iter93) {
-                            lhs = ρσ_Index93;
+                        var ρσ_Iter92 = body.traverse_chain()[0];
+                        ρσ_Iter92 = ((typeof ρσ_Iter92[Symbol.iterator] === "function") ? (ρσ_Iter92 instanceof Map ? ρσ_Iter92.keys() : ρσ_Iter92) : Object.keys(ρσ_Iter92));
+                        for (var ρσ_Index92 of ρσ_Iter92) {
+                            lhs = ρσ_Index92;
                             add_assign_lhs(lhs);
                             if (is_node_type(lhs, AST_Seq) || is_node_type(lhs, AST_Array)) {
                                 is_compound_assign = true;
@@ -14886,25 +14294,25 @@ return this.__repr__();
                 var vardef, opt, option, stmt;
                 vars = [];
                 if (Array.isArray(body)) {
-                    var ρσ_Iter94 = body;
-                    ρσ_Iter94 = ((typeof ρσ_Iter94[Symbol.iterator] === "function") ? (ρσ_Iter94 instanceof Map ? ρσ_Iter94.keys() : ρσ_Iter94) : Object.keys(ρσ_Iter94));
-                    for (var ρσ_Index94 of ρσ_Iter94) {
-                        stmt = ρσ_Index94;
+                    var ρσ_Iter93 = body;
+                    ρσ_Iter93 = ((typeof ρσ_Iter93[Symbol.iterator] === "function") ? (ρσ_Iter93 instanceof Map ? ρσ_Iter93.keys() : ρσ_Iter93) : Object.keys(ρσ_Iter93));
+                    for (var ρσ_Index93 of ρσ_Iter93) {
+                        stmt = ρσ_Index93;
                         if (is_node_type(stmt, AST_Scope)) {
                             continue;
                         }
                         if (is_node_type(stmt, AST_Definitions)) {
-                            var ρσ_Iter95 = stmt.definitions;
-                            ρσ_Iter95 = ((typeof ρσ_Iter95[Symbol.iterator] === "function") ? (ρσ_Iter95 instanceof Map ? ρσ_Iter95.keys() : ρσ_Iter95) : Object.keys(ρσ_Iter95));
-                            for (var ρσ_Index95 of ρσ_Iter95) {
-                                vardef = ρσ_Index95;
+                            var ρσ_Iter94 = stmt.definitions;
+                            ρσ_Iter94 = ((typeof ρσ_Iter94[Symbol.iterator] === "function") ? (ρσ_Iter94 instanceof Map ? ρσ_Iter94.keys() : ρσ_Iter94) : Object.keys(ρσ_Iter94));
+                            for (var ρσ_Index94 of ρσ_Iter94) {
+                                vardef = ρσ_Index94;
                                 vars.push(vardef.name.name);
                             }
                         }
-                        var ρσ_Iter96 = [ "body", "alternative" ];
-                        ρσ_Iter96 = ((typeof ρσ_Iter96[Symbol.iterator] === "function") ? (ρσ_Iter96 instanceof Map ? ρσ_Iter96.keys() : ρσ_Iter96) : Object.keys(ρσ_Iter96));
-                        for (var ρσ_Index96 of ρσ_Iter96) {
-                            option = ρσ_Index96;
+                        var ρσ_Iter95 = [ "body", "alternative" ];
+                        ρσ_Iter95 = ((typeof ρσ_Iter95[Symbol.iterator] === "function") ? (ρσ_Iter95 instanceof Map ? ρσ_Iter95.keys() : ρσ_Iter95) : Object.keys(ρσ_Iter95));
+                        for (var ρσ_Index95 of ρσ_Iter95) {
+                            option = ρσ_Index95;
                             var vars;
                             opt = stmt[(typeof option === "number" && option < 0) ? stmt.length + option : option];
                             if (opt) {
@@ -15382,8 +14790,8 @@ return this.__repr__();
                     if (has_prop(ERROR_CLASSES, expr.name)) {
                         return ERROR_CLASSES[ρσ_bound_index(expr.name, ERROR_CLASSES)];
                     }
-                    for (var ρσ_Index97 = S.classes.length - 1; ρσ_Index97 > -1; ρσ_Index97-=1) {
-                        s = ρσ_Index97;
+                    for (var ρσ_Index96 = S.classes.length - 1; ρσ_Index96 > -1; ρσ_Index96-=1) {
+                        s = ρσ_Index96;
                         if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], expr.name)) {
                             return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[ρσ_bound_index(expr.name, ρσ_expr_temp)];
                         }
@@ -15398,8 +14806,8 @@ return this.__repr__();
                         referenced_path.unshift(expr.name);
                         if (len(referenced_path) > 1) {
                             class_name = referenced_path.join(".");
-                            for (var ρσ_Index98 = S.classes.length - 1; ρσ_Index98 > -1; ρσ_Index98-=1) {
-                                s = ρσ_Index98;
+                            for (var ρσ_Index97 = S.classes.length - 1; ρσ_Index97 > -1; ρσ_Index97-=1) {
+                                s = ρσ_Index97;
                                 if (has_prop((ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s], class_name)) {
                                     return (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[(typeof s === "number" && s < 0) ? ρσ_expr_temp.length + s : s])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
                                 }
@@ -15469,10 +14877,10 @@ return this.__repr__();
                     }
                     async function safe_stat(base_path) {
                         var st, ρσ_unpack, i, path;
-                        var ρσ_Iter99 = enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]);
-                        ρσ_Iter99 = ((typeof ρσ_Iter99[Symbol.iterator] === "function") ? (ρσ_Iter99 instanceof Map ? ρσ_Iter99.keys() : ρσ_Iter99) : Object.keys(ρσ_Iter99));
-                        for (var ρσ_Index99 of ρσ_Iter99) {
-                            ρσ_unpack = ρσ_Index99;
+                        var ρσ_Iter98 = enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]);
+                        ρσ_Iter98 = ((typeof ρσ_Iter98[Symbol.iterator] === "function") ? (ρσ_Iter98 instanceof Map ? ρσ_Iter98.keys() : ρσ_Iter98) : Object.keys(ρσ_Iter98));
+                        for (var ρσ_Index98 of ρσ_Iter98) {
+                            ρσ_unpack = ρσ_Index98;
                             i = ρσ_unpack[0];
                             path = ρσ_unpack[1];
                             try {
@@ -15501,10 +14909,10 @@ return this.__repr__();
 
                     file_mtime = filename = prefetched_src = null;
                     modpath = key.replace(/\./g, "/");
-                    var ρσ_Iter100 = import_dirs;
-                    ρσ_Iter100 = ((typeof ρσ_Iter100[Symbol.iterator] === "function") ? (ρσ_Iter100 instanceof Map ? ρσ_Iter100.keys() : ρσ_Iter100) : Object.keys(ρσ_Iter100));
-                    for (var ρσ_Index100 of ρσ_Iter100) {
-                        location = ρσ_Index100;
+                    var ρσ_Iter99 = import_dirs;
+                    ρσ_Iter99 = ((typeof ρσ_Iter99[Symbol.iterator] === "function") ? (ρσ_Iter99 instanceof Map ? ρσ_Iter99.keys() : ρσ_Iter99) : Object.keys(ρσ_Iter99));
+                    for (var ρσ_Index99 of ρσ_Iter99) {
+                        location = ρσ_Index99;
                         if (location) {
                             ρσ_unpack = await safe_stat(location + "/" + modpath);
 ρσ_unpack = ρσ_unpack_asarray(3, ρσ_unpack);
@@ -15547,10 +14955,10 @@ return this.__repr__();
                     }
                     if (cached !== null) {
                         pending = [];
-                        var ρσ_Iter101 = cached.imported_module_ids;
-                        ρσ_Iter101 = ((typeof ρσ_Iter101[Symbol.iterator] === "function") ? (ρσ_Iter101 instanceof Map ? ρσ_Iter101.keys() : ρσ_Iter101) : Object.keys(ρσ_Iter101));
-                        for (var ρσ_Index101 of ρσ_Iter101) {
-                            ikey = ρσ_Index101;
+                        var ρσ_Iter100 = cached.imported_module_ids;
+                        ρσ_Iter100 = ((typeof ρσ_Iter100[Symbol.iterator] === "function") ? (ρσ_Iter100 instanceof Map ? ρσ_Iter100.keys() : ρσ_Iter100) : Object.keys(ρσ_Iter100));
+                        for (var ρσ_Index100 of ρσ_Iter100) {
+                            ikey = ρσ_Index100;
                             if (!has_prop(imported_modules, ikey)) {
                                 pending.push(do_import(ikey));
                             }
@@ -15559,10 +14967,10 @@ return this.__repr__();
                             await Promise.all(pending);
                         }
                         classes = Object.create(null);
-                        var ρσ_Iter102 = Object.keys(cached.classes || Object.create(null));
-                        ρσ_Iter102 = ((typeof ρσ_Iter102[Symbol.iterator] === "function") ? (ρσ_Iter102 instanceof Map ? ρσ_Iter102.keys() : ρσ_Iter102) : Object.keys(ρσ_Iter102));
-                        for (var ρσ_Index102 of ρσ_Iter102) {
-                            cname = ρσ_Index102;
+                        var ρσ_Iter101 = Object.keys(cached.classes || Object.create(null));
+                        ρσ_Iter101 = ((typeof ρσ_Iter101[Symbol.iterator] === "function") ? (ρσ_Iter101 instanceof Map ? ρσ_Iter101.keys() : ρσ_Iter101) : Object.keys(ρσ_Iter101));
+                        for (var ρσ_Index101 of ρσ_Iter101) {
+                            cname = ρσ_Index101;
                             ci = (ρσ_expr_temp = cached.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
                             classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname] = (function(){
                                 var ρσ_d = Object.create(null);
@@ -15635,10 +15043,10 @@ return this.__repr__();
                     }
                 }
                 imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].srchash = srchash;
-                var ρσ_Iter103 = Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib);
-                ρσ_Iter103 = ((typeof ρσ_Iter103[Symbol.iterator] === "function") ? (ρσ_Iter103 instanceof Map ? ρσ_Iter103.keys() : ρσ_Iter103) : Object.keys(ρσ_Iter103));
-                for (var ρσ_Index103 of ρσ_Iter103) {
-                    bitem = ρσ_Index103;
+                var ρσ_Iter102 = Object.keys(imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].baselib);
+                ρσ_Iter102 = ((typeof ρσ_Iter102[Symbol.iterator] === "function") ? (ρσ_Iter102 instanceof Map ? ρσ_Iter102.keys() : ρσ_Iter102) : Object.keys(ρσ_Iter102));
+                for (var ρσ_Index102 of ρσ_Iter102) {
+                    bitem = ρσ_Index102;
                     baselib_items[(typeof bitem === "number" && bitem < 0) ? baselib_items.length + bitem : bitem] = true;
                 }
             };
@@ -15746,10 +15154,10 @@ return this.__repr__();
                         break;
                     }
                 }
-                var ρσ_Iter104 = ans["imports"];
-                ρσ_Iter104 = ((typeof ρσ_Iter104[Symbol.iterator] === "function") ? (ρσ_Iter104 instanceof Map ? ρσ_Iter104.keys() : ρσ_Iter104) : Object.keys(ρσ_Iter104));
-                for (var ρσ_Index104 of ρσ_Iter104) {
-                    imp = ρσ_Index104;
+                var ρσ_Iter103 = ans["imports"];
+                ρσ_Iter103 = ((typeof ρσ_Iter103[Symbol.iterator] === "function") ? (ρσ_Iter103 instanceof Map ? ρσ_Iter103.keys() : ρσ_Iter103) : Object.keys(ρσ_Iter103));
+                for (var ρσ_Index103 of ρσ_Iter103) {
+                    imp = ρσ_Index103;
                     await do_import(imp.key);
                     if (imported_module_ids.indexOf(imp.key) === -1) {
                         imported_module_ids.push(imp.key);
@@ -15763,10 +15171,10 @@ return this.__repr__();
                             next();
                         }
                         exports = Object.create(null);
-                        var ρσ_Iter105 = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports;
-                        ρσ_Iter105 = ((typeof ρσ_Iter105[Symbol.iterator] === "function") ? (ρσ_Iter105 instanceof Map ? ρσ_Iter105.keys() : ρσ_Iter105) : Object.keys(ρσ_Iter105));
-                        for (var ρσ_Index105 of ρσ_Iter105) {
-                            symdef = ρσ_Index105;
+                        var ρσ_Iter104 = imported_modules[(typeof key === "number" && key < 0) ? imported_modules.length + key : key].exports;
+                        ρσ_Iter104 = ((typeof ρσ_Iter104[Symbol.iterator] === "function") ? (ρσ_Iter104 instanceof Map ? ρσ_Iter104.keys() : ρσ_Iter104) : Object.keys(ρσ_Iter104));
+                        for (var ρσ_Index104 of ρσ_Iter104) {
+                            symdef = ρσ_Index104;
                             exports[ρσ_bound_index(symdef.name, exports)] = true;
                         }
                         while (true) {
@@ -15792,10 +15200,10 @@ return this.__repr__();
                                 break;
                             }
                         }
-                        var ρσ_Iter106 = argnames;
-                        ρσ_Iter106 = ((typeof ρσ_Iter106[Symbol.iterator] === "function") ? (ρσ_Iter106 instanceof Map ? ρσ_Iter106.keys() : ρσ_Iter106) : Object.keys(ρσ_Iter106));
-                        for (var ρσ_Index106 of ρσ_Iter106) {
-                            argvar = ρσ_Index106;
+                        var ρσ_Iter105 = argnames;
+                        ρσ_Iter105 = ((typeof ρσ_Iter105[Symbol.iterator] === "function") ? (ρσ_Iter105 instanceof Map ? ρσ_Iter105.keys() : ρσ_Iter105) : Object.keys(ρσ_Iter105));
+                        for (var ρσ_Index105 of ρσ_Iter105) {
+                            argvar = ρσ_Index105;
                             obj = classes[ρσ_bound_index(argvar.name, classes)];
                             if (obj) {
                                 key = (argvar.alias) ? argvar.alias.name : argvar.name;
@@ -15809,10 +15217,10 @@ return this.__repr__();
                             }
                         }
                     } else {
-                        var ρσ_Iter107 = Object.keys(classes);
-                        ρσ_Iter107 = ((typeof ρσ_Iter107[Symbol.iterator] === "function") ? (ρσ_Iter107 instanceof Map ? ρσ_Iter107.keys() : ρσ_Iter107) : Object.keys(ρσ_Iter107));
-                        for (var ρσ_Index107 of ρσ_Iter107) {
-                            cname = ρσ_Index107;
+                        var ρσ_Iter106 = Object.keys(classes);
+                        ρσ_Iter106 = ((typeof ρσ_Iter106[Symbol.iterator] === "function") ? (ρσ_Iter106 instanceof Map ? ρσ_Iter106.keys() : ρσ_Iter106) : Object.keys(ρσ_Iter106));
+                        for (var ρσ_Index106 of ρσ_Iter106) {
+                            cname = ρσ_Index106;
                             obj = classes[(typeof cname === "number" && cname < 0) ? classes.length + cname : cname];
                             key = (imp.alias) ? imp.alias.name : imp.key;
                             (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-1])[ρσ_bound_index(key + "." + obj.name.name, ρσ_expr_temp)] = (function(){
@@ -15875,10 +15283,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var d, decorator;
                         d = [];
-                        var ρσ_Iter108 = S.decorators;
-                        ρσ_Iter108 = ((typeof ρσ_Iter108[Symbol.iterator] === "function") ? (ρσ_Iter108 instanceof Map ? ρσ_Iter108.keys() : ρσ_Iter108) : Object.keys(ρσ_Iter108));
-                        for (var ρσ_Index108 of ρσ_Iter108) {
-                            decorator = ρσ_Index108;
+                        var ρσ_Iter107 = S.decorators;
+                        ρσ_Iter107 = ((typeof ρσ_Iter107[Symbol.iterator] === "function") ? (ρσ_Iter107 instanceof Map ? ρσ_Iter107.keys() : ρσ_Iter107) : Object.keys(ρσ_Iter107));
+                        for (var ρσ_Index107 of ρσ_Iter107) {
+                            decorator = ρσ_Index107;
                             d.push(new AST_Decorator((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["expression"] = decorator;
@@ -15937,10 +15345,10 @@ return this.__repr__();
                     return ρσ_d;
                 }).call(this));
                 class_details.processing = false;
-                var ρσ_Iter109 = definition.body;
-                ρσ_Iter109 = ((typeof ρσ_Iter109[Symbol.iterator] === "function") ? (ρσ_Iter109 instanceof Map ? ρσ_Iter109.keys() : ρσ_Iter109) : Object.keys(ρσ_Iter109));
-                for (var ρσ_Index109 of ρσ_Iter109) {
-                    stmt = ρσ_Index109;
+                var ρσ_Iter108 = definition.body;
+                ρσ_Iter108 = ((typeof ρσ_Iter108[Symbol.iterator] === "function") ? (ρσ_Iter108 instanceof Map ? ρσ_Iter108.keys() : ρσ_Iter108) : Object.keys(ρσ_Iter108));
+                for (var ρσ_Index108 of ρσ_Iter108) {
+                    stmt = ρσ_Index108;
                     if (is_node_type(stmt, AST_Method)) {
                         if (stmt.is_getter || stmt.is_setter) {
                             descriptor = (ρσ_expr_temp = definition.dynamic_properties)[ρσ_bound_index(stmt.name.name, ρσ_expr_temp)];
@@ -15994,10 +15402,10 @@ return this.__repr__();
                 });
 
                 visitor = new walker;
-                var ρσ_Iter110 = definition.body;
-                ρσ_Iter110 = ((typeof ρσ_Iter110[Symbol.iterator] === "function") ? (ρσ_Iter110 instanceof Map ? ρσ_Iter110.keys() : ρσ_Iter110) : Object.keys(ρσ_Iter110));
-                for (var ρσ_Index110 of ρσ_Iter110) {
-                    stmt = ρσ_Index110;
+                var ρσ_Iter109 = definition.body;
+                ρσ_Iter109 = ((typeof ρσ_Iter109[Symbol.iterator] === "function") ? (ρσ_Iter109 instanceof Map ? ρσ_Iter109.keys() : ρσ_Iter109) : Object.keys(ρσ_Iter109));
+                for (var ρσ_Index109 of ρσ_Iter109) {
+                    stmt = ρσ_Index109;
                     if (!is_node_type(stmt, AST_Class)) {
                         stmt.walk(visitor);
                         definition.statements.push(stmt);
@@ -16186,10 +15594,10 @@ return this.__repr__();
                     var ρσ_anonfunc = function () {
                         var d, decorator;
                         d = [];
-                        var ρσ_Iter111 = S.decorators;
-                        ρσ_Iter111 = ((typeof ρσ_Iter111[Symbol.iterator] === "function") ? (ρσ_Iter111 instanceof Map ? ρσ_Iter111.keys() : ρσ_Iter111) : Object.keys(ρσ_Iter111));
-                        for (var ρσ_Index111 of ρσ_Iter111) {
-                            decorator = ρσ_Index111;
+                        var ρσ_Iter110 = S.decorators;
+                        ρσ_Iter110 = ((typeof ρσ_Iter110[Symbol.iterator] === "function") ? (ρσ_Iter110 instanceof Map ? ρσ_Iter110.keys() : ρσ_Iter110) : Object.keys(ρσ_Iter110));
+                        for (var ρσ_Index110 of ρσ_Iter110) {
+                            decorator = ρσ_Index110;
                             d.push(new AST_Decorator((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["expression"] = decorator;
@@ -16275,10 +15683,10 @@ return this.__repr__();
                     baselib_items["yield"] = true;
                 }
                 assignments = scan_for_local_vars(definition.body);
-                for (var ρσ_Index112 = 0; ρσ_Index112 < assignments.length; ρσ_Index112++) {
-                    i = ρσ_Index112;
-                    for (var ρσ_Index113 = 0; ρσ_Index113 < definition.argnames.args.length + 1; ρσ_Index113++) {
-                        j = ρσ_Index113;
+                for (var ρσ_Index111 = 0; ρσ_Index111 < assignments.length; ρσ_Index111++) {
+                    i = ρσ_Index111;
+                    for (var ρσ_Index112 = 0; ρσ_Index112 < definition.argnames.args.length + 1; ρσ_Index112++) {
+                        j = ρσ_Index112;
                         if (j === definition.argnames.args.length) {
                             definition.localvars.push(new_symbol(AST_SymbolVar, assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i]));
                         } else if (j < definition.argnames.args.length && assignments[(typeof i === "number" && i < 0) ? assignments.length + i : i] === (ρσ_expr_temp = definition.argnames.args)[(typeof j === "number" && j < 0) ? ρσ_expr_temp.length + j : j].name) {
@@ -16551,10 +15959,10 @@ return this.__repr__();
                 var defs, vardef;
                 defs = await vardefs(AST_SymbolNonlocal);
                 if (is_global) {
-                    var ρσ_Iter114 = defs;
-                    ρσ_Iter114 = ((typeof ρσ_Iter114[Symbol.iterator] === "function") ? (ρσ_Iter114 instanceof Map ? ρσ_Iter114.keys() : ρσ_Iter114) : Object.keys(ρσ_Iter114));
-                    for (var ρσ_Index114 of ρσ_Iter114) {
-                        vardef = ρσ_Index114;
+                    var ρσ_Iter113 = defs;
+                    ρσ_Iter113 = ((typeof ρσ_Iter113[Symbol.iterator] === "function") ? (ρσ_Iter113 instanceof Map ? ρσ_Iter113.keys() : ρσ_Iter113) : Object.keys(ρσ_Iter113));
+                    for (var ρσ_Index113 of ρσ_Iter113) {
+                        vardef = ρσ_Index113;
                         S.globals.push(vardef.name.name);
                     }
                 }
@@ -16829,10 +16237,10 @@ return this.__repr__();
                 if (func_call) {
                     pargs = [];
                     kwargs = [];
-                    var ρσ_Iter115 = a;
-                    ρσ_Iter115 = ((typeof ρσ_Iter115[Symbol.iterator] === "function") ? (ρσ_Iter115 instanceof Map ? ρσ_Iter115.keys() : ρσ_Iter115) : Object.keys(ρσ_Iter115));
-                    for (var ρσ_Index115 of ρσ_Iter115) {
-                        arg = ρσ_Index115;
+                    var ρσ_Iter114 = a;
+                    ρσ_Iter114 = ((typeof ρσ_Iter114[Symbol.iterator] === "function") ? (ρσ_Iter114 instanceof Map ? ρσ_Iter114.keys() : ρσ_Iter114) : Object.keys(ρσ_Iter114));
+                    for (var ρσ_Index114 of ρσ_Iter114) {
+                        arg = ρσ_Index114;
                         if (is_node_type(arg, AST_Assign)) {
                             kwargs.push([ arg.left, arg.right ]);
                         } else {
@@ -17288,10 +16696,10 @@ return this.__repr__();
                             ρσ_d["is_array"] = false;
                             return ρσ_d;
                         }).call(this)));
-                        var ρσ_Iter116 = slice_bounds;
-                        ρσ_Iter116 = ((typeof ρσ_Iter116[Symbol.iterator] === "function") ? (ρσ_Iter116 instanceof Map ? ρσ_Iter116.keys() : ρσ_Iter116) : Object.keys(ρσ_Iter116));
-                        for (var ρσ_Index116 of ρσ_Iter116) {
-                            _sb = ρσ_Index116;
+                        var ρσ_Iter115 = slice_bounds;
+                        ρσ_Iter115 = ((typeof ρσ_Iter115[Symbol.iterator] === "function") ? (ρσ_Iter115 instanceof Map ? ρσ_Iter115.keys() : ρσ_Iter115) : Object.keys(ρσ_Iter115));
+                        for (var ρσ_Index115 of ρσ_Iter115) {
+                            _sb = ρσ_Index115;
                             _ca.push(new AST_CallArg((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["value"] = _sb;
@@ -17351,10 +16759,10 @@ return this.__repr__();
                                 ρσ_d["is_array"] = false;
                                 return ρσ_d;
                             }).call(this)));
-                            var ρσ_Iter117 = slice_bounds;
-                            ρσ_Iter117 = ((typeof ρσ_Iter117[Symbol.iterator] === "function") ? (ρσ_Iter117 instanceof Map ? ρσ_Iter117.keys() : ρσ_Iter117) : Object.keys(ρσ_Iter117));
-                            for (var ρσ_Index117 of ρσ_Iter117) {
-                                _sb = ρσ_Index117;
+                            var ρσ_Iter116 = slice_bounds;
+                            ρσ_Iter116 = ((typeof ρσ_Iter116[Symbol.iterator] === "function") ? (ρσ_Iter116 instanceof Map ? ρσ_Iter116.keys() : ρσ_Iter116) : Object.keys(ρσ_Iter116));
+                            for (var ρσ_Index116 of ρσ_Iter116) {
+                                _sb = ρσ_Index116;
                                 _ca2.push(new AST_CallArg((function(){
                                     var ρσ_d = Object.create(null);
                                     ρσ_d["value"] = _sb;
@@ -17383,10 +16791,10 @@ return this.__repr__();
                             }).call(this)), allow_calls);
                         }
                         _ca3 = [];
-                        var ρσ_Iter118 = slice_bounds;
-                        ρσ_Iter118 = ((typeof ρσ_Iter118[Symbol.iterator] === "function") ? (ρσ_Iter118 instanceof Map ? ρσ_Iter118.keys() : ρσ_Iter118) : Object.keys(ρσ_Iter118));
-                        for (var ρσ_Index118 of ρσ_Iter118) {
-                            _sb = ρσ_Index118;
+                        var ρσ_Iter117 = slice_bounds;
+                        ρσ_Iter117 = ((typeof ρσ_Iter117[Symbol.iterator] === "function") ? (ρσ_Iter117 instanceof Map ? ρσ_Iter117.keys() : ρσ_Iter117) : Object.keys(ρσ_Iter117));
+                        for (var ρσ_Index117 of ρσ_Iter117) {
+                            _sb = ρσ_Index117;
                             _ca3.push(new AST_CallArg((function(){
                                 var ρσ_d = Object.create(null);
                                 ρσ_d["value"] = _sb;
@@ -17764,10 +17172,10 @@ return this.__repr__();
                         c = (ρσ_expr_temp = (ρσ_expr_temp = S.classes)[ρσ_expr_temp.length-2])[(typeof class_name === "number" && class_name < 0) ? ρσ_expr_temp.length + class_name : class_name];
                         if (c) {
                             if (ans.is_chained()) {
-                                var ρσ_Iter119 = ans.traverse_chain()[0];
-                                ρσ_Iter119 = ((typeof ρσ_Iter119[Symbol.iterator] === "function") ? (ρσ_Iter119 instanceof Map ? ρσ_Iter119.keys() : ρσ_Iter119) : Object.keys(ρσ_Iter119));
-                                for (var ρσ_Index119 of ρσ_Iter119) {
-                                    lhs = ρσ_Index119;
+                                var ρσ_Iter118 = ans.traverse_chain()[0];
+                                ρσ_Iter118 = ((typeof ρσ_Iter118[Symbol.iterator] === "function") ? (ρσ_Iter118 instanceof Map ? ρσ_Iter118.keys() : ρσ_Iter118) : Object.keys(ρσ_Iter118));
+                                for (var ρσ_Index118 of ρσ_Iter118) {
+                                    lhs = ρσ_Index118;
                                     (ρσ_expr_temp = c.provisional_classvars)[ρσ_bound_index(lhs.name, ρσ_expr_temp)] = true;
                                 }
                             } else {
@@ -17989,16 +17397,16 @@ return this.__repr__();
                     __module__ : {value: "parse"}
                 });
 
-                var ρσ_Iter120 = scan_for_local_vars(toplevel.body);
+                var ρσ_Iter119 = scan_for_local_vars(toplevel.body);
+                ρσ_Iter119 = ((typeof ρσ_Iter119[Symbol.iterator] === "function") ? (ρσ_Iter119 instanceof Map ? ρσ_Iter119.keys() : ρσ_Iter119) : Object.keys(ρσ_Iter119));
+                for (var ρσ_Index119 of ρσ_Iter119) {
+                    item = ρσ_Index119;
+                    add_item(item, true);
+                }
+                var ρσ_Iter120 = scan_for_top_level_callables(toplevel.body);
                 ρσ_Iter120 = ((typeof ρσ_Iter120[Symbol.iterator] === "function") ? (ρσ_Iter120 instanceof Map ? ρσ_Iter120.keys() : ρσ_Iter120) : Object.keys(ρσ_Iter120));
                 for (var ρσ_Index120 of ρσ_Iter120) {
                     item = ρσ_Index120;
-                    add_item(item, true);
-                }
-                var ρσ_Iter121 = scan_for_top_level_callables(toplevel.body);
-                ρσ_Iter121 = ((typeof ρσ_Iter121[Symbol.iterator] === "function") ? (ρσ_Iter121 instanceof Map ? ρσ_Iter121.keys() : ρσ_Iter121) : Object.keys(ρσ_Iter121));
-                for (var ρσ_Index121 of ρσ_Iter121) {
-                    item = ρσ_Index121;
                     add_item(item, false);
                 }
                 toplevel.filename = options.filename;
@@ -18015,10 +17423,10 @@ return this.__repr__();
                 if (options._src_hash && options.filename && module_id !== "__main__") {
                     try {
                         classes_cache = Object.create(null);
-                        var ρσ_Iter122 = Object.keys(toplevel.classes || Object.create(null));
-                        ρσ_Iter122 = ((typeof ρσ_Iter122[Symbol.iterator] === "function") ? (ρσ_Iter122 instanceof Map ? ρσ_Iter122.keys() : ρσ_Iter122) : Object.keys(ρσ_Iter122));
-                        for (var ρσ_Index122 of ρσ_Iter122) {
-                            cname = ρσ_Index122;
+                        var ρσ_Iter121 = Object.keys(toplevel.classes || Object.create(null));
+                        ρσ_Iter121 = ((typeof ρσ_Iter121[Symbol.iterator] === "function") ? (ρσ_Iter121 instanceof Map ? ρσ_Iter121.keys() : ρσ_Iter121) : Object.keys(ρσ_Iter121));
+                        for (var ρσ_Index121 of ρσ_Iter121) {
+                            cname = ρσ_Index121;
                             cls = (ρσ_expr_temp = toplevel.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
                             classes_cache[(typeof cname === "number" && cname < 0) ? classes_cache.length + cname : cname] = (function(){
                                 var ρσ_d = Object.create(null);
@@ -18050,18 +17458,18 @@ return this.__repr__();
                             __module__ : {value: "parse"}
                         });
 
-                        var ρσ_Iter123 = toplevel.body;
-                        ρσ_Iter123 = ((typeof ρσ_Iter123[Symbol.iterator] === "function") ? (ρσ_Iter123 instanceof Map ? ρσ_Iter123.keys() : ρσ_Iter123) : Object.keys(ρσ_Iter123));
-                        for (var ρσ_Index123 of ρσ_Iter123) {
-                            idx_stmt = ρσ_Index123;
+                        var ρσ_Iter122 = toplevel.body;
+                        ρσ_Iter122 = ((typeof ρσ_Iter122[Symbol.iterator] === "function") ? (ρσ_Iter122 instanceof Map ? ρσ_Iter122.keys() : ρσ_Iter122) : Object.keys(ρσ_Iter122));
+                        for (var ρσ_Index122 of ρσ_Iter122) {
+                            idx_stmt = ρσ_Index122;
                             if (is_node_type(idx_stmt, AST_Function) || is_node_type(idx_stmt, AST_Class)) {
                                 if (idx_stmt.name) {
                                     idx_pinned = false;
                                     if (idx_stmt.decorators) {
-                                        var ρσ_Iter124 = idx_stmt.decorators;
-                                        ρσ_Iter124 = ((typeof ρσ_Iter124[Symbol.iterator] === "function") ? (ρσ_Iter124 instanceof Map ? ρσ_Iter124.keys() : ρσ_Iter124) : Object.keys(ρσ_Iter124));
-                                        for (var ρσ_Index124 of ρσ_Iter124) {
-                                            idx_dec = ρσ_Index124;
+                                        var ρσ_Iter123 = idx_stmt.decorators;
+                                        ρσ_Iter123 = ((typeof ρσ_Iter123[Symbol.iterator] === "function") ? (ρσ_Iter123 instanceof Map ? ρσ_Iter123.keys() : ρσ_Iter123) : Object.keys(ρσ_Iter123));
+                                        for (var ρσ_Index123 of ρσ_Iter123) {
+                                            idx_dec = ρσ_Index123;
                                             if (idx_dec.expression && is_node_type(idx_dec.expression, AST_SymbolRef) && (idx_dec.expression.name === "no_prune" || typeof idx_dec.expression.name === "object" && ρσ_equals(idx_dec.expression.name, "no_prune"))) {
                                                 idx_pinned = true;
                                                 break;
@@ -18078,15 +17486,15 @@ return this.__repr__();
                                     }).call(this);
                                 }
                             } else if (is_node_type(idx_stmt, AST_Imports)) {
-                                var ρσ_Iter125 = idx_stmt.imports;
-                                ρσ_Iter125 = ((typeof ρσ_Iter125[Symbol.iterator] === "function") ? (ρσ_Iter125 instanceof Map ? ρσ_Iter125.keys() : ρσ_Iter125) : Object.keys(ρσ_Iter125));
-                                for (var ρσ_Index125 of ρσ_Iter125) {
-                                    idx_imp = ρσ_Index125;
+                                var ρσ_Iter124 = idx_stmt.imports;
+                                ρσ_Iter124 = ((typeof ρσ_Iter124[Symbol.iterator] === "function") ? (ρσ_Iter124 instanceof Map ? ρσ_Iter124.keys() : ρσ_Iter124) : Object.keys(ρσ_Iter124));
+                                for (var ρσ_Index124 of ρσ_Iter124) {
+                                    idx_imp = ρσ_Index124;
                                     if (idx_imp.argnames && idx_imp.argnames.length) {
-                                        var ρσ_Iter126 = idx_imp.argnames;
-                                        ρσ_Iter126 = ((typeof ρσ_Iter126[Symbol.iterator] === "function") ? (ρσ_Iter126 instanceof Map ? ρσ_Iter126.keys() : ρσ_Iter126) : Object.keys(ρσ_Iter126));
-                                        for (var ρσ_Index126 of ρσ_Iter126) {
-                                            idx_arg = ρσ_Index126;
+                                        var ρσ_Iter125 = idx_imp.argnames;
+                                        ρσ_Iter125 = ((typeof ρσ_Iter125[Symbol.iterator] === "function") ? (ρσ_Iter125 instanceof Map ? ρσ_Iter125.keys() : ρσ_Iter125) : Object.keys(ρσ_Iter125));
+                                        for (var ρσ_Index125 of ρσ_Iter125) {
+                                            idx_arg = ρσ_Index125;
                                             idx_local = (idx_arg.alias) ? idx_arg.alias.name : idx_arg.name;
                                             idx_import_bindings[(typeof idx_local === "number" && idx_local < 0) ? idx_import_bindings.length + idx_local : idx_local] = (function(){
                                                 var ρσ_d = Object.create(null);
@@ -18208,10 +17616,10 @@ return this.__repr__();
                 ρσ_Result = ρσ_list_constructor(ρσ_Result);
                 return ρσ_Result;
             })();
-            var ρσ_Iter127 = [options.libdir, options.basedir];
-            ρσ_Iter127 = ((typeof ρσ_Iter127[Symbol.iterator] === "function") ? (ρσ_Iter127 instanceof Map ? ρσ_Iter127.keys() : ρσ_Iter127) : Object.keys(ρσ_Iter127));
-            for (var ρσ_Index127 of ρσ_Iter127) {
-                location = ρσ_Index127;
+            var ρσ_Iter126 = [options.libdir, options.basedir];
+            ρσ_Iter126 = ((typeof ρσ_Iter126[Symbol.iterator] === "function") ? (ρσ_Iter126 instanceof Map ? ρσ_Iter126.keys() : ρσ_Iter126) : Object.keys(ρσ_Iter126));
+            for (var ρσ_Index126 of ρσ_Iter126) {
+                location = ρσ_Index126;
                 if (location) {
                     import_dirs.push(location);
                 }
@@ -18299,10 +17707,10 @@ return this.__repr__();
                 return ρσ_d;
             }).call(this);
             if (options.classes) {
-                var ρσ_Iter128 = options.classes;
-                ρσ_Iter128 = ((typeof ρσ_Iter128[Symbol.iterator] === "function") ? (ρσ_Iter128 instanceof Map ? ρσ_Iter128.keys() : ρσ_Iter128) : Object.keys(ρσ_Iter128));
-                for (var ρσ_Index128 of ρσ_Iter128) {
-                    cname = ρσ_Index128;
+                var ρσ_Iter127 = options.classes;
+                ρσ_Iter127 = ((typeof ρσ_Iter127[Symbol.iterator] === "function") ? (ρσ_Iter127 instanceof Map ? ρσ_Iter127.keys() : ρσ_Iter127) : Object.keys(ρσ_Iter127));
+                for (var ρσ_Index127 of ρσ_Iter127) {
+                    cname = ρσ_Index127;
                     obj = (ρσ_expr_temp = options.classes)[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname];
                     (ρσ_expr_temp = S.classes[0])[(typeof cname === "number" && cname < 0) ? ρσ_expr_temp.length + cname : cname] = (function(){
                         var ρσ_d = Object.create(null);
@@ -18807,10 +18215,10 @@ return this.__repr__();
                     output.with_block((function() {
                         var ρσ_anonfunc = function () {
                             var stmt;
-                            var ρσ_Iter129 = self.body.body;
-                            ρσ_Iter129 = ((typeof ρσ_Iter129[Symbol.iterator] === "function") ? (ρσ_Iter129 instanceof Map ? ρσ_Iter129.keys() : ρσ_Iter129) : Object.keys(ρσ_Iter129));
-                            for (var ρσ_Index129 of ρσ_Iter129) {
-                                stmt = ρσ_Index129;
+                            var ρσ_Iter128 = self.body.body;
+                            ρσ_Iter128 = ((typeof ρσ_Iter128[Symbol.iterator] === "function") ? (ρσ_Iter128 instanceof Map ? ρσ_Iter128.keys() : ρσ_Iter128) : Object.keys(ρσ_Iter128));
+                            for (var ρσ_Index128 of ρσ_Iter128) {
+                                stmt = ρσ_Index128;
                                 output.indent();
                                 stmt.print(output);
                                 output.newline();
@@ -19039,10 +18447,10 @@ return this.__repr__();
                     var ρσ_unpack, i, def_, p, in_for, avoid_semicolon;
                     output.print(kind);
                     output.space();
-                    var ρσ_Iter130 = enumerate(this.definitions);
-                    ρσ_Iter130 = ((typeof ρσ_Iter130[Symbol.iterator] === "function") ? (ρσ_Iter130 instanceof Map ? ρσ_Iter130.keys() : ρσ_Iter130) : Object.keys(ρσ_Iter130));
-                    for (var ρσ_Index130 of ρσ_Iter130) {
-                        ρσ_unpack = ρσ_Index130;
+                    var ρσ_Iter129 = enumerate(this.definitions);
+                    ρσ_Iter129 = ((typeof ρσ_Iter129[Symbol.iterator] === "function") ? (ρσ_Iter129 instanceof Map ? ρσ_Iter129.keys() : ρσ_Iter129) : Object.keys(ρσ_Iter129));
+                    for (var ρσ_Index129 of ρσ_Iter129) {
+                        ρσ_unpack = ρσ_Index129;
                         i = ρσ_unpack[0];
                         def_ = ρσ_unpack[1];
                         if (i) {
@@ -19271,6 +18679,608 @@ return this.__repr__();
         });
 
         ρσ_modules["output.codegen"].generate_code = generate_code;
+    })();
+
+    (function(){
+        var __name__ = "output.stream";
+        var DANGEROUS, _IDENT_CHARS, require_semi_colon_chars, output_stream_defaults;
+        var is_identifier_char = ρσ_modules.tokenizer.is_identifier_char;
+
+        var make_predicate = ρσ_modules.utils.make_predicate;
+        var defaults = ρσ_modules.utils.defaults;
+        var repeat_string = ρσ_modules.utils.repeat_string;
+
+        DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+        _IDENT_CHARS = (function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})();
+        function _is_ident_char(ch) {
+            var code;
+            code = ch.charCodeAt(0);
+            if (code < 128) {
+                return _IDENT_CHARS[code];
+            }
+            return is_identifier_char(ch);
+        };
+        if (!_is_ident_char.__argnames__) Object.defineProperties(_is_ident_char, {
+            __argnames__ : {value: ["ch"]},
+            __module__ : {value: "output.stream"}
+        });
+
+        function as_hex(code, sz) {
+            var val;
+            val = code.toString(16);
+            if (val.length < sz) {
+                val = "0".repeat(sz - val.length) + val;
+            }
+            return val;
+        };
+        if (!as_hex.__argnames__) Object.defineProperties(as_hex, {
+            __argnames__ : {value: ["code", "sz"]},
+            __module__ : {value: "output.stream"}
+        });
+
+        function to_ascii(str_, identifier) {
+            return str_.replace(/[\u0080-\uffff]/g, (function() {
+                var ρσ_anonfunc = function (ch) {
+                    var code;
+                    code = ch.charCodeAt(0).toString(16);
+                    if (code.length <= 2 && !identifier) {
+                        return "\\x" + as_hex(code, 2);
+                    } else {
+                        return "\\u" + as_hex(code, 4);
+                    }
+                };
+                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["ch"]},
+                    __module__ : {value: "output.stream"}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        if (!to_ascii.__argnames__) Object.defineProperties(to_ascii, {
+            __argnames__ : {value: ["str_", "identifier"]},
+            __module__ : {value: "output.stream"}
+        });
+
+        function encode_string(str_) {
+            return JSON.stringify(str_).replace(DANGEROUS, (function() {
+                var ρσ_anonfunc = function (a) {
+                    return "\\u" + as_hex(a.charCodeAt(0), 4);
+                };
+                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                    __argnames__ : {value: ["a"]},
+                    __module__ : {value: "output.stream"}
+                });
+                return ρσ_anonfunc;
+            })());
+        };
+        if (!encode_string.__argnames__) Object.defineProperties(encode_string, {
+            __argnames__ : {value: ["str_"]},
+            __module__ : {value: "output.stream"}
+        });
+
+        require_semi_colon_chars = make_predicate("( [ + * / - , .");
+        output_stream_defaults = (function(){
+            var ρσ_d = Object.create(null);
+            ρσ_d["indent_start"] = 0;
+            ρσ_d["indent_level"] = 4;
+            ρσ_d["quote_keys"] = false;
+            ρσ_d["space_colon"] = true;
+            ρσ_d["ascii_only"] = false;
+            ρσ_d["width"] = 80;
+            ρσ_d["max_line_len"] = 32e3;
+            ρσ_d["ie_proof"] = true;
+            ρσ_d["beautify"] = false;
+            ρσ_d["source_map"] = null;
+            ρσ_d["source_map_line_offset"] = 0;
+            ρσ_d["bracketize"] = false;
+            ρσ_d["semicolons"] = true;
+            ρσ_d["comments"] = false;
+            ρσ_d["preserve_line"] = false;
+            ρσ_d["omit_baselib"] = false;
+            ρσ_d["baselib_plain"] = null;
+            ρσ_d["private_scope"] = true;
+            ρσ_d["keep_docstrings"] = false;
+            ρσ_d["discard_asserts"] = false;
+            ρσ_d["module_cache_dir"] = "";
+            ρσ_d["js_version"] = 6;
+            ρσ_d["write_name"] = true;
+            return ρσ_d;
+        }).call(this);
+        function OutputStream() {
+            if (this.ρσ_object_id === undefined) Object.defineProperty(this, "ρσ_object_id", {"value":++ρσ_object_counter});
+            OutputStream.prototype.__init__.apply(this, arguments);
+        }
+        OutputStream.prototype.__init__ = function __init__(options) {
+            var self = this;
+            self.options = defaults(options, output_stream_defaults, true);
+            self._indentation = 0;
+            self.current_col = 0;
+            self.current_line = 1;
+            self.current_pos = 0;
+            self._fragments = [];
+            self.might_need_space = false;
+            self.might_need_semicolon = false;
+            self._last = null;
+            self._stack = [];
+            self.index_counter = 0;
+            self.with_counter = 0;
+            self.try_else_counter = 0;
+            self._source_map_segments = (self.options.source_map) ? [] : null;
+            self._indent_cache_val = -1;
+            self._indent_cache_str = "";
+            if (!self.options.source_map) {
+                self.add_mapping = (function() {
+                    var ρσ_anonfunc = function (node) {
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["node"]},
+                        __module__ : {value: "output.stream"}
+                    });
+                    return ρσ_anonfunc;
+                })();
+            }
+        };
+        if (!OutputStream.prototype.__init__.__argnames__) Object.defineProperties(OutputStream.prototype.__init__, {
+            __argnames__ : {value: ["options"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.__argnames__ = OutputStream.prototype.__init__.__argnames__;
+        OutputStream.__handles_kwarg_interpolation__ = OutputStream.prototype.__init__.__handles_kwarg_interpolation__;
+        OutputStream.prototype.new_try_else_counter = function new_try_else_counter() {
+            var self = this;
+            self.try_else_counter += 1;
+            return "ρσ_try_else_" + self.try_else_counter;
+        };
+        if (!OutputStream.prototype.new_try_else_counter.__module__) Object.defineProperties(OutputStream.prototype.new_try_else_counter, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.make_name = function make_name(name) {
+            var self = this;
+            name = name.toString();
+            if (self.options.ascii_only) {
+                name = to_ascii(name, true);
+            }
+            return name;
+        };
+        if (!OutputStream.prototype.make_name.__argnames__) Object.defineProperties(OutputStream.prototype.make_name, {
+            __argnames__ : {value: ["name"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.print_name = function print_name(name) {
+            var self = this;
+            self.print(self.make_name(name));
+        };
+        if (!OutputStream.prototype.print_name.__argnames__) Object.defineProperties(OutputStream.prototype.print_name, {
+            __argnames__ : {value: ["name"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.make_indent = function make_indent(back) {
+            var self = this;
+            var target, s;
+            target = self.options.indent_start + self._indentation - (back || 0) * self.options.indent_level;
+            if ((target === self._indent_cache_val || typeof target === "object" && ρσ_equals(target, self._indent_cache_val))) {
+                return self._indent_cache_str;
+            }
+            s = repeat_string(" ", target);
+            self._indent_cache_val = target;
+            self._indent_cache_str = s;
+            return s;
+        };
+        if (!OutputStream.prototype.make_indent.__argnames__) Object.defineProperties(OutputStream.prototype.make_indent, {
+            __argnames__ : {value: ["back"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.last_char = function last_char() {
+            var self = this;
+            return self._last.charAt(self._last.length - 1);
+        };
+        if (!OutputStream.prototype.last_char.__module__) Object.defineProperties(OutputStream.prototype.last_char, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.maybe_newline = function maybe_newline() {
+            var self = this;
+            if (self.options.max_line_len && self.current_col > self.options.max_line_len) {
+                self.print("\n");
+            }
+        };
+        if (!OutputStream.prototype.maybe_newline.__module__) Object.defineProperties(OutputStream.prototype.maybe_newline, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.print = function print(str_) {
+            var self = this;
+            var ch, target_line, prev, a, n;
+            str_ = String(str_);
+            ch = str_.charAt(0);
+            if (self.might_need_semicolon) {
+                if ((!ch || ";}".indexOf(ch) < 0) && !/[;]$/.test(self._last)) {
+                    if (self.options.semicolons || require_semi_colon_chars[(typeof ch === "number" && ch < 0) ? require_semi_colon_chars.length + ch : ch]) {
+                        self._fragments.push(";");
+                        self.current_col += 1;
+                        self.current_pos += 1;
+                    } else {
+                        self._fragments.push("\n");
+                        self.current_pos += 1;
+                        self.current_line += 1;
+                        self.current_col = 0;
+                    }
+                    if (!self.options.beautify) {
+                        self.might_need_space = false;
+                    }
+                }
+                self.might_need_semicolon = false;
+                self.maybe_newline();
+            }
+            if (!self.options.beautify && self.options.preserve_line && (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 1, ρσ_expr_temp)]) {
+                target_line = (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 1, ρσ_expr_temp)].start.line;
+                while (self.current_line < target_line) {
+                    self._fragments.push("\n");
+                    self.current_pos += 1;
+                    self.current_line += 1;
+                    self.current_col = 0;
+                    self.might_need_space = false;
+                }
+            }
+            if (self.might_need_space) {
+                prev = self.last_char();
+                if (_is_ident_char(prev) && (_is_ident_char(ch) || ch === "\\") || /^[\+\-\/]$/.test(ch) && ch === prev) {
+                    self._fragments.push(" ");
+                    self.current_col += 1;
+                    self.current_pos += 1;
+                }
+                self.might_need_space = false;
+            }
+            self.current_pos += str_.length;
+            if (str_.indexOf("\n") < 0) {
+                self.current_col += str_.length;
+            } else {
+                a = str_.split("\n");
+                n = a.length - 1;
+                self.current_line += n;
+                self.current_col = a[n].length;
+            }
+            self._last = str_;
+            self._fragments.push(str_);
+        };
+        if (!OutputStream.prototype.print.__argnames__) Object.defineProperties(OutputStream.prototype.print, {
+            __argnames__ : {value: ["str_"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.space = function space() {
+            var self = this;
+            if (self.options.beautify) {
+                self.print(" ");
+            } else {
+                self.might_need_space = true;
+            }
+        };
+        if (!OutputStream.prototype.space.__module__) Object.defineProperties(OutputStream.prototype.space, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.indent = function indent(half) {
+            var self = this;
+            if (self.options.beautify) {
+                self.print(self.make_indent((half) ? .5 : 0));
+            }
+        };
+        if (!OutputStream.prototype.indent.__argnames__) Object.defineProperties(OutputStream.prototype.indent, {
+            __argnames__ : {value: ["half"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.with_indent = function with_indent(col, proceed) {
+            var self = this;
+            var save_indentation, ret;
+            if (self.options.beautify) {
+                if (col === true) {
+                    col = self.next_indent();
+                }
+                save_indentation = self._indentation;
+                self._indentation = col;
+                ret = proceed();
+                self._indentation = save_indentation;
+                return ret;
+            } else {
+                return proceed();
+            }
+        };
+        if (!OutputStream.prototype.with_indent.__argnames__) Object.defineProperties(OutputStream.prototype.with_indent, {
+            __argnames__ : {value: ["col", "proceed"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.indentation = function indentation() {
+            var self = this;
+            return self._indentation;
+        };
+        if (!OutputStream.prototype.indentation.__module__) Object.defineProperties(OutputStream.prototype.indentation, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.set_indentation = function set_indentation(val) {
+            var self = this;
+            if (self.options.beautify) {
+                self._indentation = val;
+            }
+        };
+        if (!OutputStream.prototype.set_indentation.__argnames__) Object.defineProperties(OutputStream.prototype.set_indentation, {
+            __argnames__ : {value: ["val"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.newline = function newline() {
+            var self = this;
+            if (self.options.beautify) {
+                self.print("\n");
+            }
+        };
+        if (!OutputStream.prototype.newline.__module__) Object.defineProperties(OutputStream.prototype.newline, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.semicolon = function semicolon() {
+            var self = this;
+            if (self.options.beautify) {
+                self.print(";");
+            } else {
+                self.might_need_semicolon = true;
+            }
+        };
+        if (!OutputStream.prototype.semicolon.__module__) Object.defineProperties(OutputStream.prototype.semicolon, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.force_semicolon = function force_semicolon() {
+            var self = this;
+            self.might_need_semicolon = false;
+            self.print(";");
+        };
+        if (!OutputStream.prototype.force_semicolon.__module__) Object.defineProperties(OutputStream.prototype.force_semicolon, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.next_indent = function next_indent() {
+            var self = this;
+            return self._indentation + self.options.indent_level;
+        };
+        if (!OutputStream.prototype.next_indent.__module__) Object.defineProperties(OutputStream.prototype.next_indent, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.spaced = function spaced() {
+            var self = this;
+            for (var i=0; i < arguments.length; i++) {
+                if (i > 0) {
+                    self.space();
+                }
+                if (typeof arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].print === "function") {
+                    arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i].print(self);
+                } else {
+                    self.print(arguments[(typeof i === "number" && i < 0) ? arguments.length + i : i]);
+                }
+            }
+        };
+        if (!OutputStream.prototype.spaced.__module__) Object.defineProperties(OutputStream.prototype.spaced, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.end_statement = function end_statement() {
+            var self = this;
+            self.semicolon();
+            self.newline();
+        };
+        if (!OutputStream.prototype.end_statement.__module__) Object.defineProperties(OutputStream.prototype.end_statement, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.with_block = function with_block(cont) {
+            var self = this;
+            var ret;
+            ret = null;
+            self.print("{");
+            self.newline();
+            self.with_indent(self.next_indent(), (function() {
+                var ρσ_anonfunc = function () {
+                    ret = cont();
+                };
+                if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                    __module__ : {value: "output.stream"}
+                });
+                return ρσ_anonfunc;
+            })());
+            self.indent();
+            self.print("}");
+            return ret;
+        };
+        if (!OutputStream.prototype.with_block.__argnames__) Object.defineProperties(OutputStream.prototype.with_block, {
+            __argnames__ : {value: ["cont"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.with_parens = function with_parens(cont) {
+            var self = this;
+            var ret;
+            self.print("(");
+            ret = cont();
+            self.print(")");
+            return ret;
+        };
+        if (!OutputStream.prototype.with_parens.__argnames__) Object.defineProperties(OutputStream.prototype.with_parens, {
+            __argnames__ : {value: ["cont"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.with_square = function with_square(cont) {
+            var self = this;
+            var ret;
+            self.print("[");
+            ret = cont();
+            self.print("]");
+            return ret;
+        };
+        if (!OutputStream.prototype.with_square.__argnames__) Object.defineProperties(OutputStream.prototype.with_square, {
+            __argnames__ : {value: ["cont"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.comma = function comma() {
+            var self = this;
+            self.print(",");
+            self.space();
+        };
+        if (!OutputStream.prototype.comma.__module__) Object.defineProperties(OutputStream.prototype.comma, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.colon = function colon() {
+            var self = this;
+            self.print(":");
+            if (self.options.space_colon) {
+                self.space();
+            }
+        };
+        if (!OutputStream.prototype.colon.__module__) Object.defineProperties(OutputStream.prototype.colon, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.get = function get() {
+            var self = this;
+            return self._fragments.join("");
+        };
+        if (!OutputStream.prototype.get.__module__) Object.defineProperties(OutputStream.prototype.get, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.assign = function assign(name) {
+            var self = this;
+            if (typeof name === "string") {
+                self.print(name);
+            } else {
+                name.print(self);
+            }
+            self.space();
+            self.print("=");
+            self.space();
+        };
+        if (!OutputStream.prototype.assign.__argnames__) Object.defineProperties(OutputStream.prototype.assign, {
+            __argnames__ : {value: ["name"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.current_width = function current_width() {
+            var self = this;
+            return self.current_col - self._indentation;
+        };
+        if (!OutputStream.prototype.current_width.__module__) Object.defineProperties(OutputStream.prototype.current_width, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.should_break = function should_break() {
+            var self = this;
+            return self.options.width && self.current_width() >= self.options.width;
+        };
+        if (!OutputStream.prototype.should_break.__module__) Object.defineProperties(OutputStream.prototype.should_break, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.last = function last() {
+            var self = this;
+            return self._last;
+        };
+        if (!OutputStream.prototype.last.__module__) Object.defineProperties(OutputStream.prototype.last, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.print_string = function print_string(str_) {
+            var self = this;
+            self.print(encode_string(str_));
+        };
+        if (!OutputStream.prototype.print_string.__argnames__) Object.defineProperties(OutputStream.prototype.print_string, {
+            __argnames__ : {value: ["str_"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.line = function line() {
+            var self = this;
+            return self.current_line;
+        };
+        if (!OutputStream.prototype.line.__module__) Object.defineProperties(OutputStream.prototype.line, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.col = function col() {
+            var self = this;
+            return self.current_col;
+        };
+        if (!OutputStream.prototype.col.__module__) Object.defineProperties(OutputStream.prototype.col, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.pos = function pos() {
+            var self = this;
+            return self.current_pos;
+        };
+        if (!OutputStream.prototype.pos.__module__) Object.defineProperties(OutputStream.prototype.pos, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.push_node = function push_node(node) {
+            var self = this;
+            self._stack.push(node);
+        };
+        if (!OutputStream.prototype.push_node.__argnames__) Object.defineProperties(OutputStream.prototype.push_node, {
+            __argnames__ : {value: ["node"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.pop_node = function pop_node() {
+            var self = this;
+            return self._stack.pop();
+        };
+        if (!OutputStream.prototype.pop_node.__module__) Object.defineProperties(OutputStream.prototype.pop_node, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.stack = function stack() {
+            var self = this;
+            return self._stack;
+        };
+        if (!OutputStream.prototype.stack.__module__) Object.defineProperties(OutputStream.prototype.stack, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.parent = function parent(n) {
+            var self = this;
+            return (ρσ_expr_temp = self._stack)[ρσ_bound_index(self._stack.length - 2 - (n || 0), ρσ_expr_temp)];
+        };
+        if (!OutputStream.prototype.parent.__argnames__) Object.defineProperties(OutputStream.prototype.parent, {
+            __argnames__ : {value: ["n"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.add_mapping = function add_mapping(node) {
+            var self = this;
+            if (self._source_map_segments !== null && node.start && node.start.file) {
+                self._source_map_segments.push([self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col]);
+            }
+        };
+        if (!OutputStream.prototype.add_mapping.__argnames__) Object.defineProperties(OutputStream.prototype.add_mapping, {
+            __argnames__ : {value: ["node"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.add_cached_mappings = function add_cached_mappings(segments, line_offset) {
+            var self = this;
+            var seg;
+            if (self._source_map_segments === null) {
+                return;
+            }
+            var ρσ_Iter130 = segments;
+            ρσ_Iter130 = ((typeof ρσ_Iter130[Symbol.iterator] === "function") ? (ρσ_Iter130 instanceof Map ? ρσ_Iter130.keys() : ρσ_Iter130) : Object.keys(ρσ_Iter130));
+            for (var ρσ_Index130 of ρσ_Iter130) {
+                seg = ρσ_Index130;
+                self._source_map_segments.push([seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]);
+            }
+        };
+        if (!OutputStream.prototype.add_cached_mappings.__argnames__) Object.defineProperties(OutputStream.prototype.add_cached_mappings, {
+            __argnames__ : {value: ["segments", "line_offset"]},
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.get_source_map_segments = function get_source_map_segments() {
+            var self = this;
+            return self._source_map_segments;
+        };
+        if (!OutputStream.prototype.get_source_map_segments.__module__) Object.defineProperties(OutputStream.prototype.get_source_map_segments, {
+            __module__ : {value: "output.stream"}
+        });
+        OutputStream.prototype.__repr__ = function __repr__ () {
+                        return "<" + __name__ + "." + this.constructor.name + " #" + this.ρσ_object_id + ">";
+        };
+        OutputStream.prototype.__str__ = function __str__ () {
+            return this.__repr__();
+        };
+        Object.defineProperty(OutputStream.prototype, "__bases__", {value: []});
+        OutputStream.prototype.toString = OutputStream.prototype.get;
+
+        ρσ_modules["output.stream"].DANGEROUS = DANGEROUS;
+        ρσ_modules["output.stream"]._IDENT_CHARS = _IDENT_CHARS;
+        ρσ_modules["output.stream"].require_semi_colon_chars = require_semi_colon_chars;
+        ρσ_modules["output.stream"].output_stream_defaults = output_stream_defaults;
+        ρσ_modules["output.stream"]._is_ident_char = _is_ident_char;
+        ρσ_modules["output.stream"].as_hex = as_hex;
+        ρσ_modules["output.stream"].to_ascii = to_ascii;
+        ρσ_modules["output.stream"].encode_string = encode_string;
+        ρσ_modules["output.stream"].OutputStream = OutputStream;
     })();
 
     (function(){
