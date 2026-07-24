@@ -22,6 +22,14 @@ mul = None
 assrt.equal(add(1,2), 3)
 assrt.equal(sub(1,2), -1)
 assrt.equal(mul(2,2), 4)
+
+# newline as implicit comma separator in function calls
+assrt.equal(add(1
+2), 3)
+assrt.equal(sub(1
+2), -1)
+assrt.equal(add(list().length
+list().length), 0)
 # for some reason input to throws must be of type block, hence the 'def' wrapper
 assrt.throws(
     def():

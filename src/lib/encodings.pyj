@@ -120,9 +120,7 @@ def utf8_decode(bytes, errors, replacement):
     for v'var i = 0, l = bytes.length; i < l; i++':  # noqa
         byte = bytes[i]
         typ = utf8_decoder_table[byte]
-        codep = (
-            ((byte & 0x3f) | (codep << 6)) if state is not 0 else ((0xff >> typ) & (byte))
-        )
+        codep = (((byte & 0x3f) | (codep << 6)) if state is not 0 else ((0xff >> typ) & (byte)))
         state = utf8_decoder_table[256 + state * 16 + typ]
         if state is 0:
             ans.push(_from_code_point(codep))

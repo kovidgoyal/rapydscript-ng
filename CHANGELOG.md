@@ -1,6 +1,7 @@
 version 0.8.4
 ================
   * Fix LSP ignoring globals: comments
+  * Fix function call separated by new lines in tuples not being parsed
 
 version 0.8.3
 =======================

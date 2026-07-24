@@ -1919,10 +1919,12 @@ def create_parser_ctx(
         if is_('punc'):
             tmp_ = start.value
             if tmp_ is '(':
+                prev_parens = S.in_parenthesized_expr
                 S.in_parenthesized_expr = True
                 next()
                 if is_('punc', ')'):
                     next()
+                    S.in_parenthesized_expr = prev_parens
                     return new AST_Array({'elements': []})
                 ex = await expression(True)
                 if is_('keyword', 'for'):
@@ -1930,7 +1932,7 @@ def create_parser_ctx(
                         new AST_GeneratorComprehension({'statement': ex}),
                         ')'
                     )
-                    S.in_parenthesized_expr = False
+                    S.in_parenthesized_expr = prev_parens
                     return ret
                 ex.start = start
                 ex.end = S.token
@@ -1940,7 +1942,7 @@ def create_parser_ctx(
                     expect(')')
                 if is_node_type(ex, AST_UnaryPrefix):
                     ex.parenthesized = True
-                S.in_parenthesized_expr = False
+                S.in_parenthesized_expr = prev_parens
                 return await subscripts(ex, allow_calls)
             elif tmp_ is '[':
                 return await subscripts(await array_(), allow_calls)
@@ -2048,9 +2050,12 @@ def create_parser_ctx(
         single_comprehension = False
         while not is_('punc', ')') and not is_('eof'):
             if not first:
-                expect(',')
-                if is_('punc', ')'):
-                    break
+                if S.token.nlb and not is_('punc', ','):
+                    pass
+                else:
+                    expect(',')
+                    if is_('punc', ')'):
+                        break
             if is_('operator', '*'):
                 next()
                 arg = await expression(False)
@@ -2428,6 +2433,7 @@ def create_parser_ctx(
 
     async def call_(expr):
         start = expr.start
+        prev_parens = S.in_parenthesized_expr
         S.in_parenthesized_expr = True
         next()
         if not expr.parens and get_class_in_scope(expr):
@@ -2439,7 +2445,7 @@ def create_parser_ctx(
                 'args': call_args,
                 'end': prev()
             }), True)
-            S.in_parenthesized_expr = False
+            S.in_parenthesized_expr = prev_parens
             return ret
         else:
             if is_node_type(expr, AST_Dot):
@@ -2458,7 +2464,7 @@ def create_parser_ctx(
                     'args': classcall_args,
                     'end': prev()
                 }), True)
-                S.in_parenthesized_expr = False
+                S.in_parenthesized_expr = prev_parens
                 return ret
             elif is_node_type(expr, AST_SymbolRef):
                 tmp_ = expr.name
@@ -2470,7 +2476,7 @@ def create_parser_ctx(
                         'expression': jstype_args.args[0].value,
                         'end': prev()
                     })
-                    S.in_parenthesized_expr = False
+                    S.in_parenthesized_expr = prev_parens
                     return ret
                 elif tmp_ is 'isinstance':
                     args = await func_call_list()
@@ -2486,7 +2492,7 @@ def create_parser_ctx(
                         'right': args.args[1].value,
                         'end': prev()
                     })
-                    S.in_parenthesized_expr = False
+                    S.in_parenthesized_expr = prev_parens
                     return ret
 
             # fall-through to basic function call
@@ -2497,7 +2503,7 @@ def create_parser_ctx(
                 'args': basic_args,
                 'end': prev()
             }), True)
-            S.in_parenthesized_expr = False
+            S.in_parenthesized_expr = prev_parens
             return ret
 
     async def get_attr(expr, allow_calls):
@@ -2714,10 +2720,13 @@ def create_parser_ctx(
         if commas:
             left = v'[ expr ]'
             while is_(
-                'punc',
-                ','
-            ) and (not peek().nlb or S.in_parenthesized_expr):
-                next()
+                'punc', ','
+            ) and (not peek().nlb or S.in_parenthesized_expr) or (
+                S.in_parenthesized_expr and S.token.nlb
+                and not is_('punc', ')')
+            ):
+                if is_('punc', ','):
+                    next()
                 if is_node_type(expr, AST_Assign):
                     left[-1] = left[-1].left
                     seq_cdr = await expression(True, no_in)

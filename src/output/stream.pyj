@@ -11,6 +11,7 @@ DANGEROUS = RegExp(
     '\\ufeff\\ufff0-\\uffff]', 'g'
 )
 
+
 # Pre-computed ASCII lookup for identifier characters used in the space-emission
 # hot path. Avoids the full unicode-aware is_identifier_char() for the
 # common case.

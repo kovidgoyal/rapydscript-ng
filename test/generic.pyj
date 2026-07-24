@@ -48,6 +48,15 @@ assrt.deepEqual((1,
 assrt.deepEqual((1,
                  2), [1, 2])
 
+# Tuples with newlines as implicit separators (no comma)
+assrt.deepEqual((1
+2), [1, 2])
+assrt.deepEqual((list()
+list()), [[], []])
+assrt.deepEqual((1
+2
+3), [1, 2, 3])
+
 # Conditional operators
 assrt.equal(1 if True else 2, 1)
 assrt.equal(1
