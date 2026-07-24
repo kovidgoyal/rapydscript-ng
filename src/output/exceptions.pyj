@@ -9,10 +9,15 @@ def print_try(self, output):
     else_var_name = None
 
     def update_output_var(output):
-        output.indent(), output.assign(else_var_name), output.print('true'), output.end_statement()
+        output.indent()
+        output.assign(else_var_name)
+        output.print('true'), output.end_statement()
     if self.belse:
         else_var_name = output.new_try_else_counter()
-        output.assign('var ' + else_var_name), output.print('false'), output.end_statement(), output.indent()
+        output.assign('var ' + else_var_name)
+        output.print('false')
+        output.end_statement()
+        output.indent()
     output.print('try')
     output.space()
     print_bracketed(
@@ -44,7 +49,8 @@ def print_catch(self, output):
     output.space()
     output.with_block(def ():
         output.indent()
-        output.spaced('ρσ_last_exception', '=', 'ρσ_Exception'), output.end_statement()
+        output.spaced('ρσ_last_exception', '=', 'ρσ_Exception')
+        output.end_statement()
         output.indent()
         no_default = True
         for i, exception in enumerate(self.body):

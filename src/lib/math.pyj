@@ -10,9 +10,10 @@
 
 # basic implementation of Python's 'math' library
 
-# NOTE: this is only meant to aid those porting lots of Python code into RapydScript,
-# if you're writing a new RapydScript application, in most cases you probably want to
-# use JavaScript's Math module directly instead
+# NOTE: this is only meant to aid those porting lots of Python code
+# into RapydScript, if you're writing a new RapydScript application,
+# in most cases you probably want to use JavaScript's Math module
+# directly instead
 
 
 pi = Math.PI
@@ -57,14 +58,16 @@ def floor(x):
 
 
 def fmod(x, y):
-    # javascript's % operator isn't consistent with C fmod implementation, this function is
+    # javascript's % operator isn't consistent with C fmod
+    # implementation, this function is
     while y <= x:
         x -= y
     return x
 
 
 def fsum(iterable):
-    # like Python's fsum, this method is much more resilient to rounding errors than regular sum
+    # like Python's fsum, this method is much more resilient to
+    # rounding errors than regular sum
     partials = []  # sorted, non-overlapping partial sums
     for x in iterable:
         i = 0
@@ -107,8 +110,9 @@ def exp(x):
 
 
 def expm1(x):
-    # NOTE: Math.expm1() is currently only implemented in Firefox, this provides alternative implementation
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/expm1
+    # NOTE: Math.expm1() is only in Firefox; this provides an alternative
+    # implementation. See MDN: https://developer.mozilla.org/en-US/docs/
+    #   Web/JavaScript/Reference/Global_Objects/Math/expm1
     # return Math.expm1(x)
     if Math.abs(x) < 1e-5:
         return x + 0.5 * x * x
@@ -121,10 +125,12 @@ def log(x, base=e):
 
 
 def log1p(x):
-    # NOTE: Math.log1p() is currently only implemented in Firefox, this provides alternative implementation
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p
+    # NOTE: Math.log1p() is only in Firefox; this provides an alternative
+    # implementation. See MDN: https://developer.mozilla.org/en-US/docs/
+    #   Web/JavaScript/Reference/Global_Objects/Math/log1p
     # this version has been taken from http://phpjs.org/functions/log1p/
-    # admittedly it's not as accurate as MDN version, as you can see from math.log1p(1) result
+    # admittedly it's not as accurate as MDN version, as you can see
+    # from math.log1p(1) result
     ret = 0
     n = 50
     if x <= -1:
@@ -140,9 +146,11 @@ def log1p(x):
 
 
 def log10(x):
-    # NOTE: Math.log10() is currently only implemented in Firefox, this provides alternative implementation
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log10
-    # I didn't find a more accurate algorithm so I'm using the basic implementation
+    # NOTE: Math.log10() is only in Firefox; this provides an alternative
+    # implementation. See MDN: https://developer.mozilla.org/en-US/docs/
+    #   Web/JavaScript/Reference/Global_Objects/Math/log10
+    # I didn't find a more accurate algorithm so I'm using the
+    # basic implementation
     return Math.log(x) / Math.LN10
 
 
@@ -199,37 +207,43 @@ def radians(x): return x * pi / 180
 ########################################
 def acosh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/acosh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/acosh
     return Math.log(x + Math.sqrt(x * x - 1))
 
 
 def asinh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/asinh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/asinh
     return Math.log(x + Math.sqrt(x * x + 1))
 
 
 def atanh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/atanh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/atanh
     return 0.5 * Math.log((1 + x) / (1 - x))
 
 
 def cosh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/cosh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/cosh
     return (Math.exp(x) + Math.exp(-x)) / 2
 
 
 def sinh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/sinh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/sinh
     return (Math.exp(x) - Math.exp(-x)) / 2
 
 
 def tanh(x):
     # NOTE: will be replaced with official, when it becomes mainstream
-    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/tanh
+    # https://developer.mozilla.org/en-US/docs/Web/JavaScript/
+    #   Reference/Global_Objects/Math/tanh
     return (Math.exp(x) - Math.exp(-x)) / (Math.exp(x) + Math.exp(-x))
 
     # import stdlib
@@ -249,6 +263,8 @@ def tanh(x):
     # print(math.log(10), math.log(10, 1000))
     # print(math.log1p(1e-15), math.log1p(1))
     # print(math.log10(1000), math.log(1000, 10))
-    # print(math.pow(1, 0), math.pow(1, NaN), math.pow(0, 0), math.pow(NaN, 0), math.pow(4,3), math.pow(100, -2))
+    # print(math.pow(1, 0), math.pow(1, NaN), math.pow(0, 0),
+    #       math.pow(NaN, 0), math.pow(4,3), math.pow(100, -2))
     # print(math.hypot(3,4))
-    # print(math.acosh(2), math.asinh(1), math.atanh(0.5), math.cosh(1), math.cosh(-1), math.sinh(1), math.tanh(1))
+    # print(math.acosh(2), math.asinh(1), math.atanh(0.5),
+    #       math.cosh(1), math.cosh(-1), math.sinh(1), math.tanh(1))

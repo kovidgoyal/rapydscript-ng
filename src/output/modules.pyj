@@ -42,7 +42,8 @@ def write_imports(module, output):
                 output.print('ρσ_modules.' + module_id)
             else:
                 output.print('ρσ_modules["' + module_id + '"]')
-            output.space(), output.print('='), output.space(), output.print('{}')
+            output.space(), output.print('=')
+            output.space(), output.print('{}')
             output.end_statement()
 
     # Output module code
@@ -63,7 +64,8 @@ def write_main_name(output):
 
 def const_decl(js_version):
     # return 'const' if js_version > 5 else 'var'
-    # Workaround for bug in Chrome eval(). eval() barfs if it sees const before a function.
+    # Workaround for bug in Chrome eval(). eval() barfs if it sees const
+    # before a function.
     # See https://github.com/kovidgoyal/rapydscript-ng/issues/29
     return 'var'
 
@@ -74,7 +76,8 @@ def declare_exports(module_id, exports, output, docstrings):
         exports.push({'name': '__doc__', 'refname': 'ρσ_module_doc__'})
         output.newline(), output.indent()
         v = const_decl(output.options.js_version)
-        output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(docstrings)))
+        output.assign(v + ' ρσ_module_doc__')
+        output.print(JSON.stringify(create_doctring(docstrings)))
         output.end_statement()
     output.newline()
     for symbol in exports:
@@ -84,7 +87,8 @@ def declare_exports(module_id, exports, output, docstrings):
                 output.print('ρσ_modules.' + module_id + '.' + symbol.name)
             else:
                 output.print('ρσ_modules["' + module_id + '"].' + symbol.name)
-            output.space(), output.print('='), output.space(), output.print(symbol.refname or symbol.name)
+            output.space(), output.print('=')
+            output.space(), output.print(symbol.refname or symbol.name)
             seen[symbol.name] = True
             output.end_statement()
 
@@ -98,13 +102,22 @@ def prologue(module, output):
     output.print(v), output.space()
     output.spaced.apply(
         output,
-        (('ρσ_iterator_symbol = (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") ? Symbol.iterator : "iterator-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' ')))
+        ((
+            'ρσ_iterator_symbol = (typeof Symbol === "function"' +
+            ' && typeof Symbol.iterator === "symbol") ?' +
+            ' Symbol.iterator : "iterator-Symbol-' +
+            '5d0927e5554349048cf0e3762a228256"'
+        ).split(' '))
     )
     output.end_statement()
     output.indent(), output.print(v), output.space()
     output.spaced.apply(
         output,
-        (('ρσ_kwargs_symbol = (typeof Symbol === "function") ? Symbol("kwargs-object") : "kwargs-object-Symbol-5d0927e5554349048cf0e3762a228256"'.split(' ')))
+        ((
+            'ρσ_kwargs_symbol = (typeof Symbol === "function") ?' +
+            ' Symbol("kwargs-object") : "kwargs-object-Symbol-' +
+            '5d0927e5554349048cf0e3762a228256"'
+        ).split(' '))
     )
     output.end_statement()
     output.indent(), output.spaced(
@@ -142,7 +155,10 @@ def prologue(module, output):
     output.end_statement()
     # output the baselib
     if not output.options.baselib_plain:
-        raise ValueError('The baselib is missing! Remember to set the baselib_plain field on the options for OutputStream')
+        raise ValueError(
+            'The baselib is missing! Remember to set the' +
+            ' baselib_plain field on the options for OutputStream'
+        )
     output.print(output.options.baselib_plain)
     output.end_statement()
 
@@ -152,17 +168,20 @@ def print_top_level(self, output):
     is_main = self.module_id is '__main__'
 
     def write_docstrings():
-        if is_main and output.options.keep_docstrings and self.docstrings and self.docstrings.length:
+        if (is_main and output.options.keep_docstrings
+                and self.docstrings and self.docstrings.length):
             output.newline(), output.indent()
             v = const_decl(output.options.js_version)
-            output.assign(v + ' ρσ_module_doc__'), output.print(JSON.stringify(create_doctring(self.docstrings)))
+            output.assign(v + ' ρσ_module_doc__')
+            output.print(JSON.stringify(create_doctring(self.docstrings)))
             output.end_statement()
 
     if output.options.private_scope and is_main:
         output.with_parens(def ():
             output.print('function()')
             output.with_block(def ():
-                # strict mode is more verbose about errors, and less forgiving about them
+                # strict mode is more verbose about errors, and less
+                # forgiving about them
                 # kind of like Python
                 output.indent()
                 output.print('"use strict"')

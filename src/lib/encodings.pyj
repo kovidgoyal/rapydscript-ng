@@ -7,7 +7,10 @@ def base64encode(bytes, altchars, pad_char):
     l = bytes.length
     remainder = l % 3
     main_length = l - remainder
-    encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' + (altchars or '+/')
+    encodings = (
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789' +
+        (altchars or '+/')
+    )
     pad_char = '=' if pad_char is undefined else pad_char
     ans = v'[]'
     for v'var i = 0; i < main_length; i += 3':
@@ -55,7 +58,9 @@ def urlsafe_b64encode(bytes, pad_char):
 
 
 def urlsafe_b64decode(string):
-    string = String.prototype.replace.call(string, /[_-]/g, def (m): return '+' if m is '-' else '/';)
+    string = String.prototype.replace.call(
+        string, /[_-]/g, def (m): return '+' if m is '-' else '/';
+    )
     return base64decode(string)
 
 
@@ -114,13 +119,18 @@ def utf8_decode(bytes, errors, replacement):
     for v'var i = 0, l = bytes.length; i < l; i++':  # noqa
         byte = bytes[i]
         typ = utf8_decoder_table[byte]
-        codep = (byte & 0x3f) | (codep << 6) if state is not 0 else (0xff >> typ) & (byte)
+        codep = (
+            ((byte & 0x3f) | (codep << 6)) if state is not 0 else ((0xff >> typ) & (byte))
+        )
         state = utf8_decoder_table[256 + state * 16 + typ]
         if state is 0:
             ans.push(_from_code_point(codep))
         elif state is 1:
             if not errors or errors is 'strict':
-                raise UnicodeDecodeError(str.format('The byte 0x{:02x} at position {} is not valid UTF-8', byte, i))
+                raise UnicodeDecodeError(str.format(
+                    'The byte 0x{:02x} at position {} is not valid UTF-8',
+                    byte, i
+                ))
             elif errors is 'replace':
                 ans.push(replacement or '?')
     return ans.join('')

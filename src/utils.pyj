@@ -2,7 +2,8 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
+has_prop = Object.prototype.hasOwnProperty.call.bind(
+    Object.prototype.hasOwnProperty)
 
 
 def array_to_hash(a):
@@ -43,7 +44,8 @@ class DefaultsError(ValueError):
     def __init__(self, name, defs):
         ValueError.__init__(
             self,
-            name + ' is not a supported option. Supported options are: ' + str(Object.keys(defs))
+            name + ' is not a supported option. Supported options are: '
+            + str(Object.keys(defs))
         )
 
 

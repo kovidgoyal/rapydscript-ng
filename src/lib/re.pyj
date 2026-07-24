@@ -504,7 +504,8 @@ _re_cache_map = {}
 _re_cache_items = v'[]'
 
 error = SyntaxError  # This is the error JS throws for invalid regexps
-has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
+has_prop = Object.prototype.hasOwnProperty.call.bind(
+    Object.prototype.hasOwnProperty)
 
 
 def _expand(groups, repl, group_name_map):
@@ -644,7 +645,9 @@ def transform_regex(source, flags):
 
         if ch is '[':
             in_class = True
-            if source[pos] is ']':  # in python the empty set is not allowed, instead []] is the same as [\]]
+            # in python the empty set is not allowed,
+            # instead []] is the same as [\]]
+            if source[pos] is ']':
                 pos += 1
                 ch = r'[\]'
         elif ch is '(':
@@ -678,14 +681,19 @@ def transform_regex(source, flags):
                     pos = close + 1
                     continue
                 if extension is '(':
-                    raise SyntaxError('Group existence assertions are not supported in JavaScript')
+                    raise SyntaxError(
+                        'Group existence assertions are not '
+                        + 'supported in JavaScript'
+                    )
                 if extension is 'P':
                     pos += 2
                     q = source[pos]
                     if q is '<':
                         close = source.indexOf('>', pos)
                         if close is -1:
-                            raise SyntaxError('Named group not closed, expecting >')
+                            raise SyntaxError(
+                                'Named group not closed, expecting >'
+                            )
                         name = source[pos + 1:close]
                         if not has_prop(group_map, name):
                             group_map[name] = v'[]'
@@ -694,13 +702,20 @@ def transform_regex(source, flags):
                     elif q is '=':
                         close = source.indexOf(')', pos)
                         if close is -1:
-                            raise SyntaxError('Named group back-reference not closed, expecting a )')
+                            raise SyntaxError(
+                                'Named group back-reference not closed,'
+                                + ' expecting a )'
+                            )
                         name = source[pos + 1:close]
                         if not isNaN(parseInt(name, 10)):
                             ans += '\\' + name
                         else:
                             if not has_prop(group_map, name):
-                                raise SyntaxError('Invalid back-reference. The named group: ' + name + ' has not yet been defined.')
+                                raise SyntaxError(
+                                    'Invalid back-reference. The named group: '
+                                    + name
+                                    + ' has not yet been defined.'
+                                )
                             ans += '\\' + group_map[name][-1]
                         pos = close + 1
                         continue
@@ -900,13 +915,15 @@ class RegexObject:
             m = this._r.exec(this._string)
             if m is None:
                 return v"{'done':true}"
-            return v"{'done':false, 'value':new MatchObject(this._self, m, 0, null)}"
+            _mo = MatchObject(this._self, m, 0, None)
+            return v"{'done':false, 'value':_mo}"
         return ans
 
     def subn(self, repl, string, count=0):
         expand = _expand
         if jstype(repl) is 'function':
-            expand = def (m, repl, gnm): return '' + repl(MatchObject(self, m, 0, None))
+            expand = def (m, repl, gnm):
+                return '' + repl(MatchObject(self, m, 0, None))
         this._pattern.lastIndex = 0
         num = 0
         matches = v'[]'

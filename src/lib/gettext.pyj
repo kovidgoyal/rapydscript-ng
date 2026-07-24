@@ -4,7 +4,8 @@
 # noqa: eol-semicolon
 
 # The Plural-Forms parser {{{
-# From: https://github.com/SlexAxton/Jed/blob/master/jed.js licensed under the WTFPL
+# From: https://github.com/SlexAxton/Jed/blob/master/jed.js
+# licensed under the WTFPL
 
 Jed = {}
 
@@ -502,7 +503,8 @@ plural_forms_parser = Jed.PF
 
 
 def _get_plural_forms_function(plural_forms_string):
-    return plural_forms_parser.compile(plural_forms_string or 'nplurals=2; plural=(n != 1);')
+    return plural_forms_parser.compile(
+        plural_forms_string or 'nplurals=2; plural=(n != 1);')
 
 _gettext = def (text): return text
 
@@ -527,7 +529,8 @@ def install(translation_data):
             pass
     return t
 
-has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
+has_prop = Object.prototype.hasOwnProperty.call.bind(
+    Object.prototype.hasOwnProperty)
 
 
 def register_callback(func):

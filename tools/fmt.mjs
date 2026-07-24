@@ -848,13 +848,51 @@ function normalize_opts(options) {
 // check-only reporting
 // ---------------------------------------------------------------------------
 
+// Returns a Set of 0-based line indices that fall inside vr/v verbatim
+// triple-quoted blocks.  The formatter cannot reflow that content (it is
+// raw JS/text), so line-length violations inside those blocks are skipped.
+function verbatim_line_set(lines) {
+    var skip = new Set();
+    var in_block = false;
+    var close_q = null;
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (!in_block) {
+            // Detect the opening of a verbatim triple-quoted block.
+            // Patterns: vr''', vr""", v''', v"""  (with any combination of
+            // v/r/u/f prefix letters, case-insensitive).
+            var m = /\b[vrufVRUF]*(?:'{3}|"{3})/.exec(line);
+            if (m) {
+                var q = m[0].slice(-3);   // ''' or """
+                var after = line.slice(m.index + m[0].length);
+                if (after.indexOf(q) < 0) {
+                    // Block does not close on the same line.
+                    in_block = true;
+                    close_q = q;
+                    skip.add(i);  // opening line itself may be long
+                }
+                // If it closes on the same line we leave skip alone —
+                // the single-line v'...' case is handled per-line below.
+            }
+        } else {
+            skip.add(i);
+            if (line.indexOf(close_q) >= 0) {
+                in_block = false;
+                close_q = null;
+            }
+        }
+    }
+    return skip;
+}
+
 export function check_report(file, src, formatted, options) {
     var opts = normalize_opts(options);
     var errs = [];
     if (formatted !== src.replace(/\r\n?/g, '\n')) errs.push(file + ': would be reformatted');
     var lines = formatted.split('\n');
+    var skip = verbatim_line_set(lines);
     for (var i = 0; i < lines.length; i++) {
-        if (lines[i].length > opts.line_length) {
+        if (!skip.has(i) && lines[i].length > opts.line_length) {
             errs.push(file + ':' + (i + 1) + ': line exceeds ' + opts.line_length + ' characters (' + lines[i].length + ')');
         }
     }
@@ -970,8 +1008,9 @@ export async function cli(argv, base_path, src_path, lib_path) {
                 console.log('reformatted ' + f);
             }
             var flines = formatted.split('\n');
+            var fskip = verbatim_line_set(flines);
             for (var li = 0; li < flines.length; li++) {
-                if (flines[li].length > opts.line_length) {
+                if (!fskip.has(li) && flines[li].length > opts.line_length) {
                     console.error(f + ':' + (li + 1) + ': line exceeds ' + opts.line_length + ' characters (' + flines[li].length + ')');
                     had_errors = true;
                 }

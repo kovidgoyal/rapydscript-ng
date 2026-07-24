@@ -28,7 +28,9 @@ def print_obj_literal(self, output):
             if self.is_pydict:
                 output.spaced.apply(output, 'var ρσ_d = ρσ_dict()'.split(' '))
             else:
-                output.spaced('var', 'ρσ_d', '=', ('Object.create(null)' if self.is_jshash else '{}'))
+                output.spaced(
+                    'var', 'ρσ_d', '=',
+                    ('Object.create(null)' if self.is_jshash else '{}'))
             output.end_statement()
             for i, prop in enumerate(self.properties):
                 output.indent()

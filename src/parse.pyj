@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-# globals: readfile, writefile, stat_file, sha1sum, ast_from_json, ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
+# globals: readfile, writefile, stat_file, sha1sum, ast_from_json,
+# ast_to_json, make_lazy_ast_module, decode_cache, encode_cache
 from __python__ import hash_literals
 
 from ast import (
@@ -92,7 +93,9 @@ from ast import (
 )
 from errors import SyntaxError, ImportError
 from tokenizer import tokenizer, is_token, RESERVED_WORDS
-from utils import make_predicate, array_to_hash, defaults, has_prop, cache_file_name
+from utils import (
+    make_predicate, array_to_hash, defaults, has_prop, cache_file_name
+)
 
 
 COMPILER_VERSION = '__COMPILER_VERSION__'
@@ -124,7 +127,14 @@ NATIVE_CLASSES = {
     'SyntaxError': {},
     'TypeError': {},
     'URIError': {},
-    'Object': {'static': static_predicate('getOwnPropertyNames getOwnPropertyDescriptor getOwnPropertyDescriptors' ' getOwnPropertySymbols keys entries values create defineProperty' ' defineProperties getPrototypeOf setPrototypeOf assign' ' seal isSealed is preventExtensions isExtensible' ' freeze isFrozen')},
+    'Object': {'static': static_predicate(
+        'getOwnPropertyNames getOwnPropertyDescriptor'
+        ' getOwnPropertyDescriptors'
+        ' getOwnPropertySymbols keys entries values create defineProperty'
+        ' defineProperties getPrototypeOf setPrototypeOf assign'
+        ' seal isSealed is preventExtensions isExtensible'
+        ' freeze isFrozen'
+    )},
     'String': {'static': static_predicate('fromCharCode')},
     'Array': {'static': static_predicate('isArray from of')},
     'Function': {},
@@ -197,7 +207,9 @@ PRECEDENCE = (def (a, ret):
 
 STATEMENTS_WITH_LABELS = array_to_hash(['for', 'do', 'while', 'switch'])
 
-ATOMIC_START_TOKEN = array_to_hash(['atom', 'num', 'string', 'regexp', 'name', 'js'])
+ATOMIC_START_TOKEN = array_to_hash([
+    'atom', 'num', 'string', 'regexp', 'name', 'js'
+])
 
 compile_time_decorators = ['staticmethod', 'external', 'property']
 
@@ -234,7 +246,11 @@ def has_setter_decorator(decorators, name):
 
 
 # -----[ Parser ]-----
-def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_ids, imported_modules, importing_modules, options):
+def create_parser_ctx(
+    S, import_dirs, module_id, baselib_items,
+    imported_module_ids, imported_modules,
+    importing_modules, options
+):
     def next():
         S.prev = S.token
         if S.peeked.length:
@@ -256,7 +272,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return S.prev
 
     def croak(msg, line, col, pos, is_eof):
-        # note: undefined means nothing was passed in, None/null means a null value was passed in
+        # note: undefined means nothing was passed in,
+        # None/null means a null value was passed in
         ctx = S.input.context()
         raise new SyntaxError(
             msg,
@@ -279,7 +296,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             'Unexpected token: ' + token.type + ' «' + token.value + '»'
         )
 
-    # --- Error recovery (only active when options.recover_errors is True) --------
+    # --- Error recovery (only active when
+    # options.recover_errors is True) --------
     # These helpers let the LSP obtain a usable AST from a file that contains
     # syntax errors. They are never invoked on the normal compile path, so they
     # cannot introduce a performance or behavior regression there.
@@ -297,7 +315,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         # Resynchronize after a syntax error: always consume at least one token
         # (guaranteeing forward progress) then stop at the start of the next
         # logical line, a block dedent, or eof. next() may itself raise a
-        # tokenizer level SyntaxError (e.g. an unterminated string on the skipped
+        # tokenizer level SyntaxError (e.g. an unterminated string on the
+        # skipped
         # line); such errors are recorded and skipping continues. The tokenizer
         # advances its position for every such error (and never raises for an
         # unexpected character in recover mode), so this loop always terminates.
@@ -319,7 +338,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return next()
         token_error(
             S.token,
-            'Unexpected token ' + S.token.type + ' «' + S.token.value + '»' + ', expected ' + type + ' «' + val + '»'
+            'Unexpected token ' + S.token.type +
+            ' «' + S.token.value + '»' +
+            ', expected ' + type + ' «' + val + '»'
         )
 
     def expect(punc):
@@ -371,7 +392,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                             opt,
                             AST_Assign
                         ) and not (is_node_type(opt.right, AST_Scope)):
-                            ans = ans.concat(scan_for_top_level_callables(opt.right))
+                            ans = ans.concat(
+                                scan_for_top_level_callables(opt.right)
+                            )
 
         elif body.body:
             # recursive descent into wrapper statements that contain body blocks
@@ -390,7 +413,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     def scan_for_local_vars(body):
         """
-        Pick out all variables being assigned to from within this scope, we'll mark them as local
+        Pick out all variables being assigned to from within this scope,
+        we'll mark them as local
 
         body        body to be scanned
         """
@@ -539,16 +563,19 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
     @embed_tokens
     async def statement():
-        # From Kovid: The next three lines were a hack to try to support statements
+        # From Kovid: The next three lines were a hack to try to support
+        # statements
         # starting with a regexp literal. However, it did not work, for example:
         # echo 'f=1\n/asd/.test()' | rs -> parse error
-        # So we just accept that this cannot be supported in RS, and avoid hacks that mess
+        # So we just accept that this cannot be supported in RS, and avoid
+        # hacks that mess
         # with the internal state of S. In any case,
         # statements starting with a literal are very rare.
         if S.token.type is 'operator' and S.token.value.substr(0, 1) is '/':
             token_error(
                 S.token,
-                'RapydScript does not support statements starting with regexp literals'
+                'RapydScript does not support statements starting with'
+                ' regexp literals'
             )
 
         S.statement_starting_token = S.token
@@ -567,7 +594,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return new AST_Directive({
                 'value': tmp_
             })
-        elif tmp_ is 'num' or tmp_ is 'regexp' or tmp_ is 'operator' or tmp_ is 'atom' or tmp_ is 'js':
+        elif (tmp_ is 'num' or tmp_ is 'regexp' or tmp_ is 'operator'
+              or tmp_ is 'atom' or tmp_ is 'js'):
             return await simple_statement()
         elif tmp_ is 'punc':
             tmp_ = S.token.value
@@ -582,7 +610,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return await simple_statement()
             elif tmp_ is ';':
                 next()
-                return new AST_EmptyStatement({'stype': ';', 'start': prev(), 'end': prev()})
+                return new AST_EmptyStatement({
+                    'stype': ';', 'start': prev(), 'end': prev()
+                })
             else:
                 unexpected()
         elif tmp_ is 'name':
@@ -608,7 +638,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     expect_token('keyword', 'while')
                     tmp = await expression(True)
                     if is_node_type(tmp, AST_Assign):
-                        croak('Assignments in do loop conditions are not allowed')
+                        croak(
+                            'Assignments in do loop conditions are not allowed'
+                        )
                     semicolon()
                     return tmp
                 )()
@@ -619,7 +651,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             elif tmp_ is 'while':
                 while_cond = await expression(True)
                 if is_node_type(while_cond, AST_Assign):
-                    croak('Assignments in while loop conditions are not allowed')
+                    croak(
+                        'Assignments in while loop conditions are not allowed'
+                    )
                 if not is_('punc', ':'):
                     croak('Expected a colon after the while statement')
                 while_body = await in_loop(statement)
@@ -675,12 +709,17 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if is_('punc', ','):
                     next()
                     msg = await expression(False)
-                return new AST_Assert({'start': start, 'condition': cond, 'message': msg, 'end': prev()})
+                return new AST_Assert({
+                    'start': start, 'condition': cond,
+                    'message': msg, 'end': prev()
+                })
             elif tmp_ is 'if':
                 return await if_()
             elif tmp_ is 'pass':
                 semicolon()
-                return new AST_EmptyStatement({'stype': 'pass', 'start': prev(), 'end': prev()})
+                return new AST_EmptyStatement({
+                    'stype': 'pass', 'start': prev(), 'end': prev()
+                })
             elif tmp_ is 'return':
                 if S.in_function is 0:
                     croak("'return' outside of function")
@@ -738,7 +777,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             if is_('keyword', 'as'):
                 next()
                 alias = as_symbol(AST_SymbolAlias)
-            clauses.push(new AST_WithClause({'expression': expr, 'alias': alias}))
+            clauses.push(new AST_WithClause({
+                'expression': expr, 'alias': alias
+            }))
             if is_('punc', ','):
                 next()
                 continue
@@ -793,7 +834,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     init.car,
                     AST_SymbolRef
                 ) and is_node_type(init.cdr, AST_SymbolRef):
-                    # Optimization to prevent runtime call to ρσ_flatten when init is simply (a, b)
+                    # Optimization to prevent runtime call to ρσ_flatten
+                    # when init is simply (a, b)
                     tmp = init.to_array()
                 else:
                     tmp = [init]
@@ -805,7 +847,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
             if is_('operator', 'in'):
                 if is_node_type(init, AST_Var) and init.definitions.length > 1:
-                    croak('Only one variable declaration allowed in for..in loop')
+                    croak(
+                        'Only one variable declaration allowed in for..in loop'
+                    )
                 next()
                 return await for_in(init, list_comp)
 
@@ -860,13 +904,15 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         elif is_node_type(expr, AST_Dot):
             referenced_path = []
-            # this one is for detecting classes inside modules and eventually nested classes
+            # this one is for detecting classes inside modules and
+            # eventually nested classes
             while is_node_type(expr, AST_Dot):
                 referenced_path.unshift(expr.property)
                 expr = expr.expression
             if is_node_type(expr, AST_SymbolRef):
                 referenced_path.unshift(expr.name)
-                # now 'referenced_path' should contain the full path of potential class
+                # now 'referenced_path' should contain the full path
+                # of potential class
                 if len(referenced_path) > 1:
                     class_name = referenced_path.join('.')
                     for s in range(S.classes.length - 1, -1, -1):
@@ -887,12 +933,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     async def do_import(key):
         if has_prop(imported_modules, key):
             return
-        # Circular import check must come BEFORE loading_promises so we detect cycles
+        # Circular import check must come BEFORE loading_promises so we
+        # detect cycles
         # even when the same module is being loaded by a parallel chain.
         if has_prop(importing_modules, key) and importing_modules[key]:
-            import_error('Detected a recursive import of: ' + key + ' while importing: ' + module_id)
-        # If a parallel chain is already loading this module, wait for it instead of
-        # starting a duplicate load.  loading_promises is shared across the entire
+            import_error(
+                'Detected a recursive import of: ' + key +
+                ' while importing: ' + module_id
+            )
+        # If a parallel chain is already loading this module, wait for it
+        # instead of
+        # starting a duplicate load.  loading_promises is shared across
+        # the entire
         # compilation via options.loading_promises.
         loading_promises = options.loading_promises
         if has_prop(loading_promises, key):
@@ -901,8 +953,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         # Register this load BEFORE the first await so that any parallel caller
         # that reaches this point sees the in-progress entry and waits.
-        # Use a single-element list to capture the resolve function from the Promise
-        # executor without needing nonlocal (mutating a container, not rebinding).
+        # Use a single-element list to capture the resolve function from
+        # the Promise
+        # executor without needing nonlocal (mutating a container,
+        # not rebinding).
         _rfn = v'[null]'
 
         def _capture_resolve(resolve):
@@ -928,11 +982,15 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 }
                 return
 
-            # stat_file returns {mtimeMs, content?}.  For real filesystems mtimeMs is a
-            # number and content is absent; for virtual filesystems content holds the
+            # stat_file returns {mtimeMs, content?}.  For real filesystems
+            # mtimeMs is a
+            # number and content is absent; for virtual filesystems
+            # content holds the
             # already-read source to avoid a double read.
             async def safe_stat(base_path):  # noqa
-                for i, path in enumerate([base_path + '.pyj', base_path + '/__init__.pyj']):
+                for i, path in enumerate([
+                    base_path + '.pyj', base_path + '/__init__.pyj'
+                ]):
                     try:
                         st = await stat_file(path)
                         return [
@@ -941,7 +999,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                             st.content if has_prop(st, 'content') else None,
                         ]
                     except as e:
-                        if e.code is 'ENOENT' or e.code is 'EPERM' or e.code is 'EACCESS':
+                        if (e.code is 'ENOENT' or e.code is 'EPERM'
+                                or e.code is 'EACCESS'):
                             if i is 1:
                                 return None, None, None
                         if i is 1:
@@ -952,15 +1011,24 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
             for location in import_dirs:
                 if location:
-                    file_mtime, filename, prefetched_src = await safe_stat(location + '/' + modpath)
+                    file_mtime, filename, prefetched_src = await safe_stat(
+                        location + '/' + modpath
+                    )
                     if filename is not None:
                         break
             if filename is None:
-                import_error("Failed Import: '" + key + "' module doesn't exist in any of the import directories: " + import_dirs.join(':'))
+                import_error(
+                    "Failed Import: '" + key +
+                    "' module doesn't exist in any of the import"
+                    ' directories: ' + import_dirs.join(':')
+                )
 
-            # Read the cache file.  I/O starts here; any CPU work done before the
+            # Read the cache file.  I/O starts here; any CPU work done
+            # before the
             # await can overlap with the disk read.
-            cache_read = readfile(cache_file_name(filename, options.module_cache_dir))
+            cache_read = readfile(
+                cache_file_name(filename, options.module_cache_dir)
+            )
 
             cached = None
             ast_json_str = None
@@ -973,21 +1041,31 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 cached = None
 
             srchash = src_code = None
-            cache_ok = cached and cached.v is CACHE_VERSION and cached.compiler_version is COMPILER_VERSION
-            if cache_ok and file_mtime is not None and cached.mtime is not None and cached.mtime is file_mtime:
-                # Fast path: mtime matches — source file is unchanged, skip reading and hashing it
+            cache_ok = (
+                cached and cached.v is CACHE_VERSION
+                and cached.compiler_version is COMPILER_VERSION
+            )
+            if (cache_ok and file_mtime is not None
+                    and cached.mtime is not None
+                    and cached.mtime is file_mtime):
+                # Fast path: mtime matches — source file is unchanged,
+                # skip reading and hashing it
                 srchash = cached.signature
             else:
-                # Need source content to validate with sha1sum (or to re-parse on miss)
+                # Need source content to validate with sha1sum (or to
+                # re-parse on miss)
                 src_code = prefetched_src or await readfile(filename, 'utf-8')
                 srchash = sha1sum(src_code)
                 if not cache_ok or cached.signature is not srchash:
                     cached = None
 
             if cached is not None:
-                # Load all deps in parallel — cached module deps have been pre-validated as
-                # non-circular so Promise.all is safe.  The loading_promises dict ensures
-                # that if two parallel chains try to load the same dep, only one actually
+                # Load all deps in parallel — cached module deps have been
+                # pre-validated as
+                # non-circular so Promise.all is safe.  The loading_promises
+                # dict ensures
+                # that if two parallel chains try to load the same dep,
+                # only one actually
                 # does the work; the other waits.
                 pending = v'[]'
                 for ikey in cached.imported_module_ids:
@@ -995,7 +1073,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         pending.push(do_import(ikey))
                 if pending.length > 0:
                     await Promise.all(pending)
-                # Reconstruct classes dict from the simplified cache (no full AST nodes).
+                # Reconstruct classes dict from the simplified cache
+                # (no full AST nodes).
                 classes = {}
                 for cname in Object.keys(cached.classes or {}):
                     ci = cached.classes[cname]
@@ -1023,8 +1102,23 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             else:
                 await parse(
                     src_code,
-                    {'filename': filename, 'toplevel': None, 'basedir': options.basedir, 'libdir': options.libdir, 'import_dirs': options.import_dirs, 'module_id': key, 'imported_modules': imported_modules, 'importing_modules': importing_modules, 'discard_asserts': options.discard_asserts, 'module_cache_dir': options.module_cache_dir, '_src_hash': srchash, '_file_mtime': file_mtime, 'loading_promises': loading_promises,}
-                )  # This function will add the module to imported_modules itself
+                    {
+                        'filename': filename,
+                        'toplevel': None,
+                        'basedir': options.basedir,
+                        'libdir': options.libdir,
+                        'import_dirs': options.import_dirs,
+                        'module_id': key,
+                        'imported_modules': imported_modules,
+                        'importing_modules': importing_modules,
+                        'discard_asserts': options.discard_asserts,
+                        'module_cache_dir': options.module_cache_dir,
+                        '_src_hash': srchash,
+                        '_file_mtime': file_mtime,
+                        'loading_promises': loading_promises,
+                    }
+                )
+        # This function will add the module to imported_modules itself
         finally:
             del loading_promises[key]
             if _rfn[0]:
@@ -1060,7 +1154,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     else:
                         continue
                 break
-        return new AST_EmptyStatement({'stype': 'scoped_flags', 'start': prev(), 'end': prev()})
+        return new AST_EmptyStatement({
+            'stype': 'scoped_flags', 'start': prev(), 'end': prev()
+        })
 
     async def import_(from_import):
         ans = new AST_Imports({'imports': []})
@@ -1114,7 +1210,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         exports,
                         aname.name
                     ):
-                        import_error('The symbol "' + aname.name + '" is not exported from the module: ' + key)
+                        import_error(
+                            'The symbol "' + aname.name +
+                            '" is not exported from the module: ' + key
+                        )
                     if is_('keyword', 'as'):
                         next()
                         aname.alias = as_symbol(AST_SymbolAlias)
@@ -1197,7 +1296,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             return d
         )()
         cls_body = await (async def (loop, labels):
-            # navigate to correct location in the module tree and append the class
+            # navigate to correct location in the module tree and
+            # append the class
             S.in_class.push(name.name)
             S.classes[S.classes.length - 1][name.name] = class_details
             S.classes.push({})
@@ -1237,7 +1337,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if stmt.is_getter or stmt.is_setter:
                     descriptor = definition.dynamic_properties[stmt.name.name]
                     if not descriptor:
-                        descriptor = definition.dynamic_properties[stmt.name.name] = {}
+                        descriptor = definition.dynamic_properties[
+                            stmt.name.name
+                        ] = {}
                     descriptor['getter' if stmt.is_getter else 'setter'] = stmt
                 elif stmt.name.name is '__init__':
                     definition.init = stmt
@@ -1270,7 +1372,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     class_var_names,
                     node.name
                 ):
-                    node.thedef = new AST_SymbolDefun({'name': name.name + '.prototype.' + node.name})
+                    node.thedef = new AST_SymbolDefun({
+                        'name': name.name + '.prototype.' + node.name
+                    })
                 if descend:
                     descend.call(node)
             this._visit = visit_node
@@ -1283,7 +1387,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         return definition
 
     async def function_(in_class, is_expression, is_async=False):
-        name = as_symbol(AST_SymbolDefun if in_class else AST_SymbolLambda) if is_('name') else None
+        name = as_symbol(
+            AST_SymbolDefun if in_class else AST_SymbolLambda
+        ) if is_('name') else None
         if in_class and not name:
             croak('Cannot use anonymous function as class methods')
         is_anonymous = not name
@@ -1295,10 +1401,16 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             property_setter = has_setter_decorator(S.decorators, name.name)
             if staticloc:
                 if property_getter or property_setter:
-                    croak('A method cannot be both static and a property getter/setter')
-                S.classes[S.classes.length - 2][in_class].static[name.name] = True
+                    croak(
+                        'A method cannot be both static and a'
+                        ' property getter/setter'
+                    )
+                S.classes[S.classes.length - 2][in_class].static[
+                    name.name
+                ] = True
                 staticmethod = True
-            elif name.name is not '__init__' and S.scoped_flags.get('bound_methods'):
+            elif (name.name is not '__init__'
+                    and S.scoped_flags.get('bound_methods')):
                 S.classes[S.classes.length - 2][in_class].bound.push(name.name)
 
         expect('(')
@@ -1325,7 +1437,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if has_prop(seen_names, current_arg_name):
                     token_error(prev(), "Can't repeat parameter names")
                 if current_arg_name is 'arguments':
-                    token_error(prev(), "Can't use the name arguments as a parameter name, it is reserved by JavaScript")
+                    token_error(
+                        prev(),
+                        "Can't use the name arguments as a parameter"
+                        ' name, it is reserved by JavaScript'
+                    )
                 seen_names[current_arg_name] = True
                 # save these in order to move back if we have an annotation
                 name_token = S.token
@@ -1355,8 +1471,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     return sym
                 else:
                     if not is_('name'):
-                        # there is no name, which is an error we should report on the
-                        # same line as the definition, so move to that is we're not already there.
+                        # there is no name, which is an error we should
+                        # report on the same line as the definition, so
+                        # move to that is we're not already there.
                         if S.input.context().tokline is not def_line:
                             croak('Name expected', def_line)
                         else:
@@ -1381,29 +1498,52 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     # **kwargs
                     next()
                     if kwargs_sym:
-                        token_error(name_token, "Can't define multiple **kwargs in function definition")
+                        token_error(
+                            name_token,
+                            "Can't define multiple **kwargs"
+                            ' in function definition'
+                        )
                     kwargs_sym = await get_arg()
                 elif is_('operator', '*'):
                     # *args
                     next()
                     if starargs_sym:
-                        token_error(name_token, "Can't define multiple *args in function definition")
+                        token_error(
+                            name_token,
+                            "Can't define multiple *args in function definition"
+                        )
                     if kwargs_sym:
-                        token_error(name_token, "Can't define *args after **kwargs in function definition")
+                        token_error(
+                            name_token,
+                            "Can't define *args after **kwargs"
+                            ' in function definition'
+                        )
                     starargs_sym = await get_arg()
                 else:
                     if starargs_sym or kwargs_sym:
-                        token_error(name_token, "Can't define a formal parameter after *args or **kwargs")
+                        token_error(
+                            name_token,
+                            "Can't define a formal parameter after"
+                            ' *args or **kwargs'
+                        )
                     a.push(await get_arg())
                     if is_('operator', '='):
                         if kwargs_sym:
-                            token_error(name_token, "Can't define an optional formal parameter after **kwargs")
+                            token_error(
+                                name_token,
+                                "Can't define an optional formal parameter"
+                                ' after **kwargs'
+                            )
                         next()
                         defaults[current_arg_name] = await expression(False)
                         has_defaults = True
                     else:
                         if has_defaults:
-                            token_error(name_token, "Can't define required formal parameters after optional formal parameters")
+                            token_error(
+                                name_token,
+                                "Can't define required formal parameters"
+                                ' after optional formal parameters'
+                            )
             next()
             # check if we have a return type annotation
             if is_('punc', '->'):
@@ -1417,7 +1557,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 'kwargs': kwargs_sym,
                 'defaults': defaults,
                 'has_defaults': has_defaults,
-                'is_simple_func': not starargs_sym and not kwargs_sym and not has_defaults,
+                'is_simple_func': (
+                    not starargs_sym and not kwargs_sym and not has_defaults
+                ),
             })
         )()
 
@@ -1468,14 +1610,23 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             definition.is_getter = property_getter
             definition.is_setter = property_setter
             if definition.argnames.args.length < 1 and not definition.static:
-                croak('Methods of a class must have at least one argument, traditionally named self')
+                croak(
+                    'Methods of a class must have at least one argument,'
+                    ' traditionally named self'
+                )
             if definition.name and definition.name.name is '__init__':
                 if definition.is_generator:
-                    croak('The __init__ method of a class cannot be a generator (yield not allowed)')
+                    croak(
+                        'The __init__ method of a class cannot be a'
+                        ' generator (yield not allowed)'
+                    )
                 if definition.is_async:
                     croak('The __init__ method of a class cannot be async')
                 if property_getter or property_setter:
-                    croak('The __init__ method of a class cannot be a property getter/setter')
+                    croak(
+                        'The __init__ method of a class cannot be a'
+                        ' property getter/setter'
+                    )
         if definition.is_async and definition.is_generator:
             croak('A function cannot be both async and a generator')
         if definition.is_generator:
@@ -1486,13 +1637,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         for i in range(assignments.length):
             for j in range(definition.argnames.args.length + 1):
                 if j is definition.argnames.args.length:
-                    definition.localvars.push(new_symbol(AST_SymbolVar, assignments[i]))
-                elif j < definition.argnames.args.length and assignments[i] is definition.argnames.args[j].name:
+                    definition.localvars.push(
+                        new_symbol(AST_SymbolVar, assignments[i])
+                    )
+                elif (j < definition.argnames.args.length
+                        and assignments[i] is definition.argnames.args[j].name):
                     break
 
         nonlocals = scan_for_nonlocal_defs(definition.body)
         nonlocals = {name for name in nonlocals}
-        definition.localvars = definition.localvars.filter(def (v): return not nonlocals.has(v.name);)
+        definition.localvars = definition.localvars.filter(
+            def (v): return not nonlocals.has(v.name);
+        )
         return definition
 
     async def if_():
@@ -1548,7 +1704,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 a.push(stmt)
         else:
             current_whitespace = S.token.leading_whitespace
-            if current_whitespace.length is 0 or prev_whitespace is current_whitespace:
+            if (current_whitespace.length is 0
+                    or prev_whitespace is current_whitespace):
                 croak('Expected an indented block')
             while not is_('punc', '}'):
                 if is_('eof'):
@@ -1626,7 +1783,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if not bcatch.length and not bfinally:
             croak('Missing except/finally blocks')
 
-        return new AST_Try({'body': body, 'bcatch': (new AST_Catch({'body': bcatch}) if bcatch.length else None), 'bfinally': bfinally, 'belse': belse})
+        return new AST_Try({
+            'body': body,
+            'bcatch': (
+                new AST_Catch({'body': bcatch}) if bcatch.length else None
+            ),
+            'bfinally': bfinally,
+            'belse': belse
+        })
 
     async def vardefs(symbol_class):
         a = []
@@ -1863,7 +2027,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     kwargs.push([arg.left, arg.right])
                 else:
                     pargs.push(arg)
-            return new AST_CallArgs({'args': pargs, 'kwargs': kwargs, 'kwarg_items': v'[]', 'starargs': saw_starargs})
+            return new AST_CallArgs({
+                'args': pargs, 'kwargs': kwargs,
+                'kwarg_items': v'[]', 'starargs': saw_starargs
+            })
         return a
 
     async def func_call_list(empty):
@@ -1873,7 +2040,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         kwarg_items = v'[]'
         starargs = False
         if empty:
-            return new AST_CallArgs({'args': a, 'kwargs': kwargs, 'kwarg_items': kwarg_items, 'starargs': starargs})
+            return new AST_CallArgs({
+                'args': a, 'kwargs': kwargs,
+                'kwarg_items': kwarg_items, 'starargs': starargs
+            })
         single_comprehension = False
         while not is_('punc', ')') and not is_('eof'):
             if not first:
@@ -1896,19 +2066,27 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 else:
                     if is_('keyword', 'for'):
                         if not first:
-                            croak('Generator expression must be parenthesized if not sole argument')
+                            croak(
+                                'Generator expression must be'
+                                ' parenthesized if not sole argument'
+                            )
                         comp = await read_comprehension(
                             new AST_GeneratorComprehension({'statement': arg}),
                             ')'
                         )
-                        a.push(new AST_CallArg({'value': comp, 'is_array': False}))
+                        a.push(new AST_CallArg({
+                            'value': comp, 'is_array': False
+                        }))
                         single_comprehension = True
                         break
                     a.push(new AST_CallArg({'value': arg, 'is_array': False}))
             first = False
         if not single_comprehension:
             next()
-        return new AST_CallArgs({'args': a, 'kwargs': kwargs, 'kwarg_items': kwarg_items, 'starargs': starargs})
+        return new AST_CallArgs({
+            'args': a, 'kwargs': kwargs,
+            'kwarg_items': kwarg_items, 'starargs': starargs
+        })
 
     @embed_tokens
     async def array_():
@@ -1978,7 +2156,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 return await dict_comprehension(a, is_pydict, is_jshash)
 
         next()
-        return new (AST_ExpressiveObject if has_non_const_keys else AST_Object)({'properties': a, 'is_pydict': is_pydict, 'is_jshash': is_jshash,})
+        return new (
+            AST_ExpressiveObject if has_non_const_keys else AST_Object
+        )({'properties': a, 'is_pydict': is_pydict, 'is_jshash': is_jshash,})
 
     async def set_(start, end, expr):
         ostart = start
@@ -1990,7 +2170,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 # allow trailing comma
                 break
             set_val = await expression(False)
-            a.push(new AST_SetItem({'start': start, 'value': set_val, 'end': prev()}))
+            a.push(new AST_SetItem({
+                'start': start, 'value': set_val, 'end': prev()
+            }))
         next()
         return new AST_Set({'items': a, 'start': ostart, 'end': prev()})
 
@@ -1998,7 +2180,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if is_node_type(obj, AST_GeneratorComprehension):
             baselib_items['yield'] = True
         S.in_comprehension = True
-        S.in_parenthesized_expr = False  # in case we are already in a parenthesized expression
+        # in case we are already in a parenthesized expression
+        S.in_parenthesized_expr = False
         expect_token('keyword', 'for')
         forloop = await for_(True)
         obj.init = forloop.init
@@ -2026,7 +2209,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             expect(':')
             right = await expression(False)
         return await read_comprehension(
-            new AST_DictComprehension({'statement': left, 'value_statement': right, 'is_pydict': is_pydict, 'is_jshash': is_jshash}),
+            new AST_DictComprehension({
+                'statement': left, 'value_statement': right,
+                'is_pydict': is_pydict, 'is_jshash': is_jshash
+            }),
             '}'
         )
 
@@ -2034,7 +2220,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         tmp = S.token
         next()
         tmp_ = tmp.type
-        if tmp_ is 'name' or tmp_ is 'operator' or tmp_ is 'keyword' or tmp_ is 'atom':
+        if (tmp_ is 'name' or tmp_ is 'operator'
+                or tmp_ is 'keyword' or tmp_ is 'atom'):
             return tmp.value
         else:
             unexpected()
@@ -2137,28 +2324,76 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 for _sb in slice_bounds:
                     _ca.push(new AST_CallArg({'value': _sb, 'is_array': False}))
                 return await subscripts(
-                    new AST_Call({'start': start, 'expression': new AST_SymbolRef({'name': 'ρσ_delslice' if S.in_delete else 'ρσ_eslice'}), 'args': new AST_CallArgs({'args': _ca, 'kwargs': v'[]', 'kwarg_items': v'[]', 'starargs': False}), 'end': prev()}),
+                    new AST_Call({
+                        'start': start,
+                        'expression': new AST_SymbolRef({
+                            'name': (
+                                'ρσ_delslice'
+                                if S.in_delete else 'ρσ_eslice'
+                            )
+                        }),
+                        'args': new AST_CallArgs({
+                            'args': _ca, 'kwargs': v'[]',
+                            'kwarg_items': v'[]', 'starargs': False
+                        }),
+                        'end': prev()
+                    }),
                     allow_calls
                 )
             else:
                 # regular slice (arr[start:end])
-                slice_bounds = [new AST_Number({'value': 0}) if i is None else i for i in slice_bounds]
+                slice_bounds = [
+                    new AST_Number({'value': 0}) if i is None else i
+                    for i in slice_bounds
+                ]
                 if S.in_delete:
                     _ca2 = v'[]'
-                    _ca2.push(new AST_CallArg({'value': expr, 'is_array': False}))
-                    _ca2.push(new AST_CallArg({'value': new AST_Number({'value': 1}), 'is_array': False}))
+                    _ca2.push(new AST_CallArg({
+                        'value': expr, 'is_array': False
+                    }))
+                    _ca2.push(new AST_CallArg({
+                        'value': new AST_Number({'value': 1}),
+                        'is_array': False
+                    }))
                     for _sb in slice_bounds:
-                        _ca2.push(new AST_CallArg({'value': _sb, 'is_array': False}))
+                        _ca2.push(new AST_CallArg({
+                            'value': _sb, 'is_array': False
+                        }))
                     return await subscripts(
-                        new AST_Call({'start': start, 'expression': new AST_SymbolRef({'name': 'ρσ_delslice'}), 'args': new AST_CallArgs({'args': _ca2, 'kwargs': v'[]', 'kwarg_items': v'[]', 'starargs': False}), 'end': prev()}),
+                        new AST_Call({
+                            'start': start,
+                            'expression': new AST_SymbolRef({
+                                'name': 'ρσ_delslice'
+                            }),
+                            'args': new AST_CallArgs({
+                                'args': _ca2, 'kwargs': v'[]',
+                                'kwarg_items': v'[]', 'starargs': False
+                            }),
+                            'end': prev()
+                        }),
                         allow_calls
                     )
 
                 _ca3 = v'[]'
                 for _sb in slice_bounds:
-                    _ca3.push(new AST_CallArg({'value': _sb, 'is_array': False}))
+                    _ca3.push(new AST_CallArg({
+                        'value': _sb, 'is_array': False
+                    }))
                 return await subscripts(
-                    new AST_Call({'start': start, 'expression': new AST_Dot({'start': start, 'expression': expr, 'property': 'slice', 'end': prev()}), 'args': new AST_CallArgs({'args': _ca3, 'kwargs': v'[]', 'kwarg_items': v'[]', 'starargs': False}), 'end': prev()}),
+                    new AST_Call({
+                        'start': start,
+                        'expression': new AST_Dot({
+                            'start': start,
+                            'expression': expr,
+                            'property': 'slice',
+                            'end': prev()
+                        }),
+                        'args': new AST_CallArgs({
+                            'args': _ca3, 'kwargs': v'[]',
+                            'kwarg_items': v'[]', 'starargs': False
+                        }),
+                        'end': prev()
+                    }),
                     allow_calls
                 )
         else:
@@ -2239,7 +2474,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 elif tmp_ is 'isinstance':
                     args = await func_call_list()
                     if args.args.length is not 2:
-                        croak('isinstance() must be called with exactly two arguments')
+                        croak(
+                            'isinstance() must be called with exactly'
+                            ' two arguments'
+                        )
                     ret = new AST_Binary({
                         'start': start,
                         'left': args.args[0].value,
@@ -2278,11 +2516,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         }), allow_calls)
 
     async def existential(expr, allow_calls):
-        ans = new AST_Existential({'start': expr.start, 'end': S.token, 'expression': expr})
+        ans = new AST_Existential({
+            'start': expr.start, 'end': S.token, 'expression': expr
+        })
         next()
         ttype = S.token.type
         val = S.token.value
-        if S.token.nlb or ttype is 'keyword' or ttype is 'operator' or ttype is 'eof':
+        if (S.token.nlb or ttype is 'keyword'
+                or ttype is 'operator' or ttype is 'eof'):
             ans.after = None
             return ans
         if ttype is 'punc':
@@ -2328,7 +2569,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             expr = await expression()
             S.parsing_decorator = False
             S.decorators.push(expr)
-            return new AST_EmptyStatement({'stype': '@', 'start': prev(), 'end': prev()})
+            return new AST_EmptyStatement({
+                'stype': '@', 'start': prev(), 'end': prev()
+            })
         if is_('operator') and UNARY_PREFIX[start.value]:
             next()
             is_parenthesized = is_('punc', '(')
@@ -2384,7 +2627,12 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
     async def maybe_conditional(no_in):
         start = S.token
         expr = await expr_ops(no_in)
-        if (is_('keyword', 'if') and (S.in_parenthesized_expr or (S.statement_starting_token is not S.token and not S.in_comprehension and not S.token.nlb))):
+        if (is_('keyword', 'if') and (
+                S.in_parenthesized_expr or (
+                    S.statement_starting_token is not S.token
+                    and not S.in_comprehension
+                    and not S.token.nlb
+                ))):
             next()
             ne = await expression(False)
             expect_token('keyword', 'else')
@@ -2403,10 +2651,14 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         if data.right and is_node_type(
             data.right,
             AST_Seq
-        ) and (is_node_type(data.right.car, AST_Assign) or is_node_type(data.right.cdr, AST_Assign)) and data.operator is not '=':
+        ) and (
+            is_node_type(data.right.car, AST_Assign)
+            or is_node_type(data.right.cdr, AST_Assign)
+        ) and data.operator is not '=':
             token_error(
                 data.start,
-                'Invalid assignment operator for chained assignment: ' + data.operator
+                'Invalid assignment operator for chained'
+                ' assignment: ' + data.operator
             )
         ans = AST_Assign(data)
         if S.in_class.length and S.in_class[-1]:
@@ -2427,7 +2679,10 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         val = S.token.value
         if is_('operator') and ASSIGNMENT[val]:
             if only_plain_assignment and val is not '=':
-                croak('Invalid assignment operator for chained assignment: ' + val)
+                croak(
+                    'Invalid assignment operator for chained assignment: '
+                    + val
+                )
             next()
             assign_right = await maybe_assign(no_in, True)
             return create_assign({
@@ -2465,7 +2720,18 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                 if is_node_type(expr, AST_Assign):
                     left[-1] = left[-1].left
                     seq_cdr = await expression(True, no_in)
-                    return create_assign({'start': start, 'left': (left[0] if left.length is 1 else new AST_Array({'elements': left})), 'operator': expr.operator, 'right': new AST_Seq({'car': expr.right, 'cdr': seq_cdr}), 'end': peek()})
+                    return create_assign({
+                        'start': start,
+                        'left': (
+                            left[0] if left.length is 1
+                            else new AST_Array({'elements': left})
+                        ),
+                        'operator': expr.operator,
+                        'right': new AST_Seq({
+                            'car': expr.right, 'cdr': seq_cdr
+                        }),
+                        'end': peek()
+                    })
 
                 expr = await maybe_assign(no_in)
                 left.push(expr)
@@ -2516,7 +2782,9 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
             ) and element.value.indexOf('#!') is 0:
                 shebang = element.value
             else:
-                ds = not toplevel and is_docstring(element)  # do not process strings as docstrings if we are concatenating toplevels
+                # do not process strings as docstrings if we are
+                # concatenating toplevels
+                ds = not toplevel and is_docstring(element)
                 if ds:
                     docstrings.push(ds)
                 else:
@@ -2539,17 +2807,21 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
 
         if options.recover_errors:
             # Combine parser-level recovered errors with any collected by the
-            # tokenizer (e.g. skipped unexpected characters) for the LSP to report.
+            # tokenizer (e.g. skipped unexpected characters) for the
+            # LSP to report.
             recovered = S.recovered_errors
             try:
                 tok_ctx = S.input.context()
-                if tok_ctx and tok_ctx.recovered_errors and tok_ctx.recovered_errors.length:
+                if (tok_ctx and tok_ctx.recovered_errors
+                        and tok_ctx.recovered_errors.length):
                     recovered = recovered.concat(tok_ctx.recovered_errors)
             except:
                 pass
             toplevel.recovered_errors = recovered
 
-        toplevel.nonlocalvars = scan_for_nonlocal_defs(toplevel.body).concat(S.globals)
+        toplevel.nonlocalvars = scan_for_nonlocal_defs(
+            toplevel.body
+        ).concat(S.globals)
         toplevel.localvars = []
         toplevel.exports = []
         seen_exports = {}
@@ -2580,9 +2852,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
         importing_modules[module_id] = False
         toplevel.comments_after = S.token.comments_before or v'[]'
 
-        if options._src_hash and options.filename and module_id is not '__main__':
+        if (options._src_hash and options.filename
+                and module_id is not '__main__'):
             try:
-                # Simplified class info (no full AST nodes) for lazy-shell reconstruction.
+                # Simplified class info (no full AST nodes) for
+                # lazy-shell reconstruction.
                 classes_cache = {}
                 for cname in Object.keys(toplevel.classes or {}):
                     cls = toplevel.classes[cname]
@@ -2593,7 +2867,8 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                     }
                 # Single pass: compute has_side_effects + tree-shaking index.
                 # The index lets the tree-shaker resolve the fixpoint iteration
-                # (steps 4-5) without accessing mod.body — no AST deserialization
+                # (steps 4-5) without accessing mod.body — no AST
+                # deserialization
                 # until step 6 (pruning), which needs actual nodes anyway.
                 has_se = False
                 idx_exec_refs_set = {}
@@ -2631,14 +2906,21 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         for idx_imp in idx_stmt.imports:
                             if idx_imp.argnames and idx_imp.argnames.length:
                                 for idx_arg in idx_imp.argnames:
-                                    idx_local = idx_arg.alias.name if idx_arg.alias else idx_arg.name
+                                    idx_local = (
+                                        idx_arg.alias.name
+                                        if idx_arg.alias else idx_arg.name
+                                    )
                                     idx_import_bindings[idx_local] = {
                                         'source': idx_imp.key,
                                         'imported_name': idx_arg.name,
                                         'is_namespace': False,
                                     }
                             else:
-                                idx_local = idx_imp.alias.name if idx_imp.alias else idx_imp.key.split('.')[0]
+                                idx_local = (
+                                    idx_imp.alias.name
+                                    if idx_imp.alias
+                                    else idx_imp.key.split('.')[0]
+                                )
                                 idx_import_bindings[idx_local] = {
                                     'source': idx_imp.key,
                                     'imported_name': None,
@@ -2672,9 +2954,11 @@ def create_parser_ctx(S, import_dirs, module_id, baselib_items, imported_module_
                         'top_defs': idx_top_defs,
                     },
                 }
-                if options._file_mtime is not None and options._file_mtime is not undefined:
+                if (options._file_mtime is not None
+                        and options._file_mtime is not undefined):
                     cache_meta['mtime'] = options._file_mtime
-                # Binary format: metadata JSON followed by newline and binary AST pool.
+                # Binary format: metadata JSON followed by newline
+                # and binary AST pool.
                 await writefile(
                     cache_file_name(options.filename, options.module_cache_dir),
                     encode_cache(JSON.stringify(cache_meta), toplevel)
@@ -2697,13 +2981,18 @@ async def parse(text, options):
         'filename': None,  # name of the file being parsed
         'module_id': '__main__',  # The id of the module being parsed
         'toplevel': None,
-        'for_linting': False,  # If True certain actions are not performed, such as importing modules
+        # If True certain actions are not performed, such as importing modules
+        'for_linting': False,
         'import_dirs': v'[]',
-        'classes': undefined,  # Map of class names to AST_Class that are available in the global namespace (used by the REPL)
+        # Map of class names to AST_Class that are available in the
+        # global namespace (used by the REPL)
+        'classes': undefined,
         'scoped_flags': {},  # Global scoped flags (used by the REPL)
         'discard_asserts': False,
         'module_cache_dir': '',
-        'recover_errors': False,  # When True, continue parsing past syntax errors (used by the LSP). See run_parser/block_.
+        # When True, continue parsing past syntax errors (used by the
+        # LSP). See run_parser/block_.
+        'recover_errors': False,
     })
     import_dirs = [x for x in options.import_dirs]
     for location in v'[options.libdir, options.basedir]':
@@ -2714,16 +3003,21 @@ async def parse(text, options):
     imported_module_ids = []
     imported_modules = options.imported_modules or {}
     importing_modules = options.importing_modules or {}
-    # loading_promises tracks modules currently being loaded across the entire compilation.
-    # It is shared by passing it through options so parallel sub-parse() calls all see it.
+    # loading_promises tracks modules currently being loaded across the
+    # entire compilation.
+    # It is shared by passing it through options so parallel sub-parse()
+    # calls all see it.
     if not options.loading_promises:
         options.loading_promises = {}
     importing_modules[module_id] = True
 
     # The internal state of the parser
     S = {
-        'input': tokenizer(text, options.filename, options.recover_errors) if jstype(text) is 'string' else text,
-        'recovered_errors': v'[]',  # syntax errors swallowed during recovery (recover_errors mode only)
+        'input': tokenizer(
+            text, options.filename, options.recover_errors
+        ) if jstype(text) is 'string' else text,
+        # syntax errors swallowed during recovery (recover_errors mode only)
+        'recovered_errors': v'[]',
         'token': None,
         'prev': None,
         'peeked': [],

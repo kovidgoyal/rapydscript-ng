@@ -10,7 +10,8 @@
 
 # basic implementation of Python's 'random' library
 
-# JavaScript's Math.random() does not allow seeding its random generator, to bypass that, this module implements its own
+# JavaScript's Math.random() does not allow seeding its random
+# generator, to bypass that, this module implements its own
 # version that can be seeded. I decided on RC4 algorithm for this.
 
 # please don't mess with this from the outside
@@ -23,9 +24,14 @@
 
 ρσ_get_random_byte = def ():
     ρσ_seed_state.key_i = (ρσ_seed_state.key_i + 1) % 256
-    ρσ_seed_state.key_j = (ρσ_seed_state.key_j + ρσ_seed_state.key[ρσ_seed_state.key_i]) % 256
-    ρσ_seed_state.key[ρσ_seed_state.key_i], ρσ_seed_state.key[ρσ_seed_state.key_j] = \
-            ρσ_seed_state.key[ρσ_seed_state.key_j], ρσ_seed_state.key[ρσ_seed_state.key_i]
+    ρσ_seed_state.key_j = (
+        ρσ_seed_state.key_j + ρσ_seed_state.key[ρσ_seed_state.key_i]
+    ) % 256
+    (ρσ_seed_state.key[ρσ_seed_state.key_i],
+     ρσ_seed_state.key[ρσ_seed_state.key_j]) = (
+        ρσ_seed_state.key[ρσ_seed_state.key_j],
+        ρσ_seed_state.key[ρσ_seed_state.key_i]
+    )
     return ρσ_seed_state.key[(ρσ_seed_state.key[ρσ_seed_state.key_i] + \
             ρσ_seed_state.key[ρσ_seed_state.key_j]) % 256]
 
@@ -41,7 +47,9 @@ def seed(x=Date().getTime()):
     j = 0
     for i in range(256):
         j = (j + ρσ_seed_state.key[i] + x.charCodeAt(i % x.length)) % 256
-        ρσ_seed_state.key[i], ρσ_seed_state.key[j] = ρσ_seed_state.key[j], ρσ_seed_state.key[i]
+        (ρσ_seed_state.key[i],
+         ρσ_seed_state.key[j]) = (
+            ρσ_seed_state.key[j], ρσ_seed_state.key[i])
 seed()
 
 

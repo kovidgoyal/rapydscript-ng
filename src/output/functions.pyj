@@ -2,7 +2,9 @@
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ast import AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef, is_node_type
+from ast import (
+    AST_ClassCall, AST_New, has_calls, AST_Dot, AST_SymbolRef, is_node_type
+)
 from output.operators import print_getattr
 from output.statements import print_bracketed
 from output.utils import create_doctring
@@ -37,8 +39,12 @@ def decorate(decorators, output, func):
 
 def function_args(argnames, output, strip_first):
     output.with_parens(def ():
-        if argnames and argnames.args.length and (argnames.is_simple_func is True or argnames.is_simple_func is undefined):
-            for i, arg in enumerate((argnames.args.slice(1) if strip_first else argnames.args)):
+        if (argnames and argnames.args.length
+                and (argnames.is_simple_func is True
+                     or argnames.is_simple_func is undefined)):
+            for i, arg in enumerate(
+                argnames.args.slice(1) if strip_first else argnames.args
+            ):
                 if i:
                     output.comma()
                 arg.print(output)
@@ -50,7 +56,8 @@ def function_preamble(node, output, offset):
     a = node.argnames
     if not a or a.is_simple_func:
         return
-    # If this function has optional parameters/*args/**kwargs declare it differently
+    # If this function has optional parameters/*args/**kwargs
+    # declare it differently
     fname = node.name.name if node.name else anonfunc
     kw = 'arguments[arguments.length-1]'
     # Define all formal parameters
@@ -166,7 +173,8 @@ def function_preamble(node, output, offset):
                 output.newline()
 
     if a.starargs is not undefined:
-        # Define the *args parameter, putting in whatever is left after assigning the formal parameters and the options object
+        # Define the *args parameter, putting in whatever is left
+        # after assigning the formal parameters and the options object
         nargs = a.args.length - offset
         output.indent()
         output.spaced(
@@ -223,7 +231,8 @@ def function_annotation(self, output, strip_first, name):
                         arg.print(output)
                         output.print(':'), output.space()
                         arg.annotation.print(output)
-                        if i < self.argnames.args.length - 1 or self.return_annotation:
+                        if (i < self.argnames.args.length - 1
+                                or self.return_annotation):
                             output.comma()
             if self.return_annotation:
                 output.print('return:'), output.space()
@@ -260,7 +269,8 @@ def function_annotation(self, output, strip_first, name):
             output.print(']')
 
     # Create __doc__
-    if output.options.keep_docstrings and self.docstrings and self.docstrings.length:
+    if (output.options.keep_docstrings and self.docstrings
+            and self.docstrings.length):
         props.__doc__ = def ():
             output.print(JSON.stringify(create_doctring(self.docstrings)))
 
@@ -280,7 +290,10 @@ def function_annotation(self, output, strip_first, name):
     output.with_block(def ():
         for v'var i = 0; i < names.length; i++':
             name = names[i]
-            output.indent(), output.spaced(name, ':', '{value:', ''), props[name](), output.print('}')
+            output.indent()
+            output.spaced(name, ':', '{value:', '')
+            props[name]()
+            output.print('}')
             if i < names.length - 1:
                 output.print(',')
             output.newline()
@@ -310,9 +323,12 @@ def function_definition(self, output, strip_first, as_expression):
             print_bracketed(self, output, True, function_preamble)
             output.newline()
             output.indent()
-            output.spaced('var', 'result', '=', 'js_generator.apply(this,', 'arguments)')
+            output.spaced(
+                'var', 'result', '=',
+                'js_generator.apply(this,', 'arguments)')
             output.end_statement()
-            # Python's generator objects use a separate method to send data to the generator
+            # Python's generator objects use a separate method to
+            # send data to the generator
             output.indent()
             output.spaced('result.send', '=', 'result.next')
             output.end_statement()
@@ -341,7 +357,9 @@ def print_function(output):
         output.print('var')
         output.space()
         output.assign(self.name.name)
-        decorate(self.decorators, output, def (): function_definition(self, output, False, True);)
+        decorate(
+            self.decorators, output,
+            def (): function_definition(self, output, False, True);)
         output.end_statement()
     else:
         function_definition(self, output, False)
@@ -419,7 +437,9 @@ def print_function_call(self, output):
 
     def print_new(apply):
         output.print('ρσ_interpolate_kwargs_constructor.call(')
-        output.print('Object.create('), self.expression.print(output), output.print('.prototype)')
+        output.print('Object.create(')
+        self.expression.print(output)
+        output.print('.prototype)')
         output.comma()
         output.print('true' if apply else 'false')
         output.comma()
@@ -461,7 +481,8 @@ def print_function_call(self, output):
     is_new = is_node_type(self, AST_New)
     is_repeatable = True
 
-    if is_new and not self.args.args.length and not has_kwargs and not self.args.starargs:
+    if (is_new and not self.args.args.length
+            and not has_kwargs and not self.args.starargs):
         output.print('new'), output.space()
         print_function_name()
         return  # new A is the same as new A() in javascript

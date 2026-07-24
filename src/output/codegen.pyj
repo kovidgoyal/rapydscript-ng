@@ -74,15 +74,23 @@ from output.classes import print_class
 from output.comments import print_comments
 from output.exceptions import print_try
 from output.functions import print_function, print_function_call
-from output.literals import print_array, print_obj_literal, print_object, print_set, print_regexp
-from output.loops import print_do_loop, print_while_loop, print_for_loop_body, print_for_in, print_list_comprehension
+from output.literals import (
+    print_array, print_obj_literal, print_object, print_set, print_regexp
+)
+from output.loops import (
+    print_do_loop, print_while_loop, print_for_loop_body, print_for_in,
+    print_list_comprehension
+)
 from output.modules import print_top_level, print_imports
 from output.operators import (
     print_getattr, print_getitem, print_rich_getitem, print_splice_assignment,
     print_unary_prefix, print_binary_op, print_assign,
     print_conditional, print_seq, print_existential
 )
-from output.statements import print_bracketed, first_in_statement, force_statement, print_with, print_assert
+from output.statements import (
+    print_bracketed, first_in_statement, force_statement,
+    print_with, print_assert
+)
 from output.utils import make_block, make_num
 from parse import PRECEDENCE
 from utils import noop
@@ -139,7 +147,11 @@ def generate_code():
     )
     PARENS(AST_Seq, def (output):
         p = output.parent()
-        return is_node_type(p, AST_Unary) or is_node_type(p, AST_VarDef) or is_node_type(p, AST_Dot) or is_node_type(p, AST_ObjectProperty) or is_node_type(p, AST_Conditional)
+        return (
+            is_node_type(p, AST_Unary) or is_node_type(p, AST_VarDef) or
+            is_node_type(p, AST_Dot) or is_node_type(p, AST_ObjectProperty) or
+            is_node_type(p, AST_Conditional)
+        )
     )
     PARENS(AST_Binary, def (output):
         p = output.parent()
@@ -158,7 +170,9 @@ def generate_code():
             pp = PRECEDENCE[po]
             so = this.operator
             sp = PRECEDENCE[so]
-            if pp > sp or pp is sp and this is p.right and not (so is po and (so is '*' or so is '&&' or so is '||')):
+            if (pp > sp or pp is sp and this is p.right and
+                    not (so is po and (so is '*' or so is '&&' or
+                                       so is '||'))):
                 return True
     )
     PARENS(AST_PropAccess, def (output):
@@ -186,13 +200,16 @@ def generate_code():
     )
     PARENS(AST_New, def (output):
         p = output.parent()
-        if this.args.args.length is 0 and (is_node_type(p, AST_PropAccess) or is_node_type(p, AST_BaseCall) and p.expression is this):
+        if (this.args.args.length is 0 and
+                (is_node_type(p, AST_PropAccess) or
+                 is_node_type(p, AST_BaseCall) and p.expression is this)):
             # (new foo)(bar)
             return True
     )
     PARENS(AST_Number, def (output):
         p = output.parent()
-        if this.value < 0 and is_node_type(p, AST_PropAccess) and p.expression is this:
+        if (this.value < 0 and
+                is_node_type(p, AST_PropAccess) and p.expression is this):
             return True
     )
     PARENS(AST_NaN, def (output):
@@ -491,7 +508,8 @@ def generate_code():
 
     DEFPRINT(AST_Symbol, def (self, output):
         def_ = self.definition()
-        output.print_name((def_.mangled_name or def_.name) if def_ else self.name)
+        output.print_name(
+            (def_.mangled_name or def_.name) if def_ else self.name)
     )
     DEFPRINT(AST_Undefined, def (self, output):
         output.print('void 0')

@@ -2,7 +2,8 @@
 # License: BSD
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_contains
+# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol,
+# globals: ρσ_arraylike, ρσ_list_contains
 
 
 def ρσ_bool(val):
@@ -23,7 +24,8 @@ def ρσ_int(val, base):
     else:
         ans = parseInt(val, base or 10)
     if isNaN(ans):
-        raise ValueError('Invalid literal for int with base ' + (base or 10) + ': ' + val)
+        raise ValueError(
+            'Invalid literal for int with base ' + (base or 10) + ': ' + val)
     return ans
 
 
@@ -38,11 +40,18 @@ def ρσ_float(val):
 
 
 def ρσ_arraylike_creator():
-    names = 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.split(' ')
+    names = (
+        'Int8Array Uint8Array Uint8ClampedArray Int16Array' +
+        ' Uint16Array Int32Array Uint32Array Float32Array' +
+        ' Float64Array'
+    ).split(' ')
     if jstype(HTMLCollection) is 'function':
-        names = names.concat('HTMLCollection NodeList NamedNodeMap TouchList'.split(' '))
+        names = names.concat(
+            'HTMLCollection NodeList NamedNodeMap TouchList'.split(' '))
     return def (x):
-        if Array.isArray(x) or v'typeof x' is 'string' or names.indexOf(Object.prototype.toString.call(x).slice(8, -1)) > -1:
+        if (Array.isArray(x) or v'typeof x' is 'string'
+                or names.indexOf(
+                    Object.prototype.toString.call(x).slice(8, -1)) > -1):
             return True
         return False
 
@@ -122,7 +131,9 @@ def ρσ_enumerate(iterable):
             return v"{'done':true}"
         return ans
     if jstype(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        iterator = (
+            iterable.keys() if jstype(Map) is 'function' and
+            v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]())
         ans['_iterator'] = iterator
         ans['next'] = def ():
             r = this._iterator.next()
@@ -151,7 +162,9 @@ def ρσ_reversed(iterable):
 def ρσ_iter(iterable):
     # Generate a JavaScript iterator object from iterable
     if jstype(iterable[ρσ_iterator_symbol]) is 'function':
-        return iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        return (
+            iterable.keys() if jstype(Map) is 'function' and
+            v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]())
     if ρσ_arraylike(iterable):
         ans = v'{"_i":-1}'
         ans[ρσ_iterator_symbol] = def ():
@@ -247,7 +260,9 @@ def ρσ_hasattr(obj, name):
         if ρσ_arraylike(obj): return obj.length
         if jstype(obj.__len__) is 'function': return obj.__len__()
         return Object.keys(obj).length
-    return len if v'typeof Set' is 'function' and v'typeof Map' is 'function' else len5
+    return (
+        len if v'typeof Set' is 'function' and
+        v'typeof Map' is 'function' else len5)
 )()
 
 
@@ -291,9 +306,15 @@ def ρσ_max(*args, **kwargs):
     raise TypeError('expected at least one argument')
 
 
-v'var abs = Math.abs, max = ρσ_max.bind(Math.max), min = ρσ_max.bind(Math.min), bool = ρσ_bool, type = ρσ_type'
-v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike'
-v'var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow, divmod = ρσ_divmod'
-v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable'
-v'var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len'
-v'var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr'
+v'var abs = Math.abs, max = ρσ_max.bind(Math.max)'
+v'var min = ρσ_max.bind(Math.min), bool = ρσ_bool, type = ρσ_type'
+v'var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator()'
+v'var ρσ_arraylike = arraylike'
+v'var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module'
+v'var pow = ρσ_pow, divmod = ρσ_divmod'
+v'var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin'
+v'var hex = ρσ_hex, callable = ρσ_callable'
+v'var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed'
+v'var len = ρσ_len'
+v'var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr'
+v'var hasattr = ρσ_hasattr'

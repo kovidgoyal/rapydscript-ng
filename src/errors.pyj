@@ -17,7 +17,10 @@ class SyntaxError(Error):
         self.fileName = filename
 
     def toString(self):
-        ans = self.message + ' (line: ' + self.line + ', col: ' + self.col + ', pos: ' + self.pos + ')'
+        ans = (
+            self.message + ' (line: ' + self.line + ', col: ' +
+            self.col + ', pos: ' + self.pos + ')'
+        )
         if self.filename:
             ans = self.filename + ':' + ans
         if self.stack:

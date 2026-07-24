@@ -36,12 +36,16 @@ def map():
             if r.done:
                 return v"{'done':true}"
             this._args[i] = r.value  # noqa:undef
-        return v"{'done':false, 'value':this._func.apply(undefined, this._args)}"
+        return (
+            v"{'done':false, 'value':this._func.apply(undefined, this._args)}"
+        )
     return ans
 
 
 def filter(func_or_none, iterable):
-    func = ρσ_bool if func_or_none is None else func_or_none  # noqa: unused-local
+    func = (  # noqa: unused-local
+        ρσ_bool if func_or_none is None else func_or_none
+    )
     ans = v"{'_func':func, '_iterator':ρσ_iter(iterable)}"
     ans[ρσ_iterator_symbol] = def ():
         return this

@@ -61,9 +61,13 @@ def ρσ_repr(x):
         ans = ρσ_repr_js_builtin(x)
     else:
         name = Object.prototype.toString.call(x).slice(8, -1)
-        if 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.indexOf(name) != -1:
-            return name + '([' + x.map(def (i): return str.format('0x{:02x}', i);).join(', ') + '])'
-        if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
+        if ('Int8Array Uint8Array Uint8ClampedArray Int16Array'
+                + ' Uint16Array Int32Array Uint32Array'
+                + ' Float32Array Float64Array').indexOf(name) != -1:
+            mapped = x.map(def (i): return str.format('0x{:02x}', i);)
+            return name + '([' + mapped.join(', ') + '])'
+        if (jstype(HTMLElement) is not 'undefined' and
+                v'x instanceof HTMLElement'):
             ans = ρσ_html_element_to_string(x)
         else:
             ans = x.toString() if v'typeof x.toString === "function"' else x
@@ -74,7 +78,9 @@ def ρσ_repr(x):
             ans = JSON.stringify(x)
         except:
             pass
-    return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+    # Ensures we return an object of type string (i.e. primitive value)
+    # rather than a String object
+    return ans + ''
 
 
 def ρσ_str(x):
@@ -93,9 +99,13 @@ def ρσ_str(x):
         ans = ρσ_repr_js_builtin(x, True)
     elif v'typeof x.toString === "function"':
         name = Object.prototype.toString.call(x).slice(8, -1)
-        if 'Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array'.indexOf(name) != -1:
-            return name + '([' + x.map(def (i): return str.format('0x{:02x}', i);).join(', ') + '])'
-        if jstype(HTMLElement) is not 'undefined' and v'x instanceof HTMLElement':
+        if ('Int8Array Uint8Array Uint8ClampedArray Int16Array'
+                + ' Uint16Array Int32Array Uint32Array'
+                + ' Float32Array Float64Array').indexOf(name) != -1:
+            mapped = x.map(def (i): return str.format('0x{:02x}', i);)
+            return name + '([' + mapped.join(', ') + '])'
+        if (jstype(HTMLElement) is not 'undefined' and
+                v'x instanceof HTMLElement'):
             ans = ρσ_html_element_to_string(x)
         else:
             ans = x.toString()
@@ -105,7 +115,9 @@ def ρσ_str(x):
     elif jstype(x) is 'object' and not x.toString:
         # Assume this is a dictionary
         ans = ρσ_repr_js_builtin(x)
-    return ans + ''  # Ensures we return an object of type string (i.e. primitive value) rather than a String object
+    # Ensures we return an object of type string (i.e. primitive value)
+    # rather than a String object
+    return ans + ''
 
 define_str_func = def (name, func):
     ρσ_str.prototype[name] = func
@@ -117,7 +129,8 @@ define_str_func = def (name, func):
             {'value': v"['string']".concat(func.__argnames__)}
         )
 
-ρσ_orig_split, ρσ_orig_replace = String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)
+ρσ_orig_split = String.prototype.split.call.bind(String.prototype.split)
+ρσ_orig_replace = String.prototype.replace.call.bind(String.prototype.replace)
 
 # format()  {{{
 define_str_func('format', def ():
@@ -147,7 +160,8 @@ define_str_func('format', def ():
     def resolve_format_spec(format_spec):
         if ρσ_str.format._template_resolve_fs_pat is undefined:
             ρσ_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g
-        return format_spec.replace(ρσ_str.format._template_resolve_fs_pat, def (match, key):
+        pat = ρσ_str.format._template_resolve_fs_pat
+        return format_spec.replace(pat, def (match, key):
             if not Object.prototype.hasOwnProperty.call(kwargs, key):
                 return ''
             return '' + kwargs[key]
@@ -160,14 +174,19 @@ define_str_func('format', def ():
         return ans
     def safe_comma(value, comma):
         try:
-            return set_comma(value.toLocaleString(undefined, v'{useGrouping: true}'), comma)
+            return set_comma(
+                value.toLocaleString(undefined, v'{useGrouping: true}'),
+                comma)
         except:
             return value.toString(10)
     def safe_fixed(value, precision, comma):
         if not comma:
             return value.toFixed(precision)
         try:
-            return set_comma(value.toLocaleString(undefined, v'{useGrouping: true, minimumFractionDigits: precision, maximumFractionDigits: precision}'), comma)
+            ufmt = {'useGrouping': True,
+                    'minimumFractionDigits': precision,
+                    'maximumFractionDigits': precision}
+            return set_comma(value.toLocaleString(undefined, ufmt), comma)
         except:
             return value.toFixed(precision)
     def apply_formatting(value, format_spec):
@@ -185,7 +204,9 @@ define_str_func('format', def ():
                 ([bcdeEfFgGnosxX%])? # type
             ///
         try:
-            fill, align, sign, fhash, zeropad, width, comma, precision, ftype = format_spec.match(ρσ_str.format._template_format_pat)[1:]
+            m = format_spec.match(ρσ_str.format._template_format_pat)
+            fill, align, sign, fhash, zeropad = m[1], m[2], m[3], m[4], m[5]
+            width, comma, precision, ftype = m[6], m[7], m[8], m[9]
         except TypeError:
             return value
         if zeropad:
@@ -217,7 +238,9 @@ define_str_func('format', def ():
                 elif ftype is 'c':
                     if value > 0xFFFF:
                         code = value - 0x10000
-                        value = String.fromCharCode(0xD800 + (code >> 10), 0xDC00 + (code & 0x3FF))
+                        value = String.fromCharCode(
+                            0xD800 + (code >> 10),
+                            0xDC00 + (code & 0x3FF))
                     else:
                         value = String.fromCharCode(value)
                 elif ftype is 'd':
@@ -231,7 +254,8 @@ define_str_func('format', def ():
                         value = '0o' + value
                 elif lftype is 'x':
                     value = value.toString(16)
-                    value = value.toLowerCase() if ftype is 'x' else value.toUpperCase()
+                    value = (value.toLowerCase() if ftype is 'x'
+                             else value.toUpperCase())
                     if fhash:
                         value = '0x' + value
         elif v"['e','f','g','%']".indexOf(lftype) is not -1:
@@ -240,16 +264,20 @@ define_str_func('format', def ():
             prec = 6 if isNaN(precision) else precision
             if lftype is 'e':
                 value = value.toExponential(prec)
-                value = value.toUpperCase() if ftype is 'E' else value.toLowerCase()
+                value = (value.toUpperCase() if ftype is 'E'
+                         else value.toLowerCase())
             elif lftype is 'f':
                 value = safe_fixed(value, prec, comma)
-                value = value.toUpperCase() if ftype is 'F' else value.toLowerCase()
+                value = (value.toUpperCase() if ftype is 'F'
+                         else value.toLowerCase())
             elif lftype is '%':
                 value *= 100
                 value = safe_fixed(value, prec, comma) + '%'
             elif lftype is 'g':
                 prec = max(1, prec)
-                exp = parseInt(split(value.toExponential(prec - 1).toLowerCase(), 'e')[1], 10)
+                exp = parseInt(
+                    split(value.toExponential(prec - 1).toLowerCase(),
+                          'e')[1], 10)
                 if -4 <= exp < prec:
                     value = safe_fixed(value, prec - 1 - exp, comma)
                 else:
@@ -293,7 +321,9 @@ define_str_func('format', def ():
                 value = repeat(fill, left) + value + repeat(fill, right)
             elif align is '=':
                 if value[0] in '+- ':
-                    value = value[0] + repeat(fill, width - value.length) + value[1:]
+                    value = (value[0] +
+                             repeat(fill, width - value.length) +
+                             value[1:])
                 else:
                     value = repeat(fill, width - value.length) + value
             else:
@@ -333,7 +363,9 @@ define_str_func('format', def ():
         if lkey:
             explicit = True
             if implicit:
-                raise ValueError('cannot switch from automatic field numbering to manual field specification')
+                raise ValueError(
+                    'cannot switch from automatic field numbering'
+                    + ' to manual field specification')
             nvalue = parseInt(lkey)
             object = kwargs[lkey] if isNaN(nvalue) else args[nvalue]
             if object is undefined:
@@ -344,9 +376,12 @@ define_str_func('format', def ():
         else:
             implicit = True
             if explicit:
-                raise ValueError('cannot switch from manual field specification to automatic field numbering')
+                raise ValueError(
+                    'cannot switch from manual field specification'
+                    + ' to automatic field numbering')
             if idx >= args.length:
-                raise IndexError('Not enough arguments to match template: ' + template)
+                raise IndexError(
+                    'Not enough arguments to match template: ' + template)
             object = args[idx]
             idx += 1
         if jstype(object) is 'function':
@@ -405,7 +440,9 @@ define_str_func('center', def (width, fill):
     left = (width - this.length) // 2
     right = width - left - this.length  # noqa:unused-local
     fill = fill or ' '
-    return v'new Array(left+1).join(fill)' + this + v'new Array(right+1).join(fill)'
+    left_pad = v'new Array(left+1).join(fill)'
+    right_pad = v'new Array(right+1).join(fill)'
+    return left_pad + this + right_pad
 )
 
 define_str_func('count', def (needle, start, end):
@@ -437,7 +474,8 @@ define_str_func('endswith', def (suffixes, start, end):
         string = string[:end]
     for v'var i = 0; i < suffixes.length; i++':
         q = suffixes[i]  # noqa:undef
-        if string.indexOf(q, Math.max(start, string.length - q.length)) is not -1:
+        if (string.indexOf(q, Math.max(start, string.length - q.length))
+                is not -1):
             return True
     return False
 )
@@ -449,7 +487,8 @@ define_str_func('startswith', def (prefixes, start, end):
     for v'var i = 0; i < prefixes.length; i++':
         prefix = prefixes[i]  # noqa:undef
         end = this.length if end is undefined else end
-        if end - start >= prefix.length and prefix is this[start:start + prefix.length]:
+        if (end - start >= prefix.length and
+                prefix is this[start:start + prefix.length]):
             return True
     return False
 )
@@ -564,7 +603,8 @@ define_str_func('rstrip', def (chars):
 )
 
 define_str_func('strip', def (chars):
-    return ρσ_str.prototype.lstrip.call(ρσ_str.prototype.rstrip.call(this, chars), chars)
+    return ρσ_str.prototype.lstrip.call(
+        ρσ_str.prototype.rstrip.call(this, chars), chars)
 )
 
 define_str_func('partition', def (sep):
@@ -759,7 +799,9 @@ define_str_func('zfill', def (width):
 ρσ_str.ascii_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ρσ_str.digits = '0123456789'
 ρσ_str.punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
-ρσ_str.printable = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c'
+ρσ_str.printable = ('0123456789abcdefghijklmnopqrstuvwxyz'
+                    + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                    + '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\x0b\x0c')
 ρσ_str.whitespace = ' \t\n\r\x0b\x0c'
 
 v'define_str_func = undefined'

@@ -42,7 +42,8 @@ class AST_Token(AST):
         'nlb': 'True iff there was a newline before this token',
         'comments_before': 'True iff there were comments before this token',
         'file': 'The filename in which this token occurs',
-        'leading_whitespace': 'The leading whitespace for the line on which this token occurs',
+        'leading_whitespace':
+            'The leading whitespace for the line on which this token occurs',
     }
 
 
@@ -59,7 +60,9 @@ class AST_Node(AST):
     def walk(self, visitor):
         return self._walk(visitor)
 
-    def _dump(self, depth=100, omit={'start', 'end'}, offset=0, include_name=True):
+    def _dump(
+        self, depth=100, omit={'start', 'end'}, offset=0, include_name=True
+    ):
         p = console.log
         reset = '\x1b[0m'
         yellow = '\x1b[33m'
@@ -83,7 +86,11 @@ class AST_Node(AST):
                             element._dump(depth - 1, omit, offset + 1, True)
                     else:
                         for element in self[key]:
-                            p(pad + '   ' + yellow + element.constructor.name.slice(4) + reset)
+                            p(
+                                pad + '   ' + yellow
+                                + element.constructor.name.slice(4)
+                                + reset
+                            )
                     p(pad + ' ]')
                 else:
                     p(pad + ' ' + blue + key + ': ' + reset + '[]')
@@ -91,15 +98,19 @@ class AST_Node(AST):
                 if is_node_type(self[key], AST):
                     tname = self[key].constructor.name.slice(4)
                     if tname is 'Token':
-                        p(pad + ' ' + blue + key + ': ' + magenta + tname + reset)
+                        p(pad + ' ' + blue + key + ': '
+                          + magenta + tname + reset)
                         for property in self[key]:
-                            p(pad + '   ' + blue + property + ': ' + reset + self[key][property])
+                            p(pad + '   ' + blue + property + ': '
+                              + reset + self[key][property])
                     else:
-                        p(pad + ' ' + blue + key + ': ' + yellow + tname + reset)
+                        p(pad + ' ' + blue + key + ': '
+                          + yellow + tname + reset)
                         if depth > 1:
                             self[key]._dump(depth - 1, omit, offset + 1, False)
                 elif jstype(self[key]) is 'string':
-                    p(pad + ' ' + blue + key + ': ' + green + '"' + self[key] + '"' + reset)
+                    p(pad + ' ' + blue + key + ': '
+                      + green + '"' + self[key] + '"' + reset)
                 elif jstype(self[key]) is 'number':
                     p(pad + ' ' + blue + key + ': ' + green + self[key] + reset)
                 else:
@@ -128,14 +139,19 @@ class AST_Debugger(AST_Statement):
 class AST_Directive(AST_Statement):
     'Represents a directive, like "use strict";'
     properties = {
-        'value': "[string] The value of this directive as a plain string (it's not an AST_String!)",
+        'value':
+            '[string] The value of this directive as a plain string '
+            + "(it's not an AST_String!)",
         'scope': '[AST_Scope/S] The scope that this directive affects',
     }
 
 
 class AST_SimpleStatement(AST_Statement):
     'A statement consisting of an expression, i.e. a = 1 + 2'
-    properties = {'body': '[AST_Node] an expression node (should not be instanceof AST_Statement)'}
+    properties = {
+        'body': '[AST_Node] an expression node '
+            + '(should not be instanceof AST_Statement)'
+    }
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -147,7 +163,8 @@ class AST_Assert(AST_Statement):
     "An assert statement, e.g. assert True, 'an error message'"
     properties = {
         'condition': '[AST_Node] the expression that should be tested',
-        'message': '[AST_Node*] the expression that is the error message or None',
+        'message':
+            '[AST_Node*] the expression that is the error message or None',
     }
 
     def _walk(self, visitor):
@@ -193,8 +210,12 @@ class AST_EmptyStatement(AST_Statement):
 
 
 class AST_StatementWithBody(AST_Statement):
-    'Base class for all statements that contain one nested body: `For`, `ForIn`, `Do`, `While`, `With`'
-    properties = {'body': "[AST_Statement] the body; this should always be present, even if it's an AST_EmptyStatement"}
+    'Base class for all statements that contain one nested body: '
+    +'`For`, `ForIn`, `Do`, `While`, `With`'
+    properties = {
+        'body': '[AST_Statement] the body; this should always be '
+            + "present, even if it's an AST_EmptyStatement"
+    }
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -204,7 +225,10 @@ class AST_StatementWithBody(AST_Statement):
 
 class AST_DWLoop(AST_StatementWithBody):
     'Base class for do/while statements'
-    properties = {'condition': '[AST_Node] the loop condition.  Should not be instanceof AST_Statement'}
+    properties = {
+        'condition': '[AST_Node] the loop condition.  '
+            + 'Should not be instanceof AST_Statement'
+    }
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -250,7 +274,9 @@ class AST_ListComprehension(AST_ForIn):
     'A list comprehension expression'
     properties = {
         'condition': '[AST_Node] the `if` condition',
-        'statement': '[AST_Node] statement to perform on each element before returning it',
+        'statement':
+            '[AST_Node] statement to perform on each element '
+            + 'before returning it',
     }
 
     def _walk(self, visitor):
@@ -269,7 +295,9 @@ class AST_SetComprehension(AST_ListComprehension):
 class AST_DictComprehension(AST_ListComprehension):
     'A set comprehension'
     properties = {
-        'value_statement': '[AST_Node] statement to perform on each value before returning it',
+        'value_statement':
+            '[AST_Node] statement to perform on each value '
+            + 'before returning it',
         'is_pydict': '[bool] True if this comprehension is for a python dict',
         'is_jshash': '[bool] True if this comprehension is for a js hash',
     }
@@ -331,19 +359,33 @@ class AST_Scope(AST_Block):
 class AST_Toplevel(AST_Scope):
     'The toplevel scope'
     properties = {
-        'globals': '[Object/S] a map of name -> SymbolDef for all undeclared names',
+        'globals':
+            '[Object/S] a map of name -> SymbolDef for all undeclared names',
         'baselib': '[Object/s] a collection of used parts of baselib',
-        'imports': '[Object/S] a map of module_id->AST_Toplevel for all imported modules (this represents all imported modules across all source files)',
-        'imported_module_ids': '[string*] a list of module ids that were imported by this module, specifically',
-        'nonlocalvars': '[String*] a list of all non-local variable names (names that come from the global scope)',
+        'imports':
+            '[Object/S] a map of module_id->AST_Toplevel for all '
+            + 'imported modules (this represents all imported '
+            + 'modules across all source files)',
+        'imported_module_ids':
+            '[string*] a list of module ids that were imported '
+            + 'by this module, specifically',
+        'nonlocalvars':
+            '[String*] a list of all non-local variable names '
+            + '(names that come from the global scope)',
         'shebang': '[string] If #! line is present, it will be stored here',
-        'import_order': '[number] The global order in which this scope was imported',
+        'import_order':
+            '[number] The global order in which this scope was imported',
         'module_id': '[string] The id of this module',
         'exports': '[SymbolDef*] list of names exported from this module',
-        'classes': '[Object/S] a map of class names to AST_Class for classes defined in this module',
-        'filename': '[string] The absolute path to the file from which this module was read',
+        'classes':
+            '[Object/S] a map of class names to AST_Class '
+            + 'for classes defined in this module',
+        'filename':
+            '[string] The absolute path to the file from '
+            + 'which this module was read',
         'srchash': '[string] SHA1 hash of source code, used for caching',
-        'comments_after': '[array] True iff there were comments before this token',
+        'comments_after':
+            '[array] True iff there were comments before this token',
     }
 
 
@@ -352,8 +394,12 @@ class AST_Import(AST_Statement):
 
     properties = {
         'module': "[AST_SymbolVar] name of the module we're importing",
-        'key': '[string] The key by which this module is stored in the global modules mapping',
-        'alias': '[AST_SymbolAlias] The name this module is imported as, can be None. For import x as y statements.',
+        'key':
+            '[string] The key by which this module is stored '
+            + 'in the global modules mapping',
+        'alias':
+            '[AST_SymbolAlias] The name this module is imported as, '
+            + 'can be None. For import x as y statements.',
         'argnames': '[AST_ImportedVar*] names of objects to be imported',
         'body': '[AST_TopLevel] parsed contents of the imported file',
     }
@@ -400,9 +446,11 @@ class AST_ArgsDef(AST_Node):
         'args': '[AST_SymbolFunarg*] formal positional parameters',
         'starargs': '[AST_SymbolFunarg?] *args parameter, or None',
         'kwargs': '[AST_SymbolFunarg?] **kwargs parameter, or None',
-        'defaults': '[Object] map of parameter name to default value expression',
+        'defaults':
+            '[Object] map of parameter name to default value expression',
         'has_defaults': '[bool] True if any parameter has a default value',
-        'is_simple_func': '[bool] True if no starargs, no kwargs, and no defaults',
+        'is_simple_func':
+            '[bool] True if no starargs, no kwargs, and no defaults',
     }
 
     def _walk(self, visitor):
@@ -424,9 +472,12 @@ class AST_Lambda(AST_Scope):
         'decorators': '[AST_Decorator*] function decorators, if any',
         'is_generator': '[bool*] True iff this function is a generator',
         'is_async': '[bool*] True iff this function is an async function',
-        'is_expression': '[bool*] True iff this function is a function expression',
-        'is_anonymous': '[bool*] True iff this function is an anonymous function',
-        'return_annotation': '[AST_Node?] The return type annotation provided (if any)',
+        'is_expression':
+            '[bool*] True iff this function is a function expression',
+        'is_anonymous':
+            '[bool*] True iff this function is an anonymous function',
+        'return_annotation':
+            '[AST_Node?] The return type annotation provided (if any)',
     }
 
     def _walk(self, visitor):
@@ -452,14 +503,26 @@ class AST_Class(AST_Scope):
         'init': '[AST_Function] constructor for the class',
         'parent': '[AST_Symbol?] parent class this class inherits from',
         'bases': '[AST_Symbol*] list of base classes this class inherits from',
-        'static': '[dict] A hash whose keys are names of static methods for this class',
-        'external': '[boolean] true if class is declared elsewhere, but will be within current scope at runtime',
+        'static':
+            '[dict] A hash whose keys are names of static '
+            + 'methods for this class',
+        'external':
+            '[boolean] true if class is declared elsewhere, '
+            + 'but will be within current scope at runtime',
         'bound': '[string*] list of methods that need to be bound to self',
         'decorators': '[AST_Decorator*] function decorators, if any',
         'module_id': '[string] The id of the module this class is defined in',
-        'statements': '[AST_Node*] list of statements in the class scope (excluding method definitions)',
-        'dynamic_properties': '[dict] map of dynamic property names to property descriptors of the form {getter:AST_Method, setter:AST_Method',
-        'classvars': '[dict] map containing all class variables as keys, to be used to easily test for existence of a class variable',
+        'statements':
+            '[AST_Node*] list of statements in the class scope '
+            + '(excluding method definitions)',
+        'dynamic_properties':
+            '[dict] map of dynamic property names to property '
+            + 'descriptors of the form {getter:AST_Method, '
+            + 'setter:AST_Method',
+        'classvars':
+            '[dict] map containing all class variables as keys, '
+            + 'to be used to easily test for existence '
+            + 'of a class variable',
     }
 
     def _walk(self, visitor):
@@ -487,12 +550,16 @@ class AST_Method(AST_Lambda):
 
 
 class AST_Jump(AST_Statement):
-    "Base class for “jumps” (for now that's `return`, `throw`, `break` and `continue`)"
+    "Base class for “jumps” (for now that's `return`, `throw`, `break`"
+    +' and `continue`)'
 
 
 class AST_Exit(AST_Jump):
     'Base class for “exits” (`return` and `throw`)'
-    properties = {'value': '[AST_Node?] the value returned or thrown by this statement; could be null for AST_Return'}
+    properties = {
+        'value': '[AST_Node?] the value returned or thrown by '
+            + 'this statement; could be null for AST_Return'
+    }
 
     def _walk(self, visitor):
         return visitor._visit(self, def ():
@@ -547,7 +614,8 @@ class AST_If(AST_StatementWithBody):
     'A `if` statement'
     properties = {
         'condition': '[AST_Node] the `if` condition',
-        'alternative': '[AST_Statement?] the `else` part, or null if not present',
+        'alternative':
+            '[AST_Statement?] the `else` part, or null if not present',
     }
 
     def _walk(self, visitor):
@@ -615,7 +683,8 @@ class AST_Else(AST_Block):
 
 # VAR/CONST {{{
 class AST_Definitions(AST_Statement):
-    'Base class for `var` or `const` nodes (variable declarations/initializations)'
+    'Base class for `var` or `const` nodes '
+    +'(variable declarations/initializations)'
     properties = {
         'definitions': '[AST_VarDef*] array of variable definitions'
     }
@@ -721,7 +790,8 @@ class AST_ClassCall(AST_BaseCall):
 
 
 class AST_New(AST_Call):
-    'An object instantiation. Derives from a function call since it has exactly the same properties'
+    'An object instantiation. Derives from a function call '
+    +'since it has exactly the same properties'
 
 
 class AST_Seq(AST_Node):
@@ -789,7 +859,10 @@ class AST_PropAccess(AST_Node):
     'Base class for property access expressions, i.e. `a.foo` or `a["foo"]`'
     properties = {
         'expression': '[AST_Node] the “container” expression',
-        'property': "[AST_Node|string] the property to access.  For AST_Dot this is always a plain string, while for AST_Sub it's an arbitrary AST_Node",
+        'property':
+            '[AST_Node|string] the property to access.  For AST_Dot '
+            + 'this is always a plain string, while for AST_Sub '
+            + "it's an arbitrary AST_Node",
     }
 
 
@@ -815,8 +888,12 @@ class AST_Sub(AST_PropAccess):
 class AST_ItemAccess(AST_PropAccess):
     'Python index-style property access, i.e. `a.__getitem__("foo")`'
     properties = {
-        'assignment': '[AST_Node or None] Not None if this is an assignment (a[x] = y) rather than a simple access',
-        'assign_operator': '[String] The operator for a assignment like += or empty string if plain assignment',
+        'assignment':
+            '[AST_Node or None] Not None if this is an assignment '
+            + '(a[x] = y) rather than a simple access',
+        'assign_operator':
+            '[String] The operator for a assignment like += '
+            + 'or empty string if plain assignment',
     }
 
     def _walk(self, visitor):
@@ -831,7 +908,9 @@ class AST_ItemAccess(AST_PropAccess):
 class AST_Splice(AST_PropAccess):
     'Index-style property access, i.e. `a[3:5]`'
     properties = {
-        'property2': '[AST_Node] the 2nd property to access - typically ending index for the array.',
+        'property2':
+            '[AST_Node] the 2nd property to access - '
+            + 'typically ending index for the array.',
         'assignment': '[AST_Node] The data being spliced in.',
     }
 
@@ -847,8 +926,10 @@ class AST_Unary(AST_Node):
     'Base class for unary expressions'
     properties = {
         'operator': '[string] the operator',
-        'expression': '[AST_Node] expression that this unary operator applies to',
-        'parenthesized': '[bool] Whether this unary expression was parenthesized',
+        'expression':
+            '[AST_Node] expression that this unary operator applies to',
+        'parenthesized':
+            '[bool] Whether this unary expression was parenthesized',
     }
 
     def _walk(self, visitor):
@@ -879,8 +960,14 @@ class AST_Binary(AST_Node):
 class AST_Existential(AST_Node):
     'Existential operator a?'
     properties = {
-        'expression': '[AST_Node] The expression whose existence we need to check',
-        'after': '[None|string|AST_Node] is None when there is nothing following this operator, is a string when there is as AST_PropAccess following this operator, is an AST_Node if it is used a a shorthand for the conditional ternary, i.e. a ? b == a if a? else b',
+        'expression':
+            '[AST_Node] The expression whose existence we need to check',
+        'after':
+            '[None|string|AST_Node] is None when there is nothing '
+            + 'following this operator, is a string when there is '
+            + 'as AST_PropAccess following this operator, is an '
+            + 'AST_Node if it is used a a shorthand for the '
+            + 'conditional ternary, i.e. a ? b == a if a? else b',
     }
 
     def _walk(self, visitor):
@@ -914,7 +1001,13 @@ class AST_Assign(AST_Binary):
         return is_node_type(
             self.right,
             AST_Assign
-        ) or (is_node_type(self.right, AST_Seq) and (is_node_type(self.right.car, AST_Assign) or is_node_type(self.right.cdr, AST_Assign)))
+        ) or (
+            is_node_type(self.right, AST_Seq)
+            and (
+                is_node_type(self.right.car, AST_Assign)
+                or is_node_type(self.right.cdr, AST_Assign)
+            )
+        )
 
     def traverse_chain(self):
         right = self.right
@@ -924,7 +1017,9 @@ class AST_Assign(AST_Binary):
                 continue
             if is_node_type(right, AST_Seq):
                 if is_node_type(right.car, AST_Assign):
-                    right = new AST_Seq({'car': right.car.right, 'cdr': right.cdr})
+                    right = new AST_Seq({
+                        'car': right.car.right, 'cdr': right.cdr
+                    })
                     continue
                 if is_node_type(right.cdr, AST_Assign):
                     right = right.cdr.right
@@ -940,7 +1035,9 @@ class AST_Assign(AST_Binary):
             if is_node_type(next, AST_Seq):
                 if is_node_type(next.cdr, AST_Assign):
                     assign = next.cdr
-                    left_hand_sides.push(new AST_Seq({'car': next.car, 'cdr': assign.left}))
+                    left_hand_sides.push(new AST_Seq({
+                        'car': next.car, 'cdr': assign.left
+                    }))
                     next = assign.right
                     continue
             break
@@ -1003,7 +1100,9 @@ class AST_ObjectProperty(AST_Node):
     'Base class for literal object properties'
     properties = {
         'key': '[AST_Node] the property expression',
-        'value': '[AST_Node] property value.  For setters and getters this is an AST_Function.',
+        'value':
+            '[AST_Node] property value.  For setters and '
+            + 'getters this is an AST_Function.',
         'quoted': '',
     }
 
@@ -1047,7 +1146,9 @@ class AST_Symbol(AST_Node):
     'Base class for all symbols'
     properties = {
         'name': '[string] name of this symbol',
-        'scope': '[AST_Scope/S] the current scope (not necessarily the definition scope)',
+        'scope':
+            '[AST_Scope/S] the current scope '
+            + '(not necessarily the definition scope)',
         'thedef': '[SymbolDef/S] the definition of this symbol',
     }
 
@@ -1057,7 +1158,8 @@ class AST_SymbolAlias(AST_Symbol):
 
 
 class AST_SymbolDeclaration(AST_Symbol):
-    'A declaration symbol (symbol in var/const, function name or argument, symbol in catch)'
+    'A declaration symbol (symbol in var/const, function name '
+    +'or argument, symbol in catch)'
     properties = {
         'init': '[AST_Node*/S] array of initializers for this declaration.'
     }
@@ -1080,7 +1182,10 @@ class AST_SymbolNonlocal(AST_SymbolDeclaration):
 
 class AST_SymbolFunarg(AST_SymbolVar):
     'Symbol naming a function argument, possibly with an annotation.'
-    properties = {'annotation': '[AST_Node?] The annotation provided for this argument (if any)'}
+    properties = {
+        'annotation':
+            '[AST_Node?] The annotation provided for this argument (if any)'
+    }
 
 
 class AST_SymbolDefun(AST_SymbolDeclaration):
@@ -1197,7 +1302,10 @@ class TreeWalker:
 
     def _visit(self, node, descend):
         self.stack.push(node)
-        ret = self.visit(node, ((def (): descend.call(node);) if descend else noop))
+        ret = self.visit(
+            node,
+            ((def (): descend.call(node);) if descend else noop)
+        )
         if not ret and descend:
             descend.call(node)
 
@@ -1237,7 +1345,10 @@ class TreeWalker:
                 AST_UnaryPrefix
             ) and p.operator is '!' and p.expression is self:
                 return True
-            if not (is_node_type(p, AST_Binary) and (p.operator is '&&' or p.operator is '||')):
+            if not (
+                is_node_type(p, AST_Binary)
+                and (p.operator is '&&' or p.operator is '||')
+            ):
                 return False
             self = p
 # }}}
@@ -1256,7 +1367,8 @@ def has_calls(expression):
         return False
     try:
         expression.walk(new TreeWalker(def (node):
-            if is_node_type(node, AST_BaseCall) or is_node_type(node, AST_ItemAccess):
+            if (is_node_type(node, AST_BaseCall)
+                    or is_node_type(node, AST_ItemAccess)):
                 raise Found()
         ))
     except Found:

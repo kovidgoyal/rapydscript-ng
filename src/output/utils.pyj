@@ -25,7 +25,8 @@ def make_num(num):
             a.push('0x' + num.toString(16).toLowerCase(),  # probably pointless
             '0' + num.toString(8))
         else:
-            a.push('-0x' + (-num).toString(16).toLowerCase(),  # probably pointless
+            # probably pointless
+            a.push('-0x' + (-num).toString(16).toLowerCase(),
             '-0' + (-num).toString(8))
 
         if m = /^(.*?)(0+)$/.exec(num):
@@ -68,7 +69,10 @@ def create_doctring(docstrings):
                 lines.push(v'["", ""]')
             else:
                 leading_whitespace = leading_whitespace.replace(/\t/g, '    ')
-                if leading_whitespace and (not min_leading_whitespace or leading_whitespace.length < min_leading_whitespace.length):
+                if leading_whitespace and (
+                    not min_leading_whitespace or
+                    leading_whitespace.length < min_leading_whitespace.length
+                ):
                     min_leading_whitespace = leading_whitespace
                 lines.push(v'[leading_whitespace, line]')
         for lw, l in lines:

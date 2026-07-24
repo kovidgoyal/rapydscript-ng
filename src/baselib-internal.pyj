@@ -1,7 +1,8 @@
 # vim:fileencoding=utf-8
 # License: BSD
 
-# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol, ρσ_arraylike, ρσ_list_constructor, ρσ_str, ρσ_int, ρσ_float
+# globals: exports, console, ρσ_iterator_symbol, ρσ_kwargs_symbol,
+# ρσ_arraylike, ρσ_list_constructor, ρσ_str, ρσ_int, ρσ_float
 
 
 def ρσ_eslice(arr, step, start, end):
@@ -65,7 +66,9 @@ def ρσ_unpack_asarray(num, iterable):
         return iterable
     ans = v'[]'
     if jstype(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() \
+            if jstype(Map) is 'function' and v'iterable instanceof Map' \
+            else iterable[ρσ_iterator_symbol]()
         result = iterator.next()
         while not result.done and ans.length < num:
             ans.push(result.value)
@@ -106,14 +109,17 @@ def ρσ_Iterable(iterable):
     if ρσ_arraylike(iterable):
         return iterable
     if jstype(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        iterator = iterable.keys() \
+            if jstype(Map) is 'function' and v'iterable instanceof Map' \
+            else iterable[ρσ_iterator_symbol]()
         ans = []
         result = iterator.next()
         while not result.done:
             ans.push(result.value)
             result = iterator.next()
         return ans
-    # so we can use 'for ... in' syntax with objects, as we would with dicts in python
+    # so we can use 'for ... in' syntax with objects, as we would
+    # with dicts in python
     return Object.keys(iterable)
 
 ρσ_desugar_kwargs = (def ():
@@ -228,7 +234,8 @@ def ρσ_splice(arr, val, start, end):
         return def ():
             return undefined
     , 'g': def (expr):
-        if expr is undefined or expr is None or jstype(expr.__getitem__) is not 'function':
+        if (expr is undefined or expr is None or
+                jstype(expr.__getitem__) is not 'function'):
             return {'__getitem__': def (): return undefined;}
     , 'e': def (expr, alt):
         return alt if expr is undefined or expr is None else expr
@@ -242,7 +249,10 @@ def ρσ_mixin():
     # inheritance.
     seen = Object.create(None)
     # Ensure the following special properties are never copied
-    seen.__argnames__ = seen.__handles_kwarg_interpolation__ = seen.__init__ = seen.__annotations__ = seen.__doc__ = seen.__bind_methods__ = seen.__bases__ = seen.constructor = seen.__class__ = True
+    seen.__argnames__ = seen.__handles_kwarg_interpolation__ = \
+        seen.__init__ = seen.__annotations__ = seen.__doc__ = \
+        seen.__bind_methods__ = seen.__bases__ = \
+        seen.constructor = seen.__class__ = True
     resolved_props = {}
     p = target = arguments[0].prototype
     while p and p is not Object.prototype:
@@ -275,11 +285,13 @@ def ρσ_instanceof():
             return True
         if (q is Array or q is ρσ_list_constructor) and Array.isArray(obj):
             return True
-        if q is ρσ_str and (jstype(obj) is 'string' or v'obj instanceof String'):
+        if q is ρσ_str and (
+                jstype(obj) is 'string' or v'obj instanceof String'):
             return True
         if q is ρσ_int and (jstype(obj) is 'number' and Number.isInteger(obj)):
             return True
-        if q is ρσ_float and (jstype(obj) is 'number' and not Number.isInteger(obj)):
+        if q is ρσ_float and (
+                jstype(obj) is 'number' and not Number.isInteger(obj)):
             return True
         if bases.length > 1:
             for v'var c = 1; c < bases.length; c++':

@@ -19,7 +19,12 @@ def ρσ_equals(a, b):
             if not (a[i] == b[i]):
                 return False
         return True
-    if jstype(a) is 'object' and jstype(b) is 'object' and a is not None and b is not None and ((a.constructor is Object and b.constructor is Object) or (Object.getPrototypeOf(a) is None and Object.getPrototypeOf(b) is None)):
+    if (jstype(a) is 'object' and jstype(b) is 'object'
+            and a is not None and b is not None
+            and ((a.constructor is Object
+                  and b.constructor is Object)
+                 or (Object.getPrototypeOf(a) is None
+                     and Object.getPrototypeOf(b) is None))):
         # Do a dict like comparison as this is most likely either a JS has
         # (Object.create(null) or a JS object used as a hash (v"{}"))
         akeys, bkeys = Object.keys(a), Object.keys(b)
@@ -69,14 +74,19 @@ def ρσ_list_constructor(iterable):
         for v'var i = 0; i < iterable.length; i++':
             ans[i] = iterable[i]  # noqa:undef
     elif jstype(iterable[ρσ_iterator_symbol]) is 'function':
-        iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+        iterator = (
+            iterable.keys() if jstype(Map) is 'function'
+            and v'iterable instanceof Map'
+            else iterable[ρσ_iterator_symbol]()
+        )
         ans = []
         result = iterator.next()
         while not result.done:
             ans.push(result.value)
             result = iterator.next()
     elif jstype(iterable) is 'number':
-        # non-pythonic optimization to allocate all needed memory in a single operation
+        # non-pythonic optimization to allocate all needed memory in a
+        # single operation
         ans = new Array(iterable)
     else:
         ans = Object.keys(iterable)
@@ -98,7 +108,11 @@ if v'typeof Array.prototype.append' is not 'function':
                 for v'var i = 0; i < iterable.length; i++':
                     this[start + i] = iterable[i]  # noqa:undef
             else:
-                iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+                iterator = (
+                    iterable.keys() if jstype(Map) is 'function'
+                    and v'iterable instanceof Map'
+                    else iterable[ρσ_iterator_symbol]()
+                )
                 result = iterator.next()
                 while not result.done:
                     this.push(result.value)
@@ -173,7 +187,9 @@ if v'typeof Array.prototype.append' is not 'function':
     });
     Object.defineProperty(Array.prototype, 'count', {
         'writable': False, 'configurable': False, 'enumerable': False,
-        'value': def (value): return this.reduce(def (n, val): return n + (val is value);, 0)
+        'value': def (value):
+            return this.reduce(
+                def (n, val): return n + (val is value);, 0)
     });
     Object.defineProperty(Array.prototype, 'pysort', {
         'writable': False, 'configurable': False, 'enumerable': False,
@@ -197,7 +213,9 @@ if v'typeof Array.prototype.append' is not 'function':
                 k = this[i]  # noqa:undef
                 keymap.set(k, key(k))
                 posmap.set(k, i)
-            this.sort(def (a, b): return mult * _sort_cmp(keymap.get(a), keymap.get(b), posmap.get(a), posmap.get(b));)
+            this.sort(def (a, b): return mult * _sort_cmp(
+                keymap.get(a), keymap.get(b),
+                posmap.get(a), posmap.get(b));)
     });
     Object.defineProperty(Array.prototype, 'as_array', {
         'writable': False, 'configurable': False, 'enumerable': False,
@@ -299,7 +317,8 @@ def ρσ_set_polyfill():
         return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
     return ans
 
-if jstype(Set) is not 'function' or jstype(Set.prototype.delete) is not 'function':
+if (jstype(Set) is not 'function'
+        or jstype(Set.prototype.delete) is not 'function'):
     v'ρσ_set_implementation = ρσ_set_polyfill'
 else:
     v'ρσ_set_implementation = Set'
@@ -316,7 +335,11 @@ def ρσ_set(iterable):
             for v'var i = 0; i < iterable.length; i++':
                 s.add(iterable[i])
         elif jstype(iterable[ρσ_iterator_symbol]) is 'function':
-            iterator = iterable.keys() if jstype(Map) is 'function' and v'iterable instanceof Map' else iterable[ρσ_iterator_symbol]()
+            iterator = (
+                iterable.keys() if jstype(Map) is 'function'
+                and v'iterable instanceof Map'
+                else iterable[ρσ_iterator_symbol]()
+            )
             result = iterator.next()
             while not result.done:
                 s.add(result.value)
@@ -337,7 +360,8 @@ Object.defineProperties(ρσ_set.prototype, {
 })
 
 ρσ_set.prototype.__len__ = def (): return this.jsset.size
-ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = def (x): return this.jsset.has(x)
+ρσ_set.prototype.has = ρσ_set.prototype.__contains__ = def (x):
+    return this.jsset.has(x)
 ρσ_set.prototype.add = def (x): this.jsset.add(x)
 ρσ_set.prototype.clear = def (): this.jsset.clear()
 ρσ_set.prototype.copy = def (): return ρσ_set(this)
@@ -473,7 +497,8 @@ Object.defineProperties(ρσ_set.prototype, {
             s.add(r.value)
             r = iterator.next()
 
-ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = def ():
+ρσ_set.prototype.toString = ρσ_set.prototype.__repr__ \
+    = ρσ_set.prototype.__str__ = ρσ_set.prototype.inspect = def ():
     return '{' + list(this).join(', ') + '}'
 
 ρσ_set.prototype.__eq__ = def (other):
@@ -569,7 +594,8 @@ def ρσ_dict_polyfill():
         return v"{'done':false, 'value':this._s[this._keys[this._i]]}"
     return ans
 
-if jstype(Map) is not 'function' or jstype(Map.prototype.delete) is not 'function':
+if (jstype(Map) is not 'function'
+        or jstype(Map.prototype.delete) is not 'function'):
     v'ρσ_dict_implementation = ρσ_dict_polyfill'
 else:
     v'ρσ_dict_implementation = Map'
@@ -594,14 +620,17 @@ Object.defineProperties(ρσ_dict.prototype, {
 })
 
 ρσ_dict.prototype.__len__ = def (): return this.jsmap.size
-ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def (x): return this.jsmap.has(x)
-ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def (key, value): this.jsmap.set(key, value)
+ρσ_dict.prototype.has = ρσ_dict.prototype.__contains__ = def (x):
+    return this.jsmap.has(x)
+ρσ_dict.prototype.set = ρσ_dict.prototype.__setitem__ = def (key, value):
+    this.jsmap.set(key, value)
 ρσ_dict.prototype.__delitem__ = def (key): this.jsmap.delete(key)
 ρσ_dict.prototype.clear = def (): this.jsmap.clear()
 ρσ_dict.prototype.copy = def (): return ρσ_dict(this)
 ρσ_dict.prototype.keys = def (): return this.jsmap.keys()
 ρσ_dict.prototype.values = def (): return this.jsmap.values()
-ρσ_dict.prototype.items = ρσ_dict.prototype.entries = def (): return this.jsmap.entries()
+ρσ_dict.prototype.items = ρσ_dict.prototype.entries = def ():
+    return this.jsmap.entries()
 ρσ_dict.prototype[ρσ_iterator_symbol] = def (): return this.jsmap.keys()
 
 ρσ_dict.prototype.__getitem__ = def (key):
@@ -616,7 +645,8 @@ Object.defineProperties(ρσ_dict.prototype, {
         return None if defval is undefined else defval
     return ans
 
-ρσ_dict.prototype.set_default = ρσ_dict.prototype.setdefault = def (key, defval):
+ρσ_dict.prototype.set_default = ρσ_dict.prototype.setdefault \
+    = def (key, defval):
     j = this.jsmap
     if not j.has(key):
         j.set(key, defval)
@@ -687,7 +717,8 @@ Object.defineProperties(ρσ_dict.prototype, {
     if arguments.length > 1:
         ρσ_dict.prototype.update.call(this, arguments[1])
 
-ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = def ():
+ρσ_dict.prototype.toString = ρσ_dict.prototype.inspect \
+    = ρσ_dict.prototype.__str__ = ρσ_dict.prototype.__repr__ = def ():
     entries = v'[]'
     iterator = this.jsmap.entries()
     r = iterator.next()
@@ -707,7 +738,8 @@ Object.defineProperties(ρσ_dict.prototype, {
     r = iterator.next()
     while not r.done:
         x = this.jsmap.get(r.value[0])
-        if (x is undefined and not this.jsmap.has(r.value[0])) or x is not r.value[1]:
+        if ((x is undefined and not this.jsmap.has(r.value[0]))
+                or x is not r.value[1]):
             return False
         r = iterator.next()
     return True

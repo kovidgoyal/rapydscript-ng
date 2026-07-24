@@ -17,7 +17,8 @@ DB = '''
 #
 # For informative aliases, see NamesList.txt
 #
-# The formal name aliases are divided into five types, each with a distinct label.
+# The formal name aliases are divided into five types, each with a distinct
+# label.
 #
 # Type Labels:
 #
@@ -40,7 +41,8 @@ DB = '''
 # The inclusion of ISO 6429 names and other commonly occurring names and
 # abbreviations for control codes and format characters as formal name aliases
 # is to help avoid name collisions between Unicode character names and the
-# labels which commonly appear in text and/or in implementations such as regex, for
+# labels which commonly appear in text and/or in implementations such as regex,
+# for
 # control codes (which for historical reasons have no Unicode character name)
 # or for format characters.
 #

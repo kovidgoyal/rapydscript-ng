@@ -78,10 +78,17 @@ def _decode_source_map(smap):
                     prev_src_line = src_line
                     src_col = prev_src_col + fields[3]
                     prev_src_col = src_col
-                    src_file = sources[src_idx] if src_idx >= 0 and src_idx < sources.length else ''
+                    src_file = (
+                        sources[src_idx]
+                        if src_idx >= 0 and src_idx < sources.length
+                        else ''
+                    )
                     if source_root and src_file:
                         src_file = source_root + src_file
-                    line_entries.push({'gen_col': gen_col, 'src_file': src_file, 'src_line': src_line, 'src_col': src_col})
+                    line_entries.push({
+                        'gen_col': gen_col, 'src_file': src_file,
+                        'src_line': src_line, 'src_col': src_col
+                    })
                 elif fields.length >= 1:
                     prev_col += fields[0]
         decoded.push(line_entries)
@@ -135,7 +142,8 @@ def _parse_stack_frame(line):
 
 def _get_decoded_map():
     if _traceback_state['decoded'] is None and _traceback_state['source_map']:
-        _traceback_state['decoded'] = _decode_source_map(_traceback_state['source_map'])
+        _traceback_state['decoded'] = _decode_source_map(
+            _traceback_state['source_map'])
     return _traceback_state['decoded']
 
 
@@ -146,7 +154,8 @@ def _get_internal_traceback(err):
     for i, line in enumerate(lines):
         if i > 0:
             line = line.trim()
-            if line.startsWith('at new ' + err.name) or line.startsWith(err.name + '@'):
+            if (line.startsWith('at new ' + err.name) or
+                    line.startsWith(err.name + '@')):
                 # this is the constructor for a RapydScript Exception
                 start_line_idx = i + 1
                 break
@@ -155,7 +164,10 @@ def _get_internal_traceback(err):
         for i, xline in enumerate(lines):
             if i > 0:
                 line = xline.trim()
-                if v"line.startsWith('at ') || line.includes('@') || /:\d+:\d+$/.test(line)":
+                if (
+                    v"line.startsWith('at ') || line.includes('@')" or
+                    v"/:\d+:\d+$/.test(line)"
+                ):
                     start_line_idx = i
                     break
     frame_lines = lines[start_line_idx:]
@@ -168,7 +180,11 @@ def _get_internal_traceback(err):
             if frame:
                 mapping = _find_mapping(decoded, frame.line, frame.col)
                 if mapping:
-                    loc = '  File "' + mapping.src_file + '", line ' + (mapping.src_line + 1) + ', col ' + (mapping.src_col + 1)
+                    loc = (
+                        '  File "' + mapping.src_file + '", line ' +
+                        (mapping.src_line + 1) + ', col ' +
+                        (mapping.src_col + 1)
+                    )
                     if frame.func:
                         loc += ', in ' + frame.func
                     mapped_lines.push(loc)
@@ -192,7 +208,8 @@ def format_exception(exc, limit):
         js_lines.push(e)
         js_lines = v"['Traceback (most recent call last):'].concat(js_lines)"
         if rs_lines.length > 0:
-            js_lines = js_lines.concat(['', 'Mapped Traceback (RapydScript):']).concat(rs_lines)
+            js_lines = js_lines.concat(
+                ['', 'Mapped Traceback (RapydScript):']).concat(rs_lines)
         return [l + '\n' for l in js_lines]
     return [exc.toString()]
 

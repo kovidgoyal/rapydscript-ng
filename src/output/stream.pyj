@@ -5,11 +5,23 @@ from __python__ import hash_literals
 from tokenizer import is_identifier_char
 from utils import make_predicate, defaults, repeat_string
 
-DANGEROUS = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g
+DANGEROUS = RegExp(
+    '[\\u0000\\u00ad\\u0600-\\u0604\\u070f\\u17b4\\u17b5' +
+    '\\u200c-\\u200f\\u2028-\\u202f\\u2060-\\u206f' +
+    '\\ufeff\\ufff0-\\uffff]', 'g'
+)
 
 # Pre-computed ASCII lookup for identifier characters used in the space-emission
-# hot path. Avoids the full unicode-aware is_identifier_char() for the common case.
-_IDENT_CHARS = v'(function(){var t=new Uint8Array(128),s="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$";for(var i=0;i<s.length;i++)t[s.charCodeAt(i)]=1;return t;})()'
+# hot path. Avoids the full unicode-aware is_identifier_char() for the
+# common case.
+def _make_ident_chars():
+    t = v'new Uint8Array(128)'
+    s = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$'
+    for i in range(s.length):
+        t[s.charCodeAt(i)] = 1
+    return t
+
+_IDENT_CHARS = _make_ident_chars()
 
 
 def _is_ident_char(ch):
@@ -85,11 +97,13 @@ class OutputStream:
         self.with_counter = 0
         self.try_else_counter = 0
         self._source_map_segments = v'[]' if self.options.source_map else None
-        # Indentation string cache: avoids repeat_string() on every indent() call
+        # Indentation string cache: avoids repeat_string() on every
+        # indent() call
         self._indent_cache_val = -1
         self._indent_cache_str = ''
-        # Install no-op add_mapping on the instance when source maps are disabled,
-        # avoiding a null check and array push per node in the hot output walk.
+        # Install no-op add_mapping on the instance when source maps are
+        # disabled, avoiding a null check and array push per node in the
+        # hot output walk.
         if not self.options.source_map:
             self.add_mapping = def (node): pass
 
@@ -108,7 +122,10 @@ class OutputStream:
         self.print(self.make_name(name))
 
     def make_indent(self, back):
-        target = self.options.indent_start + self._indentation - (back or 0) * self.options.indent_level
+        target = (
+            self.options.indent_start + self._indentation -
+            (back or 0) * self.options.indent_level
+        )
         if target == self._indent_cache_val:
             return self._indent_cache_str
         s = repeat_string(' ', target)
@@ -121,7 +138,8 @@ class OutputStream:
         return self._last.charAt(self._last.length - 1)
 
     def maybe_newline(self):
-        if self.options.max_line_len and self.current_col > self.options.max_line_len:
+        if (self.options.max_line_len and
+                self.current_col > self.options.max_line_len):
             self.print('\n')
 
     def print(self, str_):
@@ -145,7 +163,9 @@ class OutputStream:
             self.might_need_semicolon = False
             self.maybe_newline()
 
-        if not self.options.beautify and self.options.preserve_line and self._stack[self._stack.length - 1]:
+        if (not self.options.beautify and
+                self.options.preserve_line and
+                self._stack[self._stack.length - 1]):
             target_line = self._stack[self._stack.length - 1].start.line
             while self.current_line < target_line:
                 self._fragments.push('\n')
@@ -319,14 +339,24 @@ class OutputStream:
         return self._stack[self._stack.length - 2 - (n or 0)]
 
     def add_mapping(self, node):
-        if self._source_map_segments is not None and node.start and node.start.file:
-            self._source_map_segments.push(v'[self.current_line - 1 + self.options.source_map_line_offset, self.current_col, node.start.file, node.start.line - 1, node.start.col]')
+        if (self._source_map_segments is not None and
+                node.start and node.start.file):
+            self._source_map_segments.push([
+                self.current_line - 1 +
+                self.options.source_map_line_offset,
+                self.current_col,
+                node.start.file,
+                node.start.line - 1,
+                node.start.col
+            ])
 
     def add_cached_mappings(self, segments, line_offset):
         if self._source_map_segments is None:
             return
         for seg in segments:
-            self._source_map_segments.push(v'[seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]')
+            self._source_map_segments.push(
+                v'[seg[0] + line_offset, seg[1], seg[2], seg[3], seg[4]]'
+            )
 
     def get_source_map_segments(self):
         return self._source_map_segments
