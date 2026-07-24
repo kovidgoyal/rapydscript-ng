@@ -57,7 +57,7 @@ if (!ρσ_float.__argnames__) Object.defineProperties(ρσ_float, {
 
 function ρσ_arraylike_creator() {
     var names;
-    names = "Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" ");
+    names = ("Int8Array Uint8Array Uint8ClampedArray Int16Array" + " Uint16Array Int32Array Uint32Array Float32Array" + " Float64Array").split(" ");
     if (typeof HTMLCollection === "function") {
         names = names.concat("HTMLCollection NodeList NamedNodeMap TouchList".split(" "));
     }
@@ -617,12 +617,18 @@ if (!ρσ_max.__handles_kwarg_interpolation__) Object.defineProperties(ρσ_max,
     __module__ : {value: "__main__"}
 });
 
-var abs = Math.abs, max = ρσ_max.bind(Math.max), min = ρσ_max.bind(Math.min), bool = ρσ_bool, type = ρσ_type;
-var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator(), ρσ_arraylike = arraylike;
-var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module, pow = ρσ_pow, divmod = ρσ_divmod;
-var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin, hex = ρσ_hex, callable = ρσ_callable;
-var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed, len = ρσ_len;
-var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr, hasattr = ρσ_hasattr;function ρσ_equals(a, b) {
+var abs = Math.abs, max = ρσ_max.bind(Math.max);
+var min = ρσ_max.bind(Math.min), bool = ρσ_bool, type = ρσ_type;
+var float = ρσ_float, int = ρσ_int, arraylike = ρσ_arraylike_creator();
+var ρσ_arraylike = arraylike;
+var print = ρσ_print, id = ρσ_id, get_module = ρσ_get_module;
+var pow = ρσ_pow, divmod = ρσ_divmod;
+var dir = ρσ_dir, ord = ρσ_ord, chr = ρσ_chr, bin = ρσ_bin;
+var hex = ρσ_hex, callable = ρσ_callable;
+var enumerate = ρσ_enumerate, iter = ρσ_iter, reversed = ρσ_reversed;
+var len = ρσ_len;
+var range = ρσ_range, getattr = ρσ_getattr, setattr = ρσ_setattr;
+var hasattr = ρσ_hasattr;function ρσ_equals(a, b) {
     var ρσ_unpack, akeys, bkeys, key;
     if (a === b) {
         return true;
@@ -1012,34 +1018,38 @@ if (typeof Array.prototype.append !== "function") {
                 if (Object.prototype.hasOwnProperty.call(ρσ_kwargs_obj, "reverse")){
                     reverse = ρσ_kwargs_obj.reverse;
                 }
-                var mult, keymap, posmap, k;
-                function _sort_key(value) {
-                    var t;
-                    t = typeof value;
-                    if (t === "string" || t === "number") {
-                        return value;
-                    }
-                    return value.toString();
-                };
-                if (!_sort_key.__argnames__) Object.defineProperties(_sort_key, {
-                    __argnames__ : {value: ["value"]},
-                    __module__ : {value: "__main__"}
-                });
-
-                function _sort_cmp(a, b, ap, bp) {
-                    if (a < b) {
-                        return -1;
-                    }
-                    if (a > b) {
-                        return 1;
-                    }
-                    return ap - bp;
-                };
-                if (!_sort_cmp.__argnames__) Object.defineProperties(_sort_cmp, {
-                    __argnames__ : {value: ["a", "b", "ap", "bp"]},
-                    __module__ : {value: "__main__"}
-                });
-
+                var _sort_key, _sort_cmp, mult, keymap, posmap, k;
+                _sort_key = (function() {
+                    var ρσ_anonfunc = function (value) {
+                        var t;
+                        t = typeof value;
+                        if (t === "string" || t === "number") {
+                            return value;
+                        }
+                        return value.toString();
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["value"]},
+                        __module__ : {value: "__main__"}
+                    });
+                    return ρσ_anonfunc;
+                })();
+                _sort_cmp = (function() {
+                    var ρσ_anonfunc = function (a, b, ap, bp) {
+                        if (a < b) {
+                            return -1;
+                        }
+                        if (a > b) {
+                            return 1;
+                        }
+                        return ap - bp;
+                    };
+                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                        __argnames__ : {value: ["a", "b", "ap", "bp"]},
+                        __module__ : {value: "__main__"}
+                    });
+                    return ρσ_anonfunc;
+                })();
                 key = key || _sort_key;
                 mult = (reverse) ? -1 : 1;
                 keymap = dict();
@@ -3212,7 +3222,7 @@ if (!all.__argnames__) Object.defineProperties(all, {
     __argnames__ : {value: ["iterable"]},
     __module__ : {value: "__main__"}
 });
-var decimal_sep, define_str_func, ρσ_unpack, ρσ_orig_split, ρσ_orig_replace;
+var decimal_sep, define_str_func, ρσ_orig_split, ρσ_orig_replace;
 decimal_sep = 1.1.toLocaleString()[1];
 function ρσ_repr_js_builtin(x, as_array) {
     var ans, b, keys, key;
@@ -3263,7 +3273,7 @@ if (!ρσ_html_element_to_string.__argnames__) Object.defineProperties(ρσ_html
 });
 
 function ρσ_repr(x) {
-    var ans, name;
+    var ans, name, mapped;
     if (x === null) {
         return "None";
     }
@@ -3283,8 +3293,8 @@ function ρσ_repr(x) {
         ans = ρσ_repr_js_builtin(x);
     } else {
         name = Object.prototype.toString.call(x).slice(8, -1);
-        if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
-            return name + "([" + x.map((function() {
+        if (ρσ_not_equals(("Int8Array Uint8Array Uint8ClampedArray Int16Array" + " Uint16Array Int32Array Uint32Array" + " Float32Array Float64Array").indexOf(name), -1)) {
+            mapped = x.map((function() {
                 var ρσ_anonfunc = function (i) {
                     return str.format("0x{:02x}", i);
                 };
@@ -3293,7 +3303,8 @@ function ρσ_repr(x) {
                     __module__ : {value: "__main__"}
                 });
                 return ρσ_anonfunc;
-            })()).join(", ") + "])";
+            })());
+            return name + "([" + mapped.join(", ") + "])";
         }
         if (typeof HTMLElement !== "undefined" && x instanceof HTMLElement) {
             ans = ρσ_html_element_to_string(x);
@@ -3319,7 +3330,7 @@ if (!ρσ_repr.__argnames__) Object.defineProperties(ρσ_repr, {
 });
 
 function ρσ_str(x) {
-    var ans, name;
+    var ans, name, mapped;
     if (x === null) {
         return "None";
     }
@@ -3337,8 +3348,8 @@ function ρσ_str(x) {
         ans = ρσ_repr_js_builtin(x, true);
     } else if (typeof x.toString === "function") {
         name = Object.prototype.toString.call(x).slice(8, -1);
-        if (ρσ_not_equals("Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".indexOf(name), -1)) {
-            return name + "([" + x.map((function() {
+        if (ρσ_not_equals(("Int8Array Uint8Array Uint8ClampedArray Int16Array" + " Uint16Array Int32Array Uint32Array" + " Float32Array Float64Array").indexOf(name), -1)) {
+            mapped = x.map((function() {
                 var ρσ_anonfunc = function (i) {
                     return str.format("0x{:02x}", i);
                 };
@@ -3347,7 +3358,8 @@ function ρσ_str(x) {
                     __module__ : {value: "__main__"}
                 });
                 return ρσ_anonfunc;
-            })()).join(", ") + "])";
+            })());
+            return name + "([" + mapped.join(", ") + "])";
         }
         if (typeof HTMLElement !== "undefined" && x instanceof HTMLElement) {
             ans = ρσ_html_element_to_string(x);
@@ -3386,9 +3398,8 @@ define_str_func = (function() {
     });
     return ρσ_anonfunc;
 })();
-ρσ_unpack = [String.prototype.split.call.bind(String.prototype.split), String.prototype.replace.call.bind(String.prototype.replace)];
-ρσ_orig_split = ρσ_unpack[0];
-ρσ_orig_replace = ρσ_unpack[1];
+ρσ_orig_split = String.prototype.split.call.bind(String.prototype.split);
+ρσ_orig_replace = String.prototype.replace.call.bind(String.prototype.replace);
 define_str_func("format", (function() {
     var ρσ_anonfunc = function () {
         var template, args, kwargs, explicit, implicit, idx, split, ans, pos, in_brace, markup, ch;
@@ -3430,10 +3441,12 @@ define_str_func("format", (function() {
         });
 
         function resolve_format_spec(format_spec) {
+            var pat;
             if (ρσ_str.format._template_resolve_fs_pat === undefined) {
                 ρσ_str.format._template_resolve_fs_pat = /[{]([a-zA-Z0-9_]+)[}]/g;
             }
-            return format_spec.replace(ρσ_str.format._template_resolve_fs_pat, (function() {
+            pat = ρσ_str.format._template_resolve_fs_pat;
+            return format_spec.replace(pat, (function() {
                 var ρσ_anonfunc = function (match, key) {
                     if (!Object.prototype.hasOwnProperty.call(kwargs, key)) {
                         return "";
@@ -3482,11 +3495,19 @@ define_str_func("format", (function() {
         });
 
         function safe_fixed(value, precision, comma) {
+            var ufmt;
             if (!comma) {
                 return value.toFixed(precision);
             }
             try {
-                return set_comma(value.toLocaleString(undefined, {useGrouping: true, minimumFractionDigits: precision, maximumFractionDigits: precision}), comma);
+                ufmt = (function(){
+                    var ρσ_d = {};
+                    ρσ_d["useGrouping"] = true;
+                    ρσ_d["minimumFractionDigits"] = precision;
+                    ρσ_d["maximumFractionDigits"] = precision;
+                    return ρσ_d;
+                }).call(this);
+                return set_comma(value.toLocaleString(undefined, ufmt), comma);
             } catch (ρσ_Exception) {
                 ρσ_last_exception = ρσ_Exception;
                 {
@@ -3500,7 +3521,7 @@ define_str_func("format", (function() {
         });
 
         function apply_formatting(value, format_spec) {
-            var ρσ_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, prec, exp, nval, is_positive, left, right;
+            var m, ρσ_unpack, fill, align, sign, fhash, zeropad, width, comma, precision, ftype, is_numeric, is_int, lftype, code, prec, exp, nval, is_positive, left, right;
             if (format_spec.indexOf("{") !== -1) {
                 format_spec = resolve_format_spec(format_spec);
             }
@@ -3508,17 +3529,18 @@ define_str_func("format", (function() {
                 ρσ_str.format._template_format_pat = /([^{}](?=[<>=^]))?([<>=^])?([-+\x20])?(\#)?(0)?(\d+)?([,_])?(?:\.(\d+))?([bcdeEfFgGnosxX%])?/;
             }
             try {
-                ρσ_unpack = format_spec.match(ρσ_str.format._template_format_pat).slice(1);
-ρσ_unpack = ρσ_unpack_asarray(9, ρσ_unpack);
+                m = format_spec.match(ρσ_str.format._template_format_pat);
+                ρσ_unpack = [m[1], m[2], m[3], m[4], m[5]];
                 fill = ρσ_unpack[0];
                 align = ρσ_unpack[1];
                 sign = ρσ_unpack[2];
                 fhash = ρσ_unpack[3];
                 zeropad = ρσ_unpack[4];
-                width = ρσ_unpack[5];
-                comma = ρσ_unpack[6];
-                precision = ρσ_unpack[7];
-                ftype = ρσ_unpack[8];
+                ρσ_unpack = [m[6], m[7], m[8], m[9]];
+                width = ρσ_unpack[0];
+                comma = ρσ_unpack[1];
+                precision = ρσ_unpack[2];
+                ftype = ρσ_unpack[3];
             } catch (ρσ_Exception) {
                 ρσ_last_exception = ρσ_Exception;
                 if (ρσ_Exception instanceof TypeError) {
@@ -3728,7 +3750,7 @@ define_str_func("format", (function() {
             if (lkey) {
                 explicit = true;
                 if (implicit) {
-                    throw new ValueError("cannot switch from automatic field numbering to manual field specification");
+                    throw new ValueError("cannot switch from automatic field numbering" + " to manual field specification");
                 }
                 nvalue = parseInt(lkey);
                 object = (isNaN(nvalue)) ? kwargs[(typeof lkey === "number" && lkey < 0) ? kwargs.length + lkey : lkey] : args[(typeof nvalue === "number" && nvalue < 0) ? args.length + nvalue : nvalue];
@@ -3742,7 +3764,7 @@ define_str_func("format", (function() {
             } else {
                 implicit = true;
                 if (explicit) {
-                    throw new ValueError("cannot switch from manual field specification to automatic field numbering");
+                    throw new ValueError("cannot switch from manual field specification" + " to automatic field numbering");
                 }
                 if (idx >= args.length) {
                     throw new IndexError("Not enough arguments to match template: " + template);
@@ -3831,11 +3853,13 @@ define_str_func("capitalize", (function() {
 })());
 define_str_func("center", (function() {
     var ρσ_anonfunc = function (width, fill) {
-        var left, right;
+        var left, right, left_pad, right_pad;
         left = Math.floor((width - this.length) / 2);
         right = width - left - this.length;
         fill = fill || " ";
-        return new Array(left+1).join(fill) + this + new Array(right+1).join(fill);
+        left_pad = new Array(left+1).join(fill);
+        right_pad = new Array(right+1).join(fill);
+        return left_pad + this + right_pad;
     };
     if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
         __argnames__ : {value: ["width", "fill"]},
@@ -4483,7 +4507,7 @@ define_str_func("zfill", (function() {
 ρσ_str.ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 ρσ_str.digits = "0123456789";
 ρσ_str.punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-ρσ_str.printable = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
+ρσ_str.printable = "0123456789abcdefghijklmnopqrstuvwxyz" + "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t\n\r\u000b\f";
 ρσ_str.whitespace = " \t\n\r\u000b\f";
 define_str_func = undefined;
 var str = ρσ_str, repr = ρσ_repr;
