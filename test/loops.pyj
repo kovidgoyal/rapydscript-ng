@@ -83,3 +83,18 @@ dest = []
 for al in 'a', 'b', 'c':
     dest.push(al)
 assrt.equal(dest.join(''), 'abc')
+
+# list comprehension with tuple unpacking (regression: ρσ_unpack was not
+# declared inside the IIFE, causing silent globals or ReferenceError in strict mode)
+pairs = [['a', '1'], ['b', '2'], ['c', '3']]
+keys = ['a', 'b', 'c']
+vals = ['1', '2', '3']
+assrt.deepEqual([k + '.' + v for k, v in zip(keys, vals)], ['a.1', 'b.2', 'c.3'])
+
+# same pattern inside a function to ensure the IIFE scoping is correct
+def make_dotted(ks, vs):
+    return [k + '.' + v for k, v in zip(ks, vs)].join(',')
+assrt.equal(make_dotted(['x', 'y'], ['1', '2']), 'x.1,y.2')
+
+# tuple unpacking in a list comprehension with a filter condition
+assrt.deepEqual([k + v for k, v in zip(keys, vals) if k is not 'b'], ['a1', 'c3'])

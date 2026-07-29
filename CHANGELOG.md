@@ -1,3 +1,8 @@
+version 0.8.5
+================
+
+  * Fix a big in the JS generated for list comprehensions with tuple unpacking
+
 version 0.8.4
 ================
   * Fix LSP ignoring globals: comments

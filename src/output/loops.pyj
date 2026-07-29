@@ -302,6 +302,8 @@ def print_list_comprehension(self, output):
                 body_out.print(result_obj)
             # make sure to locally scope loop variables
             if is_node_type(self.init, AST_Array):
+                body_out.comma()
+                body_out.print('ρσ_unpack')
                 for i in self.init.elements:
                     body_out.comma()
                     i.print(body_out)
