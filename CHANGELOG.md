@@ -1,7 +1,11 @@
+version 0.8.6
+===============
+  * Build system: replaced bun with deno for static compilation so that the binary does not depend on ICU libraries
+
 version 0.8.5
 ================
 
-  * Fix a big in the JS generated for list comprehensions with tuple unpacking
+  * Fix a bug in the JS generated for list comprehensions with tuple unpacking
 
 version 0.8.4
 ================

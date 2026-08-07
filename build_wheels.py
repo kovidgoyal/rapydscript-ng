@@ -11,15 +11,14 @@ import re
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
-# Maps (bun_target, wheel_platform_tag, binary_name)
+# Maps (deno_target, wheel_platform_tag, binary_name)
 PLATFORMS = [
-    ("bun-linux-x64", "manylinux_2_17_x86_64", "rapydscript"),
-    ("bun-linux-arm64", "manylinux_2_17_aarch64", "rapydscript"),
-    ("bun-linux-x64-musl", "musllinux_1_2_x86_64", "rapydscript"),
-    ("bun-linux-arm64-musl", "musllinux_1_2_aarch64", "rapydscript"),
-    ("bun-darwin-x64", "macosx_10_9_x86_64", "rapydscript"),
-    ("bun-darwin-arm64", "macosx_11_0_arm64", "rapydscript"),
-    ("bun-windows-x64", "win_amd64", "rapydscript.exe"),
+    ("x86_64-unknown-linux-gnu", "manylinux_2_17_x86_64", "rapydscript"),
+    ("aarch64-unknown-linux-gnu", "manylinux_2_17_aarch64", "rapydscript"),
+    ("x86_64-apple-darwin", "macosx_10_9_x86_64", "rapydscript"),
+    ("aarch64-apple-darwin", "macosx_11_0_arm64", "rapydscript"),
+    ("x86_64-pc-windows-msvc", "win_amd64", "rapydscript.exe"),
+    ("aarch64-pc-windows-msvc", "win_arm64", "rapydscript.exe"),
 ]
 
 
@@ -32,15 +31,16 @@ def load_metadata():
         return json.load(f)
 
 
-def build_binary(bun_target, outfile):
+def build_binary(deno_target, outfile):
     cmd = [
-        "bun",
+        "deno", "run",
+        "--allow-read", "--allow-write", "--allow-run", "--allow-env",
         "bin/build.ts",
         "--compile",
-        f"--outfile={outfile}",
-        f"--target={bun_target}",
+        f"--output={outfile}",
+        f"--target={deno_target}",
     ]
-    print(f"  Building {bun_target} ...")
+    print(f"  Building {deno_target} ...")
     subprocess.check_call(cmd, cwd=BASE)
 
 
@@ -79,13 +79,13 @@ def write_wheel_metadata(dist_info_dir, meta, wheel_platform):
             f.write(s.read())
 
 
-def build_wheel(meta, bun_target, wheel_platform, binary_name, dest_dir, tmpdir):
+def build_wheel(meta, deno_target, wheel_platform, binary_name, dest_dir, tmpdir):
     norm_name = normalize_name(meta["name"])
     version = meta["version"]
 
     suffix = ".exe" if binary_name.endswith(".exe") else ""
-    binary_outfile = os.path.join(tmpdir, f"rapydscript-{bun_target}{suffix}")
-    build_binary(bun_target, binary_outfile)
+    binary_outfile = os.path.join(tmpdir, f"rapydscript-{deno_target}{suffix}")
+    build_binary(deno_target, binary_outfile)
 
     # Assemble unpacked wheel layout
     wheel_dir = os.path.join(tmpdir, f"{norm_name}-{version}-{wheel_platform}")
@@ -118,10 +118,10 @@ def main():
 
     wheels = []
     with tempfile.TemporaryDirectory(prefix="rapydscript-wheel-") as tmpdir:
-        for bun_target, wheel_platform, binary_name in PLATFORMS:
-            print(f"\n[{bun_target}]")
+        for deno_target, wheel_platform, binary_name in PLATFORMS:
+            print(f"\n[{deno_target}]")
             whl = build_wheel(
-                meta, bun_target, wheel_platform, binary_name, dest_dir, tmpdir
+                meta, deno_target, wheel_platform, binary_name, dest_dir, tmpdir
             )
             wheels.append(whl)
             print(f"  -> dist/{whl}")

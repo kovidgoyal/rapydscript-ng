@@ -12,3 +12,4 @@ package-lock.json
 *.local.md
 bin/rapydscript.mjs
 bin/lint-worker-bundle.mjs
+bin/deno.lock

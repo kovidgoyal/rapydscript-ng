@@ -144,21 +144,21 @@ export default async function(argv, base_path, src_path, lib_path) {
         if (!failed) console.log(colored(file, 'green') + ": test completed successfully\n");
         else { console.log(colored(file, 'red') + ":\ttest failed\n"); }
     }
-    // Run the bun standalone binary test when doing a full test suite run and bun
+    // Run the deno standalone binary test when doing a full test suite run and deno
     // is available.  Individual file runs (argv.files.length > 0) skip it.
     if (!argv.files.length) {
-        const bun_test_name = 'bun_standalone_binary';
-        let bun_ok = false;
+        const deno_test_name = 'deno_standalone_binary';
+        let deno_ok = false;
         try {
-            bun_ok = await run_bun_standalone_test(base_path, colored);
+            deno_ok = await run_deno_standalone_test(base_path, colored);
         } catch (e) {
-            console.error(colored(bun_test_name, 'red') + ': unexpected error: ' + (e.stack || e));
+            console.error(colored(deno_test_name, 'red') + ': unexpected error: ' + (e.stack || e));
         }
-        if (bun_ok) {
-            console.log(colored(bun_test_name, 'green') + ': test completed successfully\n');
+        if (deno_ok) {
+            console.log(colored(deno_test_name, 'green') + ': test completed successfully\n');
         } else {
-            failures.push(bun_test_name);
-            console.log(colored(bun_test_name, 'red') + ':\ttest failed\n');
+            failures.push(deno_test_name);
+            console.log(colored(deno_test_name, 'red') + ':\ttest failed\n');
         }
     }
 
@@ -169,39 +169,34 @@ export default async function(argv, base_path, src_path, lib_path) {
     process.exit((failures.length) ? 1 : 0);
 }
 
-async function run_bun_standalone_test(base_path, colored) {
+async function run_deno_standalone_test(base_path, colored) {
     const { spawnSync } = await import('child_process');
-    const test_name = 'bun_standalone_binary';
+    const test_name = 'deno_standalone_binary';
 
-    // Check if bun is available.
-    const bun_check = spawnSync('bun', ['--version'], { encoding: 'utf-8' });
-    if (bun_check.error || bun_check.status !== 0) {
-        console.log(colored(test_name, 'yellow') + ': bun not found, skipping');
+    // Check if deno is available.
+    const deno_check = spawnSync('deno', ['--version'], { encoding: 'utf-8' });
+    if (deno_check.error || deno_check.status !== 0) {
+        console.log(colored(test_name, 'yellow') + ': deno not found, skipping');
         return true;
     }
 
-    // Generate bin/rapydscript.mjs via build.ts.
+    // Generate bin/rapydscript.mjs AND compile the standalone binary via build.ts --compile.
     const build_ts = path.join(base_path, 'bin', 'build.ts');
-    const gen_result = spawnSync('bun', [build_ts], { encoding: 'utf-8', cwd: base_path });
-    if (gen_result.status !== 0) {
-        console.error(colored(test_name, 'red') + ': build.ts failed:\n' + (gen_result.stderr || gen_result.stdout));
-        return false;
-    }
-
-    // Compile the standalone binary.
-    const binary_path = path.join(os.tmpdir(), 'rapydscript-bun-test-binary');
-    const entry_mjs = path.join(base_path, 'bin', 'rapydscript.mjs');
+    const binary_path = path.join(os.tmpdir(), 'rapydscript-deno-test-binary');
     const compile_result = spawnSync(
-        'bun', ['build', entry_mjs, '--compile', '--outfile', binary_path],
+        'deno', [
+            'run', '--allow-read', '--allow-write', '--allow-run', '--allow-env', '--allow-sys',
+            build_ts, '--compile', '--output', binary_path,
+        ],
         { encoding: 'utf-8', cwd: base_path }
     );
     if (compile_result.status !== 0) {
-        console.error(colored(test_name, 'red') + ': bun build --compile failed:\n' + (compile_result.stderr || compile_result.stdout));
+        console.error(colored(test_name, 'red') + ': deno compile failed:\n' + (compile_result.stderr || compile_result.stdout));
         return false;
     }
 
     // Create test fixtures in a temp directory.
-    const tmp_dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'rs-bun-test-'));
+    const tmp_dir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'rs-deno-test-'));
     try {
         // A local module the test will import from the filesystem.
         await fs.promises.writeFile(path.join(tmp_dir, 'greeter.pyj'),
