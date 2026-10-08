@@ -245,6 +245,22 @@ def has_setter_decorator(decorators, name):
     return False
 
 
+def import_waits_reach(import_waits, start, target):
+    # Whether target can be reached from start in the import wait graph
+    seen = {}
+    stack = v'[start]'
+    while stack.length:
+        node = stack.pop()
+        if node is target:
+            return True
+        if has_prop(seen, node) or not has_prop(import_waits, node):
+            continue
+        seen[node] = True
+        for nxt in Object.keys(import_waits[node]):
+            stack.push(nxt)
+    return False
+
+
 # -----[ Parser ]-----
 def create_parser_ctx(
     S, import_dirs, module_id, baselib_items,
@@ -930,17 +946,35 @@ def create_parser_ctx(
             ctx.tokpos
         )
 
-    async def do_import(key):
+    async def do_import(key, requester):
         if has_prop(imported_modules, key):
             return
-        # Circular import check must come BEFORE loading_promises so we
-        # detect cycles
-        # even when the same module is being loaded by a parallel chain.
-        if has_prop(importing_modules, key) and importing_modules[key]:
+        # import_waits is a graph shared across the entire compilation
+        # whose edges A -> B mean that the load of A is waiting for the
+        # load of B. Importing key is recursive only if key is (transitively)
+        # waiting for the requester. Merely being loaded by a parallel chain
+        # is not recursion, in that case we wait for that load below. This
+        # check must come BEFORE loading_promises so that cycles spanning
+        # parallel chains are reported instead of deadlocking.
+        requester = requester or module_id
+        import_waits = options.import_waits
+        if key is requester or import_waits_reach(import_waits, key, requester):
             import_error(
                 'Detected a recursive import of: ' + key +
                 ' while importing: ' + module_id
             )
+        if not has_prop(import_waits, requester):
+            import_waits[requester] = {}
+        waiting_on = import_waits[requester]
+        waiting_on[key] = (waiting_on[key] or 0) + 1
+        try:
+            await do_import_unchecked(key)
+        finally:
+            waiting_on[key] -= 1
+            if waiting_on[key] < 1:
+                del waiting_on[key]
+
+    async def do_import_unchecked(key):
         # If a parallel chain is already loading this module, wait for it
         # instead of
         # starting a duplicate load.  loading_promises is shared across
@@ -967,7 +1001,7 @@ def create_parser_ctx(
             # Ensure that the package containing this module is also imported
             package_module_id = key.split('.')[:-1].join('.')
             if len(package_module_id) > 0:
-                await do_import(package_module_id)
+                await do_import(package_module_id, key)
 
             if options.for_linting:
                 imported_modules[key] = {
@@ -1070,7 +1104,7 @@ def create_parser_ctx(
                 pending = v'[]'
                 for ikey in cached.imported_module_ids:
                     if not has_prop(imported_modules, ikey):
-                        pending.push(do_import(ikey))
+                        pending.push(do_import(ikey, key))
                 if pending.length > 0:
                     await Promise.all(pending)
                 # Reconstruct classes dict from the simplified cache
@@ -1116,6 +1150,7 @@ def create_parser_ctx(
                         '_src_hash': srchash,
                         '_file_mtime': file_mtime,
                         'loading_promises': loading_promises,
+                        'import_waits': options.import_waits,
                     }
                 )
         # This function will add the module to imported_modules itself
@@ -3019,6 +3054,9 @@ async def parse(text, options):
     # calls all see it.
     if not options.loading_promises:
         options.loading_promises = {}
+    # import_waits is shared in the same way, see do_import()
+    if not options.import_waits:
+        options.import_waits = {}
     importing_modules[module_id] = True
 
     # The internal state of the parser
