@@ -1,0 +1,31 @@
+# globals: assrt
+from random import randint, randrange, seed
+
+
+def counts_for(f, lo, hi, n):
+    counts = [0 for i in range(hi - lo + 1)]
+    for i in range(n):
+        v = f()
+        assrt.ok(lo <= v and v <= hi, f'{v} is outside [{lo}, {hi}]')
+        counts[v - lo] += 1
+    return counts
+
+
+seed(12345)
+
+# Every value in the range should come up, including negative endpoints
+for lo, hi in [[1, 6], [-2, 2], [-5, -1], [0, 0], [-3, -3]]:
+    counts = counts_for(def(): return randint(lo, hi);, lo, hi, 3000)
+    for i in range(len(counts)):
+        assrt.ok(counts[i] > 0, f'randint({lo}, {hi}) never returned {lo + i}')
+
+# randint(a, b) should agree with randrange(a, b + 1)
+counts = counts_for(def(): return randrange(-4, 4);, -4, 3, 3000)
+for c in counts:
+    assrt.ok(c > 0)
+
+# Results must stay integers well past 2**31
+for i in range(100):
+    v = randint(0, 10**12)
+    assrt.ok(0 <= v and v <= 10**12)
+    assrt.equal(v, Math.floor(v))

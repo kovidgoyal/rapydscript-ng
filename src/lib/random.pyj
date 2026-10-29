@@ -88,7 +88,7 @@ def randrange():
 
 
 def randint(a, b):
-    return int(random() * (b - a + 1) + a)
+    return a + randbelow(b - a + 1)
 
 
 def uniform(a, b):
