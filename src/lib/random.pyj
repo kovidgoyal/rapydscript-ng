@@ -88,6 +88,10 @@ def randrange():
 
 
 def randint(a, b):
+    if not Number.isInteger(a) or not Number.isInteger(b):
+        raise TypeError(f'randint() arguments must be integers, got {a}, {b}')
+    if b < a:
+        raise ValueError(f'empty range in randint({a}, {b})')
     return a + randbelow(b - a + 1)
 
 

@@ -15,17 +15,24 @@ seed(12345)
 
 # Every value in the range should come up, including negative endpoints
 for lo, hi in [[1, 6], [-2, 2], [-5, -1], [0, 0], [-3, -3]]:
-    counts = counts_for(def(): return randint(lo, hi);, lo, hi, 3000)
+    counts = counts_for(def (): return randint(lo, hi);, lo, hi, 3000)
     for i in range(len(counts)):
         assrt.ok(counts[i] > 0, f'randint({lo}, {hi}) never returned {lo + i}')
 
-# randint(a, b) should agree with randrange(a, b + 1)
-counts = counts_for(def(): return randrange(-4, 4);, -4, 3, 3000)
-for c in counts:
-    assrt.ok(c > 0)
+# randint(a, b) should agree with randrange(a, b + 1) for the same seed
+seed(54321)
+a = [randint(-4, 3) for i in range(200)]
+seed(54321)
+b = [randrange(-4, 4) for i in range(200)]
+assrt.deepEqual(a, b)
 
 # Results must stay integers well past 2**31
 for i in range(100):
-    v = randint(0, 10**12)
-    assrt.ok(0 <= v and v <= 10**12)
+    v = randint(0, 10 ** 12)
+    assrt.ok(0 <= v and v <= 10 ** 12)
     assrt.equal(v, Math.floor(v))
+
+# Invalid arguments
+assrt.throws(def (): randint(5, 4);, ValueError)
+assrt.throws(def (): randint(0.5, 2);, TypeError)
+assrt.throws(def (): randint(0, '3');, TypeError)

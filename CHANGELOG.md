@@ -1,3 +1,10 @@
+version 0.8.8
+===============
+  * Fix ``random.randint()`` returning out of range or biased values for
+    ranges with negative numbers or ranges larger than 2**31. It now also
+    raises ``ValueError`` for empty ranges and ``TypeError`` for non-integer
+    arguments, like Python
+
 version 0.8.6
 ===============
   * Build system: replaced bun with deno for static compilation so that the binary does not depend on ICU libraries
