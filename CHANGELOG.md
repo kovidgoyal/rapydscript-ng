@@ -4,6 +4,9 @@ version 0.8.8
     ranges with negative numbers or ranges larger than 2**31. It now also
     raises ``ValueError`` for empty ranges and ``TypeError`` for non-integer
     arguments, like Python
+  * Fix ``random.randrange()`` silently truncating arguments larger than
+    2**31, and raise ``ValueError`` for ``randrange(n)`` with ``n <= 0`` and
+    for infinite or NaN arguments
 
 version 0.8.6
 ===============

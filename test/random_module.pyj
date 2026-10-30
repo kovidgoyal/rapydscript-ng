@@ -36,3 +36,21 @@ for i in range(100):
 assrt.throws(def (): randint(5, 4);, ValueError)
 assrt.throws(def (): randint(0.5, 2);, TypeError)
 assrt.throws(def (): randint(0, '3');, TypeError)
+
+# randrange() must handle ranges past 2**31
+big = False
+for i in range(100):
+    v = randrange(10 ** 12)
+    assrt.ok(0 <= v and v < 10 ** 12)
+    assrt.equal(v, Math.floor(v))
+    if v > 2 ** 32:
+        big = True
+    v = randrange(-10 ** 12, 10 ** 12, 7)
+    assrt.ok(-10 ** 12 <= v and v < 10 ** 12)
+    assrt.equal((v + 10 ** 12) % 7, 0)
+assrt.ok(big, 'randrange(10**12) never returned a value above 2**32')
+assrt.throws(def (): randrange(0);, ValueError)
+assrt.throws(def (): randrange(-3);, ValueError)
+assrt.throws(def (): randrange(5, 5);, ValueError)
+assrt.throws(def (): randrange(0, 10, 0);, ValueError)
+assrt.throws(def (): randrange(1 / 0);, ValueError)

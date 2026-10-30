@@ -62,15 +62,27 @@ def random():
     return v'n / 0x10000000000000000'
 
 
+# Like int() but without truncating to 32 bits, so large ranges work
+ρσ_randrange_int = def (x):
+    if jstype(x) is 'number':
+        if not isFinite(x):
+            raise ValueError(f'randrange() argument must be finite, got {x}')
+        return Math.trunc(x)
+    return int(x)
+
+
 def randrange():
     if arguments.length is 1:
-        return randbelow(int(arguments[0]))
-    start = int(arguments[0])
-    stop = int(arguments[1])
+        stop = ρσ_randrange_int(arguments[0])
+        if stop > 0:
+            return randbelow(stop)
+        raise ValueError('empty range for randrange()')
+    start = ρσ_randrange_int(arguments[0])
+    stop = ρσ_randrange_int(arguments[1])
     if arguments.length < 3:
         step = 1
     else:
-        step = int(arguments[2])
+        step = ρσ_randrange_int(arguments[2])
     width = stop - start
     if step is 1:
         if width > 0:
