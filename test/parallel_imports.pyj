@@ -1,0 +1,138 @@
+# globals: assrt, rs_create_embedded_compiler, globalThis
+# Tests for circular import detection when modules are loaded in parallel.
+# Modules loaded from the module cache have their dependencies loaded in
+# parallel, so a module can be in the middle of being parsed by one import
+# chain while a different chain reaches it. That must not be reported as a
+# recursive import, while real cycles must still be reported and must not
+# deadlock. Timing is controlled by a virtual file system whose reads yield
+# a fixed number of microtask ticks, which makes the interleaving
+# deterministic.
+
+
+async def ticks(n):
+    for i in range(n):
+        await Promise.resolve()
+
+
+def make_vfs(files):
+    # files maps module name -> source. delays maps module name -> number of
+    # ticks every read of that module's source or cache file waits for.
+    store = {}
+    for name in Object.keys(files):
+        store['__vfs__/' + name + '.pyj'] = files[name]
+    delays = {}
+
+    async def read_file(path, enc):
+        for name in Object.keys(delays):
+            if path.startsWith('__vfs__/' + name + '.pyj'):
+                await ticks(delays[name])
+        if Object.prototype.hasOwnProperty.call(store, path):
+            return store[path]
+        err = new Error('ENOENT: ' + path)
+        err.code = 'ENOENT'
+        raise err
+
+    async def write_file(path, data):
+        store[path] = data
+
+    def set_source(name, src):
+        store['__vfs__/' + name + '.pyj'] = src
+
+    def has_cache(name):
+        return Object.prototype.hasOwnProperty.call(
+            store, '__vfs__/' + name + '.pyj-cached')
+
+    return {
+        'read_file': read_file,
+        'write_file': write_file,
+        'delays': delays,
+        'set_source': set_source,
+        'has_cache': has_cache,
+    }
+
+
+async def compile_with(vfs, code):
+    compiler = await rs_create_embedded_compiler({'virtual_file_system': vfs})
+    return await compiler.compile(code)
+
+
+async def expect_recursive_import(vfs, code, msg):
+    try:
+        await compile_with(vfs, code)
+    except as e:
+        assrt.ok(
+            /Detected a recursive import/.test(e.message),
+            msg + ': unexpected error: ' + e.message
+        )
+        return
+    assrt.fail(msg + ': no recursive import error was raised')
+
+
+async def test_module_loaded_by_parallel_chain():
+    # p is cached and imports m and q, so they are loaded in parallel. m is
+    # stale and gets re-parsed, and while it waits for its own import of s,
+    # the q chain (also cached) reaches m. q must wait for m, not raise.
+    vfs = make_vfs({
+        'p': 'import m\nimport q\npv = 1\n',
+        'm': 'import s\nmv = 1\n',
+        's': 'sv = 1\n',
+        'q': 'import m\nqv = 1\n',
+    })
+    await compile_with(vfs, 'import p\n')
+    for name in 'pmsq':
+        assrt.ok(vfs.has_cache(name), 'cache must be written for ' + name)
+    vfs.set_source('m', 'import s\nmv = 2\n')
+    # s is very slow, so m stays mid-parse for a long time. q is slowed down
+    # a little so that m's re-parse has started before q reaches m.
+    vfs.delays.s = 2000
+    vfs.delays.q = 200
+    js = await compile_with(vfs, 'import p\nprint(p.pv)\n')
+    assrt.ok(js.indexOf('mv = 2') >= 0, 're-parsed module m must be in output')
+    # And the same with all cache entries fresh
+    js = await compile_with(vfs, 'import p\nprint(p.pv)\n')
+    assrt.ok(js.indexOf('mv = 2') >= 0, 'cached module m must be in output')
+
+
+async def test_cycle_cold_cache():
+    vfs = make_vfs({'a': 'import b\nav = 1\n', 'b': 'import a\nbv = 1\n'})
+    await expect_recursive_import(vfs, 'import a\n', 'cold cache cycle')
+
+
+async def test_cycle_warm_cache():
+    # a is cached, b is stale and is edited to import a, creating a cycle
+    # that is detected while a is being loaded from the cache
+    vfs = make_vfs({'a': 'import b\nav = 1\n', 'b': 'bv = 1\n'})
+    await compile_with(vfs, 'import a\n')
+    vfs.set_source('b', 'import a\nbv = 1\n')
+    await expect_recursive_import(vfs, 'import a\n', 'warm cache cycle')
+
+
+async def test_cycle_across_parallel_chains():
+    # p is cached and imports x and y, loaded in parallel. Both are stale and
+    # are edited to import each other, so the two halves of the cycle are
+    # loaded by different chains. This must be reported, not deadlock.
+    for x_delay, y_delay in [[0, 0], [0, 500], [500, 0]]:
+        vfs = make_vfs({
+            'p': 'import x\nimport y\npv = 1\n',
+            'x': 'xv = 1\n',
+            'y': 'yv = 1\n',
+        })
+        await compile_with(vfs, 'import p\n')
+        vfs.set_source('x', 'import y\nxv = 2\n')
+        vfs.set_source('y', 'import x\nyv = 2\n')
+        vfs.delays.x = x_delay
+        vfs.delays.y = y_delay
+        await expect_recursive_import(
+            vfs, 'import p\n',
+            'cycle across parallel chains ' + x_delay + ' ' + y_delay
+        )
+
+
+async def run_tests():
+    await test_module_loaded_by_parallel_chain()
+    await test_cycle_cold_cache()
+    await test_cycle_warm_cache()
+    await test_cycle_across_parallel_chains()
+
+
+globalThis.__test_async_done__ = run_tests()

@@ -92,4 +92,4 @@ async def run_tests():
     assrt.equal(results[0], 100, "Promise.all first")
     assrt.equal(results[1], 200, "Promise.all second")
 
-__test_async_done__ = run_tests()
+globalThis.__test_async_done__ = run_tests()  # noqa: undef

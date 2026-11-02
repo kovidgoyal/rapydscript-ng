@@ -1,4 +1,4 @@
-# globals: assrt, fs, require, test_path, compiler_dir, console, RapydScript
+# globals: assrt, fs, require, test_path, compiler_dir, console, RapydScript, globalThis
 
 # Tests for the "lsp" sub-command (tools/lsp.mjs), the RapydScript language
 # server. These drive the pure analysis functions directly (the same functions
@@ -270,4 +270,4 @@ async def run_tests():
     await test_configuration_change()
     await test_organize_imports()
 
-__test_async_done__ = run_tests()
+globalThis.__test_async_done__ = run_tests()

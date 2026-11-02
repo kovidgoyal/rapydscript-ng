@@ -1,4 +1,4 @@
-# globals: assrt, fs, require, test_path, compiler_dir, console
+# globals: assrt, fs, require, test_path, compiler_dir, console, globalThis
 
 async def run_tests():
     os = require('os')
@@ -18,7 +18,14 @@ async def run_tests():
     # Load rapydscript.js into a vm context; the IIFE does (function(external_namespace){...})(this)
     # so this === ctx and ctx.RapydScript is set to the namespace object
     rs_code = fs.readFileSync(rs_path, 'utf-8')
-    ctx = {'console': console}
+    # Provide the browser globals the bundle relies on (the AST cache
+    # encoder needs TextEncoder/TextDecoder)
+    util = require('util')
+    ctx = {
+        'console': console,
+        'TextEncoder': util.TextEncoder,
+        'TextDecoder': util.TextDecoder,
+    }
     vm.runInNewContext(rs_code, ctx)
     RS = ctx.RapydScript
 
@@ -85,4 +92,4 @@ async def run_tests():
 
     fs.rmSync(tmpdir, {'recursive': True})
 
-__test_async_done__ = run_tests()
+globalThis.__test_async_done__ = run_tests()
