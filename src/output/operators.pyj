@@ -265,10 +265,9 @@ def print_binary_op(self, output):
             self.right.print(output)
         )
     elif self.operator is '**':
+        # The parser ensures ** binds tighter than unary operators, so the
+        # left operand can only be a unary expression if it was parenthesized
         left = self.left
-        if is_node_type(self.left, AST_Unary) and not self.left.parenthesized:
-            left = self.left.expression
-            output.print(self.left.operator)
         if output.options.js_version > 6:
             output.print('(('), left.print(output), output.spaced(
                 ')',

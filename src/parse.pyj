@@ -2631,6 +2631,18 @@ def create_parser_ctx(
             return ex
 
         val = await expr_atom(allow_calls)
+        if is_('operator', '**'):
+            # Python's "primary ** factor": ** binds tighter than a unary
+            # operator on its left and groups right to left
+            next()
+            right = await maybe_unary(True)
+            val = new AST_Binary({
+                'start': val.start,
+                'left': val,
+                'operator': '**',
+                'right': right,
+                'end': right.end
+            })
         return val
 
     def make_unary(ctor, op, expr, is_parenthesized):

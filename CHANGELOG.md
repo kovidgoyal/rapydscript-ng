@@ -9,6 +9,10 @@ version 0.8.8
     for infinite or NaN arguments
   * Fix repeated unary signs such as ``- -x`` compiling to the JavaScript
     decrement/increment operators ``--x``/``++x``
+  * Fix ``**`` binding less tightly than unary operators on its left and
+    grouping left to right, so that, for example, ``-(x+1)**2`` was positive
+    and ``2**3**2`` was ``64``. It now follows Python's precedence rules
+    (issue #195)
 
 version 0.8.6
 ===============
