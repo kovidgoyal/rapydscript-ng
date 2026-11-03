@@ -7,6 +7,8 @@ version 0.8.8
   * Fix ``random.randrange()`` silently truncating arguments larger than
     2**31, and raise ``ValueError`` for ``randrange(n)`` with ``n <= 0`` and
     for infinite or NaN arguments
+  * Fix repeated unary signs such as ``- -x`` compiling to the JavaScript
+    decrement/increment operators ``--x``/``++x``
 
 version 0.8.6
 ===============

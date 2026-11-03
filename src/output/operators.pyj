@@ -118,6 +118,10 @@ def print_unary_prefix(self, output):
     output.print(op)
     if /^[a-z]/i.test(op):
         output.space()
+    elif op is '-' or op is '+':
+        # Let the stream insert a space only if the operand starts with the
+        # same sign, so that "- -x" does not print as the JS decrement "--x"
+        output.might_need_space = True
     if self.parenthesized:
         output.with_parens(def ():
             self.expression.print(output)

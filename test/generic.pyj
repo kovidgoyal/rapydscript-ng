@@ -13,6 +13,16 @@ def throw_test(code):
 assrt.equal(-(1), -1)
 assrt.equal(-(-1), 1)
 assrt.equal(+(+1), 1)
+assrt.equal(- -1, 1)
+assrt.equal(+ +1, 1)
+neg = 1
+assrt.equal(- -neg, 1)
+assrt.equal(+ +neg, 1)
+assrt.equal(- - -neg, -1)
+assrt.equal(- + -neg, 1)
+assrt.equal(1 - -neg, 2)
+assrt.equal(1 + +neg, 2)
+assrt.equal(neg, 1)
 
 # arithmetic
 assrt.equal(3**4, Math.pow(3, 4))
