@@ -181,7 +181,7 @@ FORBIDDEN_CLASS_VARS = 'prototype constructor'.split(' ')
 # -----[ Parser (constants) ]-----
 UNARY_PREFIX = make_predicate('typeof void delete ~ - + ! @')
 
-ASSIGNMENT = make_predicate('= += -= /= //= *= %= >>= <<= >>>= |= ^= &=')
+ASSIGNMENT = make_predicate('= += -= /= //= **= *= %= >>= <<= >>>= |= ^= &=')
 
 PRECEDENCE = (def (a, ret):
     for i in range(a.length):

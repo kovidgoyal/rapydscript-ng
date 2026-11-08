@@ -409,6 +409,12 @@ def print_assign(self, output):
             self.right.print(output)
         )
         return
+    if self.operator is '**=':
+        output.assign(self.left)
+        print_binary_op(new AST_Binary({
+            'left': self.left, 'operator': '**', 'right': self.right
+        }), output)
+        return
     if self.operator is '=' and self.is_chained():
         left_hand_sides, rhs = self.traverse_chain()
         is_compound_assign = False
