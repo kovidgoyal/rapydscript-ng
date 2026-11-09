@@ -30,6 +30,10 @@ version 0.8.8
   * Fix ``for`` loops in a class body assigning their loop variables to
     undeclared variables instead of creating class variables
 
+version 0.8.7
+===============
+  * Fix race when resolving imported modules
+
 version 0.8.6
 ===============
   * Build system: replaced bun with deno for static compilation so that the binary does not depend on ICU libraries
