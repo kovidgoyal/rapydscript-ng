@@ -13,6 +13,15 @@ version 0.8.8
     grouping left to right, so that, for example, ``-(x+1)**2`` was positive
     and ``2**3**2`` was ``64``. It now follows Python's precedence rules
     (issue #195)
+  * Support the ``**=`` augmented assignment operator
+  * Fix ``//=`` ignoring the precedence of its right hand side, so that
+    ``a //= 2 + 3`` was computed as ``a = a // 2 + 3``
+  * Fix ``//=`` and ``**=`` evaluating the container and index of their target
+    twice, so that, for example, ``x[f()] //= 2`` called ``f()`` twice
+  * Fix augmented assignment to an item when ``overload_getitem`` is enabled
+    ignoring the precedence of its right hand side and producing invalid
+    JavaScript for ``//=``. The container and index are now also evaluated
+    only once
 
 version 0.8.6
 ===============

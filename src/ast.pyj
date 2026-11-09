@@ -1374,3 +1374,47 @@ def has_calls(expression):
     except Found:
         return True
     return False
+
+
+def is_repeatable(node):
+    # True if evaluating node more than once is safe and cheap
+    if is_node_type(node, AST_Unary):
+        return node.operator is '-' and is_node_type(
+            node.expression,
+            AST_Number
+        )
+    return (
+        is_node_type(node, AST_SymbolRef) or is_node_type(node, AST_This)
+        or is_node_type(node, AST_Number) or is_node_type(node, AST_String)
+    )
+
+
+def is_desugared_aug_assign(node):
+    # True if node is an augmented assignment that is output as a separate
+    # read and write of its target, e.g. a //= b as a = Math.floor(a / b)
+    if is_node_type(node, AST_ItemAccess):
+        return bool(node.assignment) and node.assign_operator.length > 0
+    return is_node_type(node, AST_Assign) and (
+        node.operator is '//=' or node.operator is '**='
+    )
+
+
+def aug_assign_temps(node):
+    # The temporary variables needed so that the parts of the target of a
+    # desugared augmented assignment are evaluated only once. Returns an
+    # object with the names of the temporaries for the container and the key,
+    # or None for parts that can be repeated.
+    ans = {'obj': None, 'key': None}
+    if not is_desugared_aug_assign(node):
+        return ans
+    target = node if is_node_type(node, AST_ItemAccess) else node.left
+    if not (is_node_type(target, AST_Dot) or is_node_type(target, AST_Sub)
+            or is_node_type(target, AST_ItemAccess)):
+        return ans
+    if not is_repeatable(target.expression):
+        ans.obj = 'ρσ_aug_obj'
+    if is_node_type(target, AST_Dot):
+        return ans
+    if not is_repeatable(target.property):
+        ans.key = 'ρσ_aug_key'
+    return ans

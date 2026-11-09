@@ -3,10 +3,29 @@
 from __python__ import hash_literals
 
 from ast import (
-    AST_Array, AST_Assign, AST_BaseCall, AST_Binary, AST_Conditional,
-    AST_ItemAccess, AST_Number, AST_Object, AST_Return, AST_Seq, AST_Set,
-    AST_SimpleStatement, AST_Statement, AST_String, AST_Sub, AST_Symbol,
-    AST_SymbolRef, AST_Unary, is_node_type
+    AST_Array,
+    AST_Assign,
+    AST_BaseCall,
+    AST_Binary,
+    AST_Conditional,
+    AST_Dot,
+    AST_ItemAccess,
+    AST_Number,
+    AST_Object,
+    AST_PropAccess,
+    AST_Return,
+    AST_Seq,
+    AST_Set,
+    AST_SimpleStatement,
+    AST_Statement,
+    AST_String,
+    AST_Sub,
+    AST_Symbol,
+    AST_SymbolRef,
+    AST_Unary,
+    aug_assign_temps,
+    is_desugared_aug_assign,
+    is_node_type
 )
 from output.loops import unpack_tuple
 
@@ -70,22 +89,84 @@ def print_getitem(self, output):  # AST_Sub
 
 
 def print_rich_getitem(self, output):  # AST_ItemAccess
+    if is_desugared_aug_assign(self):
+        print_desugared_aug_assign(
+            self, self, self.assign_operator, self.assignment, output
+        )
+        return
     func = 'ρσ_' + ('setitem' if self.assignment else 'getitem')
     output.print(func + '(')
     self.expression.print(output), output.comma(), self.property.print(output)
     if self.assignment:
         output.comma()
-        asg = self.assignment
-        as_op = self.assign_operator
-        if as_op.length > 0:
-            self.assignment = None
-            print_rich_getitem(self, output)
-            self.assignment = asg
-            output.space()
-            output.print(as_op)
-            output.space()
         self.assignment.print(output)
     output.print(')')
+
+
+def print_aug_temp(name, value, output):
+    output.assign(name)
+    if is_node_type(value, AST_Seq):
+        output.with_parens(def (): value.print(output);)
+    else:
+        value.print(output)
+    output.comma()
+
+
+def print_aug_temps(target, temps, output):
+    # Store the parts of target that cannot be repeated in temporary variables
+    # and return a plain read of target that uses those variables
+    if not is_node_type(target, AST_PropAccess):
+        return target
+    obj = target.expression
+    prop = target.property
+    if temps.obj:
+        print_aug_temp(temps.obj, obj, output)
+        obj = new AST_SymbolRef({'name': temps.obj})
+    if temps.key:
+        if is_node_type(target, AST_Sub):
+            # Resolve negative indices against the container only once
+            output.assign(temps.key)
+            output.print('ρσ_bound_index(')
+            target.property.print(output), output.comma(), obj.print(output)
+            output.print(')'), output.comma()
+        else:
+            print_aug_temp(temps.key, prop, output)
+        prop = new AST_SymbolRef({'name': temps.key})
+    if is_node_type(target, AST_Dot):
+        return new AST_Dot({'expression': obj, 'property': prop})
+    if is_node_type(target, AST_Sub):
+        return new AST_Sub({'expression': obj, 'property': prop})
+    return new AST_ItemAccess({
+        'expression': obj, 'property': prop, 'assignment': None,
+        'assign_operator': ''
+    })
+
+
+def print_desugared_aug_assign(self, target, op, value, output):
+    # Output target op= value as target = target op value, evaluating the
+    # parts of target only once, as Python does
+    temps = aug_assign_temps(self)
+    uses_temps = bool(temps.obj or temps.key)
+
+    def body():
+        reader = print_aug_temps(target, temps, output)
+        new_value = new AST_Binary({
+            'left': reader, 'operator': op, 'right': value
+        })
+        if is_node_type(reader, AST_ItemAccess):
+            output.print('ρσ_setitem(')
+            reader.expression.print(output), output.comma()
+            reader.property.print(output), output.comma()
+            new_value.print(output)
+            output.print(')')
+        else:
+            output.assign(reader)
+            new_value.print(output)
+
+    if uses_temps and not is_node_type(output.parent(), AST_SimpleStatement):
+        output.with_parens(body)
+    else:
+        body()
 
 
 def print_splice_assignment(self, output):  # AST_Splice
@@ -398,22 +479,10 @@ def print_assignment(self, output):
 
 
 def print_assign(self, output):
-    if self.operator is '//=':
-        output.assign(self.left)
-        output.print('Math.floor')
-        output.with_parens(def ():
-            self.left.print(output)
-            output.space()
-            output.print('/')
-            output.space()
-            self.right.print(output)
+    if is_desugared_aug_assign(self):
+        print_desugared_aug_assign(
+            self, self.left, self.operator[:-1], self.right, output
         )
-        return
-    if self.operator is '**=':
-        output.assign(self.left)
-        print_binary_op(new AST_Binary({
-            'left': self.left, 'operator': '**', 'right': self.right
-        }), output)
         return
     if self.operator is '=' and self.is_chained():
         left_hand_sides, rhs = self.traverse_chain()

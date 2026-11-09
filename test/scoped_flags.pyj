@@ -12,6 +12,26 @@ a[2] = 2
 assrt.equal(a[2], 2)
 a[2] += 4
 assrt.equal(a[2], 6)
+a[2] *= 1 + 1
+assrt.equal(a[2], 12)
+a[2] -= 3 - 1
+assrt.equal(a[2], 10)
+a[2] //= 2 + 1
+assrt.equal(a[2], 3)
+a[2] **= 1 + 1
+assrt.equal(a[2], 9)
+aug_log = []
+
+
+def aug_val(v):
+    aug_log.push(v)
+    return v
+
+
+b = [a]
+b[aug_val(0)][aug_val(2)] **= aug_val(2)
+assrt.equal(a[2], 81)
+assrt.deepEqual(aug_log, [0, 2, 2])
 assrt.deepEqual(list(a.keys()), [1, 2])
 from __python__ import no_dict_literals, no_overload_getitem
 

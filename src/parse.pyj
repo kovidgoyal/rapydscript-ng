@@ -88,6 +88,7 @@ from ast import (
     AST_Await,
     AST_Assert,
     AST_Existential,
+    aug_assign_temps,
     is_node_type,
     TreeWalker
 )
@@ -470,6 +471,13 @@ def create_parser_ctx(
                 # assignment to a single variable
                 push(lhs.name)
 
+        def add_aug_assign_temps(node):
+            temps = aug_assign_temps(node)
+            if temps.obj:
+                push(temps.obj)
+            if temps.key:
+                push(temps.key)
+
         def add_for_in(stmt):
             if is_node_type(stmt.init, AST_Array):
                 # iteration via implicit tuple
@@ -484,6 +492,12 @@ def create_parser_ctx(
             for stmt in body:
                 # skip inner scopes
                 if is_node_type(stmt, AST_Scope):
+                    if is_node_type(stmt, AST_Class):
+                        # Class body statements are output in this scope, so
+                        # it must declare the temporaries they use
+                        for x in scan_for_local_vars(stmt.statements):
+                            if x.startsWith('ρσ_'):
+                                push(x)
                     continue
 
                 # recursive descent into conditional, loop and exception bodies
@@ -531,8 +545,12 @@ def create_parser_ctx(
                     push('ρσ_chain_assign_temp')
             else:
                 add_assign_lhs(body.left)
+                add_aug_assign_temps(body)
             if not is_node_type(body.right, AST_Scope):
                 extend(scan_for_local_vars(body.right))
+
+        elif is_node_type(body, AST_ItemAccess):
+            add_aug_assign_temps(body)
 
         elif is_node_type(body, AST_ForIn):
             add_for_in(body)
