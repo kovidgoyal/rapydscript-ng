@@ -93,6 +93,7 @@ html_elements = {
     'style',
     'sub',
     'sup',
+    'summary',
     'table',
     'tbody',
     'td',
