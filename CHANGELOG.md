@@ -25,6 +25,8 @@ version 0.8.8
   * Fix a statement such as ``f(x)[i] = y`` with ``overload_getitem``
     enabled continuing the right hand side onto the next line, causing a
     syntax error
+  * Fix tuple assignments in a class body, such as ``a, b = 1, 2``, assigning
+    to undeclared variables instead of creating class variables
 
 version 0.8.6
 ===============

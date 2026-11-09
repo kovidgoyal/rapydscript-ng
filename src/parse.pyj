@@ -179,6 +179,26 @@ ERROR_CLASSES = {
 COMMON_STATIC = static_predicate('call apply bind toString')
 FORBIDDEN_CLASS_VARS = 'prototype constructor'.split(' ')
 
+
+def assignment_target_names(target):
+    # The plain names assigned to by an assignment target, including those in
+    # tuple targets such as a, (b, c)
+    if is_node_type(target, AST_SymbolRef):
+        return [target]
+    if is_node_type(target, AST_Seq):
+        target = new AST_Array({'elements': target.to_array()})
+    if is_node_type(target, AST_Array):
+        return all_assignment_target_names(target.elements)
+    return []
+
+
+def all_assignment_target_names(targets):
+    ans = []
+    for target in targets:
+        ans = ans.concat(assignment_target_names(target))
+    return ans
+
+
 # -----[ Parser (constants) ]-----
 UNARY_PREFIX = make_predicate('typeof void delete ~ - + ! @')
 
@@ -1409,18 +1429,19 @@ def create_parser_ctx(
                     return
                 if is_node_type(node, AST_Function):
                     return
-                if is_node_type(node, AST_Assign) and is_node_type(
-                    node.left,
-                    AST_SymbolRef
-                ):
-                    varname = node.left.name
-                    if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
-                        token_error(
-                            node.left.start,
-                            varname + ' is not allowed as a class variable name'
-                        )
-                    class_var_names[varname] = True
-                    definition.classvars[varname] = True
+                if is_node_type(node, AST_Assign):
+                    targets = node.traverse_chain()[0] if node.is_chained(
+                    ) else [node.left]
+                    for lhs in all_assignment_target_names(targets):
+                        varname = lhs.name
+                        if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
+                            token_error(
+                                lhs.start,
+                                varname
+                                + ' is not allowed as a class variable name'
+                            )
+                        class_var_names[varname] = True
+                        definition.classvars[varname] = True
                 elif is_node_type(node, AST_SymbolRef) and has_prop(
                     class_var_names,
                     node.name
@@ -2734,14 +2755,13 @@ def create_parser_ctx(
         ans = AST_Assign(data)
         if S.in_class.length and S.in_class[-1]:
             class_name = S.in_class[-1]
-            if is_node_type(ans.left, AST_SymbolRef) and S.classes.length > 1:
+            if S.classes.length > 1:
                 c = S.classes[-2][class_name]
                 if c:
-                    if ans.is_chained():
-                        for lhs in ans.traverse_chain()[0]:
-                            c.provisional_classvars[lhs.name] = True
-                    else:
-                        c.provisional_classvars[ans.left.name] = True
+                    targets = ans.traverse_chain()[0] if ans.is_chained(
+                    ) else [ans.left]
+                    for lhs in all_assignment_target_names(targets):
+                        c.provisional_classvars[lhs.name] = True
         return ans
 
     async def maybe_assign(no_in, only_plain_assignment):

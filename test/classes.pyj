@@ -204,6 +204,22 @@ assrt.deepEqual([c.a, c.b, c.c, c.d], [1, 1, 2, 1])
 assrt.equal(c.one(), c.two())
 
 
+class CVTuple:
+    e, (f, g) = 1, [2, 3]
+    h = i, j = 4, 5
+    k = e + g
+
+    def total(self):
+        return CVTuple.f + CVTuple.j + self.k
+
+
+assrt.deepEqual(
+    [CVTuple.e, CVTuple.f, CVTuple.g, CVTuple.h, CVTuple.i, CVTuple.j],
+    [1, 2, 3, [4, 5], 4, 5]
+)
+assrt.equal(CVTuple().total(), 11)
+
+
 class Properties:
 
     def __init__(self):
