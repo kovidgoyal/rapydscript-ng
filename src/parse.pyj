@@ -2492,14 +2492,15 @@ def create_parser_ctx(
         if not expr.parens and get_class_in_scope(expr):
             # this is an object being created using a class
             call_args = await func_call_list()
-            ret = await subscripts(new AST_New({
+            # The arguments have been parsed, so newlines are significant
+            # again in whatever follows the call
+            S.in_parenthesized_expr = prev_parens
+            return await subscripts(new AST_New({
                 'start': start,
                 'expression': expr,
                 'args': call_args,
                 'end': prev()
             }), True)
-            S.in_parenthesized_expr = prev_parens
-            return ret
         else:
             if is_node_type(expr, AST_Dot):
                 c = get_class_in_scope(expr.expression)
@@ -2509,7 +2510,8 @@ def create_parser_ctx(
                 funcname = expr
 
                 classcall_args = await func_call_list()
-                ret = await subscripts(new AST_ClassCall({
+                S.in_parenthesized_expr = prev_parens
+                return await subscripts(new AST_ClassCall({
                     'start': start,
                     'class': expr.expression,
                     'method': funcname.property,
@@ -2517,8 +2519,6 @@ def create_parser_ctx(
                     'args': classcall_args,
                     'end': prev()
                 }), True)
-                S.in_parenthesized_expr = prev_parens
-                return ret
             elif is_node_type(expr, AST_SymbolRef):
                 tmp_ = expr.name
                 if tmp_ is 'jstype':
@@ -2550,14 +2550,13 @@ def create_parser_ctx(
 
             # fall-through to basic function call
             basic_args = await func_call_list()
-            ret = await subscripts(new AST_Call({
+            S.in_parenthesized_expr = prev_parens
+            return await subscripts(new AST_Call({
                 'start': start,
                 'expression': expr,
                 'args': basic_args,
                 'end': prev()
             }), True)
-            S.in_parenthesized_expr = prev_parens
-            return ret
 
     async def get_attr(expr, allow_calls):
         next()

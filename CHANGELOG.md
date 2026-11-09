@@ -22,6 +22,9 @@ version 0.8.8
     ignoring the precedence of its right hand side and producing invalid
     JavaScript for ``//=``. The container and index are now also evaluated
     only once
+  * Fix a statement such as ``f(x)[i] = y`` with ``overload_getitem``
+    enabled continuing the right hand side onto the next line, causing a
+    syntax error
 
 version 0.8.6
 ===============
