@@ -220,6 +220,26 @@ assrt.deepEqual(
 assrt.equal(CVTuple().total(), 11)
 
 
+class CVLoop:
+    total = 0
+    for i in range(3):
+        total += i
+    for k, v in [[1, 2], [3, 4]]:
+        total += k * v
+    squares = [j * j for j in range(3)]
+
+    def get(self):
+        return CVLoop.i + self.v
+
+
+assrt.deepEqual(
+    [CVLoop.i, CVLoop.k, CVLoop.v, CVLoop.total, CVLoop.squares],
+    [2, 3, 4, 17, [0, 1, 4]]
+)
+assrt.equal(CVLoop().get(), 6)
+assrt.equal(CVLoop.j, undefined)
+
+
 class Properties:
 
     def __init__(self):

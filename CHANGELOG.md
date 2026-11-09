@@ -27,6 +27,8 @@ version 0.8.8
     syntax error
   * Fix tuple assignments in a class body, such as ``a, b = 1, 2``, assigning
     to undeclared variables instead of creating class variables
+  * Fix ``for`` loops in a class body assigning their loop variables to
+    undeclared variables instead of creating class variables
 
 version 0.8.6
 ===============

@@ -920,6 +920,7 @@ def create_parser_ctx(
                 'object': obj
             }
 
+        add_provisional_classvars([init])
         fi_body = await in_loop(statement)
         return new AST_ForIn({
             'init': init,
@@ -1429,9 +1430,18 @@ def create_parser_ctx(
                     return
                 if is_node_type(node, AST_Function):
                     return
+                targets = []
                 if is_node_type(node, AST_Assign):
                     targets = node.traverse_chain()[0] if node.is_chained(
                     ) else [node.left]
+                elif is_node_type(node, AST_ForIn) and not is_node_type(
+                    node, AST_ListComprehension
+                ):
+                    # The loop variables of a for loop are class variables
+                    # too, unlike those of comprehensions, which have their
+                    # own scope
+                    targets = [node.init]
+                if targets.length:
                     for lhs in all_assignment_target_names(targets):
                         varname = lhs.name
                         if FORBIDDEN_CLASS_VARS.indexOf(varname) is not -1:
@@ -2753,16 +2763,19 @@ def create_parser_ctx(
                 ' assignment: ' + data.operator
             )
         ans = AST_Assign(data)
-        if S.in_class.length and S.in_class[-1]:
-            class_name = S.in_class[-1]
-            if S.classes.length > 1:
-                c = S.classes[-2][class_name]
-                if c:
-                    targets = ans.traverse_chain()[0] if ans.is_chained(
-                    ) else [ans.left]
-                    for lhs in all_assignment_target_names(targets):
-                        c.provisional_classvars[lhs.name] = True
+        add_provisional_classvars(
+            ans.traverse_chain()[0] if ans.is_chained() else [ans.left]
+        )
         return ans
+
+    def add_provisional_classvars(targets):
+        # Record the names assigned to directly in a class body as class
+        # variables while the class is still being parsed
+        if S.in_class.length and S.in_class[-1] and S.classes.length > 1:
+            c = S.classes[-2][S.in_class[-1]]
+            if c:
+                for lhs in all_assignment_target_names(targets):
+                    c.provisional_classvars[lhs.name] = True
 
     async def maybe_assign(no_in, only_plain_assignment):
         start = S.token
